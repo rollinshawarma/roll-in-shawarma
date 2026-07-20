@@ -1,0 +1,1475 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Roll-In Shawarma | Middle Eastern &amp; Indian Food Truck in Green, Ohio</title>
+<meta name="description" content="Fresh-carved shawarma, frankie rolls, tacos, bowls &amp; loaded fries. A Middle Eastern &amp; Indian food truck based in Green, Ohio. Order online, or find us on the road.">
+
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+<link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<meta name="theme-color" content="#000000">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Roll-In Shawarma | We Roll It. You Love It.">
+<meta property="og:description" content="Fresh-carved shawarma, frankie rolls, tacos, bowls &amp; loaded fries. A Middle Eastern &amp; Indian food truck based in Green, Ohio.">
+<meta property="og:image" content="https://rollinshawarma.com/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://rollinshawarma.com">
+<meta property="og:site_name" content="Roll-In Shawarma">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Roll-In Shawarma | We Roll It. You Love It.">
+<meta name="twitter:description" content="Fresh-carved shawarma, frankie rolls, tacos, bowls &amp; loaded fries. A Middle Eastern &amp; Indian food truck based in Green, Ohio.">
+<meta name="twitter:image" content="https://rollinshawarma.com/og-image.jpg">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --black:#000000;
+    --panel:#121110;
+    --white:#FFFCF3;
+    --cream:#F3EAC9;
+    --muted:rgba(243,234,201,0.62);
+    --gold:#F7AD28;
+    --gold-deep:#E68334;
+    --red:#D8342E;
+    --red-deep:#AB1C1D;
+    --green:#0BAF4C;
+    --line:rgba(243,234,201,0.14);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--black);
+    color:var(--cream);
+    font-family:'Inter', -apple-system, sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
+  }
+  a{color:inherit; text-decoration:none;}
+  img{max-width:100%; display:block;}
+  .wrap{ max-width:1180px; margin:0 auto; padding:0 32px; }
+  @media (max-width:640px){ .wrap{ padding:0 22px; } }
+
+  h1,h2,h3{ font-weight:600; letter-spacing:-0.02em; color:var(--white); }
+
+  /* ---------- FIREWORKS (grand opening celebration) ---------- */
+  #fireworksCanvas{
+    position:fixed; inset:0; width:100%; height:100%; z-index:9999;
+    pointer-events:none; opacity:1; transition:opacity .8s ease;
+  }
+  #fireworksCanvas.fade-out{ opacity:0; }
+
+  /* ---------- ANNOUNCEMENT BANNER ---------- */
+  #annbar{
+    background:linear-gradient(90deg, #AB1C1D 0%, #D8342E 50%, #E68334 100%);
+    color:var(--white); position:relative; z-index:101;
+  }
+  #annbar .wrap{
+    display:flex; align-items:center; justify-content:center; gap:14px;
+    padding:11px 44px 11px 32px; text-align:center; position:relative; min-height:auto;
+  }
+  #annbar .ann-text{ font-size:13.5px; font-weight:600; line-height:1.4; }
+  #annbar .ann-text b{ color:#FFFCF3; text-decoration:underline; text-underline-offset:3px; }
+  #annbar .ann-cta{
+    flex:none; background:rgba(0,0,0,0.22); color:var(--white); font-size:12.5px; font-weight:700;
+    padding:6px 14px; border-radius:100px; white-space:nowrap; transition:background .2s;
+  }
+  #annbar .ann-cta:hover{ background:rgba(0,0,0,0.38); }
+  #annbar .ann-close{
+    position:absolute; right:14px; top:50%; transform:translateY(-50%);
+    background:none; border:none; color:rgba(255,255,255,0.8); cursor:pointer; padding:4px; line-height:0;
+  }
+  #annbar .ann-close:hover{ color:var(--white); }
+  #annbar .ann-close svg{ width:16px; height:16px; }
+  @media (max-width:640px){
+    #annbar .wrap{ flex-wrap:wrap; padding:10px 40px 10px 16px; gap:8px; }
+    #annbar .ann-text{ font-size:12.5px; }
+  }
+
+  /* ---------- NAV ---------- */
+  nav{
+    position:sticky; top:0; z-index:100;
+    background:rgba(0,0,0,0.9);
+    backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  nav .wrap{ display:flex; align-items:center; justify-content:space-between; height:72px; gap:14px; }
+  .wordmark{ display:flex; align-items:baseline; gap:7px; font-size:18px; font-weight:700; letter-spacing:-0.01em; line-height:1; white-space:nowrap; }
+  .wordmark .w1{ color:var(--gold); }
+  .wordmark .w2{ color:var(--red); }
+  .navlinks{ display:flex; gap:28px; font-size:14.5px; font-weight:600; margin-left:auto; margin-right:24px; }
+  .navlinks a{ color:rgba(243,234,201,0.78); transition:color .2s; }
+  .navlinks a:hover{ color:var(--gold); }
+  .navlinks a.has-icon{ display:inline-flex; align-items:center; }
+  .icon-truck{ width:16px; height:16px; vertical-align:-3px; margin-right:7px; flex:none; }
+  .nav-cta{
+    background:var(--green); color:#04220F; padding:10px 18px;
+    font-size:13.5px; font-weight:700; border-radius:100px; white-space:nowrap;
+    transition:transform .15s, background .2s;
+  }
+  .nav-cta:hover{ transform:translateY(-2px); background:var(--gold); }
+  .nav-order{
+    background:var(--red); color:var(--white); padding:10px 18px;
+    font-size:13.5px; font-weight:700; border-radius:100px; white-space:nowrap;
+    transition:transform .15s, background .2s;
+  }
+  .nav-order:hover{ transform:translateY(-2px); background:var(--gold); color:#241902; }
+  @media (max-width:620px){ .nav-cta{ display:none; } }
+  @media (max-width:400px){ .nav-order{ padding:9px 14px; font-size:12px; } }
+  .nav-toggle{
+    display:none; background:none; border:none; color:var(--white); cursor:pointer;
+    padding:6px; margin-left:4px; align-items:center; justify-content:center;
+  }
+  .nav-toggle svg{ width:24px; height:24px; }
+  @media (max-width:780px){
+    .navlinks{ display:none; }
+    .nav-toggle{ display:flex; }
+  }
+  .mobile-nav{ display:none; flex-direction:column; background:rgba(0,0,0,0.98); border-bottom:1px solid var(--line); }
+  .mobile-nav.open{ display:flex; }
+  .mobile-nav a{
+    padding:16px 22px; font-size:16px; font-weight:600; color:var(--cream);
+    border-top:1px solid var(--line); display:flex; align-items:center;
+  }
+  .mobile-nav a:hover{ color:var(--gold); }
+  .mobile-nav .icon-truck{ width:18px; height:18px; margin-right:10px; }
+
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative; display:flex; align-items:center; justify-content:center;
+    text-align:center; overflow:hidden; padding:90px 22px 70px;
+    background:var(--black);
+  }
+  .hero-logo{
+    width:150px; height:150px; margin:0 auto 30px; border-radius:50%; object-fit:cover;
+    box-shadow:0 0 0 1px rgba(255,255,255,0.08), 0 0 70px rgba(247,173,40,0.28), 0 20px 40px rgba(0,0,0,0.55);
+  }
+  @media (max-width:520px){ .hero-logo{ width:112px; height:112px; margin-bottom:24px; } }
+  .hero-inner{ position:relative; max-width:760px; }
+  .hero-eyebrow{ font-size:13px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--gold); margin-bottom:20px; }
+  .hero h1{
+    font-size:clamp(38px, 7.4vw, 88px); color:var(--white); line-height:1.04; letter-spacing:-0.02em;
+    font-weight:700;
+  }
+  .hero h1 .accent{ color:var(--red); }
+  .hero p.lede{ margin:24px auto 0; max-width:44ch; font-size:18px; font-weight:400; color:var(--muted); line-height:1.55; }
+  .hero-ctas{ display:flex; gap:14px; justify-content:center; margin-top:36px; flex-wrap:wrap; }
+  .btn{
+    padding:13px 26px; font-size:14.5px; font-weight:600; border-radius:100px; display:inline-block;
+    transition:transform .2s, opacity .2s, background .2s;
+  }
+  .btn:hover{ transform:translateY(-1px); }
+  .btn-light{ background:var(--red); color:var(--white); }
+  .btn-light:hover{ background:var(--red-deep); }
+  .btn-outline-dark{ border:1px solid rgba(243,234,201,0.35); color:var(--white); }
+  .btn-outline-dark:hover{ border-color:var(--gold); color:var(--gold); }
+
+  .scroll-cue{ position:absolute; bottom:28px; left:50%; transform:translateX(-50%); color:var(--muted); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; }
+
+  /* ---------- TRUCK STATEMENT (full-bleed photo + caption) ---------- */
+  .statement{
+    position:relative; min-height:64vh; display:flex; align-items:center; justify-content:center;
+    text-align:center; overflow:hidden; padding:90px 22px; background:#000;
+  }
+  .statement img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 40%; }
+  @media (max-width:768px){
+    .statement img{ object-fit:contain; object-position:center center; }
+  }
+  .statement::after{
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.35) 45%, rgba(0,0,0,0.72) 100%);
+  }
+  .statement .wrap{ position:relative; z-index:1; max-width:900px; }
+  .statement p{
+    font-size:clamp(24px, 4.4vw, 44px); color:var(--white); font-weight:500; letter-spacing:-0.01em; line-height:1.32;
+    text-shadow:0 4px 26px rgba(0,0,0,0.6);
+  }
+  .statement p em{ font-style:normal; color:var(--gold); }
+
+  /* ---------- SECTION HEADS ---------- */
+  .sec-eyebrow{ font-size:12.5px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--gold); text-align:center; margin-bottom:14px; }
+  .sec-title{ font-size:clamp(28px,4.6vw,46px); text-align:center; color:var(--white); max-width:16ch; margin:0 auto; }
+  .sec-sub{ text-align:center; max-width:52ch; margin:16px auto 0; color:var(--muted); font-size:16px; font-weight:400; }
+
+  /* ---------- FEATURE ROWS (big photo + text, alternating) ---------- */
+  .feature{ padding:80px 0; background:var(--black); }
+  .feature-row{ display:grid; grid-template-columns:1fr 1fr; gap:56px; align-items:center; }
+  .feature-row.rev{ direction:rtl; }
+  .feature-row.rev > *{ direction:ltr; }
+  @media (max-width:860px){ .feature-row, .feature-row.rev{ gap:24px; } }
+  @media (max-width:600px){ .feature-row, .feature-row.rev{ gap:14px; } }
+  @media (max-width:420px){ .feature-row, .feature-row.rev{ gap:10px; } }
+  .feature-photo{
+    --r:-3.5deg; --s:1;
+    transform:rotate(var(--r)) scale(var(--s));
+    transition:transform .3s ease;
+    will-change:transform;
+    display:flex; justify-content:center;
+  }
+  .feature-row.rev .feature-photo{ --r:3.5deg; }
+  .feature-photo:hover{ --s:1.05; }
+  .feature-photo img{
+    max-width:82%; height:auto; display:block;
+    filter:drop-shadow(0 22px 30px rgba(0,0,0,0.6));
+    transition:filter .3s ease;
+  }
+  .feature-photo:hover img{ filter:drop-shadow(0 30px 40px rgba(0,0,0,0.7)); }
+  .feature-photo.tilt-60{ --r:30deg; }
+  .feature-row.rev .feature-photo.tilt-60{ --r:-30deg; }
+  @media (max-width:600px){
+    .feature-photo.tilt-60{ --r:15deg; }
+    .feature-row.rev .feature-photo.tilt-60{ --r:-15deg; }
+  }
+  .feature-text .tag{ font-size:12.5px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--gold); margin-bottom:14px; }
+  .feature-text h3{ font-size:clamp(24px,3.6vw,34px); color:var(--white); margin-bottom:14px; }
+  .feature-text p{ font-size:16px; color:var(--muted); line-height:1.6; max-width:44ch; }
+  .feature-text .price{ margin-top:18px; font-size:15px; font-weight:600; color:var(--white); }
+  .feature-text .price span{ color:var(--gold); font-weight:600; }
+  @media (max-width:600px){
+    .feature-photo{ transform:rotate(-2deg); }
+    .feature-row.rev .feature-photo{ transform:rotate(2deg); }
+    .feature-text .tag{ font-size:10.5px; margin-bottom:8px; }
+    .feature-text h3{ margin-bottom:8px; line-height:1.15; }
+    .feature-text p{ font-size:13px; line-height:1.45; }
+    .feature-text .price{ margin-top:10px; font-size:12px; }
+  }
+  @media (max-width:420px){
+    .feature-photo{ transform:rotate(-1.2deg); }
+    .feature-row.rev .feature-photo{ transform:rotate(1.2deg); }
+    .feature-text .tag{ font-size:9px; margin-bottom:6px; }
+    .feature-text h3{ font-size:18px; }
+    .feature-text p{ font-size:11.5px; line-height:1.4; }
+    .feature-text .price{ font-size:10.5px; }
+  }
+
+  /* ---------- FULL MENU (accordion list, Chick-fil-A style) ---------- */
+  #menu{ background:var(--panel); padding:100px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  .menu-acc{ margin-top:56px; border-top:1px solid var(--line); }
+  .menu-acc-item{ border-bottom:1px solid var(--line); }
+  .menu-acc-head{
+    width:100%; display:flex; align-items:center; gap:24px; padding:26px 6px;
+    background:none; border:none; cursor:pointer; text-align:left; font-family:'Inter';
+  }
+  .menu-acc-thumb{ width:92px; height:92px; border-radius:14px; object-fit:cover; flex:none; box-shadow:0 10px 22px rgba(0,0,0,0.4); }
+  .menu-acc-title{ flex:1; }
+  .menu-acc-tag{
+    display:inline-block; font-size:10px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase;
+    color:#04220F; background:var(--green); padding:3px 10px; border-radius:100px; margin-bottom:8px;
+  }
+  .menu-acc-title h4{ font-size:20px; font-weight:700; letter-spacing:-0.005em; color:var(--white); }
+  .menu-acc-title .menu-acc-price{ font-size:13.5px; color:var(--gold); font-weight:600; margin-top:4px; display:block; }
+  .menu-acc-chevron{ width:22px; height:22px; color:var(--red); flex:none; transition:transform .3s ease; }
+  .menu-acc-item.open .menu-acc-chevron{ transform:rotate(90deg); }
+  .menu-acc-body{ max-height:0; overflow:hidden; transition:max-height .4s ease; }
+  .menu-acc-item.open .menu-acc-body{ max-height:900px; }
+  .menu-acc-inner{ padding:6px 20px 32px 130px; background:rgba(255,255,255,0.02); border-radius:14px; }
+  @media (max-width:560px){
+    .menu-acc-head{ gap:16px; padding:22px 4px; }
+    .menu-acc-thumb{ width:76px; height:76px; border-radius:12px; }
+    .menu-acc-title h4{ font-size:18px; }
+    .menu-acc-inner{ padding:6px 6px 26px 6px; }
+  }
+  .menu-acc-inner .desc{ font-size:14.5px; color:var(--muted); margin-bottom:18px; line-height:1.5; }
+  .mrow{ display:flex; justify-content:space-between; align-items:baseline; gap:16px; padding:14px 0; border-bottom:1px dashed var(--line); font-size:16.5px; color:var(--cream); }
+  .mrow:last-child{ border-bottom:none; }
+  .mrow .nm{ font-weight:500; }
+  .mrow .pr{ font-weight:700; color:var(--white); font-size:15.5px; white-space:nowrap; }
+  .mnote{ font-size:13.5px; color:var(--green); margin-top:14px; font-weight:600; }
+
+  /* ---------- SPIN & WIN WHEEL ---------- */
+  #spin{ background:var(--panel); padding:100px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); text-align:center; overflow:hidden; }
+  .spin-layout{ margin-top:56px; display:flex; flex-direction:column; align-items:center; gap:34px; }
+  .wheel-stage{ position:relative; width:340px; max-width:82vw; }
+  .wheel-pointer{
+    position:absolute; top:-6px; left:50%; transform:translateX(-50%); z-index:3;
+    width:0; height:0; border-left:14px solid transparent; border-right:14px solid transparent;
+    border-top:22px solid var(--gold); filter:drop-shadow(0 3px 4px rgba(0,0,0,0.5));
+  }
+  .wheel-svg{
+    width:100%; height:auto; display:block; border-radius:50%;
+    transition: transform 4.2s cubic-bezier(.12,.72,.14,1);
+    box-shadow:0 0 0 6px var(--black), 0 0 0 9px rgba(247,173,40,0.5), 0 24px 60px rgba(0,0,0,0.6);
+  }
+  .wheel-hub{
+    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:2;
+    width:74px; height:74px; border-radius:50%; overflow:hidden;
+    box-shadow:0 0 0 4px var(--black), 0 6px 18px rgba(0,0,0,0.5);
+  }
+  .wheel-hub img{ width:100%; height:100%; object-fit:cover; }
+  .spin-btn{
+    padding:16px 40px; font-size:15px; font-weight:700; border-radius:100px; border:none; cursor:pointer;
+    background:var(--red); color:var(--white); transition:transform .15s, background .2s, opacity .2s;
+  }
+  .spin-btn:hover{ transform:translateY(-2px); background:var(--gold); color:#241902; }
+  .spin-btn:disabled{ opacity:0.45; cursor:not-allowed; transform:none; background:var(--red); color:var(--white); }
+  .spin-result{
+    display:none; max-width:420px; background:var(--black); border:1px solid var(--line); border-radius:16px;
+    padding:26px 28px; text-align:center;
+  }
+  .spin-result.show{ display:block; }
+  .spin-result .win-label{ font-size:12px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--gold); margin-bottom:8px; }
+  .spin-result .win-item{ font-size:24px; font-weight:700; color:var(--white); margin-bottom:12px; }
+  .spin-result .win-code{
+    display:inline-block; font-family:'Inter'; font-weight:700; letter-spacing:0.06em; font-size:15px;
+    background:var(--panel); border:1px dashed var(--gold); color:var(--gold); padding:8px 16px; border-radius:8px; margin-bottom:14px;
+  }
+  .spin-result .win-note{ font-size:13px; color:var(--muted); line-height:1.5; }
+  .spin-fine{ font-size:12.5px; color:var(--muted); max-width:44ch; margin:0 auto; }
+  .spin-countdown{ font-size:13px; font-weight:600; color:var(--gold); display:none; }
+  .spin-countdown.show{ display:block; }
+
+  /* ---------- Promo game switcher ---------- */
+  .promo-game{ display:none; }
+  .promo-game.active{ display:block; }
+
+  /* Scratch card */
+  .scratch-layout{ display:flex; flex-direction:column; align-items:center; gap:26px; }
+  .scratch-stage{
+    position:relative; width:340px; max-width:88vw; height:180px;
+    border-radius:18px; overflow:hidden; box-shadow:0 24px 48px rgba(0,0,0,0.5);
+  }
+  .scratch-prize-inner{
+    position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    background:var(--panel); border:1px solid var(--line); text-align:center; gap:8px;
+  }
+  .scratch-canvas{ position:absolute; inset:0; width:100%; height:100%; cursor:pointer; touch-action:none; }
+
+  /* Mystery boxes */
+  .boxes-layout{ display:flex; flex-direction:column; align-items:center; gap:30px; }
+  .boxes-row{ display:flex; gap:22px; justify-content:center; flex-wrap:wrap; }
+  .mystery-box{
+    width:104px; height:104px; border-radius:20px; font-size:38px; cursor:pointer;
+    background:linear-gradient(145deg, var(--panel), #0b0a08); border:2px solid var(--gold);
+    box-shadow:0 14px 28px rgba(0,0,0,0.45); transition:transform .2s ease, box-shadow .2s ease, opacity .2s ease;
+  }
+  .mystery-box:hover:not(:disabled){ transform:translateY(-5px); box-shadow:0 20px 36px rgba(0,0,0,0.55); }
+  .mystery-box:disabled{ opacity:0.32; cursor:default; }
+  .mystery-box.chosen{ opacity:1; border-color:var(--red); transform:scale(1.1); }
+
+  /* ---------- TRUCK / STORY ---------- */
+  #story{ background:var(--black); padding:100px 0; }
+  .story-layout{ display:grid; grid-template-columns:1.1fr 0.9fr; gap:56px; align-items:center; }
+  @media (max-width:900px){ .story-layout{ grid-template-columns:1fr; } }
+  .story-copy p{ font-size:16.5px; color:var(--muted); line-height:1.7; margin-bottom:18px; max-width:50ch; }
+  .story-copy p:first-child{ font-size:20px; color:var(--white); font-weight:600; }
+  .story-stats{ display:grid; grid-template-columns:1fr 1fr; gap:30px 24px; margin-top:8px; }
+  .story-stats .stat b{ display:block; font-size:24px; font-weight:700; color:var(--gold); letter-spacing:-0.01em; }
+  .story-stats .stat span{ font-size:12.5px; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; }
+  .story-photo img{ width:100%; }
+
+  /* ---------- REVIEWS ---------- */
+  #reviews{ background:var(--black); padding:100px 0; }
+  .review-carousel{ position:relative; margin:56px auto 0; max-width:640px; min-height:190px; touch-action:pan-y; }
+  .review-slide{
+    position:absolute; inset:0; text-align:center; opacity:0; visibility:hidden;
+    transition:opacity .5s ease; pointer-events:none;
+  }
+  .review-slide.active{ opacity:1; visibility:visible; pointer-events:auto; }
+  .review-dots{ display:flex; justify-content:center; gap:10px; margin-top:38px; }
+  .review-dot{ width:9px; height:9px; border-radius:50%; background:var(--line); border:none; cursor:pointer; padding:0; transition:background .2s, transform .2s; }
+  .review-dot.active{ background:var(--gold); transform:scale(1.2); }
+  .review-slide p{ font-size:16px; color:var(--cream); font-weight:400; line-height:1.6; font-style:italic; }
+  .review-slide .who{ margin-top:14px; font-size:13px; color:var(--muted); font-weight:600; font-style:normal; }
+  .review-note{ text-align:center; margin-top:50px; font-size:12.5px; color:var(--muted); }
+  .review-note a{ color:var(--green); border-bottom:1px dashed var(--green); }
+
+  /* ---------- CATERING ---------- */
+  #catering{ background:var(--panel); padding:100px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  .cat-layout{ display:grid; grid-template-columns:0.85fr 1.15fr; gap:60px; margin-top:56px; align-items:start; }
+  @media (max-width:900px){ .cat-layout{ grid-template-columns:1fr; gap:40px; } }
+  .cat-points{ display:flex; flex-direction:column; gap:26px; }
+  .cform-head{ border:1px solid var(--line); border-radius:14px; background:var(--panel); padding:22px 20px; }
+  .cform-head .menu-acc-title h4{ font-size:18px; }
+  .cform-body{ max-height:0; }
+  .menu-acc-item.open .cform-body{ max-height:1400px; }
+  .cform-inner{ padding:24px 4px 0; }
+  .cat-point .num{ font-size:12.5px; color:var(--gold); font-weight:700; letter-spacing:0.08em; }
+  .cat-point p{ font-size:15px; color:var(--cream); margin-top:8px; line-height:1.55; max-width:38ch; }
+  .cform{ display:flex; flex-direction:column; gap:20px; }
+  .cform .row2{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  @media (max-width:520px){ .cform .row2{ grid-template-columns:1fr; } }
+  .cform label{ display:flex; flex-direction:column; gap:8px; font-size:12.5px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; }
+  .cform input, .cform textarea{
+    background:transparent; border:none; border-bottom:1px solid var(--line); padding:9px 0 11px;
+    color:var(--white); font-family:'Inter'; font-size:16px; resize:vertical;
+  }
+  .cform input:focus, .cform textarea:focus{ outline:none; border-color:var(--gold); }
+  .cform button{
+    margin-top:6px; align-self:flex-start; padding:14px 30px; font-size:14.5px; font-weight:700;
+    border-radius:100px; background:var(--red); color:var(--white); border:none; cursor:pointer;
+    transition:background .2s, transform .15s;
+  }
+  .cform button:hover{ background:var(--gold); color:#241902; transform:translateY(-2px); }
+  .cform .fine{ font-size:12px; color:var(--muted); }
+
+  /* ---------- FIND US ---------- */
+  #find{ background:var(--black); padding:100px 0 110px; text-align:center; }
+  .find-big-link{ display:block; font-size:clamp(30px,6vw,52px); font-weight:700; color:var(--white); letter-spacing:-0.01em; margin-top:24px; }
+  .find-big-link:hover{ color:var(--gold); }
+  .find-sub{ margin-top:16px; font-size:15px; color:var(--muted); }
+  .find-meta{ margin-top:40px; display:flex; justify-content:center; gap:32px; flex-wrap:wrap; font-size:14px; color:var(--muted); align-items:center; }
+  .find-meta a{ color:var(--cream); border-bottom:1px solid var(--line); }
+  .social-icons{ display:flex; gap:16px; align-items:center; }
+  .social-icons a{ border-bottom:none !important; display:flex; color:var(--cream); transition:color .2s, transform .2s; }
+  .social-icons a:hover{ color:var(--gold); transform:translateY(-2px); }
+  .social-icons svg{ width:20px; height:20px; }
+  .find-note{ margin-top:40px; font-size:12.5px; color:var(--muted); }
+  .find-note a{ color:var(--gold); border-bottom:1px dashed var(--gold); }
+
+  /* ---------- FOOTER ---------- */
+  footer{ background:var(--black); padding:50px 0 28px; border-top:1px solid var(--line); }
+  .foot-top{ display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:32px; padding-bottom:32px; border-bottom:1px solid var(--line); }
+  .foot-brand{ display:flex; align-items:center; gap:12px; }
+  .foot-brand img{ width:36px; height:36px; border-radius:50%; object-fit:cover; }
+  .foot-brand span{ font-size:14px; font-weight:700; color:var(--white); }
+  .foot-cols{ display:flex; gap:56px; flex-wrap:wrap; }
+  .foot-col h5{ font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:14px; }
+  .foot-col a, .foot-col div{ display:block; font-size:13.5px; color:rgba(243,234,201,0.72); margin-bottom:10px; }
+  .foot-col a:hover{ color:var(--gold); }
+  .foot-bottom{ padding-top:20px; font-size:12px; color:var(--muted); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+  /* ---------- FLOATING ORDER BUTTON ---------- */
+  #floatOrder{
+    position:fixed; right:20px; bottom:20px; z-index:200;
+    background:var(--red); color:var(--white); padding:14px 22px; border-radius:100px;
+    font-size:14px; font-weight:700; box-shadow:0 10px 26px rgba(0,0,0,0.55);
+    display:flex; align-items:center; gap:8px;
+    transform:translateY(120px); opacity:0; pointer-events:none;
+    transition:transform .35s ease, opacity .35s ease, background .2s;
+  }
+  #floatOrder.show{ transform:translateY(0); opacity:1; pointer-events:auto; }
+  #floatOrder:hover{ background:var(--gold); color:#241902; }
+  #floatOrder svg{ width:17px; height:17px; flex:none; }
+  @media (max-width:480px){
+    #floatOrder{ right:14px; bottom:14px; padding:12px 18px; font-size:13px; }
+  }
+  @media print{
+    body{ background:#fff !important; color:#111 !important; }
+    #annbar, #fireworksCanvas, #floatOrder, nav, .mobile-nav, footer,
+    #catering, #reviews, #find, .cta-band, .statement, #story, #spin,
+    .feature{ display:none !important; }
+    .hero{ background:#fff !important; padding:16px 0 !important; min-height:auto !important; }
+    .hero h1, .hero-eyebrow, .lede{ color:#111 !important; }
+    .hero-ctas, .hero-logo{ display:none !important; }
+    #menu{ background:#fff !important; padding:12px 0 !important; }
+    .menu-acc-item{ border-color:#ccc !important; break-inside:avoid; }
+    .menu-acc-title h4{ color:#111 !important; }
+    .menu-acc-price{ color:#555 !important; }
+    .menu-acc-chevron{ display:none !important; }
+    .menu-acc-body{ max-height:none !important; }
+    .mrow{ border-color:#ddd !important; }
+    .mrow .nm{ color:#111 !important; }
+    .mrow .pr{ color:#333 !important; }
+    .desc{ color:#555 !important; }
+  }
+</style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FoodEstablishment",
+  "name": "Roll-In Shawarma",
+  "image": "https://rollinshawarma.com/og-image.jpg",
+  "url": "https://rollinshawarma.com",
+  "telephone": "+13305875203",
+  "email": "rollinshawarma.foodtruck@gmail.com",
+  "servesCuisine": ["Middle Eastern", "Indian"],
+  "priceRange": "$$",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Green",
+    "addressRegion": "OH",
+    "postalCode": "44685",
+    "addressCountry": "US"
+  },
+  "sameAs": [
+    "https://www.facebook.com/p/Roll-In-Shawarma-61591157662685/"
+  ],
+  "menu": "https://rollinshawarma.com/#menu",
+  "acceptsReservations": "False"
+}
+</script>
+</head>
+<body>
+
+<canvas id="fireworksCanvas" aria-hidden="true"></canvas>
+
+<div id="annbar">
+  <div class="wrap">
+    <div class="ann-text">&#127881; <b>Grand Opening</b> &mdash; catch us at the Summit County Fair, <b>229 E Howe Rd, Tallmadge, OH</b>, <b>July 28 &ndash; Aug 2</b>! Fresh-carved shawarma, tacos &amp; more, made to order.</div>
+    <a class="ann-cta" href="https://www.google.com/maps/dir/?api=1&destination=229+E+Howe+Rd,+Tallmadge,+OH+44278" target="_blank" rel="noopener">Get Directions</a>
+    <button class="ann-close" type="button" aria-label="Dismiss announcement">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+    </button>
+  </div>
+</div>
+
+<nav>
+  <div class="wrap">
+    <div class="wordmark"><span class="w1">Roll&#8209;In</span><span class="w2">Shawarma</span></div>
+    <div class="navlinks">
+      <a href="#menu">Menu</a>
+      <a href="#story">Our Story</a>
+      <a href="#reviews">Reviews</a>
+      <a href="#catering">Catering</a>
+      <a href="#find" class="has-icon"><svg class="icon-truck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>Find Us</a>
+    </div>
+    <a class="nav-order" href="https://roll-in-shawarma.square.site/" target="_blank" rel="noopener">Order Online</a>
+    <a class="nav-cta" href="tel:+13305875203">Call Us</a>
+    <button class="nav-toggle" aria-label="Open menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    </button>
+  </div>
+  <div class="mobile-nav">
+    <a href="https://roll-in-shawarma.square.site/" target="_blank" rel="noopener" style="color:var(--gold);">Order Online</a>
+    <a href="#menu">Menu</a>
+    <a href="#story">Our Story</a>
+    <a href="#reviews">Reviews</a>
+    <a href="#catering">Catering</a>
+    <a href="#find" class="has-icon"><svg class="icon-truck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>Find Us</a>
+    <a href="tel:+13305875203">Call Us &mdash; (330) 587-5203</a>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="hero-inner">
+    <img class="hero-logo" src="logo.jpg" alt="Roll-In Shawarma logo">
+    <div class="hero-eyebrow">Middle Eastern &middot; Indian &middot; Food Truck</div>
+    <h1>We roll it.<br><span class="accent">You love it.</span></h1>
+    <p class="lede">Marinated chicken, falafel, and paneer, rolled fresh at the window &mdash; shawarma, frankie rolls, tacos, bowls, and loaded fries.</p>
+    <div class="hero-ctas">
+      <a class="btn btn-light" href="https://roll-in-shawarma.square.site/" target="_blank" rel="noopener">Order Online</a>
+      <a class="btn btn-outline-dark" href="#menu">View Menu</a>
+      <a class="btn btn-outline-dark" href="#find">Find The Truck</a>
+    </div>
+  </div>
+  <div class="scroll-cue">Scroll</div>
+</header>
+
+<section class="statement">
+  <img src="truck-night.webp" alt="Roll-In Shawarma food truck at night">
+  <div class="wrap">
+    <p>Carved fresh. Rolled to order. <em>No shortcuts.</em></p>
+  </div>
+</section>
+
+<section class="feature">
+  <div class="wrap">
+    <div class="feature-row">
+      <div class="feature-photo tilt-60"><img src="shawarma-wrap.webp" alt="Chicken shawarma wrap"></div>
+      <div class="feature-text">
+        <div class="tag">Signature</div>
+        <h3>Chicken Shawarma</h3>
+        <p>Marinated chicken carved fresh and wrapped with white sauce, fries, and pickled cucumber. Falafel available for a vegetarian version of the same wrap.</p>
+        <div class="price">Chicken or Falafel Shawarma <span>&mdash; $11.99</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="feature" style="padding-top:0;">
+  <div class="wrap">
+    <div class="feature-row rev">
+      <div class="feature-photo"><img src="loaded-fries.webp" alt="Loaded fries with chicken and cheese"></div>
+      <div class="feature-text">
+        <div class="tag">Fan Favorite</div>
+        <h3>Loaded Fries</h3>
+        <p>Golden fries tossed with your choice of marinated chicken, melted cheese, and a dual-sauce drizzle, finished with fresh cilantro.</p>
+        <div class="price">Butter Chicken, Tikka, Tandoori, or Signature <span>&mdash; $11.99</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="feature" style="padding-top:0;">
+  <div class="wrap">
+    <div class="feature-row">
+      <div class="feature-photo"><img src="bowl.webp" alt="Chicken over rice bowl"></div>
+      <div class="feature-text">
+        <div class="tag">Build A Bowl</div>
+        <h3>Chicken Over Rice</h3>
+        <p>Flavored rice topped with marinated chicken, cucumber, saut&eacute;ed bell peppers, lettuce, tomato, and house sauce.</p>
+        <div class="price">Chicken or Veggie Bowl <span>&mdash; $12.99</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="feature" style="padding-top:0;">
+  <div class="wrap">
+    <div class="feature-row rev">
+      <div class="feature-photo"><img src="tacos.webp" alt="Three soft chicken tacos"></div>
+      <div class="feature-text">
+        <div class="tag">3 To A Plate</div>
+        <h3>Tacos</h3>
+        <p>Three soft tacos, your choice of chicken, piled with fresh veggies, cilantro, and lime.</p>
+        <div class="price">Butter Chicken, Tikka, Tandoori, or Signature <span>&mdash; $11.99</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="feature" style="padding-top:0;">
+  <div class="wrap">
+    <div class="feature-row">
+      <div class="feature-photo tilt-60"><img src="tikka-wrap.webp" alt="Chicken tikka frankie roll"></div>
+      <div class="feature-text">
+        <div class="tag">Rolled To Order</div>
+        <h3>Frankie Rolls</h3>
+        <p>Marinated chicken or paneer, wrapped tight with fresh veggies, cilantro, and lime &mdash; a lighter roll than the shawarma, same fresh-carved flavor.</p>
+        <div class="price">Butter Chicken, Tikka, Tandoori, Signature, or Paneer <span>&mdash; $9.99</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="menu">
+  <div class="wrap">
+    <div class="sec-eyebrow">The Full Menu</div>
+    <h2 class="sec-title">Everything on the truck.</h2>
+    <p class="sec-sub">Add fries &amp; a soda to any wrap, taco, or fries order to make it a combo for +$3.99.</p>
+    <div style="text-align:center; margin-top:28px;">
+      <a class="btn btn-light" href="https://roll-in-shawarma.square.site/" target="_blank" rel="noopener">Order Online</a>
+    </div>
+
+    <div class="menu-acc">
+
+      <div class="menu-acc-item">
+        <button class="menu-acc-head" type="button">
+          <img class="menu-acc-thumb" src="menu-shawarma.jpg" alt="">
+          <div class="menu-acc-title"><h4>Shawarma</h4><span class="menu-acc-price">From $11.99</span></div>
+          <svg class="menu-acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
+        </button>
+        <div class="menu-acc-body"><div class="menu-acc-inner">
+          <div class="desc">Marinated chicken or falafel, white sauce, fries &amp; pickled cucumber</div>
+          <div class="mrow"><span class="nm">Chicken Shawarma</span></div>
+          <div class="mrow"><span class="nm">Falafel Shawarma (Veg)</span></div>
+          <div class="mnote">+ $3.99 make it a combo</div>
+        </div></div>
+      </div>
+
+      <div class="menu-acc-item">
+        <button class="menu-acc-head" type="button">
+          <img class="menu-acc-thumb" src="menu-frankie.jpg" alt="">
+          <div class="menu-acc-title"><h4>Frankie Rolls</h4><span class="menu-acc-price">From $9.99</span></div>
+          <svg class="menu-acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
+        </button>
+        <div class="menu-acc-body"><div class="menu-acc-inner">
+          <div class="desc">Marinated chicken or paneer, fresh veggies, cilantro &amp; lime</div>
+          <div class="mrow"><span class="nm">Butter Chicken Frankie</span></div>
+          <div class="mrow"><span class="nm">Chicken Tikka Frankie</span></div>
+          <div class="mrow"><span class="nm">Tandoori Chicken Frankie</span></div>
+          <div class="mrow"><span class="nm">Signature Chicken Frankie</span></div>
+          <div class="mrow"><span class="nm">Paneer Frankie (Veg)</span></div>
+          <div class="mnote">+ $3.99 make it a combo</div>
+        </div></div>
+      </div>
+
+      <div class="menu-acc-item">
+        <button class="menu-acc-head" type="button">
+          <img class="menu-acc-thumb" src="menu-bowl.jpg" alt="">
+          <div class="menu-acc-title"><h4>Bowls</h4><span class="menu-acc-price">From $12.99</span></div>
+          <svg class="menu-acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
+        </button>
+        <div class="menu-acc-body"><div class="menu-acc-inner">
+          <div class="desc">Flavored rice, cucumber, peppers, lettuce, tomato &amp; sauce</div>
+          <div class="mrow"><span class="nm">Chicken Over Rice Bowl</span></div>
+          <div class="mrow"><span class="nm">Veggie Bowl</span></div>
+        </div></div>
+      </div>
+
+      <div class="menu-acc-item">
+        <button class="menu-acc-head" type="button">
+          <img class="menu-acc-thumb" src="menu-tacos.jpg" alt="">
+          <div class="menu-acc-title"><h4>Tacos</h4><span class="menu-acc-price">From $11.99</span></div>
+          <svg class="menu-acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
+        </button>
+        <div class="menu-acc-body"><div class="menu-acc-inner">
+          <div class="desc">3 soft tacos, fresh veggies, cilantro &amp; lime</div>
+          <div class="mrow"><span class="nm">Butter Chicken</span></div>
+          <div class="mrow"><span class="nm">Chicken Tikka</span></div>
+          <div class="mrow"><span class="nm">Tandoori Chicken</span></div>
+          <div class="mrow"><span class="nm">Signature Chicken</span></div>
+          <div class="mnote">+ $3.99 make it a combo</div>
+        </div></div>
+      </div>
+
+      <div class="menu-acc-item">
+        <button class="menu-acc-head" type="button">
+          <img class="menu-acc-thumb" src="menu-fries.jpg" alt="">
+          <div class="menu-acc-title"><h4>Loaded Fries</h4><span class="menu-acc-price">From $11.99</span></div>
+          <svg class="menu-acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
+        </button>
+        <div class="menu-acc-body"><div class="menu-acc-inner">
+          <div class="desc">Cheese, dual-sauce drizzle &amp; cilantro &mdash; choose your favorite sauce</div>
+          <div class="mrow"><span class="nm">Butter Chicken</span></div>
+          <div class="mrow"><span class="nm">Chicken Tikka</span></div>
+          <div class="mrow"><span class="nm">Tandoori Chicken</span></div>
+          <div class="mrow"><span class="nm">Signature Chicken</span></div>
+          <div class="mnote">+ $3.99 make it a combo</div>
+        </div></div>
+      </div>
+
+      <div class="menu-acc-item">
+        <button class="menu-acc-head" type="button">
+          <img class="menu-acc-thumb" src="menu-samosas.jpg" alt="">
+          <div class="menu-acc-title"><h4>Sides</h4><span class="menu-acc-price">From $2.99</span></div>
+          <svg class="menu-acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
+        </button>
+        <div class="menu-acc-body"><div class="menu-acc-inner">
+          <div class="desc">Regular / Large where noted</div>
+          <div class="mrow"><span class="nm">Fries</span><span class="pr">$2.99 / $4.99</span></div>
+          <div class="mrow"><span class="nm">Fryum Chips</span><span class="pr">$2.99 / $4.99</span></div>
+          <div class="mrow"><span class="nm">Peri-Peri Fries</span><span class="pr">$3.49 / $5.49</span></div>
+          <div class="mrow"><span class="nm">2 Samosas</span><span class="pr">$5.49</span></div>
+        </div></div>
+      </div>
+
+      <div class="menu-acc-item">
+        <button class="menu-acc-head" type="button">
+          <img class="menu-acc-thumb" src="menu-kulfi.jpg" alt="">
+          <div class="menu-acc-title"><h4>Kulfi Ice Cream</h4><span class="menu-acc-price">$3.99</span></div>
+          <svg class="menu-acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
+        </button>
+        <div class="menu-acc-body"><div class="menu-acc-inner">
+          <div class="mrow"><span class="nm">Pistachio</span><span class="pr">$3.99</span></div>
+          <div class="mrow"><span class="nm">Mango</span><span class="pr">$3.99</span></div>
+          <div class="mrow"><span class="nm">Almond</span><span class="pr">$3.99</span></div>
+        </div></div>
+      </div>
+
+      <div class="menu-acc-item">
+        <button class="menu-acc-head" type="button">
+          <img class="menu-acc-thumb" src="menu-falooda.jpg" alt="">
+          <div class="menu-acc-title"><h4>Drinks</h4><span class="menu-acc-price">From $2.49</span></div>
+          <svg class="menu-acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
+        </button>
+        <div class="menu-acc-body"><div class="menu-acc-inner">
+          <div class="mrow"><span class="nm">Soda</span><span class="pr">$2.49</span></div>
+          <div class="mrow"><span class="nm">Sharbat Refreshment Soda</span><span class="pr">$3.49</span></div>
+          <div class="mrow"><span class="nm">Root Beer Float</span><span class="pr">$4.99</span></div>
+          <div class="mrow"><span class="nm">Falooda Ice Cream Drink</span><span class="pr">$5.49</span></div>
+          <div class="mrow"><span class="nm">Mango Lassi</span><span class="pr">$5.49</span></div>
+        </div></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="spin">
+  <div class="wrap">
+    <div class="sec-eyebrow">Today's Surprise</div>
+    <h2 class="sec-title">One visit, one free side.</h2>
+    <p class="sec-sub">Place an online order, then play below. Show your code at pickup to claim your free side &mdash; on us.</p>
+
+    <div class="promo-game" id="promoWheel">
+      <div class="spin-layout">
+        <div class="wheel-stage">
+          <div class="wheel-pointer"></div>
+          <div class="wheel-hub"><img src="logo.jpg" alt="Roll-In Shawarma logo"></div>
+          <svg class="wheel-svg" id="wheelSvg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
+            <path d="M200,200 L200,20 A180,180 0 0,1 380,200 Z" fill="#F7AD28"/>
+            <path d="M200,200 L380,200 A180,180 0 0,1 200,380 Z" fill="#D8342E"/>
+            <path d="M200,200 L200,380 A180,180 0 0,1 20,200 Z" fill="#0BAF4C"/>
+            <path d="M200,200 L20,200 A180,180 0 0,1 200,20 Z" fill="#F3EAC9"/>
+            <circle cx="200" cy="200" r="180" fill="none" stroke="#000" stroke-width="3"/>
+            <line x1="200" y1="200" x2="200" y2="20" stroke="#000" stroke-width="3"/>
+            <line x1="200" y1="200" x2="380" y2="200" stroke="#000" stroke-width="3"/>
+            <line x1="200" y1="200" x2="200" y2="380" stroke="#000" stroke-width="3"/>
+            <line x1="200" y1="200" x2="20" y2="200" stroke="#000" stroke-width="3"/>
+            <text x="286.3" y="106" text-anchor="middle" transform="rotate(45 286.3 113.7)" font-family="Inter" font-weight="700" font-size="20" fill="#241902">
+              <tspan x="286.3" dy="0">Regular</tspan><tspan x="286.3" dy="23">Fries</tspan>
+            </text>
+            <text x="286.3" y="279" text-anchor="middle" transform="rotate(135 286.3 286.3)" font-family="Inter" font-weight="700" font-size="18" fill="#FFFCF3">
+              <tspan x="286.3" dy="0">Peri-Peri</tspan><tspan x="286.3" dy="22">Fries</tspan>
+            </text>
+            <text x="113.7" y="279" text-anchor="middle" transform="rotate(225 113.7 286.3)" font-family="Inter" font-weight="700" font-size="19" fill="#04220F">
+              <tspan x="113.7" dy="0">Fryum</tspan><tspan x="113.7" dy="22">Chips</tspan>
+            </text>
+            <text x="113.7" y="106" text-anchor="middle" transform="rotate(315 113.7 113.7)" font-family="Inter" font-weight="700" font-size="19" fill="#201A12">
+              <tspan x="113.7" dy="0">2</tspan><tspan x="113.7" dy="22">Samosas</tspan>
+            </text>
+          </svg>
+        </div>
+        <button class="spin-btn" id="spinBtn">Spin The Wheel</button>
+        <div class="spin-result" id="spinResult">
+          <div class="win-label">You won</div>
+          <div class="win-item" id="winItem">&mdash;</div>
+          <div class="win-code" id="winCode">&mdash;</div>
+          <div class="win-note">Show this code at the window when you pick up your online order to claim your free side.</div>
+        </div>
+        <div class="spin-countdown" id="spinCountdown"></div>
+        <p class="spin-fine">One spin every 3 hours. Free side claimed at pickup, in person &mdash; can't be combined with other offers.</p>
+      </div>
+    </div>
+
+    <div class="promo-game" id="promoScratch">
+      <div class="scratch-layout">
+        <div class="scratch-stage">
+          <div class="scratch-prize-inner">
+            <div class="win-label">You Won</div>
+            <div class="win-item" id="scratchWinItem">&mdash;</div>
+          </div>
+          <canvas class="scratch-canvas" id="scratchCanvas"></canvas>
+        </div>
+        <div class="spin-result" id="scratchResult">
+          <div class="win-code" id="scratchWinCode">&mdash;</div>
+          <div class="win-note">Show this code at the window when you pick up your online order to claim your free side.</div>
+        </div>
+        <div class="spin-countdown" id="scratchCountdown"></div>
+        <p class="spin-fine">Scratch the gold card to reveal your prize. One play every 3 hours.</p>
+      </div>
+    </div>
+
+    <div class="promo-game" id="promoBoxes">
+      <div class="boxes-layout">
+        <div class="boxes-row">
+          <button class="mystery-box" type="button" aria-label="Mystery box 1">&#127873;</button>
+          <button class="mystery-box" type="button" aria-label="Mystery box 2">&#127873;</button>
+          <button class="mystery-box" type="button" aria-label="Mystery box 3">&#127873;</button>
+        </div>
+        <div class="spin-result" id="boxResult">
+          <div class="win-label">You won</div>
+          <div class="win-item" id="boxWinItem">&mdash;</div>
+          <div class="win-code" id="boxWinCode">&mdash;</div>
+          <div class="win-note">Show this code at the window when you pick up your online order to claim your free side.</div>
+        </div>
+        <div class="spin-countdown" id="boxCountdown"></div>
+        <p class="spin-fine">Pick a box to reveal your prize. One play every 3 hours.</p>
+      </div>
+    </div>
+
+  </div>
+</section>
+
+<section id="story">
+  <div class="wrap">
+    <div class="story-layout">
+      <div class="story-copy">
+        <p>Roll-In Shawarma started with a simple bet: Ohio was ready for shawarma carved and rolled fresh, not steamed in a hotel pan.</p>
+        <p>The truck itself is a rebuilt 2004 Freightliner, gutted and outfitted with a brand-new kitchen setup from the frame up, licensed and inspected through Summit County Public Health. Every recipe on the menu was built and priced to hold up at scale.</p>
+        <p>We're a small, hands-on crew &mdash; the kind of truck where the person handing you your food is the same person who built the menu.</p>
+        <div class="story-stats">
+          <div class="stat"><b>2004</b><span>Freightliner, rebuilt</span></div>
+          <div class="stat"><b>Green, OH</b><span>Home base</span></div>
+          <div class="stat"><b>7</b><span>Menu categories</span></div>
+          <div class="stat"><b>SCPH</b><span>Licensed &amp; inspected</span></div>
+        </div>
+      </div>
+      <div class="story-photo"><img src="truck.webp" alt="Roll-In Shawarma food truck"></div>
+    </div>
+  </div>
+</section>
+
+<section id="reviews">
+  <div class="wrap">
+    <div class="sec-eyebrow">Reviews</div>
+    <h2 class="sec-title">What the window's been hearing.</h2>
+    <div class="review-carousel">
+      <div class="review-slide active">
+        <p>"We've come here with friends a couple times &mdash; service was quick and the food was tasty. Some items run a little spicy, but overall very good."</p>
+        <div class="who">Local Customer</div>
+      </div>
+      <div class="review-slide">
+        <p>"We had this place cater for about 30 people. Easy to work with &mdash; placed the order Thursday for a Saturday event, and food was ready for pickup right on time. Portions were generous, with leftovers, and everything was delicious."</p>
+        <div class="who">Catering Client</div>
+      </div>
+      <div class="review-slide">
+        <p>"Visited last week just to enjoy the food truck experience."</p>
+        <div class="who">First-Time Visitor</div>
+      </div>
+    </div>
+    <div class="review-dots">
+      <button class="review-dot active" type="button" aria-label="Review 1"></button>
+      <button class="review-dot" type="button" aria-label="Review 2"></button>
+      <button class="review-dot" type="button" aria-label="Review 3"></button>
+    </div>
+  </div>
+</section>
+
+<section id="catering">
+  <div class="wrap">
+    <div class="sec-eyebrow">Catering</div>
+    <h2 class="sec-title">Book the truck for your event.</h2>
+    <p class="sec-sub">Weddings, offices, birthdays, block parties &mdash; tell us the details and we'll follow up with a plan and pricing.</p>
+
+    <div class="cat-layout">
+      <div class="cat-points">
+        <div class="cat-point"><div class="num">01</div><p>Fill out the form with your date, headcount, and location.</p></div>
+        <div class="cat-point"><div class="num">02</div><p>We'll follow up by phone or email to nail down the menu and quote.</p></div>
+        <div class="cat-point"><div class="num">03</div><p>Prefer to skip the form? Call or text (330) 587-5203, or email rollinshawarma.foodtruck@gmail.com directly.</p></div>
+      </div>
+
+      <div class="menu-acc-item">
+        <button class="menu-acc-head cform-head" type="button">
+          <div class="menu-acc-title"><h4>Book The Truck</h4><span class="menu-acc-price">Tap to open the request form</span></div>
+          <svg class="menu-acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
+        </button>
+        <div class="menu-acc-body cform-body"><div class="menu-acc-inner cform-inner">
+          <form class="cform" action="https://formsubmit.co/rollinshawarma.foodtruck@gmail.com" method="POST">
+            <input type="hidden" name="_subject" value="New catering request &mdash; Roll-In Shawarma">
+            <input type="hidden" name="_template" value="table">
+            <input type="hidden" name="_captcha" value="true">
+            <div class="row2">
+              <label>Name*<input type="text" name="Name" required></label>
+              <label>Phone<input type="tel" name="Phone"></label>
+            </div>
+            <div class="row2">
+              <label>Email*<input type="email" name="Email" required></label>
+              <label>Event date<input type="date" name="Event Date"></label>
+            </div>
+            <div class="row2">
+              <label>Estimated headcount<input type="number" name="Headcount" min="1"></label>
+              <label>Location / city<input type="text" name="Location"></label>
+            </div>
+            <label>Event details<textarea name="Details" rows="3" placeholder="Type of event, timing, any menu requests..."></textarea></label>
+            <button type="submit">Send Catering Request</button>
+            <div class="fine">This sends straight to our inbox &mdash; we'll get back to you within a day or two.</div>
+          </form>
+        </div></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="find">
+  <div class="wrap">
+    <div class="sec-eyebrow">Find The Truck</div>
+    <h2 class="sec-title">Catch us on the route.</h2>
+    <a class="find-big-link" href="tel:+13305875203">(330) 587-5203</a>
+    <div class="find-sub">Call or text &mdash; based out of Green, Ohio, rolling around Northeast Ohio</div>
+    <div class="find-meta">
+      <a href="mailto:rollinshawarma.foodtruck@gmail.com">rollinshawarma.foodtruck@gmail.com</a>
+      <div class="social-icons">
+        <a href="https://www.facebook.com/p/Roll-In-Shawarma-61591157662685/" target="_blank" rel="noopener" aria-label="Facebook">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+        </a>
+        <a href="#" aria-label="Instagram (add link)">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.5" y2="6.5"></line></svg>
+        </a>
+      </div>
+      <span>Green, Ohio 44685</span>
+    </div>
+    <div class="find-note">Today's live location &amp; socials link &mdash; <a href="#">edit this</a></div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-brand">
+        <img src="logo.jpg" alt="Roll-In Shawarma logo">
+        <span>Roll&#8209;In Shawarma</span>
+      </div>
+      <div class="foot-cols">
+        <div class="foot-col">
+          <h5>Site</h5>
+          <a href="#menu">Menu</a>
+          <a href="#story">Story</a>
+          <a href="#reviews">Reviews</a>
+          <a href="#catering">Catering</a>
+        </div>
+        <div class="foot-col">
+          <h5>Contact</h5>
+          <a href="tel:+13305875203">(330) 587-5203</a>
+          <a href="mailto:rollinshawarma.foodtruck@gmail.com">rollinshawarma.foodtruck@gmail.com</a>
+          <div class="social-icons" style="margin:2px 0 10px;">
+            <a href="https://www.facebook.com/p/Roll-In-Shawarma-61591157662685/" target="_blank" rel="noopener" aria-label="Facebook">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+            </a>
+            <a href="#" aria-label="Instagram (add link)">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.5" y2="6.5"></line></svg>
+            </a>
+          </div>
+          <div>Green, Ohio 44685</div>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <div>&copy; Roll-In Shawarma</div>
+      <div>We Roll It. You Love It.</div>
+    </div>
+  </div>
+</footer>
+
+<script>
+  var toggle = document.querySelector('.nav-toggle');
+  var menu = document.querySelector('.mobile-nav');
+  if (toggle && menu) {
+    toggle.addEventListener('click', function(){ menu.classList.toggle('open'); });
+    menu.querySelectorAll('a').forEach(function(a){
+      a.addEventListener('click', function(){ menu.classList.remove('open'); });
+    });
+  }
+
+  // ---- Floating Order Online button ----
+  (function(){
+    var btn = document.getElementById('floatOrder');
+    var hero = document.querySelector('.hero');
+    var footer = document.querySelector('footer');
+    if (!btn || !hero) return;
+    function update(){
+      var heroBottom = hero.getBoundingClientRect().bottom;
+      var footerTop = footer ? footer.getBoundingClientRect().top : Infinity;
+      var pastHero = heroBottom < 0;
+      var beforeFooter = footerTop > window.innerHeight;
+      btn.classList.toggle('show', pastHero && beforeFooter);
+    }
+    window.addEventListener('scroll', update, {passive:true});
+    window.addEventListener('resize', update);
+    update();
+  })();
+
+  // ---- Grand opening fireworks (once per session, until fair opens) ----
+  (function(){
+    var canvas = document.getElementById('fireworksCanvas');
+    if (!canvas) return;
+
+    // Only show up until the grand opening (July 28, 2026)
+    var openingDate = new Date('2026-07-28T00:00:00');
+    if (new Date() >= openingDate) { canvas.remove(); return; }
+
+    // Once per browser session
+    try {
+      if (sessionStorage.getItem('rollinFireworksShown') === '1') { canvas.remove(); return; }
+      sessionStorage.setItem('rollinFireworksShown', '1');
+    } catch(e){}
+
+    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      canvas.remove();
+      return;
+    }
+
+    var ctx = canvas.getContext('2d');
+    var W, H;
+    function resize(){
+      W = canvas.width = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', resize);
+
+    var colors = ['#F7AD28', '#D8342E', '#0BAF4C', '#FFFCF3', '#E68334'];
+    var rockets = [];
+    var sparks = [];
+
+    function launchRocket(targetX, targetY){
+      rockets.push({
+        x: targetX + (Math.random()*40-20),
+        y: H + 10,
+        tx: targetX, ty: targetY,
+        vx: (targetX - targetX) , // set below
+        speed: 9 + Math.random()*2.5,
+        trail: [],
+        color: colors[Math.floor(Math.random()*colors.length)]
+      });
+      var r = rockets[rockets.length-1];
+      var dx = r.tx - r.x, dy = r.ty - r.y;
+      var dist = Math.sqrt(dx*dx + dy*dy);
+      r.vx = (dx/dist) * r.speed;
+      r.vy = (dy/dist) * r.speed;
+    }
+
+    function explode(x, y, baseColor){
+      var count = 70;
+      var burstColors = Math.random() < 0.4
+        ? [baseColor]
+        : colors;
+      for (var i = 0; i < count; i++){
+        var angle = (Math.PI * 2 * i) / count + Math.random()*0.15;
+        var speed = 2.2 + Math.random()*4.2;
+        sparks.push({
+          x: x, y: y,
+          vx: Math.cos(angle)*speed,
+          vy: Math.sin(angle)*speed,
+          life: 1,
+          decay: 0.0085 + Math.random()*0.009,
+          color: burstColors[Math.floor(Math.random()*burstColors.length)],
+          trail: []
+        });
+      }
+    }
+
+    var startTime = Date.now();
+    var launchSchedule = [100, 550, 1000, 1500];
+    var launched = 0;
+
+    function animate(){
+      var elapsed = Date.now() - startTime;
+
+      while (launched < launchSchedule.length && elapsed >= launchSchedule[launched]) {
+        var tx = W * (0.18 + Math.random()*0.64);
+        var ty = H * (0.16 + Math.random()*0.24);
+        launchRocket(tx, ty);
+        launched++;
+      }
+
+      ctx.clearRect(0, 0, W, H);
+      ctx.globalCompositeOperation = 'lighter';
+
+      // rockets: rising trail, explode on arrival
+      for (var i = rockets.length - 1; i >= 0; i--){
+        var r = rockets[i];
+        r.trail.push({x:r.x, y:r.y});
+        if (r.trail.length > 10) r.trail.shift();
+        r.x += r.vx; r.y += r.vy;
+
+        ctx.strokeStyle = r.color;
+        ctx.lineWidth = 2;
+        ctx.beginPath();
+        for (var t = 0; t < r.trail.length; t++){
+          ctx.globalAlpha = t / r.trail.length * 0.8;
+          var pt = r.trail[t];
+          if (t === 0) ctx.moveTo(pt.x, pt.y); else ctx.lineTo(pt.x, pt.y);
+        }
+        ctx.stroke();
+
+        var dx = r.tx - r.x, dy = r.ty - r.y;
+        if (Math.sqrt(dx*dx + dy*dy) < 14){
+          explode(r.tx, r.ty, r.color);
+          rockets.splice(i, 1);
+        }
+      }
+
+      // sparks: glowing burst with short trailing streaks
+      for (var j = sparks.length - 1; j >= 0; j--){
+        var s = sparks[j];
+        s.trail.push({x:s.x, y:s.y});
+        if (s.trail.length > 5) s.trail.shift();
+        s.vy += 0.05; // gravity
+        s.vx *= 0.985; s.vy *= 0.985; // air drag
+        s.x += s.vx; s.y += s.vy;
+        s.life -= s.decay;
+        if (s.life <= 0){ sparks.splice(j, 1); continue; }
+
+        ctx.strokeStyle = s.color;
+        ctx.lineWidth = 2.2;
+        ctx.lineCap = 'round';
+        ctx.beginPath();
+        for (var k = 0; k < s.trail.length; k++){
+          ctx.globalAlpha = Math.max(s.life, 0) * (k / s.trail.length);
+          var spt = s.trail[k];
+          if (k === 0) ctx.moveTo(spt.x, spt.y); else ctx.lineTo(spt.x, spt.y);
+        }
+        ctx.stroke();
+
+        ctx.globalAlpha = Math.max(s.life, 0);
+        ctx.fillStyle = s.color;
+        ctx.beginPath();
+        ctx.arc(s.x, s.y, 1.8, 0, Math.PI*2);
+        ctx.fill();
+      }
+      ctx.globalAlpha = 1;
+      ctx.globalCompositeOperation = 'source-over';
+
+      if (elapsed < 3800 || rockets.length > 0 || sparks.length > 0) {
+        requestAnimationFrame(animate);
+      } else {
+        canvas.classList.add('fade-out');
+        setTimeout(function(){ canvas.remove(); }, 850);
+      }
+    }
+    requestAnimationFrame(animate);
+  })();
+
+  // ---- Announcement banner dismiss ----
+  (function(){
+    var bar = document.getElementById('annbar');
+    var closeBtn = bar ? bar.querySelector('.ann-close') : null;
+    if (!bar || !closeBtn) return;
+    try {
+      if (sessionStorage.getItem('rollinAnnDismissed') === '1') {
+        bar.style.display = 'none';
+      }
+    } catch(e){}
+    closeBtn.addEventListener('click', function(){
+      bar.style.display = 'none';
+      try { sessionStorage.setItem('rollinAnnDismissed', '1'); } catch(e){}
+    });
+  })();
+
+  // ---- Reviews carousel ----
+  (function(){
+    var carousel = document.querySelector('.review-carousel');
+    var slides = document.querySelectorAll('.review-slide');
+    var dots = document.querySelectorAll('.review-dot');
+    if (!slides.length) return;
+    var idx = 0;
+    var timer = null;
+
+    function showSlide(i){
+      idx = (i + slides.length) % slides.length;
+      slides.forEach(function(s,j){ s.classList.toggle('active', j===idx); });
+      dots.forEach(function(d,j){ d.classList.toggle('active', j===idx); });
+    }
+    function next(){ showSlide(idx+1); }
+    function prev(){ showSlide(idx-1); }
+    function startTimer(){
+      timer = setInterval(next, 5000);
+    }
+    function resetTimer(){
+      clearInterval(timer);
+      startTimer();
+    }
+    dots.forEach(function(d,i){
+      d.addEventListener('click', function(){ showSlide(i); resetTimer(); });
+    });
+
+    // swipe support (mobile)
+    var touchStartX = 0, touchEndX = 0;
+    carousel.addEventListener('touchstart', function(e){
+      touchStartX = e.changedTouches[0].screenX;
+    }, {passive:true});
+    carousel.addEventListener('touchend', function(e){
+      touchEndX = e.changedTouches[0].screenX;
+      var delta = touchEndX - touchStartX;
+      if (Math.abs(delta) > 40){
+        if (delta < 0) { next(); } else { prev(); }
+        resetTimer();
+      }
+    }, {passive:true});
+
+    startTimer();
+  })();
+
+  // ---- Menu accordion ----
+  document.querySelectorAll('.menu-acc-head').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var item = btn.closest('.menu-acc-item');
+      item.classList.toggle('open');
+    });
+  });
+
+  // ---- Promo games: wheel / scratch card / mystery boxes (one random per visit, 3hr reset) ----
+  (function(){
+    var items = ['Regular Fries', 'Peri-Peri Fries', 'Fryum Chips', '2 Samosas'];
+    var COOLDOWN_MS = 3 * 60 * 60 * 1000; // 3 hours
+    var games = ['wheel', 'scratch', 'boxes'];
+
+    var promoWheel = document.getElementById('promoWheel');
+    var promoScratch = document.getElementById('promoScratch');
+    var promoBoxes = document.getElementById('promoBoxes');
+    if (!promoWheel || !promoScratch || !promoBoxes) return;
+
+    function genCode(){
+      return 'ROLLIN-' + Math.floor(1000 + Math.random()*9000);
+    }
+    function formatRemaining(ms){
+      var totalMin = Math.max(0, Math.ceil(ms/60000));
+      var h = Math.floor(totalMin/60), m = totalMin % 60;
+      return h > 0 ? ('Next free treat in ' + h + 'h ' + m + 'm') : ('Next free treat in ' + m + 'm');
+    }
+    function startCountdown(el, untilTs){
+      el.classList.add('show');
+      function tick(){
+        var remaining = untilTs - Date.now();
+        if (remaining <= 0){ clearInterval(timer); location.reload(); return; }
+        el.textContent = formatRemaining(remaining);
+      }
+      tick();
+      var timer = setInterval(tick, 30000);
+    }
+
+    var saved = null;
+    try { saved = JSON.parse(localStorage.getItem('rollinPromoState')); } catch(e){}
+
+    var activeGame, itemIndex, code, resultTs, isLocked;
+
+    if (saved && games.indexOf(saved.gameType) > -1 && typeof saved.itemIndex === 'number' && saved.code && saved.ts) {
+      var elapsed = Date.now() - saved.ts;
+      if (elapsed < COOLDOWN_MS) {
+        activeGame = saved.gameType; itemIndex = saved.itemIndex; code = saved.code; resultTs = saved.ts; isLocked = true;
+      } else {
+        try { localStorage.removeItem('rollinPromoState'); } catch(e){}
+      }
+    }
+
+    if (!activeGame) {
+      activeGame = games[Math.floor(Math.random()*games.length)];
+      itemIndex = Math.floor(Math.random()*items.length);
+      code = null; resultTs = null; isLocked = false;
+    }
+
+    var containerMap = { wheel: promoWheel, scratch: promoScratch, boxes: promoBoxes };
+    containerMap[activeGame].classList.add('active');
+
+    function persist(){
+      if (!code) code = genCode();
+      resultTs = Date.now();
+      try {
+        localStorage.setItem('rollinPromoState', JSON.stringify({ gameType: activeGame, itemIndex: itemIndex, code: code, ts: resultTs }));
+      } catch(e){}
+    }
+
+    // ---------------- WHEEL ----------------
+    if (activeGame === 'wheel') {
+      var wheel = document.getElementById('wheelSvg');
+      var btn = document.getElementById('spinBtn');
+      var resultBox = document.getElementById('spinResult');
+      var winItemEl = document.getElementById('winItem');
+      var winCodeEl = document.getElementById('winCode');
+      var countdownEl = document.getElementById('spinCountdown');
+
+      function landOn(index){
+        var segmentCenter = index*90 + 45;
+        var target = 5*360 + (360 - segmentCenter);
+        wheel.style.transform = 'rotate(' + target + 'deg)';
+      }
+      function reveal(){
+        winItemEl.textContent = items[itemIndex];
+        winCodeEl.textContent = code;
+        resultBox.classList.add('show');
+      }
+
+      if (isLocked) {
+        wheel.style.transition = 'none';
+        landOn(itemIndex);
+        reveal();
+        btn.disabled = true; btn.textContent = 'Come Back Later';
+        startCountdown(countdownEl, resultTs + COOLDOWN_MS);
+      } else {
+        btn.addEventListener('click', function(){
+          if (btn.disabled) return;
+          btn.disabled = true;
+          landOn(itemIndex);
+          setTimeout(function(){
+            persist();
+            reveal();
+            btn.textContent = 'Come Back Later';
+            startCountdown(countdownEl, resultTs + COOLDOWN_MS);
+          }, 4300);
+        });
+      }
+    }
+
+    // ---------------- SCRATCH CARD ----------------
+    if (activeGame === 'scratch') {
+      var canvas = document.getElementById('scratchCanvas');
+      var winEl2 = document.getElementById('scratchWinItem');
+      var resultBox2 = document.getElementById('scratchResult');
+      var codeEl2 = document.getElementById('scratchWinCode');
+      var countdownEl2 = document.getElementById('scratchCountdown');
+      var ctx = canvas.getContext('2d');
+
+      winEl2.textContent = items[itemIndex];
+
+      function drawCover(){
+        ctx.globalCompositeOperation = 'source-over';
+        var grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
+        grad.addColorStop(0, '#F7AD28');
+        grad.addColorStop(1, '#E68334');
+        ctx.fillStyle = grad;
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+        ctx.fillStyle = 'rgba(20,14,4,0.8)';
+        ctx.font = '700 16px Inter, sans-serif';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'middle';
+        ctx.fillText('SCRATCH HERE', canvas.width/2, canvas.height/2);
+      }
+      function sizeCanvas(){
+        var rect = canvas.getBoundingClientRect();
+        canvas.width = rect.width; canvas.height = rect.height;
+        drawCover();
+      }
+
+      if (isLocked) {
+        canvas.style.display = 'none';
+        codeEl2.textContent = code;
+        resultBox2.classList.add('show');
+        startCountdown(countdownEl2, resultTs + COOLDOWN_MS);
+      } else {
+        sizeCanvas();
+        window.addEventListener('resize', sizeCanvas);
+
+        var scratching = false;
+        var revealed = false;
+
+        function scratchAt(x, y){
+          ctx.globalCompositeOperation = 'destination-out';
+          ctx.beginPath();
+          ctx.arc(x, y, 22, 0, Math.PI*2);
+          ctx.fill();
+        }
+        function getPos(e){
+          var rect = canvas.getBoundingClientRect();
+          var t = e.touches && e.touches[0];
+          return { x: (t ? t.clientX : e.clientX) - rect.left, y: (t ? t.clientY : e.clientY) - rect.top };
+        }
+        function checkRevealed(){
+          if (revealed) return;
+          var data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
+          var transparent = 0, sampled = 0;
+          for (var i = 3; i < data.length; i += 4*25) { sampled++; if (data[i] < 40) transparent++; }
+          if (sampled && (transparent / sampled) > 0.45) {
+            revealed = true;
+            persist();
+            canvas.style.transition = 'opacity .5s ease';
+            canvas.style.opacity = '0';
+            setTimeout(function(){ canvas.style.display = 'none'; }, 500);
+            codeEl2.textContent = code;
+            resultBox2.classList.add('show');
+            startCountdown(countdownEl2, resultTs + COOLDOWN_MS);
+          }
+        }
+        function onDown(e){ scratching = true; var p = getPos(e); scratchAt(p.x, p.y); }
+        function onMove(e){ if (!scratching) return; var p = getPos(e); scratchAt(p.x, p.y); checkRevealed(); }
+        function onUp(){ scratching = false; checkRevealed(); }
+
+        canvas.addEventListener('mousedown', onDown);
+        canvas.addEventListener('mousemove', onMove);
+        window.addEventListener('mouseup', onUp);
+        canvas.addEventListener('touchstart', onDown, {passive:true});
+        canvas.addEventListener('touchmove', onMove, {passive:true});
+        canvas.addEventListener('touchend', onUp);
+      }
+    }
+
+    // ---------------- MYSTERY BOXES ----------------
+    if (activeGame === 'boxes') {
+      var boxes = promoBoxes.querySelectorAll('.mystery-box');
+      var resultBox3 = document.getElementById('boxResult');
+      var winEl3 = document.getElementById('boxWinItem');
+      var codeEl3 = document.getElementById('boxWinCode');
+      var countdownEl3 = document.getElementById('boxCountdown');
+
+      function reveal3(){
+        winEl3.textContent = items[itemIndex];
+        codeEl3.textContent = code;
+        resultBox3.classList.add('show');
+      }
+
+      if (isLocked) {
+        boxes.forEach(function(b){ b.disabled = true; b.textContent = String.fromCodePoint(0x2728); });
+        reveal3();
+        startCountdown(countdownEl3, resultTs + COOLDOWN_MS);
+      } else {
+        boxes.forEach(function(b){
+          b.addEventListener('click', function(){
+            boxes.forEach(function(bb){ bb.disabled = true; });
+            b.classList.add('chosen');
+            b.textContent = String.fromCodePoint(0x2728);
+            persist();
+            setTimeout(function(){
+              reveal3();
+              startCountdown(countdownEl3, resultTs + COOLDOWN_MS);
+            }, 400);
+          });
+        });
+      }
+    }
+  })();
+</script>
+
+<a id="floatOrder" href="https://roll-in-shawarma.square.site/" target="_blank" rel="noopener">
+  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+  Order Online
+</a>
+
+</body>
+</html>
