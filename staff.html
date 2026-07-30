@@ -109,7 +109,7 @@
   <!-- LOGIN -->
   <div class="card" id="loginCard">
     <h2>Sign in</h2>
-    <p class="hint">Enter your work email. We'll send a 6-digit code — no password needed.</p>
+    <p class="hint">Enter your work email. We'll send you a sign-in link — click it, or if a code is shown, type that in below. No password needed.</p>
     <div id="loginMsg"></div>
 
     <div id="emailStep">
@@ -296,7 +296,7 @@
     sb.auth.verifyOtp({ email: pendingEmail, token: code, type: 'email' }).then(function(res){
       btn.disabled = false; btn.textContent = 'Verify & Sign In';
       if (res.error) { showMsg('loginMsg', res.error.message, 'error'); return; }
-      afterLogin();
+      handleLoginOnce();
     });
   });
 
@@ -499,9 +499,22 @@
     });
   });
 
-  // ---------------- ON LOAD: resume session if already logged in ----------------
+  // ---------------- ON LOAD: resume session, and catch magic-link sign-ins ----------------
+  var loginHandled = false;
+  function handleLoginOnce(){
+    if (loginHandled) return;
+    loginHandled = true;
+    afterLogin();
+  }
+
   sb.auth.getSession().then(function(res){
-    if (res.data && res.data.session) { afterLogin(); }
+    if (res.data && res.data.session) { handleLoginOnce(); }
+  });
+
+  sb.auth.onAuthStateChange(function(event, session){
+    if (session && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
+      handleLoginOnce();
+    }
   });
 </script>
 
