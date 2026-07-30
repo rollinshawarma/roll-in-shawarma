@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Staff Portal | Roll-In Shawarma</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --black:#000000; --panel:#131210; --panel-2:#1b1916;
+    --white:#FFFCF3; --cream:#F3EAC9; --muted:rgba(243,234,201,0.6);
+    --gold:#F7AD28; --red:#D8342E; --green:#0BAF4C;
+    --line:rgba(243,234,201,0.14);
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{
+    background:var(--black); color:var(--cream); font-family:'Inter',sans-serif;
+    min-height:100vh; display:flex; flex-direction:column; align-items:center;
+    padding:32px 18px 60px;
+  }
+  .wrap{ width:100%; max-width:560px; }
+  .brand{ text-align:center; margin-bottom:32px; }
+  .brand .w1{ color:var(--gold); font-weight:800; font-size:20px; }
+  .brand .w2{ color:var(--red); font-weight:800; font-size:20px; margin-left:6px; }
+  .brand .sub{ font-size:12.5px; color:var(--muted); margin-top:4px; letter-spacing:0.04em; text-transform:uppercase; }
+
+  .card{ background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:28px; margin-bottom:20px; }
+  h2{ font-size:19px; font-weight:700; color:var(--white); margin-bottom:6px; }
+  .hint{ font-size:13px; color:var(--muted); margin-bottom:18px; line-height:1.5; }
+
+  label{ display:block; font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted); margin-bottom:6px; }
+  input[type=email], input[type=text], input[type=number], input[type=tel]{
+    width:100%; background:var(--black); border:1px solid var(--line); border-radius:10px;
+    padding:12px 14px; color:var(--white); font-size:15px; font-family:'Inter'; margin-bottom:16px;
+  }
+  input:focus{ outline:none; border-color:var(--gold); }
+  select{
+    width:100%; background:var(--black); border:1px solid var(--line); border-radius:10px;
+    padding:10px 12px; color:var(--white); font-size:14px; font-family:'Inter';
+  }
+
+  button{
+    font-family:'Inter'; font-weight:700; font-size:14.5px; border:none; border-radius:100px;
+    padding:13px 22px; cursor:pointer; transition:transform .15s, opacity .2s;
+  }
+  button:hover{ transform:translateY(-1px); }
+  button:disabled{ opacity:0.4; cursor:not-allowed; transform:none; }
+  .btn-primary{ background:var(--red); color:var(--white); width:100%; }
+  .btn-primary:hover{ background:var(--gold); color:#241902; }
+  .btn-clockin{ background:var(--green); color:#04220F; width:100%; padding:16px; font-size:16px; }
+  .btn-clockout{ background:var(--gold); color:#241902; width:100%; padding:16px; font-size:16px; }
+  .btn-ghost{ background:transparent; border:1px solid var(--line); color:var(--cream); }
+  .btn-small{ padding:8px 16px; font-size:13px; }
+  .btn-approve{ background:var(--green); color:#04220F; }
+  .btn-reject{ background:var(--red); color:var(--white); }
+
+  .msg{ font-size:13.5px; padding:10px 14px; border-radius:10px; margin-bottom:16px; }
+  .msg.error{ background:rgba(216,52,46,0.15); color:#ff9d97; border:1px solid rgba(216,52,46,0.4); }
+  .msg.ok{ background:rgba(11,175,76,0.15); color:#7fe3a6; border:1px solid rgba(11,175,76,0.4); }
+
+  .hidden{ display:none !important; }
+
+  .status-row{ display:flex; justify-content:space-between; align-items:center; padding:14px 0; border-bottom:1px solid var(--line); }
+  .status-row:last-child{ border-bottom:none; }
+  .status-label{ font-size:12.5px; color:var(--muted); text-transform:uppercase; letter-spacing:0.04em; }
+  .status-value{ font-size:15px; font-weight:600; color:var(--white); }
+
+  table{ width:100%; border-collapse:collapse; font-size:13.5px; }
+  th{ text-align:left; font-size:11px; text-transform:uppercase; letter-spacing:0.04em; color:var(--muted); padding:8px 6px; border-bottom:1px solid var(--line); }
+  td{ padding:10px 6px; border-bottom:1px solid var(--line); color:var(--cream); }
+  tr:last-child td{ border-bottom:none; }
+  .pill{ display:inline-block; padding:3px 10px; border-radius:100px; font-size:11px; font-weight:700; text-transform:uppercase; }
+  .pill.pending{ background:rgba(247,173,40,0.18); color:var(--gold); }
+  .pill.approved{ background:rgba(11,175,76,0.18); color:var(--green); }
+  .pill.rejected{ background:rgba(216,52,46,0.18); color:#ff9d97; }
+
+  .row2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
+  .tabs{ display:flex; gap:10px; margin-bottom:20px; flex-wrap:wrap; }
+  .tab-btn{ background:var(--panel-2); color:var(--muted); border:1px solid var(--line); }
+  .tab-btn.active{ background:var(--gold); color:#241902; border-color:var(--gold); }
+
+  .top-bar{ display:flex; justify-content:space-between; align-items:center; margin-bottom:20px; }
+  .who{ font-size:13.5px; color:var(--muted); }
+  .who b{ color:var(--white); }
+  .role-badge{ font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--gold); border:1px solid var(--gold); border-radius:100px; padding:2px 8px; margin-left:6px; }
+
+  .emp-edit-row{ display:flex; align-items:center; gap:10px; padding:12px 0; border-bottom:1px solid var(--line); flex-wrap:wrap; }
+  .emp-edit-row:last-child{ border-bottom:none; }
+  .emp-edit-row .name{ flex:1; min-width:120px; font-weight:600; color:var(--white); font-size:14px; }
+  .emp-edit-row input[type=number]{ width:90px; margin:0; padding:8px 10px; }
+  .emp-edit-row select{ width:120px; }
+
+  .spinner{ display:inline-block; width:14px; height:14px; border:2px solid rgba(255,255,255,0.3); border-top-color:var(--white); border-radius:50%; animation:spin .7s linear infinite; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+  <div class="brand">
+    <div><span class="w1">Roll-In</span><span class="w2">Shawarma</span></div>
+    <div class="sub">Staff Portal</div>
+  </div>
+
+  <!-- LOGIN -->
+  <div class="card" id="loginCard">
+    <h2>Sign in</h2>
+    <p class="hint">Enter your work email. We'll send a 6-digit code — no password needed.</p>
+    <div id="loginMsg"></div>
+
+    <div id="emailStep">
+      <label>Email</label>
+      <input type="email" id="emailInput" placeholder="you@example.com" autocomplete="email">
+      <button class="btn-primary" id="sendCodeBtn">Send Code</button>
+    </div>
+
+    <div id="codeStep" class="hidden">
+      <label>6-digit code</label>
+      <input type="text" id="codeInput" placeholder="123456" inputmode="numeric" maxlength="6">
+      <button class="btn-primary" id="verifyCodeBtn">Verify &amp; Sign In</button>
+      <button class="btn-ghost btn-small" id="backToEmailBtn" style="margin-top:10px;">Use a different email</button>
+    </div>
+  </div>
+
+  <!-- APP (hidden until logged in) -->
+  <div id="app" class="hidden">
+    <div class="top-bar">
+      <div class="who">Signed in as <b id="whoName">—</b><span class="role-badge" id="whoRole">—</span></div>
+      <button class="btn-ghost btn-small" id="signOutBtn">Sign Out</button>
+    </div>
+
+    <div class="tabs" id="tabs">
+      <button class="tab-btn active" data-tab="clock">Clock</button>
+      <button class="tab-btn hidden" data-tab="approve" id="tabApproveBtn">Approvals</button>
+      <button class="tab-btn hidden" data-tab="admin" id="tabAdminBtn">Manage Staff</button>
+    </div>
+
+    <!-- CLOCK TAB -->
+    <div class="tab-panel" id="panelClock">
+      <div class="card">
+        <h2>Today</h2>
+        <div id="clockMsg"></div>
+        <div class="status-row">
+          <span class="status-label">Clock In</span>
+          <span class="status-value" id="todayIn">—</span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">Clock Out</span>
+          <span class="status-value" id="todayOut">—</span>
+        </div>
+        <div class="status-row">
+          <span class="status-label">Status</span>
+          <span class="status-value" id="todayStatus">—</span>
+        </div>
+        <div style="margin-top:18px; display:flex; gap:12px;">
+          <button class="btn-clockin" id="clockInBtn">Clock In</button>
+          <button class="btn-clockout hidden" id="clockOutBtn">Clock Out</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Recent Hours</h2>
+        <p class="hint">Pay only shows once a manager approves that day.</p>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>Date</th><th>In</th><th>Out</th><th>Hrs</th><th>Status</th><th>Pay</th></tr></thead>
+            <tbody id="myEntriesBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- APPROVE TAB -->
+    <div class="tab-panel hidden" id="panelApprove">
+      <div class="card">
+        <h2>Pending Approval</h2>
+        <p class="hint">Review and approve or reject each day's hours.</p>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>Employee</th><th>Date</th><th>In</th><th>Out</th><th>Hrs</th><th></th></tr></thead>
+            <tbody id="pendingBody"></tbody>
+          </table>
+        </div>
+      </div>
+      <div class="card">
+        <h2>All Recent Entries</h2>
+        <div style="overflow-x:auto;">
+          <table>
+            <thead><tr><th>Employee</th><th>Date</th><th>Hrs</th><th>Status</th><th>Pay</th></tr></thead>
+            <tbody id="allEntriesBody"></tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <!-- ADMIN TAB -->
+    <div class="tab-panel hidden" id="panelAdmin">
+      <div class="card">
+        <h2>Staff &amp; Pay Rates</h2>
+        <p class="hint">Only admins can see or change pay rates.</p>
+        <div id="employeeList"></div>
+      </div>
+      <div class="card">
+        <h2>Add Employee</h2>
+        <p class="hint">They'll be able to sign in the moment they use this exact email.</p>
+        <div id="addEmpMsg"></div>
+        <label>Name</label>
+        <input type="text" id="newEmpName">
+        <label>Email</label>
+        <input type="email" id="newEmpEmail">
+        <div class="row2">
+          <div>
+            <label>Hourly Rate ($)</label>
+            <input type="number" id="newEmpRate" step="0.01" min="0">
+          </div>
+          <div>
+            <label>Role</label>
+            <select id="newEmpRole">
+              <option value="employee">Employee</option>
+              <option value="manager">Manager</option>
+              <option value="admin">Admin</option>
+            </select>
+          </div>
+        </div>
+        <button class="btn-primary" id="addEmpBtn">Add Employee</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  var SUPABASE_URL = 'https://njcmcaoyzujijiyfardx.supabase.co';
+  var SUPABASE_ANON_KEY = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
+  var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  var currentEmployee = null;
+  var pendingEmail = '';
+
+  function showMsg(elId, text, type){
+    var el = document.getElementById(elId);
+    el.innerHTML = '<div class="msg ' + type + '">' + text + '</div>';
+  }
+  function clearMsg(elId){ document.getElementById(elId).innerHTML = ''; }
+
+  function fmtTime(iso){
+    if (!iso) return '—';
+    var d = new Date(iso);
+    return d.toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
+  }
+  function fmtHours(inIso, outIso){
+    if (!inIso || !outIso) return '—';
+    var hrs = (new Date(outIso) - new Date(inIso)) / 3600000;
+    return hrs.toFixed(2);
+  }
+  function fmtPay(inIso, outIso, rate, status){
+    if (status !== 'approved' || !inIso || !outIso) return '—';
+    var hrs = (new Date(outIso) - new Date(inIso)) / 3600000;
+    return '$' + (hrs * rate).toFixed(2);
+  }
+  function pillHtml(status){
+    return '<span class="pill ' + status + '">' + status + '</span>';
+  }
+
+  // ---------------- LOGIN FLOW ----------------
+  document.getElementById('sendCodeBtn').addEventListener('click', function(){
+    var email = document.getElementById('emailInput').value.trim();
+    if (!email) { showMsg('loginMsg', 'Enter your email first.', 'error'); return; }
+    clearMsg('loginMsg');
+    var btn = document.getElementById('sendCodeBtn');
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Sending...';
+    sb.auth.signInWithOtp({ email: email }).then(function(res){
+      btn.disabled = false; btn.textContent = 'Send Code';
+      if (res.error) { showMsg('loginMsg', res.error.message, 'error'); return; }
+      pendingEmail = email;
+      document.getElementById('emailStep').classList.add('hidden');
+      document.getElementById('codeStep').classList.remove('hidden');
+      showMsg('loginMsg', 'Code sent to ' + email + '. Check your inbox.', 'ok');
+    });
+  });
+
+  document.getElementById('backToEmailBtn').addEventListener('click', function(){
+    document.getElementById('codeStep').classList.add('hidden');
+    document.getElementById('emailStep').classList.remove('hidden');
+    clearMsg('loginMsg');
+  });
+
+  document.getElementById('verifyCodeBtn').addEventListener('click', function(){
+    var code = document.getElementById('codeInput').value.trim();
+    if (!code) { showMsg('loginMsg', 'Enter the code from your email.', 'error'); return; }
+    var btn = document.getElementById('verifyCodeBtn');
+    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Verifying...';
+    sb.auth.verifyOtp({ email: pendingEmail, token: code, type: 'email' }).then(function(res){
+      btn.disabled = false; btn.textContent = 'Verify & Sign In';
+      if (res.error) { showMsg('loginMsg', res.error.message, 'error'); return; }
+      afterLogin();
+    });
+  });
+
+  document.getElementById('signOutBtn').addEventListener('click', function(){
+    sb.auth.signOut().then(function(){ location.reload(); });
+  });
+
+  function afterLogin(){
+    sb.rpc('claim_employee_record').then(function(res){
+      if (res.error || !res.data) {
+        showMsg('loginMsg', "This email isn't registered as staff. Ask your manager to add you.", 'error');
+        sb.auth.signOut();
+        return;
+      }
+      currentEmployee = res.data;
+      document.getElementById('loginCard').classList.add('hidden');
+      document.getElementById('app').classList.remove('hidden');
+      document.getElementById('whoName').textContent = currentEmployee.name;
+      document.getElementById('whoRole').textContent = currentEmployee.role;
+
+      if (currentEmployee.role === 'manager' || currentEmployee.role === 'admin') {
+        document.getElementById('tabApproveBtn').classList.remove('hidden');
+        loadApprovals();
+      }
+      if (currentEmployee.role === 'admin') {
+        document.getElementById('tabAdminBtn').classList.remove('hidden');
+        loadAdmin();
+      }
+      loadMyEntries();
+    });
+  }
+
+  // ---------------- TABS ----------------
+  document.querySelectorAll('.tab-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.tab-btn').forEach(function(b){ b.classList.remove('active'); });
+      document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.add('hidden'); });
+      btn.classList.add('active');
+      document.getElementById('panel' + btn.dataset.tab.charAt(0).toUpperCase() + btn.dataset.tab.slice(1)).classList.remove('hidden');
+    });
+  });
+
+  // ---------------- CLOCK TAB ----------------
+  function refreshTodayUI(entry){
+    document.getElementById('todayIn').textContent = entry ? fmtTime(entry.clock_in) : '—';
+    document.getElementById('todayOut').textContent = entry ? fmtTime(entry.clock_out) : '—';
+    document.getElementById('todayStatus').innerHTML = entry ? pillHtml(entry.status) : '—';
+    var inBtn = document.getElementById('clockInBtn');
+    var outBtn = document.getElementById('clockOutBtn');
+    if (!entry || !entry.clock_in) {
+      inBtn.classList.remove('hidden'); outBtn.classList.add('hidden');
+    } else if (entry.clock_in && !entry.clock_out) {
+      inBtn.classList.add('hidden'); outBtn.classList.remove('hidden');
+    } else {
+      inBtn.classList.add('hidden'); outBtn.classList.add('hidden');
+    }
+  }
+
+  document.getElementById('clockInBtn').addEventListener('click', function(){
+    var btn = this; btn.disabled = true;
+    sb.rpc('clock_in').then(function(res){
+      btn.disabled = false;
+      if (res.error) { showMsg('clockMsg', res.error.message, 'error'); return; }
+      showMsg('clockMsg', 'Clocked in at ' + fmtTime(res.data.clock_in) + '.', 'ok');
+      refreshTodayUI(res.data);
+      loadMyEntries();
+    });
+  });
+
+  document.getElementById('clockOutBtn').addEventListener('click', function(){
+    var btn = this; btn.disabled = true;
+    sb.rpc('clock_out').then(function(res){
+      btn.disabled = false;
+      if (res.error) { showMsg('clockMsg', res.error.message, 'error'); return; }
+      showMsg('clockMsg', 'Clocked out at ' + fmtTime(res.data.clock_out) + '. Awaiting manager approval.', 'ok');
+      refreshTodayUI(res.data);
+      loadMyEntries();
+    });
+  });
+
+  function loadMyEntries(){
+    sb.from('time_entries').select('*').eq('employee_id', currentEmployee.id)
+      .order('work_date', {ascending:false}).limit(30).then(function(res){
+      if (res.error) return;
+      var today = new Date().toISOString().slice(0,10);
+      var todayEntry = res.data.find(function(e){ return e.work_date === today; });
+      refreshTodayUI(todayEntry);
+
+      var rows = res.data.map(function(e){
+        return '<tr>' +
+          '<td>' + e.work_date + '</td>' +
+          '<td>' + fmtTime(e.clock_in) + '</td>' +
+          '<td>' + fmtTime(e.clock_out) + '</td>' +
+          '<td>' + fmtHours(e.clock_in, e.clock_out) + '</td>' +
+          '<td>' + pillHtml(e.status) + '</td>' +
+          '<td>' + fmtPay(e.clock_in, e.clock_out, currentEmployee.hourly_rate, e.status) + '</td>' +
+        '</tr>';
+      }).join('');
+      document.getElementById('myEntriesBody').innerHTML = rows || '<tr><td colspan="6" style="color:var(--muted);">No entries yet.</td></tr>';
+    });
+  }
+
+  // ---------------- APPROVALS TAB (manager/admin) ----------------
+  function loadApprovals(){
+    sb.from('employees').select('id,name,hourly_rate').then(function(empRes){
+      var empMap = {};
+      (empRes.data || []).forEach(function(e){ empMap[e.id] = e; });
+
+      sb.from('time_entries').select('*').order('work_date', {ascending:false}).limit(200).then(function(res){
+        if (res.error) return;
+        var pending = res.data.filter(function(e){ return e.status === 'pending' && e.clock_out; });
+
+        document.getElementById('pendingBody').innerHTML = pending.map(function(e){
+          var emp = empMap[e.employee_id] || {name:'—'};
+          return '<tr>' +
+            '<td>' + emp.name + '</td>' +
+            '<td>' + e.work_date + '</td>' +
+            '<td>' + fmtTime(e.clock_in) + '</td>' +
+            '<td>' + fmtTime(e.clock_out) + '</td>' +
+            '<td>' + fmtHours(e.clock_in, e.clock_out) + '</td>' +
+            '<td style="white-space:nowrap;">' +
+              '<button class="btn-approve btn-small" data-id="' + e.id + '" data-action="approved">Approve</button> ' +
+              '<button class="btn-reject btn-small" data-id="' + e.id + '" data-action="rejected">Reject</button>' +
+            '</td>' +
+          '</tr>';
+        }).join('') || '<tr><td colspan="6" style="color:var(--muted);">Nothing waiting on approval.</td></tr>';
+
+        document.getElementById('allEntriesBody').innerHTML = res.data.map(function(e){
+          var emp = empMap[e.employee_id] || {name:'—', hourly_rate:0};
+          return '<tr>' +
+            '<td>' + emp.name + '</td>' +
+            '<td>' + e.work_date + '</td>' +
+            '<td>' + fmtHours(e.clock_in, e.clock_out) + '</td>' +
+            '<td>' + pillHtml(e.status) + '</td>' +
+            '<td>' + fmtPay(e.clock_in, e.clock_out, emp.hourly_rate, e.status) + '</td>' +
+          '</tr>';
+        }).join('');
+
+        document.querySelectorAll('#pendingBody button').forEach(function(btn){
+          btn.addEventListener('click', function(){
+            var id = btn.dataset.id, action = btn.dataset.action;
+            btn.disabled = true;
+            sb.rpc('set_entry_status', {entry_id:id, new_status:action}).then(function(){
+              loadApprovals();
+            });
+          });
+        });
+      });
+    });
+  }
+
+  // ---------------- ADMIN TAB ----------------
+  function loadAdmin(){
+    sb.from('employees').select('*').order('name').then(function(res){
+      if (res.error) return;
+      document.getElementById('employeeList').innerHTML = res.data.map(function(e){
+        return '<div class="emp-edit-row" data-id="' + e.id + '">' +
+          '<span class="name">' + e.name + '</span>' +
+          '<input type="number" step="0.01" min="0" class="rate-input" value="' + e.hourly_rate + '">' +
+          '<select class="role-select">' +
+            ['employee','manager','admin'].map(function(r){
+              return '<option value="' + r + '"' + (r===e.role?' selected':'') + '>' + r + '</option>';
+            }).join('') +
+          '</select>' +
+          '<button class="btn-primary btn-small save-emp-btn">Save</button>' +
+        '</div>';
+      }).join('');
+
+      document.querySelectorAll('.save-emp-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var row = btn.closest('.emp-edit-row');
+          var id = row.dataset.id;
+          var rate = parseFloat(row.querySelector('.rate-input').value);
+          var role = row.querySelector('.role-select').value;
+          btn.disabled = true; btn.textContent = 'Saving...';
+          sb.rpc('admin_update_employee', {emp_id:id, new_rate:rate, new_role:role}).then(function(res){
+            btn.disabled = false; btn.textContent = 'Save';
+            if (!res.error) { btn.textContent = 'Saved'; setTimeout(function(){ btn.textContent='Save'; }, 1500); }
+          });
+        });
+      });
+    });
+  }
+
+  document.getElementById('addEmpBtn').addEventListener('click', function(){
+    var name = document.getElementById('newEmpName').value.trim();
+    var email = document.getElementById('newEmpEmail').value.trim();
+    var rate = parseFloat(document.getElementById('newEmpRate').value) || 0;
+    var role = document.getElementById('newEmpRole').value;
+    if (!name || !email) { showMsg('addEmpMsg', 'Name and email are required.', 'error'); return; }
+    var btn = this; btn.disabled = true;
+    sb.rpc('admin_add_employee', {emp_name:name, emp_email:email, emp_rate:rate, emp_role:role}).then(function(res){
+      btn.disabled = false;
+      if (res.error) { showMsg('addEmpMsg', res.error.message, 'error'); return; }
+      showMsg('addEmpMsg', name + ' added. They can sign in with ' + email + '.', 'ok');
+      document.getElementById('newEmpName').value = '';
+      document.getElementById('newEmpEmail').value = '';
+      document.getElementById('newEmpRate').value = '';
+      loadAdmin();
+    });
+  });
+
+  // ---------------- ON LOAD: resume session if already logged in ----------------
+  sb.auth.getSession().then(function(res){
+    if (res.data && res.data.session) { afterLogin(); }
+  });
+</script>
+
+</body>
+</html>
