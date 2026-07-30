@@ -272,7 +272,10 @@
     clearMsg('loginMsg');
     var btn = document.getElementById('sendCodeBtn');
     btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Sending...';
-    sb.auth.signInWithOtp({ email: email }).then(function(res){
+    sb.auth.signInWithOtp({
+      email: email,
+      options: { emailRedirectTo: window.location.origin + window.location.pathname }
+    }).then(function(res){
       btn.disabled = false; btn.textContent = 'Send Code';
       if (res.error) { showMsg('loginMsg', res.error.message, 'error'); return; }
       pendingEmail = email;
