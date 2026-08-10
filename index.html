@@ -73,24 +73,32 @@
   }
   #annbar .wrap{
     display:flex; align-items:center; justify-content:center; gap:14px;
-    padding:11px 44px 11px 32px; text-align:center; position:relative; min-height:auto;
+    padding:18px 44px 18px 32px; text-align:center; position:relative; min-height:auto;
   }
-  #annbar .ann-text{ font-size:13.5px; font-weight:600; line-height:1.4; }
+  #annbar .ann-text{ font-size:13.5px; font-weight:600; display:flex; flex-direction:column; align-items:center; gap:6px; }
   #annbar .ann-text b{ color:#FFFCF3; text-decoration:underline; text-underline-offset:3px; }
+  #annbar .ann-line{ line-height:1.4; }
+  #annbar .ann-schedule{ display:flex; flex-direction:column; align-items:center; gap:3px; margin:2px 0; }
+  #annbar .ann-day-row{ display:flex; gap:12px; align-items:baseline; }
+  #annbar .ann-day{ min-width:92px; text-align:right; font-weight:700; color:#FFFCF3; }
+  #annbar .ann-time{ min-width:150px; text-align:left; }
+  #annbar .ann-inline-link{ color:#FFFCF3; text-decoration:underline; text-underline-offset:3px; font-weight:700; }
   #annbar .ann-cta{
     flex:none; background:rgba(0,0,0,0.22); color:var(--white); font-size:12.5px; font-weight:700;
     padding:6px 14px; border-radius:100px; white-space:nowrap; transition:background .2s;
   }
   #annbar .ann-cta:hover{ background:rgba(0,0,0,0.38); }
   #annbar .ann-close{
-    position:absolute; right:14px; top:50%; transform:translateY(-50%);
+    position:absolute; right:14px; top:20px;
     background:none; border:none; color:rgba(255,255,255,0.8); cursor:pointer; padding:4px; line-height:0;
   }
   #annbar .ann-close:hover{ color:var(--white); }
   #annbar .ann-close svg{ width:16px; height:16px; }
   @media (max-width:640px){
-    #annbar .wrap{ flex-wrap:wrap; padding:10px 40px 10px 16px; gap:8px; }
+    #annbar .wrap{ flex-wrap:wrap; padding:16px 40px 16px 16px; gap:8px; }
     #annbar .ann-text{ font-size:12.5px; }
+    #annbar .ann-day{ min-width:74px; }
+    #annbar .ann-time{ min-width:118px; }
   }
 
   /* ---------- NAV ---------- */
@@ -503,8 +511,16 @@
 
 <div id="annbar">
   <div class="wrap">
-    <div class="ann-text">&#10084;&#65039; Thank you for all the love and support so far! If you enjoyed your food, a <b>Google review</b> means the world to a small truck like us. We're also working with the <b>City of Green</b> on a standard home location &mdash; we'll share it here as soon as it's set.</div>
-    <a class="ann-cta" href="https://g.page/r/CbQeOtyzbDakEAI/review" target="_blank" rel="noopener">Leave a Review</a>
+    <div class="ann-text">
+      <div class="ann-line">&#128205; Find us at <b>3554 S Arlington Rd, Akron, OH</b></div>
+      <div class="ann-schedule">
+        <div class="ann-day-row"><span class="ann-day">Fri, Aug 14</span><span class="ann-time">4:00 PM &ndash; 9:00 PM</span></div>
+        <div class="ann-day-row"><span class="ann-day">Sat, Aug 15</span><span class="ann-time">11:00 AM &ndash; 9:00 PM</span></div>
+        <div class="ann-day-row"><span class="ann-day">Sun, Aug 16</span><span class="ann-time">11:00 AM &ndash; 8:00 PM</span></div>
+      </div>
+      <div class="ann-line">&#10084;&#65039; Loved your food? <a href="https://g.page/r/CbQeOtyzbDakEAI/review" target="_blank" rel="noopener" class="ann-inline-link">Leave us a Google review</a></div>
+    </div>
+    <a class="ann-cta" href="https://www.google.com/maps/dir/?api=1&destination=3554+S+Arlington+Rd,+Akron,+OH+44312" target="_blank" rel="noopener">Get Directions</a>
     <button class="ann-close" type="button" aria-label="Dismiss announcement">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </button>
