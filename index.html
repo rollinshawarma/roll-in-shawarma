@@ -75,10 +75,10 @@
     display:flex; align-items:center; justify-content:center;
     padding:12px 44px 12px 32px; position:relative; min-height:auto;
   }
-  #annbar .ann-rotator{ position:relative; width:100%; max-width:720px; height:20px; }
+  #annbar .ann-rotator{ position:relative; width:100%; max-width:720px; height:40px; }
   #annbar .ann-slide{
     position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-    gap:6px; font-size:13.5px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
+    gap:6px; font-size:13.5px; font-weight:600; white-space:normal; line-height:1.4; flex-wrap:wrap; row-gap:2px;
     opacity:0; visibility:hidden; transition:opacity .5s ease; text-align:center;
   }
   #annbar .ann-slide.active{ opacity:1; visibility:visible; }
@@ -93,8 +93,8 @@
   #annbar .ann-close svg{ width:16px; height:16px; }
   @media (max-width:640px){
     #annbar .wrap{ padding:12px 40px 12px 16px; }
-    #annbar .ann-rotator{ height:32px; }
-    #annbar .ann-slide{ font-size:12px; white-space:normal; line-height:1.35; }
+    #annbar .ann-rotator{ height:52px; }
+    #annbar .ann-slide{ font-size:12px; line-height:1.35; }
     #annbar .ann-logo{ height:15px; }
   }
 
@@ -511,7 +511,7 @@
 <div id="annbar">
   <div class="wrap">
     <div class="ann-rotator" id="annRotator">
-      <div class="ann-slide active" data-until="2026-08-22T22:00:00">&#127881; <b>Uniontown Lions Festival</b> &mdash; Wed Aug 19 &ndash; Sat Aug 22 &middot; 5:00&ndash;10:00 PM &middot; 1289 Edison St NW, Hartville <a class="ann-inline-link" href="https://www.google.com/maps/dir/?api=1&destination=1289+Edison+St+NW,+Hartville,+OH+44632" target="_blank" rel="noopener">Map</a></div>
+      <div class="ann-slide active" data-until="2026-08-22T22:00:00">&#127881; <b>Uniontown Lions Festival</b> &mdash; Wed Aug 19&ndash;Sat Aug 22 &middot; 5&ndash;10 PM &middot; Hartville, OH <a class="ann-inline-link" href="https://www.google.com/maps/dir/?api=1&destination=1289+Edison+St+NW,+Hartville,+OH+44632" target="_blank" rel="noopener">Map</a></div>
       <div class="ann-slide">&#128666; Can't make it out? We're now on DoorDash &mdash; <a class="ann-inline-link" href="https://www.doordash.com/store/50939284?utm_source=mx_share&aw=fc6-1DRt7wXTthTD" target="_blank" rel="noopener">Order Delivery</a></div>
       <div class="ann-slide">&#10084;&#65039; Loved your food? <a class="ann-inline-link" href="https://g.page/r/CbQeOtyzbDakEAI/review" target="_blank" rel="noopener">Leave us a Google review</a></div>
     </div>
