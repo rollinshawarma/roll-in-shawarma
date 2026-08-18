@@ -38,9 +38,10 @@
   .hint{ font-size:12.5px; color:var(--muted); margin-bottom:16px; line-height:1.5; }
 
   label{ display:block; font-size:11.5px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted); margin-bottom:6px; }
-  input[type=email], input[type=text], input[type=number], input[type=tel], input[type=search]{
+  input[type=email], input[type=text], input[type=number], input[type=tel], input[type=search], input[type=date], input[type=time]{
     width:100%; background:var(--black); border:1px solid var(--line); border-radius:10px;
     padding:11px 13px; color:var(--white); font-size:14.5px; font-family:'Inter'; margin-bottom:14px;
+    color-scheme:dark;
   }
   input:focus{ outline:none; border-color:var(--gold); }
   select{
@@ -206,6 +207,12 @@
   .redeem-fallback{ margin-top:16px; }
   .redeem-fallback summary{ cursor:pointer; font-size:13px; color:var(--muted); }
   .redeem-fallback summary:hover{ color:var(--cream); }
+  .manual-entry-toggle summary{ cursor:pointer; list-style:none; }
+  .manual-entry-toggle summary::-webkit-details-marker{ display:none; }
+  .manual-entry-toggle summary::after{ content:'+'; float:right; font-size:22px; color:var(--gold); font-weight:400; line-height:1; }
+  .manual-entry-toggle[open] summary::after{ content:'\2212'; }
+  .manual-entry-toggle > *:not(summary){ margin-top:0; }
+  .manual-entry-toggle label:first-of-type{ margin-top:14px; }
   .scan-result-box{ padding:26px 20px; border-radius:16px; text-align:center; margin-top:12px; }
   .scan-result-box.go{ background:rgba(11,175,76,0.16); border:2px solid var(--green); }
   .scan-result-box.stop{ background:rgba(216,52,46,0.16); border:2px solid var(--red); }
@@ -217,6 +224,14 @@
     .stat-grid{ grid-template-columns:1fr 1fr; }
     table{ font-size:12px; }
     th, td{ padding:8px 6px; }
+    .row2{ grid-template-columns:1fr; gap:0; }
+    .emp-edit-row{ gap:8px; }
+    .emp-edit-row .name{ width:100%; margin-bottom:4px; }
+    .emp-edit-row input[type=number]{ flex:1; width:auto; }
+    .emp-edit-row select{ flex:1; width:auto; }
+    .toolbar{ flex-direction:column; align-items:stretch; }
+    button{ min-height:44px; }
+    .btn-small{ min-height:38px; }
   }
 </style>
 </head>
@@ -421,6 +436,29 @@
           <button class="btn-primary btn-small" id="redeemLookupBtn" style="height:fit-content;">Look Up</button>
         </div>
         <div id="redeemResult"></div>
+      </details>
+    </div>
+
+    <div class="card">
+      <details class="manual-entry-toggle">
+        <summary><h2 style="display:inline;">Add Missed Hours</h2></summary>
+        <p class="hint" style="margin-top:10px;">For an employee who forgot to clock in/out. This creates or overwrites that day's entry, and it still goes through normal approval.</p>
+        <div id="manualEntryMsg"></div>
+        <label>Employee</label>
+        <select id="manualEmpSelect"></select>
+        <label>Date</label>
+        <input type="date" id="manualDate">
+        <div class="row2">
+          <div>
+            <label>Clock In</label>
+            <input type="time" id="manualIn">
+          </div>
+          <div>
+            <label>Clock Out</label>
+            <input type="time" id="manualOut">
+          </div>
+        </div>
+        <button class="btn-primary" id="manualEntryBtn">Save Hours</button>
       </details>
     </div>
 
@@ -967,11 +1005,49 @@
     });
   });
 
+  // ---------------- MANUAL TIME ENTRY (missed clock-in) ----------------
+  document.getElementById('manualEntryBtn').addEventListener('click', function(){
+    var empId = document.getElementById('manualEmpSelect').value;
+    var dateStr = document.getElementById('manualDate').value;
+    var inTime = document.getElementById('manualIn').value;
+    var outTime = document.getElementById('manualOut').value;
+
+    if (!empId || !dateStr || !inTime) {
+      showMsg('manualEntryMsg', 'Employee, date, and clock in time are required.', 'error');
+      return;
+    }
+
+    var inIso = new Date(dateStr + 'T' + inTime + ':00').toISOString();
+    var outIso = outTime ? new Date(dateStr + 'T' + outTime + ':00').toISOString() : null;
+
+    var btn = this; btn.disabled = true;
+    clearMsg('manualEntryMsg');
+    sb.rpc('manual_time_entry', {
+      target_employee_id: empId, entry_date: dateStr, in_time: inIso, out_time: outIso
+    }).then(function(res){
+      btn.disabled = false;
+      if (res.error) { showMsg('manualEntryMsg', res.error.message, 'error'); return; }
+      showMsg('manualEntryMsg', 'Saved — now showing in Pending Approval below.', 'ok');
+      document.getElementById('manualDate').value = '';
+      document.getElementById('manualIn').value = '';
+      document.getElementById('manualOut').value = '';
+      loadApprovals();
+      loadPayroll();
+    });
+  });
+
   function loadApprovals(){
     sb.from('employees').select('id,name,hourly_rate').then(function(empRes){
       approvalsEmpMap = {};
       (empRes.data || []).forEach(function(e){ approvalsEmpMap[e.id] = e; });
       allEmployeesCache = empRes.data || [];
+
+      var manualSel = document.getElementById('manualEmpSelect');
+      if (manualSel) {
+        manualSel.innerHTML = allEmployeesCache.map(function(e){
+          return '<option value="' + e.id + '">' + esc(e.name) + '</option>';
+        }).join('');
+      }
 
       sb.from('time_entries').select('*').order('work_date', {ascending:false}).limit(400).then(function(res){
         if (res.error) return;
