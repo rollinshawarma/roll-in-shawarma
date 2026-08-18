@@ -611,6 +611,7 @@
       <a href="#find" class="has-icon"><svg class="icon-truck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>Find Us</a>
     </div>
     <a class="nav-signin" href="#deals" id="navSignIn">Sign In</a>
+    <a class="nav-signin hidden" href="#" id="navSignOut">Sign Out</a>
     <a class="nav-order" href="https://roll-in-shawarma.square.site/" target="_blank" rel="noopener">Order Online</a>
     <a class="nav-cta" href="tel:+13305875203">Call Us</a>
     <button class="nav-toggle" aria-label="Open menu">
@@ -620,6 +621,7 @@
   <div class="mobile-nav">
     <a href="https://roll-in-shawarma.square.site/" target="_blank" rel="noopener" style="color:var(--gold);">Order Online</a>
     <a href="#deals" id="mobileNavSignIn">Sign In</a>
+    <a href="#" id="mobileNavSignOut" class="hidden">Sign Out</a>
     <a href="#menu">Menu</a>
     <a href="#deals">Deals</a>
     <a href="#story">Our Story</a>
@@ -1740,17 +1742,35 @@
     }
   })();
 
-  // ---- Nav sign-in status ----
+  // ---- Nav sign-in / sign-out status ----
   (function(){
-    var navLinks = [document.getElementById('navSignIn'), document.getElementById('mobileNavSignIn')];
-    var isMember = false;
-    try { isMember = !!localStorage.getItem('rollinMemberCode'); } catch(e){}
-    if (!isMember) return;
-    navLinks.forEach(function(el){
+    var signInLinks = [document.getElementById('navSignIn'), document.getElementById('mobileNavSignIn')];
+    var signOutLinks = [document.getElementById('navSignOut'), document.getElementById('mobileNavSignOut')];
+
+    function refresh(){
+      var isMember = false;
+      try { isMember = !!localStorage.getItem('rollinMemberCode'); } catch(e){}
+      signInLinks.forEach(function(el){
+        if (!el) return;
+        el.textContent = isMember ? 'My Deals ✓' : 'Sign In';
+        el.classList.toggle('is-member', isMember);
+      });
+      signOutLinks.forEach(function(el){
+        if (!el) return;
+        el.classList.toggle('hidden', !isMember);
+      });
+    }
+
+    signOutLinks.forEach(function(el){
       if (!el) return;
-      el.textContent = 'My Deals ✓';
-      el.classList.add('is-member');
+      el.addEventListener('click', function(e){
+        e.preventDefault();
+        try { localStorage.removeItem('rollinMemberCode'); } catch(err){}
+        location.reload();
+      });
     });
+
+    refresh();
   })();
 
   // ---- Members-only deals: signup gate ----
