@@ -9,6 +9,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 <style>
   :root{
     --black:#000000; --panel:#131210; --panel-2:#1b1916;
@@ -198,6 +199,18 @@
   }
 
   .spinner{ display:inline-block; width:13px; height:13px; border:2px solid rgba(255,255,255,0.3); border-top-color:currentColor; border-radius:50%; animation:spin .7s linear infinite; }
+
+  /* ---------- QR SCANNER ---------- */
+  #scannerWrap{ position:relative; }
+  #scannerVideo{ width:100%; border-radius:14px; background:#000; display:block; max-height:340px; object-fit:cover; }
+  .redeem-fallback{ margin-top:16px; }
+  .redeem-fallback summary{ cursor:pointer; font-size:13px; color:var(--muted); }
+  .redeem-fallback summary:hover{ color:var(--cream); }
+  .scan-result-box{ padding:26px 20px; border-radius:16px; text-align:center; margin-top:12px; }
+  .scan-result-box.go{ background:rgba(11,175,76,0.16); border:2px solid var(--green); }
+  .scan-result-box.stop{ background:rgba(216,52,46,0.16); border:2px solid var(--red); }
+  .scan-result-box .big-icon{ font-size:44px; margin-bottom:10px; line-height:1; }
+  .scan-result-box .result-text{ font-size:15px; font-weight:700; color:var(--white); }
   @keyframes spin{ to{ transform:rotate(360deg); } }
 
   @media (max-width:600px){
@@ -385,6 +398,33 @@
   <!-- APPROVE TAB -->
   <div class="tab-panel hidden" id="panelApprove">
     <div class="card">
+      <h2>Redeem Free Roll</h2>
+      <p class="hint">Scan the member's QR code to check it instantly.</p>
+      <div id="redeemMsg"></div>
+
+      <button class="btn-primary" id="scanQrBtn" style="width:100%; margin-bottom:14px;">
+        <svg class="icon"><use href="#ic-scan"/></svg>Scan QR Code
+      </button>
+
+      <div id="scannerWrap" class="hidden">
+        <video id="scannerVideo" playsinline muted></video>
+        <canvas id="scannerCanvas" class="hidden"></canvas>
+        <button class="btn-ghost btn-small" id="stopScanBtn" style="width:100%; margin-top:10px;">Cancel Scan</button>
+      </div>
+
+      <div id="scanResultBox"></div>
+
+      <details class="redeem-fallback">
+        <summary>Can't scan? Look up by email instead</summary>
+        <div class="row2" style="margin-top:12px;">
+          <input type="email" id="redeemEmail" placeholder="customer@email.com" style="margin-bottom:10px;">
+          <button class="btn-primary btn-small" id="redeemLookupBtn" style="height:fit-content;">Look Up</button>
+        </div>
+        <div id="redeemResult"></div>
+      </details>
+    </div>
+
+    <div class="card">
       <h2>Pending Approval</h2>
       <p class="hint">Review and approve or reject each day's hours.</p>
       <div style="overflow-x:auto;">
@@ -445,6 +485,22 @@
       </div>
       <button class="btn-primary" id="addEmpBtn">Add Employee</button>
     </div>
+    <div class="card">
+      <h2>Website Email Signups</h2>
+      <p class="hint">People who signed up on the public site to hear about new stops.</p>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <span id="signupCount" class="hint" style="margin:0;">&mdash;</span>
+        <button class="btn-export btn-small" id="exportSignupsBtn">
+          <svg class="icon" style="width:13px;height:13px;"><use href="#ic-download"/></svg>Export CSV
+        </button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>Email</th><th>Signed Up</th></tr></thead>
+          <tbody id="signupsBody"></tbody>
+        </table>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -463,6 +519,7 @@
     <symbol id="ic-home" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
     <symbol id="ic-check" viewBox="0 0 24 24"><path d="M4 12l6 6L20 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="ic-logout" viewBox="0 0 24 24"><path d="M9 21H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h4M16 17l5-5-5-5M21 12H9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="ic-scan" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M3 12h18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
   </defs>
 </svg>
 
@@ -784,6 +841,132 @@
   }
   document.getElementById('approveSearch').addEventListener('input', renderApprovalsAll);
 
+  // ---------------- QR SCANNER ----------------
+  (function(){
+    var scanBtn = document.getElementById('scanQrBtn');
+    var stopBtn = document.getElementById('stopScanBtn');
+    var wrap = document.getElementById('scannerWrap');
+    var video = document.getElementById('scannerVideo');
+    var canvas = document.getElementById('scannerCanvas');
+    var resultBox = document.getElementById('scanResultBox');
+    if (!scanBtn) return;
+
+    var scanning = false;
+    var videoStream = null;
+
+    function stopScanner(){
+      scanning = false;
+      if (videoStream) {
+        videoStream.getTracks().forEach(function(t){ t.stop(); });
+        videoStream = null;
+      }
+      wrap.classList.add('hidden');
+    }
+
+    function tick(){
+      if (!scanning) return;
+      if (video.readyState === video.HAVE_ENOUGH_DATA) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        var ctx = canvas.getContext('2d');
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+        var code = jsQR(imageData.data, imageData.width, imageData.height);
+        if (code && code.data) {
+          stopScanner();
+          handleScannedCode(code.data);
+          return;
+        }
+      }
+      requestAnimationFrame(tick);
+    }
+
+    scanBtn.addEventListener('click', function(){
+      resultBox.innerHTML = '';
+      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then(function(stream){
+        videoStream = stream;
+        video.srcObject = stream;
+        video.play();
+        wrap.classList.remove('hidden');
+        scanning = true;
+        requestAnimationFrame(tick);
+      }).catch(function(err){
+        resultBox.innerHTML = '<div class="msg error">Could not access camera: ' + esc(err.message) + '</div>';
+      });
+    });
+
+    stopBtn.addEventListener('click', stopScanner);
+
+    function handleScannedCode(scanCode){
+      resultBox.innerHTML = '<p class="hint">Checking...</p>';
+      sb.rpc('lookup_free_roll_by_code', {scan_code: scanCode}).then(function(res){
+        if (res.error || !res.data) {
+          showScanResult(false, "Not a valid member code.");
+          return;
+        }
+        var row = res.data;
+        if (row.free_roll_redeemed) {
+          showScanResult(false, 'Already redeemed on ' + row.redeemed_at.slice(0,10) + '.');
+          return;
+        }
+        showScanResult(true, 'Valid member — free roll available.', row);
+      });
+    }
+
+    function showScanResult(ok, text, row){
+      var cls = ok ? 'go' : 'stop';
+      var icon = ok ? '&#9989;' : '&#10060;';
+      var btnHtml = ok ? '<button class="btn-approve btn-small" id="confirmScanRedeemBtn" style="margin-top:14px;">Mark Redeemed</button>' : '';
+      resultBox.innerHTML = '<div class="scan-result-box ' + cls + '"><div class="big-icon">' + icon + '</div><div class="result-text">' + esc(text) + '</div>' + btnHtml + '</div>';
+      if (ok && row) {
+        document.getElementById('confirmScanRedeemBtn').addEventListener('click', function(){
+          var btn = this; btn.disabled = true;
+          sb.rpc('redeem_free_roll_by_code', {scan_code: row.redeem_code}).then(function(res2){
+            if (res2.error) { alert(res2.error.message); btn.disabled = false; return; }
+            resultBox.innerHTML = '<div class="scan-result-box go"><div class="big-icon">&#9989;</div><div class="result-text">Redeemed! Enjoy.</div></div>';
+          });
+        });
+      }
+    }
+  })();
+
+  // ---------------- FREE ROLL REDEMPTION ----------------
+  function renderRedeemResult(row){
+    var el = document.getElementById('redeemResult');
+    if (!row) {
+      el.innerHTML = '<p class="hint">No member found with that email.</p>';
+      return;
+    }
+    if (row.free_roll_redeemed) {
+      el.innerHTML = '<div class="msg error">Already redeemed on ' + row.redeemed_at.slice(0,10) + '. Cannot be used again.</div>';
+      return;
+    }
+    el.innerHTML = '<div class="msg ok">Member since ' + row.created_at.slice(0,10) + ' — free roll not yet used.</div>' +
+      '<button class="btn-approve btn-small" id="confirmRedeemBtn">Mark Redeemed</button>';
+    document.getElementById('confirmRedeemBtn').addEventListener('click', function(){
+      var btn = this; btn.disabled = true;
+      sb.rpc('redeem_free_roll', {signup_email: row.email}).then(function(res){
+        if (res.error) { showMsg('redeemMsg', res.error.message, 'error'); btn.disabled = false; return; }
+        showMsg('redeemMsg', 'Redeemed! Free roll marked as used for ' + esc(row.email) + '.', 'ok');
+        document.getElementById('redeemResult').innerHTML = '';
+        document.getElementById('redeemEmail').value = '';
+      });
+    });
+  }
+
+  document.getElementById('redeemLookupBtn').addEventListener('click', function(){
+    var email = document.getElementById('redeemEmail').value.trim();
+    if (!email) return;
+    clearMsg('redeemMsg');
+    document.getElementById('redeemResult').innerHTML = '';
+    var btn = this; btn.disabled = true;
+    sb.rpc('lookup_free_roll', {signup_email: email}).then(function(res){
+      btn.disabled = false;
+      if (res.error) { showMsg('redeemMsg', res.error.message, 'error'); return; }
+      renderRedeemResult(res.data);
+    });
+  });
+
   function loadApprovals(){
     sb.from('employees').select('id,name,hourly_rate').then(function(empRes){
       approvalsEmpMap = {};
@@ -931,7 +1114,25 @@
       renderAdminList();
       populateUploadOwnerSelect();
     });
+    loadSignups();
   }
+
+  var signupsCache = [];
+  function loadSignups(){
+    sb.from('email_signups').select('*').order('created_at', {ascending:false}).then(function(res){
+      if (res.error) return;
+      signupsCache = res.data;
+      document.getElementById('signupCount').textContent = signupsCache.length + ' signed up';
+      document.getElementById('signupsBody').innerHTML = signupsCache.map(function(s){
+        return '<tr><td>' + esc(s.email) + '</td><td>' + s.created_at.slice(0,10) + '</td></tr>';
+      }).join('') || '<tr class="empty-row"><td colspan="2">No signups yet.</td></tr>';
+    });
+  }
+  document.getElementById('exportSignupsBtn').addEventListener('click', function(){
+    var rows = [['Email','Signed Up']];
+    signupsCache.forEach(function(s){ rows.push([s.email, s.created_at.slice(0,10)]); });
+    downloadCSV('email_signups.csv', rows);
+  });
 
   document.getElementById('addEmpBtn').addEventListener('click', function(){
     var name = document.getElementById('newEmpName').value.trim();
