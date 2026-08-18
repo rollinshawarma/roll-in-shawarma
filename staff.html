@@ -43,7 +43,14 @@
     padding:11px 13px; color:var(--white); font-size:14.5px; font-family:'Inter'; margin-bottom:14px;
     color-scheme:dark;
   }
+  textarea{
+    width:100%; background:var(--black); border:1px solid var(--line); border-radius:10px;
+    padding:11px 13px; color:var(--white); font-size:14.5px; font-family:'Inter'; margin-bottom:14px; resize:vertical;
+  }
+  textarea:focus{ outline:none; border-color:var(--gold); }
   input:focus{ outline:none; border-color:var(--gold); }
+  .warn-box{ background:rgba(247,173,40,0.14); border:1px solid var(--gold); border-radius:10px; padding:12px 14px; font-size:13px; color:var(--gold); margin-bottom:14px; line-height:1.5; }
+  .warn-box b{ color:var(--white); }
   select{
     width:100%; background:var(--black); border:1px solid var(--line); border-radius:10px;
     padding:9px 11px; color:var(--white); font-size:13.5px; font-family:'Inter';
@@ -131,6 +138,9 @@
   .btn-home-clock{ width:100%; max-width:320px; padding:20px; font-size:17px; border-radius:20px; }
 
   /* ---------- STAT CARDS ---------- */
+  .period-toggle{ display:flex; gap:8px; margin-bottom:20px; }
+  .period-btn{ flex:1; background:var(--panel-2); color:var(--muted); border:1px solid var(--line); padding:10px; font-size:13px; }
+  .period-btn.active{ background:var(--gold); color:#241902; border-color:var(--gold); }
   .stat-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; margin-bottom:22px; }
   .stat-card{ background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px; }
   .stat-card .stat-label{ font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted); display:flex; align-items:center; gap:6px; margin-bottom:8px; }
@@ -310,14 +320,20 @@
 
   <!-- DASHBOARD -->
   <div class="tab-panel hidden" id="panelDashboard">
-    <div class="section-title">Your Week</div>
+    <div class="period-toggle" id="periodToggle">
+      <button class="period-btn active" data-period="week">Week</button>
+      <button class="period-btn" data-period="month">Month</button>
+      <button class="period-btn" data-period="year">Year</button>
+    </div>
+
+    <div class="section-title">Your <span id="periodLabelMine">Week</span></div>
     <div class="stat-grid">
       <div class="stat-card accent">
-        <div class="stat-label">Hours This Week</div>
+        <div class="stat-label">Hours <span id="periodLabelHours">This Week</span></div>
         <div class="stat-value" id="dashMyHours">&mdash;</div>
       </div>
       <div class="stat-card accent">
-        <div class="stat-label">Approved Pay This Week</div>
+        <div class="stat-label">Approved Pay <span id="periodLabelPay">This Week</span></div>
         <div class="stat-value" id="dashMyPay">&mdash;</div>
       </div>
       <div class="stat-card">
@@ -334,11 +350,11 @@
           <div class="stat-value" id="dashPendingCount">&mdash;</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Team Hours This Week</div>
+          <div class="stat-label">Team Hours <span id="periodLabelTeamHours">This Week</span></div>
           <div class="stat-value" id="dashTeamHours">&mdash;</div>
         </div>
         <div class="stat-card">
-          <div class="stat-label">Approved Labor Cost This Week</div>
+          <div class="stat-label">Approved Labor Cost <span id="periodLabelTeamPay">This Week</span></div>
           <div class="stat-value" id="dashTeamPay">&mdash;</div>
         </div>
         <div class="stat-card warn">
@@ -458,6 +474,9 @@
             <input type="time" id="manualOut">
           </div>
         </div>
+        <label>Reason for manual entry</label>
+        <textarea id="manualNote" rows="2" placeholder="e.g. forgot to clock in, phone was dead, covering a shift..."></textarea>
+        <div id="manualDupWarning"></div>
         <button class="btn-primary" id="manualEntryBtn">Save Hours</button>
       </details>
     </div>
@@ -621,6 +640,44 @@
     var opts = {month:'short', day:'numeric'};
     return monday.toLocaleDateString([], opts) + ' – ' + sunday.toLocaleDateString([], opts);
   }
+
+  // ---- Dashboard period selector (week / month / year) ----
+  var currentPeriod = 'week';
+  var periodLabels = { week: 'This Week', month: 'This Month', year: 'This Year' };
+  var periodLabelsShort = { week: 'Week', month: 'Month', year: 'Year' };
+
+  function inCurrentPeriod(workDateStr, period){
+    var today = new Date();
+    var d = new Date(workDateStr + 'T00:00:00');
+    if (period === 'month') {
+      return d.getFullYear() === today.getFullYear() && d.getMonth() === today.getMonth();
+    }
+    if (period === 'year') {
+      return d.getFullYear() === today.getFullYear();
+    }
+    // default: week
+    return weekStartOf(workDateStr) === weekStartOf(toLocalDateStr(today));
+  }
+
+  function updatePeriodLabels(){
+    document.getElementById('periodLabelMine').textContent = periodLabelsShort[currentPeriod];
+    document.getElementById('periodLabelHours').textContent = periodLabels[currentPeriod];
+    document.getElementById('periodLabelPay').textContent = periodLabels[currentPeriod];
+    document.getElementById('periodLabelTeamHours').textContent = periodLabels[currentPeriod];
+    document.getElementById('periodLabelTeamPay').textContent = periodLabels[currentPeriod];
+  }
+
+  document.querySelectorAll('.period-btn').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      document.querySelectorAll('.period-btn').forEach(function(b){ b.classList.remove('active'); });
+      btn.classList.add('active');
+      currentPeriod = btn.dataset.period;
+      updatePeriodLabels();
+      recomputeMyStats();
+      recomputeTeamStats();
+    });
+  });
+
   function groupByWeek(entries){
     var groups = {};
     entries.forEach(function(e){
@@ -823,6 +880,31 @@
     });
   }
 
+  var myEntriesRaw = [];
+
+  function recomputeMyStats(){
+    var rate = currentEmployee.hourly_rate;
+    var periodEntries = myEntriesRaw.filter(function(e){ return inCurrentPeriod(e.work_date, currentPeriod); });
+    var hours = periodEntries.reduce(function(s,e){ return s + rawHours(e.clock_in, e.clock_out); }, 0);
+    var pay = periodEntries.reduce(function(s,e){ return s + rawPay(e.clock_in, e.clock_out, rate, e.status); }, 0);
+    document.getElementById('dashMyHours').textContent = hours.toFixed(2);
+    document.getElementById('dashMyPay').textContent = '$' + pay.toFixed(2);
+  }
+
+  function recomputeTeamStats(){
+    var teamHoursEl = document.getElementById('dashTeamHours');
+    var teamPayEl = document.getElementById('dashTeamPay');
+    if (!teamHoursEl || !approvalsRawEntries.length) return;
+    var periodEntries = approvalsRawEntries.filter(function(e){ return inCurrentPeriod(e.work_date, currentPeriod); });
+    var teamHours = periodEntries.reduce(function(s,e){ return s + rawHours(e.clock_in, e.clock_out); }, 0);
+    var teamPay = periodEntries.reduce(function(s,e){
+      var rate = (approvalsEmpMap[e.employee_id] || {}).hourly_rate || 0;
+      return s + rawPay(e.clock_in, e.clock_out, rate, e.status);
+    }, 0);
+    teamHoursEl.textContent = teamHours.toFixed(2);
+    teamPayEl.textContent = '$' + teamPay.toFixed(2);
+  }
+
   function loadMyEntries(){
     sb.from('time_entries').select('*').eq('employee_id', currentEmployee.id)
       .order('work_date', {ascending:false}).limit(120).then(function(res){
@@ -833,13 +915,8 @@
 
       var rate = currentEmployee.hourly_rate;
       res.data.forEach(function(e){ e._rate = rate; });
-
-      var thisWeekStart = weekStartOf(today);
-      var thisWeekEntries = res.data.filter(function(e){ return weekStartOf(e.work_date) === thisWeekStart; });
-      var wkHours = thisWeekEntries.reduce(function(s,e){ return s + rawHours(e.clock_in, e.clock_out); }, 0);
-      var wkPay = thisWeekEntries.reduce(function(s,e){ return s + rawPay(e.clock_in, e.clock_out, rate, e.status); }, 0);
-      document.getElementById('dashMyHours').textContent = wkHours.toFixed(2);
-      document.getElementById('dashMyPay').textContent = '$' + wkPay.toFixed(2);
+      myEntriesRaw = res.data;
+      recomputeMyStats();
 
       var weeks = groupByWeek(res.data);
       renderWeekGroups(document.getElementById('myWeeksContainer'), weeks, function(e){
@@ -1006,11 +1083,42 @@
   });
 
   // ---------------- MANUAL TIME ENTRY (missed clock-in) ----------------
-  document.getElementById('manualEntryBtn').addEventListener('click', function(){
+  var manualConfirmedOverwrite = false;
+  var manualDupWarnEl = document.getElementById('manualDupWarning');
+  var manualBtn = document.getElementById('manualEntryBtn');
+
+  function resetManualConfirm(){
+    manualConfirmedOverwrite = false;
+    manualDupWarnEl.innerHTML = '';
+    manualBtn.textContent = 'Save Hours';
+  }
+  ['manualEmpSelect','manualDate'].forEach(function(id){
+    document.getElementById(id).addEventListener('change', resetManualConfirm);
+  });
+
+  function doSaveManualEntry(empId, dateStr, inIso, outIso, note){
+    sb.rpc('manual_time_entry', {
+      target_employee_id: empId, entry_date: dateStr, in_time: inIso, out_time: outIso, entry_note: note || null
+    }).then(function(res){
+      manualBtn.disabled = false;
+      if (res.error) { showMsg('manualEntryMsg', res.error.message, 'error'); return; }
+      showMsg('manualEntryMsg', 'Saved — now showing in Pending Approval below.', 'ok');
+      document.getElementById('manualDate').value = '';
+      document.getElementById('manualIn').value = '';
+      document.getElementById('manualOut').value = '';
+      document.getElementById('manualNote').value = '';
+      resetManualConfirm();
+      loadApprovals();
+      loadPayroll();
+    });
+  }
+
+  manualBtn.addEventListener('click', function(){
     var empId = document.getElementById('manualEmpSelect').value;
     var dateStr = document.getElementById('manualDate').value;
     var inTime = document.getElementById('manualIn').value;
     var outTime = document.getElementById('manualOut').value;
+    var note = document.getElementById('manualNote').value.trim();
 
     if (!empId || !dateStr || !inTime) {
       showMsg('manualEntryMsg', 'Employee, date, and clock in time are required.', 'error');
@@ -1020,19 +1128,36 @@
     var inIso = new Date(dateStr + 'T' + inTime + ':00').toISOString();
     var outIso = outTime ? new Date(dateStr + 'T' + outTime + ':00').toISOString() : null;
 
-    var btn = this; btn.disabled = true;
     clearMsg('manualEntryMsg');
-    sb.rpc('manual_time_entry', {
-      target_employee_id: empId, entry_date: dateStr, in_time: inIso, out_time: outIso
-    }).then(function(res){
-      btn.disabled = false;
+
+    // already confirmed overwrite on this exact selection -> save directly
+    if (manualConfirmedOverwrite) {
+      manualBtn.disabled = true;
+      doSaveManualEntry(empId, dateStr, inIso, outIso, note);
+      return;
+    }
+
+    // check for an existing entry first, so we never silently overwrite
+    manualBtn.disabled = true;
+    sb.rpc('check_existing_entry', {target_employee_id: empId, entry_date: dateStr}).then(function(res){
+      manualBtn.disabled = false;
       if (res.error) { showMsg('manualEntryMsg', res.error.message, 'error'); return; }
-      showMsg('manualEntryMsg', 'Saved — now showing in Pending Approval below.', 'ok');
-      document.getElementById('manualDate').value = '';
-      document.getElementById('manualIn').value = '';
-      document.getElementById('manualOut').value = '';
-      loadApprovals();
-      loadPayroll();
+
+      if (res.data) {
+        var existing = res.data;
+        var empName = (approvalsEmpMap[empId] || {}).name || 'This employee';
+        var existingHours = existing.clock_out ? fmtHours(existing.clock_in, existing.clock_out) : '—';
+        manualDupWarnEl.innerHTML = '<div class="warn-box">' +
+          '&#9888; <b>' + esc(empName) + '</b> already has an entry for ' + dateStr +
+          ' (' + existingHours + ' hrs, status: ' + existing.status + '). Saving will overwrite it and reset it to pending.</div>';
+        manualBtn.textContent = 'Confirm Overwrite';
+        manualConfirmedOverwrite = true;
+        return;
+      }
+
+      // no existing entry -> safe to save right away
+      manualBtn.disabled = true;
+      doSaveManualEntry(empId, dateStr, inIso, outIso, note);
     });
   });
 
@@ -1082,17 +1207,7 @@
           });
         });
 
-        // this week's team totals (approved only)
-        var today = new Date().toISOString().slice(0,10);
-        var thisWeekStart = weekStartOf(today);
-        var thisWeekEntries = res.data.filter(function(e){ return weekStartOf(e.work_date) === thisWeekStart; });
-        var teamHours = thisWeekEntries.reduce(function(s,e){ return s + rawHours(e.clock_in, e.clock_out); }, 0);
-        var teamPay = thisWeekEntries.reduce(function(s,e){
-          var rate = (approvalsEmpMap[e.employee_id] || {}).hourly_rate || 0;
-          return s + rawPay(e.clock_in, e.clock_out, rate, e.status);
-        }, 0);
-        document.getElementById('dashTeamHours').textContent = teamHours.toFixed(2);
-        document.getElementById('dashTeamPay').textContent = '$' + teamPay.toFixed(2);
+        recomputeTeamStats();
 
         renderApprovalsAll();
       });
