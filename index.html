@@ -258,6 +258,44 @@
 
   /* ---------- FULL MENU (accordion list, Chick-fil-A style) ---------- */
   #menu{ background:var(--panel); padding:100px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+
+  /* ---------- DEALS & PERKS ---------- */
+  #deals{ background:var(--black); padding:100px 0; }
+  .deals-grid{ margin-top:56px; display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+  @media (max-width:960px){ .deals-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:560px){ .deals-grid{ grid-template-columns:1fr; } }
+  .deal-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:26px 22px;
+    text-align:center; transition:transform .2s ease, border-color .2s ease;
+  }
+  .deal-card:hover{ transform:translateY(-4px); border-color:var(--gold); }
+  .deal-card.accent{ background:linear-gradient(160deg, rgba(247,173,40,0.14), rgba(216,52,46,0.1)); border-color:var(--gold); }
+  .deal-icon{ font-size:32px; margin-bottom:10px; }
+  .deal-tag{
+    display:inline-block; font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;
+    color:var(--muted); border:1px solid var(--line); border-radius:100px; padding:3px 10px; margin-bottom:12px;
+  }
+  .deal-tag.gold{ color:#241902; background:var(--gold); border-color:var(--gold); }
+  .deal-card h3{ font-size:16px; font-weight:700; color:var(--white); margin-bottom:8px; }
+  .deal-card p{ font-size:13.5px; color:var(--muted); line-height:1.5; }
+  .deal-card p b{ color:var(--gold); font-weight:700; }
+  #dealsLocked{ text-align:center; max-width:520px; margin:0 auto; }
+  #dealsLocked .notify-form{ margin:28px auto 0; }
+  #dealsUnlocked{ text-align:center; }
+  .member-confirm{ color:var(--green) !important; font-weight:600; }
+  .member-qr-card{
+    background:var(--white); border-radius:20px; padding:24px; max-width:220px; margin:24px auto 40px;
+    box-shadow:0 20px 44px rgba(0,0,0,0.5);
+  }
+  .member-qr{ width:100%; display:flex; justify-content:center; }
+  .member-qr svg{ width:100%; height:auto; display:block; }
+  .member-qr-code{ margin-top:12px; font-family:monospace; font-size:14px; font-weight:700; color:#111; letter-spacing:0.05em; }
+  .member-qr-hint{ margin-top:6px; font-size:11px; color:#888; }
+  @media (max-width:560px){
+    .notify-form{ flex-direction:column; align-items:stretch; }
+    .notify-form input[type=email]{ min-width:0; }
+    .notify-form button{ width:100%; }
+  }
   .menu-acc{ margin-top:56px; border-top:1px solid var(--line); }
   .menu-acc-item{ border-bottom:1px solid var(--line); }
   .menu-acc-head{
@@ -430,6 +468,19 @@
   .find-note{ margin-top:40px; font-size:12.5px; color:var(--muted); }
   .find-note a{ color:var(--gold); border-bottom:1px dashed var(--gold); }
 
+  /* ---------- EMAIL SIGNUP ---------- */
+  #notify{ background:var(--panel); padding:80px 0; border-top:1px solid var(--line); text-align:center; }
+  .notify-form{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; max-width:460px; margin:32px auto 0; }
+  .notify-form input[type=email]{
+    flex:1; min-width:220px; background:var(--black); border:1px solid var(--line); border-radius:100px;
+    padding:13px 20px; color:var(--white); font-size:15px; font-family:'Inter';
+  }
+  .notify-form input[type=email]:focus{ outline:none; border-color:var(--gold); }
+  .notify-form button{ flex:none; }
+  .notify-msg{ margin-top:16px; font-size:13.5px; min-height:20px; }
+  .notify-msg.ok{ color:var(--green); }
+  .notify-msg.error{ color:var(--red); }
+
   /* ---------- FOOTER ---------- */
   footer{ background:var(--black); padding:50px 0 28px; border-top:1px solid var(--line); }
   .foot-top{ display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:32px; padding-bottom:32px; border-bottom:1px solid var(--line); }
@@ -503,6 +554,8 @@
   "acceptsReservations": "False"
 }
 </script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 </head>
 <body>
 
@@ -526,6 +579,7 @@
     <div class="wordmark"><span class="w1">Roll&#8209;In</span><span class="w2">Shawarma</span></div>
     <div class="navlinks">
       <a href="#menu">Menu</a>
+      <a href="#deals">Deals</a>
       <a href="#story">Our Story</a>
       <a href="#reviews">Reviews</a>
       <a href="#catering">Catering</a>
@@ -540,6 +594,7 @@
   <div class="mobile-nav">
     <a href="https://roll-in-shawarma.square.site/" target="_blank" rel="noopener" style="color:var(--gold);">Order Online</a>
     <a href="#menu">Menu</a>
+    <a href="#deals">Deals</a>
     <a href="#story">Our Story</a>
     <a href="#reviews">Reviews</a>
     <a href="#catering">Catering</a>
@@ -777,6 +832,66 @@
   </div>
 </section>
 
+<section id="deals">
+  <div class="wrap">
+
+    <!-- LOCKED STATE: shown until signed up -->
+    <div id="dealsLocked">
+      <div class="sec-eyebrow">Members Only</div>
+      <h2 class="sec-title">Sign up, get a free roll.</h2>
+      <p class="sec-sub">Free to join, takes ten seconds. Members also unlock Taco Tuesday &amp; Thursday, our Lunch Combo, and the Family Dinner Basket.</p>
+      <form id="dealsSignupForm" class="notify-form">
+        <input type="email" id="dealsEmail" placeholder="you@example.com" required autocomplete="email">
+        <button type="submit" class="btn btn-light" id="dealsSubmitBtn">Get My Free Roll</button>
+      </form>
+      <div id="dealsMsg" class="notify-msg"></div>
+    </div>
+
+    <!-- UNLOCKED STATE: shown after signup -->
+    <div id="dealsUnlocked" class="hidden">
+      <div class="sec-eyebrow">Members Only</div>
+      <h2 class="sec-title">You're in &mdash; here's what you get.</h2>
+      <p class="sec-sub member-confirm">&#10003; You're a member. Show this QR code at the window to redeem.</p>
+
+      <div class="member-qr-card">
+        <div id="memberQrCanvas" class="member-qr"></div>
+        <div class="member-qr-code" id="memberQrCode">&mdash;</div>
+        <div class="member-qr-hint">Screenshot this or keep this page open</div>
+      </div>
+
+      <div class="deals-grid">
+        <div class="deal-card accent">
+          <div class="deal-icon">&#127775;</div>
+          <div class="deal-tag gold">Sign Up Bonus</div>
+          <h3>Free Roll</h3>
+          <p>One <b>free roll</b>, on us &mdash; redeemable once, at the window.</p>
+        </div>
+        <div class="deal-card">
+          <div class="deal-icon">&#127790;</div>
+          <div class="deal-tag">Members Only</div>
+          <h3>Taco Tuesday &amp; Thursday</h3>
+          <p>Any taco, <b>$6.99</b> &mdash; every Tuesday and Thursday.</p>
+        </div>
+        <div class="deal-card">
+          <div class="deal-icon">&#127869;&#65039;</div>
+          <div class="deal-tag">Members Only</div>
+          <h3>Lunch Combo</h3>
+          <p><b>$9.99 + tax</b>, weekdays only &mdash; ask what's included that day.</p>
+        </div>
+        <div class="deal-card">
+          <div class="deal-icon">&#128106;</div>
+          <div class="deal-tag">Members Only</div>
+          <h3>Family Dinner Basket</h3>
+          <p>A Shawarma Roll &amp; a Rice Bowl to share &mdash; <b>$29.99 + tax</b>.</p>
+        </div>
+      </div>
+
+      <p class="spin-fine" style="margin-top:28px; text-align:center;">Deals shown at pickup, in person. Free roll is one-time per member.</p>
+    </div>
+
+  </div>
+</section>
+
 <section id="spin">
   <div class="wrap">
     <div class="sec-eyebrow">Today's Surprise</div>
@@ -997,6 +1112,7 @@
         <div class="foot-col">
           <h5>Site</h5>
           <a href="#menu">Menu</a>
+          <a href="#deals">Deals</a>
           <a href="#story">Story</a>
           <a href="#reviews">Reviews</a>
           <a href="#catering">Catering</a>
@@ -1543,6 +1659,71 @@
         });
       }
     }
+  })();
+
+  // ---- Members-only deals: signup gate ----
+  (function(){
+    var lockedEl = document.getElementById('dealsLocked');
+    var unlockedEl = document.getElementById('dealsUnlocked');
+    var form = document.getElementById('dealsSignupForm');
+    if (!lockedEl || !unlockedEl || !form) return;
+
+    var sb = supabase.createClient(
+      'https://njcmcaoyzujijiyfardx.supabase.co',
+      'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_'
+    );
+    var msgEl = document.getElementById('dealsMsg');
+    var btn = document.getElementById('dealsSubmitBtn');
+
+    function renderQr(code){
+      var qr = qrcode(0, 'M');
+      qr.addData(code);
+      qr.make();
+      document.getElementById('memberQrCanvas').innerHTML = qr.createSvgTag({ scalable: true });
+      document.getElementById('memberQrCode').textContent = code;
+    }
+
+    function unlock(code){
+      lockedEl.classList.add('hidden');
+      unlockedEl.classList.remove('hidden');
+      if (code) renderQr(code);
+    }
+
+    // returning member on this browser -> skip straight to unlocked view
+    try {
+      var savedCode = localStorage.getItem('rollinMemberCode');
+      if (savedCode) { unlock(savedCode); }
+    } catch(e){}
+
+    function genCode(){
+      return 'MEMBER-' + Math.floor(1000 + Math.random()*9000);
+    }
+
+    form.addEventListener('submit', function(e){
+      e.preventDefault();
+      var email = document.getElementById('dealsEmail').value.trim();
+      if (!email) return;
+      btn.disabled = true;
+      msgEl.textContent = '';
+      msgEl.className = 'notify-msg';
+      var newCode = genCode();
+
+      sb.from('email_signups').insert({ email: email, redeem_code: newCode }).then(function(res){
+        btn.disabled = false;
+        if (res.error) {
+          if (res.error.code === '23505') {
+            msgEl.textContent = "You're already a member! Show your original QR code, or ask us to look you up by email at the window.";
+            msgEl.className = 'notify-msg ok';
+          } else {
+            msgEl.textContent = 'Something went wrong — try again in a moment.';
+            msgEl.className = 'notify-msg error';
+          }
+          return;
+        }
+        try { localStorage.setItem('rollinMemberCode', newCode); } catch(e){}
+        unlock(newCode);
+      });
+    });
   })();
 </script>
 
