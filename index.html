@@ -283,6 +283,13 @@
   .locked-card span{ display:block; font-size:12.5px; font-weight:600; color:var(--muted); }
   @media (max-width:480px){ .locked-row{ gap:20px; } }
   #dealsLocked .notify-form{ margin:28px auto 0; }
+  #authStart{ margin-top:28px; }
+  .auth-hint{ font-size:12.5px; color:var(--muted); margin-top:10px; }
+  .auth-link{
+    background:none; border:none; color:var(--gold); font-size:12.5px; font-weight:600;
+    text-decoration:underline; text-underline-offset:3px; cursor:pointer; margin-top:8px; align-self:center;
+  }
+  .member-signup-form{ margin-top:28px; text-align:left; max-width:380px; margin-left:auto; margin-right:auto; }
   #dealsUnlocked{ text-align:center; }
   .member-quote{ font-size:14px; font-style:italic; color:var(--muted); margin-bottom:10px; }
   .member-confirm{ color:var(--green) !important; font-weight:600; }
@@ -788,27 +795,45 @@
         <div class="locked-card"><svg class="icon-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg><span>Family Basket</span></div>
       </div>
 
-      <form id="dealsSignupForm" class="cform member-signup-form">
+      <div id="authStart">
+        <button type="button" class="btn btn-light" id="startAuthBtn">Get My Free Roll</button>
+        <p class="auth-hint">Already a member? Same button &mdash; we'll recognize your email.</p>
+      </div>
+
+      <form id="authEmailForm" class="cform member-signup-form hidden">
+        <label>Email<input type="email" id="authEmail" placeholder="you@example.com" required autocomplete="email"></label>
+        <button type="submit" class="btn btn-light" id="sendCodeBtn">Send Code</button>
+      </form>
+
+      <form id="authCodeForm" class="cform member-signup-form hidden">
+        <p class="auth-hint" id="codeSentHint"></p>
+        <label>6-digit code<input type="text" id="authCode" inputmode="numeric" maxlength="6" placeholder="123456" required></label>
+        <button type="submit" class="btn btn-light" id="verifyCodeBtn">Verify</button>
+        <button type="button" class="auth-link" id="useDifferentEmailBtn">Use a different email</button>
+      </form>
+
+      <form id="profileForm" class="cform member-signup-form hidden">
+        <p class="auth-hint">You're verified! Just need a couple more details.</p>
         <div class="row2">
-          <label>First Name<input type="text" id="dealsFirstName" required autocomplete="given-name"></label>
-          <label>Last Name<input type="text" id="dealsLastName" required autocomplete="family-name"></label>
+          <label>First Name<input type="text" id="profileFirstName" required autocomplete="given-name"></label>
+          <label>Last Name<input type="text" id="profileLastName" required autocomplete="family-name"></label>
         </div>
-        <label>Email<input type="email" id="dealsEmail" placeholder="you@example.com" required autocomplete="email"></label>
         <label>Birthday (for a birthday treat &mdash; no year needed)</label>
         <div class="row2">
-          <select id="dealsBirthMonth" required>
+          <select id="profileBirthMonth" required>
             <option value="">Month</option>
             <option value="1">January</option><option value="2">February</option><option value="3">March</option>
             <option value="4">April</option><option value="5">May</option><option value="6">June</option>
             <option value="7">July</option><option value="8">August</option><option value="9">September</option>
             <option value="10">October</option><option value="11">November</option><option value="12">December</option>
           </select>
-          <select id="dealsBirthDay" required>
+          <select id="profileBirthDay" required>
             <option value="">Day</option>
           </select>
         </div>
-        <button type="submit" class="btn btn-light" id="dealsSubmitBtn">Get My Free Roll</button>
+        <button type="submit" class="btn btn-light" id="completeProfileBtn">Complete Sign Up</button>
       </form>
+
       <div id="dealsMsg" class="notify-msg"></div>
     </div>
 
@@ -1205,29 +1230,114 @@
           localStorage.removeItem('rollinMemberCode');
           localStorage.removeItem('rollinMemberFirstName');
         } catch(err){}
-        location.reload();
+        var sbOut = supabase.createClient(
+          'https://njcmcaoyzujijiyfardx.supabase.co',
+          'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_'
+        );
+        sbOut.auth.signOut().then(function(){ location.reload(); });
       });
     });
 
     refresh();
   })();
 
-  // ---- Members-only deals: signup gate ----
+  // ---- Member login: real email OTP verification ----
   (function(){
     var lockedEl = document.getElementById('dealsLocked');
     var unlockedEl = document.getElementById('dealsUnlocked');
-    var form = document.getElementById('dealsSignupForm');
-    if (!lockedEl || !unlockedEl || !form) return;
+    if (!lockedEl || !unlockedEl) return;
 
     var sb = supabase.createClient(
       'https://njcmcaoyzujijiyfardx.supabase.co',
       'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_'
     );
+
+    var startEl = document.getElementById('authStart');
+    var emailForm = document.getElementById('authEmailForm');
+    var codeForm = document.getElementById('authCodeForm');
+    var profileForm = document.getElementById('profileForm');
     var msgEl = document.getElementById('dealsMsg');
-    var btn = document.getElementById('dealsSubmitBtn');
+    var pendingEmail = '';
+
+    function showMsg(text, type){
+      msgEl.textContent = text;
+      msgEl.className = 'notify-msg ' + type;
+    }
+    function clearMsg(){ msgEl.textContent = ''; msgEl.className = 'notify-msg'; }
+
+    function showStep(step){
+      [startEl, emailForm, codeForm, profileForm].forEach(function(el){ el.classList.add('hidden'); });
+      step.classList.remove('hidden');
+    }
+
+    document.getElementById('startAuthBtn').addEventListener('click', function(){
+      clearMsg();
+      showStep(emailForm);
+    });
+
+    emailForm.addEventListener('submit', function(e){
+      e.preventDefault();
+      var email = document.getElementById('authEmail').value.trim();
+      if (!email) return;
+      var btn = document.getElementById('sendCodeBtn');
+      btn.disabled = true;
+      clearMsg();
+      sb.auth.signInWithOtp({
+        email: email,
+        options: { emailRedirectTo: window.location.origin + window.location.pathname }
+      }).then(function(res){
+        btn.disabled = false;
+        if (res.error) { showMsg(res.error.message, 'error'); return; }
+        pendingEmail = email;
+        document.getElementById('codeSentHint').textContent = 'Code sent to ' + email + '. Check your inbox.';
+        showStep(codeForm);
+      });
+    });
+
+    document.getElementById('useDifferentEmailBtn').addEventListener('click', function(){
+      clearMsg();
+      showStep(emailForm);
+    });
+
+    codeForm.addEventListener('submit', function(e){
+      e.preventDefault();
+      var code = document.getElementById('authCode').value.trim();
+      if (!code) return;
+      var btn = document.getElementById('verifyCodeBtn');
+      btn.disabled = true;
+      clearMsg();
+      sb.auth.verifyOtp({ email: pendingEmail, token: code, type: 'email' }).then(function(res){
+        btn.disabled = false;
+        if (res.error) { showMsg(res.error.message, 'error'); return; }
+        handleAuthenticated();
+      });
+    });
+
+    profileForm.addEventListener('submit', function(e){
+      e.preventDefault();
+      var firstName = document.getElementById('profileFirstName').value.trim();
+      var lastName = document.getElementById('profileLastName').value.trim();
+      var birthMonth = document.getElementById('profileBirthMonth').value;
+      var birthDay = document.getElementById('profileBirthDay').value;
+      if (!firstName || !lastName || !birthMonth || !birthDay) {
+        showMsg('Please fill in all fields.', 'error');
+        return;
+      }
+      var btn = document.getElementById('completeProfileBtn');
+      btn.disabled = true;
+      clearMsg();
+      sb.rpc('create_member_profile', {
+        p_first_name: firstName, p_last_name: lastName,
+        p_birth_month: parseInt(birthMonth, 10), p_birth_day: parseInt(birthDay, 10)
+      }).then(function(res){
+        btn.disabled = false;
+        if (res.error) { showMsg(res.error.message, 'error'); return; }
+        finishLogin(res.data);
+      });
+    });
 
     // populate day dropdown (1-31)
-    var daySel = document.getElementById('dealsBirthDay');
+    var daySel = document.getElementById('profileBirthDay');
     for (var d = 1; d <= 31; d++) {
       var opt = document.createElement('option');
       opt.value = d;
@@ -1259,7 +1369,7 @@
     function renderGreeting(firstName){
       var now = new Date();
       var hour = now.getHours();
-      var day = now.getDay(); // 0=Sun ... 2=Tue, 4=Thu
+      var day = now.getDay();
       var name = firstName ? (', ' + firstName) : '';
 
       var timeGreeting;
@@ -1288,68 +1398,47 @@
       document.getElementById('memberNudge').textContent = nudge;
     }
 
-    function unlock(code, firstName){
+    function finishLogin(profile){
       lockedEl.classList.add('hidden');
       unlockedEl.classList.remove('hidden');
       document.body.classList.add('member-mode');
-      renderGreeting(firstName);
-      if (code) renderQr(code);
+      renderGreeting(profile.first_name);
+      renderQr(profile.redeem_code);
+      try {
+        localStorage.setItem('rollinMemberCode', profile.redeem_code);
+        localStorage.setItem('rollinMemberFirstName', profile.first_name || '');
+      } catch(e){}
     }
 
-    // returning member on this browser -> skip straight to unlocked view
-    try {
-      var savedCode = localStorage.getItem('rollinMemberCode');
-      var savedName = localStorage.getItem('rollinMemberFirstName');
-      if (savedCode) { unlock(savedCode, savedName); }
-    } catch(e){}
-
-    function genCode(){
-      return 'MEMBER-' + Math.floor(1000 + Math.random()*9000);
-    }
-
-    form.addEventListener('submit', function(e){
-      e.preventDefault();
-      var firstName = document.getElementById('dealsFirstName').value.trim();
-      var lastName = document.getElementById('dealsLastName').value.trim();
-      var email = document.getElementById('dealsEmail').value.trim();
-      var birthMonth = document.getElementById('dealsBirthMonth').value;
-      var birthDay = document.getElementById('dealsBirthDay').value;
-
-      if (!firstName || !lastName || !email || !birthMonth || !birthDay) {
-        msgEl.textContent = 'Please fill in all fields.';
-        msgEl.className = 'notify-msg error';
-        return;
-      }
-
-      btn.disabled = true;
-      msgEl.textContent = '';
-      msgEl.className = 'notify-msg';
-      var newCode = genCode();
-
-      sb.from('email_signups').insert({
-        email: email, redeem_code: newCode,
-        first_name: firstName, last_name: lastName,
-        birth_month: parseInt(birthMonth, 10), birth_day: parseInt(birthDay, 10)
-      }).then(function(res){
-        btn.disabled = false;
-        if (res.error) {
-          if (res.error.code === '23505') {
-            msgEl.textContent = "You're already a member! Show your original QR code, or ask us to look you up by email at the window.";
-            msgEl.className = 'notify-msg ok';
-          } else {
-            msgEl.textContent = 'Something went wrong — try again in a moment.';
-            msgEl.className = 'notify-msg error';
-          }
-          return;
+    function handleAuthenticated(){
+      clearMsg();
+      sb.rpc('get_my_member_profile').then(function(res){
+        if (res.error) { showMsg(res.error.message, 'error'); return; }
+        if (res.data && res.data.first_name) {
+          finishLogin(res.data);
+        } else {
+          showStep(profileForm);
         }
-        try {
-          localStorage.setItem('rollinMemberCode', newCode);
-          localStorage.setItem('rollinMemberFirstName', firstName);
-        } catch(e){}
-        unlock(newCode, firstName);
       });
+    }
+
+    // ---- resume session on load / catch magic-link sign-in ----
+    var loginHandled = false;
+    function handleLoginOnce(){
+      if (loginHandled) return;
+      loginHandled = true;
+      handleAuthenticated();
+    }
+    sb.auth.getSession().then(function(res){
+      if (res.data && res.data.session) { handleLoginOnce(); }
+    });
+    sb.auth.onAuthStateChange(function(event, session){
+      if (session && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
+        handleLoginOnce();
+      }
     });
   })();
+
 </script>
 
 <a id="floatOrder" href="https://roll-in-shawarma.square.site/" target="_blank" rel="noopener">
