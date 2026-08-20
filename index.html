@@ -43,7 +43,10 @@
     --green:#0BAF4C;
     --line:rgba(243,234,201,0.14);
   }
+  html{ transition:background-color .6s ease; }
+  body{ transition:background-color .6s ease, color .6s ease; }
   *{box-sizing:border-box; margin:0; padding:0;}
+  body.member-mode .member-hide{ display:none !important; }
   .hidden{ display:none !important; }
   html{scroll-behavior:smooth;}
   body{
@@ -60,42 +63,31 @@
 
   h1,h2,h3{ font-weight:600; letter-spacing:-0.02em; color:var(--white); }
 
-  /* ---------- FIREWORKS (grand opening celebration) ---------- */
-  #fireworksCanvas{
-    position:fixed; inset:0; width:100%; height:100%; z-index:9999;
-    pointer-events:none; opacity:1; transition:opacity .8s ease;
-  }
-  #fireworksCanvas.fade-out{ opacity:0; }
-
-  /* ---------- ANNOUNCEMENT BANNER (rotating, single line) ---------- */
+  /* ---------- ANNOUNCEMENT BANNER (single, static message) ---------- */
   #annbar{
-    background:linear-gradient(90deg, #AB1C1D 0%, #D8342E 50%, #E68334 100%);
-    color:var(--white); position:relative; z-index:101;
+    background:var(--panel); border-bottom:1px solid var(--gold);
+    color:var(--cream); position:relative; z-index:101;
   }
   #annbar .wrap{
     display:flex; align-items:center; justify-content:center;
     padding:12px 44px 12px 32px; position:relative; min-height:auto;
   }
-  #annbar .ann-rotator{ position:relative; width:100%; max-width:720px; height:40px; }
-  #annbar .ann-slide{
-    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
-    gap:6px; font-size:13.5px; font-weight:600; white-space:normal; line-height:1.4; flex-wrap:wrap; row-gap:2px;
-    opacity:0; visibility:hidden; transition:opacity .5s ease; text-align:center;
+  #annbar .ann-message{
+    display:flex; align-items:center; justify-content:center; flex-wrap:wrap;
+    gap:6px; font-size:13.5px; font-weight:600; line-height:1.4; row-gap:2px; text-align:center;
+    max-width:720px;
   }
-  #annbar .ann-slide.active{ opacity:1; visibility:visible; }
-  #annbar .ann-slide b{ color:#FFFCF3; }
-  #annbar .ann-logo{ height:18px; width:auto; flex:none; display:inline-block; }
-  #annbar .ann-inline-link{ color:#FFFCF3; text-decoration:underline; text-underline-offset:3px; font-weight:700; flex:none; }
+  #annbar .ann-message b{ color:var(--white); }
+  #annbar .ann-inline-link{ color:var(--gold); text-decoration:underline; text-underline-offset:3px; font-weight:700; flex:none; }
   #annbar .ann-close{
     position:absolute; right:14px; top:50%; transform:translateY(-50%);
-    background:none; border:none; color:rgba(255,255,255,0.8); cursor:pointer; padding:4px; line-height:0;
+    background:none; border:none; color:var(--muted); cursor:pointer; padding:4px; line-height:0;
   }
-  #annbar .ann-close:hover{ color:var(--white); }
+  #annbar .ann-close:hover{ color:var(--cream); }
   #annbar .ann-close svg{ width:16px; height:16px; }
   @media (max-width:640px){
     #annbar .wrap{ padding:12px 40px 12px 16px; }
-    #annbar .ann-rotator{ height:52px; }
-    #annbar .ann-slide{ font-size:12px; line-height:1.35; }
+    #annbar .ann-message{ font-size:12px; line-height:1.35; }
     #annbar .ann-logo{ height:15px; }
   }
 
@@ -116,11 +108,11 @@
   .navlinks a.has-icon{ display:inline-flex; align-items:center; }
   .icon-truck{ width:16px; height:16px; vertical-align:-3px; margin-right:7px; flex:none; }
   .nav-cta{
-    background:var(--green); color:#04220F; padding:10px 18px;
-    font-size:13.5px; font-weight:700; border-radius:100px; white-space:nowrap;
-    transition:transform .15s, background .2s;
+    background:transparent; color:var(--cream); padding:9px 17px; border:1px solid var(--line);
+    font-size:13.5px; font-weight:600; border-radius:100px; white-space:nowrap;
+    transition:transform .15s, border-color .2s, color .2s;
   }
-  .nav-cta:hover{ transform:translateY(-2px); background:var(--gold); }
+  .nav-cta:hover{ transform:translateY(-2px); border-color:var(--gold); color:var(--gold); }
   .nav-order{
     background:var(--red); color:var(--white); padding:10px 18px;
     font-size:13.5px; font-weight:700; border-radius:100px; white-space:nowrap;
@@ -174,6 +166,9 @@
   .hero h1 .accent{ color:var(--red); }
   .hero p.lede{ margin:24px auto 0; max-width:44ch; font-size:18px; font-weight:400; color:var(--muted); line-height:1.55; }
   .hero-ctas{ display:flex; gap:14px; justify-content:center; margin-top:36px; flex-wrap:wrap; }
+  .hero-subline{ margin-top:20px; font-size:13px; color:var(--muted); }
+  .hero-subline a{ color:var(--gold); border-bottom:1px dashed var(--gold); }
+  .hero-subline a:hover{ color:var(--white); }
   .btn{
     padding:13px 26px; font-size:14.5px; font-weight:600; border-radius:100px; display:inline-block;
     transition:transform .2s, opacity .2s, background .2s;
@@ -182,8 +177,6 @@
   .btn-light{ background:var(--red); color:var(--white); }
   .btn-light:hover{ background:var(--red-deep); }
   .btn-outline-dark{ border:1px solid rgba(243,234,201,0.35); color:var(--white); }
-  .btn-doordash{ background:#FF3008; color:#FFFCF3; }
-  .btn-doordash:hover{ background:#E62B07; }
   .btn-outline-dark:hover{ border-color:var(--gold); color:var(--gold); }
 
   .scroll-cue{ position:absolute; bottom:28px; left:50%; transform:translateX(-50%); color:var(--muted); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; }
@@ -222,25 +215,25 @@
   @media (max-width:600px){ .feature-row, .feature-row.rev{ gap:14px; } }
   @media (max-width:420px){ .feature-row, .feature-row.rev{ gap:10px; } }
   .feature-photo{
-    --r:-3.5deg; --s:1;
+    --r:0deg; --s:1;
     transform:rotate(var(--r)) scale(var(--s));
     transition:transform .3s ease;
     will-change:transform;
     display:flex; justify-content:center;
   }
-  .feature-row.rev .feature-photo{ --r:3.5deg; }
-  .feature-photo:hover{ --s:1.05; }
+  .feature-row.rev .feature-photo{ --r:0deg; }
+  .feature-photo:hover{ --s:1.03; }
   .feature-photo img{
     max-width:82%; height:auto; display:block;
     filter:drop-shadow(0 22px 30px rgba(0,0,0,0.6));
     transition:filter .3s ease;
   }
   .feature-photo:hover img{ filter:drop-shadow(0 30px 40px rgba(0,0,0,0.7)); }
-  .feature-photo.tilt-60{ --r:30deg; }
-  .feature-row.rev .feature-photo.tilt-60{ --r:-30deg; }
+  .feature-photo.tilt-60{ --r:0deg; }
+  .feature-row.rev .feature-photo.tilt-60{ --r:0deg; }
   @media (max-width:600px){
-    .feature-photo.tilt-60{ --r:15deg; }
-    .feature-row.rev .feature-photo.tilt-60{ --r:-15deg; }
+    .feature-photo.tilt-60{ --r:0deg; }
+    .feature-row.rev .feature-photo.tilt-60{ --r:0deg; }
   }
   .feature-text .tag{ font-size:12.5px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--gold); margin-bottom:14px; }
   .feature-text h3{ font-size:clamp(24px,3.6vw,34px); color:var(--white); margin-bottom:14px; }
@@ -248,16 +241,12 @@
   .feature-text .price{ margin-top:18px; font-size:15px; font-weight:600; color:var(--white); }
   .feature-text .price span{ color:var(--gold); font-weight:600; }
   @media (max-width:600px){
-    .feature-photo{ transform:rotate(-2deg); }
-    .feature-row.rev .feature-photo{ transform:rotate(2deg); }
     .feature-text .tag{ font-size:10.5px; margin-bottom:8px; }
     .feature-text h3{ margin-bottom:8px; line-height:1.15; }
     .feature-text p{ font-size:13px; line-height:1.45; }
     .feature-text .price{ margin-top:10px; font-size:12px; }
   }
   @media (max-width:420px){
-    .feature-photo{ transform:rotate(-1.2deg); }
-    .feature-row.rev .feature-photo{ transform:rotate(1.2deg); }
     .feature-text .tag{ font-size:9px; margin-bottom:6px; }
     .feature-text h3{ font-size:18px; }
     .feature-text p{ font-size:11.5px; line-height:1.4; }
@@ -273,12 +262,12 @@
   @media (max-width:960px){ .deals-grid{ grid-template-columns:repeat(2,1fr); } }
   @media (max-width:560px){ .deals-grid{ grid-template-columns:1fr; } }
   .deal-card{
-    background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:26px 22px;
-    text-align:center; transition:transform .2s ease, border-color .2s ease;
+    background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:26px 22px;
+    text-align:center; transition:border-color .2s ease;
   }
-  .deal-card:hover{ transform:translateY(-4px); border-color:var(--gold); }
-  .deal-card.accent{ background:linear-gradient(160deg, rgba(247,173,40,0.14), rgba(216,52,46,0.1)); border-color:var(--gold); }
-  .deal-icon{ font-size:32px; margin-bottom:10px; }
+  .deal-card:hover{ border-color:var(--gold); }
+  .deal-card.accent{ border-color:var(--gold); }
+  .deal-icon{ font-size:28px; margin-bottom:10px; }
   .deal-tag{
     display:inline-block; font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;
     color:var(--muted); border:1px solid var(--line); border-radius:100px; padding:3px 10px; margin-bottom:12px;
@@ -288,19 +277,21 @@
   .deal-card p{ font-size:13.5px; color:var(--muted); line-height:1.5; }
   .deal-card p b{ color:var(--gold); font-weight:700; }
   #dealsLocked{ text-align:center; max-width:560px; margin:0 auto; }
-  .locked-row{ display:flex; gap:14px; justify-content:center; margin:32px 0; flex-wrap:wrap; }
-  .locked-card{
-    background:var(--panel); border:1px solid var(--line); border-radius:14px;
-    padding:20px 18px; flex:1; min-width:120px; max-width:150px;
-  }
-  .icon-lock{ width:22px; height:22px; color:var(--gold); margin-bottom:10px; }
+  .locked-row{ display:flex; gap:28px; justify-content:center; margin:32px 0; flex-wrap:wrap; }
+  .locked-card{ padding:0; min-width:90px; }
+  .icon-lock{ width:20px; height:20px; color:var(--gold); margin-bottom:10px; }
   .locked-card span{ display:block; font-size:12.5px; font-weight:600; color:var(--muted); }
-  @media (max-width:480px){ .locked-row{ gap:10px; } .locked-card{ padding:16px 10px; min-width:96px; } }
+  @media (max-width:480px){ .locked-row{ gap:20px; } }
   #dealsLocked .notify-form{ margin:28px auto 0; }
   #dealsUnlocked{ text-align:center; }
+  .member-quote{ font-size:14px; font-style:italic; color:var(--muted); margin-bottom:10px; }
   .member-confirm{ color:var(--green) !important; font-weight:600; }
+  .member-nudge{
+    margin:14px auto 0; max-width:420px; font-size:14px; font-weight:600; color:var(--gold);
+    background:rgba(247,173,40,0.1); border:1px solid var(--gold); border-radius:12px; padding:12px 18px;
+  }
   .member-qr-card{
-    background:var(--white); border-radius:20px; padding:24px; max-width:220px; margin:24px auto 40px;
+    background:#FFFFFF; border-radius:20px; padding:24px; max-width:220px; margin:24px auto 40px;
     box-shadow:0 20px 44px rgba(0,0,0,0.5);
   }
   .member-qr{ width:100%; display:flex; justify-content:center; }
@@ -342,77 +333,7 @@
   .mrow:last-child{ border-bottom:none; }
   .mrow .nm{ font-weight:500; }
   .mrow .pr{ font-weight:700; color:var(--white); font-size:15.5px; white-space:nowrap; }
-  .mnote{ font-size:13.5px; color:var(--green); margin-top:14px; font-weight:600; }
-
-  /* ---------- SPIN & WIN WHEEL ---------- */
-  #spin{ background:var(--panel); padding:100px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); text-align:center; overflow:hidden; }
-  .spin-layout{ margin-top:56px; display:flex; flex-direction:column; align-items:center; gap:34px; }
-  .wheel-stage{ position:relative; width:340px; max-width:82vw; }
-  .wheel-pointer{
-    position:absolute; top:-6px; left:50%; transform:translateX(-50%); z-index:3;
-    width:0; height:0; border-left:14px solid transparent; border-right:14px solid transparent;
-    border-top:22px solid var(--gold); filter:drop-shadow(0 3px 4px rgba(0,0,0,0.5));
-  }
-  .wheel-svg{
-    width:100%; height:auto; display:block; border-radius:50%;
-    transition: transform 4.2s cubic-bezier(.12,.72,.14,1);
-    box-shadow:0 0 0 6px var(--black), 0 0 0 9px rgba(247,173,40,0.5), 0 24px 60px rgba(0,0,0,0.6);
-  }
-  .wheel-hub{
-    position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); z-index:2;
-    width:74px; height:74px; border-radius:50%; overflow:hidden;
-    box-shadow:0 0 0 4px var(--black), 0 6px 18px rgba(0,0,0,0.5);
-  }
-  .wheel-hub img{ width:100%; height:100%; object-fit:cover; }
-  .spin-btn{
-    padding:16px 40px; font-size:15px; font-weight:700; border-radius:100px; border:none; cursor:pointer;
-    background:var(--red); color:var(--white); transition:transform .15s, background .2s, opacity .2s;
-  }
-  .spin-btn:hover{ transform:translateY(-2px); background:var(--gold); color:#241902; }
-  .spin-btn:disabled{ opacity:0.45; cursor:not-allowed; transform:none; background:var(--red); color:var(--white); }
-  .spin-result{
-    display:none; max-width:420px; background:var(--black); border:1px solid var(--line); border-radius:16px;
-    padding:26px 28px; text-align:center;
-  }
-  .spin-result.show{ display:block; }
-  .spin-result .win-label{ font-size:12px; font-weight:700; letter-spacing:0.12em; text-transform:uppercase; color:var(--gold); margin-bottom:8px; }
-  .spin-result .win-item{ font-size:24px; font-weight:700; color:var(--white); margin-bottom:12px; }
-  .spin-result .win-code{
-    display:inline-block; font-family:'Inter'; font-weight:700; letter-spacing:0.06em; font-size:15px;
-    background:var(--panel); border:1px dashed var(--gold); color:var(--gold); padding:8px 16px; border-radius:8px; margin-bottom:14px;
-  }
-  .spin-result .win-note{ font-size:13px; color:var(--muted); line-height:1.5; }
-  .spin-fine{ font-size:12.5px; color:var(--muted); max-width:44ch; margin:0 auto; }
-  .spin-countdown{ font-size:13px; font-weight:600; color:var(--gold); display:none; }
-  .spin-countdown.show{ display:block; }
-
-  /* ---------- Promo game switcher ---------- */
-  .promo-game{ display:none; }
-  .promo-game.active{ display:block; }
-
-  /* Scratch card */
-  .scratch-layout{ display:flex; flex-direction:column; align-items:center; gap:26px; }
-  .scratch-stage{
-    position:relative; width:340px; max-width:88vw; height:180px;
-    border-radius:18px; overflow:hidden; box-shadow:0 24px 48px rgba(0,0,0,0.5);
-  }
-  .scratch-prize-inner{
-    position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
-    background:var(--panel); border:1px solid var(--line); text-align:center; gap:8px;
-  }
-  .scratch-canvas{ position:absolute; inset:0; width:100%; height:100%; cursor:pointer; touch-action:none; }
-
-  /* Mystery boxes */
-  .boxes-layout{ display:flex; flex-direction:column; align-items:center; gap:30px; }
-  .boxes-row{ display:flex; gap:22px; justify-content:center; flex-wrap:wrap; }
-  .mystery-box{
-    width:104px; height:104px; border-radius:20px; font-size:38px; cursor:pointer;
-    background:linear-gradient(145deg, var(--panel), #0b0a08); border:2px solid var(--gold);
-    box-shadow:0 14px 28px rgba(0,0,0,0.45); transition:transform .2s ease, box-shadow .2s ease, opacity .2s ease;
-  }
-  .mystery-box:hover:not(:disabled){ transform:translateY(-5px); box-shadow:0 20px 36px rgba(0,0,0,0.55); }
-  .mystery-box:disabled{ opacity:0.32; cursor:default; }
-  .mystery-box.chosen{ opacity:1; border-color:var(--red); transform:scale(1.1); }
+  .mnote{ font-size:13.5px; color:var(--gold); margin-top:14px; font-weight:600; }
 
   /* ---------- TRUCK / STORY ---------- */
   #story{ background:var(--black); padding:100px 0; }
@@ -439,7 +360,7 @@
   .review-slide p{ font-size:16px; color:var(--cream); font-weight:400; line-height:1.6; font-style:italic; }
   .review-slide .who{ margin-top:14px; font-size:13px; color:var(--muted); font-weight:600; font-style:normal; }
   .review-note{ text-align:center; margin-top:50px; font-size:12.5px; color:var(--muted); }
-  .review-note a{ color:var(--green); border-bottom:1px dashed var(--green); }
+  .review-note a{ color:var(--gold); border-bottom:1px dashed var(--gold); }
 
   /* ---------- CATERING ---------- */
   #catering{ background:var(--panel); padding:100px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
@@ -458,11 +379,12 @@
   .cform .row2{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
   @media (max-width:520px){ .cform .row2{ grid-template-columns:1fr; } }
   .cform label{ display:flex; flex-direction:column; gap:8px; font-size:12.5px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; }
-  .cform input, .cform textarea{
+  .cform input, .cform textarea, .cform select{
     background:transparent; border:none; border-bottom:1px solid var(--line); padding:9px 0 11px;
     color:var(--white); font-family:'Inter'; font-size:16px; resize:vertical;
   }
-  .cform input:focus, .cform textarea:focus{ outline:none; border-color:var(--gold); }
+  .cform select{ color-scheme:dark; }
+  .cform input:focus, .cform textarea:focus, .cform select:focus{ outline:none; border-color:var(--gold); }
   .cform button{
     margin-top:6px; align-self:flex-start; padding:14px 30px; font-size:14.5px; font-weight:700;
     border-radius:100px; background:var(--red); color:var(--white); border:none; cursor:pointer;
@@ -533,8 +455,8 @@
   }
   @media print{
     body{ background:#fff !important; color:#111 !important; }
-    #annbar, #fireworksCanvas, #floatOrder, nav, .mobile-nav, footer,
-    #catering, #reviews, #find, .cta-band, .statement, #story, #spin,
+    #annbar, #floatOrder, nav, .mobile-nav, footer,
+    #catering, #reviews, #find, .cta-band, .statement, #story,
     .feature{ display:none !important; }
     .hero{ background:#fff !important; padding:16px 0 !important; min-height:auto !important; }
     .hero h1, .hero-eyebrow, .lede{ color:#111 !important; }
@@ -583,16 +505,9 @@
 </head>
 <body>
 
-<canvas id="fireworksCanvas" aria-hidden="true"></canvas>
-
 <div id="annbar">
   <div class="wrap">
-    <div class="ann-rotator" id="annRotator">
-      <div class="ann-slide active" data-until="2026-08-22T22:00:00">&#127881; <b>Uniontown Lions Festival</b> &mdash; Wed Aug 19&ndash;Sat Aug 22 &middot; 5&ndash;10 PM &middot; Hartville, OH <a class="ann-inline-link" href="https://www.google.com/maps/dir/?api=1&destination=1289+Edison+St+NW,+Hartville,+OH+44632" target="_blank" rel="noopener">Map</a></div>
-      <div class="ann-slide">&#127873; Free roll for new members &mdash; plus Taco Tuesday, Lunch Combo &amp; more. <a class="ann-inline-link" href="#deals">Sign Up Free</a></div>
-      <div class="ann-slide">&#128666; Can't make it out? We're now on DoorDash &mdash; <a class="ann-inline-link" href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener">Order Delivery</a></div>
-      <div class="ann-slide">&#10084;&#65039; Loved your food? <a class="ann-inline-link" href="https://g.page/r/CbQeOtyzbDakEAI/review" target="_blank" rel="noopener">Leave us a Google review</a></div>
-    </div>
+    <div class="ann-message" id="annMessage" data-until="2026-08-22T22:00:00">&#127881; <b>Uniontown Lions Festival</b> &mdash; Wed Aug 19&ndash;Sat Aug 22 &middot; 5&ndash;10 PM &middot; Hartville, OH <a class="ann-inline-link" href="https://www.google.com/maps/dir/?api=1&destination=1289+Edison+St+NW,+Hartville,+OH+44632" target="_blank" rel="noopener">Map</a></div>
     <button class="ann-close" type="button" aria-label="Dismiss announcement">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </button>
@@ -604,10 +519,10 @@
     <div class="wordmark"><span class="w1">Roll&#8209;In</span><span class="w2">Shawarma</span></div>
     <div class="navlinks">
       <a href="#menu">Menu</a>
-      <a href="#deals">Deals</a>
-      <a href="#story">Our Story</a>
-      <a href="#reviews">Reviews</a>
-      <a href="#catering">Catering</a>
+      <a href="#deals" class="member-hide">Deals</a>
+      <a href="#story" class="member-hide">Our Story</a>
+      <a href="#reviews" class="member-hide">Reviews</a>
+      <a href="#catering" class="member-hide">Catering</a>
       <a href="#find" class="has-icon"><svg class="icon-truck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>Find Us</a>
     </div>
     <a class="nav-signin" href="#deals" id="navSignIn">Sign In</a>
@@ -623,16 +538,16 @@
     <a href="#deals" id="mobileNavSignIn">Sign In</a>
     <a href="#" id="mobileNavSignOut" class="hidden">Sign Out</a>
     <a href="#menu">Menu</a>
-    <a href="#deals">Deals</a>
-    <a href="#story">Our Story</a>
-    <a href="#reviews">Reviews</a>
-    <a href="#catering">Catering</a>
+    <a href="#deals" class="member-hide">Deals</a>
+    <a href="#story" class="member-hide">Our Story</a>
+    <a href="#reviews" class="member-hide">Reviews</a>
+    <a href="#catering" class="member-hide">Catering</a>
     <a href="#find" class="has-icon"><svg class="icon-truck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>Find Us</a>
     <a href="tel:+13305875203">Call Us &mdash; (330) 587-5203</a>
   </div>
 </nav>
 
-<header class="hero">
+<header class="hero member-hide">
   <div class="hero-inner">
     <img class="hero-logo" src="logo.jpg" alt="Roll-In Shawarma logo">
     <div class="hero-eyebrow">Middle Eastern &middot; Indian &middot; Food Truck</div>
@@ -640,24 +555,21 @@
     <p class="lede">Marinated chicken, falafel, and paneer, rolled fresh at the window &mdash; shawarma, frankie rolls, tacos, bowls, and loaded fries.</p>
     <div class="hero-ctas">
       <a class="btn btn-light" href="https://roll-in-shawarma.square.site/" target="_blank" rel="noopener">Order Online</a>
-      <a class="btn btn-doordash" href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener">
-        <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" style="vertical-align:-2px; margin-right:5px;"><path d="M2 8a1 1 0 0 1 1-1h10.5a5.5 5.5 0 0 1 0 11H7v3l-5-4.2L7 12.6v3h6.5a2.5 2.5 0 0 0 0-5H3a1 1 0 0 1-1-1V8z"/></svg>Order Delivery
-      </a>
       <a class="btn btn-outline-dark" href="#menu">View Menu</a>
-      <a class="btn btn-outline-dark" href="#find">Find The Truck</a>
     </div>
+    <p class="hero-subline">Delivery also available via <a href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener">DoorDash</a> &middot; <a href="#find">Find the truck</a></p>
   </div>
   <div class="scroll-cue">Scroll</div>
 </header>
 
-<section class="statement">
+<section class="statement member-hide">
   <img src="truck-night.webp" alt="Roll-In Shawarma food truck at night">
   <div class="wrap">
     <p>Carved fresh. Rolled to order. <em>No shortcuts.</em></p>
   </div>
 </section>
 
-<section class="feature">
+<section class="feature member-hide">
   <div class="wrap">
     <div class="feature-row">
       <div class="feature-photo tilt-60"><img src="shawarma-wrap.webp" alt="Chicken shawarma wrap"></div>
@@ -671,7 +583,7 @@
   </div>
 </section>
 
-<section class="feature" style="padding-top:0;">
+<section class="feature member-hide" style="padding-top:0;">
   <div class="wrap">
     <div class="feature-row rev">
       <div class="feature-photo"><img src="loaded-fries.webp" alt="Loaded fries with chicken and cheese"></div>
@@ -685,7 +597,7 @@
   </div>
 </section>
 
-<section class="feature" style="padding-top:0;">
+<section class="feature member-hide" style="padding-top:0;">
   <div class="wrap">
     <div class="feature-row">
       <div class="feature-photo"><img src="bowl.webp" alt="Chicken over rice bowl"></div>
@@ -699,7 +611,7 @@
   </div>
 </section>
 
-<section class="feature" style="padding-top:0;">
+<section class="feature member-hide" style="padding-top:0;">
   <div class="wrap">
     <div class="feature-row rev">
       <div class="feature-photo"><img src="tacos.webp" alt="Three soft chicken tacos"></div>
@@ -713,7 +625,7 @@
   </div>
 </section>
 
-<section class="feature" style="padding-top:0;">
+<section class="feature member-hide" style="padding-top:0;">
   <div class="wrap">
     <div class="feature-row">
       <div class="feature-photo tilt-60"><img src="tikka-wrap.webp" alt="Chicken tikka frankie roll"></div>
@@ -876,8 +788,25 @@
         <div class="locked-card"><svg class="icon-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg><span>Family Basket</span></div>
       </div>
 
-      <form id="dealsSignupForm" class="notify-form">
-        <input type="email" id="dealsEmail" placeholder="you@example.com" required autocomplete="email">
+      <form id="dealsSignupForm" class="cform member-signup-form">
+        <div class="row2">
+          <label>First Name<input type="text" id="dealsFirstName" required autocomplete="given-name"></label>
+          <label>Last Name<input type="text" id="dealsLastName" required autocomplete="family-name"></label>
+        </div>
+        <label>Email<input type="email" id="dealsEmail" placeholder="you@example.com" required autocomplete="email"></label>
+        <label>Birthday (for a birthday treat &mdash; no year needed)</label>
+        <div class="row2">
+          <select id="dealsBirthMonth" required>
+            <option value="">Month</option>
+            <option value="1">January</option><option value="2">February</option><option value="3">March</option>
+            <option value="4">April</option><option value="5">May</option><option value="6">June</option>
+            <option value="7">July</option><option value="8">August</option><option value="9">September</option>
+            <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+          </select>
+          <select id="dealsBirthDay" required>
+            <option value="">Day</option>
+          </select>
+        </div>
         <button type="submit" class="btn btn-light" id="dealsSubmitBtn">Get My Free Roll</button>
       </form>
       <div id="dealsMsg" class="notify-msg"></div>
@@ -886,8 +815,10 @@
     <!-- UNLOCKED STATE: shown after signup -->
     <div id="dealsUnlocked" class="hidden">
       <div class="sec-eyebrow">Members Only</div>
-      <h2 class="sec-title">You're in &mdash; here's what you get.</h2>
-      <p class="sec-sub member-confirm">&#10003; You're a member. Show this QR code at the window to redeem.</p>
+      <h2 class="sec-title" id="memberGreetingTitle">You're in &mdash; here's what you get.</h2>
+      <p class="member-quote" id="memberQuote"></p>
+      <p class="sec-sub member-confirm" id="memberGreetingSub">&#10003; You're a member. Show this QR code at the window to redeem.</p>
+      <p class="member-nudge" id="memberNudge"></p>
 
       <div class="member-qr-card">
         <div id="memberQrCanvas" class="member-qr"></div>
@@ -928,93 +859,7 @@
   </div>
 </section>
 
-<section id="spin">
-  <div class="wrap">
-    <div class="sec-eyebrow">Today's Surprise</div>
-    <h2 class="sec-title">One visit, one free side.</h2>
-    <p class="sec-sub">Place an online order, then play below. Show your code at pickup to claim your free side &mdash; on us.</p>
-
-    <div class="promo-game" id="promoWheel">
-      <div class="spin-layout">
-        <div class="wheel-stage">
-          <div class="wheel-pointer"></div>
-          <div class="wheel-hub"><img src="logo.jpg" alt="Roll-In Shawarma logo"></div>
-          <svg class="wheel-svg" id="wheelSvg" viewBox="0 0 400 400" xmlns="http://www.w3.org/2000/svg">
-            <path d="M200,200 L200,20 A180,180 0 0,1 380,200 Z" fill="#F7AD28"/>
-            <path d="M200,200 L380,200 A180,180 0 0,1 200,380 Z" fill="#D8342E"/>
-            <path d="M200,200 L200,380 A180,180 0 0,1 20,200 Z" fill="#0BAF4C"/>
-            <path d="M200,200 L20,200 A180,180 0 0,1 200,20 Z" fill="#F3EAC9"/>
-            <circle cx="200" cy="200" r="180" fill="none" stroke="#000" stroke-width="3"/>
-            <line x1="200" y1="200" x2="200" y2="20" stroke="#000" stroke-width="3"/>
-            <line x1="200" y1="200" x2="380" y2="200" stroke="#000" stroke-width="3"/>
-            <line x1="200" y1="200" x2="200" y2="380" stroke="#000" stroke-width="3"/>
-            <line x1="200" y1="200" x2="20" y2="200" stroke="#000" stroke-width="3"/>
-            <text x="286.3" y="106" text-anchor="middle" transform="rotate(45 286.3 113.7)" font-family="Inter" font-weight="700" font-size="20" fill="#241902">
-              <tspan x="286.3" dy="0">Regular</tspan><tspan x="286.3" dy="23">Fries</tspan>
-            </text>
-            <text x="286.3" y="279" text-anchor="middle" transform="rotate(135 286.3 286.3)" font-family="Inter" font-weight="700" font-size="18" fill="#FFFCF3">
-              <tspan x="286.3" dy="0">Peri-Peri</tspan><tspan x="286.3" dy="22">Fries</tspan>
-            </text>
-            <text x="113.7" y="279" text-anchor="middle" transform="rotate(225 113.7 286.3)" font-family="Inter" font-weight="700" font-size="19" fill="#04220F">
-              <tspan x="113.7" dy="0">Fryum</tspan><tspan x="113.7" dy="22">Chips</tspan>
-            </text>
-            <text x="113.7" y="106" text-anchor="middle" transform="rotate(315 113.7 113.7)" font-family="Inter" font-weight="700" font-size="19" fill="#201A12">
-              <tspan x="113.7" dy="0">2</tspan><tspan x="113.7" dy="22">Samosas</tspan>
-            </text>
-          </svg>
-        </div>
-        <button class="spin-btn" id="spinBtn">Spin The Wheel</button>
-        <div class="spin-result" id="spinResult">
-          <div class="win-label">You won</div>
-          <div class="win-item" id="winItem">&mdash;</div>
-          <div class="win-code" id="winCode">&mdash;</div>
-          <div class="win-note">Show this code at the window when you pick up your online order to claim your free side.</div>
-        </div>
-        <div class="spin-countdown" id="spinCountdown"></div>
-        <p class="spin-fine">One spin every 3 hours. Free side claimed at pickup, in person &mdash; can't be combined with other offers.</p>
-      </div>
-    </div>
-
-    <div class="promo-game" id="promoScratch">
-      <div class="scratch-layout">
-        <div class="scratch-stage">
-          <div class="scratch-prize-inner">
-            <div class="win-label">You Won</div>
-            <div class="win-item" id="scratchWinItem">&mdash;</div>
-          </div>
-          <canvas class="scratch-canvas" id="scratchCanvas"></canvas>
-        </div>
-        <div class="spin-result" id="scratchResult">
-          <div class="win-code" id="scratchWinCode">&mdash;</div>
-          <div class="win-note">Show this code at the window when you pick up your online order to claim your free side.</div>
-        </div>
-        <div class="spin-countdown" id="scratchCountdown"></div>
-        <p class="spin-fine">Scratch the gold card to reveal your prize. One play every 3 hours.</p>
-      </div>
-    </div>
-
-    <div class="promo-game" id="promoBoxes">
-      <div class="boxes-layout">
-        <div class="boxes-row">
-          <button class="mystery-box" type="button" aria-label="Mystery box 1">&#127873;</button>
-          <button class="mystery-box" type="button" aria-label="Mystery box 2">&#127873;</button>
-          <button class="mystery-box" type="button" aria-label="Mystery box 3">&#127873;</button>
-        </div>
-        <div class="spin-result" id="boxResult">
-          <div class="win-label">You won</div>
-          <div class="win-item" id="boxWinItem">&mdash;</div>
-          <div class="win-code" id="boxWinCode">&mdash;</div>
-          <div class="win-note">Show this code at the window when you pick up your online order to claim your free side.</div>
-        </div>
-        <div class="spin-countdown" id="boxCountdown"></div>
-        <p class="spin-fine">Pick a box to reveal your prize. One play every 3 hours.</p>
-      </div>
-    </div>
-
-  </div>
-</section>
-
-<section id="story">
+<section id="story" class="member-hide">
   <div class="wrap">
     <div class="story-layout">
       <div class="story-copy">
@@ -1033,7 +878,7 @@
   </div>
 </section>
 
-<section id="reviews">
+<section id="reviews" class="member-hide">
   <div class="wrap">
     <div class="sec-eyebrow">Reviews</div>
     <h2 class="sec-title">What the window's been hearing.</h2>
@@ -1070,7 +915,7 @@
   </div>
 </section>
 
-<section id="catering">
+<section id="catering" class="member-hide">
   <div class="wrap">
     <div class="sec-eyebrow">Catering</div>
     <h2 class="sec-title">Book the truck for your event.</h2>
@@ -1193,10 +1038,10 @@
         <div class="foot-col">
           <h5>Site</h5>
           <a href="#menu">Menu</a>
-          <a href="#deals">Deals</a>
-          <a href="#story">Story</a>
-          <a href="#reviews">Reviews</a>
-          <a href="#catering">Catering</a>
+          <a href="#deals" class="member-hide">Deals</a>
+          <a href="#story" class="member-hide">Story</a>
+          <a href="#reviews" class="member-hide">Reviews</a>
+          <a href="#catering" class="member-hide">Catering</a>
         </div>
         <div class="foot-col">
           <h5>Contact</h5>
@@ -1249,226 +1094,36 @@
     update();
   })();
 
-  // ---- Grand opening fireworks (once per session, until fair opens) ----
-  (function(){
-    var canvas = document.getElementById('fireworksCanvas');
-    if (!canvas) return;
-
-    // Only show up until the grand opening (July 28, 2026)
-    var openingDate = new Date('2026-07-28T00:00:00');
-    if (new Date() >= openingDate) { canvas.remove(); return; }
-
-    // Once per browser session
-    try {
-      if (sessionStorage.getItem('rollinFireworksShown') === '1') { canvas.remove(); return; }
-      sessionStorage.setItem('rollinFireworksShown', '1');
-    } catch(e){}
-
-    if (window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-      canvas.remove();
-      return;
-    }
-
-    var ctx = canvas.getContext('2d');
-    var W, H;
-    function resize(){
-      W = canvas.width = window.innerWidth;
-      H = canvas.height = window.innerHeight;
-    }
-    resize();
-    window.addEventListener('resize', resize);
-
-    var colors = ['#F7AD28', '#D8342E', '#0BAF4C', '#FFFCF3', '#E68334'];
-    var rockets = [];
-    var sparks = [];
-
-    function launchRocket(targetX, targetY){
-      rockets.push({
-        x: targetX + (Math.random()*40-20),
-        y: H + 10,
-        tx: targetX, ty: targetY,
-        vx: (targetX - targetX) , // set below
-        speed: 9 + Math.random()*2.5,
-        trail: [],
-        color: colors[Math.floor(Math.random()*colors.length)]
-      });
-      var r = rockets[rockets.length-1];
-      var dx = r.tx - r.x, dy = r.ty - r.y;
-      var dist = Math.sqrt(dx*dx + dy*dy);
-      r.vx = (dx/dist) * r.speed;
-      r.vy = (dy/dist) * r.speed;
-    }
-
-    function explode(x, y, baseColor){
-      var count = 70;
-      var burstColors = Math.random() < 0.4
-        ? [baseColor]
-        : colors;
-      for (var i = 0; i < count; i++){
-        var angle = (Math.PI * 2 * i) / count + Math.random()*0.15;
-        var speed = 2.2 + Math.random()*4.2;
-        sparks.push({
-          x: x, y: y,
-          vx: Math.cos(angle)*speed,
-          vy: Math.sin(angle)*speed,
-          life: 1,
-          decay: 0.0085 + Math.random()*0.009,
-          color: burstColors[Math.floor(Math.random()*burstColors.length)],
-          trail: []
-        });
-      }
-    }
-
-    var startTime = Date.now();
-    var launchSchedule = [100, 550, 1000, 1500];
-    var launched = 0;
-
-    function animate(){
-      var elapsed = Date.now() - startTime;
-
-      while (launched < launchSchedule.length && elapsed >= launchSchedule[launched]) {
-        var tx = W * (0.18 + Math.random()*0.64);
-        var ty = H * (0.16 + Math.random()*0.24);
-        launchRocket(tx, ty);
-        launched++;
-      }
-
-      ctx.clearRect(0, 0, W, H);
-      ctx.globalCompositeOperation = 'lighter';
-
-      // rockets: rising trail, explode on arrival
-      for (var i = rockets.length - 1; i >= 0; i--){
-        var r = rockets[i];
-        r.trail.push({x:r.x, y:r.y});
-        if (r.trail.length > 10) r.trail.shift();
-        r.x += r.vx; r.y += r.vy;
-
-        ctx.strokeStyle = r.color;
-        ctx.lineWidth = 2;
-        ctx.beginPath();
-        for (var t = 0; t < r.trail.length; t++){
-          ctx.globalAlpha = t / r.trail.length * 0.8;
-          var pt = r.trail[t];
-          if (t === 0) ctx.moveTo(pt.x, pt.y); else ctx.lineTo(pt.x, pt.y);
-        }
-        ctx.stroke();
-
-        var dx = r.tx - r.x, dy = r.ty - r.y;
-        if (Math.sqrt(dx*dx + dy*dy) < 14){
-          explode(r.tx, r.ty, r.color);
-          rockets.splice(i, 1);
-        }
-      }
-
-      // sparks: glowing burst with short trailing streaks
-      for (var j = sparks.length - 1; j >= 0; j--){
-        var s = sparks[j];
-        s.trail.push({x:s.x, y:s.y});
-        if (s.trail.length > 5) s.trail.shift();
-        s.vy += 0.05; // gravity
-        s.vx *= 0.985; s.vy *= 0.985; // air drag
-        s.x += s.vx; s.y += s.vy;
-        s.life -= s.decay;
-        if (s.life <= 0){ sparks.splice(j, 1); continue; }
-
-        ctx.strokeStyle = s.color;
-        ctx.lineWidth = 2.2;
-        ctx.lineCap = 'round';
-        ctx.beginPath();
-        for (var k = 0; k < s.trail.length; k++){
-          ctx.globalAlpha = Math.max(s.life, 0) * (k / s.trail.length);
-          var spt = s.trail[k];
-          if (k === 0) ctx.moveTo(spt.x, spt.y); else ctx.lineTo(spt.x, spt.y);
-        }
-        ctx.stroke();
-
-        ctx.globalAlpha = Math.max(s.life, 0);
-        ctx.fillStyle = s.color;
-        ctx.beginPath();
-        ctx.arc(s.x, s.y, 1.8, 0, Math.PI*2);
-        ctx.fill();
-      }
-      ctx.globalAlpha = 1;
-      ctx.globalCompositeOperation = 'source-over';
-
-      if (elapsed < 3800 || rockets.length > 0 || sparks.length > 0) {
-        requestAnimationFrame(animate);
-      } else {
-        canvas.classList.add('fade-out');
-        setTimeout(function(){ canvas.remove(); }, 850);
-      }
-    }
-    requestAnimationFrame(animate);
-  })();
-
-  // ---- Announcement banner dismiss ----
+  // ---- Announcement banner: dismiss + auto-hide when expired ----
   (function(){
     var bar = document.getElementById('annbar');
+    var msg = document.getElementById('annMessage');
     var closeBtn = bar ? bar.querySelector('.ann-close') : null;
-    if (!bar || !closeBtn) return;
+    if (!bar || !msg || !closeBtn) return;
+
+    function checkExpiry(){
+      var until = msg.getAttribute('data-until');
+      if (until && new Date(until) <= new Date()) {
+        bar.style.display = 'none';
+        return true;
+      }
+      return false;
+    }
+
     try {
       if (sessionStorage.getItem('rollinAnnDismissed') === '1') {
         bar.style.display = 'none';
       }
     } catch(e){}
+
+    if (!checkExpiry()) {
+      setInterval(checkExpiry, 60000);
+    }
+
     closeBtn.addEventListener('click', function(){
       bar.style.display = 'none';
       try { sessionStorage.setItem('rollinAnnDismissed', '1'); } catch(e){}
     });
-  })();
-
-  // ---- Announcement banner rotation (auto-removes expired slides) ----
-  (function(){
-    var rotator = document.getElementById('annRotator');
-    var bar = document.getElementById('annbar');
-    if (!rotator || !bar) return;
-
-    function removeExpired(){
-      var slides = rotator.querySelectorAll('.ann-slide');
-      slides.forEach(function(s){
-        var until = s.getAttribute('data-until');
-        if (until && new Date(until) <= new Date()) {
-          s.remove();
-        }
-      });
-    }
-
-    function ensureActive(){
-      var slides = rotator.querySelectorAll('.ann-slide');
-      if (!slides.length) {
-        bar.style.display = 'none';
-        return slides;
-      }
-      bar.style.display = '';
-      if (!rotator.querySelector('.ann-slide.active')) {
-        slides[0].classList.add('active');
-      }
-      return slides;
-    }
-
-    removeExpired();
-    var slides = ensureActive();
-    var idx = 0;
-    slides.forEach(function(s, i){ if (s.classList.contains('active')) idx = i; });
-
-    setInterval(function(){
-      var current = rotator.querySelectorAll('.ann-slide');
-      if (current.length <= 1) return;
-      current[idx].classList.remove('active');
-      idx = (idx + 1) % current.length;
-      current[idx].classList.add('active');
-    }, 4500);
-
-    // recheck every minute in case a slide expires while the tab stays open
-    setInterval(function(){
-      var before = rotator.querySelectorAll('.ann-slide').length;
-      removeExpired();
-      var after = rotator.querySelectorAll('.ann-slide').length;
-      if (after !== before) {
-        idx = 0;
-        ensureActive();
-      }
-    }, 60000);
   })();
 
   // ---- Reviews carousel ----
@@ -1523,225 +1178,6 @@
     });
   });
 
-  // ---- Promo games: wheel / scratch card / mystery boxes (one random per visit, 3hr reset) ----
-  (function(){
-    var items = ['Regular Fries', 'Peri-Peri Fries', 'Fryum Chips', '2 Samosas'];
-    var COOLDOWN_MS = 3 * 60 * 60 * 1000; // 3 hours
-    var games = ['wheel', 'scratch', 'boxes'];
-
-    var promoWheel = document.getElementById('promoWheel');
-    var promoScratch = document.getElementById('promoScratch');
-    var promoBoxes = document.getElementById('promoBoxes');
-    if (!promoWheel || !promoScratch || !promoBoxes) return;
-
-    function genCode(){
-      return 'ROLLIN-' + Math.floor(1000 + Math.random()*9000);
-    }
-    function formatRemaining(ms){
-      var totalMin = Math.max(0, Math.ceil(ms/60000));
-      var h = Math.floor(totalMin/60), m = totalMin % 60;
-      return h > 0 ? ('Next free treat in ' + h + 'h ' + m + 'm') : ('Next free treat in ' + m + 'm');
-    }
-    function startCountdown(el, untilTs){
-      el.classList.add('show');
-      function tick(){
-        var remaining = untilTs - Date.now();
-        if (remaining <= 0){ clearInterval(timer); location.reload(); return; }
-        el.textContent = formatRemaining(remaining);
-      }
-      tick();
-      var timer = setInterval(tick, 30000);
-    }
-
-    var saved = null;
-    try { saved = JSON.parse(localStorage.getItem('rollinPromoState')); } catch(e){}
-
-    var activeGame, itemIndex, code, resultTs, isLocked;
-
-    if (saved && games.indexOf(saved.gameType) > -1 && typeof saved.itemIndex === 'number' && saved.code && saved.ts) {
-      var elapsed = Date.now() - saved.ts;
-      if (elapsed < COOLDOWN_MS) {
-        activeGame = saved.gameType; itemIndex = saved.itemIndex; code = saved.code; resultTs = saved.ts; isLocked = true;
-      } else {
-        try { localStorage.removeItem('rollinPromoState'); } catch(e){}
-      }
-    }
-
-    if (!activeGame) {
-      activeGame = games[Math.floor(Math.random()*games.length)];
-      itemIndex = Math.floor(Math.random()*items.length);
-      code = null; resultTs = null; isLocked = false;
-    }
-
-    var containerMap = { wheel: promoWheel, scratch: promoScratch, boxes: promoBoxes };
-    containerMap[activeGame].classList.add('active');
-
-    function persist(){
-      if (!code) code = genCode();
-      resultTs = Date.now();
-      try {
-        localStorage.setItem('rollinPromoState', JSON.stringify({ gameType: activeGame, itemIndex: itemIndex, code: code, ts: resultTs }));
-      } catch(e){}
-    }
-
-    // ---------------- WHEEL ----------------
-    if (activeGame === 'wheel') {
-      var wheel = document.getElementById('wheelSvg');
-      var btn = document.getElementById('spinBtn');
-      var resultBox = document.getElementById('spinResult');
-      var winItemEl = document.getElementById('winItem');
-      var winCodeEl = document.getElementById('winCode');
-      var countdownEl = document.getElementById('spinCountdown');
-
-      function landOn(index){
-        var segmentCenter = index*90 + 45;
-        var target = 5*360 + (360 - segmentCenter);
-        wheel.style.transform = 'rotate(' + target + 'deg)';
-      }
-      function reveal(){
-        winItemEl.textContent = items[itemIndex];
-        winCodeEl.textContent = code;
-        resultBox.classList.add('show');
-      }
-
-      if (isLocked) {
-        wheel.style.transition = 'none';
-        landOn(itemIndex);
-        reveal();
-        btn.disabled = true; btn.textContent = 'Come Back Later';
-        startCountdown(countdownEl, resultTs + COOLDOWN_MS);
-      } else {
-        btn.addEventListener('click', function(){
-          if (btn.disabled) return;
-          btn.disabled = true;
-          landOn(itemIndex);
-          setTimeout(function(){
-            persist();
-            reveal();
-            btn.textContent = 'Come Back Later';
-            startCountdown(countdownEl, resultTs + COOLDOWN_MS);
-          }, 4300);
-        });
-      }
-    }
-
-    // ---------------- SCRATCH CARD ----------------
-    if (activeGame === 'scratch') {
-      var canvas = document.getElementById('scratchCanvas');
-      var winEl2 = document.getElementById('scratchWinItem');
-      var resultBox2 = document.getElementById('scratchResult');
-      var codeEl2 = document.getElementById('scratchWinCode');
-      var countdownEl2 = document.getElementById('scratchCountdown');
-      var ctx = canvas.getContext('2d');
-
-      winEl2.textContent = items[itemIndex];
-
-      function drawCover(){
-        ctx.globalCompositeOperation = 'source-over';
-        var grad = ctx.createLinearGradient(0, 0, canvas.width, canvas.height);
-        grad.addColorStop(0, '#F7AD28');
-        grad.addColorStop(1, '#E68334');
-        ctx.fillStyle = grad;
-        ctx.fillRect(0, 0, canvas.width, canvas.height);
-        ctx.fillStyle = 'rgba(20,14,4,0.8)';
-        ctx.font = '700 16px Inter, sans-serif';
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'middle';
-        ctx.fillText('SCRATCH HERE', canvas.width/2, canvas.height/2);
-      }
-      function sizeCanvas(){
-        var rect = canvas.getBoundingClientRect();
-        canvas.width = rect.width; canvas.height = rect.height;
-        drawCover();
-      }
-
-      if (isLocked) {
-        canvas.style.display = 'none';
-        codeEl2.textContent = code;
-        resultBox2.classList.add('show');
-        startCountdown(countdownEl2, resultTs + COOLDOWN_MS);
-      } else {
-        sizeCanvas();
-        window.addEventListener('resize', sizeCanvas);
-
-        var scratching = false;
-        var revealed = false;
-
-        function scratchAt(x, y){
-          ctx.globalCompositeOperation = 'destination-out';
-          ctx.beginPath();
-          ctx.arc(x, y, 22, 0, Math.PI*2);
-          ctx.fill();
-        }
-        function getPos(e){
-          var rect = canvas.getBoundingClientRect();
-          var t = e.touches && e.touches[0];
-          return { x: (t ? t.clientX : e.clientX) - rect.left, y: (t ? t.clientY : e.clientY) - rect.top };
-        }
-        function checkRevealed(){
-          if (revealed) return;
-          var data = ctx.getImageData(0, 0, canvas.width, canvas.height).data;
-          var transparent = 0, sampled = 0;
-          for (var i = 3; i < data.length; i += 4*25) { sampled++; if (data[i] < 40) transparent++; }
-          if (sampled && (transparent / sampled) > 0.45) {
-            revealed = true;
-            persist();
-            canvas.style.transition = 'opacity .5s ease';
-            canvas.style.opacity = '0';
-            setTimeout(function(){ canvas.style.display = 'none'; }, 500);
-            codeEl2.textContent = code;
-            resultBox2.classList.add('show');
-            startCountdown(countdownEl2, resultTs + COOLDOWN_MS);
-          }
-        }
-        function onDown(e){ scratching = true; var p = getPos(e); scratchAt(p.x, p.y); }
-        function onMove(e){ if (!scratching) return; var p = getPos(e); scratchAt(p.x, p.y); checkRevealed(); }
-        function onUp(){ scratching = false; checkRevealed(); }
-
-        canvas.addEventListener('mousedown', onDown);
-        canvas.addEventListener('mousemove', onMove);
-        window.addEventListener('mouseup', onUp);
-        canvas.addEventListener('touchstart', onDown, {passive:true});
-        canvas.addEventListener('touchmove', onMove, {passive:true});
-        canvas.addEventListener('touchend', onUp);
-      }
-    }
-
-    // ---------------- MYSTERY BOXES ----------------
-    if (activeGame === 'boxes') {
-      var boxes = promoBoxes.querySelectorAll('.mystery-box');
-      var resultBox3 = document.getElementById('boxResult');
-      var winEl3 = document.getElementById('boxWinItem');
-      var codeEl3 = document.getElementById('boxWinCode');
-      var countdownEl3 = document.getElementById('boxCountdown');
-
-      function reveal3(){
-        winEl3.textContent = items[itemIndex];
-        codeEl3.textContent = code;
-        resultBox3.classList.add('show');
-      }
-
-      if (isLocked) {
-        boxes.forEach(function(b){ b.disabled = true; b.textContent = String.fromCodePoint(0x2728); });
-        reveal3();
-        startCountdown(countdownEl3, resultTs + COOLDOWN_MS);
-      } else {
-        boxes.forEach(function(b){
-          b.addEventListener('click', function(){
-            boxes.forEach(function(bb){ bb.disabled = true; });
-            b.classList.add('chosen');
-            b.textContent = String.fromCodePoint(0x2728);
-            persist();
-            setTimeout(function(){
-              reveal3();
-              startCountdown(countdownEl3, resultTs + COOLDOWN_MS);
-            }, 400);
-          });
-        });
-      }
-    }
-  })();
-
   // ---- Nav sign-in / sign-out status ----
   (function(){
     var signInLinks = [document.getElementById('navSignIn'), document.getElementById('mobileNavSignIn')];
@@ -1765,7 +1201,10 @@
       if (!el) return;
       el.addEventListener('click', function(e){
         e.preventDefault();
-        try { localStorage.removeItem('rollinMemberCode'); } catch(err){}
+        try {
+          localStorage.removeItem('rollinMemberCode');
+          localStorage.removeItem('rollinMemberFirstName');
+        } catch(err){}
         location.reload();
       });
     });
@@ -1787,6 +1226,15 @@
     var msgEl = document.getElementById('dealsMsg');
     var btn = document.getElementById('dealsSubmitBtn');
 
+    // populate day dropdown (1-31)
+    var daySel = document.getElementById('dealsBirthDay');
+    for (var d = 1; d <= 31; d++) {
+      var opt = document.createElement('option');
+      opt.value = d;
+      opt.textContent = d;
+      daySel.appendChild(opt);
+    }
+
     function renderQr(code){
       var qr = qrcode(0, 'M');
       qr.addData(code);
@@ -1795,16 +1243,64 @@
       document.getElementById('memberQrCode').textContent = code;
     }
 
-    function unlock(code){
+    var funnyQuotes = [
+      "Life is short. Get extra sauce.",
+      "A wrap a day keeps the hangry away.",
+      "Warning: extreme deliciousness ahead.",
+      "You're basically royalty now. The line still applies, though.",
+      "Friends don't let friends skip the free roll.",
+      "We put the \u2018roll\u2019 in Roll-In. You bring the appetite.",
+      "Legend says the free roll cures Mondays.",
+      "Shawarma good things come to those who scan.",
+      "Rolled fresh, eaten faster.",
+      "Studies show 100% of good decisions involve a wrap."
+    ];
+
+    function renderGreeting(firstName){
+      var now = new Date();
+      var hour = now.getHours();
+      var day = now.getDay(); // 0=Sun ... 2=Tue, 4=Thu
+      var name = firstName ? (', ' + firstName) : '';
+
+      var timeGreeting;
+      if (hour < 5) timeGreeting = 'Still up' + name + '?';
+      else if (hour < 12) timeGreeting = 'Good morning' + name + '!';
+      else if (hour < 17) timeGreeting = 'Good afternoon' + name + '!';
+      else if (hour < 21) timeGreeting = 'Good evening' + name + '!';
+      else timeGreeting = 'Good night' + name + '!';
+
+      var nudge;
+      if (day === 2 || day === 4) {
+        nudge = '\uD83C\uDF2E Today\u2019s the day \u2014 any taco is just $6.99.';
+      } else if (hour >= 11 && hour < 15) {
+        nudge = '\uD83C\uDF7D\uFE0F Perfect timing for our Lunch Combo \u2014 $9.99 + tax, weekdays only.';
+      } else if (hour >= 17 && hour < 21) {
+        nudge = '\uD83D\uDC6A Dinner plans? The Family Dinner Basket feeds two for $29.99 + tax.';
+      } else {
+        nudge = '\u2728 Take a look at today\u2019s member deals below.';
+      }
+
+      var quote = funnyQuotes[Math.floor(Math.random() * funnyQuotes.length)];
+
+      document.getElementById('memberGreetingTitle').textContent = timeGreeting;
+      document.getElementById('memberQuote').textContent = quote;
+      document.getElementById('memberGreetingSub').innerHTML = '&#10003; You\u2019re a member. Show this QR code at the window to redeem.';
+      document.getElementById('memberNudge').textContent = nudge;
+    }
+
+    function unlock(code, firstName){
       lockedEl.classList.add('hidden');
       unlockedEl.classList.remove('hidden');
+      document.body.classList.add('member-mode');
+      renderGreeting(firstName);
       if (code) renderQr(code);
     }
 
     // returning member on this browser -> skip straight to unlocked view
     try {
       var savedCode = localStorage.getItem('rollinMemberCode');
-      if (savedCode) { unlock(savedCode); }
+      var savedName = localStorage.getItem('rollinMemberFirstName');
+      if (savedCode) { unlock(savedCode, savedName); }
     } catch(e){}
 
     function genCode(){
@@ -1813,14 +1309,28 @@
 
     form.addEventListener('submit', function(e){
       e.preventDefault();
+      var firstName = document.getElementById('dealsFirstName').value.trim();
+      var lastName = document.getElementById('dealsLastName').value.trim();
       var email = document.getElementById('dealsEmail').value.trim();
-      if (!email) return;
+      var birthMonth = document.getElementById('dealsBirthMonth').value;
+      var birthDay = document.getElementById('dealsBirthDay').value;
+
+      if (!firstName || !lastName || !email || !birthMonth || !birthDay) {
+        msgEl.textContent = 'Please fill in all fields.';
+        msgEl.className = 'notify-msg error';
+        return;
+      }
+
       btn.disabled = true;
       msgEl.textContent = '';
       msgEl.className = 'notify-msg';
       var newCode = genCode();
 
-      sb.from('email_signups').insert({ email: email, redeem_code: newCode }).then(function(res){
+      sb.from('email_signups').insert({
+        email: email, redeem_code: newCode,
+        first_name: firstName, last_name: lastName,
+        birth_month: parseInt(birthMonth, 10), birth_day: parseInt(birthDay, 10)
+      }).then(function(res){
         btn.disabled = false;
         if (res.error) {
           if (res.error.code === '23505') {
@@ -1832,8 +1342,11 @@
           }
           return;
         }
-        try { localStorage.setItem('rollinMemberCode', newCode); } catch(e){}
-        unlock(newCode);
+        try {
+          localStorage.setItem('rollinMemberCode', newCode);
+          localStorage.setItem('rollinMemberFirstName', firstName);
+        } catch(e){}
+        unlock(newCode, firstName);
       });
     });
   })();
