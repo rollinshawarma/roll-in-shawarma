@@ -119,6 +119,18 @@
     transition:transform .15s, background .2s;
   }
   .nav-order:hover{ transform:translateY(-2px); background:var(--gold); color:#241902; }
+  .nav-doordash{
+    display:inline-flex; align-items:center; gap:5px;
+    background:#FF3008; color:#FFFCF3; padding:10px 16px;
+    font-size:13.5px; font-weight:700; border-radius:100px; white-space:nowrap;
+    transition:transform .15s, background .2s;
+  }
+  .nav-doordash:hover{ transform:translateY(-2px); background:#E62B07; }
+  .nav-doordash svg{ width:14px; height:14px; flex:none; }
+  .order-btn-group{ display:flex; gap:8px; align-items:center; }
+  @media (max-width:480px){
+    .nav-order, .nav-doordash{ padding:9px 13px; font-size:12px; }
+  }
   .nav-signin{
     color:var(--cream); font-size:13.5px; font-weight:600; padding:10px 6px; white-space:nowrap;
     border-bottom:1px solid transparent; transition:color .2s, border-color .2s;
@@ -177,6 +189,8 @@
   .btn-light{ background:var(--red); color:var(--white); }
   .btn-light:hover{ background:var(--red-deep); }
   .btn-outline-dark{ border:1px solid rgba(243,234,201,0.35); color:var(--white); }
+  .btn-doordash-lg{ background:#FF3008; color:#FFFCF3; }
+  .btn-doordash-lg:hover{ background:#E62B07; }
   .btn-outline-dark:hover{ border-color:var(--gold); color:var(--gold); }
 
   .scroll-cue{ position:absolute; bottom:28px; left:50%; transform:translateX(-50%); color:var(--muted); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; }
@@ -445,24 +459,32 @@
   .foot-col a, .foot-col div{ display:block; font-size:13.5px; color:rgba(243,234,201,0.72); margin-bottom:10px; }
   .foot-col a:hover{ color:var(--gold); }
   .foot-bottom{ padding-top:20px; font-size:12px; color:var(--muted); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; }
-  /* ---------- FLOATING ORDER BUTTON ---------- */
-  #floatOrder{
+  /* ---------- FLOATING ORDER BUTTONS ---------- */
+  #floatOrderGroup{
     position:fixed; right:20px; bottom:20px; z-index:200;
-    background:var(--red); color:var(--white); padding:14px 22px; border-radius:100px;
-    font-size:14px; font-weight:700; box-shadow:0 10px 26px rgba(0,0,0,0.55);
-    display:flex; align-items:center; gap:8px;
+    display:flex; flex-direction:column; gap:10px; align-items:flex-end;
     transform:translateY(120px); opacity:0; pointer-events:none;
-    transition:transform .35s ease, opacity .35s ease, background .2s;
+    transition:transform .35s ease, opacity .35s ease;
   }
-  #floatOrder.show{ transform:translateY(0); opacity:1; pointer-events:auto; }
-  #floatOrder:hover{ background:var(--gold); color:#241902; }
-  #floatOrder svg{ width:17px; height:17px; flex:none; }
+  #floatOrderGroup.show{ transform:translateY(0); opacity:1; pointer-events:auto; }
+  .float-btn{
+    display:flex; align-items:center; gap:7px; padding:12px 18px; border-radius:100px;
+    font-size:13px; font-weight:700; box-shadow:0 10px 26px rgba(0,0,0,0.5); white-space:nowrap;
+    transition:transform .2s ease, background .2s;
+  }
+  .float-btn:hover{ transform:translateY(-2px); }
+  .float-btn svg{ width:15px; height:15px; flex:none; }
+  #floatPickup{ background:var(--red); color:var(--white); }
+  #floatPickup:hover{ background:var(--gold); color:#241902; }
+  #floatDelivery{ background:#FF3008; color:#FFFCF3; }
+  #floatDelivery:hover{ background:#E62B07; }
   @media (max-width:480px){
-    #floatOrder{ right:14px; bottom:14px; padding:12px 18px; font-size:13px; }
+    #floatOrderGroup{ right:14px; bottom:14px; }
+    .float-btn{ padding:10px 15px; font-size:12px; }
   }
   @media print{
     body{ background:#fff !important; color:#111 !important; }
-    #annbar, #floatOrder, nav, .mobile-nav, footer,
+    #annbar, #floatOrderGroup, nav, .mobile-nav, footer,
     #catering, #reviews, #find, .cta-band, .statement, #story,
     .feature{ display:none !important; }
     .hero{ background:#fff !important; padding:16px 0 !important; min-height:auto !important; }
@@ -534,14 +556,20 @@
     </div>
     <a class="nav-signin" href="#deals" id="navSignIn">Sign In</a>
     <a class="nav-signin hidden" href="#" id="navSignOut">Sign Out</a>
-    <a class="nav-order" href="https://roll-in-shawarma.square.site/" target="_blank" rel="noopener">Order Online</a>
+    <div class="order-btn-group">
+      <a class="nav-order" href="https://roll-in-shawarma.square.site/" target="_blank" rel="noopener">Pickup</a>
+      <a class="nav-doordash" href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 8a1 1 0 0 1 1-1h10.5a5.5 5.5 0 0 1 0 11H7v3l-5-4.2L7 12.6v3h6.5a2.5 2.5 0 0 0 0-5H3a1 1 0 0 1-1-1V8z"/></svg>Delivery
+      </a>
+    </div>
     <a class="nav-cta" href="tel:+13305875203">Call Us</a>
     <button class="nav-toggle" aria-label="Open menu">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
     </button>
   </div>
   <div class="mobile-nav">
-    <a href="https://roll-in-shawarma.square.site/" target="_blank" rel="noopener" style="color:var(--gold);">Order Online</a>
+    <a href="https://roll-in-shawarma.square.site/" target="_blank" rel="noopener" style="color:var(--gold);">Order for Pickup</a>
+    <a href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener" style="color:#FF3008;">Order for Delivery (DoorDash)</a>
     <a href="#deals" id="mobileNavSignIn">Sign In</a>
     <a href="#" id="mobileNavSignOut" class="hidden">Sign Out</a>
     <a href="#menu">Menu</a>
@@ -561,10 +589,13 @@
     <h1>We roll it.<br><span class="accent">You love it.</span></h1>
     <p class="lede">Marinated chicken, falafel, and paneer, rolled fresh at the window &mdash; shawarma, frankie rolls, tacos, bowls, and loaded fries.</p>
     <div class="hero-ctas">
-      <a class="btn btn-light" href="https://roll-in-shawarma.square.site/" target="_blank" rel="noopener">Order Online</a>
+      <a class="btn btn-light" href="https://roll-in-shawarma.square.site/" target="_blank" rel="noopener">Order for Pickup</a>
+      <a class="btn btn-doordash-lg" href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" style="vertical-align:-2px; margin-right:5px;"><path d="M2 8a1 1 0 0 1 1-1h10.5a5.5 5.5 0 0 1 0 11H7v3l-5-4.2L7 12.6v3h6.5a2.5 2.5 0 0 0 0-5H3a1 1 0 0 1-1-1V8z"/></svg>Order for Delivery
+      </a>
       <a class="btn btn-outline-dark" href="#menu">View Menu</a>
     </div>
-    <p class="hero-subline">Delivery also available via <a href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener">DoorDash</a> &middot; <a href="#find">Find the truck</a></p>
+    <p class="hero-subline"><a href="#find">Find the truck</a></p>
   </div>
   <div class="scroll-cue">Scroll</div>
 </header>
@@ -651,8 +682,11 @@
     <div class="sec-eyebrow">The Full Menu</div>
     <h2 class="sec-title">Everything on the truck.</h2>
     <p class="sec-sub">Add fries &amp; a soda to any wrap, taco, or fries order to make it a combo for +$3.99.</p>
-    <div style="text-align:center; margin-top:28px;">
-      <a class="btn btn-light" href="https://roll-in-shawarma.square.site/" target="_blank" rel="noopener">Order Online</a>
+    <div style="text-align:center; margin-top:28px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
+      <a class="btn btn-light" href="https://roll-in-shawarma.square.site/" target="_blank" rel="noopener">Order for Pickup</a>
+      <a class="btn btn-doordash-lg" href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" style="vertical-align:-2px; margin-right:5px;"><path d="M2 8a1 1 0 0 1 1-1h10.5a5.5 5.5 0 0 1 0 11H7v3l-5-4.2L7 12.6v3h6.5a2.5 2.5 0 0 0 0-5H3a1 1 0 0 1-1-1V8z"/></svg>Order for Delivery
+      </a>
     </div>
 
     <div class="menu-acc">
@@ -1101,17 +1135,22 @@
     });
   }
 
-  // ---- Floating Order Online button ----
+  // ---- Floating Order buttons ----
   (function(){
-    var btn = document.getElementById('floatOrder');
+    var btn = document.getElementById('floatOrderGroup');
     var hero = document.querySelector('.hero');
     var footer = document.querySelector('footer');
     if (!btn || !hero) return;
     function update(){
-      var heroBottom = hero.getBoundingClientRect().bottom;
       var footerTop = footer ? footer.getBoundingClientRect().top : Infinity;
-      var pastHero = heroBottom < 0;
       var beforeFooter = footerTop > window.innerHeight;
+      var pastHero;
+      if (hero.offsetParent === null) {
+        // hero is hidden (e.g. member-mode) -- fall back to a simple scroll threshold
+        pastHero = window.scrollY > 100;
+      } else {
+        pastHero = hero.getBoundingClientRect().bottom < 0;
+      }
       btn.classList.toggle('show', pastHero && beforeFooter);
     }
     window.addEventListener('scroll', update, {passive:true});
@@ -1221,6 +1260,8 @@
         el.classList.toggle('hidden', !isMember);
       });
     }
+
+    window.refreshNavAuthStatus = refresh;
 
     signOutLinks.forEach(function(el){
       if (!el) return;
@@ -1408,6 +1449,20 @@
         localStorage.setItem('rollinMemberCode', profile.redeem_code);
         localStorage.setItem('rollinMemberFirstName', profile.first_name || '');
       } catch(e){}
+
+      // move the greeting/deals section above the menu, so logged-in members
+      // see: greeting -> QR -> menu, instead of menu -> greeting
+      var dealsSection = document.getElementById('deals');
+      var menuSection = document.getElementById('menu');
+      if (dealsSection && menuSection && menuSection.parentNode) {
+        menuSection.parentNode.insertBefore(dealsSection, menuSection);
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (typeof window.refreshNavAuthStatus === 'function') {
+        window.refreshNavAuthStatus();
+      }
     }
 
     function handleAuthenticated(){
@@ -1441,10 +1496,16 @@
 
 </script>
 
-<a id="floatOrder" href="https://roll-in-shawarma.square.site/" target="_blank" rel="noopener">
-  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
-  Order Online
-</a>
+<div id="floatOrderGroup">
+  <a id="floatPickup" class="float-btn" href="https://roll-in-shawarma.square.site/" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+    Pickup
+  </a>
+  <a id="floatDelivery" class="float-btn" href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 8a1 1 0 0 1 1-1h10.5a5.5 5.5 0 0 1 0 11H7v3l-5-4.2L7 12.6v3h6.5a2.5 2.5 0 0 0 0-5H3a1 1 0 0 1-1-1V8z"/></svg>
+    Delivery
+  </a>
+</div>
 
 </body>
 </html>
