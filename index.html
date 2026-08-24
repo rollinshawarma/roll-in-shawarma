@@ -3,1799 +3,1697 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<meta name="robots" content="noindex, nofollow">
-<title>Staff Portal | Roll-In Shawarma</title>
+<title>Roll-In Shawarma | Middle Eastern &amp; Indian Food Truck in Green, Ohio</title>
+<meta name="description" content="Fresh-carved shawarma, frankie rolls, tacos, bowls &amp; loaded fries. A Middle Eastern &amp; Indian food truck based in Green, Ohio. Order online, or find us on the road.">
+
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
+<link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<meta name="theme-color" content="#000000">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Roll-In Shawarma | We Roll It. You Love It.">
+<meta property="og:description" content="Fresh-carved shawarma, frankie rolls, tacos, bowls &amp; loaded fries. A Middle Eastern &amp; Indian food truck based in Green, Ohio.">
+<meta property="og:image" content="https://rollinshawarma.com/og-image.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:url" content="https://rollinshawarma.com">
+<meta property="og:site_name" content="Roll-In Shawarma">
+
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="Roll-In Shawarma | We Roll It. You Love It.">
+<meta name="twitter:description" content="Fresh-carved shawarma, frankie rolls, tacos, bowls &amp; loaded fries. A Middle Eastern &amp; Indian food truck based in Green, Ohio.">
+<meta name="twitter:image" content="https://rollinshawarma.com/og-image.jpg">
+
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --black:#000000; --panel:#131210; --panel-2:#1b1916;
-    --white:#FFFCF3; --cream:#F3EAC9; --muted:rgba(243,234,201,0.6);
-    --gold:#F7AD28; --red:#D8342E; --green:#0BAF4C;
+    --black:#000000;
+    --panel:#121110;
+    --white:#FFFCF3;
+    --cream:#F3EAC9;
+    --muted:rgba(243,234,201,0.62);
+    --gold:#F7AD28;
+    --gold-deep:#E68334;
+    --red:#D8342E;
+    --red-deep:#AB1C1D;
+    --green:#0BAF4C;
     --line:rgba(243,234,201,0.14);
   }
-  *{ box-sizing:border-box; margin:0; padding:0; }
-  body{
-    background:var(--black); color:var(--cream); font-family:'Inter',sans-serif;
-    min-height:100vh;
-  }
-  svg{ display:block; }
-  .icon{ width:16px; height:16px; flex:none; }
-
-  /* ---------- LOGIN ---------- */
-  #loginWrap{ display:flex; flex-direction:column; align-items:center; padding:48px 18px 60px; min-height:100vh; }
-  #loginWrap .wrap{ width:100%; max-width:440px; }
-  .brand{ text-align:center; margin-bottom:32px; }
-  .brand .w1{ color:var(--gold); font-weight:800; font-size:20px; }
-  .brand .w2{ color:var(--red); font-weight:800; font-size:20px; margin-left:6px; }
-  .brand .sub{ font-size:12.5px; color:var(--muted); margin-top:4px; letter-spacing:0.04em; text-transform:uppercase; }
-
-  .card{ background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:26px; margin-bottom:18px; }
-  h2{ font-size:18px; font-weight:700; color:var(--white); margin-bottom:6px; }
-  .hint{ font-size:12.5px; color:var(--muted); margin-bottom:16px; line-height:1.5; }
-
-  label{ display:block; font-size:11.5px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted); margin-bottom:6px; }
-  input[type=email], input[type=text], input[type=number], input[type=tel], input[type=search], input[type=date], input[type=time]{
-    width:100%; background:var(--black); border:1px solid var(--line); border-radius:10px;
-    padding:11px 13px; color:var(--white); font-size:14.5px; font-family:'Inter'; margin-bottom:14px;
-    color-scheme:dark;
-  }
-  textarea{
-    width:100%; background:var(--black); border:1px solid var(--line); border-radius:10px;
-    padding:11px 13px; color:var(--white); font-size:14.5px; font-family:'Inter'; margin-bottom:14px; resize:vertical;
-  }
-  textarea:focus{ outline:none; border-color:var(--gold); }
-  input:focus{ outline:none; border-color:var(--gold); }
-  .warn-box{ background:rgba(247,173,40,0.14); border:1px solid var(--gold); border-radius:10px; padding:12px 14px; font-size:13px; color:var(--gold); margin-bottom:14px; line-height:1.5; }
-  .warn-box b{ color:var(--white); }
-  select{
-    width:100%; background:var(--black); border:1px solid var(--line); border-radius:10px;
-    padding:9px 11px; color:var(--white); font-size:13.5px; font-family:'Inter';
-  }
-
-  button{
-    font-family:'Inter'; font-weight:700; font-size:14px; border:none; border-radius:100px;
-    padding:12px 20px; cursor:pointer; transition:transform .15s, opacity .2s;
-    display:inline-flex; align-items:center; gap:6px; justify-content:center;
-  }
-  button:hover{ transform:translateY(-1px); }
-  button:disabled{ opacity:0.4; cursor:not-allowed; transform:none; }
-  .btn-primary{ background:var(--red); color:var(--white); width:100%; }
-  .btn-primary:hover{ background:var(--gold); color:#241902; }
-  .btn-clockin{ background:var(--green); color:#04220F; width:100%; padding:15px; font-size:15px; }
-  .btn-clockout{ background:var(--gold); color:#241902; width:100%; padding:15px; font-size:15px; }
-  .btn-ghost{ background:transparent; border:1px solid var(--line); color:var(--cream); }
-  .btn-small{ padding:7px 14px; font-size:12.5px; }
-  .btn-approve{ background:var(--green); color:#04220F; }
-  .btn-reject{ background:var(--red); color:var(--white); }
-  .btn-export{ background:var(--panel-2); border:1px solid var(--gold); color:var(--gold); }
-  .btn-export:hover{ background:var(--gold); color:#241902; }
-
-  .msg{ font-size:13px; padding:10px 14px; border-radius:10px; margin-bottom:14px; }
-  .msg.error{ background:rgba(216,52,46,0.15); color:#ff9d97; border:1px solid rgba(216,52,46,0.4); }
-  .msg.ok{ background:rgba(11,175,76,0.15); color:#7fe3a6; border:1px solid rgba(11,175,76,0.4); }
-
+  html{ transition:background-color .6s ease; }
+  body{ transition:background-color .6s ease, color .6s ease; }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  body.member-mode .member-hide{ display:none !important; }
   .hidden{ display:none !important; }
-
-  /* ---------- APP SHELL ---------- */
-  #app{ max-width:920px; margin:0 auto; padding:0 18px 60px; }
-  .topheader{
-    display:flex; justify-content:space-between; align-items:center;
-    padding:16px 0; border-bottom:1px solid var(--line); margin-bottom:0;
+  html{scroll-behavior:smooth;}
+  body{
+    background:var(--black);
+    color:var(--cream);
+    font-family:'Inter', -apple-system, sans-serif;
+    line-height:1.5;
+    -webkit-font-smoothing:antialiased;
   }
-  .topheader .brand-mini{ display:flex; align-items:center; gap:8px; }
-  .topheader .brand-mini .w1{ color:var(--gold); font-weight:800; font-size:16px; }
-  .topheader .brand-mini .w2{ color:var(--red); font-weight:800; font-size:16px; }
-  .role-badge{ font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--gold); border:1px solid var(--gold); border-radius:100px; padding:2px 8px; margin-left:6px; }
-  .today-date{ font-size:12px; color:var(--muted); margin-top:2px; }
+  a{color:inherit; text-decoration:none;}
+  img{max-width:100%; display:block;}
+  .wrap{ max-width:1180px; margin:0 auto; padding:0 32px; }
+  @media (max-width:640px){ .wrap{ padding:0 22px; } }
 
-  .menu-btn{
-    background:var(--panel-2); border:1px solid var(--line); border-radius:10px;
-    width:40px; height:40px; padding:0; color:var(--cream);
+  h1,h2,h3{ font-weight:600; letter-spacing:-0.02em; color:var(--white); }
+
+  /* ---------- ANNOUNCEMENT BANNER (single, static message) ---------- */
+  #annbar{
+    background:var(--panel); border-bottom:1px solid var(--gold);
+    color:var(--cream); position:relative; z-index:101;
   }
-  .menu-btn .icon{ width:19px; height:19px; margin:0; }
-
-  .nav-backdrop{
-    position:fixed; inset:0; background:rgba(0,0,0,0.6); z-index:300;
-    opacity:0; pointer-events:none; transition:opacity .25s ease;
+  #annbar .wrap{
+    display:flex; align-items:center; justify-content:center;
+    padding:12px 44px 12px 32px; position:relative; min-height:auto;
   }
-  .nav-backdrop.open{ opacity:1; pointer-events:auto; }
-  .nav-drawer{
-    position:fixed; top:0; right:0; bottom:0; width:280px; max-width:82vw;
-    background:var(--panel); border-left:1px solid var(--line); z-index:301;
-    transform:translateX(100%); transition:transform .3s ease;
-    display:flex; flex-direction:column; padding:20px;
+  #annbar .ann-message{
+    display:flex; align-items:center; justify-content:center; flex-wrap:wrap;
+    gap:6px; font-size:13.5px; font-weight:600; line-height:1.4; row-gap:2px; text-align:center;
+    max-width:720px;
   }
-  .nav-drawer.open{ transform:translateX(0); }
-  .nav-drawer .who-block{ padding-bottom:16px; border-bottom:1px solid var(--line); margin-bottom:10px; }
-  .nav-drawer .who-block .name{ font-size:15px; font-weight:700; color:var(--white); }
-  .nav-link{
-    display:flex; align-items:center; gap:10px; padding:13px 10px; border-radius:10px;
-    color:var(--cream); font-size:14.5px; font-weight:600; background:none; border:none; width:100%; text-align:left;
+  #annbar .ann-message b{ color:var(--white); }
+  #annbar .ann-inline-link{ color:var(--gold); text-decoration:underline; text-underline-offset:3px; font-weight:700; flex:none; }
+  #annbar .ann-close{
+    position:absolute; right:14px; top:50%; transform:translateY(-50%);
+    background:none; border:none; color:var(--muted); cursor:pointer; padding:4px; line-height:0;
   }
-  .nav-link:hover{ background:var(--panel-2); }
-  .nav-link.active{ background:var(--gold); color:#241902; }
-  .nav-link .icon{ width:17px; height:17px; }
-  .nav-drawer .spacer{ flex:1; }
-  .nav-close{ background:none; border:none; color:var(--muted); width:32px; height:32px; padding:0; }
-
-  .tabs{ display:flex; flex-direction:column; gap:2px; }
-  .tab-btn{ background:var(--panel-2); color:var(--muted); border:1px solid var(--line); padding:9px 16px; font-size:13px; }
-  .tab-btn.active{ background:var(--gold); color:#241902; border-color:var(--gold); }
-  .tab-btn .icon{ width:14px; height:14px; }
-
-  /* ---------- HOME (clean landing) ---------- */
-  #panelHome{ display:flex; flex-direction:column; align-items:center; padding:14vh 18px 40px; text-align:center; }
-  #panelHome .home-logo{ width:64px; height:64px; border-radius:50%; margin-bottom:18px; box-shadow:0 0 0 3px var(--black), 0 0 0 5px var(--gold); }
-  #panelHome .home-greeting{ font-size:15px; color:var(--muted); }
-  #panelHome .home-greeting b{ color:var(--white); }
-  #panelHome .home-date{ font-size:13px; color:var(--muted); margin-top:4px; margin-bottom:30px; }
-  #panelHome .home-status{ font-size:20px; font-weight:700; color:var(--white); margin-bottom:26px; }
-  #panelHome .home-status .icon{ width:18px; height:18px; margin-right:6px; vertical-align:-3px; color:var(--green); }
-  .btn-home-clock{ width:100%; max-width:320px; padding:20px; font-size:17px; border-radius:20px; }
-
-  /* ---------- STAT CARDS ---------- */
-  .period-toggle{ display:flex; gap:8px; margin-bottom:20px; }
-  .period-btn{ flex:1; background:var(--panel-2); color:var(--muted); border:1px solid var(--line); padding:10px; font-size:13px; }
-  .period-btn.active{ background:var(--gold); color:#241902; border-color:var(--gold); }
-  .stat-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; margin-bottom:22px; }
-  .stat-card{ background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px; }
-  .stat-card .stat-label{ font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted); display:flex; align-items:center; gap:6px; margin-bottom:8px; }
-  .stat-card .stat-value{ font-size:26px; font-weight:800; color:var(--white); }
-  .stat-card.accent .stat-value{ color:var(--gold); }
-  .stat-card.warn .stat-value{ color:var(--red); }
-  .section-title{ font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--gold); margin:26px 0 12px; display:flex; align-items:center; gap:8px; }
-
-  /* ---------- STATUS ROWS ---------- */
-  .status-row{ display:flex; justify-content:space-between; align-items:center; padding:13px 0; border-bottom:1px solid var(--line); }
-  .status-row:last-child{ border-bottom:none; }
-  .status-label{ font-size:12px; color:var(--muted); text-transform:uppercase; letter-spacing:0.04em; }
-  .status-value{ font-size:15px; font-weight:600; color:var(--white); }
-
-  /* ---------- WEEK GROUPS + TABLES ---------- */
-  .week-group{ margin-bottom:18px; }
-  .week-head{
-    display:flex; justify-content:space-between; align-items:center; cursor:pointer;
-    padding:12px 14px; background:var(--panel-2); border-radius:10px; margin-bottom:2px;
-  }
-  .week-head .week-label{ font-size:13px; font-weight:700; color:var(--white); }
-  .week-head .week-sub{ font-size:12px; color:var(--muted); }
-  .week-head .chev{ transition:transform .2s; }
-  .week-group.collapsed .week-head .chev{ transform:rotate(-90deg); }
-  .week-body{ overflow-x:auto; }
-  .week-group.collapsed .week-body{ display:none; }
-
-  table{ width:100%; border-collapse:collapse; font-size:13px; }
-  th{ text-align:left; font-size:10.5px; text-transform:uppercase; letter-spacing:0.04em; color:var(--muted); padding:9px 8px; border-bottom:1px solid var(--line); white-space:nowrap; }
-  td{ padding:10px 8px; border-bottom:1px solid var(--line); color:var(--cream); white-space:nowrap; }
-  tr:last-child td{ border-bottom:none; }
-  .empty-row td{ color:var(--muted); white-space:normal; text-align:center; padding:22px 8px; }
-
-  .pill{ display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:100px; font-size:10.5px; font-weight:700; text-transform:uppercase; }
-  .pill.pending{ background:rgba(247,173,40,0.18); color:var(--gold); }
-  .pill.approved{ background:rgba(11,175,76,0.18); color:var(--green); }
-  .pill.rejected{ background:rgba(216,52,46,0.18); color:#ff9d97; }
-  .pill.missing{ background:rgba(216,52,46,0.22); color:#ff9d97; }
-
-  .row2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
-  .toolbar{ display:flex; gap:10px; align-items:center; margin-bottom:16px; flex-wrap:wrap; }
-  .toolbar input[type=search]{ margin-bottom:0; flex:1; min-width:180px; }
-
-  .emp-edit-row{ display:flex; align-items:center; gap:10px; padding:12px 0; border-bottom:1px solid var(--line); flex-wrap:wrap; }
-  .emp-edit-row:last-child{ border-bottom:none; }
-  .emp-edit-row .name{ flex:1; min-width:120px; font-weight:600; color:var(--white); font-size:14px; }
-  .emp-edit-row input[type=number]{ width:90px; margin:0; padding:8px 10px; }
-  .emp-edit-row select{ width:120px; }
-
-  /* ---------- DOCUMENTS ---------- */
-  .doc-card{ display:flex; align-items:center; gap:12px; padding:14px 0; border-bottom:1px solid var(--line); flex-wrap:wrap; }
-  .doc-card:last-child{ border-bottom:none; }
-  .doc-icon{ width:34px; height:34px; border-radius:9px; background:var(--panel-2); display:flex; align-items:center; justify-content:center; flex:none; }
-  .doc-icon .icon{ width:17px; height:17px; color:var(--gold); }
-  .doc-info{ flex:1; min-width:160px; }
-  .doc-info .doc-name{ font-size:13.5px; font-weight:600; color:var(--white); }
-  .doc-info .doc-meta{ font-size:11.5px; color:var(--muted); margin-top:2px; }
-  .doc-owner{ font-size:11.5px; color:var(--muted); min-width:80px; }
-  .doc-actions{ display:flex; gap:8px; align-items:center; }
-  .exp-badge{ display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:100px; font-size:10.5px; font-weight:700; text-transform:uppercase; }
-  .exp-badge.ok{ background:rgba(11,175,76,0.18); color:var(--green); }
-  .exp-badge.soon{ background:rgba(247,173,40,0.2); color:var(--gold); }
-  .exp-badge.expired{ background:rgba(216,52,46,0.22); color:#ff9d97; }
-  input[type=file]{
-    width:100%; background:var(--black); border:1px solid var(--line); border-radius:10px;
-    padding:10px 12px; color:var(--cream); font-size:13px; font-family:'Inter'; margin-bottom:14px;
+  #annbar .ann-close:hover{ color:var(--cream); }
+  #annbar .ann-close svg{ width:16px; height:16px; }
+  @media (max-width:640px){
+    #annbar .wrap{ padding:12px 40px 12px 16px; }
+    #annbar .ann-message{ font-size:12px; line-height:1.35; }
+    #annbar .ann-logo{ height:15px; }
   }
 
-  .spinner{ display:inline-block; width:13px; height:13px; border:2px solid rgba(255,255,255,0.3); border-top-color:currentColor; border-radius:50%; animation:spin .7s linear infinite; }
+  /* ---------- NAV ---------- */
+  nav{
+    position:sticky; top:0; z-index:100;
+    background:rgba(0,0,0,0.9);
+    backdrop-filter:blur(8px); -webkit-backdrop-filter:blur(8px);
+    border-bottom:1px solid var(--line);
+  }
+  nav .wrap{ display:flex; align-items:center; justify-content:space-between; height:72px; gap:14px; }
+  .wordmark{ display:flex; align-items:baseline; gap:7px; font-size:18px; font-weight:700; letter-spacing:-0.01em; line-height:1; white-space:nowrap; }
+  .wordmark .w1{ color:var(--gold); }
+  .wordmark .w2{ color:var(--red); }
+  .navlinks{ display:flex; gap:28px; font-size:14.5px; font-weight:600; margin-left:auto; margin-right:24px; }
+  .navlinks a{ color:rgba(243,234,201,0.78); transition:color .2s; }
+  .navlinks a:hover{ color:var(--gold); }
+  .navlinks a.has-icon{ display:inline-flex; align-items:center; }
+  .icon-truck{ width:16px; height:16px; vertical-align:-3px; margin-right:7px; flex:none; }
+  .nav-cta{
+    background:transparent; color:var(--cream); padding:9px 17px; border:1px solid var(--line);
+    font-size:13.5px; font-weight:600; border-radius:100px; white-space:nowrap;
+    transition:transform .15s, border-color .2s, color .2s;
+  }
+  .nav-cta:hover{ transform:translateY(-2px); border-color:var(--gold); color:var(--gold); }
+  .nav-order{
+    background:var(--red); color:var(--white); padding:10px 18px;
+    font-size:13.5px; font-weight:700; border-radius:100px; white-space:nowrap;
+    transition:transform .15s, background .2s;
+  }
+  .nav-order:hover{ transform:translateY(-2px); background:var(--gold); color:#241902; }
+  .nav-doordash{
+    display:inline-flex; align-items:center; gap:5px;
+    background:#FF3008; color:#FFFCF3; padding:10px 16px;
+    font-size:13.5px; font-weight:700; border-radius:100px; white-space:nowrap;
+    transition:transform .15s, background .2s;
+  }
+  .nav-doordash:hover{ transform:translateY(-2px); background:#E62B07; }
+  .nav-doordash svg{ width:14px; height:14px; flex:none; }
+  .order-btn-group{ display:flex; gap:8px; align-items:center; }
+  @media (max-width:480px){
+    .nav-order, .nav-doordash{ padding:9px 13px; font-size:12px; }
+  }
+  .nav-signin{
+    color:var(--cream); font-size:13.5px; font-weight:600; padding:10px 6px; white-space:nowrap;
+    border-bottom:1px solid transparent; transition:color .2s, border-color .2s;
+  }
+  .nav-signin:hover{ color:var(--gold); border-color:var(--gold); }
+  .nav-signin.is-member{ color:var(--green); }
+  @media (max-width:760px){ .nav-signin{ display:none; } }
+  @media (max-width:620px){ .nav-cta{ display:none; } }
+  @media (max-width:400px){ .nav-order{ padding:9px 14px; font-size:12px; } }
+  .nav-toggle{
+    display:none; background:none; border:none; color:var(--white); cursor:pointer;
+    padding:6px; margin-left:4px; align-items:center; justify-content:center;
+  }
+  .nav-toggle svg{ width:24px; height:24px; }
+  @media (max-width:780px){
+    .navlinks{ display:none; }
+    .nav-toggle{ display:flex; }
+  }
+  .mobile-nav{ display:none; flex-direction:column; background:rgba(0,0,0,0.98); border-bottom:1px solid var(--line); }
+  .mobile-nav.open{ display:flex; }
+  .mobile-nav a{
+    padding:16px 22px; font-size:16px; font-weight:600; color:var(--cream);
+    border-top:1px solid var(--line); display:flex; align-items:center;
+  }
+  .mobile-nav a:hover{ color:var(--gold); }
+  .mobile-nav .icon-truck{ width:18px; height:18px; margin-right:10px; }
 
-  /* ---------- QR SCANNER ---------- */
-  #scannerWrap{ position:relative; }
-  #scannerVideo{ width:100%; border-radius:14px; background:#000; display:block; max-height:340px; object-fit:cover; }
-  .redeem-fallback{ margin-top:16px; }
-  .redeem-fallback summary{ cursor:pointer; font-size:13px; color:var(--muted); }
-  .redeem-fallback summary:hover{ color:var(--cream); }
-  .manual-entry-toggle summary{ cursor:pointer; list-style:none; }
-  .manual-entry-toggle summary::-webkit-details-marker{ display:none; }
-  .manual-entry-toggle summary::after{ content:'+'; float:right; font-size:22px; color:var(--gold); font-weight:400; line-height:1; }
-  .manual-entry-toggle[open] summary::after{ content:'\2212'; }
-  .manual-entry-toggle > *:not(summary){ margin-top:0; }
-  .manual-entry-toggle label:first-of-type{ margin-top:14px; }
-  .scan-result-box{ padding:26px 20px; border-radius:16px; text-align:center; margin-top:12px; }
-  .scan-result-box.go{ background:rgba(11,175,76,0.16); border:2px solid var(--green); }
-  .scan-result-box.stop{ background:rgba(216,52,46,0.16); border:2px solid var(--red); }
-  .scan-result-box .big-icon{ font-size:44px; margin-bottom:10px; line-height:1; }
-  .scan-result-box .result-text{ font-size:15px; font-weight:700; color:var(--white); }
-  @keyframes spin{ to{ transform:rotate(360deg); } }
+  /* ---------- HERO ---------- */
+  .hero{
+    position:relative; display:flex; align-items:center; justify-content:center;
+    text-align:center; overflow:hidden; padding:90px 22px 70px;
+    background:var(--black);
+  }
+  .hero-logo{
+    width:150px; height:150px; margin:0 auto 30px; border-radius:50%; object-fit:cover;
+    box-shadow:0 0 0 1px rgba(255,255,255,0.08), 0 0 70px rgba(247,173,40,0.28), 0 20px 40px rgba(0,0,0,0.55);
+  }
+  @media (max-width:520px){ .hero-logo{ width:112px; height:112px; margin-bottom:24px; } }
+  .hero-inner{ position:relative; max-width:760px; }
+  .hero-eyebrow{ font-size:13px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--gold); margin-bottom:20px; }
+  .hero h1{
+    font-size:clamp(38px, 7.4vw, 88px); color:var(--white); line-height:1.04; letter-spacing:-0.02em;
+    font-weight:700;
+  }
+  .hero h1 .accent{ color:var(--red); }
+  .hero p.lede{ margin:24px auto 0; max-width:44ch; font-size:18px; font-weight:400; color:var(--muted); line-height:1.55; }
+  .hero-ctas{ display:flex; gap:14px; justify-content:center; margin-top:36px; flex-wrap:wrap; }
+  .hero-subline{ margin-top:20px; font-size:13px; color:var(--muted); }
+  .hero-subline a{ color:var(--gold); border-bottom:1px dashed var(--gold); }
+  .hero-subline a:hover{ color:var(--white); }
+  .btn{
+    padding:13px 26px; font-size:14.5px; font-weight:600; border-radius:100px; display:inline-block;
+    transition:transform .2s, opacity .2s, background .2s;
+  }
+  .btn:hover{ transform:translateY(-1px); }
+  .btn-light{ background:var(--red); color:var(--white); }
+  .btn-light:hover{ background:var(--red-deep); }
+  .btn-outline-dark{ border:1px solid rgba(243,234,201,0.35); color:var(--white); }
+  .btn-doordash-lg{ background:#FF3008; color:#FFFCF3; }
+  .btn-doordash-lg:hover{ background:#E62B07; }
+  .btn-outline-dark:hover{ border-color:var(--gold); color:var(--gold); }
 
+  .scroll-cue{ position:absolute; bottom:28px; left:50%; transform:translateX(-50%); color:var(--muted); font-size:11px; letter-spacing:0.14em; text-transform:uppercase; }
+
+  /* ---------- TRUCK STATEMENT (full-bleed photo + caption) ---------- */
+  .statement{
+    position:relative; min-height:64vh; display:flex; align-items:center; justify-content:center;
+    text-align:center; overflow:hidden; padding:90px 22px; background:#000;
+  }
+  .statement img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center 40%; }
+  @media (max-width:768px){
+    .statement img{ object-fit:contain; object-position:center center; }
+  }
+  .statement::after{
+    content:""; position:absolute; inset:0;
+    background:linear-gradient(180deg, rgba(0,0,0,0.5) 0%, rgba(0,0,0,0.35) 45%, rgba(0,0,0,0.72) 100%);
+  }
+  .statement .wrap{ position:relative; z-index:1; max-width:900px; }
+  .statement p{
+    font-size:clamp(24px, 4.4vw, 44px); color:var(--white); font-weight:500; letter-spacing:-0.01em; line-height:1.32;
+    text-shadow:0 4px 26px rgba(0,0,0,0.6);
+  }
+  .statement p em{ font-style:normal; color:var(--gold); }
+
+  /* ---------- SECTION HEADS ---------- */
+  .sec-eyebrow{ font-size:12.5px; font-weight:600; letter-spacing:0.12em; text-transform:uppercase; color:var(--gold); text-align:center; margin-bottom:14px; }
+  .sec-title{ font-size:clamp(28px,4.6vw,46px); text-align:center; color:var(--white); max-width:16ch; margin:0 auto; }
+  .sec-sub{ text-align:center; max-width:52ch; margin:16px auto 0; color:var(--muted); font-size:16px; font-weight:400; }
+
+  /* ---------- FEATURE ROWS (big photo + text, alternating) ---------- */
+  .feature{ padding:80px 0; background:var(--black); }
+  .feature-row{ display:grid; grid-template-columns:1fr 1fr; gap:56px; align-items:center; }
+  .feature-row.rev{ direction:rtl; }
+  .feature-row.rev > *{ direction:ltr; }
+  @media (max-width:860px){ .feature-row, .feature-row.rev{ gap:24px; } }
+  @media (max-width:600px){ .feature-row, .feature-row.rev{ gap:14px; } }
+  @media (max-width:420px){ .feature-row, .feature-row.rev{ gap:10px; } }
+  .feature-photo{
+    --r:0deg; --s:1;
+    transform:rotate(var(--r)) scale(var(--s));
+    transition:transform .3s ease;
+    will-change:transform;
+    display:flex; justify-content:center;
+  }
+  .feature-row.rev .feature-photo{ --r:0deg; }
+  .feature-photo:hover{ --s:1.03; }
+  .feature-photo img{
+    max-width:82%; height:auto; display:block;
+    filter:drop-shadow(0 22px 30px rgba(0,0,0,0.6));
+    transition:filter .3s ease;
+  }
+  .feature-photo:hover img{ filter:drop-shadow(0 30px 40px rgba(0,0,0,0.7)); }
+  .feature-photo.tilt-60{ --r:0deg; }
+  .feature-row.rev .feature-photo.tilt-60{ --r:0deg; }
   @media (max-width:600px){
-    .stat-grid{ grid-template-columns:1fr 1fr; }
-    table{ font-size:12px; }
-    th, td{ padding:8px 6px; }
-    .row2{ grid-template-columns:1fr; gap:0; }
-    .emp-edit-row{ gap:8px; }
-    .emp-edit-row .name{ width:100%; margin-bottom:4px; }
-    .emp-edit-row input[type=number]{ flex:1; width:auto; }
-    .emp-edit-row select{ flex:1; width:auto; }
-    .toolbar{ flex-direction:column; align-items:stretch; }
-    button{ min-height:44px; }
-    .btn-small{ min-height:38px; }
+    .feature-photo.tilt-60{ --r:0deg; }
+    .feature-row.rev .feature-photo.tilt-60{ --r:0deg; }
+  }
+  .feature-text .tag{ font-size:12.5px; font-weight:600; letter-spacing:0.1em; text-transform:uppercase; color:var(--gold); margin-bottom:14px; }
+  .feature-text h3{ font-size:clamp(24px,3.6vw,34px); color:var(--white); margin-bottom:14px; }
+  .feature-text p{ font-size:16px; color:var(--muted); line-height:1.6; max-width:44ch; }
+  .feature-text .price{ margin-top:18px; font-size:15px; font-weight:600; color:var(--white); }
+  .feature-text .price span{ color:var(--gold); font-weight:600; }
+  @media (max-width:600px){
+    .feature-text .tag{ font-size:10.5px; margin-bottom:8px; }
+    .feature-text h3{ margin-bottom:8px; line-height:1.15; }
+    .feature-text p{ font-size:13px; line-height:1.45; }
+    .feature-text .price{ margin-top:10px; font-size:12px; }
+  }
+  @media (max-width:420px){
+    .feature-text .tag{ font-size:9px; margin-bottom:6px; }
+    .feature-text h3{ font-size:18px; }
+    .feature-text p{ font-size:11.5px; line-height:1.4; }
+    .feature-text .price{ font-size:10.5px; }
+  }
+
+  /* ---------- FULL MENU (accordion list, Chick-fil-A style) ---------- */
+  #menu{ background:var(--panel); padding:100px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+
+  /* ---------- DEALS & PERKS ---------- */
+  #deals{ background:var(--black); padding:100px 0; }
+  .deals-grid{ margin-top:56px; display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
+  @media (max-width:960px){ .deals-grid{ grid-template-columns:repeat(2,1fr); } }
+  @media (max-width:560px){ .deals-grid{ grid-template-columns:1fr; } }
+  .deal-card{
+    background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:26px 22px;
+    text-align:center; transition:border-color .2s ease;
+  }
+  .deal-card:hover{ border-color:var(--gold); }
+  .deal-card.accent{ border-color:var(--gold); }
+  .deal-icon{ font-size:28px; margin-bottom:10px; }
+  .deal-tag{
+    display:inline-block; font-size:9.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em;
+    color:var(--muted); border:1px solid var(--line); border-radius:100px; padding:3px 10px; margin-bottom:12px;
+  }
+  .deal-tag.gold{ color:#241902; background:var(--gold); border-color:var(--gold); }
+  .deal-card h3{ font-size:16px; font-weight:700; color:var(--white); margin-bottom:8px; }
+  .deal-card p{ font-size:13.5px; color:var(--muted); line-height:1.5; }
+  .deal-card p b{ color:var(--gold); font-weight:700; }
+  #dealsLocked{ text-align:center; max-width:560px; margin:0 auto; }
+  .locked-row{ display:flex; gap:28px; justify-content:center; margin:32px 0; flex-wrap:wrap; }
+  .locked-card{ padding:0; min-width:90px; }
+  .icon-lock{ width:20px; height:20px; color:var(--gold); margin-bottom:10px; }
+  .locked-card span{ display:block; font-size:12.5px; font-weight:600; color:var(--muted); }
+  @media (max-width:480px){ .locked-row{ gap:20px; } }
+  #dealsLocked .notify-form{ margin:28px auto 0; }
+  #authStart{ margin-top:28px; }
+  .auth-hint{ font-size:12.5px; color:var(--muted); margin-top:10px; }
+  .auth-link{
+    background:none; border:none; color:var(--gold); font-size:12.5px; font-weight:600;
+    text-decoration:underline; text-underline-offset:3px; cursor:pointer; margin-top:8px; align-self:center;
+  }
+  .member-signup-form{ margin-top:28px; text-align:left; max-width:380px; margin-left:auto; margin-right:auto; }
+  #dealsUnlocked{ text-align:center; }
+  .member-quote{ font-size:14px; font-style:italic; color:var(--muted); margin-bottom:10px; }
+  .member-confirm{ color:var(--green) !important; font-weight:600; }
+  .member-nudge{
+    margin:14px auto 0; max-width:420px; font-size:14px; font-weight:600; color:var(--gold);
+    background:rgba(247,173,40,0.1); border:1px solid var(--gold); border-radius:12px; padding:12px 18px;
+  }
+  .member-qr-card{
+    background:#FFFFFF; border-radius:20px; padding:24px; max-width:220px; margin:24px auto 40px;
+    box-shadow:0 20px 44px rgba(0,0,0,0.5);
+  }
+  .member-qr{ width:100%; display:flex; justify-content:center; }
+  .member-qr svg{ width:100%; height:auto; display:block; }
+  .member-qr-code{ margin-top:12px; font-family:monospace; font-size:14px; font-weight:700; color:#111; letter-spacing:0.05em; }
+  .member-qr-hint{ margin-top:6px; font-size:11px; color:#888; }
+  @media (max-width:560px){
+    .notify-form{ flex-direction:column; align-items:stretch; }
+    .notify-form input[type=email]{ min-width:0; }
+    .notify-form button{ width:100%; }
+  }
+  .menu-acc{ margin-top:56px; border-top:1px solid var(--line); }
+  .menu-acc-item{ border-bottom:1px solid var(--line); }
+  .menu-acc-head{
+    width:100%; display:flex; align-items:center; gap:24px; padding:26px 6px;
+    background:none; border:none; cursor:pointer; text-align:left; font-family:'Inter';
+  }
+  .menu-acc-thumb{ width:92px; height:92px; border-radius:14px; object-fit:cover; flex:none; box-shadow:0 10px 22px rgba(0,0,0,0.4); }
+  .menu-acc-title{ flex:1; }
+  .menu-acc-tag{
+    display:inline-block; font-size:10px; font-weight:700; letter-spacing:0.05em; text-transform:uppercase;
+    color:#04220F; background:var(--green); padding:3px 10px; border-radius:100px; margin-bottom:8px;
+  }
+  .menu-acc-title h4{ font-size:20px; font-weight:700; letter-spacing:-0.005em; color:var(--white); }
+  .menu-acc-title .menu-acc-price{ font-size:13.5px; color:var(--gold); font-weight:600; margin-top:4px; display:block; }
+  .menu-acc-chevron{ width:22px; height:22px; color:var(--red); flex:none; transition:transform .3s ease; }
+  .menu-acc-item.open .menu-acc-chevron{ transform:rotate(90deg); }
+  .menu-acc-body{ max-height:0; overflow:hidden; transition:max-height .4s ease; }
+  .menu-acc-item.open .menu-acc-body{ max-height:900px; }
+  .menu-acc-inner{ padding:6px 20px 32px 130px; background:rgba(255,255,255,0.02); border-radius:14px; }
+  @media (max-width:560px){
+    .menu-acc-head{ gap:16px; padding:22px 4px; }
+    .menu-acc-thumb{ width:76px; height:76px; border-radius:12px; }
+    .menu-acc-title h4{ font-size:18px; }
+    .menu-acc-inner{ padding:6px 6px 26px 6px; }
+  }
+  .menu-acc-inner .desc{ font-size:14.5px; color:var(--muted); margin-bottom:18px; line-height:1.5; }
+  .mrow{ display:flex; justify-content:space-between; align-items:baseline; gap:16px; padding:14px 0; border-bottom:1px dashed var(--line); font-size:16.5px; color:var(--cream); }
+  .mrow:last-child{ border-bottom:none; }
+  .mrow .nm{ font-weight:500; }
+  .mrow .pr{ font-weight:700; color:var(--white); font-size:15.5px; white-space:nowrap; }
+  .mnote{ font-size:13.5px; color:var(--gold); margin-top:14px; font-weight:600; }
+
+  /* ---------- TRUCK / STORY ---------- */
+  #story{ background:var(--black); padding:100px 0; }
+  .story-layout{ display:grid; grid-template-columns:1.1fr 0.9fr; gap:56px; align-items:center; }
+  @media (max-width:900px){ .story-layout{ grid-template-columns:1fr; } }
+  .story-copy p{ font-size:16.5px; color:var(--muted); line-height:1.7; margin-bottom:18px; max-width:50ch; }
+  .story-copy p:first-child{ font-size:20px; color:var(--white); font-weight:600; }
+  .story-stats{ display:grid; grid-template-columns:1fr 1fr; gap:30px 24px; margin-top:8px; }
+  .story-stats .stat b{ display:block; font-size:24px; font-weight:700; color:var(--gold); letter-spacing:-0.01em; }
+  .story-stats .stat span{ font-size:12.5px; color:var(--muted); text-transform:uppercase; letter-spacing:0.06em; }
+  .story-photo img{ width:100%; }
+
+  /* ---------- REVIEWS ---------- */
+  #reviews{ background:var(--black); padding:100px 0; }
+  .review-carousel{ position:relative; margin:56px auto 0; max-width:640px; min-height:280px; touch-action:pan-y; }
+  .review-slide{
+    position:absolute; inset:0; text-align:center; opacity:0; visibility:hidden;
+    transition:opacity .5s ease; pointer-events:none;
+  }
+  .review-slide.active{ opacity:1; visibility:visible; pointer-events:auto; }
+  .review-dots{ display:flex; justify-content:center; gap:10px; margin-top:38px; }
+  .review-dot{ width:9px; height:9px; border-radius:50%; background:var(--line); border:none; cursor:pointer; padding:0; transition:background .2s, transform .2s; }
+  .review-dot.active{ background:var(--gold); transform:scale(1.2); }
+  .review-slide p{ font-size:16px; color:var(--cream); font-weight:400; line-height:1.6; font-style:italic; }
+  .review-slide .who{ margin-top:14px; font-size:13px; color:var(--muted); font-weight:600; font-style:normal; }
+  .review-note{ text-align:center; margin-top:50px; font-size:12.5px; color:var(--muted); }
+  .review-note a{ color:var(--gold); border-bottom:1px dashed var(--gold); }
+
+  /* ---------- CATERING ---------- */
+  #catering{ background:var(--panel); padding:100px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  .cat-layout{ display:grid; grid-template-columns:0.85fr 1.15fr; gap:60px; margin-top:56px; align-items:start; }
+  @media (max-width:900px){ .cat-layout{ grid-template-columns:1fr; gap:40px; } }
+  .cat-forms{ display:flex; flex-direction:column; gap:18px; }
+  .cat-points{ display:flex; flex-direction:column; gap:26px; }
+  .cform-head{ border:1px solid var(--line); border-radius:14px; background:var(--panel); padding:22px 20px; }
+  .cform-head .menu-acc-title h4{ font-size:18px; }
+  .cform-body{ max-height:0; }
+  .menu-acc-item.open .cform-body{ max-height:1400px; }
+  .cform-inner{ padding:24px 4px 0; }
+  .cat-point .num{ font-size:12.5px; color:var(--gold); font-weight:700; letter-spacing:0.08em; }
+  .cat-point p{ font-size:15px; color:var(--cream); margin-top:8px; line-height:1.55; max-width:38ch; }
+  .cform{ display:flex; flex-direction:column; gap:20px; }
+  .cform .row2{ display:grid; grid-template-columns:1fr 1fr; gap:20px; }
+  @media (max-width:520px){ .cform .row2{ grid-template-columns:1fr; } }
+  .cform label{ display:flex; flex-direction:column; gap:8px; font-size:12.5px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; }
+  .cform input, .cform textarea, .cform select{
+    background:transparent; border:none; border-bottom:1px solid var(--line); padding:9px 0 11px;
+    color:var(--white); font-family:'Inter'; font-size:16px; resize:vertical;
+  }
+  .cform select{ color-scheme:dark; }
+  .cform input:focus, .cform textarea:focus, .cform select:focus{ outline:none; border-color:var(--gold); }
+  .cform button{
+    margin-top:6px; align-self:flex-start; padding:14px 30px; font-size:14.5px; font-weight:700;
+    border-radius:100px; background:var(--red); color:var(--white); border:none; cursor:pointer;
+    transition:background .2s, transform .15s;
+  }
+  .cform button:hover{ background:var(--gold); color:#241902; transform:translateY(-2px); }
+  .cform .fine{ font-size:12px; color:var(--muted); }
+
+  /* ---------- FIND US ---------- */
+  /* ---------- EVENTS CALENDAR ---------- */
+  #events-calendar{ background:var(--panel); padding:100px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  .cal-card{ max-width:480px; margin:48px auto 0; background:var(--black); border:1px solid var(--line); border-radius:20px; padding:26px; }
+  .cal-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
+  .cal-month-label{ font-size:16px; font-weight:700; color:var(--white); }
+  .cal-nav{
+    background:var(--panel-2, var(--panel)); border:1px solid var(--line); border-radius:10px;
+    width:34px; height:34px; display:flex; align-items:center; justify-content:center; color:var(--cream); cursor:pointer;
+  }
+  .cal-nav:hover{ border-color:var(--gold); color:var(--gold); }
+  .cal-nav svg{ width:16px; height:16px; }
+  .cal-weekdays{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; margin-bottom:6px; }
+  .cal-weekdays span{ text-align:center; font-size:10.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted); }
+  .cal-grid{ display:grid; grid-template-columns:repeat(7,1fr); gap:4px; }
+  .cal-day{
+    aspect-ratio:1; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    border-radius:10px; font-size:13px; color:var(--muted); position:relative; background:transparent;
+  }
+  .cal-day.pad{ visibility:hidden; }
+  .cal-day.today{ border:1px solid var(--line); color:var(--cream); }
+  .cal-day.has-event{ background:rgba(247,173,40,0.14); color:var(--white); font-weight:700; cursor:pointer; }
+  .cal-day.has-event:hover{ background:rgba(247,173,40,0.26); }
+  .cal-day.selected{ background:var(--gold); color:#241902; }
+  .cal-day .cal-dot{ width:4px; height:4px; border-radius:50%; background:var(--gold); margin-top:2px; }
+  .cal-day.selected .cal-dot{ background:#241902; }
+  .cal-detail{ max-width:480px; margin:24px auto 0; }
+  .cal-empty-hint{ text-align:center; font-size:13px; color:var(--muted); }
+  .cal-event-card{
+    background:var(--black); border:1px solid var(--gold); border-radius:14px; padding:18px 20px; margin-bottom:12px; text-align:left;
+  }
+  .cal-event-card h4{ font-size:15px; font-weight:700; color:var(--white); margin-bottom:6px; }
+  .cal-event-card .cal-event-meta{ font-size:13px; color:var(--muted); line-height:1.6; }
+  .cal-event-card .cal-event-meta b{ color:var(--cream); }
+  .cal-event-card a{ color:var(--gold); text-decoration:underline; text-underline-offset:3px; }
+  #find{ background:var(--black); padding:100px 0 110px; text-align:center; }
+  .find-big-link{ display:block; font-size:clamp(30px,6vw,52px); font-weight:700; color:var(--white); letter-spacing:-0.01em; margin-top:24px; }
+  .find-big-link:hover{ color:var(--gold); }
+  .find-sub{ margin-top:16px; font-size:15px; color:var(--muted); }
+  .find-meta{ margin-top:40px; display:flex; justify-content:center; gap:32px; flex-wrap:wrap; font-size:14px; color:var(--muted); align-items:center; }
+  .find-meta a{ color:var(--cream); border-bottom:1px solid var(--line); }
+  .social-icons{ display:flex; gap:16px; align-items:center; }
+  .social-icons a{ border-bottom:none !important; display:flex; color:var(--cream); transition:color .2s, transform .2s; }
+  .social-icons a:hover{ color:var(--gold); transform:translateY(-2px); }
+  .social-icons svg{ width:20px; height:20px; }
+  .standard-loc{
+    margin:48px auto 0; max-width:420px; background:var(--panel); border:1px solid var(--line);
+    border-radius:16px; padding:26px 28px; text-align:center;
+  }
+  .standard-loc-label{ font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--gold); margin-bottom:8px; }
+  .standard-loc-address{ display:block; font-size:18px; font-weight:700; color:var(--white); }
+  .standard-loc-address:hover{ color:var(--gold); }
+  .find-note{ margin-top:16px; font-size:12.5px; color:var(--muted); line-height:1.5; }
+  .find-note a{ color:var(--gold); border-bottom:1px dashed var(--gold); }
+
+  /* ---------- EMAIL SIGNUP ---------- */
+  #notify{ background:var(--panel); padding:80px 0; border-top:1px solid var(--line); text-align:center; }
+  .notify-form{ display:flex; gap:12px; justify-content:center; flex-wrap:wrap; max-width:460px; margin:32px auto 0; }
+  .notify-form input[type=email]{
+    flex:1; min-width:220px; background:var(--black); border:1px solid var(--line); border-radius:100px;
+    padding:13px 20px; color:var(--white); font-size:15px; font-family:'Inter';
+  }
+  .notify-form input[type=email]:focus{ outline:none; border-color:var(--gold); }
+  .notify-form button{ flex:none; }
+  .notify-msg{ margin-top:16px; font-size:13.5px; min-height:20px; }
+  .notify-msg.ok{ color:var(--green); }
+  .notify-msg.error{ color:var(--red); }
+
+  /* ---------- FOOTER ---------- */
+  footer{ background:var(--black); padding:50px 0 28px; border-top:1px solid var(--line); }
+  .foot-top{ display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:32px; padding-bottom:32px; border-bottom:1px solid var(--line); }
+  .foot-brand{ display:flex; align-items:center; gap:12px; }
+  .foot-brand img{ width:36px; height:36px; border-radius:50%; object-fit:cover; }
+  .foot-brand span{ font-size:14px; font-weight:700; color:var(--white); }
+  .foot-cols{ display:flex; gap:56px; flex-wrap:wrap; }
+  .foot-col h5{ font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:0.08em; color:var(--muted); margin-bottom:14px; }
+  .foot-col a, .foot-col div{ display:block; font-size:13.5px; color:rgba(243,234,201,0.72); margin-bottom:10px; }
+  .foot-col a:hover{ color:var(--gold); }
+  .foot-bottom{ padding-top:20px; font-size:12px; color:var(--muted); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; }
+  /* ---------- FLOATING ORDER BUTTONS ---------- */
+  #floatOrderGroup{
+    position:fixed; right:20px; bottom:20px; z-index:200;
+    display:flex; flex-direction:column; gap:10px; align-items:flex-end;
+    transform:translateY(120px); opacity:0; pointer-events:none;
+    transition:transform .35s ease, opacity .35s ease;
+  }
+  #floatOrderGroup.show{ transform:translateY(0); opacity:1; pointer-events:auto; }
+  .float-btn{
+    display:flex; align-items:center; gap:7px; padding:12px 18px; border-radius:100px;
+    font-size:13px; font-weight:700; box-shadow:0 10px 26px rgba(0,0,0,0.5); white-space:nowrap;
+    transition:transform .2s ease, background .2s;
+  }
+  .float-btn:hover{ transform:translateY(-2px); }
+  .float-btn svg{ width:15px; height:15px; flex:none; }
+  #floatPickup{ background:var(--red); color:var(--white); }
+  #floatPickup:hover{ background:var(--gold); color:#241902; }
+  #floatDelivery{ background:#FF3008; color:#FFFCF3; }
+  #floatDelivery:hover{ background:#E62B07; }
+  @media (max-width:480px){
+    #floatOrderGroup{ right:14px; bottom:14px; }
+    .float-btn{ padding:10px 15px; font-size:12px; }
+  }
+  @media print{
+    body{ background:#fff !important; color:#111 !important; }
+    #annbar, #floatOrderGroup, nav, .mobile-nav, footer,
+    #catering, #reviews, #find, .cta-band, .statement, #story,
+    .feature{ display:none !important; }
+    .hero{ background:#fff !important; padding:16px 0 !important; min-height:auto !important; }
+    .hero h1, .hero-eyebrow, .lede{ color:#111 !important; }
+    .hero-ctas, .hero-logo{ display:none !important; }
+    #menu{ background:#fff !important; padding:12px 0 !important; }
+    .menu-acc-item{ border-color:#ccc !important; break-inside:avoid; }
+    .menu-acc-title h4{ color:#111 !important; }
+    .menu-acc-price{ color:#555 !important; }
+    .menu-acc-chevron{ display:none !important; }
+    .menu-acc-body{ max-height:none !important; }
+    .mrow{ border-color:#ddd !important; }
+    .mrow .nm{ color:#111 !important; }
+    .mrow .pr{ color:#333 !important; }
+    .desc{ color:#555 !important; }
   }
 </style>
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "FoodEstablishment",
+  "name": "Roll-In Shawarma",
+  "image": "https://rollinshawarma.com/og-image.jpg",
+  "logo": "https://rollinshawarma.com/favicon-512.png",
+  "url": "https://rollinshawarma.com",
+  "telephone": "+13305875203",
+  "email": "rollinshawarma.foodtruck@gmail.com",
+  "servesCuisine": ["Middle Eastern", "Indian"],
+  "priceRange": "$$",
+  "address": {
+    "@type": "PostalAddress",
+    "addressLocality": "Green",
+    "addressRegion": "OH",
+    "postalCode": "44685",
+    "addressCountry": "US"
+  },
+  "sameAs": [
+    "https://www.facebook.com/p/Roll-In-Shawarma-61591157662685/",
+    "https://www.instagram.com/roll_in_shawarama"
+  ],
+  "menu": "https://rollinshawarma.com/#menu",
+  "acceptsReservations": "False"
+}
+</script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 </head>
 <body>
 
-<!-- LOGIN -->
-<div id="loginWrap">
+<div id="annbar">
   <div class="wrap">
-    <div class="brand">
-      <div><span class="w1">Roll-In</span><span class="w2">Shawarma</span></div>
-      <div class="sub">Staff Portal</div>
-    </div>
-    <div class="card" id="loginCard">
-      <h2>Sign in</h2>
-      <p class="hint">Enter your work email. We'll send you a sign-in link — click it, or if a code is shown, type that in below. No password needed.</p>
-      <div id="loginMsg"></div>
-
-      <div id="emailStep">
-        <label>Email</label>
-        <input type="email" id="emailInput" placeholder="you@example.com" autocomplete="email">
-        <button class="btn-primary" id="sendCodeBtn">Send Code</button>
-      </div>
-
-      <div id="codeStep" class="hidden">
-        <label>6-digit code</label>
-        <input type="text" id="codeInput" placeholder="123456" inputmode="numeric" maxlength="6">
-        <button class="btn-primary" id="verifyCodeBtn">Verify &amp; Sign In</button>
-        <button class="btn-ghost btn-small" id="backToEmailBtn" style="margin-top:10px;">Use a different email</button>
-      </div>
-    </div>
-  </div>
-</div>
-
-<!-- APP -->
-<div id="app" class="hidden">
-  <div class="topheader">
-    <div class="brand-mini"><span class="w1">Roll-In</span><span class="w2">Shawarma</span></div>
-    <button class="menu-btn" id="menuOpenBtn" aria-label="Open menu">
-      <svg class="icon"><use href="#ic-menu"/></svg>
+    <div class="ann-message" id="annMessage" data-until="2026-08-22T22:00:00">&#127881; <b>Uniontown Lions Festival</b> &mdash; Wed Aug 19&ndash;Sat Aug 22 &middot; 5&ndash;10 PM &middot; Hartville, OH <a class="ann-inline-link" href="https://www.google.com/maps/dir/?api=1&destination=1289+Edison+St+NW,+Hartville,+OH+44632" target="_blank" rel="noopener">Map</a></div>
+    <button class="ann-close" type="button" aria-label="Dismiss announcement">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </button>
   </div>
-
-  <div class="nav-backdrop" id="navBackdrop"></div>
-  <div class="nav-drawer" id="navDrawer">
-    <div style="display:flex; justify-content:flex-end;">
-      <button class="nav-close" id="menuCloseBtn" aria-label="Close menu"><svg class="icon"><use href="#ic-close"/></svg></button>
-    </div>
-    <div class="who-block">
-      <div class="name">Signed in as <span id="whoName">&mdash;</span></div>
-      <span class="role-badge" id="whoRole">&mdash;</span>
-      <div class="today-date" id="todayDate"></div>
-    </div>
-    <div class="tabs" id="tabs">
-      <button class="nav-link active" data-tab="home"><svg class="icon"><use href="#ic-home"/></svg>Home</button>
-      <button class="nav-link" data-tab="dashboard"><svg class="icon"><use href="#ic-dollar"/></svg>Dashboard</button>
-      <button class="nav-link" data-tab="clock"><svg class="icon"><use href="#ic-clock"/></svg>Clock History</button>
-      <button class="nav-link" data-tab="documents"><svg class="icon"><use href="#ic-file"/></svg>Documents</button>
-      <button class="nav-link hidden" data-tab="approve" id="tabApproveBtn"><svg class="icon"><use href="#ic-check"/></svg>Approvals</button>
-      <button class="nav-link hidden" data-tab="events" id="tabEventsBtn"><svg class="icon"><use href="#ic-clock"/></svg>Events</button>
-      <button class="nav-link hidden" data-tab="payroll" id="tabPayrollBtn"><svg class="icon"><use href="#ic-download"/></svg>Payroll</button>
-      <button class="nav-link hidden" data-tab="admin" id="tabAdminBtn"><svg class="icon"><use href="#ic-users"/></svg>Manage Staff</button>
-    </div>
-    <div class="spacer"></div>
-    <button class="nav-link" id="signOutBtn"><svg class="icon"><use href="#ic-logout"/></svg>Sign Out</button>
-  </div>
-
-  <!-- HOME (clean landing, default view) -->
-  <div class="tab-panel" id="panelHome">
-    <img class="home-logo" src="data:image/jpeg;base64,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" alt="Roll-In Shawarma">
-    <div class="home-greeting">Signed in as <b id="homeWhoName">&mdash;</b></div>
-    <div class="home-date" id="homeDate"></div>
-    <div class="home-status" id="homeStatus">&mdash;</div>
-    <div id="homeClockMsg"></div>
-    <button class="btn-clockin btn-home-clock" id="clockInBtn">Clock In</button>
-    <button class="btn-clockout btn-home-clock hidden" id="clockOutBtn">Clock Out</button>
-  </div>
-
-  <!-- DASHBOARD -->
-  <div class="tab-panel hidden" id="panelDashboard">
-    <div class="period-toggle" id="periodToggle">
-      <button class="period-btn active" data-period="week">Week</button>
-      <button class="period-btn" data-period="month">Month</button>
-      <button class="period-btn" data-period="year">Year</button>
-    </div>
-
-    <div class="section-title">Your <span id="periodLabelMine">Week</span></div>
-    <div class="stat-grid">
-      <div class="stat-card accent">
-        <div class="stat-label">Hours <span id="periodLabelHours">This Week</span></div>
-        <div class="stat-value" id="dashMyHours">&mdash;</div>
-      </div>
-      <div class="stat-card accent">
-        <div class="stat-label">Approved Pay <span id="periodLabelPay">This Week</span></div>
-        <div class="stat-value" id="dashMyPay">&mdash;</div>
-      </div>
-      <div class="stat-card">
-        <div class="stat-label">Today</div>
-        <div class="stat-value" id="dashTodayStatus">&mdash;</div>
-      </div>
-    </div>
-
-    <div id="dashTeamSection" class="hidden">
-      <div class="section-title">Team Overview</div>
-      <div class="stat-grid">
-        <div class="stat-card warn">
-          <div class="stat-label">Pending Approvals</div>
-          <div class="stat-value" id="dashPendingCount">&mdash;</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Team Hours <span id="periodLabelTeamHours">This Week</span></div>
-          <div class="stat-value" id="dashTeamHours">&mdash;</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Approved Labor Cost <span id="periodLabelTeamPay">This Week</span></div>
-          <div class="stat-value" id="dashTeamPay">&mdash;</div>
-        </div>
-        <div class="stat-card warn">
-          <div class="stat-label">Certs Needing Attention</div>
-          <div class="stat-value" id="dashCertsAttention">&mdash;</div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <!-- CLOCK TAB (history only, clock action lives on Home) -->
-  <div class="tab-panel hidden" id="panelClock">
-    <div class="section-title">Your Hours, By Week</div>
-    <div id="myWeeksContainer"></div>
-  </div>
-
-  <!-- DOCUMENTS TAB -->
-  <div class="tab-panel hidden" id="panelDocuments">
-    <div class="card">
-      <h2>Upload a Document</h2>
-      <p class="hint">Food handler certs, ID copies, signed forms — kept private, visible only to you and management.</p>
-      <div id="uploadMsg"></div>
-      <div id="uploadForOwnerRow" class="hidden">
-        <label>Employee</label>
-        <select id="uploadOwner"></select>
-      </div>
-      <div class="row2">
-        <div>
-          <label>Document Type</label>
-          <select id="uploadDocType">
-            <option value="food_handler_cert">Food Handler Certification</option>
-            <option value="id_copy">ID Copy</option>
-            <option value="i9">I-9</option>
-            <option value="w4">W-4</option>
-            <option value="offer_letter">Offer Letter</option>
-            <option value="other">Other</option>
-          </select>
-        </div>
-        <div>
-          <label>Expiration Date (if any)</label>
-          <input type="text" id="uploadExpiry" placeholder="YYYY-MM-DD">
-        </div>
-      </div>
-      <label>File</label>
-      <input type="file" id="uploadFile" accept=".pdf,.png,.jpg,.jpeg">
-      <button class="btn-primary" id="uploadBtn">
-        <svg class="icon"><use href="#ic-download"/></svg>Upload
-      </button>
-    </div>
-
-    <div id="certAlertCard" class="card hidden">
-      <h2>Certification Status</h2>
-      <div id="certAlertBody"></div>
-    </div>
-
-    <div class="section-title">Your Documents</div>
-    <div class="card" id="myDocsCard">
-      <div id="myDocsList"></div>
-    </div>
-
-    <div id="allDocsSection" class="hidden">
-      <div class="section-title">All Staff Documents</div>
-      <div class="card">
-        <div class="toolbar">
-          <input type="search" id="docsSearch" placeholder="Search by employee name...">
-        </div>
-        <div id="allDocsList"></div>
-      </div>
-    </div>
-  </div>
-
-  <!-- APPROVE TAB -->
-  <div class="tab-panel hidden" id="panelApprove">
-    <div class="card">
-      <h2>Redeem Free Roll</h2>
-      <p class="hint">Scan the member's QR code to check it instantly.</p>
-      <div id="redeemMsg"></div>
-
-      <button class="btn-primary" id="scanQrBtn" style="width:100%; margin-bottom:14px;">
-        <svg class="icon"><use href="#ic-scan"/></svg>Scan QR Code
-      </button>
-
-      <div id="scannerWrap" class="hidden">
-        <video id="scannerVideo" playsinline muted></video>
-        <canvas id="scannerCanvas" class="hidden"></canvas>
-        <button class="btn-ghost btn-small" id="stopScanBtn" style="width:100%; margin-top:10px;">Cancel Scan</button>
-      </div>
-
-      <div id="scanResultBox"></div>
-
-      <details class="redeem-fallback">
-        <summary>Can't scan? Look up by email instead</summary>
-        <div class="row2" style="margin-top:12px;">
-          <input type="email" id="redeemEmail" placeholder="customer@email.com" style="margin-bottom:10px;">
-          <button class="btn-primary btn-small" id="redeemLookupBtn" style="height:fit-content;">Look Up</button>
-        </div>
-        <div id="redeemResult"></div>
-      </details>
-    </div>
-
-    <div class="card">
-      <details class="manual-entry-toggle">
-        <summary><h2 style="display:inline;">Add Missed Hours</h2></summary>
-        <p class="hint" style="margin-top:10px;">For an employee who forgot to clock in/out. This creates or overwrites that day's entry, and it still goes through normal approval.</p>
-        <div id="manualEntryMsg"></div>
-        <label>Employee</label>
-        <select id="manualEmpSelect"></select>
-        <label>Date</label>
-        <input type="date" id="manualDate">
-        <div class="row2">
-          <div>
-            <label>Clock In</label>
-            <input type="time" id="manualIn">
-          </div>
-          <div>
-            <label>Clock Out</label>
-            <input type="time" id="manualOut">
-          </div>
-        </div>
-        <label>Reason for manual entry</label>
-        <textarea id="manualNote" rows="2" placeholder="e.g. forgot to clock in, phone was dead, covering a shift..."></textarea>
-        <div id="manualDupWarning"></div>
-        <button class="btn-primary" id="manualEntryBtn">Save Hours</button>
-      </details>
-    </div>
-
-    <div class="card">
-      <h2>Pending Approval</h2>
-      <p class="hint">Review and approve or reject each day's hours.</p>
-      <div style="overflow-x:auto;">
-        <table>
-          <thead><tr><th>Employee</th><th>Date</th><th>In</th><th>Out</th><th>Hrs</th><th></th></tr></thead>
-          <tbody id="pendingBody"></tbody>
-        </table>
-      </div>
-    </div>
-
-    <div class="section-title">All Entries, By Week</div>
-    <div class="toolbar">
-      <input type="search" id="approveSearch" placeholder="Search by employee name...">
-    </div>
-    <div id="allWeeksContainer"></div>
-  </div>
-
-  <!-- EVENTS TAB -->
-  <div class="tab-panel hidden" id="panelEvents">
-    <div class="card">
-      <h2>Paste Email &rarr; Auto-Fill</h2>
-      <p class="hint">Paste the organizer's email below. This picks out a likely title, date(s), and address and fills the form &mdash; always double-check before saving, it's a best guess, not magic.</p>
-      <textarea id="emailPasteBox" rows="5" placeholder="Paste the email text here..."></textarea>
-      <button class="btn-primary" id="parseEmailBtn">Extract Details</button>
-      <div id="parseMsg"></div>
-    </div>
-
-    <div class="card">
-      <h2 id="eventFormTitle">Add Event</h2>
-      <div id="eventFormMsg"></div>
-      <input type="hidden" id="eventEditId" value="">
-      <label>Title</label>
-      <input type="text" id="eventTitle" placeholder="e.g. Uniontown Lions Festival">
-      <label>Location</label>
-      <input type="text" id="eventLocation" placeholder="e.g. 1289 Edison St NW, Hartville, OH 44632">
-      <div class="row2">
-        <div>
-          <label>Start Date</label>
-          <input type="date" id="eventStartDate">
-        </div>
-        <div>
-          <label>End Date</label>
-          <input type="date" id="eventEndDate">
-        </div>
-      </div>
-      <div class="row2">
-        <div>
-          <label>Start Time (optional)</label>
-          <input type="time" id="eventStartTime">
-        </div>
-        <div>
-          <label>End Time (optional)</label>
-          <input type="time" id="eventEndTime">
-        </div>
-      </div>
-      <label>Map Address (optional, for directions link)</label>
-      <input type="text" id="eventMapQuery" placeholder="Same as location, or a cleaner version">
-      <label>Description (optional)</label>
-      <textarea id="eventDescription" rows="2" placeholder="e.g. Free admission & parking"></textarea>
-      <label>Status</label>
-      <select id="eventStatus">
-        <option value="confirmed">Confirmed (shows on public site)</option>
-        <option value="tentative">Tentative (staff only)</option>
-        <option value="cancelled">Cancelled (staff only)</option>
-      </select>
-      <div style="display:flex; gap:10px; margin-top:6px;">
-        <button class="btn-primary" id="saveEventBtn">Save Event</button>
-        <button class="btn-ghost btn-small hidden" id="cancelEditEventBtn">Cancel Edit</button>
-      </div>
-    </div>
-
-    <div class="card">
-      <h2>All Events</h2>
-      <p class="hint">Only "Confirmed" events show on the public calendar.</p>
-      <div id="eventsList"></div>
-    </div>
-  </div>
-
-  <!-- PAYROLL TAB -->
-  <div class="tab-panel hidden" id="panelPayroll">
-    <div class="card">
-      <h2>Payroll Summary, By Week</h2>
-      <p class="hint">Approved hours only. Export a week to CSV when you're ready to pay.</p>
-      <div id="payrollWeeksContainer"></div>
-    </div>
-  </div>
-
-  <!-- ADMIN TAB -->
-  <div class="tab-panel hidden" id="panelAdmin">
-    <div class="card">
-      <h2>Staff &amp; Pay Rates</h2>
-      <p class="hint">Only admins can see or change pay rates.</p>
-      <div class="toolbar">
-        <input type="search" id="adminSearch" placeholder="Search staff...">
-      </div>
-      <div id="employeeList"></div>
-    </div>
-    <div class="card">
-      <h2>Add Employee</h2>
-      <p class="hint">They'll be able to sign in the moment they use this exact email.</p>
-      <div id="addEmpMsg"></div>
-      <label>Name</label>
-      <input type="text" id="newEmpName">
-      <label>Email</label>
-      <input type="email" id="newEmpEmail">
-      <div class="row2">
-        <div>
-          <label>Hourly Rate ($)</label>
-          <input type="number" id="newEmpRate" step="0.01" min="0">
-        </div>
-        <div>
-          <label>Role</label>
-          <select id="newEmpRole">
-            <option value="employee">Employee</option>
-            <option value="manager">Manager</option>
-            <option value="admin">Admin</option>
-          </select>
-        </div>
-      </div>
-      <button class="btn-primary" id="addEmpBtn">Add Employee</button>
-    </div>
-    <div class="card">
-      <h2>Website Email Signups</h2>
-      <p class="hint">People who signed up on the public site to hear about new stops.</p>
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-        <span id="signupCount" class="hint" style="margin:0;">&mdash;</span>
-        <button class="btn-export btn-small" id="exportSignupsBtn">
-          <svg class="icon" style="width:13px;height:13px;"><use href="#ic-download"/></svg>Export CSV
-        </button>
-      </div>
-      <div style="overflow-x:auto;">
-        <table>
-          <thead><tr><th>Email</th><th>Signed Up</th></tr></thead>
-          <tbody id="signupsBody"></tbody>
-        </table>
-      </div>
-    </div>
-  </div>
 </div>
 
-<!-- ICONS (referenced via <use>) -->
-<svg width="0" height="0" style="position:absolute">
-  <defs>
-    <symbol id="ic-clock" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M12 7v5l3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
-    <symbol id="ic-dollar" viewBox="0 0 24 24"><path d="M12 2v20M17 6.5c0-2-2.5-3-5-3s-5 1-5 3 2.5 3 5 3 5 1 5 3-2.5 3-5 3-5-1-5-3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-    <symbol id="ic-alert" viewBox="0 0 24 24"><path d="M12 3l10 18H2L12 3z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M12 9v5M12 17h.01" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
-    <symbol id="ic-users" viewBox="0 0 24 24"><circle cx="9" cy="8" r="3.2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M15.5 6.5c1.5.3 2.5 1.6 2.5 3.1s-1 2.8-2.5 3.1M17 14.3c2.3.5 4 2.5 4 5.7" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
-    <symbol id="ic-download" viewBox="0 0 24 24"><path d="M12 3v13M7 12l5 5 5-5M4 20h16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-    <symbol id="ic-file" viewBox="0 0 24 24"><path d="M6 2h9l5 5v15H6z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><path d="M15 2v5h5" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
-    <symbol id="ic-chevron" viewBox="0 0 24 24"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-    <symbol id="ic-menu" viewBox="0 0 24 24"><path d="M3 6h18M3 12h18M3 18h18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
-    <symbol id="ic-close" viewBox="0 0 24 24"><path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"/></symbol>
-    <symbol id="ic-home" viewBox="0 0 24 24"><path d="M4 11l8-7 8 7v9a1 1 0 0 1-1 1h-4v-6H9v6H5a1 1 0 0 1-1-1z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
-    <symbol id="ic-check" viewBox="0 0 24 24"><path d="M4 12l6 6L20 6" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-    <symbol id="ic-logout" viewBox="0 0 24 24"><path d="M9 21H5a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h4M16 17l5-5-5-5M21 12H9" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-    <symbol id="ic-scan" viewBox="0 0 24 24"><path d="M3 7V5a2 2 0 0 1 2-2h2M17 3h2a2 2 0 0 1 2 2v2M21 17v2a2 2 0 0 1-2 2h-2M7 21H5a2 2 0 0 1-2-2v-2M3 12h18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-  </defs>
-</svg>
+<nav>
+  <div class="wrap">
+    <div class="wordmark"><span class="w1">Roll&#8209;In</span><span class="w2">Shawarma</span></div>
+    <div class="navlinks">
+      <a href="#menu">Menu</a>
+      <a href="#deals" class="member-hide">Deals</a>
+      <a href="#story" class="member-hide">Our Story</a>
+      <a href="#reviews" class="member-hide">Reviews</a>
+      <a href="#catering" class="member-hide">Catering</a>
+      <a href="#find" class="has-icon"><svg class="icon-truck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>Find Us</a>
+    </div>
+    <a class="nav-signin" href="#deals" id="navSignIn">Sign In</a>
+    <a class="nav-signin hidden" href="#" id="navSignOut">Sign Out</a>
+    <div class="order-btn-group">
+      <a class="nav-order" href="https://roll-in-shawarma.square.site/" target="_blank" rel="noopener">Pickup</a>
+      <a class="nav-doordash" href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 8a1 1 0 0 1 1-1h10.5a5.5 5.5 0 0 1 0 11H7v3l-5-4.2L7 12.6v3h6.5a2.5 2.5 0 0 0 0-5H3a1 1 0 0 1-1-1V8z"/></svg>Delivery
+      </a>
+    </div>
+    <a class="nav-cta" href="tel:+13305875203">Call Us</a>
+    <button class="nav-toggle" aria-label="Open menu">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+    </button>
+  </div>
+  <div class="mobile-nav">
+    <a href="https://roll-in-shawarma.square.site/" target="_blank" rel="noopener" style="color:var(--gold);">Order for Pickup</a>
+    <a href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener" style="color:#FF3008;">Order for Delivery (DoorDash)</a>
+    <a href="#deals" id="mobileNavSignIn">Sign In</a>
+    <a href="#" id="mobileNavSignOut" class="hidden">Sign Out</a>
+    <a href="#menu">Menu</a>
+    <a href="#deals" class="member-hide">Deals</a>
+    <a href="#story" class="member-hide">Our Story</a>
+    <a href="#reviews" class="member-hide">Reviews</a>
+    <a href="#catering" class="member-hide">Catering</a>
+    <a href="#find" class="has-icon"><svg class="icon-truck" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="3" width="15" height="13"></rect><polygon points="16 8 20 8 23 11 23 16 16 16 16 8"></polygon><circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle></svg>Find Us</a>
+    <a href="tel:+13305875203">Call Us &mdash; (330) 587-5203</a>
+  </div>
+</nav>
+
+<header class="hero member-hide">
+  <div class="hero-inner">
+    <img class="hero-logo" src="logo.jpg" alt="Roll-In Shawarma logo">
+    <div class="hero-eyebrow">Middle Eastern &middot; Indian &middot; Food Truck</div>
+    <h1>We roll it.<br><span class="accent">You love it.</span></h1>
+    <p class="lede">Marinated chicken, falafel, and paneer, rolled fresh at the window &mdash; shawarma, frankie rolls, tacos, bowls, and loaded fries.</p>
+    <div class="hero-ctas">
+      <a class="btn btn-light" href="https://roll-in-shawarma.square.site/" target="_blank" rel="noopener">Order for Pickup</a>
+      <a class="btn btn-doordash-lg" href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" style="vertical-align:-2px; margin-right:5px;"><path d="M2 8a1 1 0 0 1 1-1h10.5a5.5 5.5 0 0 1 0 11H7v3l-5-4.2L7 12.6v3h6.5a2.5 2.5 0 0 0 0-5H3a1 1 0 0 1-1-1V8z"/></svg>Order for Delivery
+      </a>
+      <a class="btn btn-outline-dark" href="#menu">View Menu</a>
+    </div>
+    <p class="hero-subline"><a href="#find">Find the truck</a></p>
+  </div>
+  <div class="scroll-cue">Scroll</div>
+</header>
+
+<section class="statement member-hide">
+  <img src="truck-night.webp" alt="Roll-In Shawarma food truck at night">
+  <div class="wrap">
+    <p>Carved fresh. Rolled to order. <em>No shortcuts.</em></p>
+  </div>
+</section>
+
+<section class="feature member-hide">
+  <div class="wrap">
+    <div class="feature-row">
+      <div class="feature-photo tilt-60"><img src="shawarma-wrap.webp" alt="Chicken shawarma wrap"></div>
+      <div class="feature-text">
+        <div class="tag">Signature</div>
+        <h3>Chicken Shawarma</h3>
+        <p>Marinated chicken carved fresh and wrapped with white sauce, fries, and pickled cucumber. Falafel available for a vegetarian version of the same wrap.</p>
+        <div class="price">Chicken or Falafel Shawarma <span>&mdash; $11.99</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="feature member-hide" style="padding-top:0;">
+  <div class="wrap">
+    <div class="feature-row rev">
+      <div class="feature-photo"><img src="loaded-fries.webp" alt="Loaded fries with chicken and cheese"></div>
+      <div class="feature-text">
+        <div class="tag">Fan Favorite</div>
+        <h3>Loaded Fries</h3>
+        <p>Golden fries tossed with your choice of marinated chicken, melted cheese, and a dual-sauce drizzle, finished with fresh cilantro.</p>
+        <div class="price">Butter Chicken, Tikka, Tandoori, or Signature <span>&mdash; $11.99</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="feature member-hide" style="padding-top:0;">
+  <div class="wrap">
+    <div class="feature-row">
+      <div class="feature-photo"><img src="bowl.webp" alt="Chicken over rice bowl"></div>
+      <div class="feature-text">
+        <div class="tag">Build A Bowl</div>
+        <h3>Chicken Over Rice</h3>
+        <p>Flavored rice topped with marinated chicken, cucumber, saut&eacute;ed bell peppers, lettuce, tomato, and house sauce.</p>
+        <div class="price">Chicken or Veggie Bowl <span>&mdash; $12.99</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="feature member-hide" style="padding-top:0;">
+  <div class="wrap">
+    <div class="feature-row rev">
+      <div class="feature-photo"><img src="tacos.webp" alt="Three soft chicken tacos"></div>
+      <div class="feature-text">
+        <div class="tag">3 To A Plate</div>
+        <h3>Tacos</h3>
+        <p>Three soft tacos, your choice of chicken, piled with fresh veggies, cilantro, and lime.</p>
+        <div class="price">Butter Chicken, Tikka, Tandoori, or Signature <span>&mdash; $11.99</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="feature member-hide" style="padding-top:0;">
+  <div class="wrap">
+    <div class="feature-row">
+      <div class="feature-photo tilt-60"><img src="tikka-wrap.webp" alt="Chicken tikka frankie roll"></div>
+      <div class="feature-text">
+        <div class="tag">Rolled To Order</div>
+        <h3>Frankie Rolls</h3>
+        <p>Marinated chicken or paneer, wrapped tight with fresh veggies, cilantro, and lime &mdash; a lighter roll than the shawarma, same fresh-carved flavor.</p>
+        <div class="price">Butter Chicken, Tikka, Tandoori, Signature, or Paneer <span>&mdash; $9.99</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="menu">
+  <div class="wrap">
+    <div class="sec-eyebrow">The Full Menu</div>
+    <h2 class="sec-title">Everything on the truck.</h2>
+    <p class="sec-sub">Add fries &amp; a soda to any wrap, taco, or fries order to make it a combo for +$3.99.</p>
+    <div style="text-align:center; margin-top:28px; display:flex; gap:14px; justify-content:center; flex-wrap:wrap;">
+      <a class="btn btn-light" href="https://roll-in-shawarma.square.site/" target="_blank" rel="noopener">Order for Pickup</a>
+      <a class="btn btn-doordash-lg" href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener">
+        <svg viewBox="0 0 24 24" width="15" height="15" fill="currentColor" style="vertical-align:-2px; margin-right:5px;"><path d="M2 8a1 1 0 0 1 1-1h10.5a5.5 5.5 0 0 1 0 11H7v3l-5-4.2L7 12.6v3h6.5a2.5 2.5 0 0 0 0-5H3a1 1 0 0 1-1-1V8z"/></svg>Order for Delivery
+      </a>
+    </div>
+
+    <div class="menu-acc">
+
+      <div class="menu-acc-item">
+        <button class="menu-acc-head" type="button">
+          <img class="menu-acc-thumb" src="menu-shawarma.jpg" alt="">
+          <div class="menu-acc-title"><h4>Shawarma</h4><span class="menu-acc-price">From $11.99</span></div>
+          <svg class="menu-acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
+        </button>
+        <div class="menu-acc-body"><div class="menu-acc-inner">
+          <div class="desc">Marinated chicken or falafel, white sauce, fries &amp; pickled cucumber</div>
+          <div class="mrow"><span class="nm">Chicken Shawarma</span></div>
+          <div class="mrow"><span class="nm">Falafel Shawarma (Veg)</span></div>
+          <div class="mnote">+ $3.99 make it a combo</div>
+        </div></div>
+      </div>
+
+      <div class="menu-acc-item">
+        <button class="menu-acc-head" type="button">
+          <img class="menu-acc-thumb" src="menu-frankie.jpg" alt="">
+          <div class="menu-acc-title"><h4>Frankie Rolls</h4><span class="menu-acc-price">From $9.99</span></div>
+          <svg class="menu-acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
+        </button>
+        <div class="menu-acc-body"><div class="menu-acc-inner">
+          <div class="desc">Marinated chicken or paneer, fresh veggies, cilantro &amp; lime</div>
+          <div class="mrow"><span class="nm">Butter Chicken Frankie</span></div>
+          <div class="mrow"><span class="nm">Chicken Tikka Frankie</span></div>
+          <div class="mrow"><span class="nm">Tandoori Chicken Frankie</span></div>
+          <div class="mrow"><span class="nm">Signature Chicken Frankie</span></div>
+          <div class="mrow"><span class="nm">Paneer Frankie (Veg)</span></div>
+          <div class="mnote">+ $3.99 make it a combo</div>
+        </div></div>
+      </div>
+
+      <div class="menu-acc-item">
+        <button class="menu-acc-head" type="button">
+          <img class="menu-acc-thumb" src="menu-bowl.jpg" alt="">
+          <div class="menu-acc-title"><h4>Bowls</h4><span class="menu-acc-price">From $12.99</span></div>
+          <svg class="menu-acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
+        </button>
+        <div class="menu-acc-body"><div class="menu-acc-inner">
+          <div class="desc">Flavored rice, cucumber, peppers, lettuce, tomato &amp; sauce</div>
+          <div class="mrow"><span class="nm">Chicken Over Rice Bowl</span></div>
+          <div class="mrow"><span class="nm">Veggie Bowl</span></div>
+        </div></div>
+      </div>
+
+      <div class="menu-acc-item">
+        <button class="menu-acc-head" type="button">
+          <img class="menu-acc-thumb" src="menu-tacos.jpg" alt="">
+          <div class="menu-acc-title"><h4>Tacos</h4><span class="menu-acc-price">From $11.99</span></div>
+          <svg class="menu-acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
+        </button>
+        <div class="menu-acc-body"><div class="menu-acc-inner">
+          <div class="desc">3 soft tacos, fresh veggies, cilantro &amp; lime</div>
+          <div class="mrow"><span class="nm">Butter Chicken</span></div>
+          <div class="mrow"><span class="nm">Chicken Tikka</span></div>
+          <div class="mrow"><span class="nm">Tandoori Chicken</span></div>
+          <div class="mrow"><span class="nm">Signature Chicken</span></div>
+          <div class="mnote">+ $3.99 make it a combo</div>
+        </div></div>
+      </div>
+
+      <div class="menu-acc-item">
+        <button class="menu-acc-head" type="button">
+          <img class="menu-acc-thumb" src="menu-fries.jpg" alt="">
+          <div class="menu-acc-title"><h4>Loaded Fries</h4><span class="menu-acc-price">From $11.99</span></div>
+          <svg class="menu-acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
+        </button>
+        <div class="menu-acc-body"><div class="menu-acc-inner">
+          <div class="desc">Cheese, dual-sauce drizzle &amp; cilantro &mdash; choose your favorite sauce</div>
+          <div class="mrow"><span class="nm">Butter Chicken</span></div>
+          <div class="mrow"><span class="nm">Chicken Tikka</span></div>
+          <div class="mrow"><span class="nm">Tandoori Chicken</span></div>
+          <div class="mrow"><span class="nm">Signature Chicken</span></div>
+          <div class="mnote">+ $3.99 make it a combo</div>
+        </div></div>
+      </div>
+
+      <div class="menu-acc-item">
+        <button class="menu-acc-head" type="button">
+          <img class="menu-acc-thumb" src="menu-samosas.jpg" alt="">
+          <div class="menu-acc-title"><h4>Sides</h4><span class="menu-acc-price">From $2.99</span></div>
+          <svg class="menu-acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
+        </button>
+        <div class="menu-acc-body"><div class="menu-acc-inner">
+          <div class="desc">Regular / Large where noted</div>
+          <div class="mrow"><span class="nm">Fries</span><span class="pr">$2.99 / $4.99</span></div>
+          <div class="mrow"><span class="nm">Fryum Chips</span><span class="pr">$2.99 / $4.99</span></div>
+          <div class="mrow"><span class="nm">Peri-Peri Fries</span><span class="pr">$3.49 / $5.49</span></div>
+          <div class="mrow"><span class="nm">2 Samosas</span><span class="pr">$5.49</span></div>
+        </div></div>
+      </div>
+
+      <div class="menu-acc-item">
+        <button class="menu-acc-head" type="button">
+          <img class="menu-acc-thumb" src="menu-kulfi.jpg" alt="">
+          <div class="menu-acc-title"><h4>Kulfi Ice Cream</h4><span class="menu-acc-price">$3.99</span></div>
+          <svg class="menu-acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
+        </button>
+        <div class="menu-acc-body"><div class="menu-acc-inner">
+          <div class="mrow"><span class="nm">Pistachio</span><span class="pr">$3.99</span></div>
+          <div class="mrow"><span class="nm">Mango</span><span class="pr">$3.99</span></div>
+          <div class="mrow"><span class="nm">Almond</span><span class="pr">$3.99</span></div>
+        </div></div>
+      </div>
+
+      <div class="menu-acc-item">
+        <button class="menu-acc-head" type="button">
+          <img class="menu-acc-thumb" src="menu-falooda.jpg" alt="">
+          <div class="menu-acc-title"><h4>Drinks</h4><span class="menu-acc-price">From $2.49</span></div>
+          <svg class="menu-acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
+        </button>
+        <div class="menu-acc-body"><div class="menu-acc-inner">
+          <div class="mrow"><span class="nm">Soda</span><span class="pr">$2.49</span></div>
+          <div class="mrow"><span class="nm">Sharbat Refreshment Soda</span><span class="pr">$3.49</span></div>
+          <div class="mrow"><span class="nm">Root Beer Float</span><span class="pr">$4.99</span></div>
+          <div class="mrow"><span class="nm">Falooda Ice Cream Drink</span><span class="pr">$5.49</span></div>
+          <div class="mrow"><span class="nm">Mango Lassi</span><span class="pr">$5.49</span></div>
+        </div></div>
+      </div>
+
+    </div>
+  </div>
+</section>
+
+<section id="deals">
+  <div class="wrap">
+
+    <!-- LOCKED STATE: shown until signed up -->
+    <div id="dealsLocked">
+      <div class="sec-eyebrow">Members Only</div>
+      <h2 class="sec-title">Sign up, get a free roll.</h2>
+      <p class="sec-sub">Free to join, takes ten seconds &mdash; plus 3 more member-only deals waiting for you.</p>
+
+      <div class="locked-row">
+        <div class="locked-card"><svg class="icon-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg><span>Taco Deal</span></div>
+        <div class="locked-card"><svg class="icon-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg><span>Lunch Combo</span></div>
+        <div class="locked-card"><svg class="icon-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg><span>Family Basket</span></div>
+      </div>
+
+      <div id="authStart">
+        <button type="button" class="btn btn-light" id="startAuthBtn">Get My Free Roll</button>
+        <p class="auth-hint">Already a member? Same button &mdash; we'll recognize your email.</p>
+      </div>
+
+      <form id="authEmailForm" class="cform member-signup-form hidden">
+        <label>Email<input type="email" id="authEmail" placeholder="you@example.com" required autocomplete="email"></label>
+        <button type="submit" class="btn btn-light" id="sendCodeBtn">Send Code</button>
+      </form>
+
+      <form id="authCodeForm" class="cform member-signup-form hidden">
+        <p class="auth-hint" id="codeSentHint"></p>
+        <label>6-digit code<input type="text" id="authCode" inputmode="numeric" maxlength="6" placeholder="123456" required></label>
+        <button type="submit" class="btn btn-light" id="verifyCodeBtn">Verify</button>
+        <button type="button" class="auth-link" id="useDifferentEmailBtn">Use a different email</button>
+      </form>
+
+      <form id="profileForm" class="cform member-signup-form hidden">
+        <p class="auth-hint">You're verified! Just need a couple more details.</p>
+        <div class="row2">
+          <label>First Name<input type="text" id="profileFirstName" required autocomplete="given-name"></label>
+          <label>Last Name<input type="text" id="profileLastName" required autocomplete="family-name"></label>
+        </div>
+        <label>Birthday (for a birthday treat &mdash; no year needed)</label>
+        <div class="row2">
+          <select id="profileBirthMonth" required>
+            <option value="">Month</option>
+            <option value="1">January</option><option value="2">February</option><option value="3">March</option>
+            <option value="4">April</option><option value="5">May</option><option value="6">June</option>
+            <option value="7">July</option><option value="8">August</option><option value="9">September</option>
+            <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+          </select>
+          <select id="profileBirthDay" required>
+            <option value="">Day</option>
+          </select>
+        </div>
+        <button type="submit" class="btn btn-light" id="completeProfileBtn">Complete Sign Up</button>
+      </form>
+
+      <div id="dealsMsg" class="notify-msg"></div>
+    </div>
+
+    <!-- UNLOCKED STATE: shown after signup -->
+    <div id="dealsUnlocked" class="hidden">
+      <div class="sec-eyebrow">Members Only</div>
+      <h2 class="sec-title" id="memberGreetingTitle">You're in &mdash; here's what you get.</h2>
+      <p class="member-quote" id="memberQuote"></p>
+      <p class="sec-sub member-confirm" id="memberGreetingSub">&#10003; You're a member. Show this QR code at the window to redeem.</p>
+      <p class="member-nudge" id="memberNudge"></p>
+
+      <div class="member-qr-card">
+        <div id="memberQrCanvas" class="member-qr"></div>
+        <div class="member-qr-code" id="memberQrCode">&mdash;</div>
+        <div class="member-qr-hint">Screenshot this or keep this page open</div>
+      </div>
+
+      <div class="deals-grid">
+        <div class="deal-card accent">
+          <div class="deal-icon">&#127775;</div>
+          <div class="deal-tag gold">Sign Up Bonus</div>
+          <h3>Free Roll</h3>
+          <p>One <b>free roll</b>, on us &mdash; redeemable once, at the window.</p>
+        </div>
+        <div class="deal-card">
+          <div class="deal-icon">&#127790;</div>
+          <div class="deal-tag">Members Only</div>
+          <h3>Taco Tuesday &amp; Thursday</h3>
+          <p>Any taco, <b>$6.99</b> &mdash; every Tuesday and Thursday.</p>
+        </div>
+        <div class="deal-card">
+          <div class="deal-icon">&#127869;&#65039;</div>
+          <div class="deal-tag">Members Only</div>
+          <h3>Lunch Combo</h3>
+          <p><b>$9.99 + tax</b>, weekdays only &mdash; ask what's included that day.</p>
+        </div>
+        <div class="deal-card">
+          <div class="deal-icon">&#128106;</div>
+          <div class="deal-tag">Members Only</div>
+          <h3>Family Dinner Basket</h3>
+          <p>A Shawarma Roll &amp; a Rice Bowl to share &mdash; <b>$29.99 + tax</b>.</p>
+        </div>
+      </div>
+
+      <p class="spin-fine" style="margin-top:28px; text-align:center;">Deals shown at pickup, in person. Free roll is one-time per member.</p>
+    </div>
+
+  </div>
+</section>
+
+<section id="story" class="member-hide">
+  <div class="wrap">
+    <div class="story-layout">
+      <div class="story-copy">
+        <p>Roll-In Shawarma started with a simple bet: Ohio was ready for shawarma carved and rolled fresh, not steamed in a hotel pan.</p>
+        <p>The truck itself is a rebuilt 2004 Freightliner, gutted and outfitted with a brand-new kitchen setup from the frame up, licensed and inspected through Summit County Public Health. Every recipe on the menu was built and priced to hold up at scale.</p>
+        <p>We're a small, hands-on crew &mdash; the kind of truck where the person handing you your food is the same person who built the menu.</p>
+        <div class="story-stats">
+          <div class="stat"><b>2004</b><span>Freightliner, rebuilt</span></div>
+          <div class="stat"><b>Green, OH</b><span>Home base</span></div>
+          <div class="stat"><b>7</b><span>Menu categories</span></div>
+          <div class="stat"><b>SCPH</b><span>Licensed &amp; inspected</span></div>
+        </div>
+      </div>
+      <div class="story-photo"><img src="truck.webp" alt="Roll-In Shawarma food truck"></div>
+    </div>
+  </div>
+</section>
+
+<section id="reviews" class="member-hide">
+  <div class="wrap">
+    <div class="sec-eyebrow">Reviews</div>
+    <h2 class="sec-title">What the window's been hearing.</h2>
+    <div class="review-carousel">
+      <div class="review-slide active">
+        <p>"We've come here with friends a couple times &mdash; service was quick and the food was tasty. Some items run a little spicy, but overall very good."</p>
+        <div class="who">Local Customer</div>
+      </div>
+      <div class="review-slide">
+        <p>"We had this place cater for about 30 people. Easy to work with &mdash; placed the order Thursday for a Saturday event, and food was ready for pickup right on time. Portions were generous, with leftovers, and everything was delicious."</p>
+        <div class="who">Catering Client</div>
+      </div>
+      <div class="review-slide">
+        <p>"Visited last week just to enjoy the food truck experience."</p>
+        <div class="who">First-Time Visitor</div>
+      </div>
+      <div class="review-slide">
+        <p>"Found this brand new hidden gem — seriously GOOD. The chicken shawarma was honestly the best I've ever had, perfectly cooked, and their homemade white sauce was amazing. Went back for seconds and grabbed a mango lassi too. The team was kind and genuine, even stepping out to ask for our feedback."</p>
+        <div class="who">S.P. &middot; Google Review</div>
+      </div>
+      <div class="review-slide">
+        <p>"Tried this food truck at a farmers market and it did not disappoint! Got the falafel shawarma — nice and crispy, sauce packed with flavor, and I loved the fries inside the wrap. Highly recommend, even for vegetarians!"</p>
+        <div class="who">P.P. &middot; Google Review</div>
+      </div>
+    </div>
+    <div class="review-dots">
+      <button class="review-dot active" type="button" aria-label="Review 1"></button>
+      <button class="review-dot" type="button" aria-label="Review 2"></button>
+      <button class="review-dot" type="button" aria-label="Review 3"></button>
+      <button class="review-dot" type="button" aria-label="Review 4"></button>
+      <button class="review-dot" type="button" aria-label="Review 5"></button>
+    </div>
+    <div class="review-note">Loved your food? <a href="https://g.page/r/CbQeOtyzbDakEAI/review" target="_blank" rel="noopener">Leave us a Google review</a> &mdash; it genuinely helps a small truck like ours.</div>
+  </div>
+</section>
+
+<section id="catering" class="member-hide">
+  <div class="wrap">
+    <div class="sec-eyebrow">Catering</div>
+    <h2 class="sec-title">Book the truck for your event.</h2>
+    <p class="sec-sub">Weddings, offices, birthdays, block parties &mdash; tell us the details and we'll follow up with a plan and pricing.</p>
+
+    <div class="cat-layout">
+      <div class="cat-points">
+        <div class="cat-point"><div class="num">01</div><p>Fill out the form with your date, headcount, and location.</p></div>
+        <div class="cat-point"><div class="num">02</div><p>We'll follow up by phone or email to nail down the menu and quote.</p></div>
+        <div class="cat-point"><div class="num">03</div><p>Prefer to skip the form? Call or text (330) 587-5203, or email rollinshawarma.foodtruck@gmail.com directly.</p></div>
+      </div>
+
+      <div class="cat-forms">
+        <div class="menu-acc-item">
+          <button class="menu-acc-head cform-head" type="button">
+            <div class="menu-acc-title"><h4>Book The Truck</h4><span class="menu-acc-price">Tap to open the request form</span></div>
+            <svg class="menu-acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
+          </button>
+          <div class="menu-acc-body cform-body"><div class="menu-acc-inner cform-inner">
+            <form class="cform" action="https://formsubmit.co/rollinshawarma.foodtruck@gmail.com" method="POST">
+              <input type="hidden" name="_subject" value="New catering request &mdash; Roll-In Shawarma">
+              <input type="hidden" name="_template" value="table">
+              <input type="hidden" name="_captcha" value="true">
+              <div class="row2">
+                <label>Name*<input type="text" name="Name" required></label>
+                <label>Phone<input type="tel" name="Phone"></label>
+              </div>
+              <div class="row2">
+                <label>Email*<input type="email" name="Email" required></label>
+                <label>Event date<input type="date" name="Event Date"></label>
+              </div>
+              <div class="row2">
+                <label>Estimated headcount<input type="number" name="Headcount" min="1"></label>
+                <label>Location / city<input type="text" name="Location"></label>
+              </div>
+              <label>Event details<textarea name="Details" rows="3" placeholder="Type of event, timing, any menu requests..."></textarea></label>
+              <button type="submit">Send Catering Request</button>
+              <div class="fine">This sends straight to our inbox &mdash; we'll get back to you within a day or two.</div>
+            </form>
+          </div></div>
+        </div>
+
+        <div class="menu-acc-item">
+          <button class="menu-acc-head cform-head" type="button">
+            <div class="menu-acc-title"><h4>Corporate &amp; Recurring Orders</h4><span class="menu-acc-price">Weekly office lunch, standing events</span></div>
+            <svg class="menu-acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
+          </button>
+          <div class="menu-acc-body cform-body"><div class="menu-acc-inner cform-inner">
+            <p class="hint" style="margin-bottom:16px;">Set up a standing lunch day for your office, or book us for a recurring company event. Tell us a bit about your team and we'll put together a plan.</p>
+            <form class="cform" action="https://formsubmit.co/rollinshawarma.foodtruck@gmail.com" method="POST">
+              <input type="hidden" name="_subject" value="New CORPORATE catering inquiry &mdash; Roll-In Shawarma">
+              <input type="hidden" name="_template" value="table">
+              <input type="hidden" name="_captcha" value="true">
+              <div class="row2">
+                <label>Company Name*<input type="text" name="Company" required></label>
+                <label>Contact Name*<input type="text" name="Contact Name" required></label>
+              </div>
+              <div class="row2">
+                <label>Work Email*<input type="email" name="Work Email" required></label>
+                <label>Phone<input type="tel" name="Phone"></label>
+              </div>
+              <div class="row2">
+                <label>Approx. Team Size<input type="number" name="Team Size" min="1"></label>
+                <label>How Often?
+                  <select name="Frequency">
+                    <option>Weekly</option>
+                    <option>Biweekly</option>
+                    <option>Monthly</option>
+                    <option>One-time corporate event</option>
+                    <option>Not sure yet</option>
+                  </select>
+                </label>
+              </div>
+              <label>Anything else?<textarea name="Details" rows="3" placeholder="Office location, budget range, preferred days..."></textarea></label>
+              <button type="submit">Request Corporate Catering</button>
+              <div class="fine">We'll reach out with a plan, pricing, and next steps.</div>
+            </form>
+          </div></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="events-calendar">
+  <div class="wrap">
+    <div class="sec-eyebrow">Where We'll Be</div>
+    <h2 class="sec-title">Confirmed events.</h2>
+    <p class="sec-sub">Tap any highlighted day for details.</p>
+
+    <div class="cal-card">
+      <div class="cal-header">
+        <button class="cal-nav" id="calPrevBtn" type="button" aria-label="Previous month">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
+        </button>
+        <div class="cal-month-label" id="calMonthLabel">&mdash;</div>
+        <button class="cal-nav" id="calNextBtn" type="button" aria-label="Next month">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>
+        </button>
+      </div>
+      <div class="cal-weekdays">
+        <span>Sun</span><span>Mon</span><span>Tue</span><span>Wed</span><span>Thu</span><span>Fri</span><span>Sat</span>
+      </div>
+      <div class="cal-grid" id="calGrid"></div>
+    </div>
+
+    <div class="cal-detail" id="calDetail">
+      <p class="cal-empty-hint">Select a highlighted day to see event details.</p>
+    </div>
+  </div>
+</section>
+
+<section id="find">
+  <div class="wrap">
+    <div class="sec-eyebrow">Find The Truck</div>
+    <h2 class="sec-title">Catch us on the route.</h2>
+    <a class="find-big-link" href="tel:+13305875203">(330) 587-5203</a>
+    <div class="find-sub">Call or text &mdash; based out of Green, Ohio, rolling around Northeast Ohio</div>
+    <div class="find-meta">
+      <a href="mailto:rollinshawarma.foodtruck@gmail.com">rollinshawarma.foodtruck@gmail.com</a>
+      <div class="social-icons">
+        <a href="https://www.facebook.com/p/Roll-In-Shawarma-61591157662685/" target="_blank" rel="noopener" aria-label="Facebook">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+        </a>
+        <a href="https://www.instagram.com/roll_in_shawarama?utm_source=qr" target="_blank" rel="noopener" aria-label="Instagram">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.5" y2="6.5"></line></svg>
+        </a>
+      </div>
+      <span>Green, Ohio 44685</span>
+    </div>
+
+    <div class="standard-loc">
+      <div class="standard-loc-label">Our Standard Spot</div>
+      <a class="standard-loc-address" href="https://www.google.com/maps/dir/?api=1&destination=3554+S+Arlington+Rd,+Akron,+OH+44312" target="_blank" rel="noopener">3554 S Arlington Rd, Akron, OH 44312</a>
+      <p class="find-note">Not seeing the truck here? We're probably out catering a private event &mdash; check the banner above for today's schedule, or give us a call and we'll let you know where we are.</p>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <div class="wrap">
+    <div class="foot-top">
+      <div class="foot-brand">
+        <img src="logo.jpg" alt="Roll-In Shawarma logo">
+        <span>Roll&#8209;In Shawarma</span>
+      </div>
+      <div class="foot-cols">
+        <div class="foot-col">
+          <h5>Site</h5>
+          <a href="#menu">Menu</a>
+          <a href="#deals" class="member-hide">Deals</a>
+          <a href="#story" class="member-hide">Story</a>
+          <a href="#reviews" class="member-hide">Reviews</a>
+          <a href="#catering" class="member-hide">Catering</a>
+        </div>
+        <div class="foot-col">
+          <h5>Contact</h5>
+          <a href="tel:+13305875203">(330) 587-5203</a>
+          <a href="mailto:rollinshawarma.foodtruck@gmail.com">rollinshawarma.foodtruck@gmail.com</a>
+          <div class="social-icons" style="margin:2px 0 10px;">
+            <a href="https://www.facebook.com/p/Roll-In-Shawarma-61591157662685/" target="_blank" rel="noopener" aria-label="Facebook">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z"></path></svg>
+            </a>
+            <a href="https://www.instagram.com/roll_in_shawarama?utm_source=qr" target="_blank" rel="noopener" aria-label="Instagram">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path><line x1="17.5" y1="6.5" x2="17.5" y2="6.5"></line></svg>
+            </a>
+          </div>
+          <div>Green, Ohio 44685</div>
+        </div>
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <div>&copy; Roll-In Shawarma</div>
+      <div>We Roll It. You Love It.</div>
+    </div>
+  </div>
+</footer>
 
 <script>
-  var SUPABASE_URL = 'https://njcmcaoyzujijiyfardx.supabase.co';
-  var SUPABASE_ANON_KEY = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
-  var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  // Single shared Supabase client -- reused everywhere on this page.
+  // Creating more than one client for the same project causes a
+  // "Multiple GoTrueClient instances" warning and can cause auth
+  // state to get out of sync between the separate instances.
+  var sbShared = supabase.createClient(
+    'https://njcmcaoyzujijiyfardx.supabase.co',
+    'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_'
+  );
 
-  var currentEmployee = null;
-  var pendingEmail = '';
-  var allEmployeesCache = [];
-
-  function showMsg(elId, text, type){
-    document.getElementById(elId).innerHTML = '<div class="msg ' + type + '">' + text + '</div>';
-  }
-  function clearMsg(elId){ document.getElementById(elId).innerHTML = ''; }
-  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
-
-  function fmtTime(iso){
-    if (!iso) return '—';
-    return new Date(iso).toLocaleTimeString([], {hour:'numeric', minute:'2-digit'});
-  }
-  function rawHours(inIso, outIso){
-    if (!inIso || !outIso) return 0;
-    return (new Date(outIso) - new Date(inIso)) / 3600000;
-  }
-  function fmtHours(inIso, outIso){
-    if (!inIso || !outIso) return '—';
-    return rawHours(inIso, outIso).toFixed(2);
-  }
-  function rawPay(inIso, outIso, rate, status){
-    if (status !== 'approved' || !inIso || !outIso) return 0;
-    return rawHours(inIso, outIso) * rate;
-  }
-  function fmtPay(inIso, outIso, rate, status){
-    if (status !== 'approved' || !inIso || !outIso) return '—';
-    return '$' + rawPay(inIso, outIso, rate, status).toFixed(2);
-  }
-  function isMissingClockOut(e){
-    var today = new Date().toISOString().slice(0,10);
-    return !!e.clock_in && !e.clock_out && e.work_date < today;
-  }
-  function pillHtml(e){
-    if (isMissingClockOut(e)) return '<span class="pill missing"><svg class="icon" style="width:11px;height:11px;"><use href="#ic-alert"/></svg>Missing Out</span>';
-    return '<span class="pill ' + e.status + '">' + e.status + '</span>';
+  var toggle = document.querySelector('.nav-toggle');
+  var menu = document.querySelector('.mobile-nav');
+  if (toggle && menu) {
+    toggle.addEventListener('click', function(){ menu.classList.toggle('open'); });
+    menu.querySelectorAll('a').forEach(function(a){
+      a.addEventListener('click', function(){ menu.classList.remove('open'); });
+    });
   }
 
-  // ---- ISO week helpers (Mon–Sun), timezone-safe (uses local date parts, not UTC) ----
-  function pad2(n){ return String(n).padStart(2,'0'); }
-  function toLocalDateStr(d){ return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate()); }
-  function weekStartOf(dateStr){
-    var d = new Date(dateStr + 'T00:00:00');
-    var day = d.getDay();
-    var diff = (day === 0 ? -6 : 1 - day);
-    d.setDate(d.getDate() + diff);
-    return toLocalDateStr(d);
-  }
-  function weekLabel(mondayStr){
-    var monday = new Date(mondayStr + 'T00:00:00');
-    var sunday = new Date(monday); sunday.setDate(monday.getDate() + 6);
-    var opts = {month:'short', day:'numeric'};
-    return monday.toLocaleDateString([], opts) + ' – ' + sunday.toLocaleDateString([], opts);
-  }
+  // ---- Floating Order buttons ----
+  (function(){
+    var btn = document.getElementById('floatOrderGroup');
+    var hero = document.querySelector('.hero');
+    var footer = document.querySelector('footer');
+    if (!btn || !hero) return;
+    function update(){
+      var footerTop = footer ? footer.getBoundingClientRect().top : Infinity;
+      var beforeFooter = footerTop > window.innerHeight;
+      var pastHero;
+      if (hero.offsetParent === null) {
+        // hero is hidden (e.g. member-mode) -- fall back to a simple scroll threshold
+        pastHero = window.scrollY > 100;
+      } else {
+        pastHero = hero.getBoundingClientRect().bottom < 0;
+      }
+      btn.classList.toggle('show', pastHero && beforeFooter);
+    }
+    window.addEventListener('scroll', update, {passive:true});
+    window.addEventListener('resize', update);
+    update();
+  })();
 
-  // ---- Dashboard period selector (week / month / year) ----
-  var currentPeriod = 'week';
-  var periodLabels = { week: 'This Week', month: 'This Month', year: 'This Year' };
-  var periodLabelsShort = { week: 'Week', month: 'Month', year: 'Year' };
+  // ---- Announcement banner: dismiss + auto-hide when expired ----
+  (function(){
+    var bar = document.getElementById('annbar');
+    var msg = document.getElementById('annMessage');
+    var closeBtn = bar ? bar.querySelector('.ann-close') : null;
+    if (!bar || !msg || !closeBtn) return;
 
-  function inCurrentPeriod(workDateStr, period){
+    function checkExpiry(){
+      var until = msg.getAttribute('data-until');
+      if (until && new Date(until) <= new Date()) {
+        bar.style.display = 'none';
+        return true;
+      }
+      return false;
+    }
+
+    try {
+      if (sessionStorage.getItem('rollinAnnDismissed') === '1') {
+        bar.style.display = 'none';
+      }
+    } catch(e){}
+
+    if (!checkExpiry()) {
+      setInterval(checkExpiry, 60000);
+    }
+
+    closeBtn.addEventListener('click', function(){
+      bar.style.display = 'none';
+      try { sessionStorage.setItem('rollinAnnDismissed', '1'); } catch(e){}
+    });
+  })();
+
+  // ---- Reviews carousel ----
+  (function(){
+    var carousel = document.querySelector('.review-carousel');
+    var slides = document.querySelectorAll('.review-slide');
+    var dots = document.querySelectorAll('.review-dot');
+    if (!slides.length) return;
+    var idx = 0;
+    var timer = null;
+
+    function showSlide(i){
+      idx = (i + slides.length) % slides.length;
+      slides.forEach(function(s,j){ s.classList.toggle('active', j===idx); });
+      dots.forEach(function(d,j){ d.classList.toggle('active', j===idx); });
+    }
+    function next(){ showSlide(idx+1); }
+    function prev(){ showSlide(idx-1); }
+    function startTimer(){
+      timer = setInterval(next, 5000);
+    }
+    function resetTimer(){
+      clearInterval(timer);
+      startTimer();
+    }
+    dots.forEach(function(d,i){
+      d.addEventListener('click', function(){ showSlide(i); resetTimer(); });
+    });
+
+    // swipe support (mobile)
+    var touchStartX = 0, touchEndX = 0;
+    carousel.addEventListener('touchstart', function(e){
+      touchStartX = e.changedTouches[0].screenX;
+    }, {passive:true});
+    carousel.addEventListener('touchend', function(e){
+      touchEndX = e.changedTouches[0].screenX;
+      var delta = touchEndX - touchStartX;
+      if (Math.abs(delta) > 40){
+        if (delta < 0) { next(); } else { prev(); }
+        resetTimer();
+      }
+    }, {passive:true});
+
+    startTimer();
+  })();
+
+  // ---- Menu accordion ----
+  document.querySelectorAll('.menu-acc-head').forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var item = btn.closest('.menu-acc-item');
+      item.classList.toggle('open');
+    });
+  });
+
+  // ---- Nav sign-in / sign-out status ----
+  (function(){
+    var signInLinks = [document.getElementById('navSignIn'), document.getElementById('mobileNavSignIn')];
+    var signOutLinks = [document.getElementById('navSignOut'), document.getElementById('mobileNavSignOut')];
+
+    function refresh(){
+      var isMember = false;
+      try { isMember = !!localStorage.getItem('rollinMemberCode'); } catch(e){}
+      signInLinks.forEach(function(el){
+        if (!el) return;
+        el.textContent = isMember ? 'My Deals ✓' : 'Sign In';
+        el.classList.toggle('is-member', isMember);
+      });
+      signOutLinks.forEach(function(el){
+        if (!el) return;
+        el.classList.toggle('hidden', !isMember);
+      });
+    }
+
+    window.refreshNavAuthStatus = refresh;
+
+    signOutLinks.forEach(function(el){
+      if (!el) return;
+      el.addEventListener('click', function(e){
+        e.preventDefault();
+        try {
+          localStorage.removeItem('rollinMemberCode');
+          localStorage.removeItem('rollinMemberFirstName');
+        } catch(err){}
+        sbShared.auth.signOut().then(function(){ location.reload(); });
+      });
+    });
+
+    refresh();
+  })();
+
+  // ---- Events Calendar ----
+  (function(){
+    var grid = document.getElementById('calGrid');
+    if (!grid) return;
+
+    var sb = sbShared;
+
+    var monthLabelEl = document.getElementById('calMonthLabel');
+    var detailEl = document.getElementById('calDetail');
     var today = new Date();
-    var d = new Date(workDateStr + 'T00:00:00');
-    if (period === 'month') {
-      return d.getFullYear() === today.getFullYear() && d.getMonth() === today.getMonth();
+    var viewYear = today.getFullYear();
+    var viewMonth = today.getMonth(); // 0-indexed
+    var allEvents = [];
+    var selectedDateStr = null;
+
+    function pad2(n){ return String(n).padStart(2,'0'); }
+    function dateStr(y,m,d){ return y + '-' + pad2(m+1) + '-' + pad2(d); }
+
+    function fmtTimeStr(t){
+      if (!t) return '';
+      var parts = t.split(':');
+      var h = parseInt(parts[0],10), m = parts[1];
+      var ampm = h >= 12 ? 'PM' : 'AM';
+      var h12 = h % 12; if (h12 === 0) h12 = 12;
+      return h12 + ':' + m + ' ' + ampm;
     }
-    if (period === 'year') {
-      return d.getFullYear() === today.getFullYear();
+
+    function eventsOnDay(ds){
+      return allEvents.filter(function(ev){ return ds >= ev.start_date && ds <= ev.end_date; });
     }
-    // default: week
-    return weekStartOf(workDateStr) === weekStartOf(toLocalDateStr(today));
-  }
 
-  function updatePeriodLabels(){
-    document.getElementById('periodLabelMine').textContent = periodLabelsShort[currentPeriod];
-    document.getElementById('periodLabelHours').textContent = periodLabels[currentPeriod];
-    document.getElementById('periodLabelPay').textContent = periodLabels[currentPeriod];
-    document.getElementById('periodLabelTeamHours').textContent = periodLabels[currentPeriod];
-    document.getElementById('periodLabelTeamPay').textContent = periodLabels[currentPeriod];
-  }
-
-  document.querySelectorAll('.period-btn').forEach(function(btn){
-    btn.addEventListener('click', function(){
-      document.querySelectorAll('.period-btn').forEach(function(b){ b.classList.remove('active'); });
-      btn.classList.add('active');
-      currentPeriod = btn.dataset.period;
-      updatePeriodLabels();
-      recomputeMyStats();
-      recomputeTeamStats();
-    });
-  });
-
-  function groupByWeek(entries){
-    var groups = {};
-    entries.forEach(function(e){
-      var wk = weekStartOf(e.work_date);
-      (groups[wk] = groups[wk] || []).push(e);
-    });
-    return Object.keys(groups).sort().reverse().map(function(wk){
-      var ents = groups[wk].slice().sort(function(a,b){ return b.work_date.localeCompare(a.work_date); });
-      return { weekStart: wk, label: weekLabel(wk), entries: ents };
-    });
-  }
-  function csvEscape(v){
-    var s = String(v == null ? '' : v);
-    if (/[",\n]/.test(s)) s = '"' + s.replace(/"/g, '""') + '"';
-    return s;
-  }
-  function downloadCSV(filename, rows){
-    var csv = rows.map(function(r){ return r.map(csvEscape).join(','); }).join('\n');
-    var blob = new Blob([csv], {type:'text/csv;charset=utf-8;'});
-    var url = URL.createObjectURL(blob);
-    var a = document.createElement('a');
-    a.href = url; a.download = filename;
-    document.body.appendChild(a); a.click(); document.body.removeChild(a);
-    URL.revokeObjectURL(url);
-  }
-
-  // ---------------- LOGIN FLOW ----------------
-  document.getElementById('sendCodeBtn').addEventListener('click', function(){
-    var email = document.getElementById('emailInput').value.trim();
-    if (!email) { showMsg('loginMsg', 'Enter your email first.', 'error'); return; }
-    clearMsg('loginMsg');
-    var btn = document.getElementById('sendCodeBtn');
-    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Sending...';
-    sb.auth.signInWithOtp({
-      email: email,
-      options: { emailRedirectTo: window.location.origin + window.location.pathname }
-    }).then(function(res){
-      btn.disabled = false; btn.textContent = 'Send Code';
-      if (res.error) { showMsg('loginMsg', res.error.message, 'error'); return; }
-      pendingEmail = email;
-      document.getElementById('emailStep').classList.add('hidden');
-      document.getElementById('codeStep').classList.remove('hidden');
-      showMsg('loginMsg', 'Code sent to ' + esc(email) + '. Check your inbox.', 'ok');
-    });
-  });
-
-  document.getElementById('backToEmailBtn').addEventListener('click', function(){
-    document.getElementById('codeStep').classList.add('hidden');
-    document.getElementById('emailStep').classList.remove('hidden');
-    clearMsg('loginMsg');
-  });
-
-  document.getElementById('verifyCodeBtn').addEventListener('click', function(){
-    var code = document.getElementById('codeInput').value.trim();
-    if (!code) { showMsg('loginMsg', 'Enter the code from your email.', 'error'); return; }
-    var btn = document.getElementById('verifyCodeBtn');
-    btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Verifying...';
-    sb.auth.verifyOtp({ email: pendingEmail, token: code, type: 'email' }).then(function(res){
-      btn.disabled = false; btn.textContent = 'Verify & Sign In';
-      if (res.error) { showMsg('loginMsg', res.error.message, 'error'); return; }
-      handleLoginOnce();
-    });
-  });
-
-  document.getElementById('signOutBtn').addEventListener('click', function(){
-    sb.auth.signOut().then(function(){ location.reload(); });
-  });
-
-  function afterLogin(){
-    sb.rpc('claim_employee_record').then(function(res){
-      if (res.error || !res.data) {
-        showMsg('loginMsg', "This email isn't registered as staff. Ask your manager to add you.", 'error');
-        sb.auth.signOut();
+    function renderDetail(ds){
+      var evs = eventsOnDay(ds);
+      if (!evs.length) {
+        detailEl.innerHTML = '<p class="cal-empty-hint">No confirmed event that day.</p>';
         return;
       }
-      currentEmployee = res.data;
-      document.getElementById('loginWrap').classList.add('hidden');
-      document.getElementById('app').classList.remove('hidden');
-      document.getElementById('whoName').textContent = currentEmployee.name;
-      document.getElementById('whoRole').textContent = currentEmployee.role;
-      var dateStr = new Date().toLocaleDateString([], {weekday:'long', month:'long', day:'numeric'});
-      document.getElementById('todayDate').textContent = dateStr;
-      document.getElementById('homeWhoName').textContent = currentEmployee.name;
-      document.getElementById('homeDate').textContent = dateStr;
-
-      var isManager = currentEmployee.role === 'manager' || currentEmployee.role === 'admin';
-      var isAdmin = currentEmployee.role === 'admin';
-
-      if (isManager) {
-        document.getElementById('tabApproveBtn').classList.remove('hidden');
-        document.getElementById('tabEventsBtn').classList.remove('hidden');
-        document.getElementById('tabPayrollBtn').classList.remove('hidden');
-        document.getElementById('dashTeamSection').classList.remove('hidden');
-        document.getElementById('allDocsSection').classList.remove('hidden');
-        loadApprovals();
-        loadPayroll();
-        loadEvents();
-      }
-      if (isAdmin) {
-        document.getElementById('tabAdminBtn').classList.remove('hidden');
-        document.getElementById('uploadForOwnerRow').classList.remove('hidden');
-        loadAdmin();
-      }
-      loadMyEntries();
-      loadMyDocuments();
-      if (isManager) loadAllDocuments();
-    });
-  }
-
-  // ---------------- MENU DRAWER ----------------
-  var navDrawer = document.getElementById('navDrawer');
-  var navBackdrop = document.getElementById('navBackdrop');
-  function openMenu(){ navDrawer.classList.add('open'); navBackdrop.classList.add('open'); }
-  function closeMenu(){ navDrawer.classList.remove('open'); navBackdrop.classList.remove('open'); }
-  document.getElementById('menuOpenBtn').addEventListener('click', openMenu);
-  document.getElementById('menuCloseBtn').addEventListener('click', closeMenu);
-  navBackdrop.addEventListener('click', closeMenu);
-
-  // ---------------- TABS (nav drawer links) ----------------
-  document.querySelectorAll('.nav-link[data-tab]').forEach(function(btn){
-    btn.addEventListener('click', function(){
-      document.querySelectorAll('.nav-link[data-tab]').forEach(function(b){ b.classList.remove('active'); });
-      document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.add('hidden'); });
-      btn.classList.add('active');
-      var name = btn.dataset.tab.charAt(0).toUpperCase() + btn.dataset.tab.slice(1);
-      document.getElementById('panel' + name).classList.remove('hidden');
-      closeMenu();
-    });
-  });
-
-  // ---------------- CLOCK ACTIONS (single set of controls, lives on Home) ----------------
-  function doClockIn(msgElId, onDone){
-    sb.rpc('clock_in').then(function(res){
-      if (res.error) { showMsg(msgElId, res.error.message, 'error'); return; }
-      showMsg(msgElId, 'Clocked in at ' + fmtTime(res.data.clock_in) + '.', 'ok');
-      loadMyEntries();
-      if (onDone) onDone(res.data);
-    });
-  }
-  function doClockOut(msgElId, onDone){
-    sb.rpc('clock_out').then(function(res){
-      if (res.error) { showMsg(msgElId, res.error.message, 'error'); return; }
-      showMsg(msgElId, 'Clocked out at ' + fmtTime(res.data.clock_out) + '. Awaiting manager approval.', 'ok');
-      loadMyEntries();
-      if (onDone) onDone(res.data);
-    });
-  }
-
-  document.getElementById('clockInBtn').addEventListener('click', function(){
-    var btn = this; btn.disabled = true;
-    doClockIn('homeClockMsg', function(){ btn.disabled = false; });
-  });
-  document.getElementById('clockOutBtn').addEventListener('click', function(){
-    var btn = this; btn.disabled = true;
-    doClockOut('homeClockMsg', function(){ btn.disabled = false; });
-  });
-
-  function refreshTodayUI(entry){
-    var inBtn = document.getElementById('clockInBtn'), outBtn = document.getElementById('clockOutBtn');
-    var state = (!entry || !entry.clock_in) ? 'in' : (entry.clock_in && !entry.clock_out) ? 'out' : 'done';
-
-    inBtn.classList.toggle('hidden', state !== 'in');
-    outBtn.classList.toggle('hidden', state !== 'out');
-
-    var homeStatusEl = document.getElementById('homeStatus');
-    if (state === 'in') {
-      homeStatusEl.textContent = "You're not clocked in yet";
-    } else if (state === 'out') {
-      homeStatusEl.innerHTML = '<svg class="icon"><use href="#ic-check"/></svg>Clocked in at ' + fmtTime(entry.clock_in);
-    } else {
-      homeStatusEl.textContent = 'All done for today — ' + fmtHours(entry.clock_in, entry.clock_out) + ' hrs logged';
-    }
-
-    var dashStatus = state === 'in' ? 'Not clocked in' : state === 'out' ? 'Clocked in — working' : 'Done for today';
-    var dashEl = document.getElementById('dashTodayStatus');
-    if (dashEl) dashEl.textContent = dashStatus;
-  }
-
-  function renderWeekGroups(containerEl, weeks, rowRenderer, headExtra){
-    containerEl.innerHTML = weeks.map(function(w, wi){
-      var totalHours = w.entries.reduce(function(s,e){ return s + rawHours(e.clock_in, e.clock_out); }, 0);
-      var totalPay = w.entries.reduce(function(s,e){ return s + rawPay(e.clock_in, e.clock_out, e._rate || 0, e.status); }, 0);
-      var rows = w.entries.map(rowRenderer).join('');
-      var extra = headExtra ? headExtra(w, totalHours, totalPay) : '';
-      return (
-        '<div class="week-group" data-week="' + w.weekStart + '">' +
-          '<div class="week-head" data-toggle="' + wi + '">' +
-            '<div><span class="week-label">Week of ' + w.label + '</span> &nbsp; <span class="week-sub">' + totalHours.toFixed(2) + ' hrs &middot; $' + totalPay.toFixed(2) + ' approved</span></div>' +
-            '<div style="display:flex; align-items:center; gap:10px;">' + extra + '<svg class="icon chev"><use href="#ic-chevron"/></svg></div>' +
+      detailEl.innerHTML = evs.map(function(ev){
+        var when = ev.start_date === ev.end_date
+          ? ev.start_date
+          : ev.start_date + ' \u2013 ' + ev.end_date;
+        var timeRange = '';
+        if (ev.start_time) {
+          timeRange = fmtTimeStr(ev.start_time) + (ev.end_time ? ' \u2013 ' + fmtTimeStr(ev.end_time) : '');
+        }
+        var mapLink = ev.map_query
+          ? '<a href="https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(ev.map_query) + '" target="_blank" rel="noopener">Get Directions</a>'
+          : '';
+        return '<div class="cal-event-card">' +
+          '<h4>' + escHtml(ev.title) + '</h4>' +
+          '<div class="cal-event-meta">' +
+            '<b>' + when + '</b>' + (timeRange ? ' &middot; ' + timeRange : '') + '<br>' +
+            escHtml(ev.location) +
+            (ev.description ? '<br>' + escHtml(ev.description) : '') +
+            (mapLink ? '<br>' + mapLink : '') +
           '</div>' +
-          '<div class="week-body"><table><thead><tr><th>Date</th><th>In</th><th>Out</th><th>Hrs</th><th>Status</th><th>Pay</th></tr></thead>' +
-          '<tbody>' + (rows || '<tr class="empty-row"><td colspan="6">No entries.</td></tr>') + '</tbody></table></div>' +
-        '</div>'
-      );
-    }).join('') || '<p class="hint">No entries yet.</p>';
+        '</div>';
+      }).join('');
+    }
 
-    containerEl.querySelectorAll('.week-head').forEach(function(h){
-      h.addEventListener('click', function(e){
-        if (e.target.closest('.btn-export')) return;
-        h.closest('.week-group').classList.toggle('collapsed');
+    function escHtml(s){
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
       });
-    });
-  }
+    }
 
-  var myEntriesRaw = [];
+    function renderGrid(){
+      var monthNames = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+      monthLabelEl.textContent = monthNames[viewMonth] + ' ' + viewYear;
 
-  function recomputeMyStats(){
-    var rate = currentEmployee.hourly_rate;
-    var periodEntries = myEntriesRaw.filter(function(e){ return inCurrentPeriod(e.work_date, currentPeriod); });
-    var hours = periodEntries.reduce(function(s,e){ return s + rawHours(e.clock_in, e.clock_out); }, 0);
-    var pay = periodEntries.reduce(function(s,e){ return s + rawPay(e.clock_in, e.clock_out, rate, e.status); }, 0);
-    document.getElementById('dashMyHours').textContent = hours.toFixed(2);
-    document.getElementById('dashMyPay').textContent = '$' + pay.toFixed(2);
-  }
+      var firstOfMonth = new Date(viewYear, viewMonth, 1);
+      var startWeekday = firstOfMonth.getDay(); // 0=Sun
+      var daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
+      var todayStr = dateStr(today.getFullYear(), today.getMonth(), today.getDate());
 
-  function recomputeTeamStats(){
-    var teamHoursEl = document.getElementById('dashTeamHours');
-    var teamPayEl = document.getElementById('dashTeamPay');
-    if (!teamHoursEl || !approvalsRawEntries.length) return;
-    var periodEntries = approvalsRawEntries.filter(function(e){ return inCurrentPeriod(e.work_date, currentPeriod); });
-    var teamHours = periodEntries.reduce(function(s,e){ return s + rawHours(e.clock_in, e.clock_out); }, 0);
-    var teamPay = periodEntries.reduce(function(s,e){
-      var rate = (approvalsEmpMap[e.employee_id] || {}).hourly_rate || 0;
-      return s + rawPay(e.clock_in, e.clock_out, rate, e.status);
-    }, 0);
-    teamHoursEl.textContent = teamHours.toFixed(2);
-    teamPayEl.textContent = '$' + teamPay.toFixed(2);
-  }
-
-  function loadMyEntries(){
-    sb.from('time_entries').select('*').eq('employee_id', currentEmployee.id)
-      .order('work_date', {ascending:false}).limit(120).then(function(res){
-      if (res.error) return;
-      var today = new Date().toISOString().slice(0,10);
-      var todayEntry = res.data.find(function(e){ return e.work_date === today; });
-      refreshTodayUI(todayEntry);
-
-      var rate = currentEmployee.hourly_rate;
-      res.data.forEach(function(e){ e._rate = rate; });
-      myEntriesRaw = res.data;
-      recomputeMyStats();
-
-      var weeks = groupByWeek(res.data);
-      renderWeekGroups(document.getElementById('myWeeksContainer'), weeks, function(e){
-        return '<tr>' +
-          '<td>' + e.work_date + '</td>' +
-          '<td>' + fmtTime(e.clock_in) + '</td>' +
-          '<td>' + fmtTime(e.clock_out) + '</td>' +
-          '<td>' + fmtHours(e.clock_in, e.clock_out) + '</td>' +
-          '<td>' + pillHtml(e) + '</td>' +
-          '<td>' + fmtPay(e.clock_in, e.clock_out, rate, e.status) + '</td>' +
-        '</tr>';
-      });
-    });
-  }
-
-  // ---------------- APPROVALS TAB ----------------
-  var approvalsRawEntries = [], approvalsEmpMap = {};
-
-  function renderApprovalsAll(){
-    var q = (document.getElementById('approveSearch').value || '').toLowerCase().trim();
-    var filtered = approvalsRawEntries.filter(function(e){
-      var emp = approvalsEmpMap[e.employee_id] || {name:''};
-      return !q || emp.name.toLowerCase().indexOf(q) > -1;
-    });
-    filtered.forEach(function(e){ e._rate = (approvalsEmpMap[e.employee_id] || {}).hourly_rate || 0; });
-    var weeks = groupByWeek(filtered);
-    renderWeekGroups(document.getElementById('allWeeksContainer'), weeks, function(e){
-      var emp = approvalsEmpMap[e.employee_id] || {name:'—'};
-      return '<tr>' +
-        '<td>' + esc(emp.name) + '</td>' +
-        '<td>' + e.work_date + '</td>' +
-        '<td>' + fmtHours(e.clock_in, e.clock_out) + '</td>' +
-        '<td>' + pillHtml(e) + '</td>' +
-        '<td>' + fmtPay(e.clock_in, e.clock_out, e._rate, e.status) + '</td>' +
-      '</tr>';
-    });
-  }
-  document.getElementById('approveSearch').addEventListener('input', renderApprovalsAll);
-
-  // ---------------- QR SCANNER ----------------
-  (function(){
-    var scanBtn = document.getElementById('scanQrBtn');
-    var stopBtn = document.getElementById('stopScanBtn');
-    var wrap = document.getElementById('scannerWrap');
-    var video = document.getElementById('scannerVideo');
-    var canvas = document.getElementById('scannerCanvas');
-    var resultBox = document.getElementById('scanResultBox');
-    if (!scanBtn) return;
-
-    var scanning = false;
-    var videoStream = null;
-
-    function stopScanner(){
-      scanning = false;
-      if (videoStream) {
-        videoStream.getTracks().forEach(function(t){ t.stop(); });
-        videoStream = null;
+      var html = '';
+      for (var i = 0; i < startWeekday; i++) {
+        html += '<div class="cal-day pad"></div>';
       }
-      wrap.classList.add('hidden');
-    }
-
-    function tick(){
-      if (!scanning) return;
-      if (video.readyState === video.HAVE_ENOUGH_DATA) {
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        var ctx = canvas.getContext('2d');
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-        var imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
-        var code = jsQR(imageData.data, imageData.width, imageData.height);
-        if (code && code.data) {
-          stopScanner();
-          handleScannedCode(code.data);
-          return;
-        }
+      for (var day = 1; day <= daysInMonth; day++) {
+        var ds = dateStr(viewYear, viewMonth, day);
+        var hasEvent = eventsOnDay(ds).length > 0;
+        var classes = ['cal-day'];
+        if (ds === todayStr) classes.push('today');
+        if (hasEvent) classes.push('has-event');
+        if (ds === selectedDateStr) classes.push('selected');
+        html += '<div class="' + classes.join(' ') + '" data-date="' + ds + '">' + day +
+          (hasEvent ? '<span class="cal-dot"></span>' : '') + '</div>';
       }
-      requestAnimationFrame(tick);
-    }
+      grid.innerHTML = html;
 
-    scanBtn.addEventListener('click', function(){
-      resultBox.innerHTML = '';
-      navigator.mediaDevices.getUserMedia({ video: { facingMode: 'environment' } }).then(function(stream){
-        videoStream = stream;
-        video.srcObject = stream;
-        video.play();
-        wrap.classList.remove('hidden');
-        scanning = true;
-        requestAnimationFrame(tick);
-      }).catch(function(err){
-        resultBox.innerHTML = '<div class="msg error">Could not access camera: ' + esc(err.message) + '</div>';
-      });
-    });
-
-    stopBtn.addEventListener('click', stopScanner);
-
-    function handleScannedCode(scanCode){
-      resultBox.innerHTML = '<p class="hint">Checking...</p>';
-      sb.rpc('lookup_free_roll_by_code', {scan_code: scanCode}).then(function(res){
-        if (res.error || !res.data) {
-          showScanResult(false, "Not a valid member code.");
-          return;
-        }
-        var row = res.data;
-        if (row.free_roll_redeemed) {
-          showScanResult(false, 'Already redeemed on ' + row.redeemed_at.slice(0,10) + '.');
-          return;
-        }
-        showScanResult(true, 'Valid member — free roll available.', row);
-      });
-    }
-
-    function showScanResult(ok, text, row){
-      var cls = ok ? 'go' : 'stop';
-      var icon = ok ? '&#9989;' : '&#10060;';
-      var btnHtml = ok ? '<button class="btn-approve btn-small" id="confirmScanRedeemBtn" style="margin-top:14px;">Mark Redeemed</button>' : '';
-      resultBox.innerHTML = '<div class="scan-result-box ' + cls + '"><div class="big-icon">' + icon + '</div><div class="result-text">' + esc(text) + '</div>' + btnHtml + '</div>';
-      if (ok && row) {
-        document.getElementById('confirmScanRedeemBtn').addEventListener('click', function(){
-          var btn = this; btn.disabled = true;
-          sb.rpc('redeem_free_roll_by_code', {scan_code: row.redeem_code}).then(function(res2){
-            if (res2.error) { alert(res2.error.message); btn.disabled = false; return; }
-            resultBox.innerHTML = '<div class="scan-result-box go"><div class="big-icon">&#9989;</div><div class="result-text">Redeemed! Enjoy.</div></div>';
-          });
+      grid.querySelectorAll('.cal-day.has-event').forEach(function(el){
+        el.addEventListener('click', function(){
+          selectedDateStr = el.getAttribute('data-date');
+          renderGrid();
+          renderDetail(selectedDateStr);
         });
-      }
-    }
-  })();
-
-  // ---------------- PASTE EMAIL -> AUTO-FILL (pattern matching, not AI) ----------------
-  (function(){
-    var monthMap = {
-      jan:1,january:1, feb:2,february:2, mar:3,march:3, apr:4,april:4, may:5,
-      jun:6,june:6, jul:7,july:7, aug:8,august:8, sep:9,sept:9,september:9,
-      oct:10,october:10, nov:11,november:11, dec:12,december:12
-    };
-
-    function extractDates(text){
-      var monthPattern = '(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec)';
-      var rangeRe = new RegExp(monthPattern + '\\.?\\s+(\\d{1,2})(?:st|nd|rd|th)?\\s*(?:-|to|through|\u2013|\u2014)\\s*(?:' + monthPattern + '\\.?\\s+)?(\\d{1,2})(?:st|nd|rd|th)?,?\\s*(\\d{4})?', 'i');
-      var singleRe = new RegExp(monthPattern + '\\.?\\s+(\\d{1,2})(?:st|nd|rd|th)?,?\\s*(\\d{4})?', 'i');
-      var numericRe = /\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\b/;
-
-      var m = text.match(rangeRe);
-      if (m) {
-        var month1 = monthMap[m[1].toLowerCase()];
-        var day1 = parseInt(m[2],10);
-        var month2 = m[3] ? monthMap[m[3].toLowerCase()] : month1;
-        var day2 = parseInt(m[4],10);
-        var year = m[5] ? parseInt(m[5],10) : new Date().getFullYear();
-        return {
-          start: year + '-' + String(month1).padStart(2,'0') + '-' + String(day1).padStart(2,'0'),
-          end: year + '-' + String(month2).padStart(2,'0') + '-' + String(day2).padStart(2,'0')
-        };
-      }
-      m = text.match(singleRe);
-      if (m) {
-        var month = monthMap[m[1].toLowerCase()];
-        var day = parseInt(m[2],10);
-        var yr = m[3] ? parseInt(m[3],10) : new Date().getFullYear();
-        var ds = yr + '-' + String(month).padStart(2,'0') + '-' + String(day).padStart(2,'0');
-        return { start: ds, end: ds };
-      }
-      m = text.match(numericRe);
-      if (m) {
-        var mo = parseInt(m[1],10), da = parseInt(m[2],10);
-        var y = m[3] ? (m[3].length === 2 ? 2000+parseInt(m[3],10) : parseInt(m[3],10)) : new Date().getFullYear();
-        var ds2 = y + '-' + String(mo).padStart(2,'0') + '-' + String(da).padStart(2,'0');
-        return { start: ds2, end: ds2 };
-      }
-      return null;
+      });
     }
 
-    function extractAddress(text){
-      var re = /\b(\d{1,6})\s+([A-Z][a-zA-Z]*\.?\s?){1,4}(St|Ave|Rd|Blvd|Dr|Ln|Way|Pkwy|Ct|Pl|Street|Avenue|Road|Boulevard|Drive|Lane|Parkway|Court|Place)\.?,?\s*([A-Za-z\s]+,)?\s*[A-Z]{2}\s*\d{5}?/;
-      var m = text.match(re);
-      return m ? m[0].trim() : null;
-    }
+    document.getElementById('calPrevBtn').addEventListener('click', function(){
+      viewMonth--;
+      if (viewMonth < 0) { viewMonth = 11; viewYear--; }
+      renderGrid();
+    });
+    document.getElementById('calNextBtn').addEventListener('click', function(){
+      viewMonth++;
+      if (viewMonth > 11) { viewMonth = 0; viewYear++; }
+      renderGrid();
+    });
 
-    function extractTitle(text){
-      var m = text.match(/\b(?:our|the)\s+([A-Z][a-zA-Z]*(?:\s+[A-Z][a-zA-Z]*){0,4})/);
-      return m ? m[1] : '';
-    }
-
-    document.getElementById('parseEmailBtn').addEventListener('click', function(){
-      var text = document.getElementById('emailPasteBox').value.trim();
-      var msgEl = document.getElementById('parseMsg');
-      if (!text) { showMsg('parseMsg', 'Paste some email text first.', 'error'); return; }
-
-      var dates = extractDates(text);
-      var address = extractAddress(text);
-      var title = extractTitle(text);
-      var foundAny = false;
-
-      if (title) { document.getElementById('eventTitle').value = title; foundAny = true; }
-      if (address) {
-        document.getElementById('eventLocation').value = address;
-        document.getElementById('eventMapQuery').value = address;
-        foundAny = true;
-      }
-      if (dates) {
-        document.getElementById('eventStartDate').value = dates.start;
-        document.getElementById('eventEndDate').value = dates.end;
-        foundAny = true;
-      }
-
-      if (foundAny) {
-        showMsg('parseMsg', 'Filled in what it could find below \u2014 please double-check everything before saving.', 'ok');
-        document.getElementById('eventFormTitle').scrollIntoView({behavior:'smooth', block:'start'});
-      } else {
-        showMsg('parseMsg', "Couldn't confidently find a title, date, or address \u2014 fill in the form manually below.", 'error');
+    sb.from('events').select('*').eq('status', 'confirmed').order('start_date').then(function(res){
+      if (res.error) return;
+      allEvents = res.data;
+      renderGrid();
+      var todayStr = dateStr(today.getFullYear(), today.getMonth(), today.getDate());
+      if (eventsOnDay(todayStr).length) {
+        selectedDateStr = todayStr;
+        renderGrid();
+        renderDetail(todayStr);
       }
     });
   })();
 
-  // ---------------- EVENTS CALENDAR MANAGEMENT ----------------
-  var eventsCache = [];
+  // ---- Member login: real email OTP verification ----
+  (function(){
+    var lockedEl = document.getElementById('dealsLocked');
+    var unlockedEl = document.getElementById('dealsUnlocked');
+    if (!lockedEl || !unlockedEl) return;
 
-  function fmtEventDate(d){ return d; }
+    var sb = sbShared;
 
-  function eventRowHtml(ev){
-    var when = ev.start_date === ev.end_date ? ev.start_date : ev.start_date + ' \u2013 ' + ev.end_date;
-    return '<div class="doc-card">' +
-      '<div class="doc-info">' +
-        '<div class="doc-name">' + esc(ev.title) + ' <span class="pill ' + (ev.status === 'confirmed' ? 'approved' : ev.status === 'cancelled' ? 'rejected' : 'pending') + '">' + ev.status + '</span></div>' +
-        '<div class="doc-meta">' + when + ' &middot; ' + esc(ev.location) + '</div>' +
-      '</div>' +
-      '<div class="doc-actions">' +
-        '<button class="btn-ghost btn-small edit-event-btn" data-id="' + ev.id + '">Edit</button>' +
-        '<button class="btn-reject btn-small del-event-btn" data-id="' + ev.id + '">Delete</button>' +
-      '</div>' +
-    '</div>';
-  }
+    var startEl = document.getElementById('authStart');
+    var emailForm = document.getElementById('authEmailForm');
+    var codeForm = document.getElementById('authCodeForm');
+    var profileForm = document.getElementById('profileForm');
+    var msgEl = document.getElementById('dealsMsg');
+    var pendingEmail = '';
 
-  function loadEvents(){
-    sb.from('events').select('*').order('start_date', {ascending:false}).then(function(res){
-      if (res.error) return;
-      eventsCache = res.data;
-      var listEl = document.getElementById('eventsList');
-      listEl.innerHTML = eventsCache.map(eventRowHtml).join('') || '<p class="hint">No events yet.</p>';
+    function showMsg(text, type){
+      msgEl.textContent = text;
+      msgEl.className = 'notify-msg ' + type;
+    }
+    function clearMsg(){ msgEl.textContent = ''; msgEl.className = 'notify-msg'; }
 
-      listEl.querySelectorAll('.edit-event-btn').forEach(function(btn){
-        btn.addEventListener('click', function(){ startEditEvent(btn.dataset.id); });
-      });
-      listEl.querySelectorAll('.del-event-btn').forEach(function(btn){
-        btn.addEventListener('click', function(){ deleteEvent(btn.dataset.id); });
-      });
-    });
-  }
-
-  function clearEventForm(){
-    document.getElementById('eventEditId').value = '';
-    document.getElementById('eventTitle').value = '';
-    document.getElementById('eventLocation').value = '';
-    document.getElementById('eventStartDate').value = '';
-    document.getElementById('eventEndDate').value = '';
-    document.getElementById('eventStartTime').value = '';
-    document.getElementById('eventEndTime').value = '';
-    document.getElementById('eventMapQuery').value = '';
-    document.getElementById('eventDescription').value = '';
-    document.getElementById('eventStatus').value = 'confirmed';
-    document.getElementById('eventFormTitle').textContent = 'Add Event';
-    document.getElementById('cancelEditEventBtn').classList.add('hidden');
-  }
-
-  function startEditEvent(id){
-    var ev = eventsCache.find(function(e){ return e.id === id; });
-    if (!ev) return;
-    document.getElementById('eventEditId').value = ev.id;
-    document.getElementById('eventTitle').value = ev.title;
-    document.getElementById('eventLocation').value = ev.location;
-    document.getElementById('eventStartDate').value = ev.start_date;
-    document.getElementById('eventEndDate').value = ev.end_date;
-    document.getElementById('eventStartTime').value = ev.start_time || '';
-    document.getElementById('eventEndTime').value = ev.end_time || '';
-    document.getElementById('eventMapQuery').value = ev.map_query || '';
-    document.getElementById('eventDescription').value = ev.description || '';
-    document.getElementById('eventStatus').value = ev.status;
-    document.getElementById('eventFormTitle').textContent = 'Edit Event';
-    document.getElementById('cancelEditEventBtn').classList.remove('hidden');
-    window.scrollTo({top:0, behavior:'smooth'});
-  }
-
-  function deleteEvent(id){
-    if (!confirm('Delete this event? This cannot be undone.')) return;
-    sb.rpc('delete_event', {p_event_id:id}).then(function(res){
-      if (res.error) { alert(res.error.message); return; }
-      loadEvents();
-    });
-  }
-
-  document.getElementById('cancelEditEventBtn').addEventListener('click', clearEventForm);
-
-  document.getElementById('saveEventBtn').addEventListener('click', function(){
-    var id = document.getElementById('eventEditId').value;
-    var title = document.getElementById('eventTitle').value.trim();
-    var location = document.getElementById('eventLocation').value.trim();
-    var startDate = document.getElementById('eventStartDate').value;
-    var endDate = document.getElementById('eventEndDate').value || startDate;
-    var startTime = document.getElementById('eventStartTime').value || null;
-    var endTime = document.getElementById('eventEndTime').value || null;
-    var mapQuery = document.getElementById('eventMapQuery').value.trim() || location;
-    var description = document.getElementById('eventDescription').value.trim() || null;
-    var status = document.getElementById('eventStatus').value;
-
-    if (!title || !location || !startDate) {
-      showMsg('eventFormMsg', 'Title, location, and start date are required.', 'error');
-      return;
+    function showStep(step){
+      [startEl, emailForm, codeForm, profileForm].forEach(function(el){ el.classList.add('hidden'); });
+      step.classList.remove('hidden');
     }
 
-    var btn = this; btn.disabled = true;
-    clearMsg('eventFormMsg');
-
-    var call = id
-      ? sb.rpc('update_event', {
-          p_event_id: id, p_title: title, p_location: location, p_start_date: startDate, p_end_date: endDate,
-          p_start_time: startTime, p_end_time: endTime, p_map_query: mapQuery, p_description: description, p_status: status
-        })
-      : sb.rpc('add_event', {
-          p_title: title, p_location: location, p_start_date: startDate, p_end_date: endDate,
-          p_start_time: startTime, p_end_time: endTime, p_map_query: mapQuery, p_description: description, p_status: status
-        });
-
-    call.then(function(res){
-      btn.disabled = false;
-      if (res.error) { showMsg('eventFormMsg', res.error.message, 'error'); return; }
-      showMsg('eventFormMsg', 'Saved.', 'ok');
-      clearEventForm();
-      loadEvents();
+    document.getElementById('startAuthBtn').addEventListener('click', function(){
+      clearMsg();
+      showStep(emailForm);
     });
-  });
 
-  // ---------------- FREE ROLL REDEMPTION ----------------
-  function renderRedeemResult(row){
-    var el = document.getElementById('redeemResult');
-    if (!row) {
-      el.innerHTML = '<p class="hint">No member found with that email.</p>';
-      return;
-    }
-    if (row.free_roll_redeemed) {
-      el.innerHTML = '<div class="msg error">Already redeemed on ' + row.redeemed_at.slice(0,10) + '. Cannot be used again.</div>';
-      return;
-    }
-    el.innerHTML = '<div class="msg ok">Member since ' + row.created_at.slice(0,10) + ' — free roll not yet used.</div>' +
-      '<button class="btn-approve btn-small" id="confirmRedeemBtn">Mark Redeemed</button>';
-    document.getElementById('confirmRedeemBtn').addEventListener('click', function(){
-      var btn = this; btn.disabled = true;
-      sb.rpc('redeem_free_roll', {signup_email: row.email}).then(function(res){
-        if (res.error) { showMsg('redeemMsg', res.error.message, 'error'); btn.disabled = false; return; }
-        showMsg('redeemMsg', 'Redeemed! Free roll marked as used for ' + esc(row.email) + '.', 'ok');
-        document.getElementById('redeemResult').innerHTML = '';
-        document.getElementById('redeemEmail').value = '';
-      });
-    });
-  }
-
-  document.getElementById('redeemLookupBtn').addEventListener('click', function(){
-    var email = document.getElementById('redeemEmail').value.trim();
-    if (!email) return;
-    clearMsg('redeemMsg');
-    document.getElementById('redeemResult').innerHTML = '';
-    var btn = this; btn.disabled = true;
-    sb.rpc('lookup_free_roll', {signup_email: email}).then(function(res){
-      btn.disabled = false;
-      if (res.error) { showMsg('redeemMsg', res.error.message, 'error'); return; }
-      renderRedeemResult(res.data);
-    });
-  });
-
-  // ---------------- MANUAL TIME ENTRY (missed clock-in) ----------------
-  var manualConfirmedOverwrite = false;
-  var manualDupWarnEl = document.getElementById('manualDupWarning');
-  var manualBtn = document.getElementById('manualEntryBtn');
-
-  function resetManualConfirm(){
-    manualConfirmedOverwrite = false;
-    manualDupWarnEl.innerHTML = '';
-    manualBtn.textContent = 'Save Hours';
-  }
-  ['manualEmpSelect','manualDate'].forEach(function(id){
-    document.getElementById(id).addEventListener('change', resetManualConfirm);
-  });
-
-  function doSaveManualEntry(empId, dateStr, inIso, outIso, note){
-    sb.rpc('manual_time_entry', {
-      target_employee_id: empId, entry_date: dateStr, in_time: inIso, out_time: outIso, entry_note: note || null
-    }).then(function(res){
-      manualBtn.disabled = false;
-      if (res.error) { showMsg('manualEntryMsg', res.error.message, 'error'); return; }
-      showMsg('manualEntryMsg', 'Saved — now showing in Pending Approval below.', 'ok');
-      document.getElementById('manualDate').value = '';
-      document.getElementById('manualIn').value = '';
-      document.getElementById('manualOut').value = '';
-      document.getElementById('manualNote').value = '';
-      resetManualConfirm();
-      loadApprovals();
-      loadPayroll();
-    });
-  }
-
-  manualBtn.addEventListener('click', function(){
-    var empId = document.getElementById('manualEmpSelect').value;
-    var dateStr = document.getElementById('manualDate').value;
-    var inTime = document.getElementById('manualIn').value;
-    var outTime = document.getElementById('manualOut').value;
-    var note = document.getElementById('manualNote').value.trim();
-
-    if (!empId || !dateStr || !inTime) {
-      showMsg('manualEntryMsg', 'Employee, date, and clock in time are required.', 'error');
-      return;
-    }
-
-    var inIso = new Date(dateStr + 'T' + inTime + ':00').toISOString();
-    var outIso = outTime ? new Date(dateStr + 'T' + outTime + ':00').toISOString() : null;
-
-    clearMsg('manualEntryMsg');
-
-    // already confirmed overwrite on this exact selection -> save directly
-    if (manualConfirmedOverwrite) {
-      manualBtn.disabled = true;
-      doSaveManualEntry(empId, dateStr, inIso, outIso, note);
-      return;
-    }
-
-    // check for an existing entry first, so we never silently overwrite
-    manualBtn.disabled = true;
-    sb.rpc('check_existing_entry', {target_employee_id: empId, entry_date: dateStr}).then(function(res){
-      manualBtn.disabled = false;
-      if (res.error) { showMsg('manualEntryMsg', res.error.message, 'error'); return; }
-
-      if (res.data) {
-        var existing = res.data;
-        var empName = (approvalsEmpMap[empId] || {}).name || 'This employee';
-        var existingHours = existing.clock_out ? fmtHours(existing.clock_in, existing.clock_out) : '—';
-        manualDupWarnEl.innerHTML = '<div class="warn-box">' +
-          '&#9888; <b>' + esc(empName) + '</b> already has an entry for ' + dateStr +
-          ' (' + existingHours + ' hrs, status: ' + existing.status + '). Saving will overwrite it and reset it to pending.</div>';
-        manualBtn.textContent = 'Confirm Overwrite';
-        manualConfirmedOverwrite = true;
-        return;
-      }
-
-      // no existing entry -> safe to save right away
-      manualBtn.disabled = true;
-      doSaveManualEntry(empId, dateStr, inIso, outIso, note);
-    });
-  });
-
-  function loadApprovals(){
-    sb.from('employees').select('id,name,hourly_rate').then(function(empRes){
-      approvalsEmpMap = {};
-      (empRes.data || []).forEach(function(e){ approvalsEmpMap[e.id] = e; });
-      allEmployeesCache = empRes.data || [];
-
-      var manualSel = document.getElementById('manualEmpSelect');
-      if (manualSel) {
-        manualSel.innerHTML = allEmployeesCache.map(function(e){
-          return '<option value="' + e.id + '">' + esc(e.name) + '</option>';
-        }).join('');
-      }
-
-      sb.from('time_entries').select('*').order('work_date', {ascending:false}).limit(400).then(function(res){
-        if (res.error) return;
-        approvalsRawEntries = res.data;
-
-        var pending = res.data.filter(function(e){ return e.status === 'pending' && e.clock_out; });
-        document.getElementById('dashPendingCount').textContent = pending.length;
-
-        document.getElementById('pendingBody').innerHTML = pending.map(function(e){
-          var emp = approvalsEmpMap[e.employee_id] || {name:'—'};
-          return '<tr>' +
-            '<td>' + esc(emp.name) + '</td>' +
-            '<td>' + e.work_date + '</td>' +
-            '<td>' + fmtTime(e.clock_in) + '</td>' +
-            '<td>' + fmtTime(e.clock_out) + '</td>' +
-            '<td>' + fmtHours(e.clock_in, e.clock_out) + '</td>' +
-            '<td style="white-space:nowrap;">' +
-              '<button class="btn-approve btn-small" data-id="' + e.id + '" data-action="approved">Approve</button> ' +
-              '<button class="btn-reject btn-small" data-id="' + e.id + '" data-action="rejected">Reject</button>' +
-            '</td>' +
-          '</tr>';
-        }).join('') || '<tr class="empty-row"><td colspan="6">Nothing waiting on approval.</td></tr>';
-
-        document.querySelectorAll('#pendingBody button').forEach(function(btn){
-          btn.addEventListener('click', function(){
-            var id = btn.dataset.id, action = btn.dataset.action;
-            btn.disabled = true;
-            sb.rpc('set_entry_status', {entry_id:id, new_status:action}).then(function(){
-              loadApprovals();
-              loadPayroll();
-            });
-          });
-        });
-
-        recomputeTeamStats();
-
-        renderApprovalsAll();
-      });
-    });
-  }
-
-  // ---------------- PAYROLL TAB ----------------
-  function loadPayroll(){
-    sb.from('employees').select('id,name,hourly_rate').then(function(empRes){
-      var empMap = {};
-      (empRes.data || []).forEach(function(e){ empMap[e.id] = e; });
-
-      sb.from('time_entries').select('*').eq('status','approved').order('work_date', {ascending:false}).limit(500).then(function(res){
-        if (res.error) return;
-        var entries = res.data;
-        entries.forEach(function(e){ e._rate = (empMap[e.employee_id]||{}).hourly_rate || 0; });
-        var weeks = groupByWeek(entries);
-
-        renderWeekGroups(document.getElementById('payrollWeeksContainer'), weeks, function(e){
-          var emp = empMap[e.employee_id] || {name:'—'};
-          return '<tr>' +
-            '<td>' + esc(emp.name) + '</td>' +
-            '<td>' + e.work_date + '</td>' +
-            '<td>' + fmtHours(e.clock_in, e.clock_out) + '</td>' +
-            '<td>$' + (e._rate||0).toFixed(2) + '/hr</td>' +
-            '<td>' + fmtPay(e.clock_in, e.clock_out, e._rate, e.status) + '</td>' +
-          '</tr>';
-        }, function(w, totalHours, totalPay){
-          return '<button class="btn-export btn-small" data-week="' + w.weekStart + '">' +
-            '<svg class="icon" style="width:13px;height:13px;"><use href="#ic-download"/></svg>Export CSV</button>';
-        });
-
-        // fix header columns for payroll table (Employee, Date, Hrs, Rate, Pay)
-        document.querySelectorAll('#payrollWeeksContainer .week-body thead tr').forEach(function(tr){
-          tr.innerHTML = '<th>Employee</th><th>Date</th><th>Hrs</th><th>Rate</th><th>Pay</th>';
-        });
-
-        document.querySelectorAll('#payrollWeeksContainer .btn-export').forEach(function(btn){
-          btn.addEventListener('click', function(){
-            var wk = btn.dataset.week;
-            var weekEntries = entries.filter(function(e){ return weekStartOf(e.work_date) === wk; });
-            var rows = [['Employee','Date','Clock In','Clock Out','Hours','Rate','Pay']];
-            weekEntries.forEach(function(e){
-              var emp = empMap[e.employee_id] || {name:'—'};
-              rows.push([
-                emp.name, e.work_date, fmtTime(e.clock_in), fmtTime(e.clock_out),
-                rawHours(e.clock_in, e.clock_out).toFixed(2), (e._rate||0).toFixed(2),
-                rawPay(e.clock_in, e.clock_out, e._rate, e.status).toFixed(2)
-              ]);
-            });
-            downloadCSV('payroll_week_' + wk + '.csv', rows);
-          });
-        });
-      });
-    });
-  }
-
-  // ---------------- ADMIN TAB ----------------
-  function renderAdminList(){
-    var q = (document.getElementById('adminSearch').value || '').toLowerCase().trim();
-    var filtered = allEmployeesCache.filter(function(e){ return !q || e.name.toLowerCase().indexOf(q) > -1; });
-    document.getElementById('employeeList').innerHTML = filtered.map(function(e){
-      return '<div class="emp-edit-row" data-id="' + e.id + '">' +
-        '<span class="name">' + esc(e.name) + '</span>' +
-        '<input type="number" step="0.01" min="0" class="rate-input" value="' + e.hourly_rate + '">' +
-        '<select class="role-select">' +
-          ['employee','manager','admin'].map(function(r){
-            return '<option value="' + r + '"' + (r===e.role?' selected':'') + '>' + r + '</option>';
-          }).join('') +
-        '</select>' +
-        '<button class="btn-primary btn-small save-emp-btn">Save</button>' +
-      '</div>';
-    }).join('') || '<p class="hint">No staff found.</p>';
-
-    document.querySelectorAll('.save-emp-btn').forEach(function(btn){
-      btn.addEventListener('click', function(){
-        var row = btn.closest('.emp-edit-row');
-        var id = row.dataset.id;
-        var rate = parseFloat(row.querySelector('.rate-input').value);
-        var role = row.querySelector('.role-select').value;
-        btn.disabled = true; btn.textContent = 'Saving...';
-        sb.rpc('admin_update_employee', {emp_id:id, new_rate:rate, new_role:role}).then(function(res){
-          btn.disabled = false; btn.textContent = 'Save';
-          if (!res.error) { btn.textContent = 'Saved'; setTimeout(function(){ btn.textContent='Save'; }, 1500); loadAdmin(); }
-        });
-      });
-    });
-  }
-  document.getElementById('adminSearch').addEventListener('input', renderAdminList);
-
-  function loadAdmin(){
-    sb.from('employees').select('*').order('name').then(function(res){
-      if (res.error) return;
-      allEmployeesCache = res.data;
-      renderAdminList();
-      populateUploadOwnerSelect();
-    });
-    loadSignups();
-  }
-
-  var signupsCache = [];
-  function loadSignups(){
-    sb.from('email_signups').select('*').order('created_at', {ascending:false}).then(function(res){
-      if (res.error) return;
-      signupsCache = res.data;
-      document.getElementById('signupCount').textContent = signupsCache.length + ' signed up';
-      document.getElementById('signupsBody').innerHTML = signupsCache.map(function(s){
-        return '<tr><td>' + esc(s.email) + '</td><td>' + s.created_at.slice(0,10) + '</td></tr>';
-      }).join('') || '<tr class="empty-row"><td colspan="2">No signups yet.</td></tr>';
-    });
-  }
-  document.getElementById('exportSignupsBtn').addEventListener('click', function(){
-    var rows = [['Email','Signed Up']];
-    signupsCache.forEach(function(s){ rows.push([s.email, s.created_at.slice(0,10)]); });
-    downloadCSV('email_signups.csv', rows);
-  });
-
-  document.getElementById('addEmpBtn').addEventListener('click', function(){
-    var name = document.getElementById('newEmpName').value.trim();
-    var email = document.getElementById('newEmpEmail').value.trim();
-    var rate = parseFloat(document.getElementById('newEmpRate').value) || 0;
-    var role = document.getElementById('newEmpRole').value;
-    if (!name || !email) { showMsg('addEmpMsg', 'Name and email are required.', 'error'); return; }
-    var btn = this; btn.disabled = true;
-    sb.rpc('admin_add_employee', {emp_name:name, emp_email:email, emp_rate:rate, emp_role:role}).then(function(res){
-      btn.disabled = false;
-      if (res.error) { showMsg('addEmpMsg', res.error.message, 'error'); return; }
-      showMsg('addEmpMsg', name + ' added. They can sign in with ' + esc(email) + '.', 'ok');
-      document.getElementById('newEmpName').value = '';
-      document.getElementById('newEmpEmail').value = '';
-      document.getElementById('newEmpRate').value = '';
-      loadAdmin();
-    });
-  });
-
-  // ---------------- DOCUMENTS ----------------
-  var docTypeLabels = {
-    food_handler_cert: 'Food Handler Certification',
-    id_copy: 'ID Copy', i9: 'I-9', w4: 'W-4',
-    offer_letter: 'Offer Letter', other: 'Other'
-  };
-
-  function expiryBadge(expiresAt){
-    if (!expiresAt) return '';
-    var today = new Date().toISOString().slice(0,10);
-    var soonCutoff = new Date(); soonCutoff.setDate(soonCutoff.getDate() + 30);
-    var soonStr = soonCutoff.toISOString().slice(0,10);
-    if (expiresAt < today) return '<span class="exp-badge expired"><svg class="icon" style="width:10px;height:10px;"><use href="#ic-alert"/></svg>Expired ' + expiresAt + '</span>';
-    if (expiresAt <= soonStr) return '<span class="exp-badge soon">Expires ' + expiresAt + '</span>';
-    return '<span class="exp-badge ok">Valid until ' + expiresAt + '</span>';
-  }
-
-  function populateUploadOwnerSelect(){
-    var sel = document.getElementById('uploadOwner');
-    if (!sel) return;
-    sel.innerHTML = allEmployeesCache.map(function(e){
-      return '<option value="' + e.id + '"' + (e.id === currentEmployee.id ? ' selected' : '') + '>' + esc(e.name) + '</option>';
-    }).join('');
-  }
-
-  document.getElementById('uploadBtn').addEventListener('click', function(){
-    var fileInput = document.getElementById('uploadFile');
-    var file = fileInput.files[0];
-    var docType = document.getElementById('uploadDocType').value;
-    var expiry = document.getElementById('uploadExpiry').value.trim();
-    var ownerSel = document.getElementById('uploadOwner');
-    var ownerId = (ownerSel && !ownerSel.closest('.hidden')) ? ownerSel.value : currentEmployee.id;
-
-    if (!file) { showMsg('uploadMsg', 'Choose a file first.', 'error'); return; }
-    if (expiry && !/^\d{4}-\d{2}-\d{2}$/.test(expiry)) { showMsg('uploadMsg', 'Expiration date must be YYYY-MM-DD.', 'error'); return; }
-
-    var btn = this; btn.disabled = true; btn.innerHTML = '<span class="spinner"></span> Uploading...';
-    var path = ownerId + '/' + Date.now() + '_' + file.name.replace(/[^a-zA-Z0-9._-]/g, '_');
-
-    sb.storage.from('employee-docs').upload(path, file).then(function(uploadRes){
-      if (uploadRes.error) {
-        btn.disabled = false; btn.innerHTML = '<svg class="icon"><use href="#ic-download"/></svg>Upload';
-        showMsg('uploadMsg', uploadRes.error.message, 'error');
-        return;
-      }
-      sb.rpc('add_employee_document', {
-        target_employee_id: ownerId, doc_type: docType, file_path: path,
-        file_name: file.name, expires_at: expiry || null, notes: null
+    emailForm.addEventListener('submit', function(e){
+      e.preventDefault();
+      var email = document.getElementById('authEmail').value.trim();
+      if (!email) return;
+      var btn = document.getElementById('sendCodeBtn');
+      btn.disabled = true;
+      clearMsg();
+      sb.auth.signInWithOtp({
+        email: email,
+        options: { emailRedirectTo: window.location.origin + window.location.pathname }
       }).then(function(res){
-        btn.disabled = false; btn.innerHTML = '<svg class="icon"><use href="#ic-download"/></svg>Upload';
-        if (res.error) { showMsg('uploadMsg', res.error.message, 'error'); return; }
-        showMsg('uploadMsg', 'Uploaded successfully.', 'ok');
-        fileInput.value = ''; document.getElementById('uploadExpiry').value = '';
-        loadMyDocuments();
-        if (currentEmployee.role === 'manager' || currentEmployee.role === 'admin') loadAllDocuments();
+        btn.disabled = false;
+        if (res.error) { showMsg(res.error.message, 'error'); return; }
+        pendingEmail = email;
+        document.getElementById('codeSentHint').textContent = 'Code sent to ' + email + '. Check your inbox.';
+        showStep(codeForm);
       });
     });
-  });
 
-  function viewDocument(path){
-    sb.storage.from('employee-docs').createSignedUrl(path, 120).then(function(res){
-      if (res.error || !res.data) { alert('Could not open this file.'); return; }
-      window.open(res.data.signedUrl, '_blank');
+    document.getElementById('useDifferentEmailBtn').addEventListener('click', function(){
+      clearMsg();
+      showStep(emailForm);
     });
-  }
 
-  function deleteDocument(id, path){
-    if (!confirm('Delete this document? This cannot be undone.')) return;
-    sb.rpc('delete_employee_document', {doc_id:id}).then(function(res){
-      if (res.error) { alert(res.error.message); return; }
-      sb.storage.from('employee-docs').remove([path]);
-      loadMyDocuments();
-      loadAllDocuments();
+    codeForm.addEventListener('submit', function(e){
+      e.preventDefault();
+      var code = document.getElementById('authCode').value.trim();
+      if (!code) return;
+      var btn = document.getElementById('verifyCodeBtn');
+      btn.disabled = true;
+      clearMsg();
+      sb.auth.verifyOtp({ email: pendingEmail, token: code, type: 'email' }).then(function(res){
+        btn.disabled = false;
+        if (res.error) { showMsg(res.error.message, 'error'); return; }
+        handleAuthenticated();
+      });
     });
-  }
 
-  function docRowHtml(d, showOwner, ownerName){
-    return '<div class="doc-card">' +
-      '<div class="doc-icon"><svg class="icon"><use href="#ic-file"/></svg></div>' +
-      '<div class="doc-info">' +
-        '<div class="doc-name">' + esc(docTypeLabels[d.doc_type] || d.doc_type) + '</div>' +
-        '<div class="doc-meta">' + esc(d.file_name) + ' &middot; uploaded ' + d.uploaded_at.slice(0,10) + '</div>' +
-      '</div>' +
-      (showOwner ? '<div class="doc-owner">' + esc(ownerName || '—') + '</div>' : '') +
-      expiryBadge(d.expires_at) +
-      '<div class="doc-actions">' +
-        '<button class="btn-ghost btn-small view-doc-btn" data-path="' + esc(d.file_path) + '">View</button>' +
-        (currentEmployee.role === 'admin' ? '<button class="btn-reject btn-small del-doc-btn" data-id="' + d.id + '" data-path="' + esc(d.file_path) + '">Delete</button>' : '') +
-      '</div>' +
-    '</div>';
-  }
-
-  function wireDocButtons(container){
-    container.querySelectorAll('.view-doc-btn').forEach(function(b){
-      b.addEventListener('click', function(){ viewDocument(b.dataset.path); });
+    profileForm.addEventListener('submit', function(e){
+      e.preventDefault();
+      var firstName = document.getElementById('profileFirstName').value.trim();
+      var lastName = document.getElementById('profileLastName').value.trim();
+      var birthMonth = document.getElementById('profileBirthMonth').value;
+      var birthDay = document.getElementById('profileBirthDay').value;
+      if (!firstName || !lastName || !birthMonth || !birthDay) {
+        showMsg('Please fill in all fields.', 'error');
+        return;
+      }
+      var btn = document.getElementById('completeProfileBtn');
+      btn.disabled = true;
+      clearMsg();
+      sb.rpc('create_member_profile', {
+        p_first_name: firstName, p_last_name: lastName,
+        p_birth_month: parseInt(birthMonth, 10), p_birth_day: parseInt(birthDay, 10)
+      }).then(function(res){
+        btn.disabled = false;
+        if (res.error) { showMsg(res.error.message, 'error'); return; }
+        finishLogin(res.data);
+      });
     });
-    container.querySelectorAll('.del-doc-btn').forEach(function(b){
-      b.addEventListener('click', function(){ deleteDocument(b.dataset.id, b.dataset.path); });
-    });
-  }
 
-  function loadMyDocuments(){
-    sb.from('employee_documents').select('*').eq('employee_id', currentEmployee.id)
-      .order('uploaded_at', {ascending:false}).then(function(res){
-      if (res.error) return;
-      var listEl = document.getElementById('myDocsList');
-      listEl.innerHTML = res.data.map(function(d){ return docRowHtml(d, false); }).join('') ||
-        '<p class="hint">You haven\'t uploaded any documents yet.</p>';
-      wireDocButtons(listEl);
+    // populate day dropdown (1-31)
+    var daySel = document.getElementById('profileBirthDay');
+    for (var d = 1; d <= 31; d++) {
+      var opt = document.createElement('option');
+      opt.value = d;
+      opt.textContent = d;
+      daySel.appendChild(opt);
+    }
 
-      var cert = res.data.filter(function(d){ return d.doc_type === 'food_handler_cert' && d.expires_at; })
-        .sort(function(a,b){ return b.expires_at.localeCompare(a.expires_at); })[0];
-      var alertCard = document.getElementById('certAlertCard');
-      if (cert) {
-        var today = new Date().toISOString().slice(0,10);
-        var soon = new Date(); soon.setDate(soon.getDate()+30);
-        var soonStr = soon.toISOString().slice(0,10);
-        var msg, type;
-        if (cert.expires_at < today) { msg = 'Your food handler certification expired on ' + cert.expires_at + '. Please renew it.'; type = 'error'; }
-        else if (cert.expires_at <= soonStr) { msg = 'Your food handler certification expires on ' + cert.expires_at + ' — renew it soon.'; type = 'ok'; }
-        else { msg = 'Your food handler certification is valid until ' + cert.expires_at + '.'; type = 'ok'; }
-        alertCard.classList.remove('hidden');
-        document.getElementById('certAlertBody').innerHTML = '<div class="msg ' + type + '">' + msg + '</div>';
+    function renderQr(code){
+      var qr = qrcode(0, 'M');
+      qr.addData(code);
+      qr.make();
+      document.getElementById('memberQrCanvas').innerHTML = qr.createSvgTag({ scalable: true });
+      document.getElementById('memberQrCode').textContent = code;
+    }
+
+    var funnyQuotes = [
+      "Life is short. Get extra sauce.",
+      "A wrap a day keeps the hangry away.",
+      "Warning: extreme deliciousness ahead.",
+      "You're basically royalty now. The line still applies, though.",
+      "Friends don't let friends skip the free roll.",
+      "We put the \u2018roll\u2019 in Roll-In. You bring the appetite.",
+      "Legend says the free roll cures Mondays.",
+      "Shawarma good things come to those who scan.",
+      "Rolled fresh, eaten faster.",
+      "Studies show 100% of good decisions involve a wrap."
+    ];
+
+    function renderGreeting(firstName){
+      var now = new Date();
+      var hour = now.getHours();
+      var day = now.getDay();
+      var name = firstName ? (', ' + firstName) : '';
+
+      var timeGreeting;
+      if (hour < 5) timeGreeting = 'Still up' + name + '?';
+      else if (hour < 12) timeGreeting = 'Good morning' + name + '!';
+      else if (hour < 17) timeGreeting = 'Good afternoon' + name + '!';
+      else if (hour < 21) timeGreeting = 'Good evening' + name + '!';
+      else timeGreeting = 'Good night' + name + '!';
+
+      var nudge;
+      if (day === 2 || day === 4) {
+        nudge = '\uD83C\uDF2E Today\u2019s the day \u2014 any taco is just $6.99.';
+      } else if (hour >= 11 && hour < 15) {
+        nudge = '\uD83C\uDF7D\uFE0F Perfect timing for our Lunch Combo \u2014 $9.99 + tax, weekdays only.';
+      } else if (hour >= 17 && hour < 21) {
+        nudge = '\uD83D\uDC6A Dinner plans? The Family Dinner Basket feeds two for $29.99 + tax.';
       } else {
-        alertCard.classList.add('hidden');
+        nudge = '\u2728 Take a look at today\u2019s member deals below.';
       }
 
-      if (allEmployeesCache.length) populateUploadOwnerSelect();
-    });
-  }
+      var quote = funnyQuotes[Math.floor(Math.random() * funnyQuotes.length)];
 
-  var allDocsRaw = [], allDocsEmpMap = {};
-  function renderAllDocs(){
-    var q = (document.getElementById('docsSearch').value || '').toLowerCase().trim();
-    var filtered = allDocsRaw.filter(function(d){
-      var emp = allDocsEmpMap[d.employee_id] || {name:''};
-      return !q || emp.name.toLowerCase().indexOf(q) > -1;
-    });
-    var listEl = document.getElementById('allDocsList');
-    listEl.innerHTML = filtered.map(function(d){
-      var emp = allDocsEmpMap[d.employee_id] || {};
-      return docRowHtml(d, true, emp.name);
-    }).join('') || '<p class="hint">No documents found.</p>';
-    wireDocButtons(listEl);
-  }
-  var docsSearchEl = document.getElementById('docsSearch');
-  if (docsSearchEl) docsSearchEl.addEventListener('input', renderAllDocs);
-
-  function loadAllDocuments(){
-    sb.from('employees').select('id,name').then(function(empRes){
-      allDocsEmpMap = {};
-      (empRes.data || []).forEach(function(e){ allDocsEmpMap[e.id] = e; });
-
-      sb.from('employee_documents').select('*').order('uploaded_at', {ascending:false}).then(function(res){
-        if (res.error) return;
-        allDocsRaw = res.data;
-        renderAllDocs();
-
-        var today = new Date().toISOString().slice(0,10);
-        var soon = new Date(); soon.setDate(soon.getDate()+30);
-        var soonStr = soon.toISOString().slice(0,10);
-        var needsAttention = res.data.filter(function(d){
-          return d.doc_type === 'food_handler_cert' && d.expires_at && d.expires_at <= soonStr;
-        }).length;
-        var el = document.getElementById('dashCertsAttention');
-        if (el) el.textContent = needsAttention;
-      });
-    });
-  }
-
-  // ---------------- ON LOAD ----------------
-  var loginHandled = false;
-  function handleLoginOnce(){
-    if (loginHandled) return;
-    loginHandled = true;
-    afterLogin();
-  }
-  sb.auth.getSession().then(function(res){
-    if (res.data && res.data.session) { handleLoginOnce(); }
-  });
-  sb.auth.onAuthStateChange(function(event, session){
-    if (session && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
-      handleLoginOnce();
+      document.getElementById('memberGreetingTitle').textContent = timeGreeting;
+      document.getElementById('memberQuote').textContent = quote;
+      document.getElementById('memberGreetingSub').innerHTML = '&#10003; You\u2019re a member. Show this QR code at the window to redeem.';
+      document.getElementById('memberNudge').textContent = nudge;
     }
-  });
+
+    function finishLogin(profile){
+      lockedEl.classList.add('hidden');
+      unlockedEl.classList.remove('hidden');
+      document.body.classList.add('member-mode');
+      renderGreeting(profile.first_name);
+      renderQr(profile.redeem_code);
+      try {
+        localStorage.setItem('rollinMemberCode', profile.redeem_code);
+        localStorage.setItem('rollinMemberFirstName', profile.first_name || '');
+      } catch(e){}
+
+      // move the greeting/deals section above the menu, so logged-in members
+      // see: greeting -> QR -> menu, instead of menu -> greeting
+      var dealsSection = document.getElementById('deals');
+      var menuSection = document.getElementById('menu');
+      if (dealsSection && menuSection && menuSection.parentNode) {
+        menuSection.parentNode.insertBefore(dealsSection, menuSection);
+      }
+
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+
+      if (typeof window.refreshNavAuthStatus === 'function') {
+        window.refreshNavAuthStatus();
+      }
+    }
+
+    function handleAuthenticated(){
+      clearMsg();
+      sb.rpc('get_my_member_profile').then(function(res){
+        if (res.error) { showMsg(res.error.message, 'error'); return; }
+        if (res.data && res.data.first_name) {
+          finishLogin(res.data);
+        } else {
+          showStep(profileForm);
+        }
+      });
+    }
+
+    // ---- resume session on load / catch magic-link sign-in ----
+    var loginHandled = false;
+    function handleLoginOnce(){
+      if (loginHandled) return;
+      loginHandled = true;
+      handleAuthenticated();
+    }
+    sb.auth.getSession().then(function(res){
+      if (res.data && res.data.session) { handleLoginOnce(); }
+    });
+    sb.auth.onAuthStateChange(function(event, session){
+      if (session && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION')) {
+        handleLoginOnce();
+      }
+    });
+  })();
+
 </script>
+
+<div id="floatOrderGroup">
+  <a id="floatPickup" class="float-btn" href="https://roll-in-shawarma.square.site/" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+    Pickup
+  </a>
+  <a id="floatDelivery" class="float-btn" href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener">
+    <svg viewBox="0 0 24 24" fill="currentColor"><path d="M2 8a1 1 0 0 1 1-1h10.5a5.5 5.5 0 0 1 0 11H7v3l-5-4.2L7 12.6v3h6.5a2.5 2.5 0 0 0 0-5H3a1 1 0 0 1-1-1V8z"/></svg>
+    Delivery
+  </a>
+</div>
 
 </body>
 </html>
