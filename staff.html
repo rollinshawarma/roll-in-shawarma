@@ -1164,26 +1164,104 @@
       return m ? m[1] : '';
     }
 
+    // ---- Structured form-submission parser (e.g. FormSubmit catering emails) ----
+    function tryParseStructured(text){
+      var labels = ['Name','Phone','Email','Event_Date','Event Date','Headcount','Location','Details',
+                    'Company','Contact Name','Work Email','Team Size','Frequency'];
+      var lines = text.split('\n').map(function(l){ return l.trim(); }).filter(Boolean);
+      var fields = {};
+
+      for (var i = 0; i < lines.length; i++) {
+        var line = lines[i];
+        var inlineMatch = null;
+        for (var li = 0; li < labels.length; li++) {
+          var lbl = labels[li];
+          var re = new RegExp('^' + lbl.replace(/[_\s]/g,'[_\\s]?') + '\\s*:\\s*(.+)$', 'i');
+          var m = line.match(re);
+          if (m) { fields[lbl] = m[1].trim(); inlineMatch = lbl; break; }
+        }
+        if (inlineMatch) continue;
+
+        for (var lj = 0; lj < labels.length; lj++) {
+          var lbl2 = labels[lj];
+          var reExact = new RegExp('^' + lbl2.replace(/[_\s]/g,'[_\\s]?') + '$', 'i');
+          if (reExact.test(line) && lines[i+1]) {
+            fields[lbl2] = lines[i+1].trim();
+            i++;
+            break;
+          }
+        }
+      }
+
+      return Object.keys(fields).length >= 3 ? fields : null;
+    }
+
+    function extractStreetAddress(text){
+      // relaxed version: doesn't require a trailing city/state/zip, since a
+      // form's "Details" field often has just the street with city separate
+      var re = /\b(\d{1,6})\s+([A-Z][a-zA-Z]*\.?\s?){1,4}(St|Ave|Rd|Blvd|Dr|Ln|Way|Pkwy|Ct|Pl|Street|Avenue|Road|Boulevard|Drive|Lane|Parkway|Court|Place)\.?/;
+      var m = text.match(re);
+      return m ? m[0].trim() : null;
+    }
+
+    function mapStructuredToEvent(fields){
+      var who = fields['Company'] || fields['Name'] || 'Request';
+      var title = 'Catering \u2014 ' + who;
+      if (fields['Headcount']) title += ' (~' + fields['Headcount'] + ' people)';
+
+      var street = fields['Details'] ? extractStreetAddress(fields['Details']) : null;
+      var location = street
+        ? (street + (fields['Location'] ? ', ' + fields['Location'] : ''))
+        : (fields['Location'] || '');
+
+      var startDate = fields['Event_Date'] || fields['Event Date'] || '';
+
+      return {
+        title: title,
+        location: location,
+        start_date: startDate,
+        end_date: startDate,
+        description: fields['Details'] || ''
+      };
+    }
+
     document.getElementById('parseEmailBtn').addEventListener('click', function(){
       var text = document.getElementById('emailPasteBox').value.trim();
-      var msgEl = document.getElementById('parseMsg');
       if (!text) { showMsg('parseMsg', 'Paste some email text first.', 'error'); return; }
 
-      var dates = extractDates(text);
-      var address = extractAddress(text);
-      var title = extractTitle(text);
+      var structured = tryParseStructured(text);
       var foundAny = false;
 
-      if (title) { document.getElementById('eventTitle').value = title; foundAny = true; }
-      if (address) {
-        document.getElementById('eventLocation').value = address;
-        document.getElementById('eventMapQuery').value = address;
-        foundAny = true;
-      }
-      if (dates) {
-        document.getElementById('eventStartDate').value = dates.start;
-        document.getElementById('eventEndDate').value = dates.end;
-        foundAny = true;
+      if (structured) {
+        var mapped = mapStructuredToEvent(structured);
+        if (mapped.title) { document.getElementById('eventTitle').value = mapped.title; foundAny = true; }
+        if (mapped.location) {
+          document.getElementById('eventLocation').value = mapped.location;
+          document.getElementById('eventMapQuery').value = mapped.location;
+          foundAny = true;
+        }
+        if (mapped.start_date) {
+          document.getElementById('eventStartDate').value = mapped.start_date;
+          document.getElementById('eventEndDate').value = mapped.end_date;
+          foundAny = true;
+        }
+        if (mapped.description) { document.getElementById('eventDescription').value = mapped.description; }
+      } else {
+        var dates = extractDates(text);
+        var address = extractAddress(text);
+        var title = extractTitle(text);
+
+        if (title) { document.getElementById('eventTitle').value = title; foundAny = true; }
+        if (address) {
+          document.getElementById('eventLocation').value = address;
+          document.getElementById('eventMapQuery').value = address;
+          foundAny = true;
+        }
+        if (dates) {
+          document.getElementById('eventStartDate').value = dates.start;
+          document.getElementById('eventEndDate').value = dates.end;
+          foundAny = true;
+        }
       }
 
       if (foundAny) {
