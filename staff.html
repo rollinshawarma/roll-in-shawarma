@@ -300,6 +300,7 @@
       <button class="nav-link" data-tab="clock"><svg class="icon"><use href="#ic-clock"/></svg>Clock History</button>
       <button class="nav-link" data-tab="documents"><svg class="icon"><use href="#ic-file"/></svg>Documents</button>
       <button class="nav-link hidden" data-tab="approve" id="tabApproveBtn"><svg class="icon"><use href="#ic-check"/></svg>Approvals</button>
+      <button class="nav-link hidden" data-tab="events" id="tabEventsBtn"><svg class="icon"><use href="#ic-clock"/></svg>Events</button>
       <button class="nav-link hidden" data-tab="payroll" id="tabPayrollBtn"><svg class="icon"><use href="#ic-download"/></svg>Payroll</button>
       <button class="nav-link hidden" data-tab="admin" id="tabAdminBtn"><svg class="icon"><use href="#ic-users"/></svg>Manage Staff</button>
     </div>
@@ -497,6 +498,67 @@
       <input type="search" id="approveSearch" placeholder="Search by employee name...">
     </div>
     <div id="allWeeksContainer"></div>
+  </div>
+
+  <!-- EVENTS TAB -->
+  <div class="tab-panel hidden" id="panelEvents">
+    <div class="card">
+      <h2>Paste Email &rarr; Auto-Fill</h2>
+      <p class="hint">Paste the organizer's email below. This picks out a likely title, date(s), and address and fills the form &mdash; always double-check before saving, it's a best guess, not magic.</p>
+      <textarea id="emailPasteBox" rows="5" placeholder="Paste the email text here..."></textarea>
+      <button class="btn-primary" id="parseEmailBtn">Extract Details</button>
+      <div id="parseMsg"></div>
+    </div>
+
+    <div class="card">
+      <h2 id="eventFormTitle">Add Event</h2>
+      <div id="eventFormMsg"></div>
+      <input type="hidden" id="eventEditId" value="">
+      <label>Title</label>
+      <input type="text" id="eventTitle" placeholder="e.g. Uniontown Lions Festival">
+      <label>Location</label>
+      <input type="text" id="eventLocation" placeholder="e.g. 1289 Edison St NW, Hartville, OH 44632">
+      <div class="row2">
+        <div>
+          <label>Start Date</label>
+          <input type="date" id="eventStartDate">
+        </div>
+        <div>
+          <label>End Date</label>
+          <input type="date" id="eventEndDate">
+        </div>
+      </div>
+      <div class="row2">
+        <div>
+          <label>Start Time (optional)</label>
+          <input type="time" id="eventStartTime">
+        </div>
+        <div>
+          <label>End Time (optional)</label>
+          <input type="time" id="eventEndTime">
+        </div>
+      </div>
+      <label>Map Address (optional, for directions link)</label>
+      <input type="text" id="eventMapQuery" placeholder="Same as location, or a cleaner version">
+      <label>Description (optional)</label>
+      <textarea id="eventDescription" rows="2" placeholder="e.g. Free admission & parking"></textarea>
+      <label>Status</label>
+      <select id="eventStatus">
+        <option value="confirmed">Confirmed (shows on public site)</option>
+        <option value="tentative">Tentative (staff only)</option>
+        <option value="cancelled">Cancelled (staff only)</option>
+      </select>
+      <div style="display:flex; gap:10px; margin-top:6px;">
+        <button class="btn-primary" id="saveEventBtn">Save Event</button>
+        <button class="btn-ghost btn-small hidden" id="cancelEditEventBtn">Cancel Edit</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>All Events</h2>
+      <p class="hint">Only "Confirmed" events show on the public calendar.</p>
+      <div id="eventsList"></div>
+    </div>
   </div>
 
   <!-- PAYROLL TAB -->
@@ -768,11 +830,13 @@
 
       if (isManager) {
         document.getElementById('tabApproveBtn').classList.remove('hidden');
+        document.getElementById('tabEventsBtn').classList.remove('hidden');
         document.getElementById('tabPayrollBtn').classList.remove('hidden');
         document.getElementById('dashTeamSection').classList.remove('hidden');
         document.getElementById('allDocsSection').classList.remove('hidden');
         loadApprovals();
         loadPayroll();
+        loadEvents();
       }
       if (isAdmin) {
         document.getElementById('tabAdminBtn').classList.remove('hidden');
@@ -1044,6 +1108,209 @@
       }
     }
   })();
+
+  // ---------------- PASTE EMAIL -> AUTO-FILL (pattern matching, not AI) ----------------
+  (function(){
+    var monthMap = {
+      jan:1,january:1, feb:2,february:2, mar:3,march:3, apr:4,april:4, may:5,
+      jun:6,june:6, jul:7,july:7, aug:8,august:8, sep:9,sept:9,september:9,
+      oct:10,october:10, nov:11,november:11, dec:12,december:12
+    };
+
+    function extractDates(text){
+      var monthPattern = '(january|february|march|april|may|june|july|august|september|october|november|december|jan|feb|mar|apr|jun|jul|aug|sep|sept|oct|nov|dec)';
+      var rangeRe = new RegExp(monthPattern + '\\.?\\s+(\\d{1,2})(?:st|nd|rd|th)?\\s*(?:-|to|through|\u2013|\u2014)\\s*(?:' + monthPattern + '\\.?\\s+)?(\\d{1,2})(?:st|nd|rd|th)?,?\\s*(\\d{4})?', 'i');
+      var singleRe = new RegExp(monthPattern + '\\.?\\s+(\\d{1,2})(?:st|nd|rd|th)?,?\\s*(\\d{4})?', 'i');
+      var numericRe = /\b(\d{1,2})\/(\d{1,2})(?:\/(\d{2,4}))?\b/;
+
+      var m = text.match(rangeRe);
+      if (m) {
+        var month1 = monthMap[m[1].toLowerCase()];
+        var day1 = parseInt(m[2],10);
+        var month2 = m[3] ? monthMap[m[3].toLowerCase()] : month1;
+        var day2 = parseInt(m[4],10);
+        var year = m[5] ? parseInt(m[5],10) : new Date().getFullYear();
+        return {
+          start: year + '-' + String(month1).padStart(2,'0') + '-' + String(day1).padStart(2,'0'),
+          end: year + '-' + String(month2).padStart(2,'0') + '-' + String(day2).padStart(2,'0')
+        };
+      }
+      m = text.match(singleRe);
+      if (m) {
+        var month = monthMap[m[1].toLowerCase()];
+        var day = parseInt(m[2],10);
+        var yr = m[3] ? parseInt(m[3],10) : new Date().getFullYear();
+        var ds = yr + '-' + String(month).padStart(2,'0') + '-' + String(day).padStart(2,'0');
+        return { start: ds, end: ds };
+      }
+      m = text.match(numericRe);
+      if (m) {
+        var mo = parseInt(m[1],10), da = parseInt(m[2],10);
+        var y = m[3] ? (m[3].length === 2 ? 2000+parseInt(m[3],10) : parseInt(m[3],10)) : new Date().getFullYear();
+        var ds2 = y + '-' + String(mo).padStart(2,'0') + '-' + String(da).padStart(2,'0');
+        return { start: ds2, end: ds2 };
+      }
+      return null;
+    }
+
+    function extractAddress(text){
+      var re = /\b(\d{1,6})\s+([A-Z][a-zA-Z]*\.?\s?){1,4}(St|Ave|Rd|Blvd|Dr|Ln|Way|Pkwy|Ct|Pl|Street|Avenue|Road|Boulevard|Drive|Lane|Parkway|Court|Place)\.?,?\s*([A-Za-z\s]+,)?\s*[A-Z]{2}\s*\d{5}?/;
+      var m = text.match(re);
+      return m ? m[0].trim() : null;
+    }
+
+    function extractTitle(text){
+      var m = text.match(/\b(?:our|the)\s+([A-Z][a-zA-Z]*(?:\s+[A-Z][a-zA-Z]*){0,4})/);
+      return m ? m[1] : '';
+    }
+
+    document.getElementById('parseEmailBtn').addEventListener('click', function(){
+      var text = document.getElementById('emailPasteBox').value.trim();
+      var msgEl = document.getElementById('parseMsg');
+      if (!text) { showMsg('parseMsg', 'Paste some email text first.', 'error'); return; }
+
+      var dates = extractDates(text);
+      var address = extractAddress(text);
+      var title = extractTitle(text);
+      var foundAny = false;
+
+      if (title) { document.getElementById('eventTitle').value = title; foundAny = true; }
+      if (address) {
+        document.getElementById('eventLocation').value = address;
+        document.getElementById('eventMapQuery').value = address;
+        foundAny = true;
+      }
+      if (dates) {
+        document.getElementById('eventStartDate').value = dates.start;
+        document.getElementById('eventEndDate').value = dates.end;
+        foundAny = true;
+      }
+
+      if (foundAny) {
+        showMsg('parseMsg', 'Filled in what it could find below \u2014 please double-check everything before saving.', 'ok');
+        document.getElementById('eventFormTitle').scrollIntoView({behavior:'smooth', block:'start'});
+      } else {
+        showMsg('parseMsg', "Couldn't confidently find a title, date, or address \u2014 fill in the form manually below.", 'error');
+      }
+    });
+  })();
+
+  // ---------------- EVENTS CALENDAR MANAGEMENT ----------------
+  var eventsCache = [];
+
+  function fmtEventDate(d){ return d; }
+
+  function eventRowHtml(ev){
+    var when = ev.start_date === ev.end_date ? ev.start_date : ev.start_date + ' \u2013 ' + ev.end_date;
+    return '<div class="doc-card">' +
+      '<div class="doc-info">' +
+        '<div class="doc-name">' + esc(ev.title) + ' <span class="pill ' + (ev.status === 'confirmed' ? 'approved' : ev.status === 'cancelled' ? 'rejected' : 'pending') + '">' + ev.status + '</span></div>' +
+        '<div class="doc-meta">' + when + ' &middot; ' + esc(ev.location) + '</div>' +
+      '</div>' +
+      '<div class="doc-actions">' +
+        '<button class="btn-ghost btn-small edit-event-btn" data-id="' + ev.id + '">Edit</button>' +
+        '<button class="btn-reject btn-small del-event-btn" data-id="' + ev.id + '">Delete</button>' +
+      '</div>' +
+    '</div>';
+  }
+
+  function loadEvents(){
+    sb.from('events').select('*').order('start_date', {ascending:false}).then(function(res){
+      if (res.error) return;
+      eventsCache = res.data;
+      var listEl = document.getElementById('eventsList');
+      listEl.innerHTML = eventsCache.map(eventRowHtml).join('') || '<p class="hint">No events yet.</p>';
+
+      listEl.querySelectorAll('.edit-event-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){ startEditEvent(btn.dataset.id); });
+      });
+      listEl.querySelectorAll('.del-event-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){ deleteEvent(btn.dataset.id); });
+      });
+    });
+  }
+
+  function clearEventForm(){
+    document.getElementById('eventEditId').value = '';
+    document.getElementById('eventTitle').value = '';
+    document.getElementById('eventLocation').value = '';
+    document.getElementById('eventStartDate').value = '';
+    document.getElementById('eventEndDate').value = '';
+    document.getElementById('eventStartTime').value = '';
+    document.getElementById('eventEndTime').value = '';
+    document.getElementById('eventMapQuery').value = '';
+    document.getElementById('eventDescription').value = '';
+    document.getElementById('eventStatus').value = 'confirmed';
+    document.getElementById('eventFormTitle').textContent = 'Add Event';
+    document.getElementById('cancelEditEventBtn').classList.add('hidden');
+  }
+
+  function startEditEvent(id){
+    var ev = eventsCache.find(function(e){ return e.id === id; });
+    if (!ev) return;
+    document.getElementById('eventEditId').value = ev.id;
+    document.getElementById('eventTitle').value = ev.title;
+    document.getElementById('eventLocation').value = ev.location;
+    document.getElementById('eventStartDate').value = ev.start_date;
+    document.getElementById('eventEndDate').value = ev.end_date;
+    document.getElementById('eventStartTime').value = ev.start_time || '';
+    document.getElementById('eventEndTime').value = ev.end_time || '';
+    document.getElementById('eventMapQuery').value = ev.map_query || '';
+    document.getElementById('eventDescription').value = ev.description || '';
+    document.getElementById('eventStatus').value = ev.status;
+    document.getElementById('eventFormTitle').textContent = 'Edit Event';
+    document.getElementById('cancelEditEventBtn').classList.remove('hidden');
+    window.scrollTo({top:0, behavior:'smooth'});
+  }
+
+  function deleteEvent(id){
+    if (!confirm('Delete this event? This cannot be undone.')) return;
+    sb.rpc('delete_event', {p_event_id:id}).then(function(res){
+      if (res.error) { alert(res.error.message); return; }
+      loadEvents();
+    });
+  }
+
+  document.getElementById('cancelEditEventBtn').addEventListener('click', clearEventForm);
+
+  document.getElementById('saveEventBtn').addEventListener('click', function(){
+    var id = document.getElementById('eventEditId').value;
+    var title = document.getElementById('eventTitle').value.trim();
+    var location = document.getElementById('eventLocation').value.trim();
+    var startDate = document.getElementById('eventStartDate').value;
+    var endDate = document.getElementById('eventEndDate').value || startDate;
+    var startTime = document.getElementById('eventStartTime').value || null;
+    var endTime = document.getElementById('eventEndTime').value || null;
+    var mapQuery = document.getElementById('eventMapQuery').value.trim() || location;
+    var description = document.getElementById('eventDescription').value.trim() || null;
+    var status = document.getElementById('eventStatus').value;
+
+    if (!title || !location || !startDate) {
+      showMsg('eventFormMsg', 'Title, location, and start date are required.', 'error');
+      return;
+    }
+
+    var btn = this; btn.disabled = true;
+    clearMsg('eventFormMsg');
+
+    var call = id
+      ? sb.rpc('update_event', {
+          p_event_id: id, p_title: title, p_location: location, p_start_date: startDate, p_end_date: endDate,
+          p_start_time: startTime, p_end_time: endTime, p_map_query: mapQuery, p_description: description, p_status: status
+        })
+      : sb.rpc('add_event', {
+          p_title: title, p_location: location, p_start_date: startDate, p_end_date: endDate,
+          p_start_time: startTime, p_end_time: endTime, p_map_query: mapQuery, p_description: description, p_status: status
+        });
+
+    call.then(function(res){
+      btn.disabled = false;
+      if (res.error) { showMsg('eventFormMsg', res.error.message, 'error'); return; }
+      showMsg('eventFormMsg', 'Saved.', 'ok');
+      clearEventForm();
+      loadEvents();
+    });
+  });
 
   // ---------------- FREE ROLL REDEMPTION ----------------
   function renderRedeemResult(row){
