@@ -393,6 +393,41 @@
   .cat-layout{ display:grid; grid-template-columns:0.85fr 1.15fr; gap:60px; margin-top:56px; align-items:start; }
   @media (max-width:900px){ .cat-layout{ grid-template-columns:1fr; gap:40px; } }
   .cat-forms{ display:flex; flex-direction:column; gap:18px; }
+
+  /* ---------- TAKE OUT CATERING BUNDLES ---------- */
+  .bundle-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:8px; }
+  @media (max-width:640px){ .bundle-grid{ grid-template-columns:1fr; } }
+  .bundle-card{ background:var(--black); border:1px solid var(--line); border-radius:14px; padding:20px; text-align:left; }
+  .bundle-card h4{ font-size:15px; font-weight:700; color:var(--white); margin-bottom:6px; }
+  .bundle-note{ font-size:12px; font-weight:500; color:var(--muted); }
+  .bundle-price{ font-size:20px; font-weight:800; color:var(--gold); margin-bottom:10px; }
+  .bundle-card p{ font-size:13px; color:var(--muted); line-height:1.5; margin-bottom:14px; }
+  .bundle-qty-label{ display:flex; align-items:center; gap:10px; font-size:12px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.04em; }
+  .bundle-qty{
+    width:64px; background:var(--panel); border:1px solid var(--line); border-radius:8px;
+    padding:8px 10px; color:var(--white); font-size:15px; font-family:'Inter'; text-align:center;
+  }
+  .bundle-qty:focus{ outline:none; border-color:var(--gold); }
+  .bundle-total{
+    text-align:center; font-size:18px; font-weight:700; color:var(--white);
+    padding:16px; margin-bottom:22px; border-top:1px solid var(--line); border-bottom:1px solid var(--line);
+  }
+  .bundle-total span{ color:var(--gold); }
+  .bundle-pay-steps{ margin-bottom:20px; }
+  .bundle-step{ font-size:13.5px; color:var(--muted); line-height:1.6; }
+  .bundle-step b{ color:var(--gold); }
+  .square-pay-wrap{ display:flex; justify-content:center; margin-bottom:26px; }
+  .square-pay-box{ text-align:center; }
+  .square-pay-btn{
+    display:inline-block; font-size:18px; font-weight:600; line-height:48px; height:48px;
+    color:#ffffff; min-width:212px; padding:0 24px; background-color:#006aff; border:none;
+    text-align:center; box-shadow:0 0 0 1px rgba(0,0,0,.1) inset; border-radius:6px; cursor:pointer;
+    font-family:'Inter', Helvetica, Arial, sans-serif;
+  }
+  .square-pay-btn:hover:not(:disabled){ background-color:#0055cc; }
+  .square-pay-btn:disabled{ opacity:0.6; cursor:default; }
+  .square-pay-msg{ margin-top:10px; font-size:13px; color:var(--muted); min-height:18px; }
+  .square-pay-msg.error{ color:var(--red); }
   .cat-points{ display:flex; flex-direction:column; gap:26px; }
   .cform-head{ border:1px solid var(--line); border-radius:14px; background:var(--panel); padding:22px 20px; }
   .cform-head .menu-acc-title h4{ font-size:18px; }
@@ -1103,6 +1138,74 @@
             </form>
           </div></div>
         </div>
+
+        <div class="menu-acc-item">
+          <button class="menu-acc-head cform-head" type="button">
+            <div class="menu-acc-title"><h4>Take Out Catering Orders</h4><span class="menu-acc-price">Pre-set bundles, ready for pickup</span></div>
+            <svg class="menu-acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
+          </button>
+          <div class="menu-acc-body cform-body"><div class="menu-acc-inner cform-inner">
+            <div class="bundle-grid">
+              <div class="bundle-card">
+                <h4>10 Shawarmas</h4>
+                <div class="bundle-price">$100</div>
+                <p>Ten of our signature chicken or falafel shawarmas, ready to serve a crowd.</p>
+                <label class="bundle-qty-label">Qty
+                  <input type="number" min="0" value="0" class="bundle-qty" data-item="10 Shawarmas" data-unit-price="100">
+                </label>
+              </div>
+              <div class="bundle-card">
+                <h4>10 Frankies</h4>
+                <div class="bundle-price">$80</div>
+                <p>Ten Frankie rolls, your choice of flavors, perfect for groups.</p>
+                <label class="bundle-qty-label">Qty
+                  <input type="number" min="0" value="0" class="bundle-qty" data-item="10 Frankies" data-unit-price="80">
+                </label>
+              </div>
+              <div class="bundle-card">
+                <h4>Signature Fries <span class="bundle-note">(Family Pan)</span></h4>
+                <div class="bundle-price">$29.99</div>
+                <p>A large pan of our seasoned fries, serves a group.</p>
+                <label class="bundle-qty-label">Qty
+                  <input type="number" min="0" value="0" class="bundle-qty" data-item="Signature Fries (Family Pan)" data-unit-price="29.99">
+                </label>
+              </div>
+            </div>
+
+            <div class="bundle-total">Order Total: <span id="bundleTotalDisplay">$0.00</span></div>
+
+            <div class="bundle-pay-steps">
+              <div class="bundle-step"><b>1.</b> Set your quantities above.</div>
+              <div class="bundle-step"><b>2.</b> Tap Pay Now &mdash; your total is applied automatically.</div>
+              <div class="bundle-step"><b>3.</b> Tell us what you ordered below, so we know what to prepare.</div>
+            </div>
+
+            <div class="square-pay-wrap">
+              <div class="square-pay-box">
+                <button type="button" id="dynamicSquarePayBtn" class="square-pay-btn">Pay Now</button>
+                <div id="squarePayMsg" class="square-pay-msg"></div>
+              </div>
+            </div>
+
+            <form class="cform" action="https://formsubmit.co/rollinshawarma.foodtruck@gmail.com" method="POST" id="takeoutCateringForm">
+              <input type="hidden" name="_subject" value="New TAKE-OUT CATERING order &mdash; Roll-In Shawarma">
+              <input type="hidden" name="_template" value="table">
+              <input type="hidden" name="_captcha" value="true">
+              <input type="hidden" name="Order Summary" id="bundleOrderSummary">
+              <div class="row2">
+                <label>Name*<input type="text" name="Name" required></label>
+                <label>Phone<input type="tel" name="Phone"></label>
+              </div>
+              <div class="row2">
+                <label>Email*<input type="email" name="Email" required></label>
+                <label>Pickup date<input type="date" name="Pickup Date"></label>
+              </div>
+              <label>Notes<textarea name="Notes" rows="2" placeholder="Any special requests..."></textarea></label>
+              <button type="submit">Send Order Details</button>
+              <div class="fine">This tells us what to prepare &mdash; be sure to also complete payment above via Square.</div>
+            </form>
+          </div></div>
+        </div>
       </div>
     </div>
   </div>
@@ -1390,6 +1493,92 @@
       item.classList.toggle('open');
     });
   });
+
+  // ---- Take-out catering bundle total + order summary ----
+  (function(){
+    var qtyInputs = document.querySelectorAll('.bundle-qty');
+    var totalEl = document.getElementById('bundleTotalDisplay');
+    var summaryEl = document.getElementById('bundleOrderSummary');
+    var form = document.getElementById('takeoutCateringForm');
+    if (!qtyInputs.length || !totalEl || !form) return;
+
+    function recompute(){
+      var total = 0;
+      var lines = [];
+      qtyInputs.forEach(function(input){
+        var qty = parseInt(input.value, 10) || 0;
+        var unitPrice = parseFloat(input.getAttribute('data-unit-price')) || 0;
+        if (qty > 0) {
+          var lineTotal = qty * unitPrice;
+          total += lineTotal;
+          lines.push(input.getAttribute('data-item') + ' x' + qty + ' ($' + lineTotal.toFixed(2) + ')');
+        }
+      });
+      totalEl.textContent = '$' + total.toFixed(2);
+      if (summaryEl) summaryEl.value = lines.length ? (lines.join(', ') + ' \u2014 TOTAL: $' + total.toFixed(2)) : 'No items selected';
+    }
+
+    qtyInputs.forEach(function(input){
+      input.addEventListener('input', recompute);
+      input.addEventListener('change', function(){
+        if (parseInt(input.value,10) < 0 || isNaN(parseInt(input.value,10))) input.value = 0;
+        recompute();
+      });
+    });
+
+    form.addEventListener('submit', recompute);
+    recompute();
+  })();
+
+  // ---- Dynamic Square checkout: one click, exact amount, no typing ----
+  (function(){
+    var payBtn = document.getElementById('dynamicSquarePayBtn');
+    var msgEl = document.getElementById('squarePayMsg');
+    if (!payBtn) return;
+
+    var EDGE_FUNCTION_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/create-catering-checkout';
+    var ANON_KEY = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
+
+    payBtn.addEventListener('click', function(){
+      var totalText = (document.getElementById('bundleTotalDisplay') || {}).textContent || '$0.00';
+      var amount = parseFloat(totalText.replace(/[^0-9.]/g, '')) || 0;
+      var summary = (document.getElementById('bundleOrderSummary') || {}).value || 'Roll-In Shawarma Catering Order';
+
+      msgEl.textContent = '';
+      msgEl.className = 'square-pay-msg';
+
+      if (amount <= 0) {
+        msgEl.textContent = 'Set your quantities above first, then tap Pay Now.';
+        msgEl.className = 'square-pay-msg error';
+        return;
+      }
+
+      payBtn.disabled = true;
+      payBtn.textContent = 'Preparing checkout\u2026';
+
+      fetch(EDGE_FUNCTION_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ANON_KEY },
+        body: JSON.stringify({ amount: amount, description: summary })
+      }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
+        .then(function(result){
+          payBtn.disabled = false;
+          payBtn.textContent = 'Pay Now';
+          if (!result.ok || !result.data.url) {
+            msgEl.textContent = "Couldn't start checkout \u2014 please try again in a moment.";
+            msgEl.className = 'square-pay-msg error';
+            return;
+          }
+          window.open(result.data.url, '_blank');
+        })
+        .catch(function(){
+          payBtn.disabled = false;
+          payBtn.textContent = 'Pay Now';
+          msgEl.textContent = "Couldn't reach checkout \u2014 please try again in a moment.";
+          msgEl.className = 'square-pay-msg error';
+        });
+    });
+  })();
 
   // ---- Nav sign-in / sign-out status ----
   (function(){
