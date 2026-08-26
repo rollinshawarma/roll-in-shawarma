@@ -49,24 +49,17 @@
   body.member-mode .member-hide{ display:none !important; }
   .hidden{ display:none !important; }
 
-  /* ---------- SIDE DECORATIVE INGREDIENTS (wide screens only) ---------- */
-  .side-decor{
-    position:fixed; top:50%; transform:translateY(-50%) rotate(0deg);
-    width:190px; pointer-events:none; z-index:2;
-    opacity:0; transition:opacity .7s ease;
+  /* ---------- FULL-PAGE BACKGROUND (changes per section while scrolling) ---------- */
+  #bgLayer{ position:fixed; inset:0; z-index:-2; overflow:hidden; background:#000; }
+  .bg-image{
+    position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center;
+    opacity:0; transition:opacity 1.4s ease;
   }
-  .side-decor.visible{ opacity:0.92; }
-  .side-decor-left{ left:24px; transform:translateY(-50%) rotate(-4deg); }
-  .side-decor-right{ right:24px; transform:translateY(-50%) rotate(4deg); }
-  .side-decor img{
-    width:100%; height:auto; display:block;
-    filter:drop-shadow(0 24px 34px rgba(0,0,0,0.55));
-  }
-  @media (max-width:1550px){ .side-decor{ display:none; } }
-  @media print{ .side-decor{ display:none !important; } }
+  .bg-image.active{ opacity:1; }
+  #bgOverlay{ position:absolute; inset:0; background:rgba(0,0,0,0.55); }
   html{scroll-behavior:smooth;}
   body{
-    background:var(--black);
+    background:transparent;
     color:var(--cream);
     font-family:'Inter', -apple-system, sans-serif;
     line-height:1.5;
@@ -178,7 +171,7 @@
   .hero{
     position:relative; display:flex; align-items:center; justify-content:center;
     text-align:center; overflow:hidden; padding:90px 22px 70px;
-    background:var(--black);
+    background:transparent;
   }
   .hero-logo{
     width:150px; height:150px; margin:0 auto 30px; border-radius:50%; object-fit:cover;
@@ -284,10 +277,10 @@
   }
 
   /* ---------- FULL MENU (accordion list, Chick-fil-A style) ---------- */
-  #menu{ background:var(--panel); padding:100px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  #menu{ background:rgba(18,17,16,0.4); padding:100px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
 
   /* ---------- DEALS & PERKS ---------- */
-  #deals{ background:var(--black); padding:100px 0; }
+  #deals{ background:rgba(0,0,0,0.4); padding:100px 0; }
   .deals-grid{ margin-top:56px; display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
   @media (max-width:960px){ .deals-grid{ grid-template-columns:repeat(2,1fr); } }
   @media (max-width:560px){ .deals-grid{ grid-template-columns:1fr; } }
@@ -374,7 +367,7 @@
   .mnote{ font-size:13.5px; color:var(--gold); margin-top:14px; font-weight:600; }
 
   /* ---------- TRUCK / STORY ---------- */
-  #story{ background:var(--black); padding:100px 0; }
+  #story{ background:rgba(0,0,0,0.4); padding:100px 0; }
   .story-layout{ display:grid; grid-template-columns:1.1fr 0.9fr; gap:56px; align-items:center; }
   @media (max-width:900px){ .story-layout{ grid-template-columns:1fr; } }
   .story-copy p{ font-size:16.5px; color:var(--muted); line-height:1.7; margin-bottom:18px; max-width:50ch; }
@@ -385,7 +378,7 @@
   .story-photo img{ width:100%; }
 
   /* ---------- REVIEWS ---------- */
-  #reviews{ background:var(--black); padding:100px 0; }
+  #reviews{ background:rgba(0,0,0,0.4); padding:100px 0; }
   .review-carousel{ position:relative; margin:56px auto 0; max-width:640px; min-height:280px; touch-action:pan-y; }
   .review-slide{
     position:absolute; inset:0; text-align:center; opacity:0; visibility:hidden;
@@ -401,7 +394,7 @@
   .review-note a{ color:var(--gold); border-bottom:1px dashed var(--gold); }
 
   /* ---------- CATERING ---------- */
-  #catering{ background:var(--panel); padding:100px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  #catering{ background:rgba(18,17,16,0.4); padding:100px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
   .cat-layout{ display:grid; grid-template-columns:0.85fr 1.15fr; gap:60px; margin-top:56px; align-items:start; }
   @media (max-width:900px){ .cat-layout{ grid-template-columns:1fr; gap:40px; } }
   .cat-forms{ display:flex; flex-direction:column; gap:18px; }
@@ -433,7 +426,7 @@
 
   /* ---------- FIND US ---------- */
   /* ---------- EVENTS CALENDAR ---------- */
-  #events-calendar{ background:var(--panel); padding:100px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  #events-calendar{ background:rgba(18,17,16,0.4); padding:100px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
   .cal-card{ max-width:480px; margin:48px auto 0; background:var(--black); border:1px solid var(--line); border-radius:20px; padding:26px; }
   .cal-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
   .cal-month-label{ font-size:16px; font-weight:700; color:var(--white); }
@@ -466,7 +459,7 @@
   .cal-event-card .cal-event-meta{ font-size:13px; color:var(--muted); line-height:1.6; }
   .cal-event-card .cal-event-meta b{ color:var(--cream); }
   .cal-event-card a{ color:var(--gold); text-decoration:underline; text-underline-offset:3px; }
-  #find{ background:var(--black); padding:100px 0 110px; text-align:center; }
+  #find{ background:rgba(0,0,0,0.4); padding:100px 0 110px; text-align:center; }
   .find-big-link{ display:block; font-size:clamp(30px,6vw,52px); font-weight:700; color:var(--white); letter-spacing:-0.01em; margin-top:24px; }
   .find-big-link:hover{ color:var(--gold); }
   .find-sub{ margin-top:16px; font-size:15px; color:var(--muted); }
@@ -500,7 +493,7 @@
   .notify-msg.error{ color:var(--red); }
 
   /* ---------- FOOTER ---------- */
-  footer{ background:var(--black); padding:50px 0 28px; border-top:1px solid var(--line); }
+  footer{ background:rgba(0,0,0,0.55); padding:50px 0 28px; border-top:1px solid var(--line); }
   .foot-top{ display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:32px; padding-bottom:32px; border-bottom:1px solid var(--line); }
   .foot-brand{ display:flex; align-items:center; gap:12px; }
   .foot-brand img{ width:36px; height:36px; border-radius:50%; object-fit:cover; }
@@ -585,8 +578,11 @@
 </head>
 <body>
 
-<div class="side-decor side-decor-left" id="sideDecorLeft"><img id="sideDecorLeftImg" src="" alt="" loading="lazy"></div>
-<div class="side-decor side-decor-right" id="sideDecorRight"><img id="sideDecorRightImg" src="" alt="" loading="lazy"></div>
+<div id="bgLayer">
+  <img id="bgImageA" class="bg-image active" src="" alt="" loading="eager">
+  <img id="bgImageB" class="bg-image" src="" alt="" loading="lazy">
+  <div id="bgOverlay"></div>
+</div>
 
 <div id="annbar">
   <div class="wrap">
@@ -1226,32 +1222,34 @@
     });
   }
 
-  // ---- Side decorative ingredients: change per section, never repeat back-to-back ----
+  // ---- Full-page background: crossfades to a new ingredient photo per section, never repeats back-to-back ----
   (function(){
-    var leftEl = document.getElementById('sideDecorLeft');
-    var rightEl = document.getElementById('sideDecorRight');
-    var leftImg = document.getElementById('sideDecorLeftImg');
-    var rightImg = document.getElementById('sideDecorRightImg');
-    if (!leftEl || !rightEl) return;
+    var imgA = document.getElementById('bgImageA');
+    var imgB = document.getElementById('bgImageB');
+    if (!imgA || !imgB) return;
 
     var pool = ['chicken','onion','salad','lettuce','cucumber','peppers','tomato','cheese'];
-    var lastLeft = null, lastRight = null;
+    var lastImage = null;
+    var showingA = true;
 
-    function pickPair(){
-      var leftChoices = pool.filter(function(i){ return i !== lastLeft; });
-      var left = leftChoices[Math.floor(Math.random() * leftChoices.length)];
-      var rightChoices = pool.filter(function(i){ return i !== left && i !== lastRight; });
-      var right = rightChoices[Math.floor(Math.random() * rightChoices.length)];
-      lastLeft = left; lastRight = right;
-      return { left: left, right: right };
+    function pickNext(){
+      var choices = pool.filter(function(i){ return i !== lastImage; });
+      var next = choices[Math.floor(Math.random() * choices.length)];
+      lastImage = next;
+      return next;
     }
 
-    function showPair(){
-      var pair = pickPair();
-      leftImg.src = 'ing-' + pair.left + '.webp';
-      rightImg.src = 'ing-' + pair.right + '.webp';
-      leftEl.classList.add('visible');
-      rightEl.classList.add('visible');
+    // set the very first image immediately (no crossfade needed on load)
+    imgA.src = 'ing-' + pickNext() + '.webp';
+
+    function showNext(){
+      var next = pickNext();
+      var showEl = showingA ? imgB : imgA;
+      var hideEl = showingA ? imgA : imgB;
+      showEl.src = 'ing-' + next + '.webp';
+      showEl.classList.add('active');
+      hideEl.classList.remove('active');
+      showingA = !showingA;
     }
 
     var sections = document.querySelectorAll('header.hero, section');
@@ -1260,7 +1258,7 @@
     var observer = new IntersectionObserver(function(entries){
       entries.forEach(function(entry){
         if (entry.isIntersecting && entry.intersectionRatio > 0.35) {
-          showPair();
+          showNext();
         }
       });
     }, { threshold: [0.35] });
