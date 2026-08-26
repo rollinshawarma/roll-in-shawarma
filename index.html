@@ -49,17 +49,9 @@
   body.member-mode .member-hide{ display:none !important; }
   .hidden{ display:none !important; }
 
-  /* ---------- FULL-PAGE BACKGROUND (changes per section while scrolling) ---------- */
-  #bgLayer{ position:fixed; inset:0; z-index:-2; overflow:hidden; background:#000; }
-  .bg-image{
-    position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center;
-    opacity:0; transition:opacity 1.4s ease;
-  }
-  .bg-image.active{ opacity:1; }
-  #bgOverlay{ position:absolute; inset:0; background:rgba(0,0,0,0.55); }
   html{scroll-behavior:smooth;}
   body{
-    background:transparent;
+    background:var(--black);
     color:var(--cream);
     font-family:'Inter', -apple-system, sans-serif;
     line-height:1.5;
@@ -81,12 +73,14 @@
     display:flex; align-items:center; justify-content:center;
     padding:12px 44px 12px 32px; position:relative; min-height:auto;
   }
-  #annbar .ann-message{
-    display:flex; align-items:center; justify-content:center; flex-wrap:wrap;
-    gap:6px; font-size:13.5px; font-weight:600; line-height:1.4; row-gap:2px; text-align:center;
-    max-width:720px;
+  #annbar .ann-rotator{ position:relative; width:100%; max-width:720px; min-height:24px; }
+  #annbar .ann-slide{
+    position:absolute; inset:0; display:flex; align-items:center; justify-content:center;
+    flex-wrap:wrap; gap:6px; font-size:13.5px; font-weight:600; line-height:1.4; row-gap:2px; text-align:center;
+    opacity:0; visibility:hidden; transition:opacity .5s ease;
   }
-  #annbar .ann-message b{ color:var(--white); }
+  #annbar .ann-slide.active{ position:relative; opacity:1; visibility:visible; }
+  #annbar .ann-slide b{ color:var(--white); }
   #annbar .ann-inline-link{ color:var(--gold); text-decoration:underline; text-underline-offset:3px; font-weight:700; flex:none; }
   #annbar .ann-close{
     position:absolute; right:14px; top:50%; transform:translateY(-50%);
@@ -96,7 +90,8 @@
   #annbar .ann-close svg{ width:16px; height:16px; }
   @media (max-width:640px){
     #annbar .wrap{ padding:12px 40px 12px 16px; }
-    #annbar .ann-message{ font-size:12px; line-height:1.35; }
+    #annbar .ann-rotator{ min-height:48px; }
+    #annbar .ann-slide{ font-size:12px; line-height:1.35; }
     #annbar .ann-logo{ height:15px; }
   }
 
@@ -171,7 +166,7 @@
   .hero{
     position:relative; display:flex; align-items:center; justify-content:center;
     text-align:center; overflow:hidden; padding:90px 22px 70px;
-    background:transparent;
+    background:var(--black);
   }
   .hero-logo{
     width:150px; height:150px; margin:0 auto 30px; border-radius:50%; object-fit:cover;
@@ -277,10 +272,10 @@
   }
 
   /* ---------- FULL MENU (accordion list, Chick-fil-A style) ---------- */
-  #menu{ background:rgba(18,17,16,0.4); padding:100px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  #menu{ background:var(--panel); padding:100px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
 
   /* ---------- DEALS & PERKS ---------- */
-  #deals{ background:rgba(0,0,0,0.4); padding:100px 0; }
+  #deals{ background:var(--black); padding:100px 0; }
   .deals-grid{ margin-top:56px; display:grid; grid-template-columns:repeat(4,1fr); gap:20px; }
   @media (max-width:960px){ .deals-grid{ grid-template-columns:repeat(2,1fr); } }
   @media (max-width:560px){ .deals-grid{ grid-template-columns:1fr; } }
@@ -367,7 +362,7 @@
   .mnote{ font-size:13.5px; color:var(--gold); margin-top:14px; font-weight:600; }
 
   /* ---------- TRUCK / STORY ---------- */
-  #story{ background:rgba(0,0,0,0.4); padding:100px 0; }
+  #story{ background:var(--black); padding:100px 0; }
   .story-layout{ display:grid; grid-template-columns:1.1fr 0.9fr; gap:56px; align-items:center; }
   @media (max-width:900px){ .story-layout{ grid-template-columns:1fr; } }
   .story-copy p{ font-size:16.5px; color:var(--muted); line-height:1.7; margin-bottom:18px; max-width:50ch; }
@@ -378,7 +373,7 @@
   .story-photo img{ width:100%; }
 
   /* ---------- REVIEWS ---------- */
-  #reviews{ background:rgba(0,0,0,0.4); padding:100px 0; }
+  #reviews{ background:var(--black); padding:100px 0; }
   .review-carousel{ position:relative; margin:56px auto 0; max-width:640px; min-height:280px; touch-action:pan-y; }
   .review-slide{
     position:absolute; inset:0; text-align:center; opacity:0; visibility:hidden;
@@ -394,7 +389,7 @@
   .review-note a{ color:var(--gold); border-bottom:1px dashed var(--gold); }
 
   /* ---------- CATERING ---------- */
-  #catering{ background:rgba(18,17,16,0.4); padding:100px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  #catering{ background:var(--panel); padding:100px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
   .cat-layout{ display:grid; grid-template-columns:0.85fr 1.15fr; gap:60px; margin-top:56px; align-items:start; }
   @media (max-width:900px){ .cat-layout{ grid-template-columns:1fr; gap:40px; } }
   .cat-forms{ display:flex; flex-direction:column; gap:18px; }
@@ -426,7 +421,7 @@
 
   /* ---------- FIND US ---------- */
   /* ---------- EVENTS CALENDAR ---------- */
-  #events-calendar{ background:rgba(18,17,16,0.4); padding:100px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  #events-calendar{ background:var(--panel); padding:100px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
   .cal-card{ max-width:480px; margin:48px auto 0; background:var(--black); border:1px solid var(--line); border-radius:20px; padding:26px; }
   .cal-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:20px; }
   .cal-month-label{ font-size:16px; font-weight:700; color:var(--white); }
@@ -450,6 +445,13 @@
   .cal-day.selected{ background:var(--gold); color:#241902; }
   .cal-day .cal-dot{ width:4px; height:4px; border-radius:50%; background:var(--gold); margin-top:2px; }
   .cal-day.selected .cal-dot{ background:#241902; }
+  .cal-day.is-available{ cursor:pointer; }
+  .cal-day.is-available:hover{ background:rgba(11,175,76,0.14); }
+  .cal-dot-available{ background:var(--green) !important; }
+  .cal-day.selected .cal-dot-available{ background:#04220F !important; }
+  .cal-day.is-past{ opacity:0.35; }
+  .cal-available-card{ border-color:var(--green) !important; }
+  .cal-book-btn{ margin-top:14px; width:100%; }
   .cal-detail{ max-width:480px; margin:24px auto 0; }
   .cal-empty-hint{ text-align:center; font-size:13px; color:var(--muted); }
   .cal-event-card{
@@ -459,7 +461,7 @@
   .cal-event-card .cal-event-meta{ font-size:13px; color:var(--muted); line-height:1.6; }
   .cal-event-card .cal-event-meta b{ color:var(--cream); }
   .cal-event-card a{ color:var(--gold); text-decoration:underline; text-underline-offset:3px; }
-  #find{ background:rgba(0,0,0,0.4); padding:100px 0 110px; text-align:center; }
+  #find{ background:var(--black); padding:100px 0 110px; text-align:center; }
   .find-big-link{ display:block; font-size:clamp(30px,6vw,52px); font-weight:700; color:var(--white); letter-spacing:-0.01em; margin-top:24px; }
   .find-big-link:hover{ color:var(--gold); }
   .find-sub{ margin-top:16px; font-size:15px; color:var(--muted); }
@@ -493,7 +495,7 @@
   .notify-msg.error{ color:var(--red); }
 
   /* ---------- FOOTER ---------- */
-  footer{ background:rgba(0,0,0,0.55); padding:50px 0 28px; border-top:1px solid var(--line); }
+  footer{ background:var(--black); padding:50px 0 28px; border-top:1px solid var(--line); }
   .foot-top{ display:flex; justify-content:space-between; align-items:flex-start; flex-wrap:wrap; gap:32px; padding-bottom:32px; border-bottom:1px solid var(--line); }
   .foot-brand{ display:flex; align-items:center; gap:12px; }
   .foot-brand img{ width:36px; height:36px; border-radius:50%; object-fit:cover; }
@@ -578,15 +580,12 @@
 </head>
 <body>
 
-<div id="bgLayer">
-  <img id="bgImageA" class="bg-image active" src="" alt="" loading="eager">
-  <img id="bgImageB" class="bg-image" src="" alt="" loading="lazy">
-  <div id="bgOverlay"></div>
-</div>
-
 <div id="annbar">
   <div class="wrap">
-    <div class="ann-message" id="annMessage" data-until="2026-08-22T22:00:00">&#127881; <b>Uniontown Lions Festival</b> &mdash; Wed Aug 19&ndash;Sat Aug 22 &middot; 5&ndash;10 PM &middot; Hartville, OH <a class="ann-inline-link" href="https://www.google.com/maps/dir/?api=1&destination=1289+Edison+St+NW,+Hartville,+OH+44632" target="_blank" rel="noopener">Map</a></div>
+    <div class="ann-rotator" id="annRotator">
+      <div class="ann-slide active" data-slide="location">&#128205; Find us at our standard spot &mdash; <b>3554 S Arlington Rd, Akron, OH 44312</b> <a class="ann-inline-link" href="https://www.google.com/maps/dir/?api=1&destination=3554+S+Arlington+Rd,+Akron,+OH+44312" target="_blank" rel="noopener">Map</a></div>
+      <div class="ann-slide" data-slide="review">&#10084;&#65039; Loved your food? <a class="ann-inline-link" href="https://g.page/r/CbQeOtyzbDakEAI/review" target="_blank" rel="noopener">Leave us a Google review</a></div>
+    </div>
     <button class="ann-close" type="button" aria-label="Dismiss announcement">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </button>
@@ -1038,7 +1037,7 @@
       </div>
 
       <div class="cat-forms">
-        <div class="menu-acc-item">
+        <div class="menu-acc-item" id="cateringBookItem">
           <button class="menu-acc-head cform-head" type="button">
             <div class="menu-acc-title"><h4>Book The Truck</h4><span class="menu-acc-price">Tap to open the request form</span></div>
             <svg class="menu-acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
@@ -1054,7 +1053,7 @@
               </div>
               <div class="row2">
                 <label>Email*<input type="email" name="Email" required></label>
-                <label>Event date<input type="date" name="Event Date"></label>
+                <label>Event date<input type="date" name="Event Date" id="cateringEventDate"></label>
               </div>
               <div class="row2">
                 <label>Estimated headcount<input type="number" name="Headcount" min="1"></label>
@@ -1222,50 +1221,6 @@
     });
   }
 
-  // ---- Full-page background: crossfades to a new ingredient photo per section, never repeats back-to-back ----
-  (function(){
-    var imgA = document.getElementById('bgImageA');
-    var imgB = document.getElementById('bgImageB');
-    if (!imgA || !imgB) return;
-
-    var pool = ['chicken','onion','salad','lettuce','cucumber','peppers','tomato','cheese'];
-    var lastImage = null;
-    var showingA = true;
-
-    function pickNext(){
-      var choices = pool.filter(function(i){ return i !== lastImage; });
-      var next = choices[Math.floor(Math.random() * choices.length)];
-      lastImage = next;
-      return next;
-    }
-
-    // set the very first image immediately (no crossfade needed on load)
-    imgA.src = 'ing-' + pickNext() + '.webp';
-
-    function showNext(){
-      var next = pickNext();
-      var showEl = showingA ? imgB : imgA;
-      var hideEl = showingA ? imgA : imgB;
-      showEl.src = 'ing-' + next + '.webp';
-      showEl.classList.add('active');
-      hideEl.classList.remove('active');
-      showingA = !showingA;
-    }
-
-    var sections = document.querySelectorAll('header.hero, section');
-    if (!sections.length || typeof IntersectionObserver === 'undefined') return;
-
-    var observer = new IntersectionObserver(function(entries){
-      entries.forEach(function(entry){
-        if (entry.isIntersecting && entry.intersectionRatio > 0.35) {
-          showNext();
-        }
-      });
-    }, { threshold: [0.35] });
-
-    sections.forEach(function(s){ observer.observe(s); });
-  })();
-
   // ---- Floating Order buttons ----
   (function(){
     var btn = document.getElementById('floatOrderGroup');
@@ -1289,21 +1244,12 @@
     update();
   })();
 
-  // ---- Announcement banner: dismiss + auto-hide when expired ----
+  // ---- Announcement banner: dismiss + rotate + auto-pick an upcoming event ----
   (function(){
     var bar = document.getElementById('annbar');
-    var msg = document.getElementById('annMessage');
+    var rotator = document.getElementById('annRotator');
     var closeBtn = bar ? bar.querySelector('.ann-close') : null;
-    if (!bar || !msg || !closeBtn) return;
-
-    function checkExpiry(){
-      var until = msg.getAttribute('data-until');
-      if (until && new Date(until) <= new Date()) {
-        bar.style.display = 'none';
-        return true;
-      }
-      return false;
-    }
+    if (!bar || !rotator || !closeBtn) return;
 
     try {
       if (sessionStorage.getItem('rollinAnnDismissed') === '1') {
@@ -1311,14 +1257,86 @@
       }
     } catch(e){}
 
-    if (!checkExpiry()) {
-      setInterval(checkExpiry, 60000);
-    }
-
     closeBtn.addEventListener('click', function(){
       bar.style.display = 'none';
       try { sessionStorage.setItem('rollinAnnDismissed', '1'); } catch(e){}
     });
+
+    var rotateTimer = null;
+    var idx = 0;
+
+    function startRotation(){
+      if (rotateTimer) clearInterval(rotateTimer);
+      var slides = rotator.querySelectorAll('.ann-slide');
+      if (slides.length <= 1) return;
+      idx = 0;
+      slides.forEach(function(s,i){ s.classList.toggle('active', i===0); });
+      rotateTimer = setInterval(function(){
+        var current = rotator.querySelectorAll('.ann-slide');
+        if (current.length <= 1) return;
+        current[idx].classList.remove('active');
+        idx = (idx + 1) % current.length;
+        current[idx].classList.add('active');
+      }, 4500);
+    }
+
+    function pad2(n){ return String(n).padStart(2,'0'); }
+    function dateStr(d){ return d.getFullYear() + '-' + pad2(d.getMonth()+1) + '-' + pad2(d.getDate()); }
+
+    function fmtTimeStr(t){
+      if (!t) return '';
+      var parts = t.split(':');
+      var h = parseInt(parts[0],10), m = parts[1];
+      var ampm = h >= 12 ? 'PM' : 'AM';
+      var h12 = h % 12; if (h12 === 0) h12 = 12;
+      return h12 + ':' + m + ' ' + ampm;
+    }
+
+    function escHtml(s){
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+      });
+    }
+
+    function refreshEventSlide(){
+      var existing = rotator.querySelector('[data-slide="event"]');
+      var today = new Date();
+      var todayStr = dateStr(today);
+      var windowEnd = new Date(today); windowEnd.setDate(windowEnd.getDate() + 3);
+      var windowEndStr = dateStr(windowEnd);
+
+      sbShared.from('events').select('*').eq('status','confirmed')
+        .lte('start_date', windowEndStr).gte('end_date', todayStr)
+        .order('start_date').limit(1).then(function(res){
+          if (res.error || !res.data || !res.data.length) {
+            if (existing) existing.remove();
+            startRotation();
+            return;
+          }
+          var ev = res.data[0];
+          var when = ev.start_date === ev.end_date ? ev.start_date : ev.start_date + ' \u2013 ' + ev.end_date;
+          var timeRange = ev.start_time ? (' \u00b7 ' + fmtTimeStr(ev.start_time) + (ev.end_time ? ' \u2013 ' + fmtTimeStr(ev.end_time) : '')) : '';
+          var mapLink = ev.map_query
+            ? ' <a class="ann-inline-link" href="https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(ev.map_query) + '" target="_blank" rel="noopener">Map</a>'
+            : '';
+          var html = '\uD83D\uDCC5 <b>' + escHtml(ev.title) + '</b> \u2014 ' + when + timeRange + mapLink;
+
+          if (existing) {
+            existing.innerHTML = html;
+          } else {
+            var slide = document.createElement('div');
+            slide.className = 'ann-slide';
+            slide.setAttribute('data-slide', 'event');
+            slide.innerHTML = html;
+            rotator.insertBefore(slide, rotator.firstChild);
+          }
+          startRotation();
+        });
+    }
+
+    refreshEventSlide();
+    // recheck periodically in case the tab stays open across the event's window closing
+    setInterval(refreshEventSlide, 30 * 60000);
   })();
 
   // ---- Reviews carousel ----
@@ -1416,6 +1434,9 @@
 
     var sb = sbShared;
 
+    var STANDARD_LOCATION = '3554 S Arlington Rd, Akron, OH 44312';
+    var STANDARD_MAP_QUERY = STANDARD_LOCATION;
+
     var monthLabelEl = document.getElementById('calMonthLabel');
     var detailEl = document.getElementById('calDetail');
     var today = new Date();
@@ -1426,6 +1447,7 @@
 
     function pad2(n){ return String(n).padStart(2,'0'); }
     function dateStr(y,m,d){ return y + '-' + pad2(m+1) + '-' + pad2(d); }
+    var todayStr = dateStr(today.getFullYear(), today.getMonth(), today.getDate());
 
     function fmtTimeStr(t){
       if (!t) return '';
@@ -1436,43 +1458,79 @@
       return h12 + ':' + m + ' ' + ampm;
     }
 
-    function eventsOnDay(ds){
-      return allEvents.filter(function(ev){ return ds >= ev.start_date && ds <= ev.end_date; });
+    function standardHoursFor(ds){
+      var d = new Date(ds + 'T00:00:00');
+      var isFriday = d.getDay() === 5;
+      return isFriday ? '4:00 PM \u2013 10:00 PM' : '4:00 PM \u2013 9:00 PM';
     }
 
-    function renderDetail(ds){
-      var evs = eventsOnDay(ds);
-      if (!evs.length) {
-        detailEl.innerHTML = '<p class="cal-empty-hint">No confirmed event that day.</p>';
-        return;
-      }
-      detailEl.innerHTML = evs.map(function(ev){
-        var when = ev.start_date === ev.end_date
-          ? ev.start_date
-          : ev.start_date + ' \u2013 ' + ev.end_date;
-        var timeRange = '';
-        if (ev.start_time) {
-          timeRange = fmtTimeStr(ev.start_time) + (ev.end_time ? ' \u2013 ' + fmtTimeStr(ev.end_time) : '');
-        }
-        var mapLink = ev.map_query
-          ? '<a href="https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(ev.map_query) + '" target="_blank" rel="noopener">Get Directions</a>'
-          : '';
-        return '<div class="cal-event-card">' +
-          '<h4>' + escHtml(ev.title) + '</h4>' +
-          '<div class="cal-event-meta">' +
-            '<b>' + when + '</b>' + (timeRange ? ' &middot; ' + timeRange : '') + '<br>' +
-            escHtml(ev.location) +
-            (ev.description ? '<br>' + escHtml(ev.description) : '') +
-            (mapLink ? '<br>' + mapLink : '') +
-          '</div>' +
-        '</div>';
-      }).join('');
+    function eventsOnDay(ds){
+      return allEvents.filter(function(ev){ return ds >= ev.start_date && ds <= ev.end_date; });
     }
 
     function escHtml(s){
       return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
         return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
       });
+    }
+
+    function bookCateringFor(ds){
+      var cateringSection = document.getElementById('catering');
+      if (cateringSection) cateringSection.classList.remove('member-hide');
+      var bookItem = document.getElementById('cateringBookItem');
+      if (bookItem) bookItem.classList.add('open');
+      var dateInput = document.getElementById('cateringEventDate');
+      if (dateInput) dateInput.value = ds;
+      if (cateringSection) cateringSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function renderDetail(ds){
+      var evs = eventsOnDay(ds);
+
+      if (evs.length) {
+        detailEl.innerHTML = evs.map(function(ev){
+          var when = ev.start_date === ev.end_date
+            ? ev.start_date
+            : ev.start_date + ' \u2013 ' + ev.end_date;
+          var timeRange = '';
+          if (ev.start_time) {
+            timeRange = fmtTimeStr(ev.start_time) + (ev.end_time ? ' \u2013 ' + fmtTimeStr(ev.end_time) : '');
+          }
+          var mapLink = ev.map_query
+            ? '<a href="https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(ev.map_query) + '" target="_blank" rel="noopener">Get Directions</a>'
+            : '';
+          return '<div class="cal-event-card">' +
+            '<h4>' + escHtml(ev.title) + '</h4>' +
+            '<div class="cal-event-meta">' +
+              '<b>' + when + '</b>' + (timeRange ? ' &middot; ' + timeRange : '') + '<br>' +
+              escHtml(ev.location) +
+              (ev.description ? '<br>' + escHtml(ev.description) : '') +
+              (mapLink ? '<br>' + mapLink : '') +
+            '</div>' +
+          '</div>';
+        }).join('');
+        return;
+      }
+
+      // no conflicting event -- show standard availability + a way to book catering
+      if (ds < todayStr) {
+        detailEl.innerHTML = '<p class="cal-empty-hint">That date has passed.</p>';
+        return;
+      }
+
+      var mapLink = '<a href="https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(STANDARD_MAP_QUERY) + '" target="_blank" rel="noopener">Get Directions</a>';
+      detailEl.innerHTML = '<div class="cal-event-card cal-available-card">' +
+        '<h4>We\u2019ll be at our standard spot</h4>' +
+        '<div class="cal-event-meta">' +
+          '<b>' + ds + '</b> &middot; ' + standardHoursFor(ds) + '<br>' +
+          escHtml(STANDARD_LOCATION) + '<br>' +
+          mapLink +
+        '</div>' +
+        '<button type="button" class="btn btn-light cal-book-btn" id="calBookCateringBtn">Book Catering for This Date</button>' +
+      '</div>';
+
+      var bookBtn = document.getElementById('calBookCateringBtn');
+      if (bookBtn) bookBtn.addEventListener('click', function(){ bookCateringFor(ds); });
     }
 
     function renderGrid(){
@@ -1482,7 +1540,6 @@
       var firstOfMonth = new Date(viewYear, viewMonth, 1);
       var startWeekday = firstOfMonth.getDay(); // 0=Sun
       var daysInMonth = new Date(viewYear, viewMonth + 1, 0).getDate();
-      var todayStr = dateStr(today.getFullYear(), today.getMonth(), today.getDate());
 
       var html = '';
       for (var i = 0; i < startWeekday; i++) {
@@ -1490,17 +1547,21 @@
       }
       for (var day = 1; day <= daysInMonth; day++) {
         var ds = dateStr(viewYear, viewMonth, day);
+        var isPast = ds < todayStr;
         var hasEvent = eventsOnDay(ds).length > 0;
+        var isAvailable = !isPast && !hasEvent;
         var classes = ['cal-day'];
         if (ds === todayStr) classes.push('today');
         if (hasEvent) classes.push('has-event');
+        if (isAvailable) classes.push('is-available');
+        if (isPast) classes.push('is-past');
         if (ds === selectedDateStr) classes.push('selected');
-        html += '<div class="' + classes.join(' ') + '" data-date="' + ds + '">' + day +
-          (hasEvent ? '<span class="cal-dot"></span>' : '') + '</div>';
+        var dot = hasEvent ? '<span class="cal-dot"></span>' : (isAvailable ? '<span class="cal-dot cal-dot-available"></span>' : '');
+        html += '<div class="' + classes.join(' ') + '" data-date="' + ds + '">' + day + dot + '</div>';
       }
       grid.innerHTML = html;
 
-      grid.querySelectorAll('.cal-day.has-event').forEach(function(el){
+      grid.querySelectorAll('.cal-day.has-event, .cal-day.is-available').forEach(function(el){
         el.addEventListener('click', function(){
           selectedDateStr = el.getAttribute('data-date');
           renderGrid();
@@ -1520,16 +1581,14 @@
       renderGrid();
     });
 
-    sb.from('events').select('*').eq('status', 'confirmed').order('start_date').then(function(res){
+    // only fetch events that haven't fully passed yet
+    sb.from('events').select('*').eq('status', 'confirmed').gte('end_date', todayStr).order('start_date').then(function(res){
       if (res.error) return;
       allEvents = res.data;
       renderGrid();
-      var todayStr = dateStr(today.getFullYear(), today.getMonth(), today.getDate());
-      if (eventsOnDay(todayStr).length) {
-        selectedDateStr = todayStr;
-        renderGrid();
-        renderDetail(todayStr);
-      }
+      selectedDateStr = todayStr;
+      renderGrid();
+      renderDetail(todayStr);
     });
   })();
 
