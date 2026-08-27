@@ -131,7 +131,7 @@
     border-bottom:1px solid var(--line);
   }
   nav .wrap{ display:flex; align-items:center; justify-content:space-between; height:72px; gap:14px; }
-  .wordmark{ display:flex; align-items:baseline; gap:7px; font-size:18px; font-weight:700; letter-spacing:-0.01em; line-height:1; white-space:nowrap; }
+  .wordmark{ display:flex; align-items:baseline; gap:7px; font-size:18px; font-weight:700; letter-spacing:-0.01em; line-height:1; white-space:nowrap; flex-shrink:0; }
   .wordmark .w1{ color:var(--gold); }
   .wordmark .w2{ color:var(--red); }
   .navlinks{ display:flex; gap:28px; font-size:14.5px; font-weight:600; margin-left:auto; margin-right:24px; }
@@ -174,12 +174,15 @@
   @media (max-width:400px){ .nav-order{ padding:9px 14px; font-size:12px; } }
   .nav-toggle{
     display:none; background:none; border:none; color:var(--white); cursor:pointer;
-    padding:6px; margin-left:4px; align-items:center; justify-content:center;
+    padding:6px; margin-left:4px; align-items:center; justify-content:center; flex-shrink:0;
   }
   .nav-toggle svg{ width:24px; height:24px; }
   @media (max-width:780px){
     .navlinks{ display:none; }
     .nav-toggle{ display:flex; }
+  }
+  @media (max-width:480px){
+    .order-btn-group{ display:none; }
   }
   .mobile-nav{ display:none; flex-direction:column; background:rgba(0,0,0,0.98); border-bottom:1px solid var(--line); }
   .mobile-nav.open{ display:flex; }
@@ -1957,6 +1960,17 @@
       });
     }
   })();
+
+  // ---- Accordion toggle for static sections (catering, etc.) --
+  // the dynamic menu binds its own accordion clicks after it loads
+  // (scoped to #menuAccContainer only), so anything else on the page
+  // using the same .menu-acc-head styling needs its own binding here.
+  document.querySelectorAll('.menu-acc-head').forEach(function(btn){
+    if (btn.closest('#menuAccContainer')) return; // handled separately once the menu loads
+    btn.addEventListener('click', function(){
+      btn.closest('.menu-acc-item').classList.toggle('open');
+    });
+  });
 
   // ---- Take-out catering bundle total + order summary ----
   (function(){
