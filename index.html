@@ -435,6 +435,8 @@
     padding:8px 10px; color:var(--white); font-size:15px; font-family:'Inter'; text-align:center;
   }
   .bundle-qty:focus{ outline:none; border-color:var(--gold); }
+  .bundle-qty-error{ font-size:12px; color:var(--red); margin-top:8px; font-weight:600; }
+  .bundle-card.has-error{ border-color:var(--red); }
   .bundle-select{ width:auto; min-width:80px; color-scheme:dark; cursor:pointer; }
   .bundle-total{
     text-align:center; font-size:18px; font-weight:700; color:var(--white);
@@ -460,7 +462,7 @@
   .cform-head{ border:1px solid var(--line); border-radius:14px; background:var(--panel); padding:22px 20px; }
   .cform-head .menu-acc-title h4{ font-size:18px; }
   .cform-body{ max-height:0; }
-  .menu-acc-item.open .cform-body{ max-height:1400px; }
+  .menu-acc-item.open .cform-body{ max-height:3500px; }
   .cform-inner{ padding:24px 4px 0; }
   .cat-point .num{ font-size:12.5px; color:var(--gold); font-weight:700; letter-spacing:0.08em; }
   .cat-point p{ font-size:15px; color:var(--cream); margin-top:8px; line-height:1.55; max-width:38ch; }
@@ -1191,39 +1193,51 @@
                 <div class="bundle-price">$10 <span class="bundle-note">/ person</span></div>
                 <p>Chicken or falafel shawarma, minimum of 10.</p>
                 <label class="bundle-qty-label">Qty
-                  <select class="bundle-qty bundle-select" data-item="Shawarma Catering" data-unit-price="10"></select>
+                  <input type="number" min="0" class="bundle-qty bundle-qty-min10" data-item="Shawarma Catering" data-unit-price="10" placeholder="0">
                 </label>
+                <div class="bundle-qty-error hidden">Minimum of 10 required for this price.</div>
               </div>
               <div class="bundle-card">
                 <h4>Frankie Catering</h4>
                 <div class="bundle-price">$8 <span class="bundle-note">/ person</span></div>
                 <p>Frankie rolls, your choice of flavors, minimum of 10.</p>
                 <label class="bundle-qty-label">Qty
-                  <select class="bundle-qty bundle-select" data-item="Frankie Catering" data-unit-price="8"></select>
+                  <input type="number" min="0" class="bundle-qty bundle-qty-min10" data-item="Frankie Catering" data-unit-price="8" placeholder="0">
                 </label>
+                <div class="bundle-qty-error hidden">Minimum of 10 required for this price.</div>
               </div>
               <div class="bundle-card">
                 <h4>Rice Bowl Catering</h4>
                 <div class="bundle-price">$11 <span class="bundle-note">/ person</span></div>
                 <p>Chicken or veggie rice bowl, minimum of 10.</p>
                 <label class="bundle-qty-label">Qty
-                  <select class="bundle-qty bundle-select" data-item="Rice Bowl Catering" data-unit-price="11"></select>
+                  <input type="number" min="0" class="bundle-qty bundle-qty-min10" data-item="Rice Bowl Catering" data-unit-price="11" placeholder="0">
                 </label>
+                <div class="bundle-qty-error hidden">Minimum of 10 required for this price.</div>
               </div>
               <div class="bundle-card">
                 <h4>Tacos Catering</h4>
                 <div class="bundle-price">$7 <span class="bundle-note">/ person</span></div>
                 <p>Our signature tacos, minimum of 10.</p>
                 <label class="bundle-qty-label">Qty
-                  <select class="bundle-qty bundle-select" data-item="Tacos Catering" data-unit-price="7"></select>
+                  <input type="number" min="0" class="bundle-qty bundle-qty-min10" data-item="Tacos Catering" data-unit-price="7" placeholder="0">
+                </label>
+                <div class="bundle-qty-error hidden">Minimum of 10 required for this price.</div>
+              </div>
+              <div class="bundle-card">
+                <h4>Regular Fries <span class="bundle-note">(Tray)</span></h4>
+                <div class="bundle-price">$29.99</div>
+                <p>A tray of our classic crinkle-cut fries, serves a group.</p>
+                <label class="bundle-qty-label">Qty
+                  <input type="number" min="0" class="bundle-qty" data-item="Regular Fries (Tray)" data-unit-price="29.99" placeholder="0">
                 </label>
               </div>
               <div class="bundle-card">
                 <h4>Signature Fries <span class="bundle-note">(Half Tray)</span></h4>
-                <div class="bundle-price">$29.99</div>
-                <p>A half tray of our seasoned fries, serves a group.</p>
+                <div class="bundle-price">$39.99</div>
+                <p>A half tray of our seasoned signature fries, serves a group.</p>
                 <label class="bundle-qty-label">Qty
-                  <input type="number" min="0" value="0" class="bundle-qty" data-item="Signature Fries (Half Tray)" data-unit-price="29.99">
+                  <input type="number" min="0" class="bundle-qty" data-item="Signature Fries (Half Tray)" data-unit-price="39.99" placeholder="0">
                 </label>
               </div>
             </div>
@@ -1596,47 +1610,51 @@
 
   // ---- Take-out catering bundle total + order summary ----
   (function(){
-    // populate the per-person quantity dropdowns: 0 (not ordering), then 10-100 in steps of 5
-    document.querySelectorAll('.bundle-select').forEach(function(sel){
-      var zeroOpt = document.createElement('option');
-      zeroOpt.value = '0';
-      zeroOpt.textContent = '0 \u2014 Not ordering';
-      sel.appendChild(zeroOpt);
-      for (var n = 10; n <= 100; n += 5) {
-        var opt = document.createElement('option');
-        opt.value = n;
-        opt.textContent = n;
-        sel.appendChild(opt);
-      }
-      sel.value = '0';
-    });
-
     var qtyInputs = document.querySelectorAll('.bundle-qty');
     var totalEl = document.getElementById('bundleTotalDisplay');
     if (!qtyInputs.length || !totalEl) return;
 
     window.rollinBundleSummary = 'No items selected';
+    window.rollinBundleHasError = false;
 
     function recompute(){
       var total = 0;
       var lines = [];
+      var hasError = false;
+
       qtyInputs.forEach(function(input){
+        var card = input.closest('.bundle-card');
+        var errorEl = card ? card.querySelector('.bundle-qty-error') : null;
         var qty = parseInt(input.value, 10) || 0;
         var unitPrice = parseFloat(input.getAttribute('data-unit-price')) || 0;
-        if (qty > 0) {
+        var requiresMin10 = input.classList.contains('bundle-qty-min10');
+
+        var isInvalid = requiresMin10 && qty > 0 && qty < 10;
+
+        if (errorEl) {
+          errorEl.classList.toggle('hidden', !isInvalid);
+        }
+        if (card) {
+          card.classList.toggle('has-error', isInvalid);
+        }
+        if (isInvalid) hasError = true;
+
+        if (qty > 0 && !isInvalid) {
           var lineTotal = qty * unitPrice;
           total += lineTotal;
           lines.push(input.getAttribute('data-item') + ' x' + qty + ' ($' + lineTotal.toFixed(2) + ')');
         }
       });
+
       totalEl.textContent = '$' + total.toFixed(2);
       window.rollinBundleSummary = lines.length ? (lines.join(', ') + ' \u2014 TOTAL: $' + total.toFixed(2)) : 'No items selected';
+      window.rollinBundleHasError = hasError;
     }
 
     qtyInputs.forEach(function(input){
       input.addEventListener('input', recompute);
       input.addEventListener('change', function(){
-        if (parseInt(input.value,10) < 0 || isNaN(parseInt(input.value,10))) input.value = 0;
+        if (parseInt(input.value,10) < 0 || isNaN(parseInt(input.value,10))) input.value = '';
         recompute();
       });
     });
@@ -1667,6 +1685,11 @@
       msgEl.textContent = '';
       msgEl.className = 'square-pay-msg';
 
+      if (window.rollinBundleHasError) {
+        msgEl.textContent = 'Please fix the highlighted quantities above \u2014 minimum of 10 required for those items.';
+        msgEl.className = 'square-pay-msg error';
+        return;
+      }
       if (amount <= 0) {
         msgEl.textContent = 'Set your quantities above first, then tap Pay Now.';
         msgEl.className = 'square-pay-msg error';
