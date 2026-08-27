@@ -619,11 +619,16 @@
     background:var(--panel); border-left:1px solid var(--line); display:flex; flex-direction:column;
   }
   .cart-drawer-header{
-    display:flex; justify-content:space-between; align-items:center; padding:20px 20px 16px;
+    display:flex; align-items:center; gap:12px; padding:20px 20px 16px;
     border-bottom:1px solid var(--line);
   }
-  .cart-drawer-header h3{ font-size:17px; color:var(--white); }
+  .cart-drawer-header h3{ font-size:17px; color:var(--white); flex:1; }
   .cart-drawer-close{ background:none; border:none; color:var(--muted); font-size:26px; line-height:1; cursor:pointer; }
+  .cart-clear-btn{
+    background:none; border:1px solid var(--line); color:var(--muted); border-radius:100px;
+    padding:6px 12px; font-size:11.5px; font-weight:600; cursor:pointer; flex:none;
+  }
+  .cart-clear-btn:hover{ border-color:var(--red); color:var(--red); }
   .cart-drawer-close:hover{ color:var(--cream); }
   .cart-items-list{ flex:1; overflow-y:auto; padding:14px 20px; }
   .cart-empty-hint{ text-align:center; color:var(--muted); font-size:13.5px; margin-top:30px; }
@@ -896,6 +901,7 @@
   <div class="cart-drawer-panel">
     <div class="cart-drawer-header">
       <h3>Your Order</h3>
+      <button type="button" id="cartClearBtn" class="cart-clear-btn hidden">Clear Cart</button>
       <button type="button" id="cartDrawerClose" class="cart-drawer-close" aria-label="Close">&times;</button>
     </div>
     <div id="cartItemsList" class="cart-items-list"></div>
@@ -1642,6 +1648,9 @@
       if (totalEl) totalEl.textContent = '$' + total.toFixed(2);
       if (drawerTotalEl) drawerTotalEl.textContent = '$' + total.toFixed(2);
 
+      var clearBtn = document.getElementById('cartClearBtn');
+      if (clearBtn) clearBtn.classList.toggle('hidden', count === 0);
+
       if (listEl) {
         listEl.innerHTML = cart.length ? cart.map(function(c){
           return '<div class="cart-item-row">' +
@@ -1767,6 +1776,13 @@
       cartFabBtn.addEventListener('click', function(){ cartDrawer.classList.remove('hidden'); });
       document.getElementById('cartDrawerClose').addEventListener('click', function(){ cartDrawer.classList.add('hidden'); });
       document.getElementById('cartDrawerOverlay').addEventListener('click', function(){ cartDrawer.classList.add('hidden'); });
+      document.getElementById('cartClearBtn').addEventListener('click', function(){
+        if (!cart.length) return;
+        if (!confirm('Clear your whole cart?')) return;
+        cart = [];
+        saveCart();
+        renderCartUI();
+      });
       document.getElementById('cartCheckoutBtn').addEventListener('click', function(){
         alert('Checkout is coming very soon! For now, please use Order for Pickup or Delivery above the menu.');
       });
