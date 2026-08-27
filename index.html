@@ -645,6 +645,19 @@
   .cart-drawer-footer{ padding:18px 20px 22px; border-top:1px solid var(--line); }
   .cart-total-row{ display:flex; justify-content:space-between; font-size:16px; font-weight:700; color:var(--white); margin-bottom:14px; }
   .cart-total-row span{ color:var(--gold); }
+  .cart-checkout-form{ padding:16px 20px 0; }
+  .cart-checkout-form label{ display:flex; flex-direction:column; gap:6px; font-size:12px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:14px; }
+  .cart-checkout-form input, .cart-checkout-form textarea{
+    background:var(--black); border:1px solid var(--line); border-radius:10px; padding:10px 12px;
+    color:var(--white); font-size:14px; font-family:'Inter';
+  }
+  .cart-checkout-form input:focus, .cart-checkout-form textarea:focus{ outline:none; border-color:var(--gold); }
+  .cart-checkout-msg{ padding:0 20px; }
+  .cart-back-link{
+    display:block; width:100%; text-align:center; background:none; border:none;
+    color:var(--muted); font-size:12.5px; margin-top:12px; cursor:pointer;
+  }
+  .cart-back-link:hover{ color:var(--cream); }
 
   /* ---------- INTERACTIVE MENU ROWS ---------- */
   .menu-loading-hint{ text-align:center; color:var(--muted); font-size:13.5px; padding:20px 0; }
@@ -900,14 +913,32 @@
   <div class="cart-drawer-overlay" id="cartDrawerOverlay"></div>
   <div class="cart-drawer-panel">
     <div class="cart-drawer-header">
-      <h3>Your Order</h3>
+      <h3 id="cartDrawerTitle">Your Order</h3>
       <button type="button" id="cartClearBtn" class="cart-clear-btn hidden">Clear Cart</button>
       <button type="button" id="cartDrawerClose" class="cart-drawer-close" aria-label="Close">&times;</button>
     </div>
-    <div id="cartItemsList" class="cart-items-list"></div>
-    <div class="cart-drawer-footer">
-      <div class="cart-total-row">Total <span id="cartDrawerTotal">$0.00</span></div>
-      <button type="button" id="cartCheckoutBtn" class="btn btn-light" style="width:100%;">Proceed to Checkout</button>
+
+    <div id="cartItemsView">
+      <div id="cartItemsList" class="cart-items-list"></div>
+      <div class="cart-drawer-footer">
+        <div class="cart-total-row">Total <span id="cartDrawerTotal">$0.00</span></div>
+        <button type="button" id="cartCheckoutBtn" class="btn btn-light" style="width:100%;">Proceed to Checkout</button>
+      </div>
+    </div>
+
+    <div id="cartCheckoutView" class="hidden">
+      <div class="cform cart-checkout-form">
+        <label>Name*<input type="text" id="cartCustomerName" required></label>
+        <label>Email* (for your confirmation)<input type="email" id="cartCustomerEmail" required></label>
+        <label>Phone<input type="tel" id="cartCustomerPhone"></label>
+        <label>Notes<textarea id="cartCustomerNotes" rows="2" placeholder="Any special requests..."></textarea></label>
+      </div>
+      <div id="cartCheckoutMsg" class="square-pay-msg cart-checkout-msg"></div>
+      <div class="cart-drawer-footer">
+        <div class="cart-total-row">Total <span id="cartCheckoutTotal">$0.00</span></div>
+        <button type="button" id="cartPayNowBtn" class="btn btn-light" style="width:100%;">Pay Now</button>
+        <button type="button" id="cartBackToItemsBtn" class="cart-back-link">&larr; Back to cart</button>
+      </div>
     </div>
   </div>
 </div>
@@ -1772,8 +1803,24 @@
 
     var cartFabBtn = document.getElementById('cartFabBtn');
     var cartDrawer = document.getElementById('cartDrawer');
+    var itemsView = document.getElementById('cartItemsView');
+    var checkoutView = document.getElementById('cartCheckoutView');
+    var drawerTitle = document.getElementById('cartDrawerTitle');
+
+    function showItemsView(){
+      itemsView.classList.remove('hidden');
+      checkoutView.classList.add('hidden');
+      drawerTitle.textContent = 'Your Order';
+    }
+    function showCheckoutView(){
+      itemsView.classList.add('hidden');
+      checkoutView.classList.remove('hidden');
+      drawerTitle.textContent = 'Checkout';
+      document.getElementById('cartCheckoutTotal').textContent = '$' + cartTotal().toFixed(2);
+    }
+
     if (cartFabBtn && cartDrawer) {
-      cartFabBtn.addEventListener('click', function(){ cartDrawer.classList.remove('hidden'); });
+      cartFabBtn.addEventListener('click', function(){ cartDrawer.classList.remove('hidden'); showItemsView(); });
       document.getElementById('cartDrawerClose').addEventListener('click', function(){ cartDrawer.classList.add('hidden'); });
       document.getElementById('cartDrawerOverlay').addEventListener('click', function(){ cartDrawer.classList.add('hidden'); });
       document.getElementById('cartClearBtn').addEventListener('click', function(){
@@ -1784,7 +1831,72 @@
         renderCartUI();
       });
       document.getElementById('cartCheckoutBtn').addEventListener('click', function(){
-        alert('Checkout is coming very soon! For now, please use Order for Pickup or Delivery above the menu.');
+        if (!cart.length) return;
+        showCheckoutView();
+      });
+      document.getElementById('cartBackToItemsBtn').addEventListener('click', showItemsView);
+
+      var ORDER_EDGE_FUNCTION_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/create-order-checkout';
+      var ORDER_ANON_KEY = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
+
+      document.getElementById('cartPayNowBtn').addEventListener('click', function(){
+        var payBtn = this;
+        var msgEl = document.getElementById('cartCheckoutMsg');
+        var name = document.getElementById('cartCustomerName').value.trim();
+        var email = document.getElementById('cartCustomerEmail').value.trim();
+        var phone = document.getElementById('cartCustomerPhone').value.trim();
+        var notes = document.getElementById('cartCustomerNotes').value.trim();
+
+        msgEl.textContent = '';
+        msgEl.className = 'square-pay-msg cart-checkout-msg';
+
+        if (!cart.length) {
+          msgEl.textContent = 'Your cart is empty.';
+          msgEl.className = 'square-pay-msg cart-checkout-msg error';
+          return;
+        }
+        if (!name || !email) {
+          msgEl.textContent = 'Please fill in your name and email so we can send your confirmation.';
+          msgEl.className = 'square-pay-msg cart-checkout-msg error';
+          return;
+        }
+
+        payBtn.disabled = true;
+        payBtn.textContent = 'Preparing checkout\u2026';
+
+        var itemsPayload = cart.map(function(c){
+          return { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name };
+        });
+
+        fetch(ORDER_EDGE_FUNCTION_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ORDER_ANON_KEY },
+          body: JSON.stringify({
+            items: itemsPayload, customerName: name, customerEmail: email,
+            customerPhone: phone, notes: notes
+          })
+        }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
+          .then(function(result){
+            payBtn.disabled = false;
+            payBtn.textContent = 'Pay Now';
+            if (!result.ok || !result.data.url) {
+              msgEl.textContent = (result.data && result.data.error) ? String(result.data.error) : "Couldn't start checkout \u2014 please try again in a moment.";
+              msgEl.className = 'square-pay-msg cart-checkout-msg error';
+              return;
+            }
+            window.open(result.data.url, '_blank');
+            cart = [];
+            saveCart();
+            renderCartUI();
+            cartDrawer.classList.add('hidden');
+            showItemsView();
+          })
+          .catch(function(){
+            payBtn.disabled = false;
+            payBtn.textContent = 'Pay Now';
+            msgEl.textContent = "Couldn't reach checkout \u2014 please try again in a moment.";
+            msgEl.className = 'square-pay-msg cart-checkout-msg error';
+          });
       });
     }
   })();
