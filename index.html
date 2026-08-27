@@ -593,6 +593,70 @@
     #floatOrderGroup{ right:14px; bottom:14px; }
     .float-btn{ padding:10px 15px; font-size:12px; }
   }
+
+  /* ---------- CART FAB + DRAWER ---------- */
+  #cartFab{
+    position:fixed; left:20px; bottom:20px; z-index:200;
+    transform:translateY(0); opacity:1; transition:transform .3s ease, opacity .3s ease;
+  }
+  .cart-fab-btn{
+    display:flex; align-items:center; gap:8px; padding:12px 18px; border-radius:100px;
+    background:var(--gold); color:#241902; border:none; font-weight:700; font-size:13.5px;
+    box-shadow:0 10px 26px rgba(0,0,0,0.5); cursor:pointer;
+  }
+  .cart-fab-btn:hover{ transform:translateY(-2px); }
+  .cart-fab-icon{ width:17px; height:17px; flex:none; }
+  .cart-fab-count{
+    background:#241902; color:var(--gold); border-radius:100px; min-width:20px; height:20px;
+    display:inline-flex; align-items:center; justify-content:center; font-size:11.5px; padding:0 5px;
+  }
+  @media (max-width:480px){ #cartFab{ left:14px; bottom:14px; } }
+
+  .cart-drawer{ position:fixed; inset:0; z-index:400; }
+  .cart-drawer-overlay{ position:absolute; inset:0; background:rgba(0,0,0,0.6); }
+  .cart-drawer-panel{
+    position:absolute; right:0; top:0; bottom:0; width:100%; max-width:420px;
+    background:var(--panel); border-left:1px solid var(--line); display:flex; flex-direction:column;
+  }
+  .cart-drawer-header{
+    display:flex; justify-content:space-between; align-items:center; padding:20px 20px 16px;
+    border-bottom:1px solid var(--line);
+  }
+  .cart-drawer-header h3{ font-size:17px; color:var(--white); }
+  .cart-drawer-close{ background:none; border:none; color:var(--muted); font-size:26px; line-height:1; cursor:pointer; }
+  .cart-drawer-close:hover{ color:var(--cream); }
+  .cart-items-list{ flex:1; overflow-y:auto; padding:14px 20px; }
+  .cart-empty-hint{ text-align:center; color:var(--muted); font-size:13.5px; margin-top:30px; }
+  .cart-item-row{ display:flex; justify-content:space-between; align-items:center; gap:10px; padding:12px 0; border-bottom:1px solid var(--line); }
+  .cart-item-name{ font-size:13.5px; font-weight:600; color:var(--white); }
+  .cart-item-combo{ color:var(--gold); font-weight:600; }
+  .cart-item-price{ font-size:12px; color:var(--muted); margin-top:2px; }
+  .cart-item-qty{ display:flex; align-items:center; gap:10px; flex:none; }
+  .cart-qty-btn{
+    width:28px; height:28px; border-radius:8px; background:var(--black); border:1px solid var(--line);
+    color:var(--cream); font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .cart-qty-btn:hover{ border-color:var(--gold); color:var(--gold); }
+  .cart-drawer-footer{ padding:18px 20px 22px; border-top:1px solid var(--line); }
+  .cart-total-row{ display:flex; justify-content:space-between; font-size:16px; font-weight:700; color:var(--white); margin-bottom:14px; }
+  .cart-total-row span{ color:var(--gold); }
+
+  /* ---------- INTERACTIVE MENU ROWS ---------- */
+  .menu-loading-hint{ text-align:center; color:var(--muted); font-size:13.5px; padding:20px 0; }
+  .menu-item-row{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:11px 0; border-bottom:1px solid var(--line); }
+  .menu-item-row:last-of-type{ border-bottom:none; }
+  .menu-item-info{ flex:1; min-width:0; }
+  .menu-item-desc{ display:block; font-size:11.5px; color:var(--muted); margin-top:2px; }
+  .menu-item-price{ font-size:13px; color:var(--gold); font-weight:700; flex:none; margin:0 12px; }
+  .menu-item-controls{ display:flex; align-items:center; gap:10px; flex:none; }
+  .menu-qty-minus, .menu-qty-plus{
+    width:28px; height:28px; border-radius:8px; background:var(--black); border:1px solid var(--line);
+    color:var(--cream); font-size:16px; cursor:pointer; display:flex; align-items:center; justify-content:center;
+  }
+  .menu-qty-minus:hover, .menu-qty-plus:hover{ border-color:var(--gold); color:var(--gold); }
+  .menu-item-qty-value{ min-width:16px; text-align:center; font-size:13.5px; font-weight:700; color:var(--white); }
+  .menu-item-row.in-cart .menu-item-qty-value{ color:var(--gold); }
+
   @media print{
     body{ background:#fff !important; color:#111 !important; }
     #annbar, #floatOrderGroup, nav, .mobile-nav, footer,
@@ -815,130 +879,32 @@
       </a>
     </div>
 
-    <div class="menu-acc">
-
-      <div class="menu-acc-item">
-        <button class="menu-acc-head" type="button">
-          <img class="menu-acc-thumb" src="menu-shawarma.jpg" alt="">
-          <div class="menu-acc-title"><h4>Shawarma</h4><span class="menu-acc-price">From $11.99</span></div>
-          <svg class="menu-acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
-        </button>
-        <div class="menu-acc-body"><div class="menu-acc-inner">
-          <div class="desc">Marinated chicken or falafel, white sauce, fries &amp; pickled cucumber</div>
-          <div class="mrow"><span class="nm">Chicken Shawarma</span></div>
-          <div class="mrow"><span class="nm">Falafel Shawarma (Veg)</span></div>
-          <div class="mnote">+ $3.99 make it a combo</div>
-        </div></div>
-      </div>
-
-      <div class="menu-acc-item">
-        <button class="menu-acc-head" type="button">
-          <img class="menu-acc-thumb" src="menu-frankie.jpg" alt="">
-          <div class="menu-acc-title"><h4>Frankie Rolls</h4><span class="menu-acc-price">From $9.99</span></div>
-          <svg class="menu-acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
-        </button>
-        <div class="menu-acc-body"><div class="menu-acc-inner">
-          <div class="desc">Marinated chicken or paneer, fresh veggies, cilantro &amp; lime</div>
-          <div class="mrow"><span class="nm">Butter Chicken Frankie</span></div>
-          <div class="mrow"><span class="nm">Chicken Tikka Frankie</span></div>
-          <div class="mrow"><span class="nm">Tandoori Chicken Frankie</span></div>
-          <div class="mrow"><span class="nm">Signature Chicken Frankie</span></div>
-          <div class="mrow"><span class="nm">Paneer Frankie (Veg)</span></div>
-          <div class="mnote">+ $3.99 make it a combo</div>
-        </div></div>
-      </div>
-
-      <div class="menu-acc-item">
-        <button class="menu-acc-head" type="button">
-          <img class="menu-acc-thumb" src="menu-bowl.jpg" alt="">
-          <div class="menu-acc-title"><h4>Bowls</h4><span class="menu-acc-price">From $12.99</span></div>
-          <svg class="menu-acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
-        </button>
-        <div class="menu-acc-body"><div class="menu-acc-inner">
-          <div class="desc">Flavored rice, cucumber, peppers, lettuce, tomato &amp; sauce</div>
-          <div class="mrow"><span class="nm">Chicken Over Rice Bowl</span></div>
-          <div class="mrow"><span class="nm">Veggie Bowl</span></div>
-        </div></div>
-      </div>
-
-      <div class="menu-acc-item">
-        <button class="menu-acc-head" type="button">
-          <img class="menu-acc-thumb" src="menu-tacos.jpg" alt="">
-          <div class="menu-acc-title"><h4>Tacos</h4><span class="menu-acc-price">From $11.99</span></div>
-          <svg class="menu-acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
-        </button>
-        <div class="menu-acc-body"><div class="menu-acc-inner">
-          <div class="desc">3 soft tacos, fresh veggies, cilantro &amp; lime</div>
-          <div class="mrow"><span class="nm">Butter Chicken</span></div>
-          <div class="mrow"><span class="nm">Chicken Tikka</span></div>
-          <div class="mrow"><span class="nm">Tandoori Chicken</span></div>
-          <div class="mrow"><span class="nm">Signature Chicken</span></div>
-          <div class="mnote">+ $3.99 make it a combo</div>
-        </div></div>
-      </div>
-
-      <div class="menu-acc-item">
-        <button class="menu-acc-head" type="button">
-          <img class="menu-acc-thumb" src="menu-fries.jpg" alt="">
-          <div class="menu-acc-title"><h4>Loaded Fries</h4><span class="menu-acc-price">From $11.99</span></div>
-          <svg class="menu-acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
-        </button>
-        <div class="menu-acc-body"><div class="menu-acc-inner">
-          <div class="desc">Cheese, dual-sauce drizzle &amp; cilantro &mdash; choose your favorite sauce</div>
-          <div class="mrow"><span class="nm">Butter Chicken</span></div>
-          <div class="mrow"><span class="nm">Chicken Tikka</span></div>
-          <div class="mrow"><span class="nm">Tandoori Chicken</span></div>
-          <div class="mrow"><span class="nm">Signature Chicken</span></div>
-          <div class="mnote">+ $3.99 make it a combo</div>
-        </div></div>
-      </div>
-
-      <div class="menu-acc-item">
-        <button class="menu-acc-head" type="button">
-          <img class="menu-acc-thumb" src="menu-samosas.jpg" alt="">
-          <div class="menu-acc-title"><h4>Sides</h4><span class="menu-acc-price">From $2.99</span></div>
-          <svg class="menu-acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
-        </button>
-        <div class="menu-acc-body"><div class="menu-acc-inner">
-          <div class="desc">Regular / Large where noted</div>
-          <div class="mrow"><span class="nm">Fries</span><span class="pr">$2.99 / $4.99</span></div>
-          <div class="mrow"><span class="nm">Fryum Chips</span><span class="pr">$2.99 / $4.99</span></div>
-          <div class="mrow"><span class="nm">Peri-Peri Fries</span><span class="pr">$3.49 / $5.49</span></div>
-          <div class="mrow"><span class="nm">2 Samosas</span><span class="pr">$5.49</span></div>
-        </div></div>
-      </div>
-
-      <div class="menu-acc-item">
-        <button class="menu-acc-head" type="button">
-          <img class="menu-acc-thumb" src="menu-kulfi.jpg" alt="">
-          <div class="menu-acc-title"><h4>Kulfi Ice Cream</h4><span class="menu-acc-price">$3.99</span></div>
-          <svg class="menu-acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
-        </button>
-        <div class="menu-acc-body"><div class="menu-acc-inner">
-          <div class="mrow"><span class="nm">Pistachio</span><span class="pr">$3.99</span></div>
-          <div class="mrow"><span class="nm">Mango</span><span class="pr">$3.99</span></div>
-          <div class="mrow"><span class="nm">Almond</span><span class="pr">$3.99</span></div>
-        </div></div>
-      </div>
-
-      <div class="menu-acc-item">
-        <button class="menu-acc-head" type="button">
-          <img class="menu-acc-thumb" src="menu-falooda.jpg" alt="">
-          <div class="menu-acc-title"><h4>Drinks</h4><span class="menu-acc-price">From $2.49</span></div>
-          <svg class="menu-acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
-        </button>
-        <div class="menu-acc-body"><div class="menu-acc-inner">
-          <div class="mrow"><span class="nm">Soda</span><span class="pr">$2.49</span></div>
-          <div class="mrow"><span class="nm">Sharbat Refreshment Soda</span><span class="pr">$3.49</span></div>
-          <div class="mrow"><span class="nm">Root Beer Float</span><span class="pr">$4.99</span></div>
-          <div class="mrow"><span class="nm">Falooda Ice Cream Drink</span><span class="pr">$5.49</span></div>
-          <div class="mrow"><span class="nm">Mango Lassi</span><span class="pr">$5.49</span></div>
-        </div></div>
-      </div>
-
-    </div>
+    <div class="menu-acc" id="menuAccContainer"><p class="menu-loading-hint">Loading menu…</p></div>
   </div>
 </section>
+
+<div id="cartFab" class="cart-fab hidden">
+  <button type="button" id="cartFabBtn" class="cart-fab-btn">
+    <svg class="cart-fab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
+    <span id="cartFabCount" class="cart-fab-count">0</span>
+    <span id="cartFabTotal">$0.00</span>
+  </button>
+</div>
+
+<div id="cartDrawer" class="cart-drawer hidden">
+  <div class="cart-drawer-overlay" id="cartDrawerOverlay"></div>
+  <div class="cart-drawer-panel">
+    <div class="cart-drawer-header">
+      <h3>Your Order</h3>
+      <button type="button" id="cartDrawerClose" class="cart-drawer-close" aria-label="Close">&times;</button>
+    </div>
+    <div id="cartItemsList" class="cart-items-list"></div>
+    <div class="cart-drawer-footer">
+      <div class="cart-total-row">Total <span id="cartDrawerTotal">$0.00</span></div>
+      <button type="button" id="cartCheckoutBtn" class="btn btn-light" style="width:100%;">Proceed to Checkout</button>
+    </div>
+  </div>
+</div>
 
 <section id="deals">
   <div class="wrap">
@@ -1600,13 +1566,212 @@
     startTimer();
   })();
 
-  // ---- Menu accordion ----
-  document.querySelectorAll('.menu-acc-head').forEach(function(btn){
-    btn.addEventListener('click', function(){
-      var item = btn.closest('.menu-acc-item');
-      item.classList.toggle('open');
+  // ---- Menu: fetch live from Supabase, render interactively, manage cart ----
+  (function(){
+    var menuContainer = document.getElementById('menuAccContainer');
+    if (!menuContainer) return;
+
+    var CART_KEY = 'rollinCart';
+    var cart = [];
+    var itemsById = {};
+
+    function escHtml(s){
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+      });
+    }
+
+    function loadCart(){
+      try {
+        var saved = localStorage.getItem(CART_KEY);
+        cart = saved ? JSON.parse(saved) : [];
+      } catch(e){ cart = []; }
+    }
+    function saveCart(){
+      try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch(e){}
+    }
+
+    function findLine(itemId){
+      return cart.find(function(c){ return c.menu_item_id === itemId; });
+    }
+
+    function addOne(itemId){
+      var item = itemsById[itemId];
+      if (!item) return;
+      var line = findLine(itemId);
+      if (line) {
+        line.quantity += 1;
+      } else {
+        var label = item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : '');
+        cart.push({ menu_item_id: itemId, name: label, unitPrice: Number(item.price), quantity: 1 });
+      }
+      saveCart();
+      renderCartUI();
+    }
+
+    function removeOne(itemId){
+      var line = findLine(itemId);
+      if (!line) return;
+      line.quantity -= 1;
+      if (line.quantity <= 0) {
+        cart = cart.filter(function(c){ return c.menu_item_id !== itemId; });
+      }
+      saveCart();
+      renderCartUI();
+    }
+
+    function cartTotal(){
+      return cart.reduce(function(sum, c){ return sum + c.unitPrice * c.quantity; }, 0);
+    }
+    function cartCount(){
+      return cart.reduce(function(sum, c){ return sum + c.quantity; }, 0);
+    }
+
+    function renderCartUI(){
+      var fab = document.getElementById('cartFab');
+      var countEl = document.getElementById('cartFabCount');
+      var totalEl = document.getElementById('cartFabTotal');
+      var listEl = document.getElementById('cartItemsList');
+      var drawerTotalEl = document.getElementById('cartDrawerTotal');
+
+      var count = cartCount();
+      var total = cartTotal();
+
+      if (fab) fab.classList.toggle('hidden', count === 0);
+      if (countEl) countEl.textContent = count;
+      if (totalEl) totalEl.textContent = '$' + total.toFixed(2);
+      if (drawerTotalEl) drawerTotalEl.textContent = '$' + total.toFixed(2);
+
+      if (listEl) {
+        listEl.innerHTML = cart.length ? cart.map(function(c){
+          return '<div class="cart-item-row">' +
+            '<div><div class="cart-item-name">' + escHtml(c.name) + '</div>' +
+            '<div class="cart-item-price">$' + c.unitPrice.toFixed(2) + ' each</div></div>' +
+            '<div class="cart-item-qty">' +
+              '<button type="button" class="cart-qty-btn" data-id="' + c.menu_item_id + '" data-dir="-1">\u2212</button>' +
+              '<span>' + c.quantity + '</span>' +
+              '<button type="button" class="cart-qty-btn" data-id="' + c.menu_item_id + '" data-dir="1">+</button>' +
+            '</div>' +
+          '</div>';
+        }).join('') : '<p class="cart-empty-hint">Your cart is empty.</p>';
+
+        listEl.querySelectorAll('.cart-qty-btn').forEach(function(btn){
+          btn.addEventListener('click', function(){
+            var id = btn.getAttribute('data-id');
+            if (btn.getAttribute('data-dir') === '1') addOne(id); else removeOne(id);
+          });
+        });
+      }
+
+      menuContainer.querySelectorAll('.menu-item-row').forEach(function(row){
+        var itemId = row.getAttribute('data-item-id');
+        var line = findLine(itemId);
+        var qtyDisplay = row.querySelector('.menu-item-qty-value');
+        if (qtyDisplay) qtyDisplay.textContent = line ? line.quantity : 0;
+        row.classList.toggle('in-cart', !!line);
+      });
+    }
+
+    var categoryImages = {
+      'Shawarma': 'menu-shawarma.jpg', 'Frankie Rolls': 'menu-frankie.jpg',
+      'Bowls': 'menu-bowl.jpg', 'Tacos': 'menu-tacos.jpg',
+      'Loaded Fries': 'menu-fries.jpg', 'Sides': 'menu-samosas.jpg',
+      'Kulfi Ice Cream': 'menu-kulfi.jpg', 'Drinks': 'menu-falooda.jpg'
+    };
+    var categoryDescriptions = {
+      'Shawarma': 'Marinated chicken or falafel, white sauce, fries & pickled cucumber',
+      'Frankie Rolls': 'Marinated chicken or paneer, fresh veggies, cilantro & lime',
+      'Bowls': 'Flavored rice, cucumber, peppers, lettuce, tomato & sauce',
+      'Sides': 'Regular / Large where noted'
+    };
+
+    function renderMenu(items){
+      var byCategory = {};
+      var categoryOrder = [];
+      items.forEach(function(item){
+        itemsById[item.id] = item;
+        if (!byCategory[item.category]) {
+          byCategory[item.category] = [];
+          categoryOrder.push(item.category);
+        }
+        byCategory[item.category].push(item);
+      });
+
+      var html = categoryOrder.map(function(cat){
+        var catItems = byCategory[cat];
+        var prices = catItems.map(function(i){ return Number(i.price); });
+        var minPrice = Math.min.apply(null, prices);
+        var allSame = prices.every(function(p){ return p === minPrice; });
+        var priceLabel = (catItems.length > 1 && !allSame) ? 'From $' + minPrice.toFixed(2) : '$' + minPrice.toFixed(2);
+        var img = categoryImages[cat] || 'menu-shawarma.jpg';
+        var desc = categoryDescriptions[cat];
+        var hasCombo = catItems.some(function(i){ return i.combo_upcharge; });
+
+        var rowsHtml = catItems.map(function(item){
+          var label = item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : '');
+          return '<div class="menu-item-row" data-item-id="' + item.id + '">' +
+            '<div class="menu-item-info"><span class="nm">' + escHtml(label) + '</span>' +
+            (item.description ? '<span class="menu-item-desc">' + escHtml(item.description) + '</span>' : '') + '</div>' +
+            '<div class="menu-item-price">$' + Number(item.price).toFixed(2) + '</div>' +
+            '<div class="menu-item-controls">' +
+              '<button type="button" class="menu-qty-minus" data-id="' + item.id + '">\u2212</button>' +
+              '<span class="menu-item-qty-value">0</span>' +
+              '<button type="button" class="menu-qty-plus" data-id="' + item.id + '">+</button>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+
+        return '<div class="menu-acc-item">' +
+          '<button class="menu-acc-head" type="button">' +
+            '<img class="menu-acc-thumb" src="' + img + '" alt="">' +
+            '<div class="menu-acc-title"><h4>' + escHtml(cat) + '</h4><span class="menu-acc-price">' + priceLabel + '</span></div>' +
+            '<svg class="menu-acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>' +
+          '</button>' +
+          '<div class="menu-acc-body"><div class="menu-acc-inner">' +
+            (desc ? '<div class="desc">' + escHtml(desc) + '</div>' : '') +
+            rowsHtml +
+            (hasCombo ? '<div class="mnote">+ $3.99 make it a combo (fries &amp; a soda)</div>' : '') +
+          '</div></div>' +
+        '</div>';
+      }).join('');
+
+      menuContainer.innerHTML = html || '<p class="menu-loading-hint">Menu unavailable right now &mdash; please call us.</p>';
+
+      menuContainer.querySelectorAll('.menu-acc-head').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          btn.closest('.menu-acc-item').classList.toggle('open');
+        });
+      });
+      menuContainer.querySelectorAll('.menu-qty-plus').forEach(function(btn){
+        btn.addEventListener('click', function(e){ e.stopPropagation(); addOne(btn.getAttribute('data-id')); });
+      });
+      menuContainer.querySelectorAll('.menu-qty-minus').forEach(function(btn){
+        btn.addEventListener('click', function(e){ e.stopPropagation(); removeOne(btn.getAttribute('data-id')); });
+      });
+
+      renderCartUI();
+    }
+
+    loadCart();
+    sbShared.from('menu_items').select('*').order('display_order').then(function(res){
+      if (res.error || !res.data || !res.data.length) {
+        menuContainer.innerHTML = '<p class="menu-loading-hint">Menu unavailable right now &mdash; please call us at (330) 587-5203.</p>';
+        return;
+      }
+      renderMenu(res.data);
     });
-  });
+
+    var cartFabBtn = document.getElementById('cartFabBtn');
+    var cartDrawer = document.getElementById('cartDrawer');
+    if (cartFabBtn && cartDrawer) {
+      cartFabBtn.addEventListener('click', function(){ cartDrawer.classList.remove('hidden'); });
+      document.getElementById('cartDrawerClose').addEventListener('click', function(){ cartDrawer.classList.add('hidden'); });
+      document.getElementById('cartDrawerOverlay').addEventListener('click', function(){ cartDrawer.classList.add('hidden'); });
+      document.getElementById('cartCheckoutBtn').addEventListener('click', function(){
+        alert('Checkout is coming very soon! For now, please use Order for Pickup or Delivery above the menu.');
+      });
+    }
+  })();
 
   // ---- Take-out catering bundle total + order summary ----
   (function(){
