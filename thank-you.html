@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order Confirmed — Roll-In Shawarma</title>
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --black:#000000;
+    --panel:#121110;
+    --white:#FFFCF3;
+    --cream:#F3EAC9;
+    --muted:rgba(243,234,201,0.62);
+    --gold:#F7AD28;
+    --red:#D8342E;
+    --green:#0BAF4C;
+    --line:rgba(243,234,201,0.14);
+  }
+  *{box-sizing:border-box; margin:0; padding:0;}
+  html{overflow-x:hidden;}
+  body{
+    background:var(--black); color:var(--cream); font-family:'Inter', -apple-system, sans-serif;
+    line-height:1.5; min-height:100vh; display:flex; align-items:center; justify-content:center;
+    padding:32px 16px; overflow-x:hidden; width:100%;
+  }
+  .card{
+    max-width:460px; width:100%; background:var(--panel); border:1px solid var(--line);
+    border-radius:20px; padding:36px 28px; text-align:center;
+  }
+  .check-badge{
+    width:64px; height:64px; border-radius:50%; background:rgba(11,175,76,0.14);
+    display:flex; align-items:center; justify-content:center; margin:0 auto 20px;
+  }
+  .check-badge svg{ width:32px; height:32px; color:var(--green); }
+  h1{ font-size:24px; font-weight:800; color:var(--white); margin-bottom:8px; }
+  .sub{ font-size:14px; color:var(--muted); margin-bottom:26px; }
+  .ref-badge{
+    display:inline-block; background:var(--black); border:1px solid var(--line); border-radius:100px;
+    padding:6px 16px; font-size:12.5px; font-weight:700; color:var(--gold); margin-bottom:26px;
+  }
+  .order-items{ text-align:left; border-top:1px solid var(--line); border-bottom:1px solid var(--line); padding:18px 0; margin-bottom:18px; }
+  .order-item-row{ display:flex; justify-content:space-between; gap:10px; font-size:13.5px; padding:6px 0; }
+  .order-item-row .nm{ color:var(--white); }
+  .order-item-row .amt{ color:var(--muted); flex:none; }
+  .order-summary-text{ text-align:left; font-size:13.5px; color:var(--muted); line-height:1.6; margin-bottom:18px; }
+  .breakdown-row{ display:flex; justify-content:space-between; font-size:13px; color:var(--muted); padding:3px 0; }
+  .total-row{
+    display:flex; justify-content:space-between; font-size:18px; font-weight:800; color:var(--white);
+    padding-top:10px; margin-top:6px; border-top:1px solid var(--line);
+  }
+  .total-row span{ color:var(--gold); }
+  .pickup-note{ font-size:13px; color:var(--muted); margin-top:18px; }
+  .status-note{ font-size:12.5px; color:var(--muted); margin-top:18px; font-style:italic; }
+  .btn{
+    display:inline-block; margin-top:26px; background:var(--gold); color:#241902; font-weight:700;
+    font-size:14px; padding:13px 26px; border-radius:100px; text-decoration:none;
+  }
+  .loading, .error-state{ padding:20px 0; color:var(--muted); font-size:14px; }
+  .error-state{ color:var(--red); }
+  .hidden{ display:none !important; }
+</style>
+</head>
+<body>
+
+<div class="card">
+  <div id="loadingState" class="loading">Confirming your order&hellip;</div>
+
+  <div id="errorState" class="error-state hidden">
+    Couldn&rsquo;t find that order. If you just paid, check your email for confirmation &mdash;
+    or call us at (330) 587-5203 and we&rsquo;ll sort it out.
+  </div>
+
+  <div id="confirmedState" class="hidden">
+    <div class="check-badge">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    </div>
+    <h1 id="thankYouTitle">Thank you for your order!</h1>
+    <div class="sub" id="thankYouSub">We&rsquo;ll see you soon.</div>
+    <div class="ref-badge" id="refBadge"></div>
+
+    <div id="itemsBlock" class="order-items hidden"></div>
+    <div id="summaryBlock" class="order-summary-text hidden"></div>
+
+    <div class="breakdown-row">Subtotal <span id="subtotalDisplay">$0.00</span></div>
+    <div class="breakdown-row">Sales Tax (6.75%) <span id="taxDisplay">$0.00</span></div>
+    <div class="breakdown-row">Online Processing Fee <span id="feeDisplay">$0.00</span></div>
+    <div class="total-row">Total <span id="totalDisplay">$0.00</span></div>
+
+    <div id="pickupNote" class="pickup-note hidden"></div>
+    <div id="statusNote" class="status-note hidden"></div>
+
+    <a href="/" class="btn">Back to rollinshawarma.com</a>
+  </div>
+</div>
+
+<script>
+  (function(){
+    var EDGE_FUNCTION_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/get-order-confirmation';
+    var ANON_KEY = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
+
+    function escHtml(s){
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+      });
+    }
+
+    var params = new URLSearchParams(window.location.search);
+    var ref = params.get('ref');
+
+    var loadingEl = document.getElementById('loadingState');
+    var errorEl = document.getElementById('errorState');
+    var confirmedEl = document.getElementById('confirmedState');
+
+    function showError(){
+      loadingEl.classList.add('hidden');
+      errorEl.classList.remove('hidden');
+    }
+
+    if (!ref) {
+      showError();
+      return;
+    }
+
+    // Tax/fee weren't stored separately, so recompute from the stored
+    // subtotal using the exact same formula used at checkout time.
+    function computeBreakdown(subtotal, total){
+      var subtotalCents = Math.round(subtotal * 100);
+      var totalCents = Math.round(total * 100);
+      var taxCents = Math.round(subtotalCents * 0.0675);
+      var feeCents = totalCents - subtotalCents - taxCents;
+      return { tax: taxCents / 100, fee: feeCents / 100 };
+    }
+
+    function attemptFetch(retriesLeft){
+      fetch(EDGE_FUNCTION_URL + '?ref=' + encodeURIComponent(ref), {
+        headers: { 'Authorization': 'Bearer ' + ANON_KEY }
+      }).then(function(res){
+        return res.json().then(function(data){ return { ok: res.ok, data: data }; });
+      }).then(function(result){
+        if (!result.ok || !result.data) {
+          showError();
+          return;
+        }
+        var order = result.data;
+
+        // The webhook confirms payment asynchronously -- usually within
+        // a couple seconds, but if we land here before it's caught up,
+        // wait briefly and check again rather than showing "pending."
+        if (order.status !== 'paid' && retriesLeft > 0) {
+          setTimeout(function(){ attemptFetch(retriesLeft - 1); }, 1500);
+          return;
+        }
+
+        loadingEl.classList.add('hidden');
+        confirmedEl.classList.remove('hidden');
+
+        document.getElementById('refBadge').textContent = order.referenceCode;
+        if (order.firstName) {
+          document.getElementById('thankYouTitle').textContent = 'Thank you, ' + order.firstName + '!';
+        }
+
+        if (order.items && order.items.length) {
+          var itemsBlock = document.getElementById('itemsBlock');
+          itemsBlock.classList.remove('hidden');
+          itemsBlock.innerHTML = order.items.map(function(li){
+            return '<div class="order-item-row"><span class="nm">' + escHtml(li.name) + ' &times; ' + li.quantity + '</span>' +
+              '<span class="amt">$' + Number(li.lineTotal).toFixed(2) + '</span></div>';
+          }).join('');
+        } else if (order.summary) {
+          var summaryBlock = document.getElementById('summaryBlock');
+          summaryBlock.classList.remove('hidden');
+          summaryBlock.textContent = order.summary;
+        }
+
+        var subtotal = Number(order.subtotal) || 0;
+        var total = Number(order.total) || 0;
+        var breakdown = computeBreakdown(subtotal, total);
+
+        document.getElementById('subtotalDisplay').textContent = '$' + subtotal.toFixed(2);
+        document.getElementById('taxDisplay').textContent = '$' + breakdown.tax.toFixed(2);
+        document.getElementById('feeDisplay').textContent = '$' + breakdown.fee.toFixed(2);
+        document.getElementById('totalDisplay').textContent = '$' + total.toFixed(2);
+
+        if (order.pickupDate) {
+          var pickupEl = document.getElementById('pickupNote');
+          pickupEl.classList.remove('hidden');
+          pickupEl.textContent = 'Pickup date: ' + order.pickupDate;
+        }
+
+        if (order.status !== 'paid') {
+          var statusEl = document.getElementById('statusNote');
+          statusEl.classList.remove('hidden');
+          statusEl.textContent = "We're finishing up your payment confirmation \u2014 you'll get an email shortly.";
+        }
+      }).catch(function(){
+        if (retriesLeft > 0) {
+          setTimeout(function(){ attemptFetch(retriesLeft - 1); }, 1500);
+        } else {
+          showError();
+        }
+      });
+    }
+
+    attemptFetch(4);
+  })();
+</script>
+
+</body>
+</html>
