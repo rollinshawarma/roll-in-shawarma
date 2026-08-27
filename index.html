@@ -10,7 +10,12 @@
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
 <link rel="icon" type="image/png" sizes="192x192" href="favicon-192.png">
 <link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<link rel="manifest" href="manifest.json">
 <meta name="theme-color" content="#000000">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Roll-In Shawarma">
 
 <meta property="og:type" content="website">
 <meta property="og:title" content="Roll-In Shawarma | We Roll It. You Love It.">
@@ -48,6 +53,27 @@
   *{box-sizing:border-box; margin:0; padding:0;}
   body.member-mode .member-hide{ display:none !important; }
   .hidden{ display:none !important; }
+
+  /* ---------- PWA INSTALL BANNER ---------- */
+  .pwa-install-banner{
+    position:fixed; left:14px; right:14px; bottom:14px; z-index:300;
+    background:var(--panel); border:1px solid var(--gold); border-radius:16px;
+    box-shadow:0 14px 34px rgba(0,0,0,0.55); max-width:480px; margin:0 auto;
+  }
+  .pwa-install-content{ display:flex; align-items:center; gap:12px; padding:14px 16px; }
+  .pwa-install-icon{ width:40px; height:40px; border-radius:10px; flex:none; }
+  .pwa-install-text{ flex:1; min-width:0; }
+  .pwa-install-title{ font-size:13.5px; font-weight:700; color:var(--white); }
+  .pwa-install-sub{ font-size:12px; color:var(--muted); margin-top:2px; }
+  .pwa-install-btn{
+    background:var(--gold); color:#241902; border:none; border-radius:100px;
+    padding:8px 16px; font-size:12.5px; font-weight:700; flex:none; cursor:pointer;
+  }
+  .pwa-install-close{
+    background:none; border:none; color:var(--muted); font-size:20px; line-height:1;
+    cursor:pointer; padding:4px; flex:none;
+  }
+  .pwa-install-close:hover{ color:var(--cream); }
 
   html{scroll-behavior:smooth;}
   body{
@@ -396,6 +422,7 @@
 
   /* ---------- TAKE OUT CATERING BUNDLES ---------- */
   .bundle-grid{ display:grid; grid-template-columns:repeat(3,1fr); gap:16px; margin-bottom:8px; }
+  @media (max-width:900px){ .bundle-grid{ grid-template-columns:repeat(2,1fr); } }
   @media (max-width:640px){ .bundle-grid{ grid-template-columns:1fr; } }
   .bundle-card{ background:var(--black); border:1px solid var(--line); border-radius:14px; padding:20px; text-align:left; }
   .bundle-card h4{ font-size:15px; font-weight:700; color:var(--white); margin-bottom:6px; }
@@ -408,6 +435,7 @@
     padding:8px 10px; color:var(--white); font-size:15px; font-family:'Inter'; text-align:center;
   }
   .bundle-qty:focus{ outline:none; border-color:var(--gold); }
+  .bundle-select{ width:auto; min-width:80px; color-scheme:dark; cursor:pointer; }
   .bundle-total{
     text-align:center; font-size:18px; font-weight:700; color:var(--white);
     padding:16px; margin-bottom:22px; border-top:1px solid var(--line); border-bottom:1px solid var(--line);
@@ -614,6 +642,18 @@
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 </head>
 <body>
+
+<div id="pwaInstallBanner" class="pwa-install-banner hidden">
+  <div class="pwa-install-content">
+    <img src="favicon-192.png" alt="" class="pwa-install-icon">
+    <div class="pwa-install-text">
+      <div class="pwa-install-title">Add Roll-In Shawarma to your Home Screen</div>
+      <div class="pwa-install-sub" id="pwaInstallSub">Get quick access, right from your phone.</div>
+    </div>
+    <button type="button" id="pwaInstallBtn" class="pwa-install-btn hidden">Install</button>
+    <button type="button" id="pwaInstallClose" class="pwa-install-close" aria-label="Dismiss">&times;</button>
+  </div>
+</div>
 
 <div id="annbar">
   <div class="wrap">
@@ -1147,37 +1187,65 @@
           <div class="menu-acc-body cform-body"><div class="menu-acc-inner cform-inner">
             <div class="bundle-grid">
               <div class="bundle-card">
-                <h4>10 Shawarmas</h4>
-                <div class="bundle-price">$100</div>
-                <p>Ten of our signature chicken or falafel shawarmas, ready to serve a crowd.</p>
+                <h4>Shawarma Catering</h4>
+                <div class="bundle-price">$10 <span class="bundle-note">/ person</span></div>
+                <p>Chicken or falafel shawarma, minimum of 10.</p>
                 <label class="bundle-qty-label">Qty
-                  <input type="number" min="0" value="0" class="bundle-qty" data-item="10 Shawarmas" data-unit-price="100">
+                  <select class="bundle-qty bundle-select" data-item="Shawarma Catering" data-unit-price="10"></select>
                 </label>
               </div>
               <div class="bundle-card">
-                <h4>10 Frankies</h4>
-                <div class="bundle-price">$80</div>
-                <p>Ten Frankie rolls, your choice of flavors, perfect for groups.</p>
+                <h4>Frankie Catering</h4>
+                <div class="bundle-price">$8 <span class="bundle-note">/ person</span></div>
+                <p>Frankie rolls, your choice of flavors, minimum of 10.</p>
                 <label class="bundle-qty-label">Qty
-                  <input type="number" min="0" value="0" class="bundle-qty" data-item="10 Frankies" data-unit-price="80">
+                  <select class="bundle-qty bundle-select" data-item="Frankie Catering" data-unit-price="8"></select>
                 </label>
               </div>
               <div class="bundle-card">
-                <h4>Signature Fries <span class="bundle-note">(Family Pan)</span></h4>
+                <h4>Rice Bowl Catering</h4>
+                <div class="bundle-price">$11 <span class="bundle-note">/ person</span></div>
+                <p>Chicken or veggie rice bowl, minimum of 10.</p>
+                <label class="bundle-qty-label">Qty
+                  <select class="bundle-qty bundle-select" data-item="Rice Bowl Catering" data-unit-price="11"></select>
+                </label>
+              </div>
+              <div class="bundle-card">
+                <h4>Tacos Catering</h4>
+                <div class="bundle-price">$7 <span class="bundle-note">/ person</span></div>
+                <p>Our signature tacos, minimum of 10.</p>
+                <label class="bundle-qty-label">Qty
+                  <select class="bundle-qty bundle-select" data-item="Tacos Catering" data-unit-price="7"></select>
+                </label>
+              </div>
+              <div class="bundle-card">
+                <h4>Signature Fries <span class="bundle-note">(Half Tray)</span></h4>
                 <div class="bundle-price">$29.99</div>
-                <p>A large pan of our seasoned fries, serves a group.</p>
+                <p>A half tray of our seasoned fries, serves a group.</p>
                 <label class="bundle-qty-label">Qty
-                  <input type="number" min="0" value="0" class="bundle-qty" data-item="Signature Fries (Family Pan)" data-unit-price="29.99">
+                  <input type="number" min="0" value="0" class="bundle-qty" data-item="Signature Fries (Half Tray)" data-unit-price="29.99">
                 </label>
               </div>
             </div>
 
             <div class="bundle-total">Order Total: <span id="bundleTotalDisplay">$0.00</span></div>
 
+            <div class="cform bundle-contact-fields">
+              <div class="row2">
+                <label>Name*<input type="text" id="orderCustomerName" required></label>
+                <label>Phone<input type="tel" id="orderCustomerPhone"></label>
+              </div>
+              <div class="row2">
+                <label>Email* (for your confirmation)<input type="email" id="orderCustomerEmail" required></label>
+                <label>Pickup date<input type="date" id="orderPickupDate"></label>
+              </div>
+              <label>Notes<textarea id="orderNotes" rows="2" placeholder="Any special requests..."></textarea></label>
+            </div>
+
             <div class="bundle-pay-steps">
-              <div class="bundle-step"><b>1.</b> Set your quantities above.</div>
+              <div class="bundle-step"><b>1.</b> Set your quantities and fill in your details above.</div>
               <div class="bundle-step"><b>2.</b> Tap Pay Now &mdash; your total is applied automatically.</div>
-              <div class="bundle-step"><b>3.</b> Tell us what you ordered below, so we know what to prepare.</div>
+              <div class="bundle-step"><b>3.</b> You'll get an email confirmation the moment payment goes through.</div>
             </div>
 
             <div class="square-pay-wrap">
@@ -1186,24 +1254,6 @@
                 <div id="squarePayMsg" class="square-pay-msg"></div>
               </div>
             </div>
-
-            <form class="cform" action="https://formsubmit.co/rollinshawarma.foodtruck@gmail.com" method="POST" id="takeoutCateringForm">
-              <input type="hidden" name="_subject" value="New TAKE-OUT CATERING order &mdash; Roll-In Shawarma">
-              <input type="hidden" name="_template" value="table">
-              <input type="hidden" name="_captcha" value="true">
-              <input type="hidden" name="Order Summary" id="bundleOrderSummary">
-              <div class="row2">
-                <label>Name*<input type="text" name="Name" required></label>
-                <label>Phone<input type="tel" name="Phone"></label>
-              </div>
-              <div class="row2">
-                <label>Email*<input type="email" name="Email" required></label>
-                <label>Pickup date<input type="date" name="Pickup Date"></label>
-              </div>
-              <label>Notes<textarea name="Notes" rows="2" placeholder="Any special requests..."></textarea></label>
-              <button type="submit">Send Order Details</button>
-              <div class="fine">This tells us what to prepare &mdash; be sure to also complete payment above via Square.</div>
-            </form>
           </div></div>
         </div>
       </div>
@@ -1314,6 +1364,56 @@
     'https://njcmcaoyzujijiyfardx.supabase.co',
     'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_'
   );
+
+  // ---- PWA: install banner + service worker ----
+  (function(){
+    var banner = document.getElementById('pwaInstallBanner');
+    var installBtn = document.getElementById('pwaInstallBtn');
+    var closeBtn = document.getElementById('pwaInstallClose');
+    var subEl = document.getElementById('pwaInstallSub');
+    if (!banner) return;
+
+    var isStandalone = (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches) || window.navigator.standalone === true;
+    if (isStandalone) return;
+
+    try {
+      if (localStorage.getItem('rollinPwaDismissed') === '1') return;
+    } catch(e){}
+
+    var isIOS = /iphone|ipad|ipod/.test(navigator.userAgent.toLowerCase());
+    var deferredPrompt = null;
+
+    window.addEventListener('beforeinstallprompt', function(e){
+      e.preventDefault();
+      deferredPrompt = e;
+      installBtn.classList.remove('hidden');
+      subEl.textContent = 'Get quick access, right from your phone.';
+      banner.classList.remove('hidden');
+    });
+
+    if (isIOS) {
+      subEl.textContent = 'Tap the Share icon, then "Add to Home Screen".';
+      banner.classList.remove('hidden');
+    }
+
+    installBtn.addEventListener('click', function(){
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      deferredPrompt.userChoice.then(function(){
+        deferredPrompt = null;
+        banner.classList.add('hidden');
+      });
+    });
+
+    closeBtn.addEventListener('click', function(){
+      banner.classList.add('hidden');
+      try { localStorage.setItem('rollinPwaDismissed', '1'); } catch(e){}
+    });
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register('sw.js').catch(function(){});
+    }
+  })();
 
   var toggle = document.querySelector('.nav-toggle');
   var menu = document.querySelector('.mobile-nav');
@@ -1496,11 +1596,26 @@
 
   // ---- Take-out catering bundle total + order summary ----
   (function(){
+    // populate the per-person quantity dropdowns: 0 (not ordering), then 10-100 in steps of 5
+    document.querySelectorAll('.bundle-select').forEach(function(sel){
+      var zeroOpt = document.createElement('option');
+      zeroOpt.value = '0';
+      zeroOpt.textContent = '0 \u2014 Not ordering';
+      sel.appendChild(zeroOpt);
+      for (var n = 10; n <= 100; n += 5) {
+        var opt = document.createElement('option');
+        opt.value = n;
+        opt.textContent = n;
+        sel.appendChild(opt);
+      }
+      sel.value = '0';
+    });
+
     var qtyInputs = document.querySelectorAll('.bundle-qty');
     var totalEl = document.getElementById('bundleTotalDisplay');
-    var summaryEl = document.getElementById('bundleOrderSummary');
-    var form = document.getElementById('takeoutCateringForm');
-    if (!qtyInputs.length || !totalEl || !form) return;
+    if (!qtyInputs.length || !totalEl) return;
+
+    window.rollinBundleSummary = 'No items selected';
 
     function recompute(){
       var total = 0;
@@ -1515,7 +1630,7 @@
         }
       });
       totalEl.textContent = '$' + total.toFixed(2);
-      if (summaryEl) summaryEl.value = lines.length ? (lines.join(', ') + ' \u2014 TOTAL: $' + total.toFixed(2)) : 'No items selected';
+      window.rollinBundleSummary = lines.length ? (lines.join(', ') + ' \u2014 TOTAL: $' + total.toFixed(2)) : 'No items selected';
     }
 
     qtyInputs.forEach(function(input){
@@ -1526,7 +1641,6 @@
       });
     });
 
-    form.addEventListener('submit', recompute);
     recompute();
   })();
 
@@ -1542,13 +1656,24 @@
     payBtn.addEventListener('click', function(){
       var totalText = (document.getElementById('bundleTotalDisplay') || {}).textContent || '$0.00';
       var amount = parseFloat(totalText.replace(/[^0-9.]/g, '')) || 0;
-      var summary = (document.getElementById('bundleOrderSummary') || {}).value || 'Roll-In Shawarma Catering Order';
+      var summary = window.rollinBundleSummary || 'Roll-In Shawarma Catering Order';
+
+      var name = (document.getElementById('orderCustomerName') || {}).value || '';
+      var email = (document.getElementById('orderCustomerEmail') || {}).value || '';
+      var phone = (document.getElementById('orderCustomerPhone') || {}).value || '';
+      var pickupDate = (document.getElementById('orderPickupDate') || {}).value || '';
+      var notes = (document.getElementById('orderNotes') || {}).value || '';
 
       msgEl.textContent = '';
       msgEl.className = 'square-pay-msg';
 
       if (amount <= 0) {
         msgEl.textContent = 'Set your quantities above first, then tap Pay Now.';
+        msgEl.className = 'square-pay-msg error';
+        return;
+      }
+      if (!name.trim() || !email.trim()) {
+        msgEl.textContent = 'Please fill in your name and email first, so we can send your confirmation.';
         msgEl.className = 'square-pay-msg error';
         return;
       }
@@ -1559,13 +1684,17 @@
       fetch(EDGE_FUNCTION_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ANON_KEY },
-        body: JSON.stringify({ amount: amount, description: summary })
+        body: JSON.stringify({
+          amount: amount, description: summary,
+          customerName: name, customerEmail: email, customerPhone: phone,
+          pickupDate: pickupDate, notes: notes
+        })
       }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
         .then(function(result){
           payBtn.disabled = false;
           payBtn.textContent = 'Pay Now';
           if (!result.ok || !result.data.url) {
-            msgEl.textContent = "Couldn't start checkout \u2014 please try again in a moment.";
+            msgEl.textContent = (result.data && result.data.error) ? String(result.data.error) : "Couldn't start checkout \u2014 please try again in a moment.";
             msgEl.className = 'square-pay-msg error';
             return;
           }
