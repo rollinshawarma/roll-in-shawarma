@@ -1011,6 +1011,7 @@
         <label>Name*<input type="text" id="cartCustomerName" required></label>
         <label>Email* (for your confirmation)<input type="email" id="cartCustomerEmail" required></label>
         <label>Phone<input type="tel" id="cartCustomerPhone"></label>
+        <label id="cartPickupDateLabel" class="hidden">Pickup date (catering)<input type="date" id="cartPickupDate"></label>
         <label>Notes<textarea id="cartCustomerNotes" rows="2" placeholder="Any special requests..."></textarea></label>
       </div>
 
@@ -1290,7 +1291,7 @@
                 <div class="bundle-price">$10 <span class="bundle-note">/ person</span></div>
                 <p>Chicken or falafel shawarma, minimum of 10.</p>
                 <label class="bundle-qty-label">Qty
-                  <input type="number" min="0" class="bundle-qty bundle-qty-min10" data-item="Shawarma Catering" data-unit-price="10" placeholder="0">
+                  <input type="number" min="0" class="bundle-qty bundle-qty-min10" data-item="Shawarma Catering" data-unit-price="10" data-db-name="Shawarma Catering" placeholder="0">
                 </label>
                 <div class="bundle-qty-error hidden">Minimum of 10 required for this price.</div>
               </div>
@@ -1299,7 +1300,7 @@
                 <div class="bundle-price">$8 <span class="bundle-note">/ person</span></div>
                 <p>Frankie rolls, your choice of flavors, minimum of 10.</p>
                 <label class="bundle-qty-label">Qty
-                  <input type="number" min="0" class="bundle-qty bundle-qty-min10" data-item="Frankie Catering" data-unit-price="8" placeholder="0">
+                  <input type="number" min="0" class="bundle-qty bundle-qty-min10" data-item="Frankie Catering" data-unit-price="8" data-db-name="Frankie Catering" placeholder="0">
                 </label>
                 <div class="bundle-qty-error hidden">Minimum of 10 required for this price.</div>
               </div>
@@ -1308,7 +1309,7 @@
                 <div class="bundle-price">$11 <span class="bundle-note">/ person</span></div>
                 <p>Chicken or veggie rice bowl, minimum of 10.</p>
                 <label class="bundle-qty-label">Qty
-                  <input type="number" min="0" class="bundle-qty bundle-qty-min10" data-item="Rice Bowl Catering" data-unit-price="11" placeholder="0">
+                  <input type="number" min="0" class="bundle-qty bundle-qty-min10" data-item="Rice Bowl Catering" data-unit-price="11" data-db-name="Rice Bowl Catering" placeholder="0">
                 </label>
                 <div class="bundle-qty-error hidden">Minimum of 10 required for this price.</div>
               </div>
@@ -1317,7 +1318,7 @@
                 <div class="bundle-price">$7 <span class="bundle-note">/ person</span></div>
                 <p>Our signature tacos, minimum of 10.</p>
                 <label class="bundle-qty-label">Qty
-                  <input type="number" min="0" class="bundle-qty bundle-qty-min10" data-item="Tacos Catering" data-unit-price="7" placeholder="0">
+                  <input type="number" min="0" class="bundle-qty bundle-qty-min10" data-item="Tacos Catering" data-unit-price="7" data-db-name="Tacos Catering" placeholder="0">
                 </label>
                 <div class="bundle-qty-error hidden">Minimum of 10 required for this price.</div>
               </div>
@@ -1326,7 +1327,7 @@
                 <div class="bundle-price">$29.99</div>
                 <p>A tray of our classic crinkle-cut fries, serves a group.</p>
                 <label class="bundle-qty-label">Qty
-                  <input type="number" min="0" class="bundle-qty" data-item="Regular Fries (Half Tray)" data-unit-price="29.99" placeholder="0">
+                  <input type="number" min="0" class="bundle-qty" data-item="Regular Fries (Half Tray)" data-unit-price="29.99" data-db-name="Regular Fries" data-db-variant="Half Tray" placeholder="0">
                 </label>
               </div>
               <div class="bundle-card">
@@ -1334,42 +1335,13 @@
                 <div class="bundle-price">$39.99</div>
                 <p>A half tray of our seasoned signature fries, serves a group.</p>
                 <label class="bundle-qty-label">Qty
-                  <input type="number" min="0" class="bundle-qty" data-item="Signature Fries (Half Tray)" data-unit-price="39.99" placeholder="0">
+                  <input type="number" min="0" class="bundle-qty" data-item="Signature Fries (Half Tray)" data-unit-price="39.99" data-db-name="Signature Fries" data-db-variant="Half Tray" placeholder="0">
                 </label>
               </div>
             </div>
 
-            <div class="cart-breakdown">
-              <div class="cart-breakdown-row">Subtotal <span id="bundleSubtotalDisplay">$0.00</span></div>
-              <div class="cart-breakdown-row">Sales Tax (6.75%) <span id="bundleTaxDisplay">$0.00</span></div>
-              <div class="cart-breakdown-row">Online Processing Fee <span id="bundleFeeDisplay">$0.00</span></div>
-            </div>
-            <div class="bundle-total">Order Total: <span id="bundleTotalDisplay">$0.00</span></div>
-
-            <div class="cform bundle-contact-fields">
-              <div class="row2">
-                <label>Name*<input type="text" id="orderCustomerName" required></label>
-                <label>Phone<input type="tel" id="orderCustomerPhone"></label>
-              </div>
-              <div class="row2">
-                <label>Email* (for your confirmation)<input type="email" id="orderCustomerEmail" required></label>
-                <label>Pickup date<input type="date" id="orderPickupDate"></label>
-              </div>
-              <label>Notes<textarea id="orderNotes" rows="2" placeholder="Any special requests..."></textarea></label>
-            </div>
-
-            <div class="bundle-pay-steps">
-              <div class="bundle-step"><b>1.</b> Set your quantities and fill in your details above.</div>
-              <div class="bundle-step"><b>2.</b> Tap Pay Now &mdash; your total is applied automatically.</div>
-              <div class="bundle-step"><b>3.</b> You'll get an email confirmation the moment payment goes through.</div>
-            </div>
-
-            <div class="square-pay-wrap">
-              <div class="square-pay-box">
-                <button type="button" id="dynamicSquarePayBtn" class="square-pay-btn">Pay Now</button>
-                <div id="squarePayMsg" class="square-pay-msg"></div>
-              </div>
-            </div>
+            <div id="cateringAddMsg" class="promo-msg"></div>
+            <button type="button" id="addCateringToCartBtn" class="btn btn-light" style="width:100%; margin-top:10px;">Add to Cart</button>
           </div></div>
         </div>
       </div>
@@ -1765,6 +1737,24 @@
       renderCartUI();
     }
 
+    // Sets a line to an EXACT quantity (not a +/-1 delta) -- used by
+    // the catering section, where someone types "20" directly rather
+    // than clicking a stepper 20 times. Does not save/render itself,
+    // since catering adds several items at once via one button.
+    function setQuantity(item, qty){
+      var existing = findLine(item.id);
+      if (qty <= 0) {
+        if (existing) cart = cart.filter(function(c){ return c.menu_item_id !== item.id; });
+        return;
+      }
+      var label = item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : '');
+      if (existing) {
+        existing.quantity = qty;
+      } else {
+        cart.push({ menu_item_id: item.id, name: label, unitPrice: Number(item.price), quantity: qty });
+      }
+    }
+
     function cartTotal(){
       return cart.reduce(function(sum, c){ return sum + c.unitPrice * c.quantity; }, 0);
     }
@@ -1897,6 +1887,7 @@
       var categoryOrder = [];
       items.forEach(function(item){
         itemsById[item.id] = item;
+        if (item.category === 'Catering') return; // rendered in its own dedicated section instead
         if (!byCategory[item.category]) {
           byCategory[item.category] = [];
           categoryOrder.push(item.category);
@@ -2003,6 +1994,13 @@
       }
     }
 
+    function cartHasCateringItem(){
+      return cart.some(function(c){
+        var item = itemsById[c.menu_item_id];
+        return item && item.category === 'Catering';
+      });
+    }
+
     function showCheckoutView(){
       itemsView.classList.add('hidden');
       checkoutView.classList.remove('hidden');
@@ -2011,6 +2009,15 @@
       document.getElementById('promoCodeInput').value = '';
       document.getElementById('promoMsg').textContent = '';
       document.getElementById('promoMsg').className = 'promo-msg';
+
+      var pickupLabel = document.getElementById('cartPickupDateLabel');
+      if (cartHasCateringItem()) {
+        pickupLabel.classList.remove('hidden');
+      } else {
+        pickupLabel.classList.add('hidden');
+        document.getElementById('cartPickupDate').value = '';
+      }
+
       refreshCheckoutBreakdown();
     }
 
@@ -2028,6 +2035,8 @@
         renderCartUI();
         var giftMsgEl = document.getElementById('giftCardMsg');
         if (giftMsgEl) { giftMsgEl.textContent = ''; giftMsgEl.className = 'promo-msg'; }
+        var cateringMsgEl = document.getElementById('cateringAddMsg');
+        if (cateringMsgEl) { cateringMsgEl.textContent = ''; cateringMsgEl.className = 'promo-msg'; }
       });
       document.getElementById('cartCheckoutBtn').addEventListener('click', function(){
         if (!cart.length && !giftCardCart.length) return;
@@ -2089,6 +2098,7 @@
         var email = document.getElementById('cartCustomerEmail').value.trim();
         var phone = document.getElementById('cartCustomerPhone').value.trim();
         var notes = document.getElementById('cartCustomerNotes').value.trim();
+        var pickupDate = document.getElementById('cartPickupDate').value || undefined;
 
         msgEl.textContent = '';
         msgEl.className = 'square-pay-msg cart-checkout-msg';
@@ -2120,7 +2130,7 @@
           body: JSON.stringify({
             items: itemsPayload, giftCards: giftCardsPayload,
             customerName: name, customerEmail: email,
-            customerPhone: phone, notes: notes,
+            customerPhone: phone, notes: notes, pickupDate: pickupDate,
             promoCode: appliedPromo ? appliedPromo.code : undefined
           })
         }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
@@ -2147,6 +2157,65 @@
             msgEl.textContent = "Couldn't reach checkout \u2014 please try again in a moment.";
             msgEl.className = 'square-pay-msg cart-checkout-msg error';
           });
+      });
+    }
+
+    // ---- Catering section: validate + add to the SAME shared cart ----
+    var addCateringBtn = document.getElementById('addCateringToCartBtn');
+    if (addCateringBtn) {
+      addCateringBtn.addEventListener('click', function(){
+        var cateringMsgEl = document.getElementById('cateringAddMsg');
+        var inputs = document.querySelectorAll('.bundle-qty');
+        var toAdd = [];
+        var hasError = false;
+
+        inputs.forEach(function(input){
+          var card = input.closest('.bundle-card');
+          var errorEl = card ? card.querySelector('.bundle-qty-error') : null;
+          var qty = parseInt(input.value, 10) || 0;
+          var requiresMin10 = input.classList.contains('bundle-qty-min10');
+          var isInvalid = requiresMin10 && qty > 0 && qty < 10;
+
+          if (errorEl) errorEl.classList.toggle('hidden', !isInvalid);
+          if (card) card.classList.toggle('has-error', isInvalid);
+          if (isInvalid) hasError = true;
+
+          if (qty > 0 && !isInvalid) {
+            var dbName = input.getAttribute('data-db-name');
+            var dbVariant = input.getAttribute('data-db-variant') || null;
+            var match = null;
+            for (var id in itemsById) {
+              var it = itemsById[id];
+              if (it.category === 'Catering' && it.name === dbName && (it.variant_name || null) === dbVariant) {
+                match = it;
+                break;
+              }
+            }
+            if (match) toAdd.push({ item: match, qty: qty });
+          }
+        });
+
+        cateringMsgEl.textContent = '';
+        cateringMsgEl.className = 'promo-msg';
+
+        if (hasError) {
+          cateringMsgEl.textContent = 'Please fix the highlighted quantities above \u2014 minimum of 10 required for those items.';
+          cateringMsgEl.className = 'promo-msg error';
+          return;
+        }
+        if (!toAdd.length) {
+          cateringMsgEl.textContent = 'Set a quantity for at least one item first.';
+          cateringMsgEl.className = 'promo-msg error';
+          return;
+        }
+
+        toAdd.forEach(function(entry){ setQuantity(entry.item, entry.qty); });
+        saveCart();
+        renderCartUI();
+
+        cateringMsgEl.textContent = 'Added to cart!';
+        cateringMsgEl.className = 'promo-msg success';
+        inputs.forEach(function(input){ input.value = ''; });
       });
     }
 
@@ -2227,148 +2296,6 @@
       btn.closest('.menu-acc-item').classList.toggle('open');
     });
   });
-
-  // ---- Take-out catering bundle total + order summary ----
-  (function(){
-    var qtyInputs = document.querySelectorAll('.bundle-qty');
-    var totalEl = document.getElementById('bundleTotalDisplay');
-    var subtotalEl = document.getElementById('bundleSubtotalDisplay');
-    var taxEl = document.getElementById('bundleTaxDisplay');
-    var feeEl = document.getElementById('bundleFeeDisplay');
-    if (!qtyInputs.length || !totalEl) return;
-
-    window.rollinBundleSummary = 'No items selected';
-    window.rollinBundleHasError = false;
-    window.rollinBundleSubtotal = 0;
-
-    var TAX_RATE = 0.0675;
-    var FEE_PERCENT = 0.033;
-    var FEE_FLAT_CENTS = 30;
-
-    function recompute(){
-      var subtotal = 0;
-      var lines = [];
-      var hasError = false;
-
-      qtyInputs.forEach(function(input){
-        var card = input.closest('.bundle-card');
-        var errorEl = card ? card.querySelector('.bundle-qty-error') : null;
-        var qty = parseInt(input.value, 10) || 0;
-        var unitPrice = parseFloat(input.getAttribute('data-unit-price')) || 0;
-        var requiresMin10 = input.classList.contains('bundle-qty-min10');
-
-        var isInvalid = requiresMin10 && qty > 0 && qty < 10;
-
-        if (errorEl) {
-          errorEl.classList.toggle('hidden', !isInvalid);
-        }
-        if (card) {
-          card.classList.toggle('has-error', isInvalid);
-        }
-        if (isInvalid) hasError = true;
-
-        if (qty > 0 && !isInvalid) {
-          var lineTotal = qty * unitPrice;
-          subtotal += lineTotal;
-          lines.push(input.getAttribute('data-item') + ' x' + qty + ' ($' + lineTotal.toFixed(2) + ')');
-        }
-      });
-
-      var subtotalCents = Math.round(subtotal * 100);
-      var taxCents = Math.round(subtotalCents * TAX_RATE);
-      var preFeeCents = subtotalCents + taxCents;
-      var feeCents = preFeeCents > 0 ? (Math.round(preFeeCents * FEE_PERCENT) + FEE_FLAT_CENTS) : 0;
-      var grandTotal = (subtotalCents + taxCents + feeCents) / 100;
-
-      if (subtotalEl) subtotalEl.textContent = '$' + subtotal.toFixed(2);
-      if (taxEl) taxEl.textContent = '$' + (taxCents / 100).toFixed(2);
-      if (feeEl) feeEl.textContent = '$' + (feeCents / 100).toFixed(2);
-      totalEl.textContent = '$' + grandTotal.toFixed(2);
-
-      window.rollinBundleSummary = lines.length ? (lines.join(', ') + ' \u2014 TOTAL: $' + grandTotal.toFixed(2)) : 'No items selected';
-      window.rollinBundleHasError = hasError;
-      window.rollinBundleSubtotal = subtotal;
-    }
-
-    qtyInputs.forEach(function(input){
-      input.addEventListener('input', recompute);
-      input.addEventListener('change', function(){
-        if (parseInt(input.value,10) < 0 || isNaN(parseInt(input.value,10))) input.value = '';
-        recompute();
-      });
-    });
-
-    recompute();
-  })();
-
-  // ---- Dynamic Square checkout: one click, exact amount, no typing ----
-  (function(){
-    var payBtn = document.getElementById('dynamicSquarePayBtn');
-    var msgEl = document.getElementById('squarePayMsg');
-    if (!payBtn) return;
-
-    var EDGE_FUNCTION_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/quick-function';
-    var ANON_KEY = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
-
-    payBtn.addEventListener('click', function(){
-      var amount = window.rollinBundleSubtotal || 0;
-      var summary = window.rollinBundleSummary || 'Roll-In Shawarma Catering Order';
-
-      var name = (document.getElementById('orderCustomerName') || {}).value || '';
-      var email = (document.getElementById('orderCustomerEmail') || {}).value || '';
-      var phone = (document.getElementById('orderCustomerPhone') || {}).value || '';
-      var pickupDate = (document.getElementById('orderPickupDate') || {}).value || '';
-      var notes = (document.getElementById('orderNotes') || {}).value || '';
-
-      msgEl.textContent = '';
-      msgEl.className = 'square-pay-msg';
-
-      if (window.rollinBundleHasError) {
-        msgEl.textContent = 'Please fix the highlighted quantities above \u2014 minimum of 10 required for those items.';
-        msgEl.className = 'square-pay-msg error';
-        return;
-      }
-      if (amount <= 0) {
-        msgEl.textContent = 'Set your quantities above first, then tap Pay Now.';
-        msgEl.className = 'square-pay-msg error';
-        return;
-      }
-      if (!name.trim() || !email.trim()) {
-        msgEl.textContent = 'Please fill in your name and email first, so we can send your confirmation.';
-        msgEl.className = 'square-pay-msg error';
-        return;
-      }
-
-      payBtn.disabled = true;
-      payBtn.textContent = 'Preparing checkout\u2026';
-
-      fetch(EDGE_FUNCTION_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ANON_KEY },
-        body: JSON.stringify({
-          amount: amount, description: summary,
-          customerName: name, customerEmail: email, customerPhone: phone,
-          pickupDate: pickupDate, notes: notes
-        })
-      }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
-        .then(function(result){
-          payBtn.disabled = false;
-          payBtn.textContent = 'Pay Now';
-          if (!result.ok || !result.data.url) {
-            msgEl.textContent = (result.data && result.data.error) ? String(result.data.error) : "Couldn't start checkout \u2014 please try again in a moment.";
-            msgEl.className = 'square-pay-msg error';
-            return;
-          }
-          window.location.href = result.data.url;
-        })
-        .catch(function(){
-          payBtn.disabled = false;
-          payBtn.textContent = 'Pay Now';
-          msgEl.textContent = "Couldn't reach checkout \u2014 please try again in a moment.";
-          msgEl.className = 'square-pay-msg error';
-        });
-    });
-  })();
 
   // ---- Nav sign-in / sign-out status ----
   (function(){
