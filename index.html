@@ -1794,7 +1794,7 @@
       var giftCardCents = Math.round(giftCardTotal * 100);
       var taxCents = Math.round(discountedSubtotalCents * TAX_RATE);
       var preFeeCents = discountedSubtotalCents + taxCents + giftCardCents;
-      var feeCents = Math.round(preFeeCents * FEE_PERCENT) + FEE_FLAT_CENTS;
+      var feeCents = preFeeCents > 0 ? (Math.round(preFeeCents * FEE_PERCENT) + FEE_FLAT_CENTS) : 0;
       var totalCents = preFeeCents + feeCents;
       return {
         subtotal: subtotalCents / 100,
@@ -2026,6 +2026,8 @@
         saveCart();
         saveGiftCardCart();
         renderCartUI();
+        var giftMsgEl = document.getElementById('giftCardMsg');
+        if (giftMsgEl) { giftMsgEl.textContent = ''; giftMsgEl.className = 'promo-msg'; }
       });
       document.getElementById('cartCheckoutBtn').addEventListener('click', function(){
         if (!cart.length && !giftCardCart.length) return;
@@ -2274,7 +2276,8 @@
 
       var subtotalCents = Math.round(subtotal * 100);
       var taxCents = Math.round(subtotalCents * TAX_RATE);
-      var feeCents = Math.round((subtotalCents + taxCents) * FEE_PERCENT) + FEE_FLAT_CENTS;
+      var preFeeCents = subtotalCents + taxCents;
+      var feeCents = preFeeCents > 0 ? (Math.round(preFeeCents * FEE_PERCENT) + FEE_FLAT_CENTS) : 0;
       var grandTotal = (subtotalCents + taxCents + feeCents) / 100;
 
       if (subtotalEl) subtotalEl.textContent = '$' + subtotal.toFixed(2);
