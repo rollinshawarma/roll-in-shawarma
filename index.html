@@ -1015,11 +1015,13 @@
         <label>Notes<textarea id="cartCustomerNotes" rows="2" placeholder="Any special requests..."></textarea></label>
       </div>
 
-      <div class="promo-row">
-        <input type="text" id="promoCodeInput" placeholder="Promo code" autocapitalize="characters">
-        <button type="button" id="promoApplyBtn" class="promo-apply-btn">Apply</button>
+      <div id="promoSection">
+        <div class="promo-row">
+          <input type="text" id="promoCodeInput" placeholder="Promo code" autocapitalize="characters">
+          <button type="button" id="promoApplyBtn" class="promo-apply-btn">Apply</button>
+        </div>
+        <div id="promoMsg" class="promo-msg"></div>
       </div>
-      <div id="promoMsg" class="promo-msg"></div>
 
       <div id="cartCheckoutMsg" class="square-pay-msg cart-checkout-msg"></div>
       <div class="cart-drawer-footer">
@@ -2023,12 +2025,16 @@
       document.getElementById('promoMsg').className = 'promo-msg';
 
       var pickupLabel = document.getElementById('cartPickupDateLabel');
-      if (cartHasCateringItem()) {
+      var hasCatering = cartHasCateringItem();
+      if (hasCatering) {
         pickupLabel.classList.remove('hidden');
       } else {
         pickupLabel.classList.add('hidden');
         document.getElementById('cartPickupDate').value = '';
       }
+
+      var promoSection = document.getElementById('promoSection');
+      promoSection.classList.toggle('hidden', hasCatering);
 
       refreshCheckoutBreakdown();
     }
@@ -2071,6 +2077,11 @@
           msgEl.className = 'promo-msg error';
           return;
         }
+        if (cartHasCateringItem()) {
+          msgEl.textContent = "Promo codes can't be used on orders that include catering items.";
+          msgEl.className = 'promo-msg error';
+          return;
+        }
 
         applyBtn.disabled = true;
         applyBtn.textContent = 'Checking\u2026';
@@ -2078,7 +2089,7 @@
         fetch(PROMO_VALIDATE_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ORDER_ANON_KEY },
-          body: JSON.stringify({ code: code, subtotal: cartTotal() })
+          body: JSON.stringify({ code: code, subtotal: cartTotal(), hasCatering: cartHasCateringItem() })
         }).then(function(res){ return res.json(); })
           .then(function(result){
             applyBtn.disabled = false;
