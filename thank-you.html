@@ -157,6 +157,17 @@
         loadingEl.classList.add('hidden');
         confirmedEl.classList.remove('hidden');
 
+        // This is the one true moment payment is confirmed -- clear
+        // the shared cart here, not when Pay Now was merely clicked.
+        // Someone who abandons Square's page or hits back never
+        // reaches this page, so their cart stays intact for them.
+        if (order.status === 'paid') {
+          try {
+            localStorage.removeItem('rollinCart');
+            localStorage.removeItem('rollinGiftCards');
+          } catch(e){}
+        }
+
         document.getElementById('refBadge').textContent = order.referenceCode;
         if (order.firstName) {
           document.getElementById('thankYouTitle').textContent = 'Thank you, ' + order.firstName + '!';
