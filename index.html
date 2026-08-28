@@ -97,6 +97,31 @@
     background:var(--panel); border-bottom:1px solid var(--gold);
     color:var(--cream); position:relative; z-index:101;
   }
+
+  /* ---------- PROMO CODE SCROLLING TICKER ---------- */
+  .promo-ticker{
+    background:var(--black); border-bottom:1px solid var(--line);
+    overflow:hidden; position:relative; z-index:100; white-space:nowrap;
+  }
+  .promo-ticker-track{
+    display:inline-flex; align-items:center;
+    animation:promoTickerScroll 28s linear infinite;
+    will-change:transform;
+  }
+  .promo-ticker:hover .promo-ticker-track{ animation-play-state:paused; }
+  .promo-ticker-item{
+    display:inline-flex; align-items:center; gap:8px;
+    padding:8px 40px 8px 0; font-size:12.5px; font-weight:600; color:var(--gold);
+  }
+  .promo-ticker-item b{ color:var(--white); }
+  @keyframes promoTickerScroll{
+    from{ transform:translateX(0); }
+    to{ transform:translateX(-50%); }
+  }
+  @media (max-width:600px){
+    .promo-ticker-item{ font-size:11.5px; padding:7px 28px 7px 0; }
+  }
+
   #annbar .wrap{
     display:flex; align-items:center; justify-content:center;
     padding:12px 44px 12px 32px; position:relative; min-height:auto;
@@ -797,6 +822,10 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
     </button>
   </div>
+</div>
+
+<div id="promoTicker" class="promo-ticker hidden">
+  <div class="promo-ticker-track" id="promoTickerTrack"></div>
 </div>
 
 <nav>
@@ -1627,43 +1656,42 @@
         });
     }
 
-    function refreshPromoSlides(){
-      // remove any previously-added promo slides before re-adding,
-      // so periodic refreshes don't stack duplicates
-      rotator.querySelectorAll('[data-slide^="promo-"]').forEach(function(el){ el.remove(); });
+    function refreshPromoTicker(){
+      var ticker = document.getElementById('promoTicker');
+      var track = document.getElementById('promoTickerTrack');
+      if (!ticker || !track) return;
 
       sbShared.from('promo_codes').select('*').eq('is_public', true).then(function(res){
         if (res.error || !res.data || !res.data.length) {
-          startRotation();
+          ticker.classList.add('hidden');
+          track.innerHTML = '';
           return;
         }
 
-        res.data.forEach(function(promo){
+        var itemsHtml = res.data.map(function(promo){
           var discountText = promo.discount_type === 'percentage'
             ? Number(promo.discount_value) + '% off'
             : '$' + Number(promo.discount_value).toFixed(2) + ' off';
           var minText = promo.min_order_amount
             ? ' on orders $' + Number(promo.min_order_amount).toFixed(0) + '+'
             : '';
-          var html = '\uD83C\uDF89 Use code <b>' + escHtml(promo.code) + '</b> for ' + discountText + minText + '!';
+          return '<span class="promo-ticker-item">\uD83C\uDF89 Use code <b>' + escHtml(promo.code) + '</b> for ' + discountText + minText + '!</span>';
+        }).join('');
 
-          var slide = document.createElement('div');
-          slide.className = 'ann-slide';
-          slide.setAttribute('data-slide', 'promo-' + promo.code);
-          slide.innerHTML = html;
-          rotator.appendChild(slide);
-        });
-
-        startRotation();
+        // duplicate the whole set once, so the -50% translateX loop
+        // is seamless (as the first copy scrolls fully off, the
+        // second is already in the exact same position to continue)
+        track.innerHTML = itemsHtml + itemsHtml;
+        ticker.classList.remove('hidden');
       });
     }
 
     refreshEventSlide();
-    refreshPromoSlides();
+    refreshPromoTicker();
     // recheck periodically in case the tab stays open across the event's window closing
     // or a promo code's expiry/active status changing
     setInterval(refreshEventSlide, 30 * 60000);
-    setInterval(refreshPromoSlides, 30 * 60000);
+    setInterval(refreshPromoTicker, 30 * 60000);
   })();
 
   // ---- Reviews carousel ----
