@@ -1627,9 +1627,43 @@
         });
     }
 
+    function refreshPromoSlides(){
+      // remove any previously-added promo slides before re-adding,
+      // so periodic refreshes don't stack duplicates
+      rotator.querySelectorAll('[data-slide^="promo-"]').forEach(function(el){ el.remove(); });
+
+      sbShared.from('promo_codes').select('*').eq('is_public', true).then(function(res){
+        if (res.error || !res.data || !res.data.length) {
+          startRotation();
+          return;
+        }
+
+        res.data.forEach(function(promo){
+          var discountText = promo.discount_type === 'percentage'
+            ? Number(promo.discount_value) + '% off'
+            : '$' + Number(promo.discount_value).toFixed(2) + ' off';
+          var minText = promo.min_order_amount
+            ? ' on orders $' + Number(promo.min_order_amount).toFixed(0) + '+'
+            : '';
+          var html = '\uD83C\uDF89 Use code <b>' + escHtml(promo.code) + '</b> for ' + discountText + minText + '!';
+
+          var slide = document.createElement('div');
+          slide.className = 'ann-slide';
+          slide.setAttribute('data-slide', 'promo-' + promo.code);
+          slide.innerHTML = html;
+          rotator.appendChild(slide);
+        });
+
+        startRotation();
+      });
+    }
+
     refreshEventSlide();
+    refreshPromoSlides();
     // recheck periodically in case the tab stays open across the event's window closing
+    // or a promo code's expiry/active status changing
     setInterval(refreshEventSlide, 30 * 60000);
+    setInterval(refreshPromoSlides, 30 * 60000);
   })();
 
   // ---- Reviews carousel ----
