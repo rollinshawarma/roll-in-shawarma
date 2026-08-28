@@ -660,6 +660,39 @@
     color:var(--white); font-size:14px; font-family:'Inter';
   }
   .cart-checkout-form input:focus, .cart-checkout-form textarea:focus{ outline:none; border-color:var(--gold); }
+  .promo-row{ display:flex; gap:8px; padding:0 20px 4px; }
+  .promo-row input{
+    flex:1; min-width:0; background:var(--black); border:1px solid var(--line); border-radius:10px;
+    padding:10px 12px; color:var(--white); font-size:14px; font-family:'Inter'; text-transform:uppercase;
+  }
+  .promo-row input:focus{ outline:none; border-color:var(--gold); }
+  .promo-apply-btn{
+    background:transparent; border:1px solid var(--gold); color:var(--gold); border-radius:10px;
+    padding:0 18px; font-size:13px; font-weight:700; cursor:pointer; flex:none;
+  }
+  .promo-apply-btn:hover:not(:disabled){ background:var(--gold); color:#241902; }
+  .promo-apply-btn:disabled{ opacity:0.5; cursor:default; }
+  .promo-msg{ padding:8px 20px 0; font-size:12px; color:var(--muted); min-height:16px; }
+  .promo-msg.success{ color:var(--green); }
+  .promo-msg.error{ color:var(--red); }
+  .promo-discount-row span{ color:var(--green); }
+
+  /* ---------- GIFT CARDS ---------- */
+  #gift-cards{ background:var(--panel); padding:80px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  .gift-card-box{ max-width:520px; margin:36px auto 0; }
+  .gift-amount-group{ display:flex; gap:10px; margin-bottom:22px; flex-wrap:wrap; }
+  .gift-amount-btn{
+    flex:1; min-width:80px; background:var(--black); border:1px solid var(--line); border-radius:12px;
+    padding:14px 0; color:var(--cream); font-size:16px; font-weight:700; cursor:pointer;
+  }
+  .gift-amount-btn:hover{ border-color:var(--gold); }
+  .gift-amount-btn.selected{ background:var(--gold); border-color:var(--gold); color:#241902; }
+  #giftCustomAmount{
+    flex:1; min-width:100px; background:var(--black); border:1px solid var(--line); border-radius:12px;
+    padding:14px 12px; color:var(--white); font-size:15px; font-family:'Inter'; text-align:center;
+  }
+  #giftCustomAmount:focus{ outline:none; border-color:var(--gold); }
+  .gift-card-form{ margin-bottom:6px; }
   .cart-checkout-msg{ padding:0 20px; }
   .cart-back-link{
     display:block; width:100%; text-align:center; background:none; border:none;
@@ -915,6 +948,34 @@
   </div>
 </section>
 
+<section id="gift-cards">
+  <div class="wrap">
+    <div class="sec-eyebrow">Gift Cards</div>
+    <h2 class="sec-title">Give the gift of Roll-In Shawarma.</h2>
+    <p class="sec-sub">Digital gift cards, delivered by email &mdash; perfect for birthdays, coworkers, or just because.</p>
+
+    <div class="gift-card-box">
+      <div class="gift-amount-group" id="giftAmountGroup">
+        <button type="button" class="gift-amount-btn" data-amount="25">$25</button>
+        <button type="button" class="gift-amount-btn" data-amount="50">$50</button>
+        <button type="button" class="gift-amount-btn" data-amount="100">$100</button>
+        <input type="number" id="giftCustomAmount" placeholder="Custom $" min="5" max="500">
+      </div>
+
+      <div class="cform gift-card-form">
+        <div class="row2">
+          <label>Recipient Name<input type="text" id="giftRecipientName" placeholder="Who's this for?"></label>
+          <label>Recipient Email*<input type="email" id="giftRecipientEmail" required></label>
+        </div>
+        <label>Message (optional)<textarea id="giftMessage" rows="2" placeholder="Add a personal note..."></textarea></label>
+      </div>
+
+      <div id="giftCardMsg" class="promo-msg"></div>
+      <button type="button" id="addGiftCardBtn" class="btn btn-light" style="width:100%;">Add Gift Card to Cart</button>
+    </div>
+  </div>
+</section>
+
 <div id="cartFab" class="cart-fab hidden">
   <button type="button" id="cartFabBtn" class="cart-fab-btn">
     <svg class="cart-fab-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><circle cx="9" cy="21" r="1"></circle><circle cx="20" cy="21" r="1"></circle><path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path></svg>
@@ -952,11 +1013,20 @@
         <label>Phone<input type="tel" id="cartCustomerPhone"></label>
         <label>Notes<textarea id="cartCustomerNotes" rows="2" placeholder="Any special requests..."></textarea></label>
       </div>
+
+      <div class="promo-row">
+        <input type="text" id="promoCodeInput" placeholder="Promo code" autocapitalize="characters">
+        <button type="button" id="promoApplyBtn" class="promo-apply-btn">Apply</button>
+      </div>
+      <div id="promoMsg" class="promo-msg"></div>
+
       <div id="cartCheckoutMsg" class="square-pay-msg cart-checkout-msg"></div>
       <div class="cart-drawer-footer">
         <div class="cart-breakdown">
           <div class="cart-breakdown-row">Subtotal <span id="cartCheckoutSubtotal">$0.00</span></div>
+          <div class="cart-breakdown-row promo-discount-row hidden" id="promoDiscountRow">Discount <span id="cartCheckoutDiscount">&minus;$0.00</span></div>
           <div class="cart-breakdown-row">Sales Tax (6.75%) <span id="cartCheckoutTax">$0.00</span></div>
+          <div class="cart-breakdown-row hidden" id="giftCardTotalRow">Gift Cards <span id="cartCheckoutGiftCards">$0.00</span></div>
           <div class="cart-breakdown-row">Online Processing Fee <span id="cartCheckoutFee">$0.00</span></div>
         </div>
         <div class="cart-total-row">Total <span id="cartCheckoutTotal">$0.00</span></div>
@@ -1638,7 +1708,9 @@
     if (!menuContainer) return;
 
     var CART_KEY = 'rollinCart';
+    var GIFT_CART_KEY = 'rollinGiftCards';
     var cart = [];
+    var giftCardCart = [];
     var itemsById = {};
 
     function escHtml(s){
@@ -1652,9 +1724,16 @@
         var saved = localStorage.getItem(CART_KEY);
         cart = saved ? JSON.parse(saved) : [];
       } catch(e){ cart = []; }
+      try {
+        var savedGift = localStorage.getItem(GIFT_CART_KEY);
+        giftCardCart = savedGift ? JSON.parse(savedGift) : [];
+      } catch(e){ giftCardCart = []; }
     }
     function saveCart(){
       try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch(e){}
+    }
+    function saveGiftCardCart(){
+      try { localStorage.setItem(GIFT_CART_KEY, JSON.stringify(giftCardCart)); } catch(e){}
     }
 
     function findLine(itemId){
@@ -1692,6 +1771,12 @@
     function cartCount(){
       return cart.reduce(function(sum, c){ return sum + c.quantity; }, 0);
     }
+    function giftCardCartTotal(){
+      return giftCardCart.reduce(function(sum, g){ return sum + g.amount; }, 0);
+    }
+    function giftCardCartCount(){
+      return giftCardCart.length;
+    }
 
     // Mirrors the exact same integer-cents math as the create-order-checkout
     // Edge Function, so what's shown here always matches what's actually
@@ -1700,13 +1785,21 @@
     var TAX_RATE = 0.0675;
     var FEE_PERCENT = 0.033;
     var FEE_FLAT_CENTS = 30;
-    function computeOrderTotals(subtotal){
+    function computeOrderTotals(subtotal, discountAmount, giftCardTotal){
+      discountAmount = discountAmount || 0;
+      giftCardTotal = giftCardTotal || 0;
       var subtotalCents = Math.round(subtotal * 100);
-      var taxCents = Math.round(subtotalCents * TAX_RATE);
-      var feeCents = Math.round((subtotalCents + taxCents) * FEE_PERCENT) + FEE_FLAT_CENTS;
-      var totalCents = subtotalCents + taxCents + feeCents;
+      var discountCents = Math.min(Math.round(discountAmount * 100), subtotalCents);
+      var discountedSubtotalCents = subtotalCents - discountCents;
+      var giftCardCents = Math.round(giftCardTotal * 100);
+      var taxCents = Math.round(discountedSubtotalCents * TAX_RATE);
+      var preFeeCents = discountedSubtotalCents + taxCents + giftCardCents;
+      var feeCents = Math.round(preFeeCents * FEE_PERCENT) + FEE_FLAT_CENTS;
+      var totalCents = preFeeCents + feeCents;
       return {
         subtotal: subtotalCents / 100,
+        discount: discountCents / 100,
+        giftCards: giftCardCents / 100,
         tax: taxCents / 100,
         fee: feeCents / 100,
         total: totalCents / 100
@@ -1719,8 +1812,8 @@
       var totalEl = document.getElementById('cartFabTotal');
       var listEl = document.getElementById('cartItemsList');
 
-      var count = cartCount();
-      var totals = computeOrderTotals(cartTotal());
+      var count = cartCount() + giftCardCartCount();
+      var totals = computeOrderTotals(cartTotal(), 0, giftCardCartTotal());
 
       if (fab) fab.classList.toggle('hidden', count === 0);
       if (countEl) countEl.textContent = count;
@@ -1739,7 +1832,7 @@
       if (clearBtn) clearBtn.classList.toggle('hidden', count === 0);
 
       if (listEl) {
-        listEl.innerHTML = cart.length ? cart.map(function(c){
+        var foodRowsHtml = cart.map(function(c){
           return '<div class="cart-item-row">' +
             '<div class="cart-item-info"><div class="cart-item-name">' + escHtml(c.name) + '</div>' +
             '<div class="cart-item-price">$' + c.unitPrice.toFixed(2) + ' each</div></div>' +
@@ -1749,12 +1842,30 @@
               '<button type="button" class="cart-qty-btn" data-id="' + c.menu_item_id + '" data-dir="1">+</button>' +
             '</div>' +
           '</div>';
-        }).join('') : '<p class="cart-empty-hint">Your cart is empty.</p>';
+        }).join('');
 
-        listEl.querySelectorAll('.cart-qty-btn').forEach(function(btn){
+        var giftRowsHtml = giftCardCart.map(function(g, idx){
+          return '<div class="cart-item-row">' +
+            '<div class="cart-item-info"><div class="cart-item-name">$' + g.amount.toFixed(2) + ' Gift Card</div>' +
+            '<div class="cart-item-price">to ' + escHtml(g.recipientEmail) + '</div></div>' +
+            '<button type="button" class="cart-qty-btn gift-remove-btn" data-idx="' + idx + '">&times;</button>' +
+          '</div>';
+        }).join('');
+
+        listEl.innerHTML = (foodRowsHtml + giftRowsHtml) || '<p class="cart-empty-hint">Your cart is empty.</p>';
+
+        listEl.querySelectorAll('.cart-qty-btn:not(.gift-remove-btn)').forEach(function(btn){
           btn.addEventListener('click', function(){
             var id = btn.getAttribute('data-id');
             if (btn.getAttribute('data-dir') === '1') addOne(id); else removeOne(id);
+          });
+        });
+        listEl.querySelectorAll('.gift-remove-btn').forEach(function(btn){
+          btn.addEventListener('click', function(){
+            var idx = parseInt(btn.getAttribute('data-idx'), 10);
+            giftCardCart.splice(idx, 1);
+            saveGiftCardCart();
+            renderCartUI();
           });
         });
       }
@@ -1868,15 +1979,39 @@
       checkoutView.classList.add('hidden');
       drawerTitle.textContent = 'Your Order';
     }
-    function showCheckoutView(){
-      itemsView.classList.add('hidden');
-      checkoutView.classList.remove('hidden');
-      drawerTitle.textContent = 'Checkout';
-      var totals = computeOrderTotals(cartTotal());
+    var appliedPromo = null; // { code, discountAmount } once successfully applied
+
+    function refreshCheckoutBreakdown(){
+      var totals = computeOrderTotals(cartTotal(), appliedPromo ? appliedPromo.discountAmount : 0, giftCardCartTotal());
       document.getElementById('cartCheckoutSubtotal').textContent = '$' + totals.subtotal.toFixed(2);
       document.getElementById('cartCheckoutTax').textContent = '$' + totals.tax.toFixed(2);
       document.getElementById('cartCheckoutFee').textContent = '$' + totals.fee.toFixed(2);
       document.getElementById('cartCheckoutTotal').textContent = '$' + totals.total.toFixed(2);
+      var discountRow = document.getElementById('promoDiscountRow');
+      if (appliedPromo && totals.discount > 0) {
+        discountRow.classList.remove('hidden');
+        document.getElementById('cartCheckoutDiscount').textContent = '\u2212$' + totals.discount.toFixed(2);
+      } else {
+        discountRow.classList.add('hidden');
+      }
+      var giftRow = document.getElementById('giftCardTotalRow');
+      if (totals.giftCards > 0) {
+        giftRow.classList.remove('hidden');
+        document.getElementById('cartCheckoutGiftCards').textContent = '$' + totals.giftCards.toFixed(2);
+      } else {
+        giftRow.classList.add('hidden');
+      }
+    }
+
+    function showCheckoutView(){
+      itemsView.classList.add('hidden');
+      checkoutView.classList.remove('hidden');
+      drawerTitle.textContent = 'Checkout';
+      appliedPromo = null;
+      document.getElementById('promoCodeInput').value = '';
+      document.getElementById('promoMsg').textContent = '';
+      document.getElementById('promoMsg').className = 'promo-msg';
+      refreshCheckoutBreakdown();
     }
 
     if (cartFabBtn && cartDrawer) {
@@ -1884,20 +2019,66 @@
       document.getElementById('cartDrawerClose').addEventListener('click', function(){ cartDrawer.classList.add('hidden'); });
       document.getElementById('cartDrawerOverlay').addEventListener('click', function(){ cartDrawer.classList.add('hidden'); });
       document.getElementById('cartClearBtn').addEventListener('click', function(){
-        if (!cart.length) return;
+        if (!cart.length && !giftCardCart.length) return;
         if (!confirm('Clear your whole cart?')) return;
         cart = [];
+        giftCardCart = [];
         saveCart();
+        saveGiftCardCart();
         renderCartUI();
       });
       document.getElementById('cartCheckoutBtn').addEventListener('click', function(){
-        if (!cart.length) return;
+        if (!cart.length && !giftCardCart.length) return;
         showCheckoutView();
       });
       document.getElementById('cartBackToItemsBtn').addEventListener('click', showItemsView);
 
       var ORDER_EDGE_FUNCTION_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/create-order-checkout';
       var ORDER_ANON_KEY = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
+      var PROMO_VALIDATE_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/validate-promo-code';
+
+      document.getElementById('promoApplyBtn').addEventListener('click', function(){
+        var applyBtn = this;
+        var input = document.getElementById('promoCodeInput');
+        var msgEl = document.getElementById('promoMsg');
+        var code = input.value.trim();
+
+        if (!code) {
+          msgEl.textContent = 'Enter a code first.';
+          msgEl.className = 'promo-msg error';
+          return;
+        }
+
+        applyBtn.disabled = true;
+        applyBtn.textContent = 'Checking\u2026';
+
+        fetch(PROMO_VALIDATE_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ORDER_ANON_KEY },
+          body: JSON.stringify({ code: code, subtotal: cartTotal() })
+        }).then(function(res){ return res.json(); })
+          .then(function(result){
+            applyBtn.disabled = false;
+            applyBtn.textContent = 'Apply';
+            if (!result.valid) {
+              appliedPromo = null;
+              msgEl.textContent = result.error || "That code didn't work.";
+              msgEl.className = 'promo-msg error';
+              refreshCheckoutBreakdown();
+              return;
+            }
+            appliedPromo = { code: result.code, discountAmount: result.discountAmount };
+            msgEl.textContent = 'Applied ' + result.code + ' \u2014 you saved $' + result.discountAmount.toFixed(2) + '!';
+            msgEl.className = 'promo-msg success';
+            refreshCheckoutBreakdown();
+          })
+          .catch(function(){
+            applyBtn.disabled = false;
+            applyBtn.textContent = 'Apply';
+            msgEl.textContent = 'Could not check that code right now.';
+            msgEl.className = 'promo-msg error';
+          });
+      });
 
       document.getElementById('cartPayNowBtn').addEventListener('click', function(){
         var payBtn = this;
@@ -1910,7 +2091,7 @@
         msgEl.textContent = '';
         msgEl.className = 'square-pay-msg cart-checkout-msg';
 
-        if (!cart.length) {
+        if (!cart.length && !giftCardCart.length) {
           msgEl.textContent = 'Your cart is empty.';
           msgEl.className = 'square-pay-msg cart-checkout-msg error';
           return;
@@ -1927,13 +2108,18 @@
         var itemsPayload = cart.map(function(c){
           return { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name };
         });
+        var giftCardsPayload = giftCardCart.map(function(g){
+          return { amount: g.amount, recipientName: g.recipientName, recipientEmail: g.recipientEmail, message: g.message };
+        });
 
         fetch(ORDER_EDGE_FUNCTION_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ORDER_ANON_KEY },
           body: JSON.stringify({
-            items: itemsPayload, customerName: name, customerEmail: email,
-            customerPhone: phone, notes: notes
+            items: itemsPayload, giftCards: giftCardsPayload,
+            customerName: name, customerEmail: email,
+            customerPhone: phone, notes: notes,
+            promoCode: appliedPromo ? appliedPromo.code : undefined
           })
         }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
           .then(function(result){
@@ -1945,7 +2131,9 @@
               return;
             }
             cart = [];
+            giftCardCart = [];
             saveCart();
+            saveGiftCardCart();
             renderCartUI();
             cartDrawer.classList.add('hidden');
             showItemsView();
@@ -1957,6 +2145,72 @@
             msgEl.textContent = "Couldn't reach checkout \u2014 please try again in a moment.";
             msgEl.className = 'square-pay-msg cart-checkout-msg error';
           });
+      });
+    }
+
+    // ---- Gift Cards section: amount selection + add to cart ----
+    var selectedGiftAmount = null;
+    var giftAmountBtns = document.querySelectorAll('.gift-amount-btn');
+    var giftCustomInput = document.getElementById('giftCustomAmount');
+
+    giftAmountBtns.forEach(function(btn){
+      btn.addEventListener('click', function(){
+        giftAmountBtns.forEach(function(b){ b.classList.remove('selected'); });
+        btn.classList.add('selected');
+        selectedGiftAmount = parseFloat(btn.getAttribute('data-amount'));
+        if (giftCustomInput) giftCustomInput.value = '';
+      });
+    });
+    if (giftCustomInput) {
+      giftCustomInput.addEventListener('input', function(){
+        giftAmountBtns.forEach(function(b){ b.classList.remove('selected'); });
+        selectedGiftAmount = null; // read fresh from the input at add-to-cart time instead
+      });
+    }
+
+    var addGiftCardBtn = document.getElementById('addGiftCardBtn');
+    if (addGiftCardBtn) {
+      addGiftCardBtn.addEventListener('click', function(){
+        var giftMsgEl = document.getElementById('giftCardMsg');
+        var recipientName = document.getElementById('giftRecipientName').value.trim();
+        var recipientEmail = document.getElementById('giftRecipientEmail').value.trim();
+        var message = document.getElementById('giftMessage').value.trim();
+
+        var amount = selectedGiftAmount;
+        var customVal = giftCustomInput ? parseFloat(giftCustomInput.value) : NaN;
+        if (!amount && customVal > 0) amount = customVal;
+
+        giftMsgEl.textContent = '';
+        giftMsgEl.className = 'promo-msg';
+
+        if (!amount || amount < 5 || amount > 500) {
+          giftMsgEl.textContent = 'Choose an amount between $5 and $500.';
+          giftMsgEl.className = 'promo-msg error';
+          return;
+        }
+        if (!recipientEmail) {
+          giftMsgEl.textContent = "Enter the recipient's email.";
+          giftMsgEl.className = 'promo-msg error';
+          return;
+        }
+
+        giftCardCart.push({
+          amount: amount,
+          recipientName: recipientName || null,
+          recipientEmail: recipientEmail,
+          message: message || null
+        });
+        saveGiftCardCart();
+        renderCartUI();
+
+        giftMsgEl.textContent = 'Added to cart!';
+        giftMsgEl.className = 'promo-msg success';
+        document.getElementById('giftRecipientName').value = '';
+        document.getElementById('giftRecipientEmail').value = '';
+        document.getElementById('giftMessage').value = '';
+        giftAmountBtns.forEach(function(b){ b.classList.remove('selected'); });
+        if (giftCustomInput) giftCustomInput.value = '';
+        selectedGiftAmount = null;
       });
     }
   })();
