@@ -2227,11 +2227,12 @@
               msgEl.className = 'square-pay-msg cart-checkout-msg error';
               return;
             }
-            cart = [];
-            giftCardCart = [];
-            saveCart();
-            saveGiftCardCart();
-            renderCartUI();
+            // Don't clear the cart here -- clicking Pay Now doesn't
+            // mean payment succeeded. If they abandon Square's page
+            // or hit back, they should find their cart exactly as
+            // they left it, not have to rebuild it from scratch. The
+            // cart only actually clears once thank-you.html confirms
+            // the payment genuinely went through.
             cartDrawer.classList.add('hidden');
             showItemsView();
             window.location.href = result.data.url;
