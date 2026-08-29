@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Order Here — Roll-In Shawarma</title>
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --black:#000000; --panel:#121110; --white:#FFFCF3; --cream:#F3EAC9;
+    --muted:rgba(243,234,201,0.62); --gold:#F7AD28; --red:#D8342E; --green:#0BAF4C;
+    --line:rgba(243,234,201,0.14);
+  }
+  *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
+  body{
+    background:var(--black); color:var(--cream); font-family:'Inter', -apple-system, sans-serif;
+    line-height:1.4; min-height:100vh; padding-bottom:100px;
+  }
+  .hidden{ display:none !important; }
+  button{ font-family:inherit; cursor:pointer; border:none; }
+  input, textarea{ font-family:inherit; }
+
+  .order-header{
+    position:sticky; top:0; z-index:60; background:var(--panel); border-bottom:1px solid var(--line);
+    padding:16px 20px; display:flex; align-items:center; gap:12px;
+  }
+  .order-header img{ width:38px; height:38px; border-radius:50%; object-fit:cover; }
+  .order-header h1{ font-size:17px; font-weight:800; color:var(--white); }
+  .order-header p{ font-size:12px; color:var(--muted); }
+
+  .wrap{ max-width:560px; margin:0 auto; padding:16px; }
+
+  /* ---------- category accordion (same proven pattern as the kiosk) ---------- */
+  .category-block{ border:1px solid var(--line); border-radius:14px; margin-bottom:10px; overflow:hidden; background:var(--panel); }
+  .category-row{
+    display:flex; align-items:center; justify-content:space-between; width:100%; text-align:left;
+    background:none; color:var(--cream); font-size:17px; font-weight:700; padding:18px 20px;
+  }
+  .category-row .chev{ transition:transform .2s ease; color:var(--muted); }
+  .category-block.expanded .category-row .chev{ transform:rotate(180deg); }
+  .category-options{ max-height:0; overflow:hidden; transition:max-height .3s ease; background:var(--black); }
+  .category-block.expanded .category-options{ max-height:2000px; }
+  .option-row{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    padding:14px 18px; border-top:1px solid var(--line);
+  }
+  .option-info{ flex:1; min-width:0; }
+  .option-name{ font-size:15px; font-weight:700; color:var(--cream); }
+  .option-desc{ font-size:12px; color:var(--muted); margin-top:2px; }
+  .option-price{ font-size:13.5px; color:var(--gold); font-weight:700; margin-top:3px; }
+  .option-qty-controls{ display:flex; align-items:center; gap:10px; flex:none; }
+  .option-qty-btn{
+    width:34px; height:34px; border-radius:50%; background:var(--panel); border:1px solid var(--line);
+    color:var(--cream); font-size:18px; display:flex; align-items:center; justify-content:center;
+  }
+  .option-qty-btn:active{ background:var(--gold); color:#241902; }
+  .option-qty-value{ min-width:20px; text-align:center; font-size:15px; font-weight:800; color:var(--white); }
+
+  /* ---------- persistent cart bar ---------- */
+  #cartBar{
+    position:fixed; left:0; right:0; bottom:0; background:var(--gold); color:#241902;
+    display:flex; align-items:center; justify-content:space-between; padding:16px 20px;
+    box-shadow:0 -8px 30px rgba(0,0,0,0.4); z-index:70;
+  }
+  #cartBar.hidden{ display:none !important; }
+  #cartBarInfo{ font-size:15px; font-weight:800; }
+  #cartBarBtn{ background:#241902; color:var(--gold); font-size:15px; font-weight:800; padding:12px 24px; border-radius:100px; }
+
+  /* ---------- checkout screen ---------- */
+  #checkoutScreen{ position:fixed; inset:0; background:var(--black); z-index:80; overflow-y:auto; }
+  .checkout-body{ padding:20px; max-width:560px; margin:0 auto; padding-bottom:140px; }
+  .checkout-body h2{ font-size:24px; font-weight:800; color:var(--white); margin-bottom:18px; }
+  .checkout-items-list{ border:1px solid var(--line); border-radius:14px; padding:16px 18px; margin-bottom:20px; }
+  .checkout-item-row{ display:flex; justify-content:space-between; padding:7px 0; font-size:14.5px; }
+  .checkout-item-row .nm{ color:var(--white); }
+  .checkout-item-row .amt{ color:var(--muted); }
+  .checkout-breakdown-row{ display:flex; justify-content:space-between; padding:6px 0; font-size:14px; color:var(--muted); }
+  .checkout-total-row{ display:flex; justify-content:space-between; font-size:19px; font-weight:800; color:var(--white); padding-top:12px; margin-top:8px; border-top:1px solid var(--line); }
+  .checkout-total-row span{ color:var(--gold); }
+
+  .kiosk-field{ margin-bottom:18px; }
+  .kiosk-field label{ display:block; font-size:13px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:8px; }
+  .kiosk-field input, .kiosk-field textarea{
+    width:100%; background:var(--panel); border:1px solid var(--line); border-radius:12px;
+    padding:14px 14px; color:var(--white); font-size:16px;
+  }
+  .kiosk-field input:focus, .kiosk-field textarea:focus{ outline:none; border-color:var(--gold); }
+
+  .payment-choice{ display:flex; gap:10px; margin-bottom:20px; }
+  .payment-choice-btn{
+    flex:1; background:var(--panel); border:1px solid var(--line); border-radius:12px;
+    padding:16px; color:var(--cream); font-size:15px; font-weight:700; text-align:center;
+  }
+  .payment-choice-btn.selected{ background:var(--gold); border-color:var(--gold); color:#241902; }
+
+  .checkout-footer{ position:fixed; left:0; right:0; bottom:0; background:var(--black); padding:16px 20px; border-top:1px solid var(--line); max-width:560px; margin:0 auto; }
+  #payBtn{ width:100%; background:var(--gold); color:#241902; font-size:18px; font-weight:800; padding:18px; border-radius:14px; }
+  #payBtn:disabled{ opacity:0.6; }
+  #backToMenuBtn{ display:block; margin:14px auto 0; background:none; color:var(--muted); font-size:14px; }
+  #checkoutMsg{ text-align:center; font-size:13.5px; color:var(--red); min-height:18px; margin-top:10px; }
+
+  .empty-hint{ color:var(--muted); font-size:14px; text-align:center; padding:30px 20px; }
+</style>
+</head>
+<body>
+
+<div class="order-header">
+  <img src="logo.jpg" alt="Roll-In Shawarma">
+  <div>
+    <h1>Roll-In Shawarma</h1>
+    <p>Order here &mdash; ready in about 15 minutes</p>
+  </div>
+</div>
+
+<div class="wrap">
+  <div id="categoryList"></div>
+</div>
+
+<div id="cartBar" class="hidden">
+  <div id="cartBarInfo">0 items &middot; $0.00</div>
+  <button type="button" id="cartBarBtn">Checkout &rarr;</button>
+</div>
+
+<div id="checkoutScreen" class="hidden">
+  <div class="checkout-body">
+    <h2>Almost there!</h2>
+    <div class="checkout-items-list" id="checkoutItemsList"></div>
+
+    <div class="checkout-breakdown-row">Subtotal <span id="ckSubtotal">$0.00</span></div>
+    <div class="checkout-breakdown-row" id="ckFeeRow">Card Processing Fee <span id="ckFee">$0.00</span></div>
+    <div class="checkout-total-row">Total <span id="ckTotal">$0.00</span></div>
+
+    <div class="kiosk-field" style="margin-top:24px;">
+      <label>Name (so we can call you)</label>
+      <input type="text" id="custName" placeholder="Your first name">
+    </div>
+    <div class="kiosk-field">
+      <label>Email (for your receipt)</label>
+      <input type="email" id="custEmail" placeholder="you@example.com">
+    </div>
+    <div class="kiosk-field">
+      <label>Phone (optional)</label>
+      <input type="tel" id="custPhone">
+    </div>
+
+    <div class="kiosk-field">
+      <label>How will you pay?</label>
+      <div class="payment-choice">
+        <button type="button" class="payment-choice-btn selected" id="cardChoiceBtn">Card</button>
+        <button type="button" class="payment-choice-btn" id="cashChoiceBtn">Cash at Counter</button>
+      </div>
+    </div>
+
+    <div class="kiosk-field">
+      <label>Notes (optional)</label>
+      <textarea id="custNotes" rows="2" placeholder="Any special requests..."></textarea>
+    </div>
+  </div>
+
+  <div class="checkout-footer">
+    <button type="button" id="payBtn">Pay Now</button>
+    <div id="checkoutMsg"></div>
+    <button type="button" id="backToMenuBtn">&larr; Back to menu</button>
+  </div>
+</div>
+
+<script>
+  var sbShared = supabase.createClient(
+    'https://njcmcaoyzujijiyfardx.supabase.co',
+    'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_'
+  );
+
+  (function(){
+    var cart = []; // in-memory + not persisted across a hard reload on purpose --
+                    // keeps this simple; a customer re-scanning the QR code starts fresh
+    var itemsById = {};
+    var categoryOrder = [];
+    var paymentMethod = 'card';
+
+    var TAX_RATE = 0.0675;
+    var FEE_PERCENT = 0.033;
+    var FEE_FLAT_CENTS = 30;
+
+    function escHtml(s){
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+      });
+    }
+
+    function loadMenu(){
+      sbShared.from('menu_items').select('*').order('display_order').then(function(res){
+        if (res.error || !res.data) return;
+        var byCategory = {};
+        res.data.forEach(function(item){
+          itemsById[item.id] = item;
+          if (item.category === 'Catering') return; // planned-ahead flow, not a walk-up self-order
+          if (!byCategory[item.category]) {
+            byCategory[item.category] = [];
+            categoryOrder.push(item.category);
+          }
+          byCategory[item.category].push(item);
+        });
+        window.__orderByCategory = byCategory;
+        renderCategoryList();
+      });
+    }
+
+    function renderCategoryList(){
+      var listEl = document.getElementById('categoryList');
+      if (!categoryOrder.length) {
+        listEl.innerHTML = '<div class="empty-hint">Menu is loading, one moment&hellip;</div>';
+        return;
+      }
+      listEl.innerHTML = categoryOrder.map(function(cat){
+        var items = (window.__orderByCategory || {})[cat] || [];
+        var optionsHtml = items.map(function(item){
+          var label = item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : '');
+          return '<div class="option-row" data-id="' + item.id + '">' +
+            '<div class="option-info">' +
+              '<div class="option-name">' + escHtml(label) + '</div>' +
+              (item.description ? '<div class="option-desc">' + escHtml(item.description) + '</div>' : '') +
+              '<div class="option-price">$' + Number(item.price).toFixed(2) + '</div>' +
+            '</div>' +
+            '<div class="option-qty-controls">' +
+              '<button type="button" class="option-qty-btn" data-id="' + item.id + '" data-dir="-1">\u2212</button>' +
+              '<span class="option-qty-value" data-id="' + item.id + '">0</span>' +
+              '<button type="button" class="option-qty-btn" data-id="' + item.id + '" data-dir="1">+</button>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+
+        return '<div class="category-block" data-cat="' + escHtml(cat) + '">' +
+          '<button type="button" class="category-row" data-cat="' + escHtml(cat) + '">' + escHtml(cat) +
+            '<span class="chev">\u25BC</span></button>' +
+          '<div class="category-options">' + optionsHtml + '</div>' +
+        '</div>';
+      }).join('');
+
+      listEl.querySelectorAll('.category-row').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          btn.closest('.category-block').classList.toggle('expanded');
+        });
+      });
+      listEl.querySelectorAll('.option-qty-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var id = btn.getAttribute('data-id');
+          if (btn.getAttribute('data-dir') === '1') addOne(id); else removeOne(id);
+        });
+      });
+    }
+
+    function findLine(itemId){ return cart.find(function(c){ return c.menu_item_id === itemId; }); }
+
+    function addOne(itemId){
+      var item = itemsById[itemId];
+      if (!item) return;
+      var line = findLine(itemId);
+      if (line) {
+        line.quantity += 1;
+      } else {
+        var label = item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : '');
+        cart.push({ menu_item_id: itemId, name: label, unitPrice: Number(item.price), quantity: 1 });
+      }
+      renderCartBar();
+      syncQtyDisplays();
+    }
+
+    function removeOne(itemId){
+      var item = itemsById[itemId];
+      var line = findLine(itemId);
+      if (!line) return;
+      var minQty = item && item.min_quantity;
+      if (minQty && line.quantity <= minQty) {
+        cart = cart.filter(function(c){ return c.menu_item_id !== itemId; });
+      } else {
+        line.quantity -= 1;
+        if (line.quantity <= 0) cart = cart.filter(function(c){ return c.menu_item_id !== itemId; });
+      }
+      renderCartBar();
+      syncQtyDisplays();
+    }
+
+    function syncQtyDisplays(){
+      document.querySelectorAll('.option-qty-value').forEach(function(el){
+        var line = findLine(el.getAttribute('data-id'));
+        el.textContent = line ? line.quantity : 0;
+      });
+    }
+
+    function cartTotal(){ return cart.reduce(function(s,c){ return s + c.unitPrice*c.quantity; }, 0); }
+    function cartCount(){ return cart.reduce(function(s,c){ return s + c.quantity; }, 0); }
+
+    function renderCartBar(){
+      var bar = document.getElementById('cartBar');
+      var count = cartCount();
+      if (count === 0) { bar.classList.add('hidden'); return; }
+      bar.classList.remove('hidden');
+      document.getElementById('cartBarInfo').textContent = count + ' item' + (count === 1 ? '' : 's') + ' \u00b7 $' + cartTotal().toFixed(2);
+    }
+
+    function computeTotals(){
+      var subtotalCents = Math.round(cartTotal() * 100);
+      var taxCents = Math.round(subtotalCents * TAX_RATE);
+      var preFeeCents = subtotalCents + taxCents;
+      var feeCents = (paymentMethod === 'card' && preFeeCents > 0)
+        ? Math.round(preFeeCents * FEE_PERCENT) + FEE_FLAT_CENTS
+        : 0;
+      return {
+        subtotal: subtotalCents / 100,
+        tax: taxCents / 100,
+        fee: feeCents / 100,
+        total: (preFeeCents + feeCents) / 100,
+      };
+    }
+
+    function refreshCheckoutBreakdown(){
+      var totals = computeTotals();
+      document.getElementById('ckSubtotal').textContent = '$' + totals.subtotal.toFixed(2) + ' + $' + totals.tax.toFixed(2) + ' tax';
+      document.getElementById('ckFee').textContent = '$' + totals.fee.toFixed(2);
+      document.getElementById('ckFeeRow').classList.toggle('hidden', paymentMethod !== 'card');
+      document.getElementById('ckTotal').textContent = '$' + totals.total.toFixed(2);
+    }
+
+    var checkoutScreen = document.getElementById('checkoutScreen');
+
+    function showCheckout(){
+      if (!cart.length) return;
+      checkoutScreen.classList.remove('hidden');
+      document.getElementById('checkoutItemsList').innerHTML = cart.map(function(c){
+        return '<div class="checkout-item-row"><span class="nm">' + escHtml(c.name) + ' \u00d7 ' + c.quantity + '</span>' +
+          '<span class="amt">$' + (c.unitPrice * c.quantity).toFixed(2) + '</span></div>';
+      }).join('');
+      refreshCheckoutBreakdown();
+    }
+
+    document.getElementById('cartBarBtn').addEventListener('click', showCheckout);
+    document.getElementById('backToMenuBtn').addEventListener('click', function(){
+      checkoutScreen.classList.add('hidden');
+    });
+
+    document.getElementById('cardChoiceBtn').addEventListener('click', function(){
+      paymentMethod = 'card';
+      this.classList.add('selected');
+      document.getElementById('cashChoiceBtn').classList.remove('selected');
+      refreshCheckoutBreakdown();
+    });
+    document.getElementById('cashChoiceBtn').addEventListener('click', function(){
+      paymentMethod = 'cash';
+      this.classList.add('selected');
+      document.getElementById('cardChoiceBtn').classList.remove('selected');
+      refreshCheckoutBreakdown();
+    });
+
+    // ---- Checkout / payment ----
+    var CARD_CHECKOUT_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/create-order-checkout';
+    var CASH_ORDER_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/create-cash-order';
+    var ANON_KEY = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
+
+    document.getElementById('payBtn').addEventListener('click', function(){
+      var payBtn = this;
+      var msgEl = document.getElementById('checkoutMsg');
+      var name = document.getElementById('custName').value.trim();
+      var email = document.getElementById('custEmail').value.trim();
+      var phone = document.getElementById('custPhone').value.trim();
+      var notes = document.getElementById('custNotes').value.trim();
+
+      msgEl.textContent = '';
+
+      if (!cart.length) { msgEl.textContent = 'Your cart is empty.'; return; }
+
+      payBtn.disabled = true;
+      payBtn.textContent = 'Preparing checkout\u2026';
+
+      var itemsPayload = cart.map(function(c){
+        return { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name };
+      });
+
+      var url = paymentMethod === 'cash' ? CASH_ORDER_URL : CARD_CHECKOUT_URL;
+      var body = paymentMethod === 'cash'
+        ? { items: itemsPayload, customerName: name || 'QR Order', customerEmail: email || undefined, customerPhone: phone || undefined, notes: notes || undefined }
+        : { items: itemsPayload, customerName: name || 'QR Order', customerEmail: email || undefined, customerPhone: phone || undefined, notes: notes || undefined, orderSource: 'qr' };
+
+      fetch(url, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ANON_KEY },
+        body: JSON.stringify(body)
+      }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
+        .then(function(result){
+          if (!result.ok) {
+            payBtn.disabled = false;
+            payBtn.textContent = 'Pay Now';
+            msgEl.textContent = (result.data && result.data.error) ? String(result.data.error) : "Couldn't start checkout \u2014 please try again.";
+            return;
+          }
+          if (paymentMethod === 'cash') {
+            window.location.href = 'kiosk-thank-you.html?ref=' + encodeURIComponent(result.data.referenceCode) + '&cash=true';
+            return;
+          }
+          window.location.href = result.data.url;
+        })
+        .catch(function(){
+          payBtn.disabled = false;
+          payBtn.textContent = 'Pay Now';
+          msgEl.textContent = "Couldn't reach checkout \u2014 please try again.";
+        });
+    });
+
+    loadMenu();
+  })();
+</script>
+
+</body>
+</html>
