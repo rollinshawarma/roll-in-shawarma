@@ -54,6 +54,12 @@
   .kiosk-header h2{ font-size:22px; font-weight:800; color:var(--white); }
   #startOverBtn{ background:none; color:var(--muted); font-size:15px; font-weight:600; padding:10px 18px; border:1px solid var(--line); border-radius:100px; }
 
+  #inactivityTimer{
+    position:fixed; top:18px; right:24px; z-index:80;
+    background:var(--panel); border:1px solid var(--line); color:var(--muted);
+    font-size:13px; font-weight:700; padding:8px 16px; border-radius:100px;
+  }
+
   /* ---------- MENU: vertical category sidebar + single image panel ---------- */
   .menu-split{ flex:1; display:flex; overflow:hidden; padding-bottom:110px; }
 
@@ -87,8 +93,8 @@
 
   .item-detail-panel{ flex:1; overflow-y:auto; padding:36px; display:flex; flex-direction:column; align-items:center; justify-content:center; }
   .item-detail-photo{
-    width:100%; max-width:440px; aspect-ratio:1.3; border-radius:20px; object-fit:cover;
-    margin-bottom:18px; background:var(--panel);
+    width:100%; max-width:440px; max-height:60vh; object-fit:contain;
+    margin-bottom:18px; background:transparent; display:block;
   }
   .item-detail-caption{ font-size:22px; font-weight:800; color:var(--white); text-align:center; }
   .item-detail-empty{ color:var(--muted); font-size:17px; text-align:center; }
@@ -140,6 +146,8 @@
 </style>
 </head>
 <body>
+
+<div id="inactivityTimer" class="hidden"></div>
 
 <div id="idleScreen">
   <img class="logo" src="logo.jpg" alt="Roll-In Shawarma">
@@ -219,13 +227,44 @@
 
     // ---- Inactivity auto-reset: if someone walks away mid-order,
     // return to the idle screen after a timeout so the next customer
-    // never sees (or accidentally pays for) a stranger's cart. ----
-    var INACTIVITY_LIMIT_MS = 90 * 1000;
-    var inactivityTimer = null;
+    // never sees (or accidentally pays for) a stranger's cart. Stays
+    // silent at first -- only shows a visible warning in the final
+    // stretch, not the whole time. Any touch resets it back to full. ----
+    var INACTIVITY_LIMIT_SECONDS = 60;
+    var VISIBLE_WARNING_SECONDS = 15;
+    var secondsRemaining = INACTIVITY_LIMIT_SECONDS;
+    var inactivityInterval = null;
+
+    function updateInactivityDisplay(){
+      var el = document.getElementById('inactivityTimer');
+      if (!el) return;
+      var shouldShow = idleScreen.classList.contains('hidden') && secondsRemaining <= VISIBLE_WARNING_SECONDS;
+      if (shouldShow) {
+        el.classList.remove('hidden');
+        el.textContent = 'Resetting in ' + secondsRemaining + 's';
+      } else {
+        el.classList.add('hidden');
+      }
+    }
+
+    function startInactivityCountdown(){
+      clearInterval(inactivityInterval);
+      if (idleScreen.classList.contains('hidden')) {
+        inactivityInterval = setInterval(function(){
+          secondsRemaining -= 1;
+          updateInactivityDisplay();
+          if (secondsRemaining <= 0) {
+            clearInterval(inactivityInterval);
+            window.location.reload();
+          }
+        }, 1000);
+      }
+      updateInactivityDisplay();
+    }
+
     function resetInactivityTimer(){
-      clearTimeout(inactivityTimer);
-      if (!idleScreen.classList.contains('hidden')) return;
-      inactivityTimer = setTimeout(function(){ window.location.reload(); }, INACTIVITY_LIMIT_MS);
+      secondsRemaining = INACTIVITY_LIMIT_SECONDS;
+      startInactivityCountdown();
     }
     ['touchstart','mousedown','keydown'].forEach(function(evt){
       document.addEventListener(evt, resetInactivityTimer, { passive: true });
@@ -252,7 +291,6 @@
     }
 
     var expandedCategory = null;
-    var viewedItemId = null; // whichever option's photo is currently shown on the right
 
     function renderCategorySidebar(){
       var sidebarEl = document.getElementById('categorySidebar');
@@ -283,20 +321,21 @@
         btn.addEventListener('click', function(){ toggleCategory(btn.getAttribute('data-cat')); });
       });
       sidebarEl.querySelectorAll('.option-info').forEach(function(el){
-        el.addEventListener('click', function(){ viewItem(el.getAttribute('data-id')); });
+        el.addEventListener('click', function(){ highlightOption(el.getAttribute('data-id')); });
       });
       sidebarEl.querySelectorAll('.option-qty-btn').forEach(function(btn){
         btn.addEventListener('click', function(e){
           e.stopPropagation();
           var id = btn.getAttribute('data-id');
           if (btn.getAttribute('data-dir') === '1') addOne(id); else removeOne(id);
-          viewItem(id); // adding/removing also brings that item's photo into view
         });
       });
     }
 
     // Only one category expanded at a time -- selecting a new one
-    // collapses whatever was open before.
+    // collapses whatever was open before. The photo is shown once,
+    // right when the category opens, and stays exactly as-is no
+    // matter which option within it gets tapped afterward.
     function toggleCategory(cat){
       var wasExpanded = expandedCategory === cat;
       document.querySelectorAll('.category-block').forEach(function(block){
@@ -314,28 +353,27 @@
       if (block) block.classList.add('expanded');
       var row = document.querySelector('.category-row[data-cat="' + cssEscape(cat) + '"]');
       if (row) row.classList.add('active');
+      showCategoryImage(cat);
     }
 
     function cssEscape(s){ return String(s).replace(/"/g, '\\"'); }
 
-    // Shows just the photo for one specific option -- the detail
-    // panel never shows anything else (no name/price/buttons there;
-    // those all live inline on the option row itself).
-    function viewItem(itemId){
-      viewedItemId = itemId;
-      var item = itemsById[itemId];
-      if (!item) return;
-
-      document.querySelectorAll('.option-row').forEach(function(row){
-        row.classList.toggle('selected', row.getAttribute('data-id') === itemId);
-      });
-
-      var label = item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : '');
-      var img = categoryImages[item.category] || 'menu-shawarma.jpg';
+    // Shown once, the moment a category is opened. Never re-rendered
+    // by tapping options or their qty buttons within it.
+    function showCategoryImage(cat){
+      var img = categoryImages[cat] || 'menu-shawarma.jpg';
       var panel = document.getElementById('itemDetailPanel');
       panel.innerHTML =
         '<img class="item-detail-photo" src="' + img + '" alt="">' +
-        '<div class="item-detail-caption">' + escHtml(label) + '</div>';
+        '<div class="item-detail-caption">' + escHtml(cat) + '</div>';
+    }
+
+    // Purely a visual "you tapped this" cue on the option row itself --
+    // does not touch the photo at all.
+    function highlightOption(itemId){
+      document.querySelectorAll('.option-row').forEach(function(row){
+        row.classList.toggle('selected', row.getAttribute('data-id') === itemId);
+      });
     }
 
     function findLine(itemId){ return cart.find(function(c){ return c.menu_item_id === itemId; }); }
