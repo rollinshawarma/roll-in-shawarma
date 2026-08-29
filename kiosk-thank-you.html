@@ -84,6 +84,7 @@
 
     var params = new URLSearchParams(window.location.search);
     var ref = params.get('ref');
+    var isCashOrder = params.get('cash') === 'true';
 
     var loadingEl = document.getElementById('loadingState');
     var confirmedEl = document.getElementById('confirmedState');
@@ -130,7 +131,10 @@
         }
         var order = result.data;
 
-        if (order.status !== 'paid' && retriesLeft > 0) {
+        // A cash order never becomes 'paid' via webhook -- there's no
+        // payment to confirm yet, so don't waste time retrying for
+        // something that will never happen. Show it right away.
+        if (order.status !== 'paid' && !isCashOrder && retriesLeft > 0) {
           setTimeout(function(){ attemptFetch(retriesLeft - 1); }, 1500);
           return;
         }
@@ -139,7 +143,12 @@
         confirmedEl.classList.remove('hidden');
 
         document.getElementById('orderNumberValue').textContent = order.referenceCode.replace('ORDER-', '');
-        if (order.firstName) {
+
+        if (isCashOrder) {
+          document.getElementById('thankYouTitle').textContent = order.firstName ? 'Thanks, ' + order.firstName + '!' : 'Order Placed!';
+          var instructionsEl = document.querySelector('.order-instructions');
+          if (instructionsEl) instructionsEl.innerHTML = 'Please pay <b>$' + Number(order.total).toFixed(2) + '</b> at the counter. We\u2019ll call your name when it\u2019s ready.';
+        } else if (order.firstName) {
           document.getElementById('thankYouTitle').textContent = 'Thanks, ' + order.firstName + '!';
         }
 
