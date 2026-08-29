@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Order Confirmed — Roll-In Shawarma</title>
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<meta name="robots" content="noindex">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --black:#000000;
+    --panel:#121110;
+    --white:#FFFCF3;
+    --cream:#F3EAC9;
+    --muted:rgba(243,234,201,0.62);
+    --gold:#F7AD28;
+    --green:#0BAF4C;
+    --line:rgba(243,234,201,0.14);
+  }
+  *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
+  html, body{ overflow:hidden; height:100%; width:100%; }
+  body{
+    background:radial-gradient(circle at 50% 25%, rgba(11,175,76,0.16), var(--black) 65%);
+    color:var(--cream); font-family:'Inter', -apple-system, sans-serif; line-height:1.4; user-select:none;
+    display:flex; align-items:center; justify-content:center; padding:40px;
+  }
+  .hidden{ display:none !important; }
+  .kiosk-confirm-card{ text-align:center; max-width:640px; width:100%; }
+  .check-badge{
+    width:110px; height:110px; border-radius:50%; background:rgba(11,175,76,0.16);
+    display:flex; align-items:center; justify-content:center; margin:0 auto 32px;
+  }
+  .check-badge svg{ width:56px; height:56px; color:var(--green); }
+  h1{ font-size:32px; font-weight:800; color:var(--white); margin-bottom:12px; }
+  .order-number-box{
+    background:var(--panel); border:2px solid var(--gold); border-radius:20px;
+    padding:32px; margin:28px 0; display:inline-block; min-width:320px;
+  }
+  .order-number-label{ font-size:14px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:10px; }
+  .order-number-value{ font-size:56px; font-weight:800; color:var(--gold); letter-spacing:2px; }
+  .order-instructions{ font-size:19px; color:var(--cream); margin:20px 0 8px; }
+  .order-items{ text-align:left; max-width:420px; margin:24px auto; font-size:14px; color:var(--muted); }
+  .order-item-row{ display:flex; justify-content:space-between; padding:6px 0; }
+  .order-item-row .nm{ color:var(--white); }
+  .countdown-note{ font-size:14px; color:var(--muted); margin-top:36px; }
+  .loading{ font-size:20px; color:var(--muted); }
+</style>
+</head>
+<body>
+
+<div class="kiosk-confirm-card">
+  <div id="loadingState" class="loading">Confirming your order&hellip;</div>
+
+  <div id="confirmedState" class="hidden">
+    <div class="check-badge">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+    </div>
+    <h1 id="thankYouTitle">Order Confirmed!</h1>
+
+    <div class="order-number-box">
+      <div class="order-number-label">Your Order Number</div>
+      <div class="order-number-value" id="orderNumberValue">&mdash;</div>
+    </div>
+
+    <p class="order-instructions">We'll call your name when it's ready.</p>
+
+    <div class="order-items" id="itemsBlock"></div>
+
+    <div class="countdown-note">Starting a new order in <span id="countdownValue">15</span>s&hellip;</div>
+  </div>
+</div>
+
+<script>
+  (function(){
+    var EDGE_FUNCTION_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/get-order-confirmation';
+    var ANON_KEY = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
+
+    function escHtml(s){
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+      });
+    }
+
+    var params = new URLSearchParams(window.location.search);
+    var ref = params.get('ref');
+
+    var loadingEl = document.getElementById('loadingState');
+    var confirmedEl = document.getElementById('confirmedState');
+
+    function startResetCountdown(){
+      var seconds = 15;
+      var countdownEl = document.getElementById('countdownValue');
+      var timer = setInterval(function(){
+        seconds -= 1;
+        if (countdownEl) countdownEl.textContent = seconds;
+        if (seconds <= 0) {
+          clearInterval(timer);
+          window.location.href = 'kiosk.html';
+        }
+      }, 1000);
+    }
+
+    function showFallback(){
+      // Even if confirmation lookup fails for some reason, a kiosk
+      // customer standing at the truck still needs *something* on
+      // screen and a way back -- never leave them stuck looking at
+      // a bare error with no path forward.
+      loadingEl.classList.add('hidden');
+      confirmedEl.classList.remove('hidden');
+      document.getElementById('orderNumberValue').textContent = ref ? ref.replace('ORDER-', '') : '\u2014';
+      document.getElementById('thankYouTitle').textContent = 'Order Received!';
+      startResetCountdown();
+    }
+
+    if (!ref) {
+      showFallback();
+      return;
+    }
+
+    function attemptFetch(retriesLeft){
+      fetch(EDGE_FUNCTION_URL + '?ref=' + encodeURIComponent(ref), {
+        headers: { 'Authorization': 'Bearer ' + ANON_KEY }
+      }).then(function(res){
+        return res.json().then(function(data){ return { ok: res.ok, data: data }; });
+      }).then(function(result){
+        if (!result.ok || !result.data) {
+          showFallback();
+          return;
+        }
+        var order = result.data;
+
+        if (order.status !== 'paid' && retriesLeft > 0) {
+          setTimeout(function(){ attemptFetch(retriesLeft - 1); }, 1500);
+          return;
+        }
+
+        loadingEl.classList.add('hidden');
+        confirmedEl.classList.remove('hidden');
+
+        document.getElementById('orderNumberValue').textContent = order.referenceCode.replace('ORDER-', '');
+        if (order.firstName) {
+          document.getElementById('thankYouTitle').textContent = 'Thanks, ' + order.firstName + '!';
+        }
+
+        if (order.items && order.items.length) {
+          document.getElementById('itemsBlock').innerHTML = order.items.map(function(li){
+            return '<div class="order-item-row"><span class="nm">' + escHtml(li.name) + ' &times; ' + li.quantity + '</span></div>';
+          }).join('');
+        }
+
+        startResetCountdown();
+      }).catch(function(){
+        if (retriesLeft > 0) {
+          setTimeout(function(){ attemptFetch(retriesLeft - 1); }, 1500);
+        } else {
+          showFallback();
+        }
+      });
+    }
+
+    attemptFetch(4);
+  })();
+</script>
+
+</body>
+</html>
