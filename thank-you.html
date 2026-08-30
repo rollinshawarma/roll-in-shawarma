@@ -78,7 +78,7 @@
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
     </div>
     <h1 id="thankYouTitle">Thank you for your order!</h1>
-    <div class="sub" id="thankYouSub">We&rsquo;ll see you soon.</div>
+    <div class="sub" id="thankYouSub">Please allow a few minutes to roll &mdash; it's worth the wait.</div>
     <div class="ref-badge" id="refBadge"></div>
 
     <div id="itemsBlock" class="order-items hidden"></div>
@@ -109,6 +109,7 @@
 
     var params = new URLSearchParams(window.location.search);
     var ref = params.get('ref');
+    var isCashOrder = params.get('cash') === 'true';
 
     var loadingEl = document.getElementById('loadingState');
     var errorEl = document.getElementById('errorState');
@@ -149,7 +150,10 @@
         // The webhook confirms payment asynchronously -- usually within
         // a couple seconds, but if we land here before it's caught up,
         // wait briefly and check again rather than showing "pending."
-        if (order.status !== 'paid' && retriesLeft > 0) {
+        // A cash order never becomes 'paid' via webhook at all -- there's
+        // no payment to confirm yet -- so don't wait for something that
+        // will never happen.
+        if (order.status !== 'paid' && !isCashOrder && retriesLeft > 0) {
           setTimeout(function(){ attemptFetch(retriesLeft - 1); }, 1500);
           return;
         }
@@ -161,7 +165,9 @@
         // the shared cart here, not when Pay Now was merely clicked.
         // Someone who abandons Square's page or hits back never
         // reaches this page, so their cart stays intact for them.
-        if (order.status === 'paid') {
+        // A cash order clears the cart too, since the order has been
+        // genuinely placed even though payment is still pending.
+        if (order.status === 'paid' || isCashOrder) {
           try {
             localStorage.removeItem('rollinCart');
             localStorage.removeItem('rollinGiftCards');
@@ -169,7 +175,10 @@
         }
 
         document.getElementById('refBadge').textContent = order.referenceCode;
-        if (order.firstName) {
+        if (isCashOrder) {
+          document.getElementById('thankYouTitle').textContent = order.firstName ? 'Thanks, ' + order.firstName + '!' : 'Order Placed!';
+          document.getElementById('thankYouSub').innerHTML = 'Please pay <b>$' + Number(order.total).toFixed(2) + '</b> at the counter. We\u2019ll call your name when it\u2019s ready.';
+        } else if (order.firstName) {
           document.getElementById('thankYouTitle').textContent = 'Thank you, ' + order.firstName + '!';
         }
 
