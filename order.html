@@ -461,7 +461,7 @@
             return;
           }
           if (paymentMethod === 'cash') {
-            window.location.href = 'kiosk-thank-you.html?ref=' + encodeURIComponent(result.data.referenceCode) + '&cash=true';
+            window.location.href = 'thank-you.html?ref=' + encodeURIComponent(result.data.referenceCode) + '&cash=true';
             return;
           }
           window.location.href = result.data.url;
