@@ -22,43 +22,52 @@
   button{ font-family:inherit; cursor:pointer; border:none; }
   input, textarea{ font-family:inherit; }
 
-  .order-header{
+  .app-header{
     position:sticky; top:0; z-index:60; background:var(--panel); border-bottom:1px solid var(--line);
-    padding:16px 20px; display:flex; align-items:center; gap:12px;
+    padding:14px 18px; display:flex; align-items:center; gap:10px;
   }
-  .order-header img{ width:38px; height:38px; border-radius:50%; object-fit:cover; }
-  .order-header h1{ font-size:17px; font-weight:800; color:var(--white); }
-  .order-header p{ font-size:12px; color:var(--muted); }
+  .app-header img{ width:34px; height:34px; border-radius:50%; object-fit:cover; }
+  .app-header span{ font-size:16px; font-weight:800; color:var(--white); }
 
-  .wrap{ max-width:560px; margin:0 auto; padding:16px; }
+  .hero-banner{ position:relative; height:150px; overflow:hidden; }
+  .hero-bg{ width:100%; height:100%; object-fit:cover; filter:brightness(0.55); }
+  .hero-overlay{ position:absolute; inset:0; padding:16px 18px; display:flex; flex-direction:column; justify-content:flex-end; }
+  .hero-ribbon{
+    align-self:flex-start; background:var(--gold); color:#241902; font-size:11px; font-weight:800;
+    padding:5px 12px; border-radius:100px; text-transform:uppercase; letter-spacing:0.04em; margin-bottom:8px;
+  }
+  .hero-title{ font-size:22px; font-weight:800; color:var(--white); }
+  .hero-sub{ font-size:13px; color:var(--cream); opacity:0.9; }
 
-  /* ---------- category accordion (same proven pattern as the kiosk) ---------- */
-  .category-block{ border:1px solid var(--line); border-radius:14px; margin-bottom:10px; overflow:hidden; background:var(--panel); }
-  .category-row{
-    display:flex; align-items:center; justify-content:space-between; width:100%; text-align:left;
-    background:none; color:var(--cream); font-size:17px; font-weight:700; padding:18px 20px;
+  .category-pills-wrap{ position:sticky; top:62px; z-index:55; background:var(--black); border-bottom:1px solid var(--line); padding:12px 0; }
+  .category-pills{ display:flex; gap:8px; overflow-x:auto; padding:0 16px; }
+  .category-pill{
+    flex:none; background:var(--panel); border:1px solid var(--line); color:var(--cream);
+    font-size:13.5px; font-weight:700; padding:10px 18px; border-radius:100px; white-space:nowrap;
   }
-  .category-row .chev{ transition:transform .2s ease; color:var(--muted); }
-  .category-block.expanded .category-row .chev{ transform:rotate(180deg); }
-  .category-options{ max-height:0; overflow:hidden; transition:max-height .3s ease; background:var(--black); }
-  .category-block.expanded .category-options{ max-height:2000px; }
-  .option-row{
-    display:flex; align-items:center; justify-content:space-between; gap:10px;
-    padding:14px 18px; border-top:1px solid var(--line);
-  }
-  .option-info{ flex:1; min-width:0; }
-  .option-name{ font-size:15px; font-weight:700; color:var(--cream); }
-  .option-desc{ font-size:12px; color:var(--muted); margin-top:2px; }
-  .option-price{ font-size:13.5px; color:var(--gold); font-weight:700; margin-top:3px; }
-  .option-qty-controls{ display:flex; align-items:center; gap:10px; flex:none; }
-  .option-qty-btn{
-    width:34px; height:34px; border-radius:50%; background:var(--panel); border:1px solid var(--line);
-    color:var(--cream); font-size:18px; display:flex; align-items:center; justify-content:center;
-  }
-  .option-qty-btn:active{ background:var(--gold); color:#241902; }
-  .option-qty-value{ min-width:20px; text-align:center; font-size:15px; font-weight:800; color:var(--white); }
+  .category-pill.active{ background:var(--gold); border-color:var(--gold); color:#241902; }
 
-  /* ---------- persistent cart bar ---------- */
+  .wrap{ max-width:560px; margin:0 auto; padding:14px 16px; }
+  .item-row{
+    display:flex; align-items:center; gap:12px; background:var(--panel); border:1px solid var(--line);
+    border-radius:16px; padding:10px; margin-bottom:10px;
+  }
+  .item-photo{ width:68px; height:68px; border-radius:12px; object-fit:cover; flex:none; background:var(--black); }
+  .item-info{ flex:1; min-width:0; }
+  .item-name{ font-size:15px; font-weight:700; color:var(--white); }
+  .item-desc{ font-size:11.5px; color:var(--muted); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .item-price{ font-size:14.5px; font-weight:800; color:var(--gold); margin-top:4px; }
+  .item-add-control{ flex:none; }
+  .quick-add-btn{
+    width:34px; height:34px; border-radius:10px; background:var(--gold); color:#241902;
+    font-size:20px; font-weight:800; display:flex; align-items:center; justify-content:center;
+  }
+  .quick-add-btn:active{ opacity:0.8; }
+  .item-qty-stepper{ display:flex; align-items:center; gap:8px; background:var(--black); border-radius:10px; padding:4px; }
+  .item-qty-btn{ width:26px; height:26px; border-radius:8px; background:var(--panel); color:var(--cream); font-size:16px; display:flex; align-items:center; justify-content:center; }
+  .item-qty-btn:active{ background:var(--gold); color:#241902; }
+  .item-qty-value{ min-width:16px; text-align:center; font-size:14px; font-weight:800; color:var(--white); }
+
   #cartBar{
     position:fixed; left:0; right:0; bottom:0; background:var(--gold); color:#241902;
     display:flex; align-items:center; justify-content:space-between; padding:16px 20px;
@@ -68,7 +77,6 @@
   #cartBarInfo{ font-size:15px; font-weight:800; }
   #cartBarBtn{ background:#241902; color:var(--gold); font-size:15px; font-weight:800; padding:12px 24px; border-radius:100px; }
 
-  /* ---------- checkout screen ---------- */
   #checkoutScreen{ position:fixed; inset:0; background:var(--black); z-index:80; overflow-y:auto; }
   .checkout-body{ padding:20px; max-width:560px; margin:0 auto; padding-bottom:140px; }
   .checkout-body h2{ font-size:24px; font-weight:800; color:var(--white); margin-bottom:18px; }
@@ -106,16 +114,26 @@
 </head>
 <body>
 
-<div class="order-header">
+<div class="app-header">
   <img src="logo.jpg" alt="Roll-In Shawarma">
-  <div>
-    <h1>Roll-In Shawarma</h1>
-    <p>Order here &mdash; ready in about 15 minutes</p>
+  <span>Roll-In Shawarma</span>
+</div>
+
+<div class="hero-banner">
+  <img class="hero-bg" src="truck.webp" alt="">
+  <div class="hero-overlay">
+    <div class="hero-ribbon hidden" id="offerRibbon">Special Offer</div>
+    <div class="hero-title">Roll-In Shawarma</div>
+    <div class="hero-sub">Order here &mdash; ready in about 15 minutes</div>
   </div>
 </div>
 
+<div class="category-pills-wrap">
+  <div class="category-pills" id="categoryPills"></div>
+</div>
+
 <div class="wrap">
-  <div id="categoryList"></div>
+  <div id="itemList"></div>
 </div>
 
 <div id="cartBar" class="hidden">
@@ -173,19 +191,36 @@
   );
 
   (function(){
-    var cart = []; // in-memory + not persisted across a hard reload on purpose --
-                    // keeps this simple; a customer re-scanning the QR code starts fresh
+    var cart = [];
     var itemsById = {};
     var categoryOrder = [];
+    var activeFilter = 'All';
     var paymentMethod = 'card';
 
     var TAX_RATE = 0.0675;
     var FEE_PERCENT = 0.033;
     var FEE_FLAT_CENTS = 30;
 
+    var categoryImages = {
+      'Shawarma': 'menu-shawarma.jpg', 'Frankie Rolls': 'menu-frankie.jpg',
+      'Bowls': 'menu-bowl.jpg', 'Tacos': 'menu-tacos.jpg',
+      'Loaded Fries': 'menu-fries.jpg', 'Sides': 'menu-samosas.jpg',
+      'Kulfi Ice Cream': 'menu-kulfi.jpg', 'Drinks': 'menu-falooda.jpg'
+    };
+
     function escHtml(s){
       return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
         return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+      });
+    }
+
+    function checkForOffer(){
+      sbShared.from('promo_codes').select('code').eq('is_public', true).limit(1).then(function(res){
+        if (!res.error && res.data && res.data.length) {
+          var ribbon = document.getElementById('offerRibbon');
+          ribbon.textContent = 'Use code ' + res.data[0].code + ' at checkout!';
+          ribbon.classList.remove('hidden');
+        }
       });
     }
 
@@ -195,7 +230,7 @@
         var byCategory = {};
         res.data.forEach(function(item){
           itemsById[item.id] = item;
-          if (item.category === 'Catering') return; // planned-ahead flow, not a walk-up self-order
+          if (item.category === 'Catering') return;
           if (!byCategory[item.category]) {
             byCategory[item.category] = [];
             categoryOrder.push(item.category);
@@ -203,52 +238,79 @@
           byCategory[item.category].push(item);
         });
         window.__orderByCategory = byCategory;
-        renderCategoryList();
+        renderCategoryPills();
+        renderItemList();
       });
     }
 
-    function renderCategoryList(){
-      var listEl = document.getElementById('categoryList');
-      if (!categoryOrder.length) {
-        listEl.innerHTML = '<div class="empty-hint">Menu is loading, one moment&hellip;</div>';
+    function renderCategoryPills(){
+      var pillsEl = document.getElementById('categoryPills');
+      var allCats = ['All'].concat(categoryOrder);
+      pillsEl.innerHTML = allCats.map(function(cat){
+        return '<button type="button" class="category-pill' + (cat === activeFilter ? ' active' : '') + '" data-cat="' + escHtml(cat) + '">' + escHtml(cat) + '</button>';
+      }).join('');
+      pillsEl.querySelectorAll('.category-pill').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          activeFilter = btn.getAttribute('data-cat');
+          renderCategoryPills();
+          renderItemList();
+        });
+      });
+    }
+
+    function renderItemList(){
+      var listEl = document.getElementById('itemList');
+      var items = [];
+      categoryOrder.forEach(function(cat){
+        if (activeFilter !== 'All' && activeFilter !== cat) return;
+        (window.__orderByCategory[cat] || []).forEach(function(item){ items.push(item); });
+      });
+
+      if (!items.length) {
+        listEl.innerHTML = '<div class="empty-hint">No items in this category.</div>';
         return;
       }
-      listEl.innerHTML = categoryOrder.map(function(cat){
-        var items = (window.__orderByCategory || {})[cat] || [];
-        var optionsHtml = items.map(function(item){
-          var label = item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : '');
-          return '<div class="option-row" data-id="' + item.id + '">' +
-            '<div class="option-info">' +
-              '<div class="option-name">' + escHtml(label) + '</div>' +
-              (item.description ? '<div class="option-desc">' + escHtml(item.description) + '</div>' : '') +
-              '<div class="option-price">$' + Number(item.price).toFixed(2) + '</div>' +
-            '</div>' +
-            '<div class="option-qty-controls">' +
-              '<button type="button" class="option-qty-btn" data-id="' + item.id + '" data-dir="-1">\u2212</button>' +
-              '<span class="option-qty-value" data-id="' + item.id + '">0</span>' +
-              '<button type="button" class="option-qty-btn" data-id="' + item.id + '" data-dir="1">+</button>' +
-            '</div>' +
-          '</div>';
-        }).join('');
 
-        return '<div class="category-block" data-cat="' + escHtml(cat) + '">' +
-          '<button type="button" class="category-row" data-cat="' + escHtml(cat) + '">' + escHtml(cat) +
-            '<span class="chev">\u25BC</span></button>' +
-          '<div class="category-options">' + optionsHtml + '</div>' +
+      listEl.innerHTML = items.map(function(item){
+        var label = item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : '');
+        var img = categoryImages[item.category] || 'menu-shawarma.jpg';
+        return '<div class="item-row" data-id="' + item.id + '">' +
+          '<img class="item-photo" src="' + img + '" alt="">' +
+          '<div class="item-info">' +
+            '<div class="item-name">' + escHtml(label) + '</div>' +
+            (item.description ? '<div class="item-desc">' + escHtml(item.description) + '</div>' : '') +
+            '<div class="item-price">$' + Number(item.price).toFixed(2) + '</div>' +
+          '</div>' +
+          '<div class="item-add-control" data-id="' + item.id + '"></div>' +
         '</div>';
       }).join('');
 
-      listEl.querySelectorAll('.category-row').forEach(function(btn){
-        btn.addEventListener('click', function(){
-          btn.closest('.category-block').classList.toggle('expanded');
-        });
+      listEl.querySelectorAll('.item-row').forEach(function(row){
+        renderItemControl(row.getAttribute('data-id'));
       });
-      listEl.querySelectorAll('.option-qty-btn').forEach(function(btn){
-        btn.addEventListener('click', function(){
-          var id = btn.getAttribute('data-id');
-          if (btn.getAttribute('data-dir') === '1') addOne(id); else removeOne(id);
+    }
+
+    function renderItemControl(itemId){
+      var controlEl = document.querySelector('.item-add-control[data-id="' + itemId + '"]');
+      if (!controlEl) return;
+      var line = findLine(itemId);
+
+      if (!line) {
+        controlEl.innerHTML = '<button type="button" class="quick-add-btn" data-id="' + itemId + '">+</button>';
+        controlEl.querySelector('.quick-add-btn').addEventListener('click', function(){ addOne(itemId); });
+      } else {
+        controlEl.innerHTML =
+          '<div class="item-qty-stepper">' +
+            '<button type="button" class="item-qty-btn" data-id="' + itemId + '" data-dir="-1">\u2212</button>' +
+            '<span class="item-qty-value">' + line.quantity + '</span>' +
+            '<button type="button" class="item-qty-btn" data-id="' + itemId + '" data-dir="1">+</button>' +
+          '</div>';
+        controlEl.querySelectorAll('.item-qty-btn').forEach(function(btn){
+          btn.addEventListener('click', function(){
+            if (btn.getAttribute('data-dir') === '1') addOne(itemId); else removeOne(itemId);
+          });
         });
-      });
+      }
     }
 
     function findLine(itemId){ return cart.find(function(c){ return c.menu_item_id === itemId; }); }
@@ -264,7 +326,7 @@
         cart.push({ menu_item_id: itemId, name: label, unitPrice: Number(item.price), quantity: 1 });
       }
       renderCartBar();
-      syncQtyDisplays();
+      renderItemControl(itemId);
     }
 
     function removeOne(itemId){
@@ -279,14 +341,7 @@
         if (line.quantity <= 0) cart = cart.filter(function(c){ return c.menu_item_id !== itemId; });
       }
       renderCartBar();
-      syncQtyDisplays();
-    }
-
-    function syncQtyDisplays(){
-      document.querySelectorAll('.option-qty-value').forEach(function(el){
-        var line = findLine(el.getAttribute('data-id'));
-        el.textContent = line ? line.quantity : 0;
-      });
+      renderItemControl(itemId);
     }
 
     function cartTotal(){ return cart.reduce(function(s,c){ return s + c.unitPrice*c.quantity; }, 0); }
@@ -353,7 +408,6 @@
       refreshCheckoutBreakdown();
     });
 
-    // ---- Checkout / payment ----
     var CARD_CHECKOUT_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/create-order-checkout';
     var CASH_ORDER_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/create-cash-order';
     var ANON_KEY = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
@@ -407,6 +461,7 @@
         });
     });
 
+    checkForOffer();
     loadMenu();
   })();
 </script>
