@@ -14,60 +14,71 @@
     --line:rgba(243,234,201,0.14);
   }
   *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
+  html, body{ background:var(--black); }
   body{
-    background:var(--black); color:var(--cream); font-family:'Inter', -apple-system, sans-serif;
+    color:var(--cream); font-family:'Inter', -apple-system, sans-serif;
     line-height:1.4; min-height:100vh; padding-bottom:100px;
   }
   .hidden{ display:none !important; }
-  button{ font-family:inherit; cursor:pointer; border:none; }
+  button{ font-family:inherit; cursor:pointer; border:none; background:none; }
   input, textarea{ font-family:inherit; }
 
-  /* ---------- simple header ---------- */
-  .app-header{ padding:24px 20px 8px; }
-  .app-header h1{ font-size:30px; font-weight:800; color:var(--white); letter-spacing:-0.01em; }
+  /* ---------- header ---------- */
+  .app-header{ padding:24px 20px 8px; background:var(--black); }
+  .app-header h1{ font-size:26px; font-weight:800; color:var(--white); letter-spacing:-0.01em; }
   .app-header p{ font-size:13px; color:var(--muted); margin-top:4px; }
 
-  .wrap{ max-width:560px; margin:0 auto; padding:8px 20px; }
+  .wrap{ max-width:560px; margin:0 auto; padding:8px 20px; background:var(--black); }
 
-  /* ---------- category section: ONE photo per category, shown once ---------- */
-  .category-section{ margin-top:28px; }
-  .category-photo{
-    width:100%; max-height:220px; object-fit:contain; margin-bottom:14px; display:block; background:transparent;
+  /* ---------- category accordion: collapsed list, one at a time expands ---------- */
+  .category-block{ border:1px solid var(--line); border-radius:14px; margin-bottom:10px; overflow:hidden; background:var(--panel); }
+  .category-row{
+    display:flex; align-items:center; justify-content:space-between; width:100%; text-align:left;
+    background:var(--panel); color:var(--white); font-size:17px; font-weight:800; padding:18px 20px;
   }
-  .category-name{ font-size:19px; font-weight:800; color:var(--white); margin-bottom:12px; }
+  .category-row .chev{ color:var(--muted); transition:transform .2s ease; font-size:13px; }
+  .category-block.expanded .category-row .chev{ transform:rotate(180deg); }
 
-  /* ---------- clean item rows: no photo, just name / desc / price / add ---------- */
+  .category-expanded{ max-height:0; overflow:hidden; transition:max-height .3s ease; background:var(--black); }
+  .category-block.expanded .category-expanded{ max-height:3000px; }
+
+  /* photo only rendered/shown once the category is actually expanded */
+  .category-photo{
+    width:100%; max-height:200px; object-fit:contain; display:block;
+    background:var(--black); padding:10px 0;
+  }
+
   .item-row{
     display:flex; align-items:center; justify-content:space-between; gap:14px;
-    padding:14px 0; border-bottom:1px solid var(--line);
+    padding:14px 20px; border-top:1px solid var(--line); background:var(--black);
   }
-  .item-row:last-child{ border-bottom:none; }
   .item-info{ flex:1; min-width:0; }
-  .item-name{ font-size:15.5px; font-weight:700; color:var(--cream); }
-  .item-desc{ font-size:12px; color:var(--muted); margin-top:3px; }
-  .item-price{ font-size:14px; font-weight:700; color:var(--gold); margin-top:5px; }
+  .item-name{ font-size:15px; font-weight:700; color:var(--cream); }
+  .item-desc{ font-size:11.5px; color:var(--muted); margin-top:2px; }
+  .item-price{ font-size:13.5px; font-weight:700; color:var(--gold); margin-top:4px; }
   .item-add-control{ flex:none; }
   .quick-add-btn{
-    width:36px; height:36px; border-radius:50%; background:var(--panel); border:1px solid var(--line); color:var(--gold);
-    font-size:20px; font-weight:800; display:flex; align-items:center; justify-content:center;
+    width:34px; height:34px; border-radius:50%; background:var(--panel); border:1px solid var(--line); color:var(--gold);
+    font-size:19px; font-weight:800; display:flex; align-items:center; justify-content:center;
   }
   .quick-add-btn:active{ background:var(--gold); color:#241902; border-color:var(--gold); }
-  .item-qty-stepper{ display:flex; align-items:center; gap:10px; }
-  .item-qty-btn{ width:30px; height:30px; border-radius:50%; background:var(--panel); border:1px solid var(--line); color:var(--cream); font-size:17px; display:flex; align-items:center; justify-content:center; }
+  .item-qty-stepper{ display:flex; align-items:center; gap:9px; }
+  .item-qty-btn{ width:28px; height:28px; border-radius:50%; background:var(--panel); border:1px solid var(--line); color:var(--cream); font-size:16px; display:flex; align-items:center; justify-content:center; }
   .item-qty-btn:active{ background:var(--gold); color:#241902; }
-  .item-qty-value{ min-width:16px; text-align:center; font-size:15px; font-weight:800; color:var(--white); }
+  .item-qty-value{ min-width:16px; text-align:center; font-size:14px; font-weight:800; color:var(--white); }
 
   /* ---------- persistent cart bar ---------- */
   #cartBar{
     position:fixed; left:0; right:0; bottom:0; background:var(--gold); color:#241902;
-    display:flex; align-items:center; justify-content:space-between; padding:16px 20px;
-    box-shadow:0 -8px 30px rgba(0,0,0,0.4); z-index:70;
+    display:flex; align-items:center; justify-content:space-between; padding:14px 20px;
+    box-shadow:0 -8px 30px rgba(0,0,0,0.4); z-index:70; gap:12px;
   }
   #cartBar.hidden{ display:none !important; }
-  #cartBarInfo{ font-size:15px; font-weight:800; }
-  #cartBarBtn{ background:#241902; color:var(--gold); font-size:15px; font-weight:800; padding:12px 24px; border-radius:100px; }
+  #cartBarInfo{ font-size:14.5px; font-weight:800; flex:1; }
+  #cartBarClearBtn{ background:none; color:#241902; opacity:0.7; font-size:13px; font-weight:700; text-decoration:underline; }
+  #cartBarBtn{ background:#241902; color:var(--gold); font-size:14.5px; font-weight:800; padding:12px 22px; border-radius:100px; }
 
-  /* ---------- checkout screen (unchanged) ---------- */
+  /* ---------- checkout screen ---------- */
   #checkoutScreen{ position:fixed; inset:0; background:var(--black); z-index:80; overflow-y:auto; }
   .checkout-body{ padding:20px; max-width:560px; margin:0 auto; padding-bottom:140px; }
   .checkout-body h2{ font-size:24px; font-weight:800; color:var(--white); margin-bottom:18px; }
@@ -106,7 +117,7 @@
 <body>
 
 <div class="app-header">
-  <h1>Menu</h1>
+  <h1>Roll-In Shawarma</h1>
   <p>Give us a few minutes to roll &mdash; worth the wait.</p>
 </div>
 
@@ -116,6 +127,7 @@
 
 <div id="cartBar" class="hidden">
   <div id="cartBarInfo">0 items &middot; $0.00</div>
+  <button type="button" id="cartBarClearBtn">Clear</button>
   <button type="button" id="cartBarBtn">Checkout &rarr;</button>
 </div>
 
@@ -125,7 +137,6 @@
     <div class="checkout-items-list" id="checkoutItemsList"></div>
 
     <div class="checkout-breakdown-row">Subtotal <span id="ckSubtotal">$0.00</span></div>
-    <div class="checkout-breakdown-row" id="ckFeeRow">Card Processing Fee <span id="ckFee">$0.00</span></div>
     <div class="checkout-total-row">Total <span id="ckTotal">$0.00</span></div>
 
     <div class="kiosk-field" style="margin-top:24px;">
@@ -172,11 +183,14 @@
     var cart = [];
     var itemsById = {};
     var categoryOrder = [];
+    var expandedCategory = null;
     var paymentMethod = 'card';
 
     var TAX_RATE = 0.0675;
-    var FEE_PERCENT = 0.033;
-    var FEE_FLAT_CENTS = 30;
+    // No online processing fee for orders through this page at all --
+    // neither card nor cash. The backend (create-order-checkout.ts)
+    // already skips this fee for orderSource:'qr', so this preview
+    // just needs to match what will actually be charged.
 
     var categoryImages = {
       'Shawarma': 'menu-shawarma.jpg', 'Frankie Rolls': 'menu-frankie.jpg',
@@ -205,17 +219,14 @@
           byCategory[item.category].push(item);
         });
         window.__orderByCategory = byCategory;
-        renderMenu();
+        renderCategoryList();
       });
     }
 
-    // Each category's photo is rendered exactly ONCE, as a section
-    // header above that category's items -- never repeated per row.
-    // This is a deliberate structural choice, not a placeholder: with
-    // only category-level photos available (not one per specific
-    // dish), showing it once per section is the only way to avoid
-    // visibly repeating the same image on screen.
-    function renderMenu(){
+    // Categories render collapsed by default -- name only, no photo,
+    // no items. A photo only ever appears once a category is
+    // actually expanded, and collapses away again when it's closed.
+    function renderCategoryList(){
       var listEl = document.getElementById('categoryList');
       if (!categoryOrder.length) {
         listEl.innerHTML = '<div class="empty-hint">Menu is loading, one moment&hellip;</div>';
@@ -223,33 +234,63 @@
       }
 
       listEl.innerHTML = categoryOrder.map(function(cat){
-        var items = (window.__orderByCategory[cat] || []);
-        var img = categoryImages[cat] || 'menu-shawarma.jpg';
-
-        var rowsHtml = items.map(function(item){
-          var label = item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : '');
-          return '<div class="item-row">' +
-            '<div class="item-info">' +
-              '<div class="item-name">' + escHtml(label) + '</div>' +
-              (item.description ? '<div class="item-desc">' + escHtml(item.description) + '</div>' : '') +
-              '<div class="item-price">$' + Number(item.price).toFixed(2) + '</div>' +
-            '</div>' +
-            '<div class="item-add-control" data-id="' + item.id + '"></div>' +
-          '</div>';
-        }).join('');
-
-        return '<div class="category-section">' +
-          '<img class="category-photo" src="' + img + '" alt="' + escHtml(cat) + '">' +
-          '<div class="category-name">' + escHtml(cat) + '</div>' +
-          rowsHtml +
+        return '<div class="category-block" data-cat="' + escHtml(cat) + '">' +
+          '<button type="button" class="category-row" data-cat="' + escHtml(cat) + '">' +
+            escHtml(cat) + '<span class="chev">\u25BC</span>' +
+          '</button>' +
+          '<div class="category-expanded" data-cat="' + escHtml(cat) + '"></div>' +
         '</div>';
       }).join('');
 
-      categoryOrder.forEach(function(cat){
-        (window.__orderByCategory[cat] || []).forEach(function(item){
-          renderItemControl(item.id);
-        });
+      listEl.querySelectorAll('.category-row').forEach(function(btn){
+        btn.addEventListener('click', function(){ toggleCategory(btn.getAttribute('data-cat')); });
       });
+    }
+
+    // Only one category open at a time -- opening a new one collapses
+    // whatever was previously open, back to the plain category list.
+    function toggleCategory(cat){
+      var wasExpanded = expandedCategory === cat;
+
+      document.querySelectorAll('.category-block').forEach(function(block){
+        block.classList.remove('expanded');
+      });
+
+      if (wasExpanded) {
+        expandedCategory = null;
+        return;
+      }
+
+      expandedCategory = cat;
+      var block = document.querySelector('.category-block[data-cat="' + cssEscape(cat) + '"]');
+      if (block) block.classList.add('expanded');
+
+      renderCategoryContent(cat);
+    }
+
+    function cssEscape(s){ return String(s).replace(/"/g, '\\"'); }
+
+    function renderCategoryContent(cat){
+      var contentEl = document.querySelector('.category-expanded[data-cat="' + cssEscape(cat) + '"]');
+      if (!contentEl) return;
+      var items = (window.__orderByCategory[cat] || []);
+      var img = categoryImages[cat] || 'menu-shawarma.jpg';
+
+      var rowsHtml = items.map(function(item){
+        var label = item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : '');
+        return '<div class="item-row">' +
+          '<div class="item-info">' +
+            '<div class="item-name">' + escHtml(label) + '</div>' +
+            (item.description ? '<div class="item-desc">' + escHtml(item.description) + '</div>' : '') +
+            '<div class="item-price">$' + Number(item.price).toFixed(2) + '</div>' +
+          '</div>' +
+          '<div class="item-add-control" data-id="' + item.id + '"></div>' +
+        '</div>';
+      }).join('');
+
+      contentEl.innerHTML = '<img class="category-photo" src="' + img + '" alt="' + escHtml(cat) + '">' + rowsHtml;
+
+      items.forEach(function(item){ renderItemControl(item.id); });
     }
 
     function renderItemControl(itemId){
@@ -317,26 +358,31 @@
       document.getElementById('cartBarInfo').textContent = count + ' item' + (count === 1 ? '' : 's') + ' \u00b7 $' + cartTotal().toFixed(2);
     }
 
+    document.getElementById('cartBarClearBtn').addEventListener('click', function(){
+      if (!cart.length) return;
+      if (!confirm('Clear your whole cart?')) return;
+      cart = [];
+      renderCartBar();
+      // refresh whichever category is currently expanded, if any, so its qty controls reset to 0
+      if (expandedCategory) renderCategoryContent(expandedCategory);
+    });
+
+    // Card and cash both cost exactly subtotal + tax -- no processing
+    // fee either way for orders placed through this page.
     function computeTotals(){
       var subtotalCents = Math.round(cartTotal() * 100);
       var taxCents = Math.round(subtotalCents * TAX_RATE);
-      var preFeeCents = subtotalCents + taxCents;
-      var feeCents = (paymentMethod === 'card' && preFeeCents > 0)
-        ? Math.round(preFeeCents * FEE_PERCENT) + FEE_FLAT_CENTS
-        : 0;
+      var totalCents = subtotalCents + taxCents;
       return {
         subtotal: subtotalCents / 100,
         tax: taxCents / 100,
-        fee: feeCents / 100,
-        total: (preFeeCents + feeCents) / 100,
+        total: totalCents / 100,
       };
     }
 
     function refreshCheckoutBreakdown(){
       var totals = computeTotals();
       document.getElementById('ckSubtotal').textContent = '$' + totals.subtotal.toFixed(2) + ' + $' + totals.tax.toFixed(2) + ' tax';
-      document.getElementById('ckFee').textContent = '$' + totals.fee.toFixed(2);
-      document.getElementById('ckFeeRow').classList.toggle('hidden', paymentMethod !== 'card');
       document.getElementById('ckTotal').textContent = '$' + totals.total.toFixed(2);
     }
 
@@ -361,13 +407,11 @@
       paymentMethod = 'card';
       this.classList.add('selected');
       document.getElementById('cashChoiceBtn').classList.remove('selected');
-      refreshCheckoutBreakdown();
     });
     document.getElementById('cashChoiceBtn').addEventListener('click', function(){
       paymentMethod = 'cash';
       this.classList.add('selected');
       document.getElementById('cardChoiceBtn').classList.remove('selected');
-      refreshCheckoutBreakdown();
     });
 
     var CARD_CHECKOUT_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/create-order-checkout';
