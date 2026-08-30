@@ -130,6 +130,7 @@
   @keyframes spin{ to{ transform:rotate(360deg); } }
   #scanPayCashBtn{ background:none; color:var(--muted); font-size:14.5px; text-decoration:underline; }
   #scanCancelBtn{ background:none; color:var(--muted); font-size:14px; margin-top:16px; }
+  .scan-error-msg{ color:var(--red); font-size:13.5px; margin-top:14px; max-width:340px; }
 
   /* ---------- ORDER CONFIRMED (in-page, no navigation) ---------- */
   #orderConfirmedScreen{
@@ -239,6 +240,7 @@
   <div class="scan-total">Total: <span id="scanTotalDisplay">$0.00</span></div>
   <div class="scan-waiting"><span class="spin"></span> Waiting for payment&hellip;</div>
   <button type="button" id="scanPayCashBtn">I'll pay cash at the window &rarr;</button>
+  <div id="scanToPayMsg" class="scan-error-msg"></div>
   <button type="button" id="scanCancelBtn">&larr; Back to checkout</button>
 </div>
 
@@ -593,26 +595,44 @@
       }, 1000);
     }
 
+    var pollConsecutiveFailures = 0;
+
     function pollForPayment(referenceCode){
       pollAttempts += 1;
       fetch(CONFIRMATION_URL + '?ref=' + encodeURIComponent(referenceCode), {
         headers: { 'Authorization': 'Bearer ' + KIOSK_ANON_KEY }
-      }).then(function(res){ return res.json(); })
-        .then(function(order){
-          if (order && order.status === 'paid') {
-            stopPolling();
-            showOrderConfirmed(referenceCode, order.items, false);
-            return;
-          }
-          if (pollAttempts >= POLL_MAX_ATTEMPTS) {
-            stopPolling();
+      }).then(function(res){
+        if (!res.ok) throw new Error('confirmation check failed: ' + res.status);
+        return res.json();
+      }).then(function(order){
+        pollConsecutiveFailures = 0;
+        var waitEl = document.querySelector('.scan-waiting');
+        if (waitEl) waitEl.innerHTML = '<span class="spin"></span> Waiting for payment&hellip;';
+
+        if (order && order.status === 'paid') {
+          stopPolling();
+          showOrderConfirmed(referenceCode, order.items, false);
+          return;
+        }
+        if (pollAttempts >= POLL_MAX_ATTEMPTS) {
+          stopPolling();
+          if (waitEl) waitEl.innerHTML = "Still waiting &mdash; you can keep waiting, or go back and pay cash at the window instead.";
+          return;
+        }
+        pollTimer = setTimeout(function(){ pollForPayment(referenceCode); }, POLL_INTERVAL_MS);
+      })
+        .catch(function(err){
+          pollConsecutiveFailures += 1;
+          console.error('Payment check failed (attempt ' + pollAttempts + '):', err);
+          // Several failures in a row usually means a real connectivity
+          // problem on THIS device, not "payment hasn't happened yet" --
+          // worth being honest about that on screen instead of silently
+          // looking identical to a normal wait, which is exactly what
+          // made this undiagnosable before.
+          if (pollConsecutiveFailures >= 3) {
             var waitEl = document.querySelector('.scan-waiting');
-            if (waitEl) waitEl.innerHTML = "Still waiting &mdash; you can keep waiting, or go back and pay cash at the window instead.";
-            return;
+            if (waitEl) waitEl.innerHTML = '<span class="spin"></span> Having trouble checking payment status &mdash; still trying&hellip; (if this continues, try "pay cash at the window")';
           }
-          pollTimer = setTimeout(function(){ pollForPayment(referenceCode); }, POLL_INTERVAL_MS);
-        })
-        .catch(function(){
           if (pollAttempts < POLL_MAX_ATTEMPTS) {
             pollTimer = setTimeout(function(){ pollForPayment(referenceCode); }, POLL_INTERVAL_MS);
           }
@@ -637,6 +657,8 @@
       scanToPayScreen.classList.remove('hidden');
       document.getElementById('scanTotalDisplay').textContent = '$' + Number(total).toFixed(2);
       document.querySelector('.scan-waiting').innerHTML = '<span class="spin"></span> Waiting for payment&hellip;';
+      document.getElementById('scanToPayMsg').textContent = '';
+      pollConsecutiveFailures = 0;
 
       // Everything below is critical -- it must run regardless of
       // whether QR generation (further down) succeeds or fails, so a
@@ -653,6 +675,8 @@
 
       document.getElementById('scanPayCashBtn').onclick = function(){
         var cashBtn = this;
+        var msgEl = document.getElementById('scanToPayMsg');
+        msgEl.textContent = '';
         stopPolling();
         cashBtn.disabled = true;
         cashBtn.textContent = 'One moment\u2026';
@@ -674,16 +698,20 @@
         }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
           .then(function(result){
             if (!result.ok) {
+              console.error('Cash order failed:', result.data);
               cashBtn.disabled = false;
               cashBtn.textContent = "I'll pay cash at the window \u2192";
+              msgEl.textContent = (result.data && result.data.error) ? String(result.data.error) : "Couldn't place the order \u2014 please ask for help.";
               return;
             }
             var confirmedItems = cart.map(function(c){ return { name: c.name, quantity: c.quantity }; });
             showOrderConfirmed(result.data.referenceCode, confirmedItems, true);
           })
-          .catch(function(){
+          .catch(function(err){
+            console.error('Cash order request failed:', err);
             cashBtn.disabled = false;
             cashBtn.textContent = "I'll pay cash at the window \u2192";
+            msgEl.textContent = "Couldn't reach the server \u2014 please ask for help.";
           });
       };
       document.getElementById('scanCancelBtn').onclick = function(){
