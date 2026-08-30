@@ -2105,10 +2105,22 @@
       refreshCheckoutBreakdown();
     }
 
+    // While the drawer is open, the page behind it must not scroll --
+    // otherwise a touch/wheel gesture inside the drawer can "leak"
+    // through to the body underneath, scrolling both at once.
+    function openCartDrawer(){
+      cartDrawer.classList.remove('hidden');
+      document.body.style.overflow = 'hidden';
+    }
+    function closeCartDrawer(){
+      cartDrawer.classList.add('hidden');
+      document.body.style.overflow = '';
+    }
+
     if (cartFabBtn && cartDrawer) {
-      cartFabBtn.addEventListener('click', function(){ cartDrawer.classList.remove('hidden'); showItemsView(); });
-      document.getElementById('cartDrawerClose').addEventListener('click', function(){ cartDrawer.classList.add('hidden'); });
-      document.getElementById('cartDrawerOverlay').addEventListener('click', function(){ cartDrawer.classList.add('hidden'); });
+      cartFabBtn.addEventListener('click', function(){ openCartDrawer(); showItemsView(); });
+      document.getElementById('cartDrawerClose').addEventListener('click', closeCartDrawer);
+      document.getElementById('cartDrawerOverlay').addEventListener('click', closeCartDrawer);
       document.getElementById('cartClearBtn').addEventListener('click', function(){
         if (!cart.length && !giftCardCart.length) return;
         if (!confirm('Clear your whole cart?')) return;
@@ -2237,7 +2249,7 @@
             // they left it, not have to rebuild it from scratch. The
             // cart only actually clears once thank-you.html confirms
             // the payment genuinely went through.
-            cartDrawer.classList.add('hidden');
+            closeCartDrawer();
             showItemsView();
             window.location.href = result.data.url;
           })
