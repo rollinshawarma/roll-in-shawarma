@@ -130,6 +130,28 @@
   @keyframes spin{ to{ transform:rotate(360deg); } }
   #scanPayCashBtn{ background:none; color:var(--muted); font-size:14.5px; text-decoration:underline; }
   #scanCancelBtn{ background:none; color:var(--muted); font-size:14px; margin-top:16px; }
+
+  /* ---------- ORDER CONFIRMED (in-page, no navigation) ---------- */
+  #orderConfirmedScreen{
+    position:fixed; inset:0; background:radial-gradient(circle at 50% 25%, rgba(11,175,76,0.16), var(--black) 65%);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
+    padding:40px; z-index:95;
+  }
+  .confirm-badge{
+    width:96px; height:96px; border-radius:50%; background:rgba(11,175,76,0.16);
+    display:flex; align-items:center; justify-content:center; margin-bottom:26px;
+  }
+  .confirm-badge svg{ width:48px; height:48px; color:var(--green); }
+  #orderConfirmedScreen h2{ font-size:30px; font-weight:800; color:var(--white); margin-bottom:8px; }
+  .confirm-order-number-box{
+    background:var(--panel); border:2px solid var(--gold); border-radius:20px;
+    padding:26px 40px; margin:22px 0; min-width:280px;
+  }
+  .confirm-order-number-label{ font-size:13px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px; }
+  .confirm-order-number-value{ font-size:48px; font-weight:800; color:var(--gold); letter-spacing:2px; }
+  #orderConfirmedScreen p{ font-size:17px; color:var(--cream); max-width:420px; margin-bottom:6px; }
+  .confirm-items{ font-size:14px; color:var(--muted); max-width:360px; margin:18px 0; }
+  .confirm-countdown{ font-size:14px; color:var(--muted); margin-top:30px; }
   .checkout-body{ flex:1; overflow-y:auto; padding:32px; max-width:560px; margin:0 auto; width:100%; }
   .checkout-body h2{ font-size:28px; font-weight:800; color:var(--white); margin-bottom:24px; text-align:center; }
   .checkout-items-list{ border:1px solid var(--line); border-radius:14px; padding:18px 20px; margin-bottom:24px; }
@@ -220,6 +242,20 @@
   <button type="button" id="scanCancelBtn">&larr; Back to checkout</button>
 </div>
 
+<div id="orderConfirmedScreen" class="hidden">
+  <div class="confirm-badge">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+  </div>
+  <h2 id="confirmedTitle">Order Confirmed!</h2>
+  <div class="confirm-order-number-box">
+    <div class="confirm-order-number-label">Your Order Number</div>
+    <div class="confirm-order-number-value" id="confirmedOrderNumber">&mdash;</div>
+  </div>
+  <p id="confirmedInstructions">We'll call your name when it's ready.</p>
+  <div id="confirmedItemsList" class="confirm-items"></div>
+  <div class="confirm-countdown">Starting a new order in <span id="confirmedCountdown">5</span>s&hellip;</div>
+</div>
+
 <script>
   var sbShared = supabase.createClient(
     'https://njcmcaoyzujijiyfardx.supabase.co',
@@ -258,6 +294,13 @@
     var VISIBLE_WARNING_SECONDS = 15;
     var secondsRemaining = INACTIVITY_LIMIT_SECONDS;
     var inactivityInterval = null;
+    // While waiting for a phone-based payment, the customer is
+    // expected to NOT be touching the kiosk -- but a stray bump from
+    // someone else (staff, next customer) shouldn't be able to
+    // restart the countdown and eventually reload the page out from
+    // under an in-progress payment. This flag makes resetInactivityTimer
+    // a no-op for as long as it's true.
+    var awaitingPhonePayment = false;
 
     function updateInactivityDisplay(){
       var el = document.getElementById('inactivityTimer');
@@ -287,6 +330,7 @@
     }
 
     function resetInactivityTimer(){
+      if (awaitingPhonePayment) return;
       secondsRemaining = INACTIVITY_LIMIT_SECONDS;
       startInactivityCountdown();
     }
@@ -508,6 +552,45 @@
       clearTimeout(pollTimer);
       pollTimer = null;
       pollAttempts = 0;
+      awaitingPhonePayment = false;
+    }
+
+    // Shown directly in the kiosk itself -- for both cash orders and
+    // poll-detected card payments. No navigation to another page at
+    // all, which avoids ever relying on a separate page's own retry
+    // logic racing against this one. Auto-resets after 5 seconds.
+    function showOrderConfirmed(referenceCode, items, isCash){
+      scanToPayScreen.classList.add('hidden');
+      checkoutScreen.classList.add('hidden');
+      var screen = document.getElementById('orderConfirmedScreen');
+      screen.classList.remove('hidden');
+
+      document.getElementById('confirmedOrderNumber').textContent = String(referenceCode).replace('ORDER-', '');
+      document.getElementById('confirmedTitle').textContent = isCash ? 'Order Placed!' : 'Order Confirmed!';
+      document.getElementById('confirmedInstructions').textContent = isCash
+        ? "Please pay at the counter. We'll call your name when it's ready."
+        : "We'll call your name when it's ready.";
+
+      var itemsEl = document.getElementById('confirmedItemsList');
+      if (items && items.length) {
+        itemsEl.innerHTML = items.map(function(it){
+          return escHtml(it.name) + ' \u00d7 ' + it.quantity;
+        }).join('<br>');
+      } else {
+        itemsEl.innerHTML = '';
+      }
+
+      var seconds = 5;
+      var countdownEl = document.getElementById('confirmedCountdown');
+      countdownEl.textContent = seconds;
+      var timer = setInterval(function(){
+        seconds -= 1;
+        countdownEl.textContent = seconds;
+        if (seconds <= 0) {
+          clearInterval(timer);
+          window.location.reload();
+        }
+      }, 1000);
     }
 
     function pollForPayment(referenceCode){
@@ -518,13 +601,13 @@
         .then(function(order){
           if (order && order.status === 'paid') {
             stopPolling();
-            window.location.href = 'kiosk-thank-you.html?ref=' + encodeURIComponent(referenceCode);
+            showOrderConfirmed(referenceCode, order.items, false);
             return;
           }
           if (pollAttempts >= POLL_MAX_ATTEMPTS) {
             stopPolling();
             var waitEl = document.querySelector('.scan-waiting');
-            if (waitEl) waitEl.innerHTML = "Still waiting &mdash; you can keep waiting, or go back and try paying here on the kiosk instead.";
+            if (waitEl) waitEl.innerHTML = "Still waiting &mdash; you can keep waiting, or go back and pay cash at the window instead.";
             return;
           }
           pollTimer = setTimeout(function(){ pollForPayment(referenceCode); }, POLL_INTERVAL_MS);
@@ -566,6 +649,7 @@
       // for as long as this screen is showing.
       clearInterval(inactivityInterval);
       document.getElementById('inactivityTimer').classList.add('hidden');
+      awaitingPhonePayment = true;
 
       document.getElementById('scanPayCashBtn').onclick = function(){
         var cashBtn = this;
@@ -594,7 +678,8 @@
               cashBtn.textContent = "I'll pay cash at the window \u2192";
               return;
             }
-            window.location.href = 'kiosk-thank-you.html?ref=' + encodeURIComponent(result.data.referenceCode) + '&cash=true';
+            var confirmedItems = cart.map(function(c){ return { name: c.name, quantity: c.quantity }; });
+            showOrderConfirmed(result.data.referenceCode, confirmedItems, true);
           })
           .catch(function(){
             cashBtn.disabled = false;
