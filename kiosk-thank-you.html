@@ -67,7 +67,7 @@
 
     <div class="order-items" id="itemsBlock"></div>
 
-    <div class="countdown-note">Starting a new order in <span id="countdownValue">15</span>s&hellip;</div>
+    <div class="countdown-note">Starting a new order in <span id="countdownValue">5</span>s&hellip;</div>
   </div>
 </div>
 
@@ -90,7 +90,7 @@
     var confirmedEl = document.getElementById('confirmedState');
 
     function startResetCountdown(){
-      var seconds = 15;
+      var seconds = 5;
       var countdownEl = document.getElementById('countdownValue');
       var timer = setInterval(function(){
         seconds -= 1;
