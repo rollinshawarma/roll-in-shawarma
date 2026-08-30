@@ -8,7 +8,7 @@
 <meta name="robots" content="noindex">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode@1.5.3/build/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <style>
   :root{
     --black:#000000;
@@ -537,16 +537,29 @@
         });
     }
 
+    function showQrFallback(canvasWrap, checkoutUrl){
+      var canvas = document.getElementById('qrCodeCanvas');
+      canvas.classList.add('hidden');
+      var existing = document.getElementById('qrFallbackLink');
+      if (existing) existing.remove();
+      var fallback = document.createElement('a');
+      fallback.id = 'qrFallbackLink';
+      fallback.href = checkoutUrl;
+      fallback.textContent = 'Tap here to pay';
+      fallback.style.cssText = 'display:block; background:var(--gold); color:#241902; font-size:18px; font-weight:800; padding:22px 40px; border-radius:16px; margin-bottom:28px;';
+      canvasWrap.insertBefore(fallback, canvas);
+    }
+
     function showScanToPay(checkoutUrl, referenceCode, total){
       checkoutScreen.classList.add('hidden');
       scanToPayScreen.classList.remove('hidden');
       document.getElementById('scanTotalDisplay').textContent = '$' + Number(total).toFixed(2);
       document.querySelector('.scan-waiting').innerHTML = '<span class="spin"></span> Waiting for payment&hellip;';
 
-      var canvas = document.getElementById('qrCodeCanvas');
-      QRCode.toCanvas(canvas, checkoutUrl, { width: 240, margin: 1 }, function(err){
-        if (err) console.error('QR generation failed', err);
-      });
+      // Everything below is critical -- it must run regardless of
+      // whether QR generation (further down) succeeds or fails, so a
+      // rendering problem with the code can never also break the
+      // ability to pay on the kiosk directly or go back.
 
       // While waiting for a phone-based payment, the customer isn't
       // touching the kiosk on purpose -- that's expected here, not
@@ -567,6 +580,22 @@
       };
 
       pollForPayment(referenceCode);
+
+      // QR generation is isolated here on purpose -- if it fails for
+      // any reason (library didn't load, canvas issue, etc.), the
+      // customer still has a tappable link to pay with, and every
+      // button above still works either way.
+      var canvasWrap = document.getElementById('qrCodeCanvas').parentElement;
+      try {
+        if (typeof QRCode === 'undefined') throw new Error('QR library not loaded');
+        var canvas = document.getElementById('qrCodeCanvas');
+        canvas.classList.remove('hidden');
+        QRCode.toCanvas(canvas, checkoutUrl, { width: 240, margin: 1 }, function(err){
+          if (err) showQrFallback(canvasWrap, checkoutUrl);
+        });
+      } catch (e) {
+        showQrFallback(canvasWrap, checkoutUrl);
+      }
     }
 
     document.getElementById('kioskPayBtn').addEventListener('click', function(){
