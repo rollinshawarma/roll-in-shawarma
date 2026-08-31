@@ -211,6 +211,21 @@
       });
     }
 
+    // Square's own API errors come back as an array of {category,
+    // code, detail} objects, not a plain string -- String() on that
+    // produces the useless literal text "[object Object]".
+    function formatErrorMessage(err){
+      if (!err) return null;
+      if (typeof err === 'string') return err;
+      if (Array.isArray(err) && err.length) {
+        var first = err[0];
+        if (first && typeof first === 'object') return first.detail || first.code || JSON.stringify(first);
+        return String(first);
+      }
+      if (typeof err === 'object') return err.detail || err.message || JSON.stringify(err);
+      return String(err);
+    }
+
     function loadMenu(){
       sbShared.from('menu_items').select('*').order('display_order').then(function(res){
         if (res.error || !res.data) return;
@@ -457,7 +472,7 @@
           if (!result.ok) {
             payBtn.disabled = false;
             payBtn.textContent = 'Pay Now';
-            msgEl.textContent = (result.data && result.data.error) ? String(result.data.error) : "Couldn't start checkout \u2014 please try again.";
+            msgEl.textContent = formatErrorMessage(result.data && result.data.error) || "Couldn't start checkout \u2014 please try again.";
             return;
           }
           if (paymentMethod === 'cash') {
