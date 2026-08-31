@@ -287,6 +287,23 @@
       });
     }
 
+    // Backend errors are sometimes a plain string, but Square's own
+    // API errors come back as an array of {category, code, detail}
+    // objects -- String() on that produces the useless literal text
+    // "[object Object]" instead of anything readable. This pulls out
+    // an actual message regardless of which shape it is.
+    function formatErrorMessage(err){
+      if (!err) return null;
+      if (typeof err === 'string') return err;
+      if (Array.isArray(err) && err.length) {
+        var first = err[0];
+        if (first && typeof first === 'object') return first.detail || first.code || JSON.stringify(first);
+        return String(first);
+      }
+      if (typeof err === 'object') return err.detail || err.message || JSON.stringify(err);
+      return String(err);
+    }
+
     // ---- Inactivity auto-reset: if someone walks away mid-order,
     // return to the idle screen after a timeout so the next customer
     // never sees (or accidentally pays for) a stranger's cart. Stays
@@ -701,7 +718,7 @@
               console.error('Cash order failed:', result.data);
               cashBtn.disabled = false;
               cashBtn.textContent = "I'll pay cash at the window \u2192";
-              msgEl.textContent = (result.data && result.data.error) ? String(result.data.error) : "Couldn't place the order \u2014 please ask for help.";
+              msgEl.textContent = formatErrorMessage(result.data && result.data.error) || "Couldn't place the order \u2014 please ask for help.";
               return;
             }
             var confirmedItems = cart.map(function(c){ return { name: c.name, quantity: c.quantity }; });
@@ -774,7 +791,7 @@
           payBtn.disabled = false;
           payBtn.textContent = 'Pay Now';
           if (!result.ok || !result.data.url) {
-            msgEl.textContent = (result.data && result.data.error) ? String(result.data.error) : "Couldn't start checkout \u2014 please ask for help.";
+            msgEl.textContent = formatErrorMessage(result.data && result.data.error) || "Couldn't start checkout \u2014 please ask for help.";
             return;
           }
           showScanToPay(result.data.url, result.data.referenceCode, result.data.total);
