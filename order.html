@@ -381,7 +381,7 @@
       var comboUpcharge = items.length && items[0].combo_upcharge;
       var comboHtml = '';
       if (comboUpcharge) {
-        var comboEnabled = cartHasComboEligibleItem();
+        var comboEnabled = canAddCombo();
         comboHtml =
           '<div class="combo-row' + (comboEnabled ? '' : ' combo-row-disabled') + '" data-cat="' + escHtml(cat) + '">' +
             '<span class="combo-row-label">Make it a Combo +$' + Number(comboUpcharge).toFixed(2) + '</span>' +
@@ -447,17 +447,27 @@
 
     function findLine(itemId){ return cart.find(function(c){ return c.menu_item_id === itemId; }); }
 
-    function cartHasComboEligibleItem(){
-      return cart.some(function(line){
+    // One combo allowed per qualifying entree in the cart -- counts
+    // entrees by summing quantities of cart lines whose item has
+    // combo_upcharge set, and counts combos already added via "Combo
+    // Fries" quantity, since every combo adds exactly one regardless
+    // of which drink was chosen. Enabled only while entrees outnumber
+    // combos so far.
+    function canAddCombo(){
+      var qualifyingCount = cart.reduce(function(sum, line){
         var item = itemsById[line.menu_item_id];
-        return item && item.combo_upcharge;
-      });
+        return sum + (item && item.combo_upcharge ? line.quantity : 0);
+      }, 0);
+      var friesItem = comboAddonsByName['Combo Fries'];
+      var friesLine = friesItem ? findLine(friesItem.id) : null;
+      var comboCount = friesLine ? friesLine.quantity : 0;
+      return qualifyingCount > comboCount;
     }
 
     function refreshComboRowState(){
       var comboRow = document.querySelector('.combo-row');
       if (!comboRow) return;
-      comboRow.classList.toggle('combo-row-disabled', !cartHasComboEligibleItem());
+      comboRow.classList.toggle('combo-row-disabled', !canAddCombo());
     }
 
     function addComboAddon(drinkName){
