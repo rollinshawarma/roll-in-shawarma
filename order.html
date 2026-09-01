@@ -75,6 +75,8 @@
     display:flex; align-items:center; justify-content:space-between; gap:12px;
     background:var(--gold); color:#241902; padding:12px 20px; cursor:pointer;
   }
+  .combo-row.combo-row-disabled{ background:var(--panel); color:var(--muted); cursor:default; }
+  .combo-row.combo-row-disabled .combo-row-plus{ background:var(--line); color:var(--muted); }
   .combo-row-label{ font-size:14px; font-weight:800; }
   .combo-row-plus{
     width:26px; height:26px; border-radius:50%; background:#241902; color:var(--gold);
@@ -374,12 +376,14 @@
         '</div>';
       }).join('');
 
-      // One shared combo row per category, not per item.
+      // One shared combo row per category, not per item. Disabled
+      // until the cart has a qualifying entree in it.
       var comboUpcharge = items.length && items[0].combo_upcharge;
       var comboHtml = '';
       if (comboUpcharge) {
+        var comboEnabled = cartHasComboEligibleItem();
         comboHtml =
-          '<div class="combo-row" data-cat="' + escHtml(cat) + '">' +
+          '<div class="combo-row' + (comboEnabled ? '' : ' combo-row-disabled') + '" data-cat="' + escHtml(cat) + '">' +
             '<span class="combo-row-label">Make it a Combo +$' + Number(comboUpcharge).toFixed(2) + '</span>' +
             '<span class="combo-row-plus">+</span>' +
           '</div>' +
@@ -387,7 +391,7 @@
             '<div class="combo-drink-inner">' +
               '<div class="combo-drink-title">Choose your drink</div>' +
               '<div class="combo-drink-grid">' +
-                ['Coke','Diet Coke','Sprite','Root Beer','Water'].map(function(drink){
+                ['Coke','Diet Coke','Coke Zero','Sprite','Root Beer','Water'].map(function(drink){
                   return '<button type="button" class="combo-drink-btn" data-drink="' + drink + '">' + drink + '</button>';
                 }).join('') +
               '</div>' +
@@ -402,6 +406,7 @@
       var comboRow = contentEl.querySelector('.combo-row');
       if (comboRow) {
         comboRow.addEventListener('click', function(){
+          if (comboRow.classList.contains('combo-row-disabled')) return;
           var expandEl = contentEl.querySelector('.combo-drink-expand');
           if (expandEl) expandEl.classList.toggle('expanded');
         });
@@ -442,6 +447,19 @@
 
     function findLine(itemId){ return cart.find(function(c){ return c.menu_item_id === itemId; }); }
 
+    function cartHasComboEligibleItem(){
+      return cart.some(function(line){
+        var item = itemsById[line.menu_item_id];
+        return item && item.combo_upcharge;
+      });
+    }
+
+    function refreshComboRowState(){
+      var comboRow = document.querySelector('.combo-row');
+      if (!comboRow) return;
+      comboRow.classList.toggle('combo-row-disabled', !cartHasComboEligibleItem());
+    }
+
     function addComboAddon(drinkName){
       var friesItem = comboAddonsByName['Combo Fries'];
       var drinkItem = comboAddonsByName['Combo ' + drinkName];
@@ -461,6 +479,7 @@
       }
       renderCartBar();
       renderItemControl(itemId);
+      refreshComboRowState();
       if (!cartViewScreen.classList.contains('hidden')) renderCartView();
     }
 
@@ -477,6 +496,7 @@
       }
       renderCartBar();
       renderItemControl(itemId);
+      refreshComboRowState();
       if (!cartViewScreen.classList.contains('hidden')) renderCartView();
     }
 
