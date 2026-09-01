@@ -502,7 +502,7 @@
 
       var rowsHtml = items.map(function(item){
         var label = item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : '');
-        var itemRowHtml = '<div class="item-row">' +
+        return '<div class="item-row">' +
           '<div class="item-info">' +
             '<div class="item-name">' + escHtml(label) + '</div>' +
             (item.description ? '<div class="item-desc">' + escHtml(item.description) + '</div>' : '') +
@@ -510,49 +510,50 @@
           '</div>' +
           '<div class="item-add-control" data-id="' + item.id + '"></div>' +
         '</div>';
+      }).join('');
 
-        if (!item.combo_upcharge) return itemRowHtml;
-
-        // Combo-eligible items get their own yellow row right below
-        // them, plus a hidden drink-choice section that expands
-        // inline underneath it -- no popup at all.
-        var comboRowHtml =
-          '<div class="combo-row" data-combo-for="' + item.id + '">' +
-            '<span class="combo-row-label">Make it a Combo +$' + Number(item.combo_upcharge).toFixed(2) + '</span>' +
+      // One shared combo row per category, not per item -- this
+      // category either has combo-eligible items or it doesn't, so
+      // any item's combo_upcharge tells us which, and the row itself
+      // just adds fries + a drink, independent of which specific
+      // entree the customer already added above.
+      var comboUpcharge = items.length && items[0].combo_upcharge;
+      var comboHtml = '';
+      if (comboUpcharge) {
+        comboHtml =
+          '<div class="combo-row" data-cat="' + escHtml(cat) + '">' +
+            '<span class="combo-row-label">Make it a Combo +$' + Number(comboUpcharge).toFixed(2) + '</span>' +
             '<span class="combo-row-plus">+</span>' +
           '</div>' +
-          '<div class="combo-drink-expand" data-combo-for="' + item.id + '">' +
+          '<div class="combo-drink-expand" data-cat="' + escHtml(cat) + '">' +
             '<div class="combo-drink-inner">' +
               '<div class="combo-drink-title">Choose your drink</div>' +
               '<div class="combo-drink-grid">' +
                 ['Coke','Diet Coke','Sprite','Root Beer','Water'].map(function(drink){
-                  return '<button type="button" class="combo-drink-btn" data-id="' + item.id + '" data-drink="' + drink + '">' + drink + '</button>';
+                  return '<button type="button" class="combo-drink-btn" data-drink="' + drink + '">' + drink + '</button>';
                 }).join('') +
               '</div>' +
             '</div>' +
           '</div>';
+      }
 
-        return itemRowHtml + comboRowHtml;
-      }).join('');
-
-      contentEl.innerHTML = '<img class="category-photo" src="' + img + '" alt="' + escHtml(cat) + '">' + rowsHtml;
+      contentEl.innerHTML = '<img class="category-photo" src="' + img + '" alt="' + escHtml(cat) + '">' + rowsHtml + comboHtml;
 
       items.forEach(function(item){ renderItemControl(item.id); });
 
-      contentEl.querySelectorAll('.combo-row').forEach(function(row){
-        row.addEventListener('click', function(){
-          var itemId = row.getAttribute('data-combo-for');
-          var expandEl = contentEl.querySelector('.combo-drink-expand[data-combo-for="' + itemId + '"]');
+      var comboRow = contentEl.querySelector('.combo-row');
+      if (comboRow) {
+        comboRow.addEventListener('click', function(){
+          var expandEl = contentEl.querySelector('.combo-drink-expand');
           if (expandEl) expandEl.classList.toggle('expanded');
         });
-      });
+      }
 
       contentEl.querySelectorAll('.combo-drink-btn').forEach(function(btn){
         btn.addEventListener('click', function(){
-          var itemId = btn.getAttribute('data-id');
           var drink = btn.getAttribute('data-drink');
-          addComboToCart(itemId, drink);
-          var expandEl = contentEl.querySelector('.combo-drink-expand[data-combo-for="' + itemId + '"]');
+          addComboAddon(drink);
+          var expandEl = contentEl.querySelector('.combo-drink-expand');
           if (expandEl) expandEl.classList.remove('expanded');
         });
       });
@@ -583,11 +584,10 @@
 
     function findLine(itemId){ return cart.find(function(c){ return c.menu_item_id === itemId; }); }
 
-    // Adds the base item at its normal price plus fries and the
-    // chosen drink at their combo-split prices -- three separate
-    // cart lines totaling exactly the item's price + $3.99.
-    function addComboToCart(itemId, drinkName){
-      addOne(itemId);
+    // Adds fries plus the chosen drink at their combo-split prices --
+    // the entree itself is added separately, whenever the customer
+    // taps + on whichever specific item they want from this category.
+    function addComboAddon(drinkName){
       var friesItem = comboAddonsByName['Combo Fries'];
       var drinkItem = comboAddonsByName['Combo ' + drinkName];
       if (friesItem) addOne(friesItem.id);
