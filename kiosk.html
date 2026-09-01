@@ -186,6 +186,24 @@
   .combo-drink-btn{ background:var(--black); border:1px solid var(--line); color:var(--cream); font-size:16px; font-weight:700; padding:16px 10px; border-radius:12px; text-align:center; }
   .combo-drink-btn:active{ background:var(--gold); color:#241902; }
 
+  /* ---------- VARIANT PICKER (e.g. bowl protein choice) ---------- */
+  .variant-row{
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    padding:18px 24px; border-top:1px solid var(--line); cursor:pointer;
+  }
+  .variant-row:active{ background:var(--panel); }
+  .variant-row-plus{
+    width:30px; height:30px; border-radius:50%; background:var(--panel); border:1px solid var(--line); color:var(--gold);
+    font-size:19px; font-weight:800; display:flex; align-items:center; justify-content:center; flex:none;
+  }
+  .variant-expand{ max-height:0; overflow:hidden; transition:max-height .25s ease; background:var(--black); }
+  .variant-expand.expanded{ max-height:600px; }
+  .variant-expand-inner{ padding:16px 24px 20px; }
+  .variant-expand-title{ font-size:13.5px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:12px; }
+  .variant-choice-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .variant-choice-btn{ background:var(--panel); border:1px solid var(--line); color:var(--cream); font-size:16px; font-weight:700; padding:16px 10px; border-radius:12px; text-align:center; }
+  .variant-choice-btn:active{ background:var(--gold); color:#241902; }
+
   #orderConfirmedScreen{
     position:fixed; inset:0; background:radial-gradient(circle at 50% 25%, rgba(11,175,76,0.16), var(--black) 65%);
     display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
@@ -507,16 +525,53 @@
       var items = (window.__kioskByCategory[cat] || []);
       var img = categoryImages[cat] || 'menu-shawarma.jpg';
 
-      var rowsHtml = items.map(function(item){
-        var label = item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : '');
-        return '<div class="item-row">' +
-          '<div class="item-info">' +
-            '<div class="item-name">' + escHtml(label) + '</div>' +
-            (item.description ? '<div class="item-desc">' + escHtml(item.description) + '</div>' : '') +
-            '<div class="item-price">$' + Number(item.price).toFixed(2) + '</div>' +
+      // Group by name -- items sharing a name but different variant_name
+      // (e.g. protein choices) render as ONE expandable row, not one
+      // row per variant.
+      var groups = [];
+      var groupsByName = {};
+      items.forEach(function(item){
+        if (!groupsByName[item.name]) {
+          var g = { name: item.name, items: [] };
+          groupsByName[item.name] = g;
+          groups.push(g);
+        }
+        groupsByName[item.name].items.push(item);
+      });
+
+      var rowsHtml = groups.map(function(group){
+        if (group.items.length === 1) {
+          var item = group.items[0];
+          var label = item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : '');
+          return '<div class="item-row">' +
+            '<div class="item-info">' +
+              '<div class="item-name">' + escHtml(label) + '</div>' +
+              (item.description ? '<div class="item-desc">' + escHtml(item.description) + '</div>' : '') +
+              '<div class="item-price">$' + Number(item.price).toFixed(2) + '</div>' +
+            '</div>' +
+            '<div class="item-add-control" data-id="' + item.id + '"></div>' +
+          '</div>';
+        }
+
+        var groupKey = escHtml(group.name);
+        var firstItem = group.items[0];
+        return '<div class="variant-row" data-variant-group="' + groupKey + '">' +
+            '<div class="item-info">' +
+              '<div class="item-name">' + escHtml(group.name) + '</div>' +
+              '<div class="item-price">$' + Number(firstItem.price).toFixed(2) + '</div>' +
+            '</div>' +
+            '<span class="variant-row-plus">+</span>' +
           '</div>' +
-          '<div class="item-add-control" data-id="' + item.id + '"></div>' +
-        '</div>';
+          '<div class="variant-expand" data-variant-group="' + groupKey + '">' +
+            '<div class="variant-expand-inner">' +
+              '<div class="variant-expand-title">Choose your protein</div>' +
+              '<div class="variant-choice-grid">' +
+                group.items.map(function(item){
+                  return '<button type="button" class="variant-choice-btn" data-id="' + item.id + '">' + escHtml(item.variant_name || item.name) + '</button>';
+                }).join('') +
+              '</div>' +
+            '</div>' +
+          '</div>';
       }).join('');
 
       // One shared combo row per category, not per item -- this
@@ -548,7 +603,24 @@
 
       contentEl.innerHTML = '<img class="category-photo" src="' + img + '" alt="' + escHtml(cat) + '">' + rowsHtml + comboHtml;
 
-      items.forEach(function(item){ renderItemControl(item.id); });
+      groups.forEach(function(group){
+        if (group.items.length === 1) renderItemControl(group.items[0].id);
+      });
+
+      contentEl.querySelectorAll('.variant-row').forEach(function(row){
+        row.addEventListener('click', function(){
+          var key = row.getAttribute('data-variant-group');
+          var expandEl = contentEl.querySelector('.variant-expand[data-variant-group="' + key + '"]');
+          if (expandEl) expandEl.classList.toggle('expanded');
+        });
+      });
+      contentEl.querySelectorAll('.variant-choice-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          addOne(btn.getAttribute('data-id'));
+          var expandEl = btn.closest('.variant-expand');
+          if (expandEl) expandEl.classList.remove('expanded');
+        });
+      });
 
       var comboRow = contentEl.querySelector('.combo-row');
       if (comboRow) {
@@ -723,7 +795,7 @@
       var count = cartCount();
       if (count === 0) { bar.classList.add('hidden'); return; }
       bar.classList.remove('hidden');
-      document.getElementById('cartBarInfo').textContent = count + ' item' + (count === 1 ? '' : 's') + ' \u00b7 $' + cartTotal().toFixed(2);
+      document.getElementById('cartBarInfo').textContent = count + ' item' + (count === 1 ? '' : 's') + ' \u00b7 $' + cartTotal().toFixed(2) + ' + tax';
     }
 
     function clearCart(){
