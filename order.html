@@ -55,16 +55,16 @@
     display:flex; align-items:center; justify-content:space-between; gap:14px;
     padding:16px 20px; border-top:1px solid var(--line); background:var(--black);
   }
-  .item-info{ flex:1; min-width:0; cursor:pointer; }
-  .item-info:active{ opacity:0.7; }
+  .item-info{ flex:1; min-width:0; }
   .item-name{ font-size:16px; font-weight:700; color:var(--cream); }
   .item-desc{ font-size:11.5px; color:var(--muted); margin-top:2px; }
   .item-price{ font-size:13.5px; font-weight:700; color:var(--gold); margin-top:4px; }
-  .item-qty-badge{ flex:none; min-width:32px; display:flex; justify-content:flex-end; }
-  .qty-pill{
-    background:var(--gold); color:#241902; font-size:15px; font-weight:800;
-    min-width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  .item-add-control{ flex:none; }
+  .quick-add-btn{
+    width:34px; height:34px; border-radius:50%; background:var(--panel); border:1px solid var(--line); color:var(--gold);
+    font-size:19px; font-weight:800; display:flex; align-items:center; justify-content:center;
   }
+  .quick-add-btn:active{ background:var(--gold); color:#241902; border-color:var(--gold); }
   .item-qty-stepper{ display:flex; align-items:center; gap:11px; }
   .item-qty-btn{ width:32px; height:32px; border-radius:50%; background:var(--panel); border:1px solid var(--line); color:var(--cream); font-size:18px; display:flex; align-items:center; justify-content:center; }
   .item-qty-btn:active{ background:var(--gold); color:#241902; }
@@ -342,53 +342,42 @@
 
       var rowsHtml = items.map(function(item){
         var label = item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : '');
-        return '<div class="item-row" data-id="' + item.id + '">' +
+        return '<div class="item-row">' +
           '<div class="item-info">' +
             '<div class="item-name">' + escHtml(label) + '</div>' +
             (item.description ? '<div class="item-desc">' + escHtml(item.description) + '</div>' : '') +
             '<div class="item-price">$' + Number(item.price).toFixed(2) + '</div>' +
           '</div>' +
-          '<div class="item-qty-badge" data-id="' + item.id + '"></div>' +
+          '<div class="item-add-control" data-id="' + item.id + '"></div>' +
         '</div>';
       }).join('');
 
       contentEl.innerHTML = '<img class="category-photo" src="' + img + '" alt="' + escHtml(cat) + '">' + rowsHtml;
 
-      // Tapping the text area (name/price) adds one. Deliberately NOT
-      // bound to the whole row -- that made the stepper buttons too
-      // easy to mis-tap, since a touch landing just outside "-" would
-      // also register as an add on the row underneath it.
-      contentEl.querySelectorAll('.item-info').forEach(function(info){
-        info.addEventListener('click', function(){
-          addOne(info.closest('.item-row').getAttribute('data-id'));
-        });
-      });
-
-      items.forEach(function(item){ updateQtyBadge(item.id); });
+      items.forEach(function(item){ renderItemControl(item.id); });
     }
 
-    function updateQtyBadge(itemId){
-      var badgeEl = document.querySelector('.item-qty-badge[data-id="' + itemId + '"]');
-      if (!badgeEl) return;
+    function renderItemControl(itemId){
+      var controlEl = document.querySelector('.item-add-control[data-id="' + itemId + '"]');
+      if (!controlEl) return;
       var line = findLine(itemId);
 
       if (!line) {
-        badgeEl.innerHTML = '';
-        return;
-      }
-
-      badgeEl.innerHTML =
-        '<div class="item-qty-stepper">' +
-          '<button type="button" class="item-qty-btn" data-id="' + itemId + '" data-dir="-1">\u2212</button>' +
-          '<span class="item-qty-value">' + line.quantity + '</span>' +
-          '<button type="button" class="item-qty-btn" data-id="' + itemId + '" data-dir="1">+</button>' +
-        '</div>';
-      badgeEl.querySelectorAll('.item-qty-btn').forEach(function(btn){
-        btn.addEventListener('click', function(e){
-          e.stopPropagation();
-          if (btn.getAttribute('data-dir') === '1') addOne(itemId); else removeOne(itemId);
+        controlEl.innerHTML = '<button type="button" class="quick-add-btn" data-id="' + itemId + '">+</button>';
+        controlEl.querySelector('.quick-add-btn').addEventListener('click', function(){ addOne(itemId); });
+      } else {
+        controlEl.innerHTML =
+          '<div class="item-qty-stepper">' +
+            '<button type="button" class="item-qty-btn" data-id="' + itemId + '" data-dir="-1">\u2212</button>' +
+            '<span class="item-qty-value">' + line.quantity + '</span>' +
+            '<button type="button" class="item-qty-btn" data-id="' + itemId + '" data-dir="1">+</button>' +
+          '</div>';
+        controlEl.querySelectorAll('.item-qty-btn').forEach(function(btn){
+          btn.addEventListener('click', function(){
+            if (btn.getAttribute('data-dir') === '1') addOne(itemId); else removeOne(itemId);
+          });
         });
-      });
+      }
     }
 
     function findLine(itemId){ return cart.find(function(c){ return c.menu_item_id === itemId; }); }
@@ -404,7 +393,7 @@
         cart.push({ menu_item_id: itemId, name: label, unitPrice: Number(item.price), quantity: 1 });
       }
       renderCartBar();
-      updateQtyBadge(itemId);
+      renderItemControl(itemId);
       if (!cartViewScreen.classList.contains('hidden')) renderCartView();
     }
 
@@ -420,7 +409,7 @@
         if (line.quantity <= 0) cart = cart.filter(function(c){ return c.menu_item_id !== itemId; });
       }
       renderCartBar();
-      updateQtyBadge(itemId);
+      renderItemControl(itemId);
       if (!cartViewScreen.classList.contains('hidden')) renderCartView();
     }
 
