@@ -37,7 +37,7 @@
   .category-block{ border:1px solid var(--line); border-radius:14px; margin-bottom:10px; overflow:hidden; background:var(--panel); }
   .category-row{
     display:flex; align-items:center; justify-content:space-between; width:100%; text-align:left;
-    background:var(--panel); color:var(--white); font-size:17px; font-weight:800; padding:18px 20px;
+    background:var(--panel); color:var(--white); font-size:19px; font-weight:800; padding:18px 20px;
   }
   .category-row .chev{ color:var(--muted); transition:transform .2s ease; font-size:13px; }
   .category-block.expanded .category-row .chev{ transform:rotate(180deg); }
@@ -53,22 +53,41 @@
 
   .item-row{
     display:flex; align-items:center; justify-content:space-between; gap:14px;
-    padding:14px 20px; border-top:1px solid var(--line); background:var(--black);
+    padding:16px 20px; border-top:1px solid var(--line); background:var(--black); cursor:pointer;
   }
+  .item-row:active{ background:var(--panel); }
   .item-info{ flex:1; min-width:0; }
-  .item-name{ font-size:15px; font-weight:700; color:var(--cream); }
+  .item-name{ font-size:16px; font-weight:700; color:var(--cream); }
   .item-desc{ font-size:11.5px; color:var(--muted); margin-top:2px; }
   .item-price{ font-size:13.5px; font-weight:700; color:var(--gold); margin-top:4px; }
-  .item-add-control{ flex:none; }
-  .quick-add-btn{
-    width:34px; height:34px; border-radius:50%; background:var(--panel); border:1px solid var(--line); color:var(--gold);
-    font-size:19px; font-weight:800; display:flex; align-items:center; justify-content:center;
+  .item-qty-badge{ flex:none; min-width:32px; display:flex; justify-content:flex-end; }
+  .qty-pill{
+    background:var(--gold); color:#241902; font-size:15px; font-weight:800;
+    min-width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center;
   }
-  .quick-add-btn:active{ background:var(--gold); color:#241902; border-color:var(--gold); }
-  .item-qty-stepper{ display:flex; align-items:center; gap:9px; }
-  .item-qty-btn{ width:28px; height:28px; border-radius:50%; background:var(--panel); border:1px solid var(--line); color:var(--cream); font-size:16px; display:flex; align-items:center; justify-content:center; }
-  .item-qty-btn:active{ background:var(--gold); color:#241902; }
-  .item-qty-value{ min-width:16px; text-align:center; font-size:14px; font-weight:800; color:var(--white); }
+
+  /* ---------- CART VIEW ---------- */
+  #cartViewScreen{ position:fixed; inset:0; background:var(--black); z-index:80; overflow-y:auto; }
+  .cart-view-header{ display:flex; align-items:center; justify-content:space-between; padding:24px 20px 10px; max-width:560px; margin:0 auto; }
+  .cart-view-header h2{ font-size:24px; font-weight:800; color:var(--white); }
+  #clearCartBtn{ background:none; color:var(--red); font-size:14px; font-weight:700; }
+  .cart-view-list{ padding:10px 20px 140px; max-width:560px; margin:0 auto; }
+  .cart-view-row{
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    padding:16px 0; border-bottom:1px solid var(--line);
+  }
+  .cart-view-info{ flex:1; min-width:0; }
+  .cart-view-name{ font-size:15px; font-weight:700; color:var(--white); }
+  .cart-view-linetotal{ font-size:13px; color:var(--muted); margin-top:3px; }
+  .cart-view-stepper{ display:flex; align-items:center; gap:12px; flex:none; }
+  .cart-qty-btn{ width:34px; height:34px; border-radius:50%; background:var(--panel); border:1px solid var(--line); color:var(--cream); font-size:19px; display:flex; align-items:center; justify-content:center; }
+  .cart-qty-btn:active{ background:var(--gold); color:#241902; }
+  .cart-qty-value{ min-width:20px; text-align:center; font-size:16px; font-weight:800; color:var(--white); }
+  .cart-view-footer{ position:fixed; left:0; right:0; bottom:0; background:var(--black); padding:18px 20px; border-top:1px solid var(--line); max-width:560px; margin:0 auto; }
+  .cart-view-total-row{ display:flex; justify-content:space-between; font-size:19px; font-weight:800; color:var(--white); margin-bottom:14px; }
+  .cart-view-total-row span{ color:var(--gold); }
+  #proceedToCheckoutBtn{ width:100%; background:var(--gold); color:#241902; font-size:18px; font-weight:800; padding:18px; border-radius:14px; }
+  #backToMenuFromCartBtn{ display:block; margin:14px auto 0; background:none; color:var(--muted); font-size:14px; }
 
   /* ---------- persistent cart bar ---------- */
   #cartBar{
@@ -105,7 +124,7 @@
   .payment-choice{ display:flex; gap:10px; margin-bottom:20px; }
   .payment-choice-btn{
     flex:1; background:var(--panel); border:1px solid var(--line); border-radius:12px;
-    padding:16px; color:var(--cream); font-size:15px; font-weight:700; text-align:center;
+    padding:16px; color:var(--cream); font-size:19px; font-weight:800; text-align:center; line-height:1.25;
   }
   .payment-choice-btn.selected{ background:var(--gold); border-color:var(--gold); color:#241902; }
 
@@ -133,7 +152,20 @@
 <div id="cartBar" class="hidden">
   <div id="cartBarInfo">0 items &middot; $0.00</div>
   <button type="button" id="cartBarClearBtn">Clear</button>
-  <button type="button" id="cartBarBtn">Checkout &rarr;</button>
+  <button type="button" id="cartBarBtn">View Cart &rarr;</button>
+</div>
+
+<div id="cartViewScreen" class="hidden">
+  <div class="cart-view-header">
+    <h2>Your Cart</h2>
+    <button type="button" id="clearCartBtn">Clear Cart</button>
+  </div>
+  <div class="cart-view-list" id="cartViewList"></div>
+  <div class="cart-view-footer">
+    <div class="cart-view-total-row">Total <span id="cartViewTotal">$0.00</span></div>
+    <button type="button" id="proceedToCheckoutBtn">Proceed to Checkout</button>
+    <button type="button" id="backToMenuFromCartBtn">&larr; Back to menu</button>
+  </div>
 </div>
 
 <div id="checkoutScreen" class="hidden">
@@ -162,7 +194,7 @@
       <label>How will you pay?</label>
       <div class="payment-choice">
         <button type="button" class="payment-choice-btn selected" id="cardChoiceBtn">Card</button>
-        <button type="button" class="payment-choice-btn" id="cashChoiceBtn">Cash at Counter</button>
+        <button type="button" class="payment-choice-btn" id="cashChoiceBtn">I'll pay cash at the window</button>
       </div>
     </div>
 
@@ -299,42 +331,33 @@
 
       var rowsHtml = items.map(function(item){
         var label = item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : '');
-        return '<div class="item-row">' +
+        return '<div class="item-row" data-id="' + item.id + '">' +
           '<div class="item-info">' +
             '<div class="item-name">' + escHtml(label) + '</div>' +
             (item.description ? '<div class="item-desc">' + escHtml(item.description) + '</div>' : '') +
             '<div class="item-price">$' + Number(item.price).toFixed(2) + '</div>' +
           '</div>' +
-          '<div class="item-add-control" data-id="' + item.id + '"></div>' +
+          '<div class="item-qty-badge" data-id="' + item.id + '"></div>' +
         '</div>';
       }).join('');
 
       contentEl.innerHTML = '<img class="category-photo" src="' + img + '" alt="' + escHtml(cat) + '">' + rowsHtml;
 
-      items.forEach(function(item){ renderItemControl(item.id); });
+      // Tapping anywhere on the row adds one -- quantity management
+      // (increase, decrease, remove) now lives in the Cart View
+      // screen instead of inline controls here.
+      contentEl.querySelectorAll('.item-row').forEach(function(row){
+        row.addEventListener('click', function(){ addOne(row.getAttribute('data-id')); });
+      });
+
+      items.forEach(function(item){ updateQtyBadge(item.id); });
     }
 
-    function renderItemControl(itemId){
-      var controlEl = document.querySelector('.item-add-control[data-id="' + itemId + '"]');
-      if (!controlEl) return;
+    function updateQtyBadge(itemId){
+      var badgeEl = document.querySelector('.item-qty-badge[data-id="' + itemId + '"]');
+      if (!badgeEl) return;
       var line = findLine(itemId);
-
-      if (!line) {
-        controlEl.innerHTML = '<button type="button" class="quick-add-btn" data-id="' + itemId + '">+</button>';
-        controlEl.querySelector('.quick-add-btn').addEventListener('click', function(){ addOne(itemId); });
-      } else {
-        controlEl.innerHTML =
-          '<div class="item-qty-stepper">' +
-            '<button type="button" class="item-qty-btn" data-id="' + itemId + '" data-dir="-1">\u2212</button>' +
-            '<span class="item-qty-value">' + line.quantity + '</span>' +
-            '<button type="button" class="item-qty-btn" data-id="' + itemId + '" data-dir="1">+</button>' +
-          '</div>';
-        controlEl.querySelectorAll('.item-qty-btn').forEach(function(btn){
-          btn.addEventListener('click', function(){
-            if (btn.getAttribute('data-dir') === '1') addOne(itemId); else removeOne(itemId);
-          });
-        });
-      }
+      badgeEl.innerHTML = line ? '<div class="qty-pill">' + line.quantity + '</div>' : '';
     }
 
     function findLine(itemId){ return cart.find(function(c){ return c.menu_item_id === itemId; }); }
@@ -350,7 +373,8 @@
         cart.push({ menu_item_id: itemId, name: label, unitPrice: Number(item.price), quantity: 1 });
       }
       renderCartBar();
-      renderItemControl(itemId);
+      updateQtyBadge(itemId);
+      if (!cartViewScreen.classList.contains('hidden')) renderCartView();
     }
 
     function removeOne(itemId){
@@ -365,7 +389,8 @@
         if (line.quantity <= 0) cart = cart.filter(function(c){ return c.menu_item_id !== itemId; });
       }
       renderCartBar();
-      renderItemControl(itemId);
+      updateQtyBadge(itemId);
+      if (!cartViewScreen.classList.contains('hidden')) renderCartView();
     }
 
     function cartTotal(){ return cart.reduce(function(s,c){ return s + c.unitPrice*c.quantity; }, 0); }
@@ -379,14 +404,17 @@
       document.getElementById('cartBarInfo').textContent = count + ' item' + (count === 1 ? '' : 's') + ' \u00b7 $' + cartTotal().toFixed(2);
     }
 
-    document.getElementById('cartBarClearBtn').addEventListener('click', function(){
+    function clearCart(){
       if (!cart.length) return;
       if (!confirm('Clear your whole cart?')) return;
       cart = [];
       renderCartBar();
-      // refresh whichever category is currently expanded, if any, so its qty controls reset to 0
       if (expandedCategory) renderCategoryContent(expandedCategory);
-    });
+      if (!cartViewScreen.classList.contains('hidden')) renderCartView();
+    }
+
+    document.getElementById('cartBarClearBtn').addEventListener('click', clearCart);
+    document.getElementById('clearCartBtn').addEventListener('click', clearCart);
 
     // Card and cash both cost exactly subtotal + tax -- no processing
     // fee either way for orders placed through this page.
@@ -408,9 +436,50 @@
     }
 
     var checkoutScreen = document.getElementById('checkoutScreen');
+    var cartViewScreen = document.getElementById('cartViewScreen');
+
+    // Quantity management (increase, decrease, remove) lives here now,
+    // separate from the menu -- tapping a menu item just adds one.
+    function renderCartView(){
+      var listEl = document.getElementById('cartViewList');
+      if (!cart.length) {
+        listEl.innerHTML = '<div class="empty-hint">Your cart is empty.</div>';
+      } else {
+        listEl.innerHTML = cart.map(function(c){
+          return '<div class="cart-view-row">' +
+            '<div class="cart-view-info">' +
+              '<div class="cart-view-name">' + escHtml(c.name) + '</div>' +
+              '<div class="cart-view-linetotal">$' + c.unitPrice.toFixed(2) + ' each &middot; $' + (c.unitPrice * c.quantity).toFixed(2) + '</div>' +
+            '</div>' +
+            '<div class="cart-view-stepper">' +
+              '<button type="button" class="cart-qty-btn" data-id="' + c.menu_item_id + '" data-dir="-1">\u2212</button>' +
+              '<span class="cart-qty-value">' + c.quantity + '</span>' +
+              '<button type="button" class="cart-qty-btn" data-id="' + c.menu_item_id + '" data-dir="1">+</button>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+
+        listEl.querySelectorAll('.cart-qty-btn').forEach(function(btn){
+          btn.addEventListener('click', function(){
+            var id = btn.getAttribute('data-id');
+            if (btn.getAttribute('data-dir') === '1') addOne(id); else removeOne(id);
+            renderCartView();
+          });
+        });
+      }
+
+      document.getElementById('cartViewTotal').textContent = '$' + cartTotal().toFixed(2);
+    }
+
+    function showCartView(){
+      if (!cart.length) return;
+      cartViewScreen.classList.remove('hidden');
+      renderCartView();
+    }
 
     function showCheckout(){
       if (!cart.length) return;
+      cartViewScreen.classList.add('hidden');
       checkoutScreen.classList.remove('hidden');
       document.getElementById('checkoutItemsList').innerHTML = cart.map(function(c){
         return '<div class="checkout-item-row"><span class="nm">' + escHtml(c.name) + ' \u00d7 ' + c.quantity + '</span>' +
@@ -419,7 +488,11 @@
       refreshCheckoutBreakdown();
     }
 
-    document.getElementById('cartBarBtn').addEventListener('click', showCheckout);
+    document.getElementById('cartBarBtn').addEventListener('click', showCartView);
+    document.getElementById('proceedToCheckoutBtn').addEventListener('click', showCheckout);
+    document.getElementById('backToMenuFromCartBtn').addEventListener('click', function(){
+      cartViewScreen.classList.add('hidden');
+    });
     document.getElementById('backToMenuBtn').addEventListener('click', function(){
       checkoutScreen.classList.add('hidden');
     });
