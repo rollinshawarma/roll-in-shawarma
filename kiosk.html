@@ -211,6 +211,7 @@
   .checkout-item-row{ display:flex; justify-content:space-between; padding:8px 0; font-size:15px; }
   .checkout-item-row .nm{ color:var(--white); }
   .checkout-item-row .amt{ color:var(--muted); }
+  .checkout-breakdown-row{ display:flex; justify-content:space-between; font-size:14px; color:var(--muted); padding-top:12px; }
   .checkout-total-row{ display:flex; justify-content:space-between; font-size:20px; font-weight:800; color:var(--white); padding-top:14px; margin-top:8px; border-top:1px solid var(--line); }
   .checkout-total-row span{ color:var(--gold); }
 
@@ -282,6 +283,7 @@
   <div class="checkout-body">
     <h2>Almost there!</h2>
     <div class="checkout-items-list" id="checkoutItemsList"></div>
+    <div class="checkout-breakdown-row">Subtotal <span id="checkoutSubtotalDisplay">$0.00</span></div>
     <div class="checkout-total-row">Total <span id="checkoutTotalDisplay">$0.00</span></div>
 
     <div class="kiosk-field" style="margin-top:28px;">
@@ -339,6 +341,7 @@
 
     var cart = []; // in-memory only, on purpose -- a shared device should never
                     // carry a previous customer's order into the next one
+    var TAX_RATE = 0.0675; // matches the backend exactly -- this is for display only, the actual charge is always computed server-side
     var itemsById = {};
     var categoryOrder = [];
 
@@ -733,7 +736,11 @@
         return '<div class="checkout-item-row"><span class="nm">' + escHtml(c.name) + ' &times; ' + c.quantity + '</span>' +
           '<span class="amt">$' + (c.unitPrice * c.quantity).toFixed(2) + '</span></div>';
       }).join('');
-      document.getElementById('checkoutTotalDisplay').textContent = '$' + cartTotal().toFixed(2);
+      var subtotalCents = Math.round(cartTotal() * 100);
+      var taxCents = Math.round(subtotalCents * TAX_RATE);
+      var totalCents = subtotalCents + taxCents;
+      document.getElementById('checkoutSubtotalDisplay').textContent = '$' + (subtotalCents / 100).toFixed(2) + ' + $' + (taxCents / 100).toFixed(2) + ' tax';
+      document.getElementById('checkoutTotalDisplay').textContent = '$' + (totalCents / 100).toFixed(2);
       resetInactivityTimer();
     }
 
