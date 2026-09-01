@@ -163,6 +163,18 @@
   .scan-error-msg{ color:var(--red); font-size:13.5px; margin-top:14px; max-width:340px; }
 
   /* ---------- ORDER CONFIRMED (in-page, no navigation) ---------- */
+  /* ---------- COMBO MODAL ---------- */
+  #comboModal{ position:fixed; inset:0; background:rgba(0,0,0,0.75); z-index:110; display:flex; align-items:center; justify-content:center; padding:24px; }
+  .combo-modal-box{ background:var(--panel); border-radius:20px; padding:32px; max-width:440px; width:100%; }
+  #comboItemName{ font-size:22px; font-weight:800; color:var(--white); margin-bottom:22px; text-align:center; }
+  .combo-option-btn{ display:block; width:100%; background:var(--black); border:1px solid var(--line); color:var(--cream); font-size:17px; font-weight:700; padding:20px; border-radius:14px; margin-bottom:12px; text-align:center; }
+  .combo-option-highlight{ background:var(--gold); color:#241902; border-color:var(--gold); }
+  .combo-cancel-btn{ display:block; width:100%; background:none; color:var(--muted); font-size:15px; margin-top:8px; text-align:center; }
+  #comboStepDrink h3{ font-size:21px; font-weight:800; color:var(--white); margin-bottom:20px; text-align:center; }
+  .combo-drink-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:14px; }
+  .combo-drink-btn{ background:var(--black); border:1px solid var(--line); color:var(--cream); font-size:17px; font-weight:700; padding:22px 10px; border-radius:14px; text-align:center; }
+  .combo-drink-btn:active{ background:var(--gold); color:#241902; }
+
   #orderConfirmedScreen{
     position:fixed; inset:0; background:radial-gradient(circle at 50% 25%, rgba(11,175,76,0.16), var(--black) 65%);
     display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
@@ -290,6 +302,28 @@
   <button type="button" id="scanCancelBtn">&larr; Back to checkout</button>
 </div>
 
+<div id="comboModal" class="hidden">
+  <div class="combo-modal-box">
+    <div id="comboStepChoice">
+      <h3 id="comboItemName">Item</h3>
+      <button type="button" class="combo-option-btn" id="comboJustItemBtn">Just the item &mdash; <span id="comboJustPrice"></span></button>
+      <button type="button" class="combo-option-btn combo-option-highlight" id="comboMakeComboBtn">Make it a Combo (+$3.99) &mdash; <span id="comboComboPrice"></span></button>
+      <button type="button" class="combo-cancel-btn" id="comboCancelBtn1">Cancel</button>
+    </div>
+    <div id="comboStepDrink" class="hidden">
+      <h3>Choose your drink</h3>
+      <div class="combo-drink-grid">
+        <button type="button" class="combo-drink-btn" data-drink="Coke">Coke</button>
+        <button type="button" class="combo-drink-btn" data-drink="Diet Coke">Diet Coke</button>
+        <button type="button" class="combo-drink-btn" data-drink="Sprite">Sprite</button>
+        <button type="button" class="combo-drink-btn" data-drink="Root Beer">Root Beer</button>
+        <button type="button" class="combo-drink-btn" data-drink="Water">Water</button>
+      </div>
+      <button type="button" class="combo-cancel-btn" id="comboCancelBtn2">&larr; Back</button>
+    </div>
+  </div>
+</div>
+
 <div id="orderConfirmedScreen" class="hidden">
   <div class="confirm-badge">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
@@ -403,15 +437,17 @@
       document.addEventListener(evt, resetInactivityTimer, { passive: true });
     });
 
-    // ---- Fetch menu (excluding Catering -- that's a planned-ahead
-    // flow, not a walk-up kiosk purchase) ----
+    // ---- Fetch menu (excluding Catering and Combo Add-ons -- those
+    // are never browsed directly, only added programmatically) ----
+    var comboAddonsByName = {};
     function loadMenu(){
       sbShared.from('menu_items').select('*').order('display_order').then(function(res){
         if (res.error || !res.data) return;
         var byCategory = {};
         res.data.forEach(function(item){
           itemsById[item.id] = item;
-          if (item.category === 'Catering') return;
+          if (item.category === 'Combo Add-ons') comboAddonsByName[item.name] = item;
+          if (item.category === 'Catering' || item.category === 'Combo Add-ons') return;
           if (!byCategory[item.category]) {
             byCategory[item.category] = [];
             categoryOrder.push(item.category);
@@ -502,7 +538,14 @@
 
       if (!line) {
         controlEl.innerHTML = '<button type="button" class="quick-add-btn" data-id="' + itemId + '">+</button>';
-        controlEl.querySelector('.quick-add-btn').addEventListener('click', function(){ addOne(itemId); });
+        controlEl.querySelector('.quick-add-btn').addEventListener('click', function(){
+          var item = itemsById[itemId];
+          if (item && item.combo_upcharge) {
+            showComboPrompt(itemId);
+          } else {
+            addOne(itemId);
+          }
+        });
       } else {
         controlEl.innerHTML =
           '<div class="item-qty-stepper">' +
@@ -519,6 +562,57 @@
     }
 
     function findLine(itemId){ return cart.find(function(c){ return c.menu_item_id === itemId; }); }
+
+    // ---- Combo modal ----
+    var comboPendingItemId = null;
+
+    function showComboPrompt(itemId){
+      var item = itemsById[itemId];
+      if (!item) return;
+      comboPendingItemId = itemId;
+      document.getElementById('comboItemName').textContent = item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : '');
+      document.getElementById('comboJustPrice').textContent = '$' + Number(item.price).toFixed(2);
+      document.getElementById('comboComboPrice').textContent = '$' + (Number(item.price) + Number(item.combo_upcharge)).toFixed(2);
+      document.getElementById('comboStepChoice').classList.remove('hidden');
+      document.getElementById('comboStepDrink').classList.add('hidden');
+      document.getElementById('comboModal').classList.remove('hidden');
+    }
+
+    function closeComboModal(){
+      document.getElementById('comboModal').classList.add('hidden');
+      comboPendingItemId = null;
+    }
+
+    function addComboToCart(itemId, drinkName){
+      addOne(itemId); // base item at its normal price
+      var friesItem = comboAddonsByName['Combo Fries'];
+      var drinkItem = comboAddonsByName['Combo ' + drinkName];
+      if (friesItem) addOne(friesItem.id);
+      if (drinkItem) addOne(drinkItem.id);
+    }
+
+    document.getElementById('comboJustItemBtn').addEventListener('click', function(){
+      var itemId = comboPendingItemId;
+      closeComboModal();
+      addOne(itemId);
+    });
+    document.getElementById('comboMakeComboBtn').addEventListener('click', function(){
+      document.getElementById('comboStepChoice').classList.add('hidden');
+      document.getElementById('comboStepDrink').classList.remove('hidden');
+    });
+    document.getElementById('comboCancelBtn1').addEventListener('click', closeComboModal);
+    document.getElementById('comboCancelBtn2').addEventListener('click', function(){
+      document.getElementById('comboStepDrink').classList.add('hidden');
+      document.getElementById('comboStepChoice').classList.remove('hidden');
+    });
+    document.querySelectorAll('.combo-drink-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var drink = btn.getAttribute('data-drink');
+        var itemId = comboPendingItemId;
+        closeComboModal();
+        addComboToCart(itemId, drink);
+      });
+    });
 
     function addOne(itemId){
       var item = itemsById[itemId];
