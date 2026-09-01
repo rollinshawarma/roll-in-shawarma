@@ -92,6 +92,24 @@
   .combo-drink-btn{ background:var(--black); border:1px solid var(--line); color:var(--cream); font-size:15px; font-weight:700; padding:14px 8px; border-radius:11px; text-align:center; }
   .combo-drink-btn:active{ background:var(--gold); color:#241902; }
 
+  /* ---------- VARIANT PICKER (e.g. bowl protein choice) ---------- */
+  .variant-row{
+    display:flex; align-items:center; justify-content:space-between; gap:14px;
+    padding:16px 20px; border-top:1px solid var(--line); cursor:pointer;
+  }
+  .variant-row:active{ background:var(--panel); }
+  .variant-row-plus{
+    width:26px; height:26px; border-radius:50%; background:var(--panel); border:1px solid var(--line); color:var(--gold);
+    font-size:16px; font-weight:800; display:flex; align-items:center; justify-content:center; flex:none;
+  }
+  .variant-expand{ max-height:0; overflow:hidden; transition:max-height .25s ease; background:var(--black); }
+  .variant-expand.expanded{ max-height:600px; }
+  .variant-expand-inner{ padding:14px 20px 18px; }
+  .variant-expand-title{ font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:10px; }
+  .variant-choice-grid{ display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+  .variant-choice-btn{ background:var(--panel); border:1px solid var(--line); color:var(--cream); font-size:14.5px; font-weight:700; padding:14px 8px; border-radius:11px; text-align:center; }
+  .variant-choice-btn:active{ background:var(--gold); color:#241902; }
+
   /* ---------- CART VIEW ---------- */
   #cartViewScreen{ position:fixed; inset:0; background:var(--black); z-index:80; overflow-y:auto; }
   .cart-view-header{ display:flex; align-items:center; justify-content:space-between; padding:24px 20px 10px; max-width:560px; margin:0 auto; }
@@ -364,16 +382,53 @@
       var items = (window.__orderByCategory[cat] || []);
       var img = categoryImages[cat] || 'menu-shawarma.jpg';
 
-      var rowsHtml = items.map(function(item){
-        var label = item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : '');
-        return '<div class="item-row">' +
-          '<div class="item-info">' +
-            '<div class="item-name">' + escHtml(label) + '</div>' +
-            (item.description ? '<div class="item-desc">' + escHtml(item.description) + '</div>' : '') +
-            '<div class="item-price">$' + Number(item.price).toFixed(2) + '</div>' +
+      // Group by name -- items sharing a name but different variant_name
+      // (e.g. protein choices) render as ONE expandable row, not one
+      // row per variant.
+      var groups = [];
+      var groupsByName = {};
+      items.forEach(function(item){
+        if (!groupsByName[item.name]) {
+          var g = { name: item.name, items: [] };
+          groupsByName[item.name] = g;
+          groups.push(g);
+        }
+        groupsByName[item.name].items.push(item);
+      });
+
+      var rowsHtml = groups.map(function(group){
+        if (group.items.length === 1) {
+          var item = group.items[0];
+          var label = item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : '');
+          return '<div class="item-row">' +
+            '<div class="item-info">' +
+              '<div class="item-name">' + escHtml(label) + '</div>' +
+              (item.description ? '<div class="item-desc">' + escHtml(item.description) + '</div>' : '') +
+              '<div class="item-price">$' + Number(item.price).toFixed(2) + '</div>' +
+            '</div>' +
+            '<div class="item-add-control" data-id="' + item.id + '"></div>' +
+          '</div>';
+        }
+
+        var groupKey = escHtml(group.name);
+        var firstItem = group.items[0];
+        return '<div class="variant-row" data-variant-group="' + groupKey + '">' +
+            '<div class="item-info">' +
+              '<div class="item-name">' + escHtml(group.name) + '</div>' +
+              '<div class="item-price">$' + Number(firstItem.price).toFixed(2) + '</div>' +
+            '</div>' +
+            '<span class="variant-row-plus">+</span>' +
           '</div>' +
-          '<div class="item-add-control" data-id="' + item.id + '"></div>' +
-        '</div>';
+          '<div class="variant-expand" data-variant-group="' + groupKey + '">' +
+            '<div class="variant-expand-inner">' +
+              '<div class="variant-expand-title">Choose your protein</div>' +
+              '<div class="variant-choice-grid">' +
+                group.items.map(function(item){
+                  return '<button type="button" class="variant-choice-btn" data-id="' + item.id + '">' + escHtml(item.variant_name || item.name) + '</button>';
+                }).join('') +
+              '</div>' +
+            '</div>' +
+          '</div>';
       }).join('');
 
       // One shared combo row per category, not per item. Disabled
@@ -401,7 +456,24 @@
 
       contentEl.innerHTML = '<img class="category-photo" src="' + img + '" alt="' + escHtml(cat) + '">' + rowsHtml + comboHtml;
 
-      items.forEach(function(item){ renderItemControl(item.id); });
+      groups.forEach(function(group){
+        if (group.items.length === 1) renderItemControl(group.items[0].id);
+      });
+
+      contentEl.querySelectorAll('.variant-row').forEach(function(row){
+        row.addEventListener('click', function(){
+          var key = row.getAttribute('data-variant-group');
+          var expandEl = contentEl.querySelector('.variant-expand[data-variant-group="' + key + '"]');
+          if (expandEl) expandEl.classList.toggle('expanded');
+        });
+      });
+      contentEl.querySelectorAll('.variant-choice-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          addOne(btn.getAttribute('data-id'));
+          var expandEl = btn.closest('.variant-expand');
+          if (expandEl) expandEl.classList.remove('expanded');
+        });
+      });
 
       var comboRow = contentEl.querySelector('.combo-row');
       if (comboRow) {
@@ -447,12 +519,6 @@
 
     function findLine(itemId){ return cart.find(function(c){ return c.menu_item_id === itemId; }); }
 
-    // One combo allowed per qualifying entree in the cart -- counts
-    // entrees by summing quantities of cart lines whose item has
-    // combo_upcharge set, and counts combos already added via "Combo
-    // Fries" quantity, since every combo adds exactly one regardless
-    // of which drink was chosen. Enabled only while entrees outnumber
-    // combos so far.
     function canAddCombo(){
       var qualifyingCount = cart.reduce(function(sum, line){
         var item = itemsById[line.menu_item_id];
@@ -470,14 +536,64 @@
       comboRow.classList.toggle('combo-row-disabled', !canAddCombo());
     }
 
+    var COMBO_DRINK_NAMES = ['Coke','Diet Coke','Coke Zero','Sprite','Root Beer','Water'];
+
+    // Fries and a drink are married together, and a combo can't
+    // outlive the entree it came with. After any cart change, this
+    // trims fries/drinks back down so: fries qty == total drink qty
+    // == however many qualifying entrees are actually still in the
+    // cart, whichever of those three is smallest.
+    function syncCombos(){
+      var qualifyingCount = cart.reduce(function(sum, line){
+        var item = itemsById[line.menu_item_id];
+        return sum + (item && item.combo_upcharge ? line.quantity : 0);
+      }, 0);
+
+      var friesItem = comboAddonsByName['Combo Fries'];
+      if (!friesItem) return;
+      var friesLine = findLine(friesItem.id);
+      var friesQty = friesLine ? friesLine.quantity : 0;
+
+      var drinkLines = COMBO_DRINK_NAMES.map(function(name){
+        var di = comboAddonsByName['Combo ' + name];
+        return di ? findLine(di.id) : null;
+      }).filter(Boolean);
+      var totalDrinkQty = drinkLines.reduce(function(sum, l){ return sum + l.quantity; }, 0);
+
+      var validComboCount = Math.min(qualifyingCount, friesQty, totalDrinkQty);
+
+      if (friesLine && friesLine.quantity > validComboCount) {
+        friesLine.quantity = validComboCount;
+        if (friesLine.quantity <= 0) cart = cart.filter(function(c){ return c.menu_item_id !== friesItem.id; });
+      }
+
+      var excessDrinks = totalDrinkQty - validComboCount;
+      for (var i = drinkLines.length - 1; i >= 0 && excessDrinks > 0; i--) {
+        var dLine = drinkLines[i];
+        var reduceBy = Math.min(excessDrinks, dLine.quantity);
+        dLine.quantity -= reduceBy;
+        excessDrinks -= reduceBy;
+        if (dLine.quantity <= 0) {
+          var idToRemove = dLine.menu_item_id;
+          cart = cart.filter(function(c){ return c.menu_item_id !== idToRemove; });
+        }
+      }
+    }
+
     function addComboAddon(drinkName){
       var friesItem = comboAddonsByName['Combo Fries'];
       var drinkItem = comboAddonsByName['Combo ' + drinkName];
-      if (friesItem) addOne(friesItem.id);
-      if (drinkItem) addOne(drinkItem.id);
+      if (friesItem) addOneRaw(friesItem.id);
+      if (drinkItem) addOneRaw(drinkItem.id);
+      syncCombos();
+      renderCartBar();
+      if (friesItem) renderItemControl(friesItem.id);
+      if (drinkItem) renderItemControl(drinkItem.id);
+      refreshComboRowState();
+      if (!cartViewScreen.classList.contains('hidden')) renderCartView();
     }
 
-    function addOne(itemId){
+    function addOneRaw(itemId){
       var item = itemsById[itemId];
       if (!item) return;
       var line = findLine(itemId);
@@ -487,6 +603,11 @@
         var label = item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : '');
         cart.push({ menu_item_id: itemId, name: label, unitPrice: Number(item.price), quantity: 1 });
       }
+    }
+
+    function addOne(itemId){
+      addOneRaw(itemId);
+      syncCombos();
       renderCartBar();
       renderItemControl(itemId);
       refreshComboRowState();
@@ -504,6 +625,7 @@
         line.quantity -= 1;
         if (line.quantity <= 0) cart = cart.filter(function(c){ return c.menu_item_id !== itemId; });
       }
+      syncCombos();
       renderCartBar();
       renderItemControl(itemId);
       refreshComboRowState();
@@ -518,7 +640,7 @@
       var count = cartCount();
       if (count === 0) { bar.classList.add('hidden'); return; }
       bar.classList.remove('hidden');
-      document.getElementById('cartBarInfo').textContent = count + ' item' + (count === 1 ? '' : 's') + ' \u00b7 $' + cartTotal().toFixed(2);
+      document.getElementById('cartBarInfo').textContent = count + ' item' + (count === 1 ? '' : 's') + ' \u00b7 $' + cartTotal().toFixed(2) + ' + tax';
     }
 
     function clearCart(){
