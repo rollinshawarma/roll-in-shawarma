@@ -70,6 +70,26 @@
   .item-qty-btn:active{ background:var(--gold); color:#241902; }
   .item-qty-value{ min-width:18px; text-align:center; font-size:16px; font-weight:800; color:var(--white); }
 
+  /* ---------- COMBO: inline row + expansion, no modal ---------- */
+  .combo-row{
+    display:flex; align-items:center; justify-content:space-between; gap:12px;
+    background:var(--gold); color:#241902; padding:12px 20px; cursor:pointer;
+  }
+  .combo-row-label{ font-size:14px; font-weight:800; }
+  .combo-row-plus{
+    width:26px; height:26px; border-radius:50%; background:#241902; color:var(--gold);
+    font-size:17px; font-weight:800; display:flex; align-items:center; justify-content:center; flex:none;
+  }
+  .combo-drink-expand{
+    max-height:0; overflow:hidden; transition:max-height .25s ease; background:var(--panel);
+  }
+  .combo-drink-expand.expanded{ max-height:600px; }
+  .combo-drink-inner{ padding:14px 20px; }
+  .combo-drink-title{ font-size:12.5px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:10px; }
+  .combo-drink-grid{ display:grid; grid-template-columns:1fr 1fr; gap:9px; }
+  .combo-drink-btn{ background:var(--black); border:1px solid var(--line); color:var(--cream); font-size:15px; font-weight:700; padding:14px 8px; border-radius:11px; text-align:center; }
+  .combo-drink-btn:active{ background:var(--gold); color:#241902; }
+
   /* ---------- CART VIEW ---------- */
   #cartViewScreen{ position:fixed; inset:0; background:var(--black); z-index:80; overflow-y:auto; }
   .cart-view-header{ display:flex; align-items:center; justify-content:space-between; padding:24px 20px 10px; max-width:560px; margin:0 auto; }
@@ -269,13 +289,15 @@
       return String(err);
     }
 
+    var comboAddonsByName = {};
     function loadMenu(){
       sbShared.from('menu_items').select('*').order('display_order').then(function(res){
         if (res.error || !res.data) return;
         var byCategory = {};
         res.data.forEach(function(item){
           itemsById[item.id] = item;
-          if (item.category === 'Catering') return;
+          if (item.category === 'Combo Add-ons') comboAddonsByName[item.name] = item;
+          if (item.category === 'Catering' || item.category === 'Combo Add-ons') return;
           if (!byCategory[item.category]) {
             byCategory[item.category] = [];
             categoryOrder.push(item.category);
@@ -352,9 +374,47 @@
         '</div>';
       }).join('');
 
-      contentEl.innerHTML = '<img class="category-photo" src="' + img + '" alt="' + escHtml(cat) + '">' + rowsHtml;
+      // One shared combo row per category, not per item.
+      var comboUpcharge = items.length && items[0].combo_upcharge;
+      var comboHtml = '';
+      if (comboUpcharge) {
+        comboHtml =
+          '<div class="combo-row" data-cat="' + escHtml(cat) + '">' +
+            '<span class="combo-row-label">Make it a Combo +$' + Number(comboUpcharge).toFixed(2) + '</span>' +
+            '<span class="combo-row-plus">+</span>' +
+          '</div>' +
+          '<div class="combo-drink-expand" data-cat="' + escHtml(cat) + '">' +
+            '<div class="combo-drink-inner">' +
+              '<div class="combo-drink-title">Choose your drink</div>' +
+              '<div class="combo-drink-grid">' +
+                ['Coke','Diet Coke','Sprite','Root Beer','Water'].map(function(drink){
+                  return '<button type="button" class="combo-drink-btn" data-drink="' + drink + '">' + drink + '</button>';
+                }).join('') +
+              '</div>' +
+            '</div>' +
+          '</div>';
+      }
+
+      contentEl.innerHTML = '<img class="category-photo" src="' + img + '" alt="' + escHtml(cat) + '">' + rowsHtml + comboHtml;
 
       items.forEach(function(item){ renderItemControl(item.id); });
+
+      var comboRow = contentEl.querySelector('.combo-row');
+      if (comboRow) {
+        comboRow.addEventListener('click', function(){
+          var expandEl = contentEl.querySelector('.combo-drink-expand');
+          if (expandEl) expandEl.classList.toggle('expanded');
+        });
+      }
+
+      contentEl.querySelectorAll('.combo-drink-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var drink = btn.getAttribute('data-drink');
+          addComboAddon(drink);
+          var expandEl = contentEl.querySelector('.combo-drink-expand');
+          if (expandEl) expandEl.classList.remove('expanded');
+        });
+      });
     }
 
     function renderItemControl(itemId){
@@ -381,6 +441,13 @@
     }
 
     function findLine(itemId){ return cart.find(function(c){ return c.menu_item_id === itemId; }); }
+
+    function addComboAddon(drinkName){
+      var friesItem = comboAddonsByName['Combo Fries'];
+      var drinkItem = comboAddonsByName['Combo ' + drinkName];
+      if (friesItem) addOne(friesItem.id);
+      if (drinkItem) addOne(drinkItem.id);
+    }
 
     function addOne(itemId){
       var item = itemsById[itemId];
