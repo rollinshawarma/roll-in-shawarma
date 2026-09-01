@@ -94,6 +94,10 @@
     background:var(--gold); color:#241902; font-size:17px; font-weight:800;
     min-width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center;
   }
+  .item-qty-stepper{ display:flex; align-items:center; gap:12px; }
+  .item-qty-btn{ width:34px; height:34px; border-radius:50%; background:var(--panel); border:1px solid var(--line); color:var(--cream); font-size:19px; display:flex; align-items:center; justify-content:center; }
+  .item-qty-btn:active{ background:var(--gold); color:#241902; }
+  .item-qty-value{ min-width:20px; text-align:center; font-size:17px; font-weight:800; color:var(--white); }
   .empty-hint{ color:var(--muted); font-size:15px; text-align:center; padding:30px 20px; }
 
   /* ---------- CART VIEW ---------- */
@@ -123,12 +127,17 @@
   /* persistent cart bar */
   #cartBar{
     position:fixed; left:0; right:0; bottom:0; background:var(--gold); color:#241902;
-    display:flex; align-items:center; justify-content:space-between; padding:22px 32px;
+    display:flex; align-items:center; justify-content:space-between; padding:22px 32px; gap:16px;
     box-shadow:0 -10px 40px rgba(0,0,0,0.4); z-index:50;
   }
   #cartBar.hidden{ display:none !important; }
   #cartBarInfo{ font-size:19px; font-weight:800; flex:1; }
-  #cartBarClearBtn{ background:none; color:#241902; opacity:0.7; font-size:15px; font-weight:700; text-decoration:underline; }
+  #cartBarClearBtn{
+    background:rgba(36,25,2,0.12); border:none; width:44px; height:44px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; flex:none;
+  }
+  #cartBarClearBtn svg{ width:20px; height:20px; color:#241902; }
+  #cartBarClearBtn:active{ background:rgba(36,25,2,0.22); }
   #cartBarBtn{ background:#241902; color:var(--gold); font-size:19px; font-weight:800; padding:16px 36px; border-radius:100px; }
 
   /* ---------- CHECKOUT SCREEN ---------- */
@@ -227,7 +236,9 @@
   </div>
   <div id="cartBar" class="hidden">
     <div id="cartBarInfo">0 items &middot; $0.00</div>
-    <button type="button" id="cartBarClearBtn">Clear</button>
+    <button type="button" id="cartBarClearBtn" aria-label="Clear cart">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path></svg>
+    </button>
     <button type="button" id="cartBarBtn">View Cart &rarr;</button>
   </div>
 </div>
@@ -495,7 +506,24 @@
       var badgeEl = document.querySelector('.item-qty-badge[data-id="' + itemId + '"]');
       if (!badgeEl) return;
       var line = findLine(itemId);
-      badgeEl.innerHTML = line ? '<div class="qty-pill">' + line.quantity + '</div>' : '';
+
+      if (!line) {
+        badgeEl.innerHTML = '';
+        return;
+      }
+
+      badgeEl.innerHTML =
+        '<div class="item-qty-stepper">' +
+          '<button type="button" class="item-qty-btn" data-id="' + itemId + '" data-dir="-1">\u2212</button>' +
+          '<span class="item-qty-value">' + line.quantity + '</span>' +
+          '<button type="button" class="item-qty-btn" data-id="' + itemId + '" data-dir="1">+</button>' +
+        '</div>';
+      badgeEl.querySelectorAll('.item-qty-btn').forEach(function(btn){
+        btn.addEventListener('click', function(e){
+          e.stopPropagation(); // don't also trigger the row's own tap-to-add handler
+          if (btn.getAttribute('data-dir') === '1') addOne(itemId); else removeOne(itemId);
+        });
+      });
     }
 
     function findLine(itemId){ return cart.find(function(c){ return c.menu_item_id === itemId; }); }
