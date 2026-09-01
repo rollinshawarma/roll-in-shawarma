@@ -53,10 +53,10 @@
 
   .item-row{
     display:flex; align-items:center; justify-content:space-between; gap:14px;
-    padding:16px 20px; border-top:1px solid var(--line); background:var(--black); cursor:pointer;
+    padding:16px 20px; border-top:1px solid var(--line); background:var(--black);
   }
-  .item-row:active{ background:var(--panel); }
-  .item-info{ flex:1; min-width:0; }
+  .item-info{ flex:1; min-width:0; cursor:pointer; }
+  .item-info:active{ opacity:0.7; }
   .item-name{ font-size:16px; font-weight:700; color:var(--cream); }
   .item-desc{ font-size:11.5px; color:var(--muted); margin-top:2px; }
   .item-price{ font-size:13.5px; font-weight:700; color:var(--gold); margin-top:4px; }
@@ -65,6 +65,10 @@
     background:var(--gold); color:#241902; font-size:15px; font-weight:800;
     min-width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center;
   }
+  .item-qty-stepper{ display:flex; align-items:center; gap:11px; }
+  .item-qty-btn{ width:32px; height:32px; border-radius:50%; background:var(--panel); border:1px solid var(--line); color:var(--cream); font-size:18px; display:flex; align-items:center; justify-content:center; }
+  .item-qty-btn:active{ background:var(--gold); color:#241902; }
+  .item-qty-value{ min-width:18px; text-align:center; font-size:16px; font-weight:800; color:var(--white); }
 
   /* ---------- CART VIEW ---------- */
   #cartViewScreen{ position:fixed; inset:0; background:var(--black); z-index:80; overflow-y:auto; }
@@ -97,7 +101,12 @@
   }
   #cartBar.hidden{ display:none !important; }
   #cartBarInfo{ font-size:14.5px; font-weight:800; flex:1; }
-  #cartBarClearBtn{ background:none; color:#241902; opacity:0.7; font-size:13px; font-weight:700; text-decoration:underline; }
+  #cartBarClearBtn{
+    background:rgba(36,25,2,0.12); border:none; width:38px; height:38px; border-radius:50%;
+    display:flex; align-items:center; justify-content:center; flex:none;
+  }
+  #cartBarClearBtn svg{ width:18px; height:18px; color:#241902; }
+  #cartBarClearBtn:active{ background:rgba(36,25,2,0.22); }
   #cartBarBtn{ background:#241902; color:var(--gold); font-size:14.5px; font-weight:800; padding:12px 22px; border-radius:100px; }
 
   /* ---------- checkout screen ---------- */
@@ -151,7 +160,9 @@
 
 <div id="cartBar" class="hidden">
   <div id="cartBarInfo">0 items &middot; $0.00</div>
-  <button type="button" id="cartBarClearBtn">Clear</button>
+  <button type="button" id="cartBarClearBtn" aria-label="Clear cart">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path></svg>
+  </button>
   <button type="button" id="cartBarBtn">View Cart &rarr;</button>
 </div>
 
@@ -343,11 +354,14 @@
 
       contentEl.innerHTML = '<img class="category-photo" src="' + img + '" alt="' + escHtml(cat) + '">' + rowsHtml;
 
-      // Tapping anywhere on the row adds one -- quantity management
-      // (increase, decrease, remove) now lives in the Cart View
-      // screen instead of inline controls here.
-      contentEl.querySelectorAll('.item-row').forEach(function(row){
-        row.addEventListener('click', function(){ addOne(row.getAttribute('data-id')); });
+      // Tapping the text area (name/price) adds one. Deliberately NOT
+      // bound to the whole row -- that made the stepper buttons too
+      // easy to mis-tap, since a touch landing just outside "-" would
+      // also register as an add on the row underneath it.
+      contentEl.querySelectorAll('.item-info').forEach(function(info){
+        info.addEventListener('click', function(){
+          addOne(info.closest('.item-row').getAttribute('data-id'));
+        });
       });
 
       items.forEach(function(item){ updateQtyBadge(item.id); });
@@ -357,7 +371,24 @@
       var badgeEl = document.querySelector('.item-qty-badge[data-id="' + itemId + '"]');
       if (!badgeEl) return;
       var line = findLine(itemId);
-      badgeEl.innerHTML = line ? '<div class="qty-pill">' + line.quantity + '</div>' : '';
+
+      if (!line) {
+        badgeEl.innerHTML = '';
+        return;
+      }
+
+      badgeEl.innerHTML =
+        '<div class="item-qty-stepper">' +
+          '<button type="button" class="item-qty-btn" data-id="' + itemId + '" data-dir="-1">\u2212</button>' +
+          '<span class="item-qty-value">' + line.quantity + '</span>' +
+          '<button type="button" class="item-qty-btn" data-id="' + itemId + '" data-dir="1">+</button>' +
+        '</div>';
+      badgeEl.querySelectorAll('.item-qty-btn').forEach(function(btn){
+        btn.addEventListener('click', function(e){
+          e.stopPropagation();
+          if (btn.getAttribute('data-dir') === '1') addOne(itemId); else removeOne(itemId);
+        });
+      });
     }
 
     function findLine(itemId){ return cart.find(function(c){ return c.menu_item_id === itemId; }); }
