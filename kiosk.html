@@ -173,6 +173,8 @@
     width:30px; height:30px; border-radius:50%; background:#241902; color:var(--gold);
     font-size:19px; font-weight:800; display:flex; align-items:center; justify-content:center; flex:none;
   }
+  .combo-row.combo-row-disabled{ background:var(--panel); color:var(--muted); cursor:default; }
+  .combo-row.combo-row-disabled .combo-row-plus{ background:var(--line); color:var(--muted); }
   .combo-drink-expand{
     max-height:0; overflow:hidden; transition:max-height .25s ease; background:var(--panel);
   }
@@ -516,12 +518,14 @@
       // category either has combo-eligible items or it doesn't, so
       // any item's combo_upcharge tells us which, and the row itself
       // just adds fries + a drink, independent of which specific
-      // entree the customer already added above.
+      // entree the customer already added above. Disabled/grayed out
+      // until the cart actually has a qualifying entree in it.
       var comboUpcharge = items.length && items[0].combo_upcharge;
       var comboHtml = '';
       if (comboUpcharge) {
+        var comboEnabled = cartHasComboEligibleItem();
         comboHtml =
-          '<div class="combo-row" data-cat="' + escHtml(cat) + '">' +
+          '<div class="combo-row' + (comboEnabled ? '' : ' combo-row-disabled') + '" data-cat="' + escHtml(cat) + '">' +
             '<span class="combo-row-label">Make it a Combo +$' + Number(comboUpcharge).toFixed(2) + '</span>' +
             '<span class="combo-row-plus">+</span>' +
           '</div>' +
@@ -529,7 +533,7 @@
             '<div class="combo-drink-inner">' +
               '<div class="combo-drink-title">Choose your drink</div>' +
               '<div class="combo-drink-grid">' +
-                ['Coke','Diet Coke','Sprite','Root Beer','Water'].map(function(drink){
+                ['Coke','Diet Coke','Coke Zero','Sprite','Root Beer','Water'].map(function(drink){
                   return '<button type="button" class="combo-drink-btn" data-drink="' + drink + '">' + drink + '</button>';
                 }).join('') +
               '</div>' +
@@ -544,6 +548,7 @@
       var comboRow = contentEl.querySelector('.combo-row');
       if (comboRow) {
         comboRow.addEventListener('click', function(){
+          if (comboRow.classList.contains('combo-row-disabled')) return;
           var expandEl = contentEl.querySelector('.combo-drink-expand');
           if (expandEl) expandEl.classList.toggle('expanded');
         });
@@ -584,6 +589,24 @@
 
     function findLine(itemId){ return cart.find(function(c){ return c.menu_item_id === itemId; }); }
 
+    // A combo only makes sense alongside a qualifying entree, so the
+    // combo row stays disabled until the cart actually has one --
+    // checked by whether any cart line's item has combo_upcharge set.
+    function cartHasComboEligibleItem(){
+      return cart.some(function(line){
+        var item = itemsById[line.menu_item_id];
+        return item && item.combo_upcharge;
+      });
+    }
+
+    // Only one category is ever expanded at a time in this accordion,
+    // so there's at most one combo row visible to update.
+    function refreshComboRowState(){
+      var comboRow = document.querySelector('.combo-row');
+      if (!comboRow) return;
+      comboRow.classList.toggle('combo-row-disabled', !cartHasComboEligibleItem());
+    }
+
     // Adds fries plus the chosen drink at their combo-split prices --
     // the entree itself is added separately, whenever the customer
     // taps + on whichever specific item they want from this category.
@@ -606,6 +629,7 @@
       }
       renderCartBar();
       renderItemControl(itemId);
+      refreshComboRowState();
       if (!cartViewScreen.classList.contains('hidden')) renderCartView();
     }
 
@@ -622,6 +646,7 @@
       }
       renderCartBar();
       renderItemControl(itemId);
+      refreshComboRowState();
       if (!cartViewScreen.classList.contains('hidden')) renderCartView();
     }
 
