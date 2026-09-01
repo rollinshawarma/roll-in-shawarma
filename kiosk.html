@@ -159,6 +159,7 @@
   }
   @keyframes spin{ to{ transform:rotate(360deg); } }
   #scanPayCashBtn{ background:none; color:var(--muted); font-size:19px; font-weight:700; text-decoration:underline; }
+  #scanCheckNowBtn{ background:var(--gold); color:#241902; font-size:17px; font-weight:800; padding:14px 28px; border-radius:100px; margin-bottom:18px; }
   #scanCancelBtn{ background:none; color:var(--muted); font-size:14px; margin-top:16px; }
   .scan-error-msg{ color:var(--red); font-size:13.5px; margin-top:14px; max-width:340px; }
 
@@ -309,6 +310,7 @@
   <canvas id="qrCodeCanvas"></canvas>
   <div class="scan-total">Total: <span id="scanTotalDisplay">$0.00</span></div>
   <div class="scan-waiting"><span class="spin"></span> Waiting for payment&hellip;</div>
+  <button type="button" id="scanCheckNowBtn">Already paid? Check now &rarr;</button>
   <button type="button" id="scanPayCashBtn">I'll pay cash at the window &rarr;</button>
   <div id="scanToPayMsg" class="scan-error-msg"></div>
   <button type="button" id="scanCancelBtn">&larr; Back to checkout</button>
@@ -594,10 +596,6 @@
 
     // One combo allowed per qualifying entree in the cart -- not just
     // "any entree unlocks unlimited combos." Counts entrees by summing
-    // quantities of cart lines whose item has combo_upcharge set, and
-    // counts combos already added via "Combo Fries" quantity, since
-    // every combo adds exactly one regardless of which drink was
-    // chosen. Enabled only while entrees outnumber combos so far.
     function canAddCombo(){
       var qualifyingCount = cart.reduce(function(sum, line){
         var item = itemsById[line.menu_item_id];
@@ -617,17 +615,68 @@
       comboRow.classList.toggle('combo-row-disabled', !canAddCombo());
     }
 
+    var COMBO_DRINK_NAMES = ['Coke','Diet Coke','Coke Zero','Sprite','Root Beer','Water'];
+
+    // Fries and a drink are married together, and a combo can't
+    // outlive the entree it came with. After any cart change, this
+    // trims fries/drinks back down so: fries qty == total drink qty
+    // == however many qualifying entrees are actually still in the
+    // cart, whichever of those three is smallest. Covers both "entree
+    // removed" and "one combo item individually removed" the same way.
+    function syncCombos(){
+      var qualifyingCount = cart.reduce(function(sum, line){
+        var item = itemsById[line.menu_item_id];
+        return sum + (item && item.combo_upcharge ? line.quantity : 0);
+      }, 0);
+
+      var friesItem = comboAddonsByName['Combo Fries'];
+      if (!friesItem) return;
+      var friesLine = findLine(friesItem.id);
+      var friesQty = friesLine ? friesLine.quantity : 0;
+
+      var drinkLines = COMBO_DRINK_NAMES.map(function(name){
+        var di = comboAddonsByName['Combo ' + name];
+        return di ? findLine(di.id) : null;
+      }).filter(Boolean);
+      var totalDrinkQty = drinkLines.reduce(function(sum, l){ return sum + l.quantity; }, 0);
+
+      var validComboCount = Math.min(qualifyingCount, friesQty, totalDrinkQty);
+
+      if (friesLine && friesLine.quantity > validComboCount) {
+        friesLine.quantity = validComboCount;
+        if (friesLine.quantity <= 0) cart = cart.filter(function(c){ return c.menu_item_id !== friesItem.id; });
+      }
+
+      var excessDrinks = totalDrinkQty - validComboCount;
+      for (var i = drinkLines.length - 1; i >= 0 && excessDrinks > 0; i--) {
+        var dLine = drinkLines[i];
+        var reduceBy = Math.min(excessDrinks, dLine.quantity);
+        dLine.quantity -= reduceBy;
+        excessDrinks -= reduceBy;
+        if (dLine.quantity <= 0) {
+          var idToRemove = dLine.menu_item_id;
+          cart = cart.filter(function(c){ return c.menu_item_id !== idToRemove; });
+        }
+      }
+    }
+
     // Adds fries plus the chosen drink at their combo-split prices --
     // the entree itself is added separately, whenever the customer
     // taps + on whichever specific item they want from this category.
     function addComboAddon(drinkName){
       var friesItem = comboAddonsByName['Combo Fries'];
       var drinkItem = comboAddonsByName['Combo ' + drinkName];
-      if (friesItem) addOne(friesItem.id);
-      if (drinkItem) addOne(drinkItem.id);
+      if (friesItem) addOneRaw(friesItem.id);
+      if (drinkItem) addOneRaw(drinkItem.id);
+      syncCombos();
+      renderCartBar();
+      if (friesItem) renderItemControl(friesItem.id);
+      if (drinkItem) renderItemControl(drinkItem.id);
+      refreshComboRowState();
+      if (!cartViewScreen.classList.contains('hidden')) renderCartView();
     }
 
-    function addOne(itemId){
+    function addOneRaw(itemId){
       var item = itemsById[itemId];
       if (!item) return;
       var line = findLine(itemId);
@@ -637,6 +686,11 @@
         var label = item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : '');
         cart.push({ menu_item_id: itemId, name: label, unitPrice: Number(item.price), quantity: 1 });
       }
+    }
+
+    function addOne(itemId){
+      addOneRaw(itemId);
+      syncCombos();
       renderCartBar();
       renderItemControl(itemId);
       refreshComboRowState();
@@ -654,6 +708,7 @@
         line.quantity -= 1;
         if (line.quantity <= 0) cart = cart.filter(function(c){ return c.menu_item_id !== itemId; });
       }
+      syncCombos();
       renderCartBar();
       renderItemControl(itemId);
       refreshComboRowState();
@@ -909,6 +964,31 @@
       clearInterval(inactivityInterval);
       document.getElementById('inactivityTimer').classList.add('hidden');
       awaitingPhonePayment = true;
+
+      document.getElementById('scanCheckNowBtn').onclick = function(){
+        var checkBtn = this;
+        checkBtn.disabled = true;
+        checkBtn.textContent = 'Checking\u2026';
+        fetch(CONFIRMATION_URL + '?ref=' + encodeURIComponent(referenceCode), {
+          headers: { 'Authorization': 'Bearer ' + KIOSK_ANON_KEY }
+        }).then(function(res){ return res.json(); })
+          .then(function(order){
+            checkBtn.disabled = false;
+            checkBtn.textContent = 'Already paid? Check now \u2192';
+            if (order && order.status === 'paid') {
+              stopPolling();
+              showOrderConfirmed(referenceCode, order.items, false);
+            } else {
+              var msgEl = document.getElementById('scanToPayMsg');
+              msgEl.textContent = "Not showing as paid yet \u2014 still checking automatically.";
+            }
+          })
+          .catch(function(){
+            checkBtn.disabled = false;
+            checkBtn.textContent = 'Already paid? Check now \u2192';
+            document.getElementById('scanToPayMsg').textContent = "Couldn't reach the server \u2014 please try again.";
+          });
+      };
 
       document.getElementById('scanPayCashBtn').onclick = function(){
         var cashBtn = this;
