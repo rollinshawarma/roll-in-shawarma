@@ -82,10 +82,10 @@
 
   .item-row{
     display:flex; align-items:center; justify-content:space-between; gap:16px;
-    padding:18px 24px; border-top:1px solid var(--line); cursor:pointer;
+    padding:18px 24px; border-top:1px solid var(--line);
   }
-  .item-row:active{ background:var(--panel); }
-  .item-info{ flex:1; min-width:0; }
+  .item-info{ flex:1; min-width:0; cursor:pointer; }
+  .item-info:active{ opacity:0.7; }
   .item-name{ font-size:16px; font-weight:700; color:var(--cream); }
   .item-desc{ font-size:12.5px; color:var(--muted); margin-top:3px; }
   .item-price{ font-size:15px; font-weight:700; color:var(--gold); margin-top:5px; }
@@ -492,11 +492,14 @@
 
       contentEl.innerHTML = '<img class="category-photo" src="' + img + '" alt="' + escHtml(cat) + '">' + rowsHtml;
 
-      // Tapping anywhere on the row adds one -- quantity management
-      // (increase, decrease, remove) now lives in the Cart View
-      // screen instead of inline controls here.
-      contentEl.querySelectorAll('.item-row').forEach(function(row){
-        row.addEventListener('click', function(){ addOne(row.getAttribute('data-id')); });
+      // Tapping the text area (name/price) adds one. Deliberately NOT
+      // bound to the whole row -- that made the stepper buttons too
+      // easy to mis-tap, since a touch landing just outside "-" would
+      // also register as an add on the row underneath it.
+      contentEl.querySelectorAll('.item-info').forEach(function(info){
+        info.addEventListener('click', function(){
+          addOne(info.closest('.item-row').getAttribute('data-id'));
+        });
       });
 
       items.forEach(function(item){ updateQtyBadge(item.id); });
