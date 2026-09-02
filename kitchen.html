@@ -54,6 +54,7 @@
   #boardHeader h1{ font-size:17px; font-weight:800; color:var(--white); }
   #boardClock{ font-size:14px; color:var(--muted); font-weight:600; }
   #lockBtn{ font-size:13px; color:var(--muted); font-weight:700; padding:8px 14px; border:1px solid var(--line); border-radius:100px; }
+  #boardErrorBanner{ background:rgba(216,52,46,0.16); color:var(--red); font-size:13.5px; font-weight:700; padding:10px 24px; border-bottom:1px solid var(--red); flex:none; }
 
   #panels{ flex:1; min-height:0; display:flex; }
   #itemPanel{ flex:1.3; min-width:0; display:flex; flex-direction:column; border-right:1px solid var(--line); }
@@ -145,6 +146,7 @@
     <div id="boardClock">&mdash;</div>
     <button type="button" id="lockBtn">Lock Screen</button>
   </div>
+  <div id="boardErrorBanner" class="hidden"></div>
   <div id="panels">
     <div id="itemPanel">
       <div class="panel-head">Item Prep</div>
@@ -262,10 +264,34 @@
 
     function fetchAndRender(){
       sb.rpc('get_kds_board_state').then(function(res){
-        if (res.error || !res.data) return;
+        if (res.error) {
+          console.error('get_kds_board_state failed:', res.error);
+          showBoardError('Could not load the board \u2014 ' + (res.error.message || 'unknown error'));
+          return;
+        }
+        if (!res.data) {
+          console.error('get_kds_board_state returned no data');
+          showBoardError('Board data came back empty \u2014 check the console.');
+          return;
+        }
+        clearBoardError();
         renderItemPanel(res.data);
         renderQueuePanel(res.data);
+      }).catch(function(err){
+        console.error('get_kds_board_state threw:', err);
+        showBoardError("Couldn't reach the server \u2014 check your connection.");
       });
+    }
+
+    function showBoardError(msg){
+      var el = document.getElementById('boardErrorBanner');
+      if (!el) return;
+      el.textContent = msg;
+      el.classList.remove('hidden');
+    }
+    function clearBoardError(){
+      var el = document.getElementById('boardErrorBanner');
+      if (el) el.classList.add('hidden');
     }
 
     // ---- Left panel: aggregate by item_name + status ----
