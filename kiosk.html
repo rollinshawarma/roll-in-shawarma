@@ -1082,7 +1082,8 @@
           body: JSON.stringify({
             items: itemsPayload,
             customerName: name || 'Kiosk Guest',
-            customerEmail: email || undefined
+            customerEmail: email || undefined,
+            orderSource: 'kiosk'
           })
         }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
           .then(function(result){
