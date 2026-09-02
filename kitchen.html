@@ -314,6 +314,7 @@
     function renderItemPanel(rows){
       var byItem = {};
       rows.forEach(function(r){
+        if (r.is_drink) return; // drinks are order-panel-only -- see renderQueuePanel
         if (!byItem[r.item_name]) byItem[r.item_name] = { queued: 0, prepping: 0, ready: 0 };
         byItem[r.item_name][r.status] += 1;
       });
