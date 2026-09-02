@@ -41,6 +41,15 @@
     display:inline-block; background:var(--black); border:1px solid var(--line); border-radius:100px;
     padding:6px 16px; font-size:12.5px; font-weight:700; color:var(--gold); margin-bottom:26px;
   }
+  .status-stepper{ display:flex; align-items:center; justify-content:center; margin-bottom:28px; }
+  .status-step{ display:flex; flex-direction:column; align-items:center; gap:8px; }
+  .status-dot{ width:16px; height:16px; border-radius:50%; background:var(--line); border:2px solid var(--line); transition:all .3s ease; }
+  .status-step.active .status-dot{ background:var(--gold); border-color:var(--gold); }
+  .status-step.done .status-dot{ background:var(--green); border-color:var(--green); }
+  .status-label{ font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.04em; }
+  .status-step.active .status-label, .status-step.done .status-label{ color:var(--white); }
+  .status-line{ width:36px; height:2px; background:var(--line); margin:0 4px 20px; transition:background .3s ease; }
+  .status-line.done{ background:var(--green); }
   .order-items{ text-align:left; border-top:1px solid var(--line); border-bottom:1px solid var(--line); padding:18px 0; margin-bottom:18px; }
   .order-item-row{ display:flex; justify-content:space-between; gap:10px; font-size:13.5px; padding:6px 0; }
   .order-item-row .nm{ color:var(--white); }
@@ -80,6 +89,23 @@
     <h1 id="thankYouTitle">Thank you for your order!</h1>
     <div class="sub" id="thankYouSub">Please allow a few minutes to roll &mdash; it's worth the wait.</div>
     <div class="ref-badge" id="refBadge"></div>
+
+    <div id="statusStepper" class="status-stepper hidden">
+      <div class="status-step" data-stage="PROPOSED">
+        <div class="status-dot"></div>
+        <div class="status-label">Received</div>
+      </div>
+      <div class="status-line"></div>
+      <div class="status-step" data-stage="RESERVED">
+        <div class="status-dot"></div>
+        <div class="status-label">Preparing</div>
+      </div>
+      <div class="status-line"></div>
+      <div class="status-step" data-stage="PREPARED">
+        <div class="status-dot"></div>
+        <div class="status-label">Ready</div>
+      </div>
+    </div>
 
     <div id="itemsBlock" class="order-items hidden"></div>
     <div id="summaryBlock" class="order-summary-text hidden"></div>
@@ -135,6 +161,46 @@
       return { tax: taxCents / 100, fee: feeCents / 100 };
     }
 
+    // "Completed" isn't shown as a fourth stage -- the customer is
+    // the one picking the order up, so they already know when that's
+    // happened. This just tracks the meaningful waiting stages.
+    var STATUS_STAGES = ['PROPOSED', 'RESERVED', 'PREPARED'];
+
+    function updateStatusStepper(fulfillmentStatus){
+      if (!fulfillmentStatus || fulfillmentStatus === 'CANCELED' || fulfillmentStatus === 'FAILED') return;
+      document.getElementById('statusStepper').classList.remove('hidden');
+
+      var isCompleted = fulfillmentStatus === 'COMPLETED';
+      var currentIndex = STATUS_STAGES.indexOf(fulfillmentStatus);
+      if (currentIndex === -1) currentIndex = isCompleted ? STATUS_STAGES.length : 0;
+
+      document.querySelectorAll('.status-step').forEach(function(step, i){
+        step.classList.remove('active', 'done');
+        if (isCompleted || i < currentIndex) step.classList.add('done');
+        else if (i === currentIndex) step.classList.add('active');
+      });
+      document.querySelectorAll('.status-line').forEach(function(line, i){
+        line.classList.toggle('done', isCompleted || i < currentIndex);
+      });
+    }
+
+    var statusPollTimer = null;
+    function pollFulfillmentStatus(referenceCode){
+      clearTimeout(statusPollTimer);
+      statusPollTimer = setTimeout(function(){
+        fetch(EDGE_FUNCTION_URL + '?ref=' + encodeURIComponent(referenceCode), {
+          headers: { 'Authorization': 'Bearer ' + ANON_KEY }
+        }).then(function(res){ return res.json(); })
+          .then(function(order){
+            if (!order || !order.fulfillmentStatus) { pollFulfillmentStatus(referenceCode); return; }
+            updateStatusStepper(order.fulfillmentStatus);
+            var isDone = ['COMPLETED', 'CANCELED', 'FAILED'].indexOf(order.fulfillmentStatus) !== -1;
+            if (!isDone) pollFulfillmentStatus(referenceCode);
+          })
+          .catch(function(){ pollFulfillmentStatus(referenceCode); });
+      }, 8000);
+    }
+
     function attemptFetch(retriesLeft){
       fetch(EDGE_FUNCTION_URL + '?ref=' + encodeURIComponent(ref), {
         headers: { 'Authorization': 'Bearer ' + ANON_KEY }
@@ -180,6 +246,11 @@
           document.getElementById('thankYouSub').innerHTML = 'Please pay <b>$' + Number(order.total).toFixed(2) + '</b> at the counter. We\u2019ll call your name when it\u2019s ready.';
         } else if (order.firstName) {
           document.getElementById('thankYouTitle').textContent = 'Thank you, ' + order.firstName + '!';
+        }
+
+        if (order.fulfillmentStatus) {
+          updateStatusStepper(order.fulfillmentStatus);
+          pollFulfillmentStatus(order.referenceCode);
         }
 
         if (order.items && order.items.length) {
