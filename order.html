@@ -530,8 +530,12 @@
       return qualifyingCount > comboCount;
     }
 
+    // Multiple .combo-row elements can exist in the DOM at once --
+    // collapsing a category only hides it via CSS, it never clears
+    // that category's HTML.
     function refreshComboRowState(){
-      var comboRow = document.querySelector('.combo-row');
+      if (!expandedCategory) return;
+      var comboRow = document.querySelector('.combo-row[data-cat="' + cssEscape(expandedCategory) + '"]');
       if (!comboRow) return;
       comboRow.classList.toggle('combo-row-disabled', !canAddCombo());
     }
