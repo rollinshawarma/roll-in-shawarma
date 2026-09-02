@@ -56,10 +56,16 @@
   #startOverBtn{ background:none; color:var(--muted); font-size:15px; font-weight:600; padding:10px 18px; border:1px solid var(--line); border-radius:100px; }
 
   #inactivityTimer{
-    position:fixed; top:18px; right:24px; z-index:80;
-    background:var(--panel); border:1px solid var(--line); color:var(--muted);
-    font-size:13px; font-weight:700; padding:8px 16px; border-radius:100px;
+    position:fixed; bottom:110px; right:24px; z-index:80;
+    width:64px; height:64px; display:flex; align-items:center; justify-content:center;
   }
+  .inactivity-ring{ width:100%; height:100%; transform:rotate(-90deg); position:absolute; top:0; left:0; }
+  .inactivity-ring-bg{ fill:none; stroke:rgba(247,173,40,0.2); stroke-width:5; }
+  .inactivity-ring-progress{
+    fill:none; stroke:var(--gold); stroke-width:5; stroke-linecap:round;
+    stroke-dasharray:163.36; stroke-dashoffset:0; transition:stroke-dashoffset 1s linear;
+  }
+  .inactivity-ring-number{ position:relative; font-size:19px; font-weight:800; color:var(--white); }
 
   /* ---------- MENU: single-column collapse/expand, ported from order.html ---------- */
   .menu-wrap{ flex:1; overflow-y:auto; padding:16px 20px 130px; max-width:640px; margin:0 auto; width:100%; }
@@ -196,13 +202,18 @@
     width:30px; height:30px; border-radius:50%; background:var(--panel); border:1px solid var(--line); color:var(--gold);
     font-size:19px; font-weight:800; display:flex; align-items:center; justify-content:center; flex:none;
   }
+  .variant-row-badge{ flex:none; min-width:36px; display:flex; justify-content:flex-end; }
+  .qty-pill{
+    background:var(--gold); color:#241902; font-size:17px; font-weight:800;
+    min-width:34px; height:34px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  }
   .variant-expand{ max-height:0; overflow:hidden; transition:max-height .25s ease; background:var(--black); }
   .variant-expand.expanded{ max-height:600px; }
-  .variant-expand-inner{ padding:16px 24px 20px; }
-  .variant-expand-title{ font-size:13.5px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:12px; }
-  .variant-choice-grid{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-  .variant-choice-btn{ background:var(--panel); border:1px solid var(--line); color:var(--cream); font-size:16px; font-weight:700; padding:16px 10px; border-radius:12px; text-align:center; }
-  .variant-choice-btn:active{ background:var(--gold); color:#241902; }
+  .variant-expand-inner{ padding:8px 24px 12px; }
+  .variant-expand-title{ font-size:13.5px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; margin:12px 0; }
+  .variant-choice-row{ display:flex; align-items:center; justify-content:space-between; gap:16px; padding:12px 0; border-top:1px solid var(--line); }
+  .variant-choice-row:first-of-type{ border-top:none; }
+  .variant-choice-name{ font-size:15.5px; font-weight:700; color:var(--cream); }
 
   #orderConfirmedScreen{
     position:fixed; inset:0; background:radial-gradient(circle at 50% 25%, rgba(11,175,76,0.16), var(--black) 65%);
@@ -259,7 +270,13 @@
 </head>
 <body>
 
-<div id="inactivityTimer" class="hidden"></div>
+<div id="inactivityTimer" class="hidden">
+  <svg viewBox="0 0 60 60" class="inactivity-ring">
+    <circle class="inactivity-ring-bg" cx="30" cy="30" r="26"></circle>
+    <circle class="inactivity-ring-progress" id="inactivityRingProgress" cx="30" cy="30" r="26"></circle>
+  </svg>
+  <span class="inactivity-ring-number" id="inactivityRingNumber">15</span>
+</div>
 
 <div id="idleScreen">
   <img class="logo" src="logo.jpg" alt="Roll-In Shawarma">
@@ -418,7 +435,12 @@
       var shouldShow = idleScreen.classList.contains('hidden') && secondsRemaining <= VISIBLE_WARNING_SECONDS;
       if (shouldShow) {
         el.classList.remove('hidden');
-        el.textContent = 'Resetting in ' + secondsRemaining + 's';
+        document.getElementById('inactivityRingNumber').textContent = secondsRemaining;
+        // 163.36 = 2*pi*26, the ring's full circumference -- depletes
+        // from full to empty across the 15-second warning window,
+        // not the full 60-second inactivity period.
+        var fraction = secondsRemaining / VISIBLE_WARNING_SECONDS;
+        document.getElementById('inactivityRingProgress').style.strokeDashoffset = String(163.36 * (1 - fraction));
       } else {
         el.classList.add('hidden');
       }
@@ -560,16 +582,17 @@
               '<div class="item-name">' + escHtml(group.name) + '</div>' +
               '<div class="item-price">$' + Number(firstItem.price).toFixed(2) + '</div>' +
             '</div>' +
-            '<span class="variant-row-plus">+</span>' +
+            '<div class="variant-row-badge" data-variant-group="' + groupKey + '"></div>' +
           '</div>' +
           '<div class="variant-expand" data-variant-group="' + groupKey + '">' +
             '<div class="variant-expand-inner">' +
               '<div class="variant-expand-title">Choose your protein</div>' +
-              '<div class="variant-choice-grid">' +
-                group.items.map(function(item){
-                  return '<button type="button" class="variant-choice-btn" data-id="' + item.id + '">' + escHtml(item.variant_name || item.name) + '</button>';
-                }).join('') +
-              '</div>' +
+              group.items.map(function(item){
+                return '<div class="variant-choice-row">' +
+                  '<span class="variant-choice-name">' + escHtml(item.variant_name || item.name) + '</span>' +
+                  '<div class="variant-choice-control" data-id="' + item.id + '"></div>' +
+                '</div>';
+              }).join('') +
             '</div>' +
           '</div>';
       }).join('');
@@ -604,7 +627,12 @@
       contentEl.innerHTML = '<img class="category-photo" src="' + img + '" alt="' + escHtml(cat) + '">' + rowsHtml + comboHtml;
 
       groups.forEach(function(group){
-        if (group.items.length === 1) renderItemControl(group.items[0].id);
+        if (group.items.length === 1) {
+          renderItemControl(group.items[0].id);
+        } else {
+          renderVariantGroupBadge(group);
+          group.items.forEach(function(item){ renderVariantChoiceControl(item.id); });
+        }
       });
 
       contentEl.querySelectorAll('.variant-row').forEach(function(row){
@@ -612,13 +640,6 @@
           var key = row.getAttribute('data-variant-group');
           var expandEl = contentEl.querySelector('.variant-expand[data-variant-group="' + key + '"]');
           if (expandEl) expandEl.classList.toggle('expanded');
-        });
-      });
-      contentEl.querySelectorAll('.variant-choice-btn').forEach(function(btn){
-        btn.addEventListener('click', function(){
-          addOne(btn.getAttribute('data-id'));
-          var expandEl = btn.closest('.variant-expand');
-          if (expandEl) expandEl.classList.remove('expanded');
         });
       });
 
@@ -661,6 +682,60 @@
             if (btn.getAttribute('data-dir') === '1') addOne(itemId); else removeOne(itemId);
           });
         });
+      }
+    }
+
+    // Total quantity across every variant in the group, shown on the
+    // collapsed row so it's visible without needing to expand.
+    function renderVariantGroupBadge(group){
+      var badgeEl = document.querySelector('.variant-row-badge[data-variant-group="' + cssEscape(group.name) + '"]');
+      if (!badgeEl) return;
+      var total = group.items.reduce(function(sum, item){
+        var line = findLine(item.id);
+        return sum + (line ? line.quantity : 0);
+      }, 0);
+      badgeEl.innerHTML = total > 0 ? '<div class="qty-pill">' + total + '</div>' : '<span class="variant-row-plus">+</span>';
+    }
+
+    // Same tap-to-add / stepper-once-added pattern as renderItemControl,
+    // just scoped to one specific variant choice within the expansion.
+    function renderVariantChoiceControl(itemId){
+      var controlEl = document.querySelector('.variant-choice-control[data-id="' + itemId + '"]');
+      if (!controlEl) return;
+      var line = findLine(itemId);
+
+      if (!line) {
+        controlEl.innerHTML = '<button type="button" class="quick-add-btn" data-id="' + itemId + '">+</button>';
+        controlEl.querySelector('.quick-add-btn').addEventListener('click', function(){ addOne(itemId); });
+      } else {
+        controlEl.innerHTML =
+          '<div class="item-qty-stepper">' +
+            '<button type="button" class="item-qty-btn" data-id="' + itemId + '" data-dir="-1">\u2212</button>' +
+            '<span class="item-qty-value">' + line.quantity + '</span>' +
+            '<button type="button" class="item-qty-btn" data-id="' + itemId + '" data-dir="1">+</button>' +
+          '</div>';
+        controlEl.querySelectorAll('.item-qty-btn').forEach(function(btn){
+          btn.addEventListener('click', function(){
+            if (btn.getAttribute('data-dir') === '1') addOne(itemId); else removeOne(itemId);
+          });
+        });
+      }
+    }
+
+    // Refreshes whichever display actually applies to this item --
+    // a plain single item, or one specific choice within a variant
+    // group (in which case the group's total badge also needs
+    // recomputing). Each individual render call harmlessly does
+    // nothing if that particular DOM element isn't present.
+    function refreshItemDisplay(itemId){
+      renderItemControl(itemId);
+      renderVariantChoiceControl(itemId);
+      var item = itemsById[itemId];
+      if (item && item.variant_name) {
+        var groupItems = Object.keys(itemsById)
+          .map(function(id){ return itemsById[id]; })
+          .filter(function(i){ return i.name === item.name && i.variant_name; });
+        renderVariantGroupBadge({ name: item.name, items: groupItems });
       }
     }
 
@@ -764,7 +839,7 @@
       addOneRaw(itemId);
       syncCombos();
       renderCartBar();
-      renderItemControl(itemId);
+      refreshItemDisplay(itemId);
       refreshComboRowState();
       if (!cartViewScreen.classList.contains('hidden')) renderCartView();
     }
@@ -782,7 +857,7 @@
       }
       syncCombos();
       renderCartBar();
-      renderItemControl(itemId);
+      refreshItemDisplay(itemId);
       refreshComboRowState();
       if (!cartViewScreen.classList.contains('hidden')) renderCartView();
     }
