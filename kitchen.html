@@ -232,7 +232,14 @@
 
     var alreadyUnlocked = false;
     try { alreadyUnlocked = sessionStorage.getItem('kdsUnlocked') === '1'; } catch(e){}
-    if (alreadyUnlocked) unlockBoard();
+    if (alreadyUnlocked) {
+      // setTimeout defers this to after the whole script has finished
+      // running, so window.startKdsBoard (defined further down) is
+      // guaranteed to exist by the time this actually calls it --
+      // unlike calling it here directly, which depends on script
+      // order and silently breaks if anything ever gets reordered.
+      setTimeout(unlockBoard, 0);
+    }
   })();
 
   // ---------------- Clock ----------------
