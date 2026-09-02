@@ -772,7 +772,7 @@
 
       var url = paymentMethod === 'cash' ? CASH_ORDER_URL : CARD_CHECKOUT_URL;
       var body = paymentMethod === 'cash'
-        ? { items: itemsPayload, customerName: name || 'QR Order', customerEmail: email || undefined, customerPhone: phone || undefined, notes: notes || undefined }
+        ? { items: itemsPayload, customerName: name || 'QR Order', customerEmail: email || undefined, customerPhone: phone || undefined, notes: notes || undefined, orderSource: 'qr' }
         : { items: itemsPayload, customerName: name || 'QR Order', customerEmail: email || undefined, customerPhone: phone || undefined, notes: notes || undefined, orderSource: 'qr' };
 
       fetch(url, {
