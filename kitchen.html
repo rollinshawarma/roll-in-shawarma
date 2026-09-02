@@ -65,36 +65,32 @@
     color:var(--muted); border-bottom:1px solid var(--line); flex:none;
   }
 
-  /* ---------- ITEM PANEL: 3 columns ---------- */
-  #itemColumns{ flex:1; min-height:0; display:flex; }
-  .item-col{ flex:1; min-width:0; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:10px; }
-  .item-col-label{
-    font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; text-align:center;
-    padding-bottom:8px; flex:none;
+  /* ---------- ITEM PANEL: dedicated row per item ---------- */
+  #itemRows{ flex:1; min-height:0; overflow-y:auto; }
+  .item-row{
+    display:flex; align-items:center; gap:14px; padding:12px 18px; border-bottom:1px solid var(--line);
   }
-  #colQueued .item-col-label{ color:var(--muted); }
-  #colPrepping .item-col-label{ color:var(--gold); }
-  #colReady .item-col-label{ color:var(--green); }
-
-  .item-box{
-    border-radius:14px; padding:16px 14px; text-align:center; flex:none;
+  .item-row-header{ flex:none; padding-top:10px; padding-bottom:10px; background:var(--black); }
+  .item-row-name{ flex:1.1; min-width:0; font-size:14.5px; font-weight:700; color:var(--white); }
+  .item-row-cells{ flex:2; min-width:0; display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; }
+  .cell-label{
+    font-size:10px; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; text-align:center; color:var(--muted);
   }
-  .item-box .cnt{ font-size:26px; font-weight:800; line-height:1.1; }
-  .item-box .nm{ font-size:13px; font-weight:700; margin-top:4px; }
+  .cell{
+    border-radius:12px; padding:10px 6px; text-align:center; font-size:16px; font-weight:800;
+  }
+  .cell-gray{ background:var(--panel); border:1px solid var(--line); color:var(--white); }
+  .cell-gray.has-count:active{ background:#1c1a18; }
+  .cell-gray.zero{ color:var(--muted); opacity:0.5; }
 
-  .box-gray{ background:var(--panel); border:1px solid var(--line); }
-  .box-gray .cnt{ color:var(--white); }
-  .box-gray .nm{ color:var(--muted); }
-  .box-gray:active{ background:#1c1a18; }
+  .cell-orange{ background:rgba(247,173,40,0.14); border:1px solid var(--gold); color:var(--gold); }
+  .cell-orange.has-count:active{ background:rgba(247,173,40,0.24); }
+  .cell-orange.zero{ opacity:0.35; }
 
-  .box-orange{ background:rgba(247,173,40,0.14); border:1px solid var(--gold); }
-  .box-orange .cnt, .box-orange .nm{ color:var(--gold); }
-  .box-orange:active{ background:rgba(247,173,40,0.24); }
+  .cell-green{ background:rgba(11,175,76,0.14); border:1px solid var(--green); color:var(--green); }
+  .cell-green.zero{ opacity:0.35; }
 
-  .box-green{ background:rgba(11,175,76,0.14); border:1px solid var(--green); }
-  .box-green .cnt, .box-green .nm{ color:var(--green); }
-
-  .col-empty-hint{ text-align:center; color:var(--muted); font-size:12.5px; padding:20px 8px; }
+  .rows-empty-hint{ text-align:center; color:var(--muted); font-size:13px; padding:40px 20px; }
 
   /* ---------- QUEUE PANEL ---------- */
   #queueList{ flex:1; min-height:0; overflow-y:auto; padding:12px; display:flex; flex-direction:column; gap:10px; }
@@ -150,11 +146,15 @@
   <div id="panels">
     <div id="itemPanel">
       <div class="panel-head">Item Prep</div>
-      <div id="itemColumns">
-        <div id="colQueued" class="item-col"><div class="item-col-label">To Prep</div></div>
-        <div id="colPrepping" class="item-col"><div class="item-col-label">Prepping</div></div>
-        <div id="colReady" class="item-col"><div class="item-col-label">Ready</div></div>
+      <div id="itemRowsHeader" class="item-row item-row-header">
+        <div class="item-row-name"></div>
+        <div class="item-row-cells">
+          <div class="cell-label">To Prep</div>
+          <div class="cell-label">Prepping</div>
+          <div class="cell-label">Ready</div>
+        </div>
       </div>
+      <div id="itemRows"></div>
     </div>
     <div id="queuePanel">
       <div class="panel-head">Order Queue &mdash; First In, First Out</div>
@@ -256,6 +256,7 @@
   // ---------------- Board data + rendering ----------------
   (function(){
     var realtimeChannel = null;
+    var pollTimer = null;
 
     window.startKdsBoard = function(){
       fetchAndRender();
@@ -263,10 +264,16 @@
         .on('postgres_changes', { event: '*', schema: 'public', table: 'prep_units' }, fetchAndRender)
         .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders' }, fetchAndRender)
         .subscribe();
+      // Realtime is the primary path, but a 20s poll runs alongside
+      // it as a safety net -- realtime subscriptions can occasionally
+      // drop or miss an event silently, and this board should never
+      // depend on someone noticing that and manually refreshing.
+      pollTimer = setInterval(fetchAndRender, 20000);
     };
 
     window.stopKdsBoard = function(){
       if (realtimeChannel) { sb.removeChannel(realtimeChannel); realtimeChannel = null; }
+      if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
     };
 
     function fetchAndRender(){
@@ -301,7 +308,9 @@
       if (el) el.classList.add('hidden');
     }
 
-    // ---- Left panel: aggregate by item_name + status ----
+    // ---- Left panel: one dedicated row per item, all three stages
+    // shown together so a row's position never changes as its item
+    // moves through gray -> orange -> green.
     function renderItemPanel(rows){
       var byItem = {};
       rows.forEach(function(r){
@@ -310,40 +319,44 @@
       });
 
       var itemNames = Object.keys(byItem).sort();
+      var container = document.getElementById('itemRows');
 
-      renderColumn('colQueued', itemNames, byItem, 'queued', 'box-gray', function(name){
-        return function(){ sb.rpc('kds_start_prep', { p_item_name: name }).then(fetchAndRender); };
+      if (!itemNames.length) {
+        container.innerHTML = '<div class="rows-empty-hint">Nothing to prep right now.</div>';
+        return;
+      }
+
+      container.innerHTML = itemNames.map(function(name){
+        var counts = byItem[name];
+        return '<div class="item-row" data-item="' + escHtml(name) + '">' +
+          '<div class="item-row-name">' + escHtml(name) + '</div>' +
+          '<div class="item-row-cells">' +
+            cellHtml(counts.queued, 'cell-gray', 'gray') +
+            cellHtml(counts.prepping, 'cell-orange', 'orange') +
+            cellHtml(counts.ready, 'cell-green', 'green') +
+          '</div>' +
+        '</div>';
+      }).join('');
+
+      container.querySelectorAll('.cell-gray.has-count').forEach(function(el){
+        el.addEventListener('click', function(){
+          var name = el.closest('.item-row').getAttribute('data-item');
+          sb.rpc('kds_start_prep', { p_item_name: name }).then(fetchAndRender);
+        });
       });
-      renderColumn('colPrepping', itemNames, byItem, 'prepping', 'box-orange', function(name){
-        return function(){ sb.rpc('kds_mark_batch_ready', { p_item_name: name }).then(fetchAndRender); };
+      container.querySelectorAll('.cell-orange.has-count').forEach(function(el){
+        el.addEventListener('click', function(){
+          var name = el.closest('.item-row').getAttribute('data-item');
+          sb.rpc('kds_mark_batch_ready', { p_item_name: name }).then(fetchAndRender);
+        });
       });
-      renderColumn('colReady', itemNames, byItem, 'ready', 'box-green', null);
     }
 
-    function renderColumn(colId, itemNames, byItem, statusKey, boxClass, makeHandler){
-      var col = document.getElementById(colId);
-      var label = col.querySelector('.item-col-label');
-      col.innerHTML = '';
-      col.appendChild(label);
-
-      var any = false;
-      itemNames.forEach(function(name){
-        var count = byItem[name][statusKey];
-        if (count <= 0) return;
-        any = true;
-        var box = document.createElement('div');
-        box.className = 'item-box ' + boxClass;
-        box.innerHTML = '<div class="cnt">x' + count + '</div><div class="nm">' + escHtml(name) + '</div>';
-        if (makeHandler) box.addEventListener('click', makeHandler(name));
-        col.appendChild(box);
-      });
-
-      if (!any) {
-        var hint = document.createElement('div');
-        hint.className = 'col-empty-hint';
-        hint.textContent = 'Nothing here right now';
-        col.appendChild(hint);
-      }
+    function cellHtml(count, cellClass, kind){
+      var tappable = kind !== 'green' && count > 0;
+      return '<div class="cell ' + cellClass + (count > 0 ? ' has-count' : ' zero') + '">' +
+        'x' + count +
+      '</div>';
     }
 
     // ---- Right panel: group by order, FIFO (already ordered by the RPC) ----
