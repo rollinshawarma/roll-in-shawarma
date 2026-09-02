@@ -754,10 +754,15 @@
       return qualifyingCount > comboCount;
     }
 
-    // Only one category is ever expanded at a time in this accordion,
-    // so there's at most one combo row visible to update.
+    // Multiple .combo-row elements can exist in the DOM at once --
+    // collapsing a category only hides it via CSS, it never clears
+    // that category's HTML. An unscoped querySelector('.combo-row')
+    // would always grab the first one in document order regardless of
+    // which category is actually open, which is exactly why this
+    // previously worked within a category but not across categories.
     function refreshComboRowState(){
-      var comboRow = document.querySelector('.combo-row');
+      if (!expandedCategory) return;
+      var comboRow = document.querySelector('.combo-row[data-cat="' + cssEscape(expandedCategory) + '"]');
       if (!comboRow) return;
       comboRow.classList.toggle('combo-row-disabled', !canAddCombo());
     }
