@@ -32,18 +32,18 @@
   #pinScreen{
     height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:28px;
   }
-  #pinScreen h1{ font-size:22px; font-weight:800; color:var(--white); }
+  #pinScreen h1{ font-size:24px; font-weight:800; color:var(--white); }
   #pinDots{ display:flex; gap:16px; }
   .pin-dot{ width:18px; height:18px; border-radius:50%; border:2px solid var(--line); }
   .pin-dot.filled{ background:var(--gold); border-color:var(--gold); }
-  #pinError{ font-size:14px; color:var(--red); font-weight:700; min-height:20px; }
+  #pinError{ font-size:15px; color:var(--red); font-weight:700; min-height:20px; }
   .pin-pad{ display:grid; grid-template-columns:repeat(3, 84px); gap:16px; }
   .pin-key{
     width:84px; height:84px; border-radius:50%; background:var(--panel); border:1px solid var(--line);
-    color:var(--white); font-size:28px; font-weight:700; display:flex; align-items:center; justify-content:center;
+    color:var(--white); font-size:30px; font-weight:700; display:flex; align-items:center; justify-content:center;
   }
   .pin-key:active{ background:var(--gold); color:#241902; }
-  .pin-key.wide{ background:none; border:none; color:var(--muted); font-size:15px; font-weight:700; }
+  .pin-key.wide{ background:none; border:none; color:var(--muted); font-size:16px; font-weight:700; }
 
   /* ---------- BOARD LAYOUT ---------- */
   #board{ height:100%; display:flex; flex-direction:column; }
@@ -51,17 +51,19 @@
     display:flex; align-items:center; justify-content:space-between; padding:16px 24px;
     border-bottom:1px solid var(--line); flex:none;
   }
-  #boardHeader h1{ font-size:17px; font-weight:800; color:var(--white); }
-  #boardClock{ font-size:14px; color:var(--muted); font-weight:600; }
-  #lockBtn{ font-size:13px; color:var(--muted); font-weight:700; padding:8px 14px; border:1px solid var(--line); border-radius:100px; }
-  #boardErrorBanner{ background:rgba(216,52,46,0.16); color:var(--red); font-size:13.5px; font-weight:700; padding:10px 24px; border-bottom:1px solid var(--red); flex:none; }
+  #boardHeader h1{ font-size:19px; font-weight:800; color:var(--white); }
+  #boardClock{ font-size:15px; color:var(--muted); font-weight:600; }
+  .board-last-updated{ font-size:12px; color:var(--muted); opacity:0.7; margin-right:14px; }
+  .board-last-updated.stale{ color:var(--red); opacity:1; font-weight:700; }
+  #lockBtn{ font-size:14px; color:var(--muted); font-weight:700; padding:8px 14px; border:1px solid var(--line); border-radius:100px; }
+  #boardErrorBanner{ background:rgba(216,52,46,0.16); color:var(--red); font-size:14.5px; font-weight:700; padding:10px 24px; border-bottom:1px solid var(--red); flex:none; }
 
   #panels{ flex:1; min-height:0; display:flex; }
   #itemPanel{ flex:1.3; min-width:0; display:flex; flex-direction:column; border-right:1px solid var(--line); }
   #queuePanel{ flex:1; min-width:0; display:flex; flex-direction:column; }
 
   .panel-head{
-    padding:14px 20px; font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:0.06em;
+    padding:14px 20px; font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:0.06em;
     color:var(--muted); border-bottom:1px solid var(--line); flex:none;
   }
 
@@ -69,7 +71,7 @@
   #itemColumns{ flex:1; min-height:0; display:flex; }
   .item-col{ flex:1; min-width:0; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:10px; }
   .item-col-label{
-    font-size:11px; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; text-align:center;
+    font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; text-align:center;
     padding-bottom:8px; flex:none;
   }
   #colQueued .item-col-label{ color:var(--muted); }
@@ -78,10 +80,16 @@
 
   .item-box{
     display:flex; align-items:center; justify-content:space-between; gap:10px;
-    border-radius:14px; padding:14px 16px; flex:none;
+    border-radius:14px; flex:none;
   }
-  .item-box .nm{ font-size:14.5px; font-weight:700; }
-  .item-box .cnt{ font-size:17px; font-weight:800; }
+  .item-box .nm{ font-size:16.5px; font-weight:700; }
+  .item-box .cnt{ font-size:19px; font-weight:800; }
+
+  /* Gray and orange get a bigger tap target since they're the ones
+     actually tapped repeatedly during a rush -- green is display-only
+     and stays more compact. */
+  .box-gray, .box-orange{ padding:18px 18px; min-height:34px; }
+  .box-green{ padding:14px 16px; }
 
   .box-gray{ background:var(--panel); border:1px solid var(--line); }
   .box-gray .nm, .box-gray .cnt{ color:var(--white); }
@@ -94,26 +102,33 @@
   .box-green{ background:rgba(11,175,76,0.14); border:1px solid var(--green); }
   .box-green .nm, .box-green .cnt{ color:var(--green); }
 
-  .col-empty-hint{ text-align:center; color:var(--muted); font-size:12.5px; padding:20px 8px; }
+  @keyframes kdsFlash{
+    0%{ box-shadow:0 0 0 0 rgba(247,173,40,0); transform:scale(1); }
+    30%{ box-shadow:0 0 0 6px rgba(247,173,40,0.35); transform:scale(1.035); }
+    100%{ box-shadow:0 0 0 0 rgba(247,173,40,0); transform:scale(1); }
+  }
+  .item-box.flash{ animation:kdsFlash 0.7s ease-out; }
+
+  .col-empty-hint{ text-align:center; color:var(--muted); font-size:13.5px; padding:20px 8px; }
 
   /* ---------- QUEUE PANEL ---------- */
   #queueList{ flex:1; min-height:0; overflow-y:auto; padding:12px; display:flex; flex-direction:column; gap:10px; }
   .order-card{ background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px 16px; }
   .order-card.order-complete{ border-color:var(--green); background:rgba(11,175,76,0.1); }
   .order-card-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
-  .order-ref{ font-size:15px; font-weight:800; color:var(--white); }
-  .order-name{ font-size:12.5px; color:var(--muted); font-weight:600; }
+  .order-ref{ font-size:17px; font-weight:800; color:var(--white); }
+  .order-name{ font-size:13.5px; color:var(--muted); font-weight:600; }
   .order-pills{ display:flex; flex-wrap:wrap; gap:6px; }
   .item-pill{
-    font-size:11.5px; font-weight:700; padding:5px 10px; border-radius:100px;
+    font-size:12.5px; font-weight:700; padding:6px 11px; border-radius:100px;
     background:rgba(216,52,46,0.16); color:var(--red); border:1px solid rgba(216,52,46,0.4);
   }
   .item-pill.pill-ready{ background:rgba(11,175,76,0.16); color:var(--green); border-color:rgba(11,175,76,0.4); }
   .complete-btn{
     margin-top:12px; width:100%; background:var(--green); color:#04220F; font-weight:800;
-    font-size:13.5px; padding:11px; border-radius:10px;
+    font-size:14.5px; padding:12px; border-radius:10px;
   }
-  .queue-empty-hint{ text-align:center; color:var(--muted); font-size:13px; padding:40px 20px; }
+  .queue-empty-hint{ text-align:center; color:var(--muted); font-size:14px; padding:40px 20px; }
 </style>
 </head>
 <body>
@@ -143,6 +158,7 @@
 <div id="board" class="hidden">
   <div id="boardHeader">
     <h1>Kitchen Board</h1>
+    <div id="boardLastUpdated" class="board-last-updated">&mdash;</div>
     <div id="boardClock">&mdash;</div>
     <button type="button" id="lockBtn">Lock Screen</button>
   </div>
@@ -176,6 +192,78 @@
     });
   }
 
+  // ---------------- Sound system ----------------
+  // Distinct per-source tones so staff can tell where a new order
+  // came from without looking up. Generated with the Web Audio API
+  // rather than linked audio files, keeping this one self-contained
+  // HTML file with nothing extra to host or upload.
+  (function(){
+    var audioCtx = null;
+
+    window.initKdsAudio = function(){
+      if (audioCtx) return;
+      try {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      } catch(e) { /* Web Audio unsupported -- sounds just won't play, nothing else depends on this */ }
+    };
+
+    function beep(freq, startTime, duration, type){
+      if (!audioCtx) return;
+      var osc = audioCtx.createOscillator();
+      var gain = audioCtx.createGain();
+      osc.type = type || 'sine';
+      osc.frequency.value = freq;
+      gain.gain.setValueAtTime(0.0001, startTime);
+      gain.gain.exponentialRampToValueAtTime(0.28, startTime + 0.02);
+      gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
+      osc.connect(gain);
+      gain.connect(audioCtx.destination);
+      osc.start(startTime);
+      osc.stop(startTime + duration + 0.02);
+    }
+
+    var SOUNDS = {
+      // Kiosk: a single, clear beep -- the most common source, kept simple.
+      kiosk: function(){
+        var t = audioCtx.currentTime;
+        beep(660, t, 0.16, 'sine');
+      },
+      // QR: two quick beeps at a higher pitch.
+      qr: function(){
+        var t = audioCtx.currentTime;
+        beep(784, t, 0.1, 'sine');
+        beep(784, t + 0.14, 0.1, 'sine');
+      },
+      // Website/online: a rising two-tone chime.
+      website: function(){
+        var t = audioCtx.currentTime;
+        beep(523, t, 0.13, 'sine');
+        beep(659, t + 0.13, 0.16, 'sine');
+      },
+      // DoorDash: deliberately different timbre (square wave) and a
+      // 3-tone pattern, since it's external and worth extra attention.
+      doordash: function(){
+        var t = audioCtx.currentTime;
+        beep(440, t, 0.1, 'square');
+        beep(440, t + 0.13, 0.1, 'square');
+        beep(349, t + 0.26, 0.16, 'square');
+      },
+      // Walk-up POS orders: a low, single tone -- distinct from kiosk
+      // but doesn't need the urgency of the external-order pattern.
+      pos: function(){
+        var t = audioCtx.currentTime;
+        beep(330, t, 0.18, 'triangle');
+      }
+    };
+    SOUNDS.qr_scan = SOUNDS.qr; // in case order_source is ever stored with an underscore variant
+
+    window.playOrderSound = function(source){
+      if (!audioCtx) return;
+      var fn = SOUNDS[source] || SOUNDS.website;
+      try { fn(); } catch(e) { console.error('playOrderSound failed:', e); }
+    };
+  })();
+
   // ---------------- PIN gate ----------------
   (function(){
     var pinScreen = document.getElementById('pinScreen');
@@ -204,6 +292,7 @@
 
     document.querySelectorAll('.pin-key[data-digit]').forEach(function(btn){
       btn.addEventListener('click', function(){
+        window.initKdsAudio();
         if (entered.length >= 4) return;
         entered += btn.getAttribute('data-digit');
         renderDots();
@@ -257,6 +346,11 @@
   (function(){
     var realtimeChannel = null;
     var pollTimer = null;
+    var previousCounts = {};       // item_name -> {queued, prepping, ready}, for flash detection
+    var isFirstItemRender = true;  // suppresses flashing everything on initial load, nothing actually "changed"
+    var knownOrderIds = null;      // null until the first fetch establishes a baseline
+    var lastFetchAt = null;
+    var staleCheckTimer = null;
 
     window.startKdsBoard = function(){
       fetchAndRender();
@@ -269,11 +363,17 @@
       // drop or miss an event silently, and this board should never
       // depend on someone noticing that and manually refreshing.
       pollTimer = setInterval(fetchAndRender, 20000);
+      staleCheckTimer = setInterval(updateLastUpdatedDisplay, 5000);
     };
 
     window.stopKdsBoard = function(){
       if (realtimeChannel) { sb.removeChannel(realtimeChannel); realtimeChannel = null; }
       if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+      if (staleCheckTimer) { clearInterval(staleCheckTimer); staleCheckTimer = null; }
+      previousCounts = {};
+      isFirstItemRender = true;
+      knownOrderIds = null;
+      lastFetchAt = null;
     };
 
     function fetchAndRender(){
@@ -289,12 +389,49 @@
           return;
         }
         clearBoardError();
+        detectNewOrdersAndPlaySounds(res.data);
         renderItemPanel(res.data);
         renderQueuePanel(res.data);
+        lastFetchAt = Date.now();
+        updateLastUpdatedDisplay();
       }).catch(function(err){
         console.error('get_kds_board_state threw:', err);
         showBoardError("Couldn't reach the server \u2014 check your connection.");
       });
+    }
+
+    function updateLastUpdatedDisplay(){
+      var el = document.getElementById('boardLastUpdated');
+      if (!el || !lastFetchAt) return;
+      var secondsAgo = Math.round((Date.now() - lastFetchAt) / 1000);
+      var label = secondsAgo < 5 ? 'Updated just now' : 'Updated ' + secondsAgo + 's ago';
+      el.textContent = label;
+      // 45s comfortably exceeds the 20s poll interval, so this only
+      // ever fires if something's actually gone wrong, not from
+      // ordinary timing jitter between updates.
+      el.classList.toggle('stale', secondsAgo > 45);
+    }
+
+    // Compares this fetch's order_ids against what we already knew
+    // about, and plays a source-specific sound for anything genuinely
+    // new. The very first fetch after unlocking just establishes the
+    // baseline silently -- every order that already existed when the
+    // screen opened shouldn't trigger a sound.
+    function detectNewOrdersAndPlaySounds(rows){
+      var currentOrders = {}; // order_id -> order_source
+      rows.forEach(function(r){ currentOrders[r.order_id] = r.order_source; });
+
+      if (knownOrderIds === null) {
+        knownOrderIds = currentOrders;
+        return;
+      }
+
+      for (var orderId in currentOrders) {
+        if (!(orderId in knownOrderIds)) {
+          window.playOrderSound(currentOrders[orderId]);
+        }
+      }
+      knownOrderIds = currentOrders;
     }
 
     function showBoardError(msg){
@@ -328,6 +465,9 @@
         return function(){ sb.rpc('kds_mark_one_ready', { p_item_name: name }).then(fetchAndRender); };
       });
       renderColumn('colReady', itemNames, byItem, 'ready', 'box-green', null);
+
+      previousCounts = byItem;
+      isFirstItemRender = false;
     }
 
     function renderColumn(colId, itemNames, byItem, statusKey, boxClass, makeHandler){
@@ -341,8 +481,10 @@
         var count = byItem[name][statusKey];
         if (count <= 0) return;
         any = true;
+        var priorCount = previousCounts[name] ? previousCounts[name][statusKey] : 0;
+        var shouldFlash = !isFirstItemRender && count !== priorCount;
         var box = document.createElement('div');
-        box.className = 'item-box ' + boxClass;
+        box.className = 'item-box ' + boxClass + (shouldFlash ? ' flash' : '');
         box.innerHTML = '<span class="nm">' + escHtml(name) + '</span><span class="cnt">x' + count + '</span>';
         if (makeHandler) box.addEventListener('click', makeHandler(name));
         col.appendChild(box);
@@ -415,7 +557,23 @@
 
       listEl.querySelectorAll('.complete-btn').forEach(function(btn){
         btn.addEventListener('click', function(){
-          sb.rpc('kds_complete_order', { p_order_id: btn.getAttribute('data-order-id') }).then(fetchAndRender);
+          btn.disabled = true;
+          btn.textContent = 'Marking picked up\u2026';
+          sb.rpc('kds_complete_order', { p_order_id: btn.getAttribute('data-order-id') }).then(function(res){
+            if (res.error) {
+              console.error('kds_complete_order failed:', res.error);
+              showBoardError('Could not mark that order picked up \u2014 ' + (res.error.message || 'unknown error'));
+              btn.disabled = false;
+              btn.textContent = 'Mark Picked Up';
+              return;
+            }
+            fetchAndRender();
+          }).catch(function(err){
+            console.error('kds_complete_order threw:', err);
+            showBoardError("Couldn't reach the server \u2014 check your connection.");
+            btn.disabled = false;
+            btn.textContent = 'Mark Picked Up';
+          });
         });
       });
     }
