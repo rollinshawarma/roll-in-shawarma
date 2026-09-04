@@ -124,6 +124,13 @@
     background:rgba(216,52,46,0.16); color:var(--red); border:1px solid rgba(216,52,46,0.4);
   }
   .item-pill.pill-ready{ background:rgba(11,175,76,0.16); color:var(--green); border-color:rgba(11,175,76,0.4); }
+  .item-pill.pill-prepping{ background:rgba(247,173,40,0.16); color:var(--gold); border-color:rgba(247,173,40,0.4); }
+  .order-card.order-cash{ border-color:var(--red); }
+  .cash-warning{
+    background:rgba(216,52,46,0.18); color:var(--red); border:1px solid var(--red); border-radius:8px;
+    padding:8px 12px; font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:0.03em;
+    text-align:center; margin-bottom:10px;
+  }
   .complete-btn{
     margin-top:12px; width:100%; background:var(--green); color:#04220F; font-weight:800;
     font-size:14.5px; padding:12px; border-radius:10px;
@@ -527,7 +534,7 @@
       var byOrder = {};
       rows.forEach(function(r){
         if (!byOrder[r.order_id]) {
-          byOrder[r.order_id] = { reference_code: r.reference_code, customer_name: r.customer_name, items: [] };
+          byOrder[r.order_id] = { reference_code: r.reference_code, customer_name: r.customer_name, paymentMethod: r.payment_method, items: [] };
           orderIds.push(r.order_id);
         }
         byOrder[r.order_id].items.push({ name: r.item_name, status: r.status });
@@ -543,13 +550,19 @@
         var allReady = o.items.every(function(i){ return i.status === 'ready'; });
         if (allReady) pushFulfillmentIfNewlyReady(orderId);
         var pillsHtml = o.items.map(function(i){
-          return '<span class="item-pill' + (i.status === 'ready' ? ' pill-ready' : '') + '">' + escHtml(i.name) + '</span>';
+          // queued -> red (default), prepping -> orange, ready -> green --
+          // previously prepping looked identical to queued (both just
+          // "not ready"), which didn't actually show progress.
+          var pillClass = i.status === 'ready' ? ' pill-ready' : (i.status === 'prepping' ? ' pill-prepping' : '');
+          return '<span class="item-pill' + pillClass + '">' + escHtml(i.name) + '</span>';
         }).join('');
-        return '<div class="order-card' + (allReady ? ' order-complete' : '') + '" data-order-id="' + orderId + '">' +
+        var isCash = o.paymentMethod === 'cash';
+        return '<div class="order-card' + (allReady ? ' order-complete' : '') + (isCash ? ' order-cash' : '') + '" data-order-id="' + orderId + '">' +
           '<div class="order-card-head">' +
             '<span class="order-ref">' + escHtml(o.reference_code || '') + '</span>' +
             '<span class="order-name">' + escHtml(o.customer_name || '') + '</span>' +
           '</div>' +
+          (isCash ? '<div class="cash-warning">Confirm Cash Payment</div>' : '') +
           '<div class="order-pills">' + pillsHtml + '</div>' +
           (allReady ? '<button type="button" class="complete-btn" data-order-id="' + orderId + '">Mark Picked Up</button>' : '') +
         '</div>';
