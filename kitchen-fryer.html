@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>Fryer Station | Roll-In Shawarma</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --black:#000000;
+    --panel:#121110;
+    --white:#FFFCF3;
+    --cream:#F3EAC9;
+    --muted:rgba(243,234,201,0.62);
+    --gold:#F7AD28;
+    --red:#D8342E;
+    --green:#0BAF4C;
+    --line:rgba(243,234,201,0.14);
+  }
+  *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
+  html, body{ overflow:hidden; height:100%; width:100%; overscroll-behavior:none; }
+  body{
+    background:var(--black); color:var(--cream); font-family:'Inter', -apple-system, sans-serif;
+    line-height:1.4; user-select:none;
+  }
+  .hidden{ display:none !important; }
+  button{ font-family:inherit; border:none; cursor:pointer; background:none; color:inherit; }
+
+  /* ---------- PIN SCREEN ---------- */
+  #pinScreen{
+    height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:28px;
+  }
+  #pinScreen h1{ font-size:24px; font-weight:800; color:var(--white); }
+  #pinDots{ display:flex; gap:16px; }
+  .pin-dot{ width:18px; height:18px; border-radius:50%; border:2px solid var(--line); }
+  .pin-dot.filled{ background:var(--gold); border-color:var(--gold); }
+  #pinError{ font-size:15px; color:var(--red); font-weight:700; min-height:20px; }
+  .pin-pad{ display:grid; grid-template-columns:repeat(3, 84px); gap:16px; }
+  .pin-key{
+    width:84px; height:84px; border-radius:50%; background:var(--panel); border:1px solid var(--line);
+    color:var(--white); font-size:30px; font-weight:700; display:flex; align-items:center; justify-content:center;
+  }
+  .pin-key:active{ background:var(--gold); color:#241902; }
+  .pin-key.wide{ background:none; border:none; color:var(--muted); font-size:16px; font-weight:700; }
+
+  /* ---------- BOARD LAYOUT ---------- */
+  #board{ height:100%; display:flex; flex-direction:column; }
+  #boardHeader{
+    display:flex; align-items:center; justify-content:space-between; padding:16px 24px;
+    border-bottom:1px solid var(--line); flex:none;
+  }
+  #boardHeader h1{ font-size:19px; font-weight:800; color:var(--white); }
+  #boardClock{ font-size:15px; color:var(--muted); font-weight:600; }
+  .board-last-updated{ font-size:12px; color:var(--muted); opacity:0.7; margin-right:14px; }
+  .board-last-updated.stale{ color:var(--red); opacity:1; font-weight:700; }
+  #lockBtn{ font-size:14px; color:var(--muted); font-weight:700; padding:8px 14px; border:1px solid var(--line); border-radius:100px; }
+  #boardErrorBanner{ background:rgba(216,52,46,0.16); color:var(--red); font-size:14.5px; font-weight:700; padding:10px 24px; border-bottom:1px solid var(--red); flex:none; }
+
+  #panels{ flex:1; min-height:0; display:flex; }
+  #itemPanel{ flex:1; min-width:0; display:flex; flex-direction:column; }
+
+  .panel-head{
+    padding:14px 20px; font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:0.06em;
+    color:var(--muted); border-bottom:1px solid var(--line); flex:none;
+  }
+
+  /* ---------- ITEM PANEL: 3 columns ---------- */
+  #itemColumns{ flex:1; min-height:0; display:flex; }
+  .item-col{ flex:1; min-width:0; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:10px; }
+  .item-col-label{
+    font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; text-align:center;
+    padding-bottom:8px; flex:none;
+  }
+  #colQueued .item-col-label{ color:var(--muted); }
+  #colPrepping .item-col-label{ color:var(--gold); }
+  #colReady .item-col-label{ color:var(--green); }
+
+  .item-box{
+    display:flex; align-items:center; justify-content:space-between; gap:10px;
+    border-radius:14px; flex:none;
+  }
+  .item-box .nm{ font-size:16.5px; font-weight:700; }
+  .item-box .cnt{ font-size:19px; font-weight:800; }
+
+  /* Gray and orange get a bigger tap target since they're the ones
+     actually tapped repeatedly during a rush -- green is display-only
+     and stays more compact. */
+  .box-gray, .box-orange{ padding:18px 18px; min-height:34px; }
+  .box-green{ padding:14px 16px; }
+
+  .box-gray{ background:var(--panel); border:1px solid var(--line); }
+  .box-gray .nm, .box-gray .cnt{ color:var(--white); }
+  .box-gray:active{ background:#1c1a18; }
+
+  .box-orange{ background:rgba(247,173,40,0.14); border:1px solid var(--gold); }
+  .box-orange .nm, .box-orange .cnt{ color:var(--gold); }
+  .box-orange:active{ background:rgba(247,173,40,0.24); }
+
+  .box-green{ background:rgba(11,175,76,0.14); border:1px solid var(--green); }
+  .box-green .nm, .box-green .cnt{ color:var(--green); }
+
+  @keyframes kdsFlash{
+    0%{ box-shadow:0 0 0 0 rgba(247,173,40,0); transform:scale(1); }
+    30%{ box-shadow:0 0 0 6px rgba(247,173,40,0.35); transform:scale(1.035); }
+    100%{ box-shadow:0 0 0 0 rgba(247,173,40,0); transform:scale(1); }
+  }
+  .item-box.flash{ animation:kdsFlash 0.7s ease-out; }
+
+  .col-empty-hint{ text-align:center; color:var(--muted); font-size:13.5px; padding:20px 8px; }
+
+</style>
+</head>
+<body>
+
+<div id="pinScreen">
+  <h1>Enter Kitchen PIN</h1>
+  <div id="pinDots">
+    <div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div><div class="pin-dot"></div>
+  </div>
+  <div id="pinError"></div>
+  <div class="pin-pad">
+    <button type="button" class="pin-key" data-digit="1">1</button>
+    <button type="button" class="pin-key" data-digit="2">2</button>
+    <button type="button" class="pin-key" data-digit="3">3</button>
+    <button type="button" class="pin-key" data-digit="4">4</button>
+    <button type="button" class="pin-key" data-digit="5">5</button>
+    <button type="button" class="pin-key" data-digit="6">6</button>
+    <button type="button" class="pin-key" data-digit="7">7</button>
+    <button type="button" class="pin-key" data-digit="8">8</button>
+    <button type="button" class="pin-key" data-digit="9">9</button>
+    <div></div>
+    <button type="button" class="pin-key" data-digit="0">0</button>
+    <button type="button" class="pin-key wide" id="pinBackspace">&larr;</button>
+  </div>
+</div>
+
+<div id="board" class="hidden">
+  <div id="boardHeader">
+    <h1>Fryer Station</h1>
+    <div id="boardLastUpdated" class="board-last-updated">&mdash;</div>
+    <div id="boardClock">&mdash;</div>
+    <button type="button" id="lockBtn">Lock Screen</button>
+  </div>
+  <div id="boardErrorBanner" class="hidden"></div>
+  <div id="panels">
+    <div id="itemPanel">
+      <div class="panel-head">Fryer Items</div>
+      <div id="itemColumns">
+        <div id="colQueued" class="item-col"><div class="item-col-label">To Prep</div></div>
+        <div id="colPrepping" class="item-col"><div class="item-col-label">Prepping</div></div>
+        <div id="colReady" class="item-col"><div class="item-col-label">Ready</div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script>
+  var sb = supabase.createClient(
+    'https://njcmcaoyzujijiyfardx.supabase.co',
+    'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_'
+  );
+
+  function escHtml(s){
+    return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+      return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+    });
+  }
+
+  // ---------------- PIN gate ----------------
+  (function(){
+    var pinScreen = document.getElementById('pinScreen');
+    var board = document.getElementById('board');
+    var dots = document.querySelectorAll('.pin-dot');
+    var errorEl = document.getElementById('pinError');
+    var entered = '';
+
+    function renderDots(){
+      dots.forEach(function(d, i){ d.classList.toggle('filled', i < entered.length); });
+    }
+
+    function tryUnlock(){
+      sb.rpc('verify_kds_pin', { p_pin: entered }).then(function(res){
+        if (res.data === true) {
+          try { sessionStorage.setItem('kdsUnlocked', '1'); } catch(e){}
+          unlockBoard();
+        } else {
+          errorEl.textContent = 'Incorrect PIN';
+          entered = '';
+          renderDots();
+          setTimeout(function(){ errorEl.textContent = ''; }, 1500);
+        }
+      });
+    }
+
+    document.querySelectorAll('.pin-key[data-digit]').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        if (entered.length >= 4) return;
+        entered += btn.getAttribute('data-digit');
+        renderDots();
+        if (entered.length === 4) tryUnlock();
+      });
+    });
+    document.getElementById('pinBackspace').addEventListener('click', function(){
+      entered = entered.slice(0, -1);
+      renderDots();
+    });
+
+    function unlockBoard(){
+      pinScreen.classList.add('hidden');
+      board.classList.remove('hidden');
+      window.startKdsBoard();
+    }
+
+    document.getElementById('lockBtn').addEventListener('click', function(){
+      try { sessionStorage.removeItem('kdsUnlocked'); } catch(e){}
+      board.classList.add('hidden');
+      pinScreen.classList.remove('hidden');
+      entered = '';
+      renderDots();
+      if (window.stopKdsBoard) window.stopKdsBoard();
+    });
+
+    var alreadyUnlocked = false;
+    try { alreadyUnlocked = sessionStorage.getItem('kdsUnlocked') === '1'; } catch(e){}
+    if (alreadyUnlocked) {
+      // setTimeout defers this to after the whole script has finished
+      // running, so window.startKdsBoard (defined further down) is
+      // guaranteed to exist by the time this actually calls it --
+      // unlike calling it here directly, which depends on script
+      // order and silently breaks if anything ever gets reordered.
+      setTimeout(unlockBoard, 0);
+    }
+  })();
+
+  // ---------------- Clock ----------------
+  (function(){
+    var el = document.getElementById('boardClock');
+    function tick(){
+      var now = new Date();
+      el.textContent = now.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+    }
+    tick();
+    setInterval(tick, 15000);
+  })();
+
+  // ---------------- Fryer item filter ----------------
+  // EDIT THIS LIST to control exactly what shows up on this screen.
+  // Case-insensitive, matches if the item's name CONTAINS any of
+  // these words -- so "fries" here catches every Loaded Fries
+  // variant and Combo Fries all at once, not just one exact name.
+  //
+  // "Fried chips" was uncertain from the original request (unclear
+  // exact menu item name), so both "chips" and "fried" are included
+  // as a safe net -- if this ever over- or under-matches once this
+  // is actually live, just adjust the list below.
+  var FRYER_KEYWORDS = ['falafel', 'samosa', 'fries', 'chips', 'fried'];
+
+  function isFryerItem(row){
+    var name = (row.item_name || '').toLowerCase();
+    return FRYER_KEYWORDS.some(function(kw){ return name.indexOf(kw) !== -1; });
+  }
+
+  // ---------------- Board data + rendering ----------------
+  (function(){
+    var realtimeChannel = null;
+    var pollTimer = null;
+    var previousCounts = {};       // item_name -> {queued, prepping, ready}, for flash detection
+    var isFirstItemRender = true;  // suppresses flashing everything on initial load, nothing actually "changed"
+    var lastFetchAt = null;
+    var staleCheckTimer = null;
+
+    window.startKdsBoard = function(){
+      fetchAndRender();
+      realtimeChannel = sb.channel('kds-board')
+        .on('postgres_changes', { event: '*', schema: 'public', table: 'prep_units' }, fetchAndRender)
+        .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'orders' }, fetchAndRender)
+        .subscribe();
+      // Realtime is the primary path, but a 20s poll runs alongside
+      // it as a safety net -- realtime subscriptions can occasionally
+      // drop or miss an event silently, and this board should never
+      // depend on someone noticing that and manually refreshing.
+      pollTimer = setInterval(fetchAndRender, 20000);
+      staleCheckTimer = setInterval(updateLastUpdatedDisplay, 5000);
+    };
+
+    window.stopKdsBoard = function(){
+      if (realtimeChannel) { sb.removeChannel(realtimeChannel); realtimeChannel = null; }
+      if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
+      if (staleCheckTimer) { clearInterval(staleCheckTimer); staleCheckTimer = null; }
+      previousCounts = {};
+      isFirstItemRender = true;
+      lastFetchAt = null;
+    };
+
+    function fetchAndRender(){
+      sb.rpc('get_kds_board_state').then(function(res){
+        if (res.error) {
+          console.error('get_kds_board_state failed:', res.error);
+          showBoardError('Could not load the board \u2014 ' + (res.error.message || 'unknown error'));
+          return;
+        }
+        if (!res.data) {
+          console.error('get_kds_board_state returned no data');
+          showBoardError('Board data came back empty \u2014 check the console.');
+          return;
+        }
+        clearBoardError();
+        renderItemPanel(res.data.filter(isFryerItem));
+        lastFetchAt = Date.now();
+        updateLastUpdatedDisplay();
+      }).catch(function(err){
+        console.error('get_kds_board_state threw:', err);
+        showBoardError("Couldn't reach the server \u2014 check your connection.");
+      });
+    }
+
+    function updateLastUpdatedDisplay(){
+      var el = document.getElementById('boardLastUpdated');
+      if (!el || !lastFetchAt) return;
+      var secondsAgo = Math.round((Date.now() - lastFetchAt) / 1000);
+      var label = secondsAgo < 5 ? 'Updated just now' : 'Updated ' + secondsAgo + 's ago';
+      el.textContent = label;
+      // 45s comfortably exceeds the 20s poll interval, so this only
+      // ever fires if something's actually gone wrong, not from
+      // ordinary timing jitter between updates.
+      el.classList.toggle('stale', secondsAgo > 45);
+    }
+
+    function showBoardError(msg){
+      var el = document.getElementById('boardErrorBanner');
+      if (!el) return;
+      el.textContent = msg;
+      el.classList.remove('hidden');
+    }
+    function clearBoardError(){
+      var el = document.getElementById('boardErrorBanner');
+      if (el) el.classList.add('hidden');
+    }
+
+    // ---- Left panel: one dedicated row per item, all three stages
+    // shown together so a row's position never changes as its item
+    // moves through gray -> orange -> green.
+    function renderItemPanel(rows){
+      var byItem = {};
+      rows.forEach(function(r){
+        if (r.is_drink) return; // drinks don't need active prep, never shown on any item board
+        if (!byItem[r.item_name]) byItem[r.item_name] = { queued: 0, prepping: 0, ready: 0 };
+        byItem[r.item_name][r.status] += 1;
+      });
+
+      var itemNames = Object.keys(byItem).sort();
+
+      renderColumn('colQueued', itemNames, byItem, 'queued', 'box-gray', function(name){
+        return function(){ sb.rpc('kds_start_prep', { p_item_name: name }).then(fetchAndRender); };
+      });
+      renderColumn('colPrepping', itemNames, byItem, 'prepping', 'box-orange', function(name){
+        return function(){ sb.rpc('kds_mark_one_ready', { p_item_name: name }).then(fetchAndRender); };
+      });
+      renderColumn('colReady', itemNames, byItem, 'ready', 'box-green', null);
+
+      previousCounts = byItem;
+      isFirstItemRender = false;
+    }
+
+    function renderColumn(colId, itemNames, byItem, statusKey, boxClass, makeHandler){
+      var col = document.getElementById(colId);
+      var label = col.querySelector('.item-col-label');
+      col.innerHTML = '';
+      col.appendChild(label);
+
+      var any = false;
+      itemNames.forEach(function(name){
+        var count = byItem[name][statusKey];
+        if (count <= 0) return;
+        any = true;
+        var priorCount = previousCounts[name] ? previousCounts[name][statusKey] : 0;
+        var shouldFlash = !isFirstItemRender && count !== priorCount;
+        var box = document.createElement('div');
+        box.className = 'item-box ' + boxClass + (shouldFlash ? ' flash' : '');
+        box.innerHTML = '<span class="nm">' + escHtml(name) + '</span><span class="cnt">x' + count + '</span>';
+        if (makeHandler) box.addEventListener('click', makeHandler(name));
+        col.appendChild(box);
+      });
+
+      if (!any) {
+        var hint = document.createElement('div');
+        hint.className = 'col-empty-hint';
+        hint.textContent = 'Nothing here right now';
+        col.appendChild(hint);
+      }
+    }
+  })();
+</script>
+</body>
+</html>
