@@ -17,6 +17,7 @@
     --gold:#F7AD28;
     --red:#D8342E;
     --green:#0BAF4C;
+    --purple:#9B6DFF;
     --line:rgba(243,234,201,0.14);
   }
   *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
@@ -33,6 +34,11 @@
   header h1{ font-size:24px; font-weight:800; color:var(--white); }
   header .sub{ font-size:13px; color:var(--muted); margin-top:2px; }
 
+  #errorBanner{
+    display:none; background:rgba(216,52,46,0.16); color:var(--red); font-size:14px; font-weight:700;
+    padding:10px 32px; border-bottom:1px solid var(--red); flex:none;
+  }
+
   #main{ flex:1; min-height:0; display:flex; }
 
   #orderList{ flex:2; min-width:0; overflow-y:auto; padding:24px 32px; display:flex; flex-direction:column; gap:14px; }
@@ -40,7 +46,9 @@
     display:flex; align-items:center; justify-content:space-between; gap:20px;
     background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:20px 28px;
   }
-  .order-row.is-ready{ border-color:var(--green); background:rgba(11,175,76,0.1); }
+  .order-row.stage-preparing{ border-color:var(--gold); background:rgba(247,173,40,0.08); }
+  .order-row.stage-ready{ border-color:var(--green); background:rgba(11,175,76,0.1); }
+  .order-row.stage-picked_up{ border-color:var(--purple); background:rgba(155,109,255,0.1); opacity:0.7; }
   .order-row-left{ display:flex; flex-direction:column; gap:4px; min-width:0; }
   .order-row-name{ font-size:24px; font-weight:800; color:var(--white); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
   .order-row-ref{ font-size:14px; color:var(--muted); font-weight:600; }
@@ -48,8 +56,10 @@
     flex:none; font-size:15px; font-weight:800; text-transform:uppercase; letter-spacing:0.04em;
     padding:10px 20px; border-radius:100px;
   }
+  .status-badge.placed{ background:rgba(243,234,201,0.1); color:var(--muted); border:1px solid var(--line); }
   .status-badge.preparing{ background:rgba(247,173,40,0.16); color:var(--gold); border:1px solid var(--gold); }
   .status-badge.ready{ background:var(--green); color:#04220F; }
+  .status-badge.picked_up{ background:var(--purple); color:#1A0B33; }
 
   #emptyHint{ text-align:center; color:var(--muted); font-size:18px; padding:60px 20px; }
 
@@ -79,6 +89,8 @@
   </div>
 </header>
 
+<div id="errorBanner"></div>
+
 <div id="main">
   <div id="orderList"></div>
   <div id="thanksCard">
@@ -105,26 +117,44 @@
   function fetchAndRender(){
     sb.rpc('get_public_order_status_board').then(function(res){
       if (res.error || !res.data) {
-        console.error('get_public_order_status_board failed:', res.error);
+        var detail = res.error ? (res.error.message || res.error.code || JSON.stringify(res.error)) : 'no data returned';
+        console.error('get_public_order_status_board failed:', detail, res.error);
+        showError('Could not load orders \u2014 ' + detail);
         return;
       }
+      clearError();
       var listEl = document.getElementById('orderList');
       if (!res.data.length) {
         listEl.innerHTML = '<div id="emptyHint">No orders right now &mdash; come say hi!</div>';
         return;
       }
+      var STAGE_LABELS = { placed: 'Order Placed', preparing: 'Preparing', ready: 'Ready', picked_up: 'Picked Up' };
       listEl.innerHTML = res.data.map(function(o){
-        return '<div class="order-row' + (o.is_ready ? ' is-ready' : '') + '">' +
+        var stage = o.display_stage || 'placed';
+        var label = STAGE_LABELS[stage] || 'Order Placed';
+        return '<div class="order-row stage-' + stage + '">' +
           '<div class="order-row-left">' +
             '<div class="order-row-name">' + escHtml(o.first_name) + '</div>' +
             '<div class="order-row-ref">' + escHtml(o.reference_code) + '</div>' +
           '</div>' +
-          '<div class="status-badge ' + (o.is_ready ? 'ready' : 'preparing') + '">' + (o.is_ready ? 'Ready' : 'Preparing') + '</div>' +
+          '<div class="status-badge ' + stage + '">' + label + '</div>' +
         '</div>';
       }).join('');
     }).catch(function(err){
       console.error('get_public_order_status_board threw:', err);
+      showError("Couldn't reach the server \u2014 check the connection.");
     });
+  }
+
+  function showError(msg){
+    var el = document.getElementById('errorBanner');
+    if (!el) return;
+    el.textContent = msg;
+    el.style.display = 'block';
+  }
+  function clearError(){
+    var el = document.getElementById('errorBanner');
+    if (el) el.style.display = 'none';
   }
 
   fetchAndRender();
