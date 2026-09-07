@@ -117,7 +117,10 @@
   .order-card.order-complete{ border-color:var(--green); background:rgba(11,175,76,0.1); }
   .order-card-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
   .order-ref{ font-size:17px; font-weight:800; color:var(--white); }
-  .order-name{ font-size:13.5px; color:var(--muted); font-weight:600; }
+  .order-name{ font-size:13.5px; color:var(--muted); font-weight:600; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .wait-time{ font-size:13.5px; font-weight:800; color:var(--muted); flex:none; white-space:nowrap; }
+  .wait-time.caution{ color:var(--gold); }
+  .wait-time.warn{ color:var(--red); }
   .order-pills{ display:flex; flex-wrap:wrap; gap:6px; }
   .item-pill{
     font-size:12.5px; font-weight:700; padding:6px 11px; border-radius:100px;
@@ -358,6 +361,7 @@
     var knownOrderIds = null;      // null until the first fetch establishes a baseline
     var lastFetchAt = null;
     var staleCheckTimer = null;
+    var waitTimeTimer = null;
 
     window.startKdsBoard = function(){
       fetchAndRender();
@@ -371,17 +375,40 @@
       // depend on someone noticing that and manually refreshing.
       pollTimer = setInterval(fetchAndRender, 20000);
       staleCheckTimer = setInterval(updateLastUpdatedDisplay, 5000);
+      waitTimeTimer = setInterval(updateWaitTimes, 1000);
     };
 
     window.stopKdsBoard = function(){
       if (realtimeChannel) { sb.removeChannel(realtimeChannel); realtimeChannel = null; }
       if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
       if (staleCheckTimer) { clearInterval(staleCheckTimer); staleCheckTimer = null; }
+      if (waitTimeTimer) { clearInterval(waitTimeTimer); waitTimeTimer = null; }
       previousCounts = {};
       isFirstItemRender = true;
       knownOrderIds = null;
       lastFetchAt = null;
     };
+
+    // Ticks every second independent of the 20s data poll, so the
+    // number moves smoothly rather than jumping. Only touches text
+    // content on existing elements -- never re-renders the board, so
+    // it can't interrupt someone mid-tap.
+    function updateWaitTimes(){
+      document.querySelectorAll('.wait-time').forEach(function(el){
+        var createdAt = el.getAttribute('data-created-at');
+        if (!createdAt) return;
+        var elapsedSeconds = Math.max(0, Math.round((Date.now() - new Date(createdAt).getTime()) / 1000));
+        var m = Math.floor(elapsedSeconds / 60);
+        var s = elapsedSeconds % 60;
+        el.textContent = m + ':' + (s < 10 ? '0' : '') + s;
+        // 8+ minutes is a caution, 15+ is a real warning -- tuned as
+        // a starting point for a food truck's pace, easy to adjust
+        // in .wait-time.caution / .wait-time.warn below if these
+        // thresholds don't match reality once this is actually running.
+        el.classList.toggle('caution', elapsedSeconds >= 480 && elapsedSeconds < 900);
+        el.classList.toggle('warn', elapsedSeconds >= 900);
+      });
+    }
 
     function fetchAndRender(){
       sb.rpc('get_kds_board_state').then(function(res){
@@ -534,7 +561,7 @@
       var byOrder = {};
       rows.forEach(function(r){
         if (!byOrder[r.order_id]) {
-          byOrder[r.order_id] = { reference_code: r.reference_code, customer_name: r.customer_name, paymentMethod: r.payment_method, items: [] };
+          byOrder[r.order_id] = { reference_code: r.reference_code, customer_name: r.customer_name, paymentMethod: r.payment_method, createdAt: r.order_created_at, items: [] };
           orderIds.push(r.order_id);
         }
         byOrder[r.order_id].items.push({ name: r.item_name, status: r.status });
@@ -561,6 +588,7 @@
           '<div class="order-card-head">' +
             '<span class="order-ref">' + escHtml(o.reference_code || '') + '</span>' +
             '<span class="order-name">' + escHtml(o.customer_name || '') + '</span>' +
+            '<span class="wait-time" data-created-at="' + escHtml(o.createdAt || '') + '">&mdash;</span>' +
           '</div>' +
           (isCash ? '<div class="cash-warning">Confirm Cash Payment</div>' : '') +
           '<div class="order-pills">' + pillsHtml + '</div>' +
