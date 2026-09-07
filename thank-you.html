@@ -43,13 +43,29 @@
   }
   .status-stepper{ display:flex; align-items:center; justify-content:center; margin-bottom:28px; }
   .status-step{ display:flex; flex-direction:column; align-items:center; gap:8px; }
-  .status-dot{ width:16px; height:16px; border-radius:50%; background:var(--line); border:2px solid var(--line); transition:all .3s ease; }
+  .status-dot{
+    width:38px; height:38px; border-radius:50%; background:var(--black); border:2px solid var(--line);
+    display:flex; align-items:center; justify-content:center; transition:all .4s ease; position:relative;
+  }
+  .status-dot svg{ width:18px; height:18px; stroke:var(--muted); transition:stroke .4s ease; }
   .status-step.active .status-dot{ background:var(--gold); border-color:var(--gold); }
+  .status-step.active .status-dot svg{ stroke:#241902; }
   .status-step.done .status-dot{ background:var(--green); border-color:var(--green); }
-  .status-label{ font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.04em; }
+  .status-step.done .status-dot svg{ stroke:#04220F; }
+  @keyframes statusPulse{
+    0%{ box-shadow:0 0 0 0 rgba(247,173,40,0.5); }
+    70%{ box-shadow:0 0 0 10px rgba(247,173,40,0); }
+    100%{ box-shadow:0 0 0 0 rgba(247,173,40,0); }
+  }
+  .status-step.active .status-dot{ animation:statusPulse 1.8s infinite; }
+  .status-label{ font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.04em; transition:color .4s ease; }
   .status-step.active .status-label, .status-step.done .status-label{ color:var(--white); }
-  .status-line{ width:36px; height:2px; background:var(--line); margin:0 4px 20px; transition:background .3s ease; }
-  .status-line.done{ background:var(--green); }
+  .status-line{ width:36px; height:2px; background:var(--line); margin:0 4px 20px; position:relative; overflow:hidden; }
+  .status-line::after{
+    content:''; position:absolute; inset:0; background:var(--green); transform:scaleX(0); transform-origin:left;
+    transition:transform .6s ease;
+  }
+  .status-line.done::after{ transform:scaleX(1); }
   .order-items{ text-align:left; border-top:1px solid var(--line); border-bottom:1px solid var(--line); padding:18px 0; margin-bottom:18px; }
   .order-item-row{ display:flex; justify-content:space-between; gap:10px; font-size:13.5px; padding:6px 0; }
   .order-item-row .nm{ color:var(--white); }
@@ -91,18 +107,24 @@
     <div class="ref-badge" id="refBadge"></div>
 
     <div id="statusStepper" class="status-stepper hidden">
-      <div class="status-step" data-stage="PROPOSED">
-        <div class="status-dot"></div>
+      <div class="status-step" data-stage="received">
+        <div class="status-dot">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+        </div>
         <div class="status-label">Received</div>
       </div>
       <div class="status-line"></div>
-      <div class="status-step" data-stage="RESERVED">
-        <div class="status-dot"></div>
+      <div class="status-step" data-stage="preparing">
+        <div class="status-dot">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.072-2.143-.224-4.054 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.153.433-2.294 1-3a2.5 2.5 0 0 0 2.5 2.5z"></path></svg>
+        </div>
         <div class="status-label">Preparing</div>
       </div>
       <div class="status-line"></div>
-      <div class="status-step" data-stage="PREPARED">
-        <div class="status-dot"></div>
+      <div class="status-step" data-stage="ready">
+        <div class="status-dot">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path><path d="M3 6h18"></path><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+        </div>
         <div class="status-label">Ready</div>
       </div>
     </div>
@@ -164,14 +186,14 @@
     // "Completed" isn't shown as a fourth stage -- the customer is
     // the one picking the order up, so they already know when that's
     // happened. This just tracks the meaningful waiting stages.
-    var STATUS_STAGES = ['PROPOSED', 'RESERVED', 'PREPARED'];
+    var STATUS_STAGES = ['received', 'preparing', 'ready'];
 
-    function updateStatusStepper(fulfillmentStatus){
-      if (!fulfillmentStatus || fulfillmentStatus === 'CANCELED' || fulfillmentStatus === 'FAILED') return;
+    function updateStatusStepper(displayStage){
+      if (!displayStage) return;
       document.getElementById('statusStepper').classList.remove('hidden');
 
-      var isCompleted = fulfillmentStatus === 'COMPLETED';
-      var currentIndex = STATUS_STAGES.indexOf(fulfillmentStatus);
+      var isCompleted = displayStage === 'completed';
+      var currentIndex = STATUS_STAGES.indexOf(displayStage);
       if (currentIndex === -1) currentIndex = isCompleted ? STATUS_STAGES.length : 0;
 
       document.querySelectorAll('.status-step').forEach(function(step, i){
@@ -192,8 +214,8 @@
           headers: { 'Authorization': 'Bearer ' + ANON_KEY }
         }).then(function(res){ return res.json(); })
           .then(function(order){
-            if (!order || !order.fulfillmentStatus) { pollFulfillmentStatus(referenceCode); return; }
-            updateStatusStepper(order.fulfillmentStatus);
+            if (!order || !order.displayStage) { pollFulfillmentStatus(referenceCode); return; }
+            updateStatusStepper(order.displayStage);
             var isDone = ['COMPLETED', 'CANCELED', 'FAILED'].indexOf(order.fulfillmentStatus) !== -1;
             if (!isDone) pollFulfillmentStatus(referenceCode);
           })
@@ -248,8 +270,8 @@
           document.getElementById('thankYouTitle').textContent = 'Thank you, ' + order.firstName + '!';
         }
 
-        if (order.fulfillmentStatus) {
-          updateStatusStepper(order.fulfillmentStatus);
+        if (order.displayStage) {
+          updateStatusStepper(order.displayStage);
           pollFulfillmentStatus(order.referenceCode);
         }
 
