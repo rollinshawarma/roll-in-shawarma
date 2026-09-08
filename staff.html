@@ -12,14 +12,14 @@
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 <style>
   :root{
-    --black:#000000; --panel:#131210; --panel-2:#1b1916;
-    --white:#FFFCF3; --cream:#F3EAC9; --muted:rgba(243,234,201,0.6);
-    --gold:#F7AD28; --red:#D8342E; --green:#0BAF4C;
-    --line:rgba(243,234,201,0.14);
+    --black:#0F172A; --panel:#F8FAFC; --panel-2:#FFFFFF;
+    --white:#0F172A; --cream:#374151; --muted:rgba(55,65,81,0.62);
+    --gold:#4F46E5; --gold-hover:#4338CA; --red:#DC2626; --green:#16A34A;
+    --line:#E5E7EB;
   }
   *{ box-sizing:border-box; margin:0; padding:0; }
   body{
-    background:var(--black); color:var(--cream); font-family:'Inter',sans-serif;
+    background:var(--panel); color:var(--cream); font-family:'Inter',sans-serif;
     min-height:100vh;
   }
   svg{ display:block; }
@@ -49,7 +49,7 @@
   }
   textarea:focus{ outline:none; border-color:var(--gold); }
   input:focus{ outline:none; border-color:var(--gold); }
-  .warn-box{ background:rgba(247,173,40,0.14); border:1px solid var(--gold); border-radius:10px; padding:12px 14px; font-size:13px; color:var(--gold); margin-bottom:14px; line-height:1.5; }
+  .warn-box{ background:rgba(79,70,229,0.14); border:1px solid var(--gold); border-radius:10px; padding:12px 14px; font-size:13px; color:var(--gold); margin-bottom:14px; line-height:1.5; }
   .warn-box b{ color:var(--white); }
   select{
     width:100%; background:var(--black); border:1px solid var(--line); border-radius:10px;
@@ -64,19 +64,19 @@
   button:hover{ transform:translateY(-1px); }
   button:disabled{ opacity:0.4; cursor:not-allowed; transform:none; }
   .btn-primary{ background:var(--red); color:var(--white); width:100%; }
-  .btn-primary:hover{ background:var(--gold); color:#241902; }
-  .btn-clockin{ background:var(--green); color:#04220F; width:100%; padding:15px; font-size:15px; }
-  .btn-clockout{ background:var(--gold); color:#241902; width:100%; padding:15px; font-size:15px; }
+  .btn-primary:hover{ background:var(--gold); color:#FFFFFF; }
+  .btn-clockin{ background:var(--green); color:#FFFFFF; width:100%; padding:15px; font-size:15px; }
+  .btn-clockout{ background:var(--gold); color:#FFFFFF; width:100%; padding:15px; font-size:15px; }
   .btn-ghost{ background:transparent; border:1px solid var(--line); color:var(--cream); }
   .btn-small{ padding:7px 14px; font-size:12.5px; }
-  .btn-approve{ background:var(--green); color:#04220F; }
+  .btn-approve{ background:var(--green); color:#FFFFFF; }
   .btn-reject{ background:var(--red); color:var(--white); }
   .btn-export{ background:var(--panel-2); border:1px solid var(--gold); color:var(--gold); }
-  .btn-export:hover{ background:var(--gold); color:#241902; }
+  .btn-export:hover{ background:var(--gold); color:#FFFFFF; }
 
   .msg{ font-size:13px; padding:10px 14px; border-radius:10px; margin-bottom:14px; }
-  .msg.error{ background:rgba(216,52,46,0.15); color:#ff9d97; border:1px solid rgba(216,52,46,0.4); }
-  .msg.ok{ background:rgba(11,175,76,0.15); color:#7fe3a6; border:1px solid rgba(11,175,76,0.4); }
+  .msg.error{ background:rgba(220,38,38,0.15); color:#ff9d97; border:1px solid rgba(220,38,38,0.4); }
+  .msg.ok{ background:rgba(22,163,74,0.15); color:#7fe3a6; border:1px solid rgba(22,163,74,0.4); }
 
   .hidden{ display:none !important; }
 
@@ -117,7 +117,7 @@
     color:var(--cream); font-size:14.5px; font-weight:600; background:none; border:none; width:100%; text-align:left;
   }
   .nav-link:hover{ background:var(--panel-2); }
-  .nav-link.active{ background:var(--gold); color:#241902; }
+  .nav-link.active{ background:var(--gold); color:#FFFFFF; }
   .nav-link .icon{ width:17px; height:17px; }
   .nav-badge{
     margin-left:auto; background:var(--red); color:#fff; font-size:11px; font-weight:800;
@@ -146,7 +146,7 @@
     #mainContent{ flex:1; min-width:0; max-width:920px; margin:0 auto; padding:0 32px 60px; }
   }
   .tab-btn{ background:var(--panel-2); color:var(--muted); border:1px solid var(--line); padding:9px 16px; font-size:13px; }
-  .tab-btn.active{ background:var(--gold); color:#241902; border-color:var(--gold); }
+  .tab-btn.active{ background:var(--gold); color:#FFFFFF; border-color:var(--gold); }
   .tab-btn .icon{ width:14px; height:14px; }
 
   /* ---------- HOME (clean landing) ---------- */
@@ -162,7 +162,7 @@
   /* ---------- STAT CARDS ---------- */
   .period-toggle{ display:flex; gap:8px; margin-bottom:20px; }
   .period-btn{ flex:1; background:var(--panel-2); color:var(--muted); border:1px solid var(--line); padding:10px; font-size:13px; }
-  .period-btn.active{ background:var(--gold); color:#241902; border-color:var(--gold); }
+  .period-btn.active{ background:var(--gold); color:#FFFFFF; border-color:var(--gold); }
   .stat-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; margin-bottom:22px; }
   .stat-card{ background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:18px; }
   .stat-card .stat-label{ font-size:11px; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted); display:flex; align-items:center; gap:6px; margin-bottom:8px; }
@@ -171,7 +171,7 @@
   .stat-card.warn .stat-value{ color:var(--red); }
   .section-title{ font-size:13px; font-weight:700; text-transform:uppercase; letter-spacing:0.05em; color:var(--gold); margin:26px 0 12px; display:flex; align-items:center; gap:8px; }
 
-  .kitchen-range-btn.active{ background:var(--gold); border-color:var(--gold); color:#241902; }
+  .kitchen-range-btn.active{ background:var(--gold); border-color:var(--gold); color:#FFFFFF; }
   .kitchen-trend-chart{ position:relative; }
 
   .cash-order-card{
@@ -211,10 +211,10 @@
   .empty-row td{ color:var(--muted); white-space:normal; text-align:center; padding:22px 8px; }
 
   .pill{ display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:100px; font-size:10.5px; font-weight:700; text-transform:uppercase; }
-  .pill.pending{ background:rgba(247,173,40,0.18); color:var(--gold); }
-  .pill.approved{ background:rgba(11,175,76,0.18); color:var(--green); }
-  .pill.rejected{ background:rgba(216,52,46,0.18); color:#ff9d97; }
-  .pill.missing{ background:rgba(216,52,46,0.22); color:#ff9d97; }
+  .pill.pending{ background:rgba(79,70,229,0.18); color:var(--gold); }
+  .pill.approved{ background:rgba(22,163,74,0.18); color:var(--green); }
+  .pill.rejected{ background:rgba(220,38,38,0.18); color:#ff9d97; }
+  .pill.missing{ background:rgba(220,38,38,0.22); color:#ff9d97; }
 
   .row2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
   .toolbar{ display:flex; gap:10px; align-items:center; margin-bottom:16px; flex-wrap:wrap; }
@@ -237,9 +237,9 @@
   .doc-owner{ font-size:11.5px; color:var(--muted); min-width:80px; }
   .doc-actions{ display:flex; gap:8px; align-items:center; }
   .exp-badge{ display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:100px; font-size:10.5px; font-weight:700; text-transform:uppercase; }
-  .exp-badge.ok{ background:rgba(11,175,76,0.18); color:var(--green); }
-  .exp-badge.soon{ background:rgba(247,173,40,0.2); color:var(--gold); }
-  .exp-badge.expired{ background:rgba(216,52,46,0.22); color:#ff9d97; }
+  .exp-badge.ok{ background:rgba(22,163,74,0.18); color:var(--green); }
+  .exp-badge.soon{ background:rgba(79,70,229,0.2); color:var(--gold); }
+  .exp-badge.expired{ background:rgba(220,38,38,0.22); color:#ff9d97; }
   input[type=file]{
     width:100%; background:var(--black); border:1px solid var(--line); border-radius:10px;
     padding:10px 12px; color:var(--cream); font-size:13px; font-family:'Inter'; margin-bottom:14px;
@@ -260,8 +260,8 @@
   .manual-entry-toggle > *:not(summary){ margin-top:0; }
   .manual-entry-toggle label:first-of-type{ margin-top:14px; }
   .scan-result-box{ padding:26px 20px; border-radius:16px; text-align:center; margin-top:12px; }
-  .scan-result-box.go{ background:rgba(11,175,76,0.16); border:2px solid var(--green); }
-  .scan-result-box.stop{ background:rgba(216,52,46,0.16); border:2px solid var(--red); }
+  .scan-result-box.go{ background:rgba(22,163,74,0.16); border:2px solid var(--green); }
+  .scan-result-box.stop{ background:rgba(220,38,38,0.16); border:2px solid var(--red); }
   .scan-result-box .big-icon{ font-size:44px; margin-bottom:10px; line-height:1; }
   .scan-result-box .result-text{ font-size:15px; font-weight:700; color:var(--white); }
   @keyframes spin{ to{ transform:rotate(360deg); } }
@@ -332,19 +332,26 @@
     </div>
     <div class="tabs" id="tabs">
       <div class="nav-section-label">My Account</div>
-      <button class="nav-link active" data-tab="home"><svg class="icon"><use href="#ic-home"/></svg>Home</button>
+      <button class="nav-link active" data-tab="home"><svg class="icon"><use href="#ic-home"/></svg>Check-In</button>
       <button class="nav-link" data-tab="dashboard"><svg class="icon"><use href="#ic-dollar"/></svg>My Stats</button>
       <button class="nav-link" data-tab="clock"><svg class="icon"><use href="#ic-clock"/></svg>Clock History</button>
+      <button class="nav-link" data-tab="absence"><svg class="icon"><use href="#ic-clock"/></svg>Absence Request</button>
       <button class="nav-link" data-tab="documents"><svg class="icon"><use href="#ic-file"/></svg>Documents</button>
 
       <div class="nav-section-label" id="navSectionOperations">Operations</div>
+      <button class="nav-link hidden" data-tab="banner" id="tabBannerBtn"><svg class="icon"><use href="#ic-file"/></svg>Website Banner</button>
       <button class="nav-link hidden" data-tab="approve" id="tabApproveBtn"><svg class="icon"><use href="#ic-check"/></svg>Approvals</button>
-      <button class="nav-link hidden" data-tab="payroll" id="tabPayrollBtn"><svg class="icon"><use href="#ic-download"/></svg>Payroll</button>
       <button class="nav-link hidden" data-tab="cashorders" id="tabCashOrdersBtn"><svg class="icon"><use href="#ic-dollar"/></svg>Cash Orders<span id="cashOrdersBadge" class="nav-badge hidden">0</span></button>
       <button class="nav-link hidden" data-tab="kitchen" id="tabKitchenBtn"><svg class="icon"><use href="#ic-clock"/></svg>Kitchen</button>
       <button class="nav-link hidden" data-tab="events" id="tabEventsBtn"><svg class="icon"><use href="#ic-clock"/></svg>Events</button>
 
+      <div class="nav-section-label hidden" id="navSectionPerks">Perks</div>
+      <button class="nav-link hidden" data-tab="perks" id="tabPerksBtn"><svg class="icon"><use href="#ic-check"/></svg>Redeem Free Roll</button>
+
       <div class="nav-section-label hidden" id="navSectionAdmin">Admin</div>
+      <button class="nav-link hidden" data-tab="customerinfo" id="tabCustomerInfoBtn"><svg class="icon"><use href="#ic-users"/></svg>Customer Info</button>
+      <button class="nav-link hidden" data-tab="payroll" id="tabPayrollBtn"><svg class="icon"><use href="#ic-download"/></svg>Payroll</button>
+      <button class="nav-link hidden" data-tab="promotions" id="tabPromotionsBtn"><svg class="icon"><use href="#ic-dollar"/></svg>Promotions</button>
       <button class="nav-link hidden" data-tab="admin" id="tabAdminBtn"><svg class="icon"><use href="#ic-users"/></svg>Manage Staff</button>
     </div>
     <div class="spacer"></div>
@@ -361,8 +368,11 @@
     <div id="homeClockMsg"></div>
     <button class="btn-clockin btn-home-clock" id="clockInBtn">Clock In</button>
     <button class="btn-clockout btn-home-clock hidden" id="clockOutBtn">Clock Out</button>
+  </div>
 
-    <div class="card" style="margin-top:20px;">
+  <!-- WEBSITE BANNER -->
+  <div class="tab-panel hidden" id="panelBanner">
+    <div class="card">
       <h2>Website Banner</h2>
       <p class="hint">Shows as a banner at the top of the main website. Leave it off when there's nothing to announce.</p>
       <div class="kiosk-field">
@@ -550,7 +560,8 @@
   </div>
 
   <!-- APPROVE TAB -->
-  <div class="tab-panel hidden" id="panelApprove">
+  <!-- PERKS -->
+  <div class="tab-panel hidden" id="panelPerks">
     <div class="card">
       <h2>Redeem Free Roll</h2>
       <p class="hint">Scan the member's QR code to check it instantly.</p>
@@ -577,7 +588,9 @@
         <div id="redeemResult"></div>
       </details>
     </div>
+  </div>
 
+  <div class="tab-panel hidden" id="panelApprove">
     <div class="card">
       <details class="manual-entry-toggle">
         <summary><h2 style="display:inline;">Add Missed Hours</h2></summary>
@@ -959,14 +972,19 @@
       document.getElementById('homeWhoName').textContent = currentEmployee.name;
       document.getElementById('homeDate').textContent = dateStr;
       loadSiteBanner();
+      document.getElementById('tabBannerBtn').classList.remove('hidden');
 
       var isManager = currentEmployee.role === 'manager' || currentEmployee.role === 'admin';
       var isAdmin = currentEmployee.role === 'admin';
 
       if (isManager) {
         document.getElementById('tabApproveBtn').classList.remove('hidden');
+        document.getElementById('tabPerksBtn').classList.remove('hidden');
+        document.getElementById('navSectionPerks').classList.remove('hidden');
         document.getElementById('tabEventsBtn').classList.remove('hidden');
         document.getElementById('tabPayrollBtn').classList.remove('hidden');
+        document.getElementById('tabPromotionsBtn').classList.remove('hidden');
+        document.getElementById('navSectionAdmin').classList.remove('hidden');
         document.getElementById('tabCashOrdersBtn').classList.remove('hidden');
         document.getElementById('tabKitchenBtn').classList.remove('hidden');
         document.getElementById('dashTeamSection').classList.remove('hidden');
@@ -977,12 +995,15 @@
         loadCashOrders();
         setInterval(loadCashOrders, 30000);
         loadKitchenAnalytics('today');
+        loadPromotions();
       }
       if (isAdmin) {
         document.getElementById('tabAdminBtn').classList.remove('hidden');
+        document.getElementById('tabCustomerInfoBtn').classList.remove('hidden');
         document.getElementById('navSectionAdmin').classList.remove('hidden');
         document.getElementById('uploadForOwnerRow').classList.remove('hidden');
         loadAdmin();
+        loadCustomerInfo();
       }
       loadMyEntries();
       loadMyDocuments();
@@ -1816,8 +1837,8 @@
       for (var i = 0; i <= stepCount; i++){
         var v = i * axis.step;
         var y = yFor(v);
-        gridLines += '<line x1="' + marginLeft + '" y1="' + y + '" x2="' + (W - marginRight) + '" y2="' + y + '" stroke="rgba(243,234,201,0.1)" stroke-width="1"/>';
-        yLabels += '<text x="' + (marginLeft - 8) + '" y="' + (y + 4) + '" text-anchor="end" font-size="10" fill="rgba(243,234,201,0.5)">' + formatValue(v) + '</text>';
+        gridLines += '<line x1="' + marginLeft + '" y1="' + y + '" x2="' + (W - marginRight) + '" y2="' + y + '" stroke="rgba(55,65,81,0.1)" stroke-width="1"/>';
+        yLabels += '<text x="' + (marginLeft - 8) + '" y="' + (y + 4) + '" text-anchor="end" font-size="10" fill="rgba(55,65,81,0.5)">' + formatValue(v) + '</text>';
       }
 
       // Smooth-ish curve: control points at 1/3 and 2/3 horizontal
@@ -1837,7 +1858,7 @@
       var labelStride = Math.max(1, Math.ceil(points.length / 8));
       var xLabels = points.map(function(p, i){
         if (i % labelStride !== 0 && i !== points.length - 1) return '';
-        return '<text x="' + coords[i].x + '" y="' + (H - 8) + '" text-anchor="middle" font-size="10" fill="rgba(243,234,201,0.5)">' + p.label + '</text>';
+        return '<text x="' + coords[i].x + '" y="' + (H - 8) + '" text-anchor="middle" font-size="10" fill="rgba(55,65,81,0.5)">' + p.label + '</text>';
       }).join('');
 
       var uid = 'grad' + Math.random().toString(36).slice(2, 8);
@@ -1855,7 +1876,7 @@
           '<path d="' + areaPath + '" fill="url(#' + uid + ')" stroke="none"/>' +
           '<path d="' + linePath + '" fill="none" stroke="var(--gold)" stroke-width="2"/>' +
           dots + xLabels +
-          '<line id="chartCrosshair" x1="0" y1="' + marginTop + '" x2="0" y2="' + (H - marginBottom) + '" stroke="rgba(243,234,201,0.35)" stroke-width="1" style="display:none;"/>' +
+          '<line id="chartCrosshair" x1="0" y1="' + marginTop + '" x2="0" y2="' + (H - marginBottom) + '" stroke="rgba(55,65,81,0.35)" stroke-width="1" style="display:none;"/>' +
           '<rect x="' + marginLeft + '" y="' + marginTop + '" width="' + plotW + '" height="' + plotH + '" fill="transparent" id="chartHoverArea" style="cursor:crosshair;"/>' +
         '</svg>' +
         '<div id="chartTooltip" style="position:relative;"></div>';
