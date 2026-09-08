@@ -14,7 +14,7 @@
   :root{
     --black:#0F172A; --panel:#F8FAFC; --panel-2:#FFFFFF;
     --white:#0F172A; --cream:#374151; --muted:rgba(55,65,81,0.62);
-    --gold:#4F46E5; --gold-hover:#4338CA; --red:#DC2626; --green:#16A34A;
+    --gold:#4F46E5; --gold-hover:#4338CA; --red:#D97706; --green:#16A34A;
     --line:#E5E7EB;
   }
   *{ box-sizing:border-box; margin:0; padding:0; }
@@ -39,12 +39,12 @@
 
   label{ display:block; font-size:11.5px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted); margin-bottom:6px; }
   input[type=email], input[type=text], input[type=number], input[type=tel], input[type=search], input[type=date], input[type=time]{
-    width:100%; background:var(--black); border:1px solid var(--line); border-radius:10px;
+    width:100%; background:var(--panel-2); border:1px solid var(--line); border-radius:10px;
     padding:11px 13px; color:var(--white); font-size:14.5px; font-family:'Inter'; margin-bottom:14px;
-    color-scheme:dark;
+    color-scheme:light;
   }
   textarea{
-    width:100%; background:var(--black); border:1px solid var(--line); border-radius:10px;
+    width:100%; background:var(--panel-2); border:1px solid var(--line); border-radius:10px;
     padding:11px 13px; color:var(--white); font-size:14.5px; font-family:'Inter'; margin-bottom:14px; resize:vertical;
   }
   textarea:focus{ outline:none; border-color:var(--gold); }
@@ -52,7 +52,7 @@
   .warn-box{ background:rgba(79,70,229,0.14); border:1px solid var(--gold); border-radius:10px; padding:12px 14px; font-size:13px; color:var(--gold); margin-bottom:14px; line-height:1.5; }
   .warn-box b{ color:var(--white); }
   select{
-    width:100%; background:var(--black); border:1px solid var(--line); border-radius:10px;
+    width:100%; background:var(--panel-2); border:1px solid var(--line); border-radius:10px;
     padding:9px 11px; color:var(--white); font-size:13.5px; font-family:'Inter';
   }
 
@@ -75,7 +75,7 @@
   .btn-export:hover{ background:var(--gold); color:#FFFFFF; }
 
   .msg{ font-size:13px; padding:10px 14px; border-radius:10px; margin-bottom:14px; }
-  .msg.error{ background:rgba(220,38,38,0.15); color:#ff9d97; border:1px solid rgba(220,38,38,0.4); }
+  .msg.error{ background:rgba(217,119,6,0.15); color:#D97706; border:1px solid rgba(217,119,6,0.4); }
   .msg.ok{ background:rgba(22,163,74,0.15); color:#7fe3a6; border:1px solid rgba(22,163,74,0.4); }
 
   .hidden{ display:none !important; }
@@ -160,7 +160,7 @@
   .btn-home-clock{ width:100%; max-width:320px; padding:20px; font-size:17px; border-radius:20px; }
 
   /* ---------- STAT CARDS ---------- */
-  .period-toggle{ display:flex; gap:8px; margin-bottom:20px; }
+  .period-toggle{ display:flex; gap:8px; margin:0 auto 20px; justify-content:center; max-width:360px; }
   .period-btn{ flex:1; background:var(--panel-2); color:var(--muted); border:1px solid var(--line); padding:10px; font-size:13px; }
   .period-btn.active{ background:var(--gold); color:#FFFFFF; border-color:var(--gold); }
   .stat-grid{ display:grid; grid-template-columns:repeat(auto-fit,minmax(150px,1fr)); gap:14px; margin-bottom:22px; }
@@ -213,8 +213,8 @@
   .pill{ display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:100px; font-size:10.5px; font-weight:700; text-transform:uppercase; }
   .pill.pending{ background:rgba(79,70,229,0.18); color:var(--gold); }
   .pill.approved{ background:rgba(22,163,74,0.18); color:var(--green); }
-  .pill.rejected{ background:rgba(220,38,38,0.18); color:#ff9d97; }
-  .pill.missing{ background:rgba(220,38,38,0.22); color:#ff9d97; }
+  .pill.rejected{ background:rgba(217,119,6,0.18); color:#D97706; }
+  .pill.missing{ background:rgba(217,119,6,0.22); color:#D97706; }
 
   .row2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
   .toolbar{ display:flex; gap:10px; align-items:center; margin-bottom:16px; flex-wrap:wrap; }
@@ -239,9 +239,9 @@
   .exp-badge{ display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:100px; font-size:10.5px; font-weight:700; text-transform:uppercase; }
   .exp-badge.ok{ background:rgba(22,163,74,0.18); color:var(--green); }
   .exp-badge.soon{ background:rgba(79,70,229,0.2); color:var(--gold); }
-  .exp-badge.expired{ background:rgba(220,38,38,0.22); color:#ff9d97; }
+  .exp-badge.expired{ background:rgba(217,119,6,0.22); color:#D97706; }
   input[type=file]{
-    width:100%; background:var(--black); border:1px solid var(--line); border-radius:10px;
+    width:100%; background:var(--panel-2); border:1px solid var(--line); border-radius:10px;
     padding:10px 12px; color:var(--cream); font-size:13px; font-family:'Inter'; margin-bottom:14px;
   }
 
@@ -261,7 +261,7 @@
   .manual-entry-toggle label:first-of-type{ margin-top:14px; }
   .scan-result-box{ padding:26px 20px; border-radius:16px; text-align:center; margin-top:12px; }
   .scan-result-box.go{ background:rgba(22,163,74,0.16); border:2px solid var(--green); }
-  .scan-result-box.stop{ background:rgba(220,38,38,0.16); border:2px solid var(--red); }
+  .scan-result-box.stop{ background:rgba(217,119,6,0.16); border:2px solid var(--red); }
   .scan-result-box .big-icon{ font-size:44px; margin-bottom:10px; line-height:1; }
   .scan-result-box .result-text{ font-size:15px; font-weight:700; color:var(--white); }
   @keyframes spin{ to{ transform:rotate(360deg); } }
@@ -341,17 +341,17 @@
       <div class="nav-section-label" id="navSectionOperations">Operations</div>
       <button class="nav-link hidden" data-tab="banner" id="tabBannerBtn"><svg class="icon"><use href="#ic-file"/></svg>Website Banner</button>
       <button class="nav-link hidden" data-tab="approve" id="tabApproveBtn"><svg class="icon"><use href="#ic-check"/></svg>Approvals</button>
-      <button class="nav-link hidden" data-tab="cashorders" id="tabCashOrdersBtn"><svg class="icon"><use href="#ic-dollar"/></svg>Cash Orders<span id="cashOrdersBadge" class="nav-badge hidden">0</span></button>
+      <button class="nav-link hidden" data-tab="cashorders" id="tabCashOrdersBtn"><svg class="icon"><use href="#ic-dollar"/></svg>Daily Cash Log</button>
       <button class="nav-link hidden" data-tab="kitchen" id="tabKitchenBtn"><svg class="icon"><use href="#ic-clock"/></svg>Kitchen</button>
       <button class="nav-link hidden" data-tab="events" id="tabEventsBtn"><svg class="icon"><use href="#ic-clock"/></svg>Events</button>
 
       <div class="nav-section-label hidden" id="navSectionPerks">Perks</div>
       <button class="nav-link hidden" data-tab="perks" id="tabPerksBtn"><svg class="icon"><use href="#ic-check"/></svg>Redeem Free Roll</button>
+      <button class="nav-link hidden" data-tab="promotions" id="tabPromotionsBtn"><svg class="icon"><use href="#ic-dollar"/></svg>Promotions</button>
 
       <div class="nav-section-label hidden" id="navSectionAdmin">Admin</div>
       <button class="nav-link hidden" data-tab="customerinfo" id="tabCustomerInfoBtn"><svg class="icon"><use href="#ic-users"/></svg>Customer Info</button>
       <button class="nav-link hidden" data-tab="payroll" id="tabPayrollBtn"><svg class="icon"><use href="#ic-download"/></svg>Payroll</button>
-      <button class="nav-link hidden" data-tab="promotions" id="tabPromotionsBtn"><svg class="icon"><use href="#ic-dollar"/></svg>Promotions</button>
       <button class="nav-link hidden" data-tab="admin" id="tabAdminBtn"><svg class="icon"><use href="#ic-users"/></svg>Manage Staff</button>
     </div>
     <div class="spacer"></div>
@@ -390,6 +390,7 @@
 
   <!-- DASHBOARD -->
   <div class="tab-panel hidden" id="panelDashboard">
+    <h2 style="text-align:center; margin-bottom:14px;">My Stats</h2>
     <div class="period-toggle" id="periodToggle">
       <button class="period-btn active" data-period="week">Week</button>
       <button class="period-btn" data-period="month">Month</button>
@@ -543,17 +544,12 @@
   <!-- CASH ORDERS TAB -->
   <div class="tab-panel hidden" id="panelCashorders">
     <div class="card">
-      <h2>Pending Cash Orders</h2>
-      <p class="hint">These were placed at the kiosk or via QR scan, chosen to pay cash at the window. Mark paid once you've collected the cash. This list is our own record, not Square's dashboard &mdash; unpaid orders like these don't reliably show up there.</p>
-      <div id="cashOrdersList"></div>
-    </div>
-
-    <div class="section-title">Recently Marked Paid</div>
-    <div class="card">
+      <h2>Daily Cash Log</h2>
+      <p class="hint">Total cash actually collected per day, from paid cash orders only -- not card transactions, and not orders still pending payment.</p>
       <div style="overflow-x:auto;">
         <table>
-          <thead><tr><th>Order #</th><th>Customer</th><th>Total</th><th>Paid At</th></tr></thead>
-          <tbody id="cashOrdersPaidBody"></tbody>
+          <thead><tr><th>Date</th><th>Cash Orders</th><th>Total Collected</th></tr></thead>
+          <tbody id="cashDailyLogBody"></tbody>
         </table>
       </div>
     </div>
@@ -1059,23 +1055,29 @@
     doClockOut('homeClockMsg', function(){ btn.disabled = false; });
   });
 
-  function refreshTodayUI(entry){
+  function refreshTodayUI(todaysEntries){
     var inBtn = document.getElementById('clockInBtn'), outBtn = document.getElementById('clockOutBtn');
-    var state = (!entry || !entry.clock_in) ? 'in' : (entry.clock_in && !entry.clock_out) ? 'out' : 'done';
+    var openEntry = todaysEntries.find(function(e){ return e.clock_in && !e.clock_out; });
+    var state = openEntry ? 'out' : 'in';
 
     inBtn.classList.toggle('hidden', state !== 'in');
     outBtn.classList.toggle('hidden', state !== 'out');
 
+    var totalHoursToday = todaysEntries.reduce(function(s,e){ return s + rawHours(e.clock_in, e.clock_out); }, 0);
+
     var homeStatusEl = document.getElementById('homeStatus');
-    if (state === 'in') {
-      homeStatusEl.textContent = "You're not clocked in yet";
-    } else if (state === 'out') {
-      homeStatusEl.innerHTML = '<svg class="icon"><use href="#ic-check"/></svg>Clocked in at ' + fmtTime(entry.clock_in);
+    if (state === 'out') {
+      homeStatusEl.innerHTML = '<svg class="icon"><use href="#ic-check"/></svg>Clocked in at ' + fmtTime(openEntry.clock_in);
+    } else if (todaysEntries.length) {
+      // Not currently clocked in, but has at least one completed
+      // session today -- e.g. back from a lunch break, or done for
+      // the day. Either way, hours already worked keep accumulating.
+      homeStatusEl.textContent = totalHoursToday.toFixed(2) + ' hrs logged today \u2014 clock back in anytime';
     } else {
-      homeStatusEl.textContent = 'All done for today — ' + fmtHours(entry.clock_in, entry.clock_out) + ' hrs logged';
+      homeStatusEl.textContent = "You're not clocked in yet";
     }
 
-    var dashStatus = state === 'in' ? 'Not clocked in' : state === 'out' ? 'Clocked in — working' : 'Done for today';
+    var dashStatus = state === 'out' ? 'Clocked in \u2014 working' : (todaysEntries.length ? 'Not clocked in (' + totalHoursToday.toFixed(2) + ' hrs so far)' : 'Not clocked in');
     var dashEl = document.getElementById('dashTodayStatus');
     if (dashEl) dashEl.textContent = dashStatus;
   }
@@ -1136,8 +1138,8 @@
       .order('work_date', {ascending:false}).limit(120).then(function(res){
       if (res.error) return;
       var today = new Date().toISOString().slice(0,10);
-      var todayEntry = res.data.find(function(e){ return e.work_date === today; });
-      refreshTodayUI(todayEntry);
+      var todaysEntries = res.data.filter(function(e){ return e.work_date === today; });
+      refreshTodayUI(todaysEntries);
 
       var rate = currentEmployee.hourly_rate;
       res.data.forEach(function(e){ e._rate = rate; });
@@ -1863,7 +1865,7 @@
 
       var uid = 'grad' + Math.random().toString(36).slice(2, 8);
       var dots = coords.map(function(c, i){
-        return '<circle class="chart-dot" data-i="' + i + '" cx="' + c.x + '" cy="' + c.y + '" r="3.5" fill="var(--gold)" stroke="var(--black)" stroke-width="1.5"/>';
+        return '<circle class="chart-dot" data-i="' + i + '" cx="' + c.x + '" cy="' + c.y + '" r="3.5" fill="var(--gold)" stroke="var(--panel-2)" stroke-width="1.5"/>';
       }).join('');
 
       container.innerHTML =
@@ -1885,7 +1887,7 @@
       var hoverArea = container.querySelector('#chartHoverArea');
       var crosshair = container.querySelector('#chartCrosshair');
       var tooltip = document.createElement('div');
-      tooltip.style.cssText = 'position:absolute; display:none; background:var(--black); border:1px solid var(--gold); border-radius:8px; padding:6px 10px; font-size:11.5px; color:var(--cream); pointer-events:none; white-space:nowrap; z-index:5; transform:translate(-50%,-115%);';
+      tooltip.style.cssText = 'position:absolute; display:none; background:var(--panel-2); border:1px solid var(--gold); border-radius:8px; padding:6px 10px; font-size:11.5px; color:var(--cream); box-shadow:0 4px 14px rgba(0,0,0,0.15); pointer-events:none; white-space:nowrap; z-index:5; transform:translate(-50%,-115%);';
       container.style.position = 'relative';
       container.appendChild(tooltip);
 
@@ -1976,88 +1978,30 @@
   });
 
   function loadCashOrders(){
-    sb.from('orders').select('*').eq('payment_method', 'cash').eq('status', 'pending').order('created_at', {ascending:true}).then(function(res){
-      if (res.error) return;
-      var pending = res.data || [];
-
-      var badge = document.getElementById('cashOrdersBadge');
-      if (pending.length) {
-        badge.textContent = pending.length;
-        badge.classList.remove('hidden');
-      } else {
-        badge.classList.add('hidden');
-      }
-
-      var listEl = document.getElementById('cashOrdersList');
-      if (!pending.length) {
-        listEl.innerHTML = '<p class="hint">No pending cash orders right now.</p>';
-        return;
-      }
-
-      var orderIds = pending.map(function(o){ return o.id; });
-      sb.from('order_items').select('*').in('order_id', orderIds).then(function(itemsRes){
-        var itemsByOrder = {};
-        (itemsRes.data || []).forEach(function(li){
-          if (!itemsByOrder[li.order_id]) itemsByOrder[li.order_id] = [];
-          itemsByOrder[li.order_id].push(li);
+    var since = new Date();
+    since.setDate(since.getDate() - 30);
+    sb.from('orders').select('created_at, total_amount').eq('payment_method', 'cash').eq('status', 'paid')
+      .gte('created_at', since.toISOString()).order('created_at', {ascending:false}).then(function(res){
+        var tbody = document.getElementById('cashDailyLogBody');
+        if (res.error || !res.data || !res.data.length) {
+          tbody.innerHTML = '<tr class="empty-row"><td colspan="3">No cash orders in the last 30 days.</td></tr>';
+          return;
+        }
+        // Group by calendar day (local time), summing totals and counting orders
+        var byDay = {};
+        var dayOrder = [];
+        res.data.forEach(function(o){
+          var d = new Date(o.created_at);
+          var key = d.toLocaleDateString();
+          if (!byDay[key]) { byDay[key] = { count: 0, total: 0 }; dayOrder.push(key); }
+          byDay[key].count += 1;
+          byDay[key].total += Number(o.total_amount);
         });
-
-        listEl.innerHTML = pending.map(function(o){
-          var items = itemsByOrder[o.id] || [];
-          var itemsHtml = items.map(function(li){
-            return esc(li.item_name) + ' \u00d7 ' + li.quantity;
-          }).join('<br>');
-          return '<div class="cash-order-card">' +
-            '<div class="cash-order-info">' +
-              '<div class="cash-order-ref">' + esc(String(o.reference_code).replace('ORDER-','#')) + '</div>' +
-              '<div class="cash-order-name">' + esc(o.customer_name || 'Guest') + '</div>' +
-              '<div class="cash-order-items">' + (itemsHtml || 'No items on file') + '</div>' +
-              '<div class="cash-order-total">$' + Number(o.total_amount).toFixed(2) + '</div>' +
-              '<div class="cash-order-time">Placed ' + fmtOrderTime(o.created_at) + '</div>' +
-            '</div>' +
-            '<button class="btn-approve btn-small" data-id="' + o.id + '">Mark Paid</button>' +
-          '</div>';
+        tbody.innerHTML = dayOrder.map(function(key){
+          var d = byDay[key];
+          return '<tr><td>' + esc(key) + '</td><td>' + d.count + '</td><td>$' + d.total.toFixed(2) + '</td></tr>';
         }).join('');
-
-        document.querySelectorAll('#cashOrdersList button').forEach(function(btn){
-          btn.addEventListener('click', function(){
-            btn.disabled = true;
-            btn.textContent = 'Marking\u2026';
-            fetch(SUPABASE_URL + '/functions/v1/mark-cash-order-paid', {
-              method: 'POST',
-              headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SUPABASE_ANON_KEY },
-              body: JSON.stringify({ orderId: btn.dataset.id })
-            }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
-              .then(function(result){
-                if (!result.ok) {
-                  btn.disabled = false;
-                  btn.textContent = 'Mark Paid';
-                  alert(formatErrorMessage(result.data && result.data.error) || "Couldn't mark this paid \u2014 please try again.");
-                  return;
-                }
-                loadCashOrders();
-              })
-              .catch(function(){
-                btn.disabled = false;
-                btn.textContent = 'Mark Paid';
-                alert("Couldn't reach the server -- please try again.");
-              });
-          });
-        });
       });
-    });
-
-    sb.from('orders').select('*').eq('payment_method', 'cash').eq('status', 'paid').order('paid_at', {ascending:false}).limit(15).then(function(res){
-      if (res.error) return;
-      document.getElementById('cashOrdersPaidBody').innerHTML = (res.data || []).map(function(o){
-        return '<tr>' +
-          '<td>' + esc(String(o.reference_code).replace('ORDER-','#')) + '</td>' +
-          '<td>' + esc(o.customer_name || 'Guest') + '</td>' +
-          '<td>$' + Number(o.total_amount).toFixed(2) + '</td>' +
-          '<td>' + fmtOrderTime(o.paid_at) + '</td>' +
-        '</tr>';
-      }).join('') || '<tr class="empty-row"><td colspan="4">None marked paid yet.</td></tr>';
-    });
   }
 
   // ---------------- PAYROLL TAB ----------------
@@ -2083,7 +2027,8 @@
           '</tr>';
         }, function(w, totalHours, totalPay){
           return '<button class="btn-export btn-small" data-week="' + w.weekStart + '">' +
-            '<svg class="icon" style="width:13px;height:13px;"><use href="#ic-download"/></svg>Export CSV</button>';
+            '<svg class="icon" style="width:13px;height:13px;"><use href="#ic-download"/></svg>Export CSV</button>' +
+            '<button class="btn-primary btn-small draft-payroll-btn" data-week="' + w.weekStart + '" style="margin-left:8px;">Draft Paycheck</button>';
         });
 
         // fix header columns for payroll table (Employee, Date, Hrs, Rate, Pay)
@@ -2105,6 +2050,24 @@
               ]);
             });
             downloadCSV('payroll_week_' + wk + '.csv', rows);
+          });
+        });
+
+        document.querySelectorAll('#payrollWeeksContainer .draft-payroll-btn').forEach(function(btn){
+          btn.addEventListener('click', function(){
+            var wk = btn.dataset.week;
+            if (!confirm('Draft the paycheck for the week of ' + wk + '? This marks all approved hours that week as paid \u2014 they\u2019ll no longer count as owed in future payroll totals.')) return;
+            btn.disabled = true;
+            btn.textContent = 'Drafting\u2026';
+            sb.rpc('draft_payroll_week', { p_week_start: wk }).then(function(res){
+              if (res.error) {
+                btn.disabled = false;
+                btn.textContent = 'Draft Paycheck';
+                alert("Couldn't draft this paycheck \u2014 " + (res.error.message || 'unknown error'));
+                return;
+              }
+              loadPayroll();
+            });
           });
         });
       });
