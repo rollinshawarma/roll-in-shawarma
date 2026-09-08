@@ -142,18 +142,19 @@
   /* ---------- persistent cart bar ---------- */
   #cartBar{
     position:fixed; left:0; right:0; bottom:0; background:var(--gold); color:#241902;
-    display:flex; align-items:center; justify-content:space-between; padding:14px 20px;
-    box-shadow:0 -8px 30px rgba(0,0,0,0.4); z-index:70; gap:12px;
+    display:flex; align-items:center; padding:14px 16px;
+    box-shadow:0 -8px 30px rgba(0,0,0,0.4); z-index:70; gap:8px;
   }
   #cartBar.hidden{ display:none !important; }
-  #cartBarInfo{ font-size:14.5px; font-weight:800; flex:1; }
+  #cartBarInfo{ font-size:13px; font-weight:800; flex:1; min-width:0; }
   #cartBarClearBtn{
-    background:rgba(36,25,2,0.12); border:none; width:38px; height:38px; border-radius:50%;
+    background:rgba(36,25,2,0.12); border:none; width:34px; height:34px; border-radius:50%;
     display:flex; align-items:center; justify-content:center; flex:none;
   }
-  #cartBarClearBtn svg{ width:18px; height:18px; color:#241902; }
+  #cartBarClearBtn svg{ width:16px; height:16px; color:#241902; }
   #cartBarClearBtn:active{ background:rgba(36,25,2,0.22); }
-  #cartBarBtn{ background:#241902; color:var(--gold); font-size:14.5px; font-weight:800; padding:12px 22px; border-radius:100px; }
+  #cartBarBtn{ background:rgba(36,25,2,0.12); color:#241902; font-size:13px; font-weight:800; padding:11px 14px; border-radius:100px; flex:none; white-space:nowrap; }
+  #cartBarCheckoutBtn{ background:#241902; color:var(--gold); font-size:13px; font-weight:800; padding:11px 16px; border-radius:100px; flex:none; white-space:nowrap; }
 
   /* ---------- checkout screen ---------- */
   #checkoutScreen{ position:fixed; inset:0; background:var(--black); z-index:80; overflow-y:auto; }
@@ -200,6 +201,9 @@
   #payBtn:disabled{ opacity:0.6; }
   #backToMenuBtn{ display:block; margin:14px auto 0; background:none; color:var(--muted); font-size:14px; }
   #checkoutMsg{ text-align:center; font-size:13.5px; color:var(--red); min-height:18px; margin-top:10px; }
+  #continueToCheckoutBtn{ width:100%; background:var(--gold); color:#241902; font-size:18px; font-weight:800; padding:18px; border-radius:14px; }
+  #backToCartFromPickupBtn{ display:block; margin:14px auto 0; background:none; color:var(--muted); font-size:14px; }
+  #pickupMethodMsg{ text-align:center; font-size:13.5px; color:var(--red); min-height:18px; margin-top:10px; }
 
   .empty-hint{ color:var(--muted); font-size:14px; text-align:center; padding:30px 20px; }
 </style>
@@ -221,7 +225,8 @@
   <button type="button" id="cartBarClearBtn" aria-label="Clear cart">
     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path></svg>
   </button>
-  <button type="button" id="cartBarBtn">View Cart &rarr;</button>
+  <button type="button" id="cartBarBtn">View Cart</button>
+  <button type="button" id="cartBarCheckoutBtn">Checkout &rarr;</button>
 </div>
 
 <div id="cartViewScreen" class="hidden">
@@ -853,11 +858,14 @@
     }
 
     document.getElementById('cartBarBtn').addEventListener('click', showCartView);
-    document.getElementById('proceedToCheckoutBtn').addEventListener('click', function(){
+    function goToPickupMethodScreen(){
       if (!cart.length) return;
       cartViewScreen.classList.add('hidden');
       document.getElementById('pickupMethodScreen').classList.remove('hidden');
-    });
+    }
+
+    document.getElementById('proceedToCheckoutBtn').addEventListener('click', goToPickupMethodScreen);
+    document.getElementById('cartBarCheckoutBtn').addEventListener('click', goToPickupMethodScreen);
     document.getElementById('backToMenuFromCartBtn').addEventListener('click', function(){
       cartViewScreen.classList.add('hidden');
     });
