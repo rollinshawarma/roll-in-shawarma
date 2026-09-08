@@ -991,6 +991,22 @@
         });
     });
 
+    // When the browser restores this page from its back-forward cache
+    // (e.g. the customer goes to Square's payment page, then taps
+    // back), the page reappears exactly as it looked the instant they
+    // left -- including the Pay Now button still disabled and showing
+    // "Preparing checkout...". Nothing else re-runs on a bfcache
+    // restore, so without this the button is stuck forever with no
+    // way to retry. event.persisted is true specifically for this
+    // restored-from-cache case, not a normal fresh page load.
+    window.addEventListener('pageshow', function(event){
+      if (event.persisted) {
+        var payBtn = document.getElementById('payBtn');
+        payBtn.disabled = false;
+        payBtn.textContent = 'Pay Now';
+      }
+    });
+
     loadMenu();
   })();
 </script>
