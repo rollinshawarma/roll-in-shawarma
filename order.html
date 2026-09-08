@@ -182,6 +182,18 @@
   }
   .payment-choice-btn.selected{ background:var(--gold); border-color:var(--gold); color:#241902; }
 
+  .kiosk-field select{
+    width:100%; background:var(--panel); border:1px solid var(--line); border-radius:10px;
+    padding:14px 16px; color:var(--cream); font-size:16px; font-family:inherit;
+  }
+  .color-swatch-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; }
+  .color-swatch-btn{
+    display:flex; align-items:center; gap:8px; background:var(--panel); border:1px solid var(--line);
+    border-radius:10px; padding:10px 12px; color:var(--cream); font-size:13px; font-weight:700;
+  }
+  .color-swatch-btn.selected{ border-color:var(--gold); background:rgba(247,173,40,0.12); }
+  .color-swatch-btn .swatch{ width:18px; height:18px; border-radius:50%; flex:none; }
+
   .checkout-footer{ position:fixed; left:0; right:0; bottom:0; background:var(--black); padding:16px 20px; border-top:1px solid var(--line); max-width:560px; margin:0 auto; }
   #payBtn{ width:100%; background:var(--gold); color:#241902; font-size:18px; font-weight:800; padding:18px; border-radius:14px; }
   #payBtn:disabled{ opacity:0.6; }
@@ -221,6 +233,56 @@
     <div class="cart-view-total-row">Total <span id="cartViewTotal">$0.00</span></div>
     <button type="button" id="proceedToCheckoutBtn">Proceed to Checkout</button>
     <button type="button" id="backToMenuFromCartBtn">&larr; Back to menu</button>
+  </div>
+</div>
+
+<div id="pickupMethodScreen" class="hidden">
+  <div class="checkout-body">
+    <h2>How would you like<br>to get your order?</h2>
+
+    <div class="kiosk-field">
+      <div class="payment-choice">
+        <button type="button" class="payment-choice-btn selected" id="windowChoiceBtn">Pickup at Window</button>
+        <button type="button" class="payment-choice-btn" id="curbsideChoiceBtn">Drive-Up (Curbside)</button>
+      </div>
+    </div>
+
+    <div id="curbsideDetails" class="hidden">
+      <div class="kiosk-field">
+        <label>Car make</label>
+        <select id="carMakeSelect">
+          <option value="">Select your car's make&hellip;</option>
+          <option>Toyota</option><option>Honda</option><option>Ford</option><option>Chevrolet</option>
+          <option>Nissan</option><option>Jeep</option><option>Hyundai</option><option>Kia</option>
+          <option>Subaru</option><option>GMC</option><option>Ram</option><option>Dodge</option>
+          <option>Volkswagen</option><option>BMW</option><option>Mercedes-Benz</option><option>Audi</option>
+          <option>Mazda</option><option>Lexus</option><option>Tesla</option><option>Chrysler</option>
+          <option>Buick</option><option>Cadillac</option><option>Acura</option><option>Infiniti</option>
+          <option>Volvo</option><option>Mitsubishi</option>
+          <option value="Other">Other</option>
+        </select>
+        <input type="text" id="carMakeOther" class="hidden" placeholder="Type your car's make" style="margin-top:8px;">
+      </div>
+      <div class="kiosk-field">
+        <label>Car color</label>
+        <div class="color-swatch-grid" id="carColorGrid">
+          <button type="button" class="color-swatch-btn" data-color="Black"><span class="swatch" style="background:#1a1a1a;"></span>Black</button>
+          <button type="button" class="color-swatch-btn" data-color="White"><span class="swatch" style="background:#f5f5f0; border:1px solid #ccc;"></span>White</button>
+          <button type="button" class="color-swatch-btn" data-color="Silver/Gray"><span class="swatch" style="background:#9a9a9a;"></span>Silver/Gray</button>
+          <button type="button" class="color-swatch-btn" data-color="Red"><span class="swatch" style="background:#c62828;"></span>Red</button>
+          <button type="button" class="color-swatch-btn" data-color="Blue"><span class="swatch" style="background:#1e5fa8;"></span>Blue</button>
+          <button type="button" class="color-swatch-btn" data-color="Green"><span class="swatch" style="background:#2e7d32;"></span>Green</button>
+          <button type="button" class="color-swatch-btn" data-color="Gold/Yellow"><span class="swatch" style="background:#d4a828;"></span>Gold/Yellow</button>
+          <button type="button" class="color-swatch-btn" data-color="Brown/Tan"><span class="swatch" style="background:#7a5c3e;"></span>Brown/Tan</button>
+          <button type="button" class="color-swatch-btn" data-color="Other"><span class="swatch" style="background:linear-gradient(45deg,#888,#ccc);"></span>Other</button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="checkout-footer">
+    <button type="button" id="continueToCheckoutBtn">Continue</button>
+    <div id="pickupMethodMsg"></div>
+    <button type="button" id="backToCartFromPickupBtn">&larr; Back to cart</button>
   </div>
 </div>
 
@@ -790,12 +852,64 @@
     }
 
     document.getElementById('cartBarBtn').addEventListener('click', showCartView);
-    document.getElementById('proceedToCheckoutBtn').addEventListener('click', showCheckout);
+    document.getElementById('proceedToCheckoutBtn').addEventListener('click', function(){
+      if (!cart.length) return;
+      cartViewScreen.classList.add('hidden');
+      document.getElementById('pickupMethodScreen').classList.remove('hidden');
+    });
     document.getElementById('backToMenuFromCartBtn').addEventListener('click', function(){
       cartViewScreen.classList.add('hidden');
     });
     document.getElementById('backToMenuBtn').addEventListener('click', function(){
       checkoutScreen.classList.add('hidden');
+    });
+
+    // ---- Pickup method screen ----
+    var pickupMethod = 'window';
+    var selectedCarColor = null;
+
+    document.getElementById('windowChoiceBtn').addEventListener('click', function(){
+      pickupMethod = 'window';
+      this.classList.add('selected');
+      document.getElementById('curbsideChoiceBtn').classList.remove('selected');
+      document.getElementById('curbsideDetails').classList.add('hidden');
+    });
+    document.getElementById('curbsideChoiceBtn').addEventListener('click', function(){
+      pickupMethod = 'curbside';
+      this.classList.add('selected');
+      document.getElementById('windowChoiceBtn').classList.remove('selected');
+      document.getElementById('curbsideDetails').classList.remove('hidden');
+    });
+
+    document.getElementById('carMakeSelect').addEventListener('change', function(){
+      document.getElementById('carMakeOther').classList.toggle('hidden', this.value !== 'Other');
+    });
+
+    document.querySelectorAll('.color-swatch-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        selectedCarColor = btn.getAttribute('data-color');
+        document.querySelectorAll('.color-swatch-btn').forEach(function(b){ b.classList.remove('selected'); });
+        btn.classList.add('selected');
+      });
+    });
+
+    document.getElementById('backToCartFromPickupBtn').addEventListener('click', function(){
+      document.getElementById('pickupMethodScreen').classList.add('hidden');
+    });
+
+    document.getElementById('continueToCheckoutBtn').addEventListener('click', function(){
+      var msgEl = document.getElementById('pickupMethodMsg');
+      msgEl.textContent = '';
+
+      if (pickupMethod === 'curbside') {
+        var makeSelect = document.getElementById('carMakeSelect');
+        var makeValue = makeSelect.value === 'Other' ? document.getElementById('carMakeOther').value.trim() : makeSelect.value;
+        if (!makeValue) { msgEl.textContent = 'Please select your car\u2019s make.'; return; }
+        if (!selectedCarColor) { msgEl.textContent = 'Please select your car\u2019s color.'; return; }
+      }
+
+      document.getElementById('pickupMethodScreen').classList.add('hidden');
+      showCheckout();
     });
 
     document.getElementById('cardChoiceBtn').addEventListener('click', function(){
@@ -832,10 +946,16 @@
         return { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name };
       });
 
+      var carMakeValue = null;
+      if (pickupMethod === 'curbside') {
+        var makeSelect = document.getElementById('carMakeSelect');
+        carMakeValue = makeSelect.value === 'Other' ? document.getElementById('carMakeOther').value.trim() : makeSelect.value;
+      }
+
       var url = paymentMethod === 'cash' ? CASH_ORDER_URL : CARD_CHECKOUT_URL;
       var body = paymentMethod === 'cash'
-        ? { items: itemsPayload, customerName: name || 'QR Order', customerEmail: email || undefined, customerPhone: phone || undefined, notes: notes || undefined, orderSource: 'qr' }
-        : { items: itemsPayload, customerName: name || 'QR Order', customerEmail: email || undefined, customerPhone: phone || undefined, notes: notes || undefined, orderSource: 'qr' };
+        ? { items: itemsPayload, customerName: name || 'QR Order', customerEmail: email || undefined, customerPhone: phone || undefined, notes: notes || undefined, orderSource: 'qr', pickupMethod: pickupMethod, carMake: carMakeValue, carColor: selectedCarColor }
+        : { items: itemsPayload, customerName: name || 'QR Order', customerEmail: email || undefined, customerPhone: phone || undefined, notes: notes || undefined, orderSource: 'qr', pickupMethod: pickupMethod, carMake: carMakeValue, carColor: selectedCarColor };
 
       fetch(url, {
         method: 'POST',
