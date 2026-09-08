@@ -343,6 +343,21 @@
     <button class="btn-clockout btn-home-clock hidden" id="clockOutBtn">Clock Out</button>
   </div>
 
+  <div class="card" style="margin-top:20px;">
+    <h2>Website Banner</h2>
+    <p class="hint">Shows as a banner at the top of the main website. Leave it off when there's nothing to announce.</p>
+    <div class="kiosk-field">
+      <label>Message</label>
+      <textarea id="siteBannerMessage" rows="2" placeholder="e.g. Closed today for a private event, back tomorrow!"></textarea>
+    </div>
+    <label style="display:flex; align-items:center; gap:8px; margin:10px 0 16px; font-size:14px; cursor:pointer;">
+      <input type="checkbox" id="siteBannerActive" style="width:18px; height:18px;">
+      Show this banner on the website
+    </label>
+    <button type="button" class="btn-export" id="siteBannerSaveBtn">Save Banner</button>
+    <div id="siteBannerMsg" class="hint" style="margin-top:8px;"></div>
+  </div>
+
   <!-- DASHBOARD -->
   <div class="tab-panel hidden" id="panelDashboard">
     <div class="period-toggle" id="periodToggle">
@@ -922,6 +937,7 @@
       document.getElementById('todayDate').textContent = dateStr;
       document.getElementById('homeWhoName').textContent = currentEmployee.name;
       document.getElementById('homeDate').textContent = dateStr;
+      loadSiteBanner();
 
       var isManager = currentEmployee.role === 'manager' || currentEmployee.role === 'admin';
       var isAdmin = currentEmployee.role === 'admin';
@@ -1765,6 +1781,43 @@
 
   document.querySelectorAll('.kitchen-range-btn').forEach(function(btn){
     btn.addEventListener('click', function(){ loadKitchenAnalytics(btn.dataset.range); });
+  });
+
+  function loadSiteBanner(){
+    sb.rpc('get_site_banner').then(function(res){
+      // get_site_banner only returns a row when the banner is
+      // actually active with a real message -- an empty result here
+      // means it's currently off, not an error.
+      var msgEl = document.getElementById('siteBannerMessage');
+      var activeEl = document.getElementById('siteBannerActive');
+      if (res.data && res.data.length) {
+        msgEl.value = res.data[0].message;
+        activeEl.checked = true;
+      } else {
+        activeEl.checked = false;
+      }
+    });
+  }
+
+  document.getElementById('siteBannerSaveBtn').addEventListener('click', function(){
+    var btn = this;
+    var message = document.getElementById('siteBannerMessage').value.trim();
+    var active = document.getElementById('siteBannerActive').checked;
+    var msgEl = document.getElementById('siteBannerMsg');
+
+    btn.disabled = true;
+    msgEl.textContent = 'Saving\u2026';
+    sb.rpc('set_site_banner', { p_message: message, p_active: active }).then(function(res){
+      btn.disabled = false;
+      if (res.error) {
+        msgEl.textContent = 'Could not save \u2014 ' + (res.error.message || 'unknown error');
+        return;
+      }
+      msgEl.textContent = active ? 'Saved \u2014 now showing on the website.' : 'Saved \u2014 banner is off.';
+    }).catch(function(){
+      btn.disabled = false;
+      msgEl.textContent = "Couldn't reach the server \u2014 check your connection.";
+    });
   });
 
   function loadCashOrders(){
