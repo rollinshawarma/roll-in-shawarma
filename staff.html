@@ -442,6 +442,30 @@
     <div id="myWeeksContainer"></div>
   </div>
 
+  <!-- ABSENCE REQUEST -->
+  <div class="tab-panel hidden" id="panelAbsence">
+    <div class="card">
+      <h2>Request Time Off</h2>
+      <p class="hint">Pick a date &mdash; your manager will be notified to approve or decline it.</p>
+      <div id="absenceRequestMsg"></div>
+      <label>Date</label>
+      <input type="date" id="absenceDateField">
+      <label>Reason (optional)</label>
+      <textarea id="absenceReasonField" rows="2" placeholder="Let them know why, if you'd like"></textarea>
+      <button class="btn-primary" id="submitAbsenceBtn" style="width:100%;">Submit Request</button>
+    </div>
+
+    <div class="section-title">Your Requests</div>
+    <div class="card">
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>Date</th><th>Reason</th><th>Status</th></tr></thead>
+          <tbody id="myAbsenceRequestsBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <!-- DOCUMENTS TAB -->
   <div class="tab-panel hidden" id="panelDocuments">
     <div class="card">
@@ -586,7 +610,59 @@
     </div>
   </div>
 
+  <!-- PROMOTIONS -->
+  <div class="tab-panel hidden" id="panelPromotions">
+    <div class="card">
+      <h2>Add a Promo Code</h2>
+      <p class="hint">Customers enter this code at checkout on the website.</p>
+      <div id="addPromoMsg"></div>
+      <label>Code</label>
+      <input type="text" id="promoCodeField" placeholder="e.g. SAVE10" style="text-transform:uppercase;">
+      <div class="row2">
+        <div>
+          <label>Discount Type</label>
+          <select id="promoDiscountType">
+            <option value="percentage">Percentage Off</option>
+            <option value="fixed">Fixed Amount Off</option>
+          </select>
+        </div>
+        <div>
+          <label>Discount Value</label>
+          <input type="number" id="promoDiscountValue" placeholder="e.g. 10" min="0" step="0.01">
+        </div>
+      </div>
+      <div class="row2">
+        <div>
+          <label>Usage Limit (optional)</label>
+          <input type="number" id="promoUsageLimit" placeholder="Unlimited if blank" min="1">
+        </div>
+        <div>
+          <label>Minimum Order (optional)</label>
+          <input type="number" id="promoMinOrder" placeholder="No minimum if blank" min="0" step="0.01">
+        </div>
+      </div>
+      <label>Expires (optional)</label>
+      <input type="date" id="promoExpiresAt">
+      <button class="btn-primary" id="addPromoBtn" style="width:100%; margin-top:8px;">Add Promo Code</button>
+    </div>
+
+    <div class="section-title">All Promo Codes</div>
+    <div class="card">
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>Code</th><th>Discount</th><th>Used</th><th>Expires</th><th>Status</th><th>Actions</th></tr></thead>
+          <tbody id="promoCodesBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <div class="tab-panel hidden" id="panelApprove">
+    <div class="card">
+      <h2>Pending Absence Requests</h2>
+      <div id="pendingAbsenceRequestsList"></div>
+    </div>
+
     <div class="card">
       <details class="manual-entry-toggle">
         <summary><h2 style="display:inline;">Add Missed Hours</h2></summary>
@@ -702,6 +778,20 @@
   </div>
 
   <!-- ADMIN TAB -->
+  <!-- CUSTOMER INFO -->
+  <div class="tab-panel hidden" id="panelCustomerInfo">
+    <div class="card">
+      <h2>Customer Info</h2>
+      <p class="hint">Everyone who's signed up as a member on the website. Birthdays are month/day only &mdash; no year is ever collected.</p>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>Name</th><th>Email</th><th>Birthday</th><th>Signed Up</th></tr></thead>
+          <tbody id="customerInfoBody"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
   <div class="tab-panel hidden" id="panelAdmin">
     <div class="card">
       <h2>Staff &amp; Pay Rates</h2>
@@ -1002,6 +1092,7 @@
         loadCustomerInfo();
       }
       loadMyEntries();
+      loadMyAbsenceRequests();
       loadMyDocuments();
       if (isManager) loadAllDocuments();
     });
@@ -1132,6 +1223,51 @@
     teamHoursEl.textContent = teamHours.toFixed(2);
     teamPayEl.textContent = '$' + teamPay.toFixed(2);
   }
+
+  // ---------------- ABSENCE REQUESTS ----------------
+  function loadMyAbsenceRequests(){
+    sb.from('absence_requests').select('*').eq('employee_id', currentEmployee.id)
+      .order('requested_date', {ascending:false}).then(function(res){
+        var tbody = document.getElementById('myAbsenceRequestsBody');
+        if (res.error) {
+          tbody.innerHTML = '<tr class="empty-row"><td colspan="3">Could not load requests \u2014 ' + esc(res.error.message) + '</td></tr>';
+          return;
+        }
+        if (!res.data.length) {
+          tbody.innerHTML = '<tr class="empty-row"><td colspan="3">No requests yet.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = res.data.map(function(r){
+          return '<tr>' +
+            '<td>' + r.requested_date + '</td>' +
+            '<td>' + esc(r.reason || '\u2014') + '</td>' +
+            '<td>' + esc(r.status) + '</td>' +
+          '</tr>';
+        }).join('');
+      });
+  }
+
+  document.getElementById('submitAbsenceBtn').addEventListener('click', function(){
+    var btn = this;
+    var msgEl = document.getElementById('absenceRequestMsg');
+    var date = document.getElementById('absenceDateField').value;
+    var reason = document.getElementById('absenceReasonField').value.trim();
+
+    msgEl.textContent = '';
+    if (!date) { msgEl.textContent = 'Pick a date first.'; return; }
+
+    btn.disabled = true;
+    btn.textContent = 'Submitting\u2026';
+    sb.rpc('request_absence', { p_date: date, p_reason: reason || null }).then(function(res){
+      btn.disabled = false;
+      btn.textContent = 'Submit Request';
+      if (res.error) { msgEl.textContent = res.error.message || "Couldn't submit that request."; return; }
+      document.getElementById('absenceDateField').value = '';
+      document.getElementById('absenceReasonField').value = '';
+      msgEl.textContent = 'Request submitted!';
+      loadMyAbsenceRequests();
+    });
+  });
 
   function loadMyEntries(){
     sb.from('time_entries').select('*').eq('employee_id', currentEmployee.id)
@@ -1670,6 +1806,49 @@
     });
   });
 
+  function loadPendingAbsenceRequests(){
+    sb.from('absence_requests').select('*').eq('status', 'pending').order('requested_date').then(function(res){
+      var el = document.getElementById('pendingAbsenceRequestsList');
+      if (res.error) {
+        el.innerHTML = '<p class="hint">Could not load absence requests \u2014 ' + esc(res.error.message) + '</p>';
+        return;
+      }
+      if (!res.data.length) {
+        el.innerHTML = '<p class="hint">No pending time-off requests right now.</p>';
+        return;
+      }
+      el.innerHTML = res.data.map(function(r){
+        var emp = approvalsEmpMap[r.employee_id] || {name:'\u2014'};
+        return '<div class="cash-order-card">' +
+          '<div class="cash-order-info">' +
+            '<div class="cash-order-ref">' + esc(emp.name) + '</div>' +
+            '<div class="cash-order-name">Requesting ' + r.requested_date + '</div>' +
+            (r.reason ? '<div class="cash-order-items">' + esc(r.reason) + '</div>' : '') +
+          '</div>' +
+          '<div style="display:flex; gap:8px;">' +
+            '<button class="btn-approve btn-small approve-absence-btn" data-id="' + r.id + '">Approve</button>' +
+            '<button class="btn-ghost btn-small reject-absence-btn" data-id="' + r.id + '">Decline</button>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+
+      el.querySelectorAll('.approve-absence-btn, .reject-absence-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var newStatus = btn.classList.contains('approve-absence-btn') ? 'approved' : 'rejected';
+          btn.disabled = true;
+          sb.rpc('set_absence_status', { p_request_id: btn.dataset.id, p_status: newStatus }).then(function(res){
+            if (res.error) {
+              btn.disabled = false;
+              alert("Couldn't update that request \u2014 " + res.error.message);
+              return;
+            }
+            loadPendingAbsenceRequests();
+          });
+        });
+      });
+    });
+  }
+
   function loadApprovals(){
     sb.from('employees').select('id,name,hourly_rate').then(function(empRes){
       approvalsEmpMap = {};
@@ -1682,6 +1861,8 @@
           return '<option value="' + e.id + '">' + esc(e.name) + '</option>';
         }).join('');
       }
+
+      loadPendingAbsenceRequests();
 
       sb.from('time_entries').select('*').order('work_date', {ascending:false}).limit(400).then(function(res){
         if (res.error) return;
@@ -2004,6 +2185,92 @@
       });
   }
 
+  // ---------------- PROMOTIONS TAB ----------------
+  function loadPromotions(){
+    sb.from('promo_codes').select('*').order('created_at', {ascending:false}).then(function(res){
+      var tbody = document.getElementById('promoCodesBody');
+      if (res.error) {
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="6">Could not load promo codes \u2014 ' + esc(res.error.message) + '</td></tr>';
+        return;
+      }
+      if (!res.data.length) {
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="6">No promo codes yet \u2014 add one above.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = res.data.map(function(p){
+        var discount = p.discount_type === 'percentage' ? Number(p.discount_value) + '%' : '$' + Number(p.discount_value).toFixed(2);
+        var used = p.times_used + (p.usage_limit ? ' / ' + p.usage_limit : '');
+        var expires = p.expires_at ? new Date(p.expires_at).toLocaleDateString() : 'Never';
+        var isExpired = p.expires_at && new Date(p.expires_at) < new Date();
+        var statusLabel = isExpired ? 'Expired' : (p.is_active ? 'Active' : 'Inactive');
+        return '<tr>' +
+          '<td>' + esc(p.code) + '</td>' +
+          '<td>' + discount + '</td>' +
+          '<td>' + used + '</td>' +
+          '<td>' + expires + '</td>' +
+          '<td>' + statusLabel + '</td>' +
+          '<td>' +
+            '<button class="btn-ghost btn-small toggle-promo-btn" data-id="' + p.id + '" data-active="' + p.is_active + '">' + (p.is_active ? 'Deactivate' : 'Activate') + '</button> ' +
+            '<button class="btn-ghost btn-small delete-promo-btn" data-id="' + p.id + '">Delete</button>' +
+          '</td>' +
+        '</tr>';
+      }).join('');
+
+      tbody.querySelectorAll('.toggle-promo-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var newActive = btn.dataset.active !== 'true';
+          sb.rpc('toggle_promo_code', { p_code_id: btn.dataset.id, p_is_active: newActive }).then(function(res){
+            if (res.error) { alert("Couldn't update that code \u2014 " + res.error.message); return; }
+            loadPromotions();
+          });
+        });
+      });
+      tbody.querySelectorAll('.delete-promo-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          if (!confirm('Delete this promo code permanently?')) return;
+          sb.rpc('delete_promo_code', { p_code_id: btn.dataset.id }).then(function(res){
+            if (res.error) { alert("Couldn't delete that code \u2014 " + res.error.message); return; }
+            loadPromotions();
+          });
+        });
+      });
+    });
+  }
+
+  document.getElementById('addPromoBtn').addEventListener('click', function(){
+    var btn = this;
+    var msgEl = document.getElementById('addPromoMsg');
+    var code = document.getElementById('promoCodeField').value.trim();
+    var discountType = document.getElementById('promoDiscountType').value;
+    var discountValue = parseFloat(document.getElementById('promoDiscountValue').value);
+    var usageLimit = document.getElementById('promoUsageLimit').value ? parseInt(document.getElementById('promoUsageLimit').value, 10) : null;
+    var minOrder = document.getElementById('promoMinOrder').value ? parseFloat(document.getElementById('promoMinOrder').value) : null;
+    var expiresAtRaw = document.getElementById('promoExpiresAt').value;
+    var expiresAt = expiresAtRaw ? new Date(expiresAtRaw + 'T23:59:59').toISOString() : null;
+
+    msgEl.textContent = '';
+    if (!code) { msgEl.textContent = 'Enter a code.'; return; }
+    if (!discountValue || discountValue <= 0) { msgEl.textContent = 'Enter a valid discount value.'; return; }
+    if (discountType === 'percentage' && discountValue > 100) { msgEl.textContent = 'Percentage discount cannot exceed 100.'; return; }
+
+    btn.disabled = true;
+    btn.textContent = 'Adding\u2026';
+    sb.rpc('add_promo_code', {
+      p_code: code, p_discount_type: discountType, p_discount_value: discountValue,
+      p_usage_limit: usageLimit, p_min_order_amount: minOrder, p_expires_at: expiresAt
+    }).then(function(res){
+      btn.disabled = false;
+      btn.textContent = 'Add Promo Code';
+      if (res.error) { msgEl.textContent = res.error.message || "Couldn't add that code."; return; }
+      document.getElementById('promoCodeField').value = '';
+      document.getElementById('promoDiscountValue').value = '';
+      document.getElementById('promoUsageLimit').value = '';
+      document.getElementById('promoMinOrder').value = '';
+      document.getElementById('promoExpiresAt').value = '';
+      loadPromotions();
+    });
+  });
+
   // ---------------- PAYROLL TAB ----------------
   function loadPayroll(){
     sb.from('employees').select('id,name,hourly_rate').then(function(empRes){
@@ -2071,6 +2338,32 @@
           });
         });
       });
+    });
+  }
+
+  // ---------------- CUSTOMER INFO TAB ----------------
+  var MONTH_NAMES = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+  function loadCustomerInfo(){
+    sb.from('email_signups').select('*').order('created_at', {ascending:false}).then(function(res){
+      var tbody = document.getElementById('customerInfoBody');
+      if (res.error) {
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="4">Could not load customer info \u2014 ' + esc(res.error.message) + '</td></tr>';
+        return;
+      }
+      if (!res.data.length) {
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="4">No signups yet.</td></tr>';
+        return;
+      }
+      tbody.innerHTML = res.data.map(function(c){
+        var name = [c.first_name, c.last_name].filter(Boolean).join(' ') || '\u2014';
+        var birthday = c.birth_month ? (MONTH_NAMES[c.birth_month - 1] + ' ' + c.birth_day) : '\u2014';
+        return '<tr>' +
+          '<td>' + esc(name) + '</td>' +
+          '<td>' + esc(c.email) + '</td>' +
+          '<td>' + birthday + '</td>' +
+          '<td>' + new Date(c.created_at).toLocaleDateString() + '</td>' +
+        '</tr>';
+      }).join('');
     });
   }
 
