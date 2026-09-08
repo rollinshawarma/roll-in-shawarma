@@ -1628,6 +1628,30 @@
       });
     }
 
+    function refreshSiteBanner(){
+      var existing = rotator.querySelector('[data-slide="staff-banner"]');
+      sbShared.rpc('get_site_banner').then(function(res){
+        if (res.error || !res.data || !res.data.length || !res.data[0].message) {
+          if (existing) existing.remove();
+          startRotation();
+          return;
+        }
+        var html = '\uD83D\uDCE2 ' + escHtml(res.data[0].message);
+        if (existing) {
+          existing.innerHTML = html;
+        } else {
+          var slide = document.createElement('div');
+          slide.className = 'ann-slide';
+          slide.setAttribute('data-slide', 'staff-banner');
+          slide.innerHTML = html;
+          // Always first -- a staff-posted notice (closures, urgent
+          // updates) takes priority over the auto-generated event slide.
+          rotator.insertBefore(slide, rotator.firstChild);
+        }
+        startRotation();
+      });
+    }
+
     function refreshEventSlide(){
       var existing = rotator.querySelector('[data-slide="event"]');
       var today = new Date();
@@ -1694,10 +1718,12 @@
       });
     }
 
+    refreshSiteBanner();
     refreshEventSlide();
     refreshPromoTicker();
     // recheck periodically in case the tab stays open across the event's window closing
     // or a promo code's expiry/active status changing
+    setInterval(refreshSiteBanner, 5 * 60000);
     setInterval(refreshEventSlide, 30 * 60000);
     setInterval(refreshPromoTicker, 30 * 60000);
   })();
