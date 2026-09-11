@@ -333,7 +333,8 @@
     </div>
   </div>
   <div class="checkout-footer">
-    <button type="button" id="kioskPayBtn">Pay Now</button>
+    <button type="button" id="kioskPayBtn">Pay Now (Scan on Your Phone)</button>
+    <button type="button" id="kioskReaderPayBtn" style="margin-top:10px;">Pay with Card Reader</button>
     <div id="kioskCheckoutMsg"></div>
     <button type="button" id="kioskBackBtn">&larr; Back to menu</button>
   </div>
@@ -984,6 +985,11 @@
 
     // ---- Checkout / payment ----
     var KIOSK_EDGE_FUNCTION_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/create-order-checkout';
+    var CONFIRM_READER_PAYMENT_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/confirm-reader-payment';
+    // Found in the Square Developer Dashboard under your application
+    // (NOT the same as your SQUARE_ACCESS_TOKEN) -- this specific
+    // value still needs to be filled in before this button will work.
+    var SQUARE_APPLICATION_ID = 'REPLACE_WITH_YOUR_SQUARE_APPLICATION_ID';
     var CASH_ORDER_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/create-cash-order';
     var CONFIRMATION_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/get-order-confirmation';
     var KIOSK_ANON_KEY = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
@@ -1255,6 +1261,120 @@
           msgEl.textContent = "Couldn't reach checkout \u2014 please ask for help.";
         });
     });
+
+    // ---- Pay with Card Reader: hands off to the Square Point of ----
+    // ---- Sale app (installed separately on this tablet), which ----
+    // ---- talks to the paired Bluetooth reader directly.          ----
+    document.getElementById('kioskReaderPayBtn').addEventListener('click', function(){
+      var btn = this;
+      var msgEl = document.getElementById('kioskCheckoutMsg');
+      var name = document.getElementById('kioskName').value.trim();
+      var email = document.getElementById('kioskEmail').value.trim();
+
+      msgEl.textContent = '';
+      if (!cart.length) {
+        msgEl.textContent = 'Your cart is empty.';
+        return;
+      }
+
+      btn.disabled = true;
+      btn.textContent = 'Preparing checkout\u2026';
+
+      var itemsPayload = cart.map(function(c){
+        return { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name };
+      });
+
+      fetch(KIOSK_EDGE_FUNCTION_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KIOSK_ANON_KEY },
+        body: JSON.stringify({
+          items: itemsPayload,
+          customerName: name || 'Kiosk Guest',
+          customerEmail: email || undefined,
+          orderSource: 'kiosk',
+          paymentMethod: 'reader'
+        })
+      }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
+        .then(function(result){
+          if (!result.ok || !result.data.orderId) {
+            btn.disabled = false;
+            btn.textContent = 'Pay with Card Reader';
+            msgEl.textContent = formatErrorMessage(result.data && result.data.error) || "Couldn't start checkout \u2014 please ask for help.";
+            return;
+          }
+
+          // The order id rides along on our own callback URL, so
+          // when Square POS hands control back to this exact page,
+          // we know which order this payment belongs to.
+          var thisPageUrl = window.location.origin + window.location.pathname;
+          var callbackUrl = thisPageUrl + '?readerOrderId=' + encodeURIComponent(result.data.orderId);
+          var totalCents = Math.round(Number(result.data.total) * 100);
+
+          var intentParams = [
+            'action=com.squareup.pos.action.CHARGE',
+            'package=com.squareup',
+            'S.browser_fallback_url=' + encodeURIComponent(callbackUrl),
+            'S.com.squareup.pos.WEB_CALLBACK_URI=' + encodeURIComponent(callbackUrl),
+            'S.com.squareup.pos.CLIENT_ID=' + encodeURIComponent(SQUARE_APPLICATION_ID),
+            'S.com.squareup.pos.API_VERSION=v2.0',
+            'i.com.squareup.pos.TOTAL_AMOUNT=' + totalCents,
+            'S.com.squareup.pos.CURRENCY_CODE=USD',
+            'S.com.squareup.pos.TENDER_TYPES=com.squareup.pos.TENDER_CARD'
+          ].join(';');
+
+          window.location.href = 'intent:#Intent;' + intentParams + ';end';
+        })
+        .catch(function(){
+          btn.disabled = false;
+          btn.textContent = 'Pay with Card Reader';
+          msgEl.textContent = "Couldn't reach checkout \u2014 please ask for help.";
+        });
+    });
+
+    // ---- Detect a return trip from the Square POS app. Runs once ----
+    // ---- at page load, since that's a fresh navigation back to   ----
+    // ---- this exact URL, not a JS-level event we can listen for. ----
+    (function checkForReaderPaymentReturn(){
+      var params = new URLSearchParams(window.location.search);
+      var readerOrderId = params.get('readerOrderId');
+      if (!readerOrderId) return; // normal page load, not a return trip
+
+      var serverTransactionId = params.get('com.squareup.pos.SERVER_TRANSACTION_ID');
+      var errorCode = params.get('com.squareup.pos.ERROR_CODE');
+
+      // Clean the URL immediately so refreshing this page never
+      // re-triggers confirmation of an old, already-handled payment.
+      window.history.replaceState({}, '', window.location.pathname);
+
+      var msgEl = document.getElementById('kioskCheckoutMsg');
+
+      if (errorCode) {
+        msgEl.textContent = errorCode === 'com.squareup.pos.ERROR_TRANSACTION_CANCELED'
+          ? 'Payment was canceled.'
+          : 'Payment did not complete (' + errorCode + '). Please try again.';
+        return;
+      }
+
+      if (!serverTransactionId) return; // neither success nor a known error shape -- ignore
+
+      msgEl.textContent = 'Confirming your payment\u2026';
+
+      fetch(CONFIRM_READER_PAYMENT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KIOSK_ANON_KEY },
+        body: JSON.stringify({ orderId: readerOrderId, serverTransactionId: serverTransactionId })
+      }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
+        .then(function(result){
+          if (!result.ok || !result.data.ok) {
+            msgEl.textContent = formatErrorMessage(result.data && result.data.error) || "Couldn't confirm this payment \u2014 please ask for help.";
+            return;
+          }
+          showOrderConfirmed(result.data.referenceCode, result.data.items, false);
+        })
+        .catch(function(){
+          msgEl.textContent = "Couldn't confirm this payment \u2014 please ask for help.";
+        });
+    })();
 
     loadMenu();
   })();
