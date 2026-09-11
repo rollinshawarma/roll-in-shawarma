@@ -67,8 +67,20 @@
   }
   .inactivity-ring-number{ position:relative; font-size:19px; font-weight:800; color:var(--white); }
 
-  /* ---------- MENU: single-column collapse/expand, ported from order.html ---------- */
-  .menu-wrap{ flex:1; overflow-y:auto; padding:16px 20px 130px; max-width:640px; margin:0 auto; width:100%; }
+  /* ---------- MENU: split layout -- menu left, live cart right ---------- */
+  .order-split{ flex:1; display:flex; overflow:hidden; }
+  .menu-wrap{ flex:1; overflow-y:auto; padding:16px 20px 40px; min-width:0; }
+
+  .cart-panel{
+    width:380px; flex:none; display:flex; flex-direction:column;
+    border-left:1px solid var(--line); background:var(--panel);
+  }
+  .cart-panel-header{
+    flex:none; padding:20px 24px 14px; font-size:18px; font-weight:800; color:var(--white);
+    border-bottom:1px solid var(--line);
+  }
+  .cart-panel .cart-view-list{ flex:1; overflow-y:auto; padding:8px 20px; }
+  .cart-panel-footer{ flex:none; padding:18px 24px 24px; border-top:1px solid var(--line); }
 
   .category-block{ border:1px solid var(--line); border-radius:14px; margin-bottom:10px; overflow:hidden; background:var(--panel); }
   .category-row{
@@ -90,6 +102,7 @@
     display:flex; align-items:center; justify-content:space-between; gap:16px;
     padding:18px 24px; border-top:1px solid var(--line);
   }
+  .item-photo{ width:56px; height:56px; border-radius:10px; object-fit:cover; flex:none; background:var(--panel); }
   .item-info{ flex:1; min-width:0; }
   .item-name{ font-size:16px; font-weight:700; color:var(--cream); }
   .item-desc{ font-size:12.5px; color:var(--muted); margin-top:3px; }
@@ -106,45 +119,24 @@
   .item-qty-value{ min-width:20px; text-align:center; font-size:17px; font-weight:800; color:var(--white); }
   .empty-hint{ color:var(--muted); font-size:15px; text-align:center; padding:30px 20px; }
 
-  /* ---------- CART VIEW ---------- */
-  #cartViewScreen{ position:fixed; inset:0; background:var(--black); z-index:80; overflow-y:auto; }
-  .cart-view-header{ display:flex; align-items:center; justify-content:space-between; padding:28px 32px 12px; }
-  .cart-view-header h2{ font-size:26px; font-weight:800; color:var(--white); }
-  #clearCartBtn{ background:none; color:var(--red); font-size:16px; font-weight:700; }
-  .cart-view-list{ padding:10px 32px 160px; }
+  /* ---------- CART PANEL (right side of the split layout) ---------- */
+  .cart-view-list{ padding:10px 0; }
+  .empty-hint{ color:var(--muted); font-size:14.5px; padding:20px 0; text-align:center; }
   .cart-view-row{
     display:flex; align-items:center; justify-content:space-between; gap:16px;
-    padding:18px 0; border-bottom:1px solid var(--line);
+    padding:16px 0; border-bottom:1px solid var(--line);
   }
   .cart-view-info{ flex:1; min-width:0; }
-  .cart-view-name{ font-size:16px; font-weight:700; color:var(--white); }
-  .cart-view-linetotal{ font-size:13.5px; color:var(--muted); margin-top:3px; }
-  .cart-view-stepper{ display:flex; align-items:center; gap:14px; flex:none; }
-  .cart-qty-btn{ width:38px; height:38px; border-radius:50%; background:var(--panel); border:1px solid var(--line); color:var(--cream); font-size:21px; display:flex; align-items:center; justify-content:center; }
+  .cart-view-name{ font-size:15px; font-weight:700; color:var(--white); }
+  .cart-view-linetotal{ font-size:13px; color:var(--muted); margin-top:3px; }
+  .cart-view-stepper{ display:flex; align-items:center; gap:10px; flex:none; }
+  .cart-qty-btn{ width:34px; height:34px; border-radius:50%; background:var(--black); border:1px solid var(--line); color:var(--cream); font-size:19px; display:flex; align-items:center; justify-content:center; }
   .cart-qty-btn:active{ background:var(--gold); color:#241902; }
-  .cart-qty-value{ min-width:22px; text-align:center; font-size:17px; font-weight:800; color:var(--white); }
-  .cart-view-footer{ position:fixed; left:0; right:0; bottom:0; background:var(--black); padding:20px 32px; border-top:1px solid var(--line); }
-  .cart-view-total-row{ display:flex; justify-content:space-between; font-size:20px; font-weight:800; color:var(--white); margin-bottom:16px; }
+  .cart-qty-value{ min-width:20px; text-align:center; font-size:16px; font-weight:800; color:var(--white); }
+  .cart-view-total-row{ display:flex; justify-content:space-between; font-size:19px; font-weight:800; color:var(--white); margin-bottom:14px; }
   .cart-view-total-row span{ color:var(--gold); }
-  #proceedToCheckoutBtn{ width:100%; background:var(--gold); color:#241902; font-size:19px; font-weight:800; padding:20px; border-radius:14px; }
-  #backToMenuFromCartBtn{ display:block; margin:16px auto 0; background:none; color:var(--muted); font-size:15px; }
-
-
-  /* persistent cart bar */
-  #cartBar{
-    position:fixed; left:0; right:0; bottom:0; background:var(--gold); color:#241902;
-    display:flex; align-items:center; justify-content:space-between; padding:22px 32px; gap:16px;
-    box-shadow:0 -10px 40px rgba(0,0,0,0.4); z-index:50;
-  }
-  #cartBar.hidden{ display:none !important; }
-  #cartBarInfo{ font-size:19px; font-weight:800; flex:1; }
-  #cartBarClearBtn{
-    background:rgba(36,25,2,0.12); border:none; width:44px; height:44px; border-radius:50%;
-    display:flex; align-items:center; justify-content:center; flex:none;
-  }
-  #cartBarClearBtn svg{ width:20px; height:20px; color:#241902; }
-  #cartBarClearBtn:active{ background:rgba(36,25,2,0.22); }
-  #cartBarBtn{ background:#241902; color:var(--gold); font-size:19px; font-weight:800; padding:16px 36px; border-radius:100px; }
+  #proceedToCheckoutBtn{ width:100%; background:var(--gold); color:#241902; font-size:18px; font-weight:800; padding:18px; border-radius:14px; }
+  #clearCartBtn{ display:block; width:100%; margin-top:12px; background:none; color:var(--red); font-size:15px; font-weight:700; padding:8px; }
 
   /* ---------- CHECKOUT SCREEN ---------- */
   #checkoutScreen{ position:fixed; inset:0; display:flex; flex-direction:column; background:var(--black); }
@@ -256,8 +248,15 @@
   .skip-email-btn{ background:none; color:var(--muted); font-size:14px; font-weight:600; margin-top:8px; text-decoration:underline; }
 
   .checkout-footer{ flex:none; padding:24px 32px; border-top:1px solid var(--line); max-width:560px; margin:0 auto; width:100%; }
-  #kioskPayBtn{ width:100%; background:var(--gold); color:#241902; font-size:22px; font-weight:800; padding:22px; border-radius:16px; }
+  #kioskReaderPayBtn{ width:100%; background:var(--gold); color:#241902; font-size:22px; font-weight:800; padding:22px; border-radius:16px; }
+  #kioskReaderPayBtn:disabled{ opacity:0.6; }
+  #kioskPayBtn{
+    display:block; width:100%; margin-top:12px; background:none; color:var(--cream);
+    font-size:16px; font-weight:700; padding:16px; border:1px solid var(--line); border-radius:14px;
+  }
   #kioskPayBtn:disabled{ opacity:0.6; }
+  #kioskCashBtn{ display:block; width:100%; margin-top:10px; background:none; color:var(--muted); font-size:15px; font-weight:600; padding:10px; text-decoration:underline; }
+  #kioskCashBtn:disabled{ opacity:0.6; }
   #kioskBackBtn{ display:block; margin:16px auto 0; background:none; color:var(--muted); font-size:15px; }
   #kioskCheckoutMsg{ text-align:center; font-size:14px; color:var(--red); min-height:20px; margin-top:12px; }
 
@@ -290,28 +289,19 @@
     <h2>Build Your Order</h2>
     <button type="button" id="startOverBtn">Start Over</button>
   </div>
-  <div class="menu-wrap">
-    <div id="categoryList"></div>
-  </div>
-  <div id="cartBar" class="hidden">
-    <div id="cartBarInfo">0 items &middot; $0.00</div>
-    <button type="button" id="cartBarClearBtn" aria-label="Clear cart">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path></svg>
-    </button>
-    <button type="button" id="cartBarBtn">View Cart &rarr;</button>
-  </div>
-</div>
-
-<div id="cartViewScreen" class="hidden">
-  <div class="cart-view-header">
-    <h2>Your Cart</h2>
-    <button type="button" id="clearCartBtn">Clear Cart</button>
-  </div>
-  <div class="cart-view-list" id="cartViewList"></div>
-  <div class="cart-view-footer">
-    <div class="cart-view-total-row">Total <span id="cartViewTotal">$0.00</span></div>
-    <button type="button" id="proceedToCheckoutBtn">Proceed to Checkout</button>
-    <button type="button" id="backToMenuFromCartBtn">&larr; Back to menu</button>
+  <div class="order-split">
+    <div class="menu-wrap">
+      <div id="categoryList"></div>
+    </div>
+    <div class="cart-panel">
+      <div class="cart-panel-header">Your Order</div>
+      <div class="cart-view-list" id="cartViewList"></div>
+      <div class="cart-panel-footer">
+        <div class="cart-view-total-row">Total <span id="cartViewTotal">$0.00</span></div>
+        <button type="button" id="proceedToCheckoutBtn">Proceed to Checkout</button>
+        <button type="button" id="clearCartBtn">Clear Cart</button>
+      </div>
+    </div>
   </div>
 </div>
 
@@ -333,8 +323,9 @@
     </div>
   </div>
   <div class="checkout-footer">
-    <button type="button" id="kioskPayBtn">Pay Now (Scan on Your Phone)</button>
-    <button type="button" id="kioskReaderPayBtn" style="margin-top:10px;">Pay with Card Reader</button>
+    <button type="button" id="kioskReaderPayBtn">Tap or Insert Card</button>
+    <button type="button" id="kioskPayBtn">Scan to Pay on Your Phone</button>
+    <button type="button" id="kioskCashBtn">Pay Cash at the Window</button>
     <div id="kioskCheckoutMsg"></div>
     <button type="button" id="kioskBackBtn">&larr; Back to menu</button>
   </div>
@@ -566,7 +557,9 @@
         if (group.items.length === 1) {
           var item = group.items[0];
           var label = item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : '');
+          var photoHtml = item.image_url ? '<img class="item-photo" src="' + escHtml(item.image_url) + '" alt="" loading="lazy" onerror="this.remove()">' : '';
           return '<div class="item-row">' +
+            photoHtml +
             '<div class="item-info">' +
               '<div class="item-name">' + escHtml(label) + '</div>' +
               (item.description ? '<div class="item-desc">' + escHtml(item.description) + '</div>' : '') +
@@ -578,7 +571,9 @@
 
         var groupKey = escHtml(group.name);
         var firstItem = group.items[0];
+        var groupPhotoHtml = firstItem.image_url ? '<img class="item-photo" src="' + escHtml(firstItem.image_url) + '" alt="" loading="lazy" onerror="this.remove()">' : '';
         return '<div class="variant-row" data-variant-group="' + groupKey + '">' +
+            groupPhotoHtml +
             '<div class="item-info">' +
               '<div class="item-name">' + escHtml(group.name) + '</div>' +
               '<div class="item-price">$' + Number(firstItem.price).toFixed(2) + '</div>' +
@@ -822,11 +817,10 @@
       if (friesItem) addOneRaw(friesItem.id);
       if (drinkItem) addOneRaw(drinkItem.id);
       syncCombos();
-      renderCartBar();
       if (friesItem) renderItemControl(friesItem.id);
       if (drinkItem) renderItemControl(drinkItem.id);
       refreshComboRowState();
-      if (!cartViewScreen.classList.contains('hidden')) renderCartView();
+      renderCartView();
     }
 
     function addOneRaw(itemId){
@@ -844,10 +838,9 @@
     function addOne(itemId){
       addOneRaw(itemId);
       syncCombos();
-      renderCartBar();
       refreshItemDisplay(itemId);
       refreshComboRowState();
-      if (!cartViewScreen.classList.contains('hidden')) renderCartView();
+      renderCartView();
     }
 
     function removeOne(itemId){
@@ -862,39 +855,28 @@
         if (line.quantity <= 0) cart = cart.filter(function(c){ return c.menu_item_id !== itemId; });
       }
       syncCombos();
-      renderCartBar();
       refreshItemDisplay(itemId);
       refreshComboRowState();
-      if (!cartViewScreen.classList.contains('hidden')) renderCartView();
+      renderCartView();
     }
 
     function cartTotal(){ return cart.reduce(function(sum, c){ return sum + c.unitPrice * c.quantity; }, 0); }
     function cartCount(){ return cart.reduce(function(sum, c){ return sum + c.quantity; }, 0); }
 
-    function renderCartBar(){
-      var bar = document.getElementById('cartBar');
-      var count = cartCount();
-      if (count === 0) { bar.classList.add('hidden'); return; }
-      bar.classList.remove('hidden');
-      document.getElementById('cartBarInfo').textContent = count + ' item' + (count === 1 ? '' : 's') + ' \u00b7 $' + cartTotal().toFixed(2) + ' + tax';
-    }
-
     function clearCart(){
       if (!cart.length) return;
       if (!confirm('Clear your whole cart?')) return;
       cart = [];
-      renderCartBar();
       if (expandedCategory) renderCategoryContent(expandedCategory);
-      if (!cartViewScreen.classList.contains('hidden')) renderCartView();
+      renderCartView();
     }
 
-    document.getElementById('cartBarClearBtn').addEventListener('click', clearCart);
     document.getElementById('clearCartBtn').addEventListener('click', clearCart);
-
-    var cartViewScreen = document.getElementById('cartViewScreen');
 
     // Quantity management (increase, decrease, remove) lives here now,
     // separate from the menu -- tapping a menu item just adds one.
+    // Runs on every cart change, since the cart panel is always
+    // visible alongside the menu rather than a separate screen.
     function renderCartView(){
       var listEl = document.getElementById('cartViewList');
       if (!cart.length) {
@@ -918,7 +900,6 @@
           btn.addEventListener('click', function(){
             var id = btn.getAttribute('data-id');
             if (btn.getAttribute('data-dir') === '1') addOne(id); else removeOne(id);
-            renderCartView();
           });
         });
       }
@@ -926,26 +907,16 @@
       document.getElementById('cartViewTotal').textContent = '$' + cartTotal().toFixed(2);
     }
 
-    function showCartView(){
-      if (!cart.length) return;
-      orderScreen.classList.add('hidden');
-      cartViewScreen.classList.remove('hidden');
-      renderCartView();
-      resetInactivityTimer();
-    }
-
     // ---- Screen navigation ----
     function goToOrderScreen(){
       idleScreen.classList.add('hidden');
       checkoutScreen.classList.add('hidden');
-      cartViewScreen.classList.add('hidden');
       orderScreen.classList.remove('hidden');
       resetInactivityTimer();
     }
     function goToCheckoutScreen(){
       if (!cart.length) return;
       orderScreen.classList.add('hidden');
-      cartViewScreen.classList.add('hidden');
       checkoutScreen.classList.remove('hidden');
       document.getElementById('checkoutItemsList').innerHTML = cart.map(function(c){
         return '<div class="checkout-item-row"><span class="nm">' + escHtml(c.name) + ' &times; ' + c.quantity + '</span>' +
@@ -961,9 +932,7 @@
 
     document.getElementById('startOrderBtn').addEventListener('click', goToOrderScreen);
     document.getElementById('startOverBtn').addEventListener('click', function(){ window.location.reload(); });
-    document.getElementById('cartBarBtn').addEventListener('click', showCartView);
     document.getElementById('proceedToCheckoutBtn').addEventListener('click', goToCheckoutScreen);
-    document.getElementById('backToMenuFromCartBtn').addEventListener('click', goToOrderScreen);
     document.getElementById('kioskBackBtn').addEventListener('click', function(){
       checkoutScreen.classList.add('hidden');
       orderScreen.classList.remove('hidden');
@@ -1148,48 +1117,9 @@
           });
       };
 
-      document.getElementById('scanPayCashBtn').onclick = function(){
-        var cashBtn = this;
-        var msgEl = document.getElementById('scanToPayMsg');
-        msgEl.textContent = '';
-        stopPolling();
-        cashBtn.disabled = true;
-        cashBtn.textContent = 'One moment\u2026';
-
-        var itemsPayload = cart.map(function(c){
-          return { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name };
-        });
-        var name = document.getElementById('kioskName').value.trim();
-        var email = document.getElementById('kioskEmail').value.trim();
-
-        fetch(CASH_ORDER_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KIOSK_ANON_KEY },
-          body: JSON.stringify({
-            items: itemsPayload,
-            customerName: name || 'Kiosk Guest',
-            customerEmail: email || undefined,
-            orderSource: 'kiosk'
-          })
-        }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
-          .then(function(result){
-            if (!result.ok) {
-              console.error('Cash order failed:', result.data);
-              cashBtn.disabled = false;
-              cashBtn.textContent = "I'll pay cash at the window \u2192";
-              msgEl.textContent = formatErrorMessage(result.data && result.data.error) || "Couldn't place the order \u2014 please ask for help.";
-              return;
-            }
-            var confirmedItems = cart.map(function(c){ return { name: c.name, quantity: c.quantity }; });
-            showOrderConfirmed(result.data.referenceCode, confirmedItems, true);
-          })
-          .catch(function(err){
-            console.error('Cash order request failed:', err);
-            cashBtn.disabled = false;
-            cashBtn.textContent = "I'll pay cash at the window \u2192";
-            msgEl.textContent = "Couldn't reach the server \u2014 please ask for help.";
-          });
-      };
+    document.getElementById('scanPayCashBtn').onclick = function(){
+      submitCashOrder(this, document.getElementById('scanToPayMsg'), stopPolling);
+    };
       document.getElementById('scanCancelBtn').onclick = function(){
         stopPolling();
         scanToPayScreen.classList.add('hidden');
@@ -1214,6 +1144,48 @@
       } catch (e) {
         showQrFallback(canvasWrap, checkoutUrl);
       }
+    }
+
+    function submitCashOrder(btn, msgEl, onCancelPolling){
+      msgEl.textContent = '';
+      if (onCancelPolling) onCancelPolling();
+      btn.disabled = true;
+      var originalLabel = btn.textContent;
+      btn.textContent = 'One moment\u2026';
+
+      var itemsPayload = cart.map(function(c){
+        return { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name };
+      });
+      var name = document.getElementById('kioskName').value.trim();
+      var email = document.getElementById('kioskEmail').value.trim();
+
+      fetch(CASH_ORDER_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KIOSK_ANON_KEY },
+        body: JSON.stringify({
+          items: itemsPayload,
+          customerName: name || 'Kiosk Guest',
+          customerEmail: email || undefined,
+          orderSource: 'kiosk'
+        })
+      }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
+        .then(function(result){
+          if (!result.ok) {
+            console.error('Cash order failed:', result.data);
+            btn.disabled = false;
+            btn.textContent = originalLabel;
+            msgEl.textContent = formatErrorMessage(result.data && result.data.error) || "Couldn't place the order \u2014 please ask for help.";
+            return;
+          }
+          var confirmedItems = cart.map(function(c){ return { name: c.name, quantity: c.quantity }; });
+          showOrderConfirmed(result.data.referenceCode, confirmedItems, true);
+        })
+        .catch(function(err){
+          console.error('Cash order request failed:', err);
+          btn.disabled = false;
+          btn.textContent = originalLabel;
+          msgEl.textContent = "Couldn't reach the server \u2014 please ask for help.";
+        });
     }
 
     document.getElementById('kioskPayBtn').addEventListener('click', function(){
@@ -1248,7 +1220,7 @@
       }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
         .then(function(result){
           payBtn.disabled = false;
-          payBtn.textContent = 'Pay Now';
+          payBtn.textContent = 'Scan to Pay on Your Phone';
           if (!result.ok || !result.data.url) {
             msgEl.textContent = formatErrorMessage(result.data && result.data.error) || "Couldn't start checkout \u2014 please ask for help.";
             return;
@@ -1257,7 +1229,7 @@
         })
         .catch(function(){
           payBtn.disabled = false;
-          payBtn.textContent = 'Pay Now';
+          payBtn.textContent = 'Scan to Pay on Your Phone';
           msgEl.textContent = "Couldn't reach checkout \u2014 please ask for help.";
         });
     });
@@ -1298,7 +1270,7 @@
         .then(function(result){
           if (!result.ok || !result.data.orderId) {
             btn.disabled = false;
-            btn.textContent = 'Pay with Card Reader';
+            btn.textContent = 'Tap or Insert Card';
             msgEl.textContent = formatErrorMessage(result.data && result.data.error) || "Couldn't start checkout \u2014 please ask for help.";
             return;
           }
@@ -1326,9 +1298,17 @@
         })
         .catch(function(){
           btn.disabled = false;
-          btn.textContent = 'Pay with Card Reader';
+          btn.textContent = 'Tap or Insert Card';
           msgEl.textContent = "Couldn't reach checkout \u2014 please ask for help.";
         });
+    });
+
+    document.getElementById('kioskCashBtn').addEventListener('click', function(){
+      if (!cart.length) {
+        document.getElementById('kioskCheckoutMsg').textContent = 'Your cart is empty.';
+        return;
+      }
+      submitCashOrder(this, document.getElementById('kioskCheckoutMsg'));
     });
 
     // ---- Detect a return trip from the Square POS app. Runs once ----
