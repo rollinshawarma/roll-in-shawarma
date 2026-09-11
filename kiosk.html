@@ -1303,26 +1303,26 @@
             return;
           }
 
-          // The order id rides along on our own callback URL, so
-          // when Square POS hands control back to this exact page,
-          // we know which order this payment belongs to.
-          var thisPageUrl = window.location.origin + window.location.pathname;
-          var callbackUrl = thisPageUrl + '?readerOrderId=' + encodeURIComponent(result.data.orderId);
+          // Square's iOS callback returns only its own "data" param --
+          // it isn't guaranteed to preserve a custom query string we
+          // append to our callback URL, so the pending order id is
+          // stashed here instead and read back on return, independent
+          // of whatever Square does with the URL itself.
+          localStorage.setItem('pendingReaderOrderId', result.data.orderId);
+
           var totalCents = Math.round(Number(result.data.total) * 100);
+          var thisPageUrl = window.location.origin + window.location.pathname;
 
-          var intentParams = [
-            'action=com.squareup.pos.action.CHARGE',
-            'package=com.squareup',
-            'S.browser_fallback_url=' + encodeURIComponent(callbackUrl),
-            'S.com.squareup.pos.WEB_CALLBACK_URI=' + encodeURIComponent(callbackUrl),
-            'S.com.squareup.pos.CLIENT_ID=' + encodeURIComponent(SQUARE_APPLICATION_ID),
-            'S.com.squareup.pos.API_VERSION=v2.0',
-            'i.com.squareup.pos.TOTAL_AMOUNT=' + totalCents,
-            'S.com.squareup.pos.CURRENCY_CODE=USD',
-            'S.com.squareup.pos.TENDER_TYPES=com.squareup.pos.TENDER_CARD'
-          ].join(';');
+          var dataParameter = {
+            amount_money: { amount: String(totalCents), currency_code: 'USD' },
+            callback_url: thisPageUrl,
+            client_id: SQUARE_APPLICATION_ID,
+            version: '1.3',
+            notes: 'Order ' + result.data.referenceCode,
+            options: { supported_tender_types: ['CREDIT_CARD'] }
+          };
 
-          window.location.href = 'intent:#Intent;' + intentParams + ';end';
+          window.location.href = 'square-commerce-v1://payment/create?data=' + encodeURIComponent(JSON.stringify(dataParameter));
         })
         .catch(function(){
           btn.disabled = false;
@@ -1334,28 +1334,39 @@
     // ---- Detect a return trip from the Square POS app. Runs once ----
     // ---- at page load, since that's a fresh navigation back to   ----
     // ---- this exact URL, not a JS-level event we can listen for. ----
+    // ---- iOS sends back a single "data" query param containing   ----
+    // ---- JSON, unlike Android's several separate params.         ----
     (function checkForReaderPaymentReturn(){
-      var params = new URLSearchParams(window.location.search);
-      var readerOrderId = params.get('readerOrderId');
-      if (!readerOrderId) return; // normal page load, not a return trip
+      var readerOrderId = localStorage.getItem('pendingReaderOrderId');
+      if (!readerOrderId) return; // no reader payment in flight -- normal page load
 
-      var serverTransactionId = params.get('com.squareup.pos.SERVER_TRANSACTION_ID');
-      var errorCode = params.get('com.squareup.pos.ERROR_CODE');
+      var rawData = new URLSearchParams(window.location.search).get('data');
+      if (!rawData) return; // no return data yet -- e.g. this is just the initial page load before switching to Square
 
-      // Clean the URL immediately so refreshing this page never
-      // re-triggers confirmation of an old, already-handled payment.
+      // Whatever happens next resolves this attempt one way or another,
+      // so clear it now -- a stale value could otherwise incorrectly
+      // attach to some unrelated future visit to this page.
+      localStorage.removeItem('pendingReaderOrderId');
       window.history.replaceState({}, '', window.location.pathname);
+
+      var transactionInfo;
+      try {
+        transactionInfo = JSON.parse(decodeURIComponent(rawData));
+      } catch (e) {
+        return; // not a shape we recognize -- ignore rather than guess
+      }
 
       var msgEl = document.getElementById('kioskCheckoutMsg');
 
-      if (errorCode) {
-        msgEl.textContent = errorCode === 'com.squareup.pos.ERROR_TRANSACTION_CANCELED'
+      if (transactionInfo.error_code) {
+        msgEl.textContent = transactionInfo.error_code === 'user_canceled'
           ? 'Payment was canceled.'
-          : 'Payment did not complete (' + errorCode + '). Please try again.';
+          : 'Payment did not complete (' + transactionInfo.error_code + '). Please try again.';
         return;
       }
 
-      if (!serverTransactionId) return; // neither success nor a known error shape -- ignore
+      var serverTransactionId = transactionInfo.transaction_id;
+      if (!serverTransactionId) return; // neither a known success nor error shape -- ignore
 
       msgEl.textContent = 'Confirming your payment\u2026';
 
