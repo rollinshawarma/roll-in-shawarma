@@ -157,12 +157,14 @@
   .tip-final-total-row span{ color:var(--gold); }
   #tipBackBtn{ display:block; margin:16px auto 0; background:none; color:var(--muted); font-size:15px; }
   .tip-choose-hint{ text-align:center; color:var(--muted); font-size:14px; margin-bottom:14px; }
+  .payment-methods-row{ display:flex; gap:10px; margin-top:4px; }
   .payment-method-btn{
-    display:flex; align-items:center; justify-content:center; gap:12px;
-    width:100%; margin-top:10px; background:var(--panel); color:var(--cream);
-    font-size:17px; font-weight:700; padding:16px; border:2px solid var(--line); border-radius:14px;
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+    flex:1; min-width:0; background:var(--panel); color:var(--cream);
+    font-size:13px; font-weight:700; padding:14px 6px; border:2px solid var(--line); border-radius:14px;
+    text-align:center; line-height:1.2;
   }
-  .payment-method-btn svg{ width:24px; height:24px; flex:none; }
+  .payment-method-btn svg{ width:22px; height:22px; flex:none; }
   .payment-method-btn:disabled{ opacity:0.35; }
   .payment-method-btn:not(:disabled):active{ border-color:var(--gold); background:rgba(247,173,40,0.1); }
   #payTapBtn:not(:disabled){ background:var(--gold); color:#241902; border-color:var(--gold); }
@@ -361,18 +363,20 @@
   </div>
   <div class="checkout-footer">
     <p class="tip-choose-hint" id="tipChooseHint">Choose a tip above to continue</p>
-    <button type="button" id="payTapBtn" class="payment-method-btn" disabled>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8.32a7.43 7.43 0 0 1 0 7.36"></path><path d="M9.46 6.21a11.76 11.76 0 0 1 0 11.58"></path><path d="M12.91 4.1a15.91 15.91 0 0 1 .01 15.8"></path><path d="M16.37 2a20.16 20.16 0 0 1 0 20"></path></svg>
-      Tap to Pay
-    </button>
-    <button type="button" id="payScanBtn" class="payment-method-btn" disabled>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"></path><path d="M17 3h2a2 2 0 0 1 2 2v2"></path><path d="M21 17v2a2 2 0 0 1-2 2h-2"></path><path d="M7 21H5a2 2 0 0 1-2-2v-2"></path><rect x="7" y="7" width="10" height="10" rx="1"></rect></svg>
-      Scan to Pay
-    </button>
-    <button type="button" id="payCashBtn" class="payment-method-btn" disabled>
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="12" cy="12" r="3"></circle><path d="M6 12h.01M18 12h.01"></path></svg>
-      Pay Cash at Window
-    </button>
+    <div class="payment-methods-row">
+      <button type="button" id="payTapBtn" class="payment-method-btn" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8.32a7.43 7.43 0 0 1 0 7.36"></path><path d="M9.46 6.21a11.76 11.76 0 0 1 0 11.58"></path><path d="M12.91 4.1a15.91 15.91 0 0 1 .01 15.8"></path><path d="M16.37 2a20.16 20.16 0 0 1 0 20"></path></svg>
+        Tap to Pay
+      </button>
+      <button type="button" id="payScanBtn" class="payment-method-btn" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"></path><path d="M17 3h2a2 2 0 0 1 2 2v2"></path><path d="M21 17v2a2 2 0 0 1-2 2h-2"></path><path d="M7 21H5a2 2 0 0 1-2-2v-2"></path><rect x="7" y="7" width="10" height="10" rx="1"></rect></svg>
+        Scan to Pay
+      </button>
+      <button type="button" id="payCashBtn" class="payment-method-btn" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="12" cy="12" r="3"></circle><path d="M6 12h.01M18 12h.01"></path></svg>
+        Cash at Window
+      </button>
+    </div>
     <button type="button" id="tipBackBtn">&larr; Back</button>
   </div>
 </div>
