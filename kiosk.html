@@ -155,8 +155,17 @@
   .tip-option-btn.selected .tip-option-amount{ color:var(--gold); }
   .tip-final-total-row{ display:flex; justify-content:space-between; font-size:22px; font-weight:800; color:var(--white); margin-top:28px; padding-top:20px; border-top:1px solid var(--line); }
   .tip-final-total-row span{ color:var(--gold); }
-  #tipContinueBtn{ width:100%; background:var(--gold); color:#241902; font-size:20px; font-weight:800; padding:20px; border-radius:16px; }
   #tipBackBtn{ display:block; margin:16px auto 0; background:none; color:var(--muted); font-size:15px; }
+  .tip-choose-hint{ text-align:center; color:var(--muted); font-size:14px; margin-bottom:14px; }
+  .payment-method-btn{
+    display:flex; align-items:center; justify-content:center; gap:12px;
+    width:100%; margin-top:10px; background:var(--panel); color:var(--cream);
+    font-size:17px; font-weight:700; padding:16px; border:2px solid var(--line); border-radius:14px;
+  }
+  .payment-method-btn svg{ width:24px; height:24px; flex:none; }
+  .payment-method-btn:disabled{ opacity:0.35; }
+  .payment-method-btn:not(:disabled):active{ border-color:var(--gold); background:rgba(247,173,40,0.1); }
+  #payTapBtn:not(:disabled){ background:var(--gold); color:#241902; border-color:var(--gold); }
 
   /* ---------- SCAN TO PAY ---------- */
   #scanToPayScreen{
@@ -265,15 +274,8 @@
   .skip-email-btn{ background:none; color:var(--muted); font-size:14px; font-weight:600; margin-top:8px; text-decoration:underline; }
 
   .checkout-footer{ flex:none; padding:24px 32px; border-top:1px solid var(--line); max-width:560px; margin:0 auto; width:100%; }
-  #kioskReaderPayBtn{ width:100%; background:var(--gold); color:#241902; font-size:22px; font-weight:800; padding:22px; border-radius:16px; }
-  #kioskReaderPayBtn:disabled{ opacity:0.6; }
-  #kioskPayBtn{
-    display:block; width:100%; margin-top:12px; background:none; color:var(--cream);
-    font-size:16px; font-weight:700; padding:16px; border:1px solid var(--line); border-radius:14px;
-  }
-  #kioskPayBtn:disabled{ opacity:0.6; }
-  #kioskCashBtn{ display:block; width:100%; margin-top:10px; background:none; color:var(--muted); font-size:15px; font-weight:600; padding:10px; text-decoration:underline; }
-  #kioskCashBtn:disabled{ opacity:0.6; }
+  #proceedToPayBtn{ width:100%; background:var(--gold); color:#241902; font-size:22px; font-weight:800; padding:22px; border-radius:16px; }
+  #proceedToPayBtn:disabled{ opacity:0.6; }
   #kioskBackBtn{ display:block; margin:16px auto 0; background:none; color:var(--muted); font-size:15px; }
   #kioskCheckoutMsg{ text-align:center; font-size:14px; color:var(--red); min-height:20px; margin-top:12px; }
 
@@ -340,9 +342,7 @@
     </div>
   </div>
   <div class="checkout-footer">
-    <button type="button" id="kioskReaderPayBtn">Tap or Insert Card</button>
-    <button type="button" id="kioskPayBtn">Scan to Pay on Your Phone</button>
-    <button type="button" id="kioskCashBtn">Pay Cash at the Window</button>
+    <button type="button" id="proceedToPayBtn">Proceed to Pay</button>
     <div id="kioskCheckoutMsg"></div>
     <button type="button" id="kioskBackBtn">&larr; Back to menu</button>
   </div>
@@ -360,7 +360,19 @@
     <div class="tip-final-total-row">New Total <span id="tipFinalTotalDisplay">$0.00</span></div>
   </div>
   <div class="checkout-footer">
-    <button type="button" id="tipContinueBtn">Continue to Payment</button>
+    <p class="tip-choose-hint" id="tipChooseHint">Choose a tip above to continue</p>
+    <button type="button" id="payTapBtn" class="payment-method-btn" disabled>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8.32a7.43 7.43 0 0 1 0 7.36"></path><path d="M9.46 6.21a11.76 11.76 0 0 1 0 11.58"></path><path d="M12.91 4.1a15.91 15.91 0 0 1 .01 15.8"></path><path d="M16.37 2a20.16 20.16 0 0 1 0 20"></path></svg>
+      Tap to Pay
+    </button>
+    <button type="button" id="payScanBtn" class="payment-method-btn" disabled>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"></path><path d="M17 3h2a2 2 0 0 1 2 2v2"></path><path d="M21 17v2a2 2 0 0 1-2 2h-2"></path><path d="M7 21H5a2 2 0 0 1-2-2v-2"></path><rect x="7" y="7" width="10" height="10" rx="1"></rect></svg>
+      Scan to Pay
+    </button>
+    <button type="button" id="payCashBtn" class="payment-method-btn" disabled>
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="12" cy="12" r="3"></circle><path d="M6 12h.01M18 12h.01"></path></svg>
+      Pay Cash at Window
+    </button>
     <button type="button" id="tipBackBtn">&larr; Back</button>
   </div>
 </div>
@@ -1180,7 +1192,7 @@
       }
     }
 
-    function submitCashOrder(btn, msgEl, onCancelPolling){
+    function submitCashOrder(btn, msgEl, onCancelPolling, tipAmount){
       msgEl.textContent = '';
       if (onCancelPolling) onCancelPolling();
       btn.disabled = true;
@@ -1200,7 +1212,8 @@
           items: itemsPayload,
           customerName: name || 'Kiosk Guest',
           customerEmail: email || undefined,
-          orderSource: 'kiosk'
+          orderSource: 'kiosk',
+          tipAmount: tipAmount || 0
         })
       }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
         .then(function(result){
@@ -1222,8 +1235,10 @@
         });
     }
 
-    document.getElementById('kioskPayBtn').addEventListener('click', function(){
-      var payBtn = this;
+    // ---- Scan to Pay: creates the order and shows a QR code ----
+    // ---- linking to Square's own hosted checkout page.        ----
+    function startScanPayment(tipAmount){
+      var payBtn = document.getElementById('payScanBtn');
       var msgEl = document.getElementById('kioskCheckoutMsg');
       var name = document.getElementById('kioskName').value.trim();
       var email = document.getElementById('kioskEmail').value.trim();
@@ -1235,8 +1250,8 @@
         return;
       }
 
-      payBtn.disabled = true;
-      payBtn.textContent = 'Preparing checkout\u2026';
+      setPaymentButtonsDisabled(true);
+      msgEl.textContent = 'Preparing checkout\u2026';
 
       var itemsPayload = cart.map(function(c){
         return { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name };
@@ -1249,12 +1264,13 @@
           items: itemsPayload,
           customerName: name || 'Kiosk Guest',
           customerEmail: email || undefined,
-          orderSource: 'kiosk'
+          orderSource: 'kiosk',
+          tipAmount: tipAmount
         })
       }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
         .then(function(result){
-          payBtn.disabled = false;
-          payBtn.textContent = 'Scan to Pay on Your Phone';
+          setPaymentButtonsDisabled(false);
+          msgEl.textContent = '';
           if (!result.ok || !result.data.url) {
             msgEl.textContent = formatErrorMessage(result.data && result.data.error) || "Couldn't start checkout \u2014 please ask for help.";
             return;
@@ -1262,17 +1278,25 @@
           showScanToPay(result.data.url, result.data.referenceCode, result.data.total);
         })
         .catch(function(){
-          payBtn.disabled = false;
-          payBtn.textContent = 'Scan to Pay on Your Phone';
+          setPaymentButtonsDisabled(false);
           msgEl.textContent = "Couldn't reach checkout \u2014 please ask for help.";
         });
-    });
+    }
+
+    // ---- Helper shared by all three payment buttons: disables/    ----
+    // ---- enables them together without ever touching their inner  ----
+    // ---- HTML, since each contains an SVG icon that a textContent ----
+    // ---- change would silently wipe out.                          ----
+    function setPaymentButtonsDisabled(disabled){
+      ['payTapBtn', 'payScanBtn', 'payCashBtn'].forEach(function(id){
+        document.getElementById(id).disabled = disabled;
+      });
+    }
 
     // ---- Pay with Card Reader: hands off to the Square Point of ----
     // ---- Sale app (installed separately on this tablet), which ----
     // ---- talks to the paired Bluetooth reader directly.          ----
     function startReaderPayment(tipAmount){
-      var btn = document.getElementById('tipContinueBtn');
       var msgEl = document.getElementById('kioskCheckoutMsg');
       var name = document.getElementById('kioskName').value.trim();
       var email = document.getElementById('kioskEmail').value.trim();
@@ -1282,8 +1306,8 @@
         return;
       }
 
-      btn.disabled = true;
-      btn.textContent = 'Preparing checkout\u2026';
+      setPaymentButtonsDisabled(true);
+      msgEl.textContent = 'Preparing checkout\u2026';
 
       var itemsPayload = cart.map(function(c){
         return { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name };
@@ -1303,8 +1327,7 @@
       }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
         .then(function(result){
           if (!result.ok || !result.data.orderId) {
-            btn.disabled = false;
-            btn.textContent = 'Continue to Payment';
+            setPaymentButtonsDisabled(false);
             msgEl.textContent = formatErrorMessage(result.data && result.data.error) || "Couldn't start checkout \u2014 please ask for help.";
             return;
           }
@@ -1331,8 +1354,7 @@
           window.location.href = 'square-commerce-v1://payment/create?data=' + encodeURIComponent(JSON.stringify(dataParameter));
         })
         .catch(function(){
-          btn.disabled = false;
-          btn.textContent = 'Continue to Payment';
+          setPaymentButtonsDisabled(false);
           msgEl.textContent = "Couldn't reach checkout \u2014 please ask for help.";
         });
     }
@@ -1375,10 +1397,17 @@
             customWrap.style.display = 'block';
             document.getElementById('tipCustomAmount').value = '';
             document.getElementById('tipCustomAmount').focus();
-            selectedTipAmount = 0;
+            // Nothing entered yet -- stay disabled until a real
+            // amount is typed, rather than treating "Other" alone as
+            // an implicit $0 tip.
+            selectedTipAmount = null;
+            setPaymentButtonsDisabled(true);
+            document.getElementById('tipChooseHint').style.display = 'block';
           } else {
             customWrap.style.display = 'none';
             selectedTipAmount = opt.amount;
+            setPaymentButtonsDisabled(false);
+            document.getElementById('tipChooseHint').style.display = 'none';
           }
           updateTipFinalTotal();
         });
@@ -1386,16 +1415,20 @@
     }
 
     function updateTipFinalTotal(){
-      document.getElementById('tipFinalTotalDisplay').textContent = '$' + (tipScreenBaseTotal + selectedTipAmount).toFixed(2);
+      var display = selectedTipAmount === null ? tipScreenBaseTotal : (tipScreenBaseTotal + selectedTipAmount);
+      document.getElementById('tipFinalTotalDisplay').textContent = '$' + display.toFixed(2);
     }
 
     document.getElementById('tipCustomAmount').addEventListener('input', function(){
       var val = parseFloat(this.value);
-      selectedTipAmount = (isFinite(val) && val >= 0) ? val : 0;
+      var valid = isFinite(val) && val >= 0 && this.value.trim() !== '';
+      selectedTipAmount = valid ? val : null;
+      setPaymentButtonsDisabled(!valid);
+      document.getElementById('tipChooseHint').style.display = valid ? 'none' : 'block';
       updateTipFinalTotal();
     });
 
-    document.getElementById('kioskReaderPayBtn').addEventListener('click', function(){
+    document.getElementById('proceedToPayBtn').addEventListener('click', function(){
       if (!cart.length) {
         document.getElementById('kioskCheckoutMsg').textContent = 'Your cart is empty.';
         return;
@@ -1403,12 +1436,14 @@
       var subtotalCents = Math.round(cartTotal() * 100);
       var taxCents = Math.round(subtotalCents * TAX_RATE);
       tipScreenBaseTotal = (subtotalCents + taxCents) / 100;
-      selectedTipAmount = 0;
+      selectedTipAmount = null;
 
       document.getElementById('tipBaseTotalDisplay').textContent = '$' + tipScreenBaseTotal.toFixed(2);
       document.getElementById('tipCustomFieldWrap').style.display = 'none';
       renderTipOptions(tipScreenBaseTotal);
       updateTipFinalTotal();
+      setPaymentButtonsDisabled(true);
+      document.getElementById('tipChooseHint').style.display = 'block';
 
       checkoutScreen.classList.add('hidden');
       document.getElementById('tipScreen').classList.remove('hidden');
@@ -1421,16 +1456,14 @@
       resetInactivityTimer();
     });
 
-    document.getElementById('tipContinueBtn').addEventListener('click', function(){
-      startReaderPayment(selectedTipAmount);
+    document.getElementById('payTapBtn').addEventListener('click', function(){
+      startReaderPayment(selectedTipAmount || 0);
     });
-
-    document.getElementById('kioskCashBtn').addEventListener('click', function(){
-      if (!cart.length) {
-        document.getElementById('kioskCheckoutMsg').textContent = 'Your cart is empty.';
-        return;
-      }
-      submitCashOrder(this, document.getElementById('kioskCheckoutMsg'));
+    document.getElementById('payScanBtn').addEventListener('click', function(){
+      startScanPayment(selectedTipAmount || 0);
+    });
+    document.getElementById('payCashBtn').addEventListener('click', function(){
+      submitCashOrder(this, document.getElementById('kioskCheckoutMsg'), null, selectedTipAmount || 0);
     });
 
     // ---- Detect a return trip from the Square POS app. Runs once ----
