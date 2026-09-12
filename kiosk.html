@@ -184,7 +184,6 @@
     animation:spin 0.9s linear infinite;
   }
   @keyframes spin{ to{ transform:rotate(360deg); } }
-  #scanPayCashBtn{ background:none; color:var(--muted); font-size:19px; font-weight:700; text-decoration:underline; }
   #scanCheckNowBtn{ background:var(--gold); color:#241902; font-size:17px; font-weight:800; padding:14px 28px; border-radius:100px; margin-bottom:18px; }
   #scanCancelBtn{ background:none; color:var(--muted); font-size:14px; margin-top:16px; }
   .scan-error-msg{ color:var(--red); font-size:13.5px; margin-top:14px; max-width:340px; }
@@ -248,10 +247,10 @@
   #orderConfirmedScreen h2{ font-size:30px; font-weight:800; color:var(--white); margin-bottom:8px; }
   .confirm-order-number-box{
     background:var(--panel); border:2px solid var(--gold); border-radius:20px;
-    padding:26px 40px; margin:22px 0; min-width:280px;
+    padding:22px 32px; margin:22px 0; width:fit-content; max-width:90vw;
   }
   .confirm-order-number-label{ font-size:13px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px; }
-  .confirm-order-number-value{ font-size:48px; font-weight:800; color:var(--gold); letter-spacing:2px; }
+  .confirm-order-number-value{ font-size:40px; font-weight:800; color:var(--gold); letter-spacing:1px; white-space:nowrap; }
   #orderConfirmedScreen p{ font-size:17px; color:var(--cream); max-width:420px; margin-bottom:6px; }
   .confirm-items{ font-size:14px; color:var(--muted); max-width:360px; margin:18px 0; }
   .confirm-countdown{ font-size:14px; color:var(--muted); margin-top:30px; }
@@ -388,7 +387,6 @@
   <div class="scan-total">Total: <span id="scanTotalDisplay">$0.00</span></div>
   <div class="scan-waiting"><span class="spin"></span> Waiting for payment&hellip;</div>
   <button type="button" id="scanCheckNowBtn">Already paid? Check now &rarr;</button>
-  <button type="button" id="scanPayCashBtn">I'll pay cash at the window &rarr;</button>
   <div id="scanToPayMsg" class="scan-error-msg"></div>
   <button type="button" id="scanCancelBtn">&larr; Back to checkout</button>
 </div>
@@ -404,7 +402,7 @@
   </div>
   <p id="confirmedInstructions">We'll call your name when it's ready.</p>
   <div id="confirmedItemsList" class="confirm-items"></div>
-  <div class="confirm-countdown">Starting a new order in <span id="confirmedCountdown">5</span>s&hellip;</div>
+  <div class="confirm-countdown">Starting a new order in <span id="confirmedCountdown">15</span>s&hellip;</div>
 </div>
 
 <script>
@@ -1051,7 +1049,7 @@
         itemsEl.innerHTML = '';
       }
 
-      var seconds = 5;
+      var seconds = 15;
       var countdownEl = document.getElementById('confirmedCountdown');
       countdownEl.textContent = seconds;
       var timer = setInterval(function(){
@@ -1167,9 +1165,6 @@
           });
       };
 
-    document.getElementById('scanPayCashBtn').onclick = function(){
-      submitCashOrder(this, document.getElementById('scanToPayMsg'), stopPolling);
-    };
       document.getElementById('scanCancelBtn').onclick = function(){
         stopPolling();
         scanToPayScreen.classList.add('hidden');
@@ -1343,6 +1338,13 @@
           // of whatever Square does with the URL itself.
           localStorage.setItem('pendingReaderOrderId', result.data.orderId);
 
+          // The trip to the Square POS app and back is a full page
+          // reload, which wipes the entire cart from memory -- if
+          // payment fails or is canceled, the customer needs to see
+          // their cart exactly as it was, not an empty one. Cleared
+          // once the return is actually handled, whichever way it goes.
+          localStorage.setItem('pendingReaderCart', JSON.stringify({ cart: cart, name: name, email: email }));
+
           var totalCents = Math.round(Number(result.data.total) * 100);
           var thisPageUrl = window.location.origin + window.location.pathname;
 
@@ -1352,6 +1354,7 @@
             client_id: SQUARE_APPLICATION_ID,
             version: '1.3',
             notes: 'Order ' + result.data.referenceCode,
+            auto_return: true,
             options: { supported_tender_types: ['CREDIT_CARD'] }
           };
 
@@ -1483,10 +1486,28 @@
       if (!rawData) return; // no return data yet -- e.g. this is just the initial page load before switching to Square
 
       // Whatever happens next resolves this attempt one way or another,
-      // so clear it now -- a stale value could otherwise incorrectly
-      // attach to some unrelated future visit to this page.
+      // so clear the pending-order marker now -- a stale value could
+      // otherwise incorrectly attach to some unrelated future visit.
+      // The saved cart itself is only cleared once we know the actual
+      // outcome below, since a failure needs it restored first.
       localStorage.removeItem('pendingReaderOrderId');
       window.history.replaceState({}, '', window.location.pathname);
+
+      var savedCartRaw = localStorage.getItem('pendingReaderCart');
+      var savedCart = null;
+      try { savedCart = savedCartRaw ? JSON.parse(savedCartRaw) : null; } catch (e) { savedCart = null; }
+
+      function restoreCartAndShowCheckout(){
+        if (!savedCart) return false;
+        localStorage.removeItem('pendingReaderCart');
+        cart = savedCart.cart || [];
+        idleScreen.classList.add('hidden');
+        document.getElementById('kioskName').value = savedCart.name || '';
+        document.getElementById('kioskEmail').value = savedCart.email || '';
+        if (!cart.length) return false;
+        goToCheckoutScreen();
+        return true;
+      }
 
       var transactionInfo;
       try {
@@ -1495,11 +1516,11 @@
         return; // not a shape we recognize -- ignore rather than guess
       }
 
-      var msgEl = document.getElementById('kioskCheckoutMsg');
-
       if (transactionInfo.error_code) {
+        var restored = restoreCartAndShowCheckout();
+        var msgEl = document.getElementById('kioskCheckoutMsg');
         msgEl.textContent = transactionInfo.error_code === 'user_canceled'
-          ? 'Payment was canceled.'
+          ? 'Payment was canceled.' + (restored ? ' Your cart is still here.' : '')
           : 'Payment did not complete (' + transactionInfo.error_code + '). Please try again.';
         return;
       }
@@ -1507,6 +1528,11 @@
       var serverTransactionId = transactionInfo.transaction_id;
       if (!serverTransactionId) return; // neither a known success nor error shape -- ignore
 
+      // Payment succeeded -- the saved cart backup is no longer needed.
+      localStorage.removeItem('pendingReaderCart');
+
+      restoreCartAndShowCheckout();
+      var msgEl = document.getElementById('kioskCheckoutMsg');
       msgEl.textContent = 'Confirming your payment\u2026';
 
       fetch(CONFIRM_READER_PAYMENT_URL, {
