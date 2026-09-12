@@ -141,6 +141,23 @@
   /* ---------- CHECKOUT SCREEN ---------- */
   #checkoutScreen{ position:fixed; inset:0; display:flex; flex-direction:column; background:var(--black); }
 
+  /* ---------- TIP SCREEN ---------- */
+  #tipScreen{ position:fixed; inset:0; display:flex; flex-direction:column; background:var(--black); }
+  .tip-total-line{ color:var(--muted); font-size:16px; margin-bottom:24px; }
+  .tip-options-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .tip-option-btn{
+    background:var(--panel); border:2px solid var(--line); border-radius:14px;
+    padding:18px 12px; text-align:center; color:var(--cream);
+  }
+  .tip-option-btn .tip-option-label{ font-size:16px; font-weight:700; display:block; }
+  .tip-option-btn .tip-option-amount{ font-size:14px; color:var(--muted); display:block; margin-top:4px; }
+  .tip-option-btn.selected{ border-color:var(--gold); background:rgba(247,173,40,0.14); }
+  .tip-option-btn.selected .tip-option-amount{ color:var(--gold); }
+  .tip-final-total-row{ display:flex; justify-content:space-between; font-size:22px; font-weight:800; color:var(--white); margin-top:28px; padding-top:20px; border-top:1px solid var(--line); }
+  .tip-final-total-row span{ color:var(--gold); }
+  #tipContinueBtn{ width:100%; background:var(--gold); color:#241902; font-size:20px; font-weight:800; padding:20px; border-radius:16px; }
+  #tipBackBtn{ display:block; margin:16px auto 0; background:none; color:var(--muted); font-size:15px; }
+
   /* ---------- SCAN TO PAY ---------- */
   #scanToPayScreen{
     position:fixed; inset:0; background:var(--black); display:flex; flex-direction:column;
@@ -328,6 +345,23 @@
     <button type="button" id="kioskCashBtn">Pay Cash at the Window</button>
     <div id="kioskCheckoutMsg"></div>
     <button type="button" id="kioskBackBtn">&larr; Back to menu</button>
+  </div>
+</div>
+
+<div id="tipScreen" class="hidden">
+  <div class="checkout-body">
+    <h2>Add a Tip?</h2>
+    <p class="tip-total-line">Order total: <span id="tipBaseTotalDisplay">$0.00</span></p>
+    <div class="tip-options-grid" id="tipOptionsGrid"></div>
+    <div class="kiosk-field" id="tipCustomFieldWrap" style="display:none;">
+      <label>Custom Tip Amount</label>
+      <input type="number" id="tipCustomAmount" min="0" step="0.01" placeholder="$0.00">
+    </div>
+    <div class="tip-final-total-row">New Total <span id="tipFinalTotalDisplay">$0.00</span></div>
+  </div>
+  <div class="checkout-footer">
+    <button type="button" id="tipContinueBtn">Continue to Payment</button>
+    <button type="button" id="tipBackBtn">&larr; Back</button>
   </div>
 </div>
 
@@ -1237,13 +1271,12 @@
     // ---- Pay with Card Reader: hands off to the Square Point of ----
     // ---- Sale app (installed separately on this tablet), which ----
     // ---- talks to the paired Bluetooth reader directly.          ----
-    document.getElementById('kioskReaderPayBtn').addEventListener('click', function(){
-      var btn = this;
+    function startReaderPayment(tipAmount){
+      var btn = document.getElementById('tipContinueBtn');
       var msgEl = document.getElementById('kioskCheckoutMsg');
       var name = document.getElementById('kioskName').value.trim();
       var email = document.getElementById('kioskEmail').value.trim();
 
-      msgEl.textContent = '';
       if (!cart.length) {
         msgEl.textContent = 'Your cart is empty.';
         return;
@@ -1264,13 +1297,14 @@
           customerName: name || 'Kiosk Guest',
           customerEmail: email || undefined,
           orderSource: 'kiosk',
-          paymentMethod: 'reader'
+          paymentMethod: 'reader',
+          tipAmount: tipAmount
         })
       }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
         .then(function(result){
           if (!result.ok || !result.data.orderId) {
             btn.disabled = false;
-            btn.textContent = 'Tap or Insert Card';
+            btn.textContent = 'Continue to Payment';
             msgEl.textContent = formatErrorMessage(result.data && result.data.error) || "Couldn't start checkout \u2014 please ask for help.";
             return;
           }
@@ -1298,9 +1332,97 @@
         })
         .catch(function(){
           btn.disabled = false;
-          btn.textContent = 'Tap or Insert Card';
+          btn.textContent = 'Continue to Payment';
           msgEl.textContent = "Couldn't reach checkout \u2014 please ask for help.";
         });
+    }
+
+    // ---- Tip screen ----
+    var selectedTipAmount = 0;
+    var tipScreenBaseTotal = 0;
+
+    function roundUpTip(total){
+      return Math.round((Math.ceil(total) - total) * 100) / 100;
+    }
+
+    function renderTipOptions(baseTotal){
+      var options = [
+        { label: 'Round Up', amount: roundUpTip(baseTotal) },
+        { label: '5%', amount: Math.round(baseTotal * 0.05 * 100) / 100 },
+        { label: '10%', amount: Math.round(baseTotal * 0.10 * 100) / 100 },
+        { label: '15%', amount: Math.round(baseTotal * 0.15 * 100) / 100 },
+        { label: '20%', amount: Math.round(baseTotal * 0.20 * 100) / 100 },
+        { label: 'No Tip', amount: 0 },
+        { label: 'Other', amount: null }
+      ];
+
+      var grid = document.getElementById('tipOptionsGrid');
+      grid.innerHTML = options.map(function(opt, i){
+        var amountLabel = opt.amount === null ? 'Enter amount' : (opt.amount === 0 ? '+$0.00' : '+$' + opt.amount.toFixed(2));
+        return '<button type="button" class="tip-option-btn" data-index="' + i + '">' +
+          '<span class="tip-option-label">' + opt.label + '</span>' +
+          '<span class="tip-option-amount">' + amountLabel + '</span>' +
+        '</button>';
+      }).join('');
+
+      grid.querySelectorAll('.tip-option-btn').forEach(function(btn, i){
+        btn.addEventListener('click', function(){
+          grid.querySelectorAll('.tip-option-btn').forEach(function(b){ b.classList.remove('selected'); });
+          btn.classList.add('selected');
+          var opt = options[i];
+          var customWrap = document.getElementById('tipCustomFieldWrap');
+          if (opt.amount === null) {
+            customWrap.style.display = 'block';
+            document.getElementById('tipCustomAmount').value = '';
+            document.getElementById('tipCustomAmount').focus();
+            selectedTipAmount = 0;
+          } else {
+            customWrap.style.display = 'none';
+            selectedTipAmount = opt.amount;
+          }
+          updateTipFinalTotal();
+        });
+      });
+    }
+
+    function updateTipFinalTotal(){
+      document.getElementById('tipFinalTotalDisplay').textContent = '$' + (tipScreenBaseTotal + selectedTipAmount).toFixed(2);
+    }
+
+    document.getElementById('tipCustomAmount').addEventListener('input', function(){
+      var val = parseFloat(this.value);
+      selectedTipAmount = (isFinite(val) && val >= 0) ? val : 0;
+      updateTipFinalTotal();
+    });
+
+    document.getElementById('kioskReaderPayBtn').addEventListener('click', function(){
+      if (!cart.length) {
+        document.getElementById('kioskCheckoutMsg').textContent = 'Your cart is empty.';
+        return;
+      }
+      var subtotalCents = Math.round(cartTotal() * 100);
+      var taxCents = Math.round(subtotalCents * TAX_RATE);
+      tipScreenBaseTotal = (subtotalCents + taxCents) / 100;
+      selectedTipAmount = 0;
+
+      document.getElementById('tipBaseTotalDisplay').textContent = '$' + tipScreenBaseTotal.toFixed(2);
+      document.getElementById('tipCustomFieldWrap').style.display = 'none';
+      renderTipOptions(tipScreenBaseTotal);
+      updateTipFinalTotal();
+
+      checkoutScreen.classList.add('hidden');
+      document.getElementById('tipScreen').classList.remove('hidden');
+      resetInactivityTimer();
+    });
+
+    document.getElementById('tipBackBtn').addEventListener('click', function(){
+      document.getElementById('tipScreen').classList.add('hidden');
+      checkoutScreen.classList.remove('hidden');
+      resetInactivityTimer();
+    });
+
+    document.getElementById('tipContinueBtn').addEventListener('click', function(){
+      startReaderPayment(selectedTipAmount);
     });
 
     document.getElementById('kioskCashBtn').addEventListener('click', function(){
