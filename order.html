@@ -158,6 +158,24 @@
 
   /* ---------- checkout screen ---------- */
   #checkoutScreen{ position:fixed; inset:0; background:var(--black); z-index:80; overflow-y:auto; }
+
+  /* ---------- TIP SCREEN ---------- */
+  #tipScreen{ position:fixed; inset:0; background:var(--black); z-index:80; overflow-y:auto; }
+  .tip-total-line{ color:var(--muted); font-size:16px; margin-bottom:24px; }
+  .tip-options-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .tip-option-btn{
+    background:var(--panel); border:2px solid var(--line); border-radius:14px;
+    padding:18px 12px; text-align:center; color:var(--cream);
+  }
+  .tip-option-btn .tip-option-label{ font-size:16px; font-weight:700; display:block; }
+  .tip-option-btn .tip-option-amount{ font-size:14px; color:var(--muted); display:block; margin-top:4px; }
+  .tip-option-btn.selected{ border-color:var(--gold); background:rgba(247,173,40,0.14); }
+  .tip-option-btn.selected .tip-option-amount{ color:var(--gold); }
+  .tip-final-total-row{ display:flex; justify-content:space-between; font-size:22px; font-weight:800; color:var(--white); margin-top:28px; padding-top:20px; border-top:1px solid var(--line); }
+  .tip-final-total-row span{ color:var(--gold); }
+  #tipContinueBtn{ width:100%; background:var(--gold); color:#241902; font-size:20px; font-weight:800; padding:20px; border-radius:16px; }
+  #tipContinueBtn:disabled{ opacity:0.45; }
+  #tipBackBtn{ display:block; margin:16px auto 0; background:none; color:var(--muted); font-size:15px; }
   .checkout-body{ padding:20px; max-width:560px; margin:0 auto; padding-bottom:140px; }
   .checkout-body h2{ font-size:24px; font-weight:800; color:var(--white); margin-bottom:4px; }
   .checkout-roll-msg{ font-size:13px; color:var(--muted); margin-bottom:18px; }
@@ -329,9 +347,26 @@
   </div>
 
   <div class="checkout-footer">
-    <button type="button" id="payBtn">Pay Now</button>
+    <button type="button" id="proceedToPayBtn">Proceed to Pay</button>
     <div id="checkoutMsg"></div>
     <button type="button" id="backToMenuBtn">&larr; Back to menu</button>
+  </div>
+</div>
+
+<div id="tipScreen" class="hidden">
+  <div class="checkout-body">
+    <h2>Add a Tip?</h2>
+    <p class="tip-total-line">Order total: <span id="tipBaseTotalDisplay">$0.00</span></p>
+    <div class="tip-options-grid" id="tipOptionsGrid"></div>
+    <div class="kiosk-field" id="tipCustomFieldWrap" style="display:none;">
+      <label>Custom Tip Amount</label>
+      <input type="number" id="tipCustomAmount" min="0" step="0.01" placeholder="$0.00">
+    </div>
+    <div class="tip-final-total-row">New Total <span id="tipFinalTotalDisplay">$0.00</span></div>
+  </div>
+  <div class="checkout-footer">
+    <button type="button" id="tipContinueBtn" disabled>Continue to Payment</button>
+    <button type="button" id="tipBackBtn">&larr; Back</button>
   </div>
 </div>
 
@@ -921,35 +956,112 @@
       showCheckout();
     });
 
-    document.getElementById('cardChoiceBtn').addEventListener('click', function(){
-      paymentMethod = 'card';
-      this.classList.add('selected');
-      document.getElementById('cashChoiceBtn').classList.remove('selected');
-    });
-    document.getElementById('cashChoiceBtn').addEventListener('click', function(){
-      paymentMethod = 'cash';
-      this.classList.add('selected');
-      document.getElementById('cardChoiceBtn').classList.remove('selected');
-    });
-
     var CARD_CHECKOUT_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/create-order-checkout';
     var CASH_ORDER_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/create-cash-order';
     var ANON_KEY = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
 
-    document.getElementById('payBtn').addEventListener('click', function(){
+    // ---- Tip screen (shown after checkout details, before actually ----
+    // ---- proceeding to Square or submitting a cash order) ----
+    var selectedTipAmount = null;
+    var tipScreenBaseTotal = 0;
+
+    function roundUpTip(total){
+      return Math.round((Math.ceil(total) - total) * 100) / 100;
+    }
+
+    function renderTipOptions(baseTotal){
+      var options = [
+        { label: 'Round Up', amount: roundUpTip(baseTotal) },
+        { label: '5%', amount: Math.round(baseTotal * 0.05 * 100) / 100 },
+        { label: '10%', amount: Math.round(baseTotal * 0.10 * 100) / 100 },
+        { label: '15%', amount: Math.round(baseTotal * 0.15 * 100) / 100 },
+        { label: '20%', amount: Math.round(baseTotal * 0.20 * 100) / 100 },
+        { label: 'No Tip', amount: 0 },
+        { label: 'Other', amount: null }
+      ];
+
+      var grid = document.getElementById('tipOptionsGrid');
+      grid.innerHTML = options.map(function(opt, i){
+        var amountLabel = opt.amount === null ? 'Enter amount' : (opt.amount === 0 ? '+$0.00' : '+$' + opt.amount.toFixed(2));
+        return '<button type="button" class="tip-option-btn" data-index="' + i + '">' +
+          '<span class="tip-option-label">' + opt.label + '</span>' +
+          '<span class="tip-option-amount">' + amountLabel + '</span>' +
+        '</button>';
+      }).join('');
+
+      grid.querySelectorAll('.tip-option-btn').forEach(function(btn, i){
+        btn.addEventListener('click', function(){
+          grid.querySelectorAll('.tip-option-btn').forEach(function(b){ b.classList.remove('selected'); });
+          btn.classList.add('selected');
+          var opt = options[i];
+          var customWrap = document.getElementById('tipCustomFieldWrap');
+          var continueBtn = document.getElementById('tipContinueBtn');
+          if (opt.amount === null) {
+            customWrap.style.display = 'block';
+            document.getElementById('tipCustomAmount').value = '';
+            document.getElementById('tipCustomAmount').focus();
+            selectedTipAmount = null;
+            continueBtn.disabled = true;
+          } else {
+            customWrap.style.display = 'none';
+            selectedTipAmount = opt.amount;
+            continueBtn.disabled = false;
+          }
+          updateTipFinalTotal();
+        });
+      });
+    }
+
+    function updateTipFinalTotal(){
+      var display = selectedTipAmount === null ? tipScreenBaseTotal : (tipScreenBaseTotal + selectedTipAmount);
+      document.getElementById('tipFinalTotalDisplay').textContent = '$' + display.toFixed(2);
+    }
+
+    document.getElementById('tipCustomAmount').addEventListener('input', function(){
+      var val = parseFloat(this.value);
+      var valid = isFinite(val) && val >= 0 && this.value.trim() !== '';
+      selectedTipAmount = valid ? val : null;
+      document.getElementById('tipContinueBtn').disabled = !valid;
+      updateTipFinalTotal();
+    });
+
+    document.getElementById('proceedToPayBtn').addEventListener('click', function(){
+      if (!cart.length) {
+        document.getElementById('checkoutMsg').textContent = 'Your cart is empty.';
+        return;
+      }
+      tipScreenBaseTotal = computeTotals().total;
+      selectedTipAmount = null;
+
+      document.getElementById('tipBaseTotalDisplay').textContent = '$' + tipScreenBaseTotal.toFixed(2);
+      document.getElementById('tipCustomFieldWrap').style.display = 'none';
+      document.getElementById('tipContinueBtn').disabled = true;
+      renderTipOptions(tipScreenBaseTotal);
+      updateTipFinalTotal();
+
+      document.getElementById('checkoutScreen').classList.add('hidden');
+      document.getElementById('tipScreen').classList.remove('hidden');
+    });
+
+    document.getElementById('tipBackBtn').addEventListener('click', function(){
+      document.getElementById('tipScreen').classList.add('hidden');
+      document.getElementById('checkoutScreen').classList.remove('hidden');
+    });
+
+    document.getElementById('tipContinueBtn').addEventListener('click', function(){
       var payBtn = this;
       var msgEl = document.getElementById('checkoutMsg');
       var name = document.getElementById('custName').value.trim();
       var email = document.getElementById('custEmail').value.trim();
       var phone = document.getElementById('custPhone').value.trim();
       var notes = document.getElementById('custNotes').value.trim();
+      var tipAmount = selectedTipAmount || 0;
 
       msgEl.textContent = '';
 
       if (!cart.length) { msgEl.textContent = 'Your cart is empty.'; return; }
 
       payBtn.disabled = true;
-      payBtn.textContent = 'Preparing checkout\u2026';
 
       var itemsPayload = cart.map(function(c){
         return { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name };
@@ -962,9 +1074,7 @@
       }
 
       var url = paymentMethod === 'cash' ? CASH_ORDER_URL : CARD_CHECKOUT_URL;
-      var body = paymentMethod === 'cash'
-        ? { items: itemsPayload, customerName: name || 'QR Order', customerEmail: email || undefined, customerPhone: phone || undefined, notes: notes || undefined, orderSource: 'qr', pickupMethod: pickupMethod, carMake: carMakeValue, carColor: selectedCarColor }
-        : { items: itemsPayload, customerName: name || 'QR Order', customerEmail: email || undefined, customerPhone: phone || undefined, notes: notes || undefined, orderSource: 'qr', pickupMethod: pickupMethod, carMake: carMakeValue, carColor: selectedCarColor };
+      var body = { items: itemsPayload, customerName: name || 'QR Order', customerEmail: email || undefined, customerPhone: phone || undefined, notes: notes || undefined, orderSource: 'qr', pickupMethod: pickupMethod, carMake: carMakeValue, carColor: selectedCarColor, tipAmount: tipAmount };
 
       fetch(url, {
         method: 'POST',
@@ -974,7 +1084,6 @@
         .then(function(result){
           if (!result.ok) {
             payBtn.disabled = false;
-            payBtn.textContent = 'Pay Now';
             msgEl.textContent = formatErrorMessage(result.data && result.data.error) || "Couldn't start checkout \u2014 please try again.";
             return;
           }
@@ -986,24 +1095,35 @@
         })
         .catch(function(){
           payBtn.disabled = false;
-          payBtn.textContent = 'Pay Now';
           msgEl.textContent = "Couldn't reach checkout \u2014 please try again.";
         });
+    });
+
+    document.getElementById('cardChoiceBtn').addEventListener('click', function(){
+      paymentMethod = 'card';
+      this.classList.add('selected');
+      document.getElementById('cashChoiceBtn').classList.remove('selected');
+    });
+    document.getElementById('cashChoiceBtn').addEventListener('click', function(){
+      paymentMethod = 'cash';
+      this.classList.add('selected');
+      document.getElementById('cardChoiceBtn').classList.remove('selected');
     });
 
     // When the browser restores this page from its back-forward cache
     // (e.g. the customer goes to Square's payment page, then taps
     // back), the page reappears exactly as it looked the instant they
-    // left -- including the Pay Now button still disabled and showing
-    // "Preparing checkout...". Nothing else re-runs on a bfcache
-    // restore, so without this the button is stuck forever with no
-    // way to retry. event.persisted is true specifically for this
-    // restored-from-cache case, not a normal fresh page load.
+    // left -- including the Continue button still disabled from the
+    // in-flight request. Nothing else re-runs on a bfcache restore,
+    // so without this the button could be stuck. event.persisted is
+    // true specifically for this restored-from-cache case.
     window.addEventListener('pageshow', function(event){
       if (event.persisted) {
-        var payBtn = document.getElementById('payBtn');
-        payBtn.disabled = false;
-        payBtn.textContent = 'Pay Now';
+        var continueBtn = document.getElementById('tipContinueBtn');
+        // Only re-enable if a tip choice is actually still in place --
+        // otherwise this would incorrectly enable it with no tip
+        // selected at all.
+        if (selectedTipAmount !== null) continueBtn.disabled = false;
       }
     });
 
