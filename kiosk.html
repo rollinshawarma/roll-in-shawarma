@@ -167,7 +167,6 @@
   .payment-method-btn svg{ width:22px; height:22px; flex:none; }
   .payment-method-btn:disabled{ opacity:0.35; }
   .payment-method-btn:not(:disabled):active{ border-color:var(--gold); background:rgba(247,173,40,0.1); }
-  #payTapBtn:not(:disabled){ background:var(--gold); color:#241902; border-color:var(--gold); }
 
   /* ---------- SCAN TO PAY ---------- */
   #scanToPayScreen{
@@ -275,8 +274,12 @@
   .skip-email-btn{ background:none; color:var(--muted); font-size:14px; font-weight:600; margin-top:8px; text-decoration:underline; }
 
   .checkout-footer{ flex:none; padding:24px 32px; border-top:1px solid var(--line); max-width:560px; margin:0 auto; width:100%; }
-  #proceedToPayBtn{ width:100%; background:var(--gold); color:#241902; font-size:22px; font-weight:800; padding:22px; border-radius:16px; }
-  #proceedToPayBtn:disabled{ opacity:0.6; }
+  .payment-method-btn.payment-method-btn-large{
+    flex-direction:row; gap:12px; width:100%; font-size:20px; padding:20px;
+    background:var(--gold); color:#241902; border-color:var(--gold);
+  }
+  .payment-method-btn-large svg{ width:26px; height:26px; }
+  #exploreOtherPaymentsBtn{ display:block; width:100%; margin-top:12px; background:none; color:var(--cream); font-size:15px; font-weight:700; padding:14px; border:1px solid var(--line); border-radius:14px; }
   #kioskBackBtn{ display:block; margin:16px auto 0; background:none; color:var(--muted); font-size:15px; }
   #kioskCheckoutMsg{ text-align:center; font-size:14px; color:var(--red); min-height:20px; margin-top:12px; }
 
@@ -343,7 +346,11 @@
     </div>
   </div>
   <div class="checkout-footer">
-    <button type="button" id="proceedToPayBtn">Proceed to Pay</button>
+    <button type="button" id="payTapDirectBtn" class="payment-method-btn payment-method-btn-large">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8.32a7.43 7.43 0 0 1 0 7.36"></path><path d="M9.46 6.21a11.76 11.76 0 0 1 0 11.58"></path><path d="M12.91 4.1a15.91 15.91 0 0 1 .01 15.8"></path><path d="M16.37 2a20.16 20.16 0 0 1 0 20"></path></svg>
+      Tap to Pay
+    </button>
+    <button type="button" id="exploreOtherPaymentsBtn">Explore Other Payment Options</button>
     <div id="kioskCheckoutMsg"></div>
     <button type="button" id="kioskBackBtn">&larr; Back to menu</button>
   </div>
@@ -363,10 +370,6 @@
   <div class="checkout-footer">
     <p class="tip-choose-hint" id="tipChooseHint">Choose a tip above to continue</p>
     <div class="payment-methods-row">
-      <button type="button" id="payTapBtn" class="payment-method-btn" disabled>
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8.32a7.43 7.43 0 0 1 0 7.36"></path><path d="M9.46 6.21a11.76 11.76 0 0 1 0 11.58"></path><path d="M12.91 4.1a15.91 15.91 0 0 1 .01 15.8"></path><path d="M16.37 2a20.16 20.16 0 0 1 0 20"></path></svg>
-        Tap to Pay
-      </button>
       <button type="button" id="payScanBtn" class="payment-method-btn" disabled>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"></path><path d="M17 3h2a2 2 0 0 1 2 2v2"></path><path d="M21 17v2a2 2 0 0 1-2 2h-2"></path><path d="M7 21H5a2 2 0 0 1-2-2v-2"></path><rect x="7" y="7" width="10" height="10" rx="1"></rect></svg>
         Scan to Pay
@@ -1287,7 +1290,7 @@
     // ---- HTML, since each contains an SVG icon that a textContent ----
     // ---- change would silently wipe out.                          ----
     function setPaymentButtonsDisabled(disabled){
-      ['payTapBtn', 'payScanBtn', 'payCashBtn'].forEach(function(id){
+      ['payScanBtn', 'payCashBtn'].forEach(function(id){
         document.getElementById(id).disabled = disabled;
       });
     }
@@ -1435,7 +1438,7 @@
       updateTipFinalTotal();
     });
 
-    document.getElementById('proceedToPayBtn').addEventListener('click', function(){
+    document.getElementById('exploreOtherPaymentsBtn').addEventListener('click', function(){
       if (!cart.length) {
         document.getElementById('kioskCheckoutMsg').textContent = 'Your cart is empty.';
         return;
@@ -1463,8 +1466,14 @@
       resetInactivityTimer();
     });
 
-    document.getElementById('payTapBtn').addEventListener('click', function(){
-      startReaderPayment(selectedTipAmount || 0);
+    // Tap to Pay skips the tip screen entirely and goes straight to
+    // Square -- Square's own device-level tip setting already
+    // prompts for a tip during that flow, so asking here too would
+    // mean tipping twice. No tip is included from this side; any tip
+    // the customer adds happens entirely within Square's own screen,
+    // on top of the base amount already sent.
+    document.getElementById('payTapDirectBtn').addEventListener('click', function(){
+      startReaderPayment(0);
     });
     document.getElementById('payScanBtn').addEventListener('click', function(){
       startScanPayment(selectedTipAmount || 0);
