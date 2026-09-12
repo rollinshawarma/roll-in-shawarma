@@ -333,11 +333,8 @@
     </div>
 
     <div class="kiosk-field">
-      <label>How will you pay?</label>
-      <div class="payment-choice">
-        <button type="button" class="payment-choice-btn selected" id="cardChoiceBtn">Card</button>
-        <button type="button" class="payment-choice-btn" id="cashChoiceBtn">I'll pay cash at the window</button>
-      </div>
+      <label>How you'll pay</label>
+      <p id="paymentMethodNote" class="tip-total-line" style="margin-bottom:0;">Cash at the window when you pick up.</p>
     </div>
 
     <div class="kiosk-field">
@@ -890,6 +887,9 @@
           '<span class="amt">$' + (c.unitPrice * c.quantity).toFixed(2) + '</span></div>';
       }).join('');
       refreshCheckoutBreakdown();
+      document.getElementById('paymentMethodNote').textContent = pickupMethod === 'curbside'
+        ? "You'll pay by card next, right after this."
+        : 'Cash at the window when you pick up.';
     }
 
     document.getElementById('cartBarBtn').addEventListener('click', showCartView);
@@ -914,12 +914,14 @@
 
     document.getElementById('windowChoiceBtn').addEventListener('click', function(){
       pickupMethod = 'window';
+      paymentMethod = 'cash';
       this.classList.add('selected');
       document.getElementById('curbsideChoiceBtn').classList.remove('selected');
       document.getElementById('curbsideDetails').classList.add('hidden');
     });
     document.getElementById('curbsideChoiceBtn').addEventListener('click', function(){
       pickupMethod = 'curbside';
+      paymentMethod = 'card';
       this.classList.add('selected');
       document.getElementById('windowChoiceBtn').classList.remove('selected');
       document.getElementById('curbsideDetails').classList.remove('hidden');
@@ -1097,17 +1099,6 @@
           payBtn.disabled = false;
           msgEl.textContent = "Couldn't reach checkout \u2014 please try again.";
         });
-    });
-
-    document.getElementById('cardChoiceBtn').addEventListener('click', function(){
-      paymentMethod = 'card';
-      this.classList.add('selected');
-      document.getElementById('cashChoiceBtn').classList.remove('selected');
-    });
-    document.getElementById('cashChoiceBtn').addEventListener('click', function(){
-      paymentMethod = 'cash';
-      this.classList.add('selected');
-      document.getElementById('cardChoiceBtn').classList.remove('selected');
     });
 
     // When the browser restores this page from its back-forward cache
