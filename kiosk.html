@@ -94,18 +94,18 @@
   .category-block.expanded .category-expanded{ max-height:6000px; }
 
   .items-grid{
-    display:grid; grid-template-columns:repeat(3, 1fr); gap:14px;
+    display:flex; flex-wrap:wrap; gap:14px;
     padding:18px 20px;
   }
-  .item-tile, .variant-tile{
+  .item-tile, .variant-tile, .combo-tile{
     display:flex; flex-direction:column; background:var(--panel);
     border:1px solid var(--line); border-radius:14px; overflow:hidden;
-    min-width:0; cursor:default;
+    flex:1 1 150px; max-width:210px; min-width:0; cursor:default;
   }
-  .variant-tile{ cursor:pointer; }
-  .variant-tile:active{ border-color:var(--gold); }
-  .item-tile-photo{ width:100%; aspect-ratio:1; object-fit:cover; background:var(--black); display:block; }
-  .item-tile-photo-placeholder{ width:100%; aspect-ratio:1; background:var(--black); }
+  .variant-tile, .combo-tile{ cursor:pointer; }
+  .variant-tile:active, .combo-tile:not(.combo-tile-disabled):active{ border-color:var(--gold); }
+  .item-tile-photo{ width:100%; aspect-ratio:1; object-fit:contain; background:var(--panel); display:block; }
+  .item-tile-photo-placeholder{ width:100%; aspect-ratio:1; background:var(--panel); }
   .item-tile-body{ padding:10px 12px 12px; display:flex; flex-direction:column; flex:1; }
   .item-tile-name{ font-size:13.5px; font-weight:700; color:var(--cream); line-height:1.25; min-height:2.6em; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
   .item-tile-desc{ font-size:11px; color:var(--muted); margin-top:3px; }
@@ -193,17 +193,10 @@
 
   /* ---------- ORDER CONFIRMED (in-page, no navigation) ---------- */
   /* ---------- COMBO: inline row + expansion, no modal ---------- */
-  .combo-row{
-    display:flex; align-items:center; justify-content:space-between; gap:12px;
-    background:var(--gold); color:#241902; padding:14px 24px; cursor:pointer;
-  }
-  .combo-row-label{ font-size:15px; font-weight:800; }
-  .combo-row-plus{
-    width:30px; height:30px; border-radius:50%; background:#241902; color:var(--gold);
-    font-size:19px; font-weight:800; display:flex; align-items:center; justify-content:center; flex:none;
-  }
-  .combo-row.combo-row-disabled{ background:var(--panel); color:var(--muted); cursor:default; }
-  .combo-row.combo-row-disabled .combo-row-plus{ background:var(--line); color:var(--muted); }
+  .combo-tile{ border-color:var(--gold); background:rgba(247,173,40,0.08); }
+  .combo-tile .item-tile-name{ color:var(--gold); }
+  .combo-tile-disabled{ opacity:0.4; cursor:default; border-color:var(--line); background:var(--panel); }
+  .combo-tile-disabled .item-tile-name{ color:var(--muted); }
   .combo-drink-expand{
     max-height:0; overflow:hidden; transition:max-height .25s ease; background:var(--panel);
   }
@@ -645,7 +638,7 @@
               '<div class="item-tile-badge-row"><div class="variant-row-badge" data-variant-group="' + groupKey + '"></div></div>' +
             '</div>' +
           '</div>' +
-          '<div class="variant-expand" data-variant-group="' + groupKey + '" style="grid-column:1 / -1;">' +
+          '<div class="variant-expand" data-variant-group="' + groupKey + '" style="flex-basis:100%; width:100%;">' +
             '<div class="variant-expand-inner">' +
               '<div class="variant-expand-title">Choose your protein</div>' +
               group.items.map(function(item){
@@ -658,23 +651,29 @@
           '</div>';
       }).join('');
 
-      // One shared combo row per category, not per item -- this
+      // One shared combo tile per category, not per item -- this
       // category either has combo-eligible items or it doesn't, so
-      // any item's combo_upcharge tells us which, and the row itself
+      // any item's combo_upcharge tells us which, and the tile itself
       // just adds fries + a drink, independent of which specific
-      // entree the customer already added above. Disabled/grayed out
-      // until the cart actually has a qualifying entree in it. Spans
-      // the full grid width, same as the variant expansion above.
+      // entree the customer already added above. Explicitly excluded
+      // for Sides/Drinks regardless of combo_upcharge, since a combo
+      // built from fries + a drink makes no sense for those
+      // categories themselves. Disabled/grayed out (not clickable)
+      // until the cart actually has a qualifying entree in it.
       var comboUpcharge = items.length && items[0].combo_upcharge;
+      var comboExcludedCategory = (cat === 'Sides' || cat === 'Drinks');
       var comboHtml = '';
-      if (comboUpcharge) {
+      if (comboUpcharge && !comboExcludedCategory) {
         var comboEnabled = canAddCombo();
         comboHtml =
-          '<div class="combo-row' + (comboEnabled ? '' : ' combo-row-disabled') + '" data-cat="' + escHtml(cat) + '" style="grid-column:1 / -1;">' +
-            '<span class="combo-row-label">Make it a Combo +$' + Number(comboUpcharge).toFixed(2) + '</span>' +
-            '<span class="combo-row-plus">+</span>' +
+          '<div class="combo-tile' + (comboEnabled ? '' : ' combo-tile-disabled') + '" data-cat="' + escHtml(cat) + '">' +
+            '<img class="item-tile-photo" src="item-combo.jpg" alt="" loading="lazy" onerror="this.remove()">' +
+            '<div class="item-tile-body">' +
+              '<div class="item-tile-name">Make it a Combo</div>' +
+              '<div class="item-tile-price">+$' + Number(comboUpcharge).toFixed(2) + '</div>' +
+            '</div>' +
           '</div>' +
-          '<div class="combo-drink-expand" data-cat="' + escHtml(cat) + '" style="grid-column:1 / -1;">' +
+          '<div class="combo-drink-expand" data-cat="' + escHtml(cat) + '" style="flex-basis:100%; width:100%;">' +
             '<div class="combo-drink-inner">' +
               '<div class="combo-drink-title">Choose your drink</div>' +
               '<div class="combo-drink-grid">' +
@@ -705,10 +704,10 @@
         });
       });
 
-      var comboRow = contentEl.querySelector('.combo-row');
+      var comboRow = contentEl.querySelector('.combo-tile');
       if (comboRow) {
         comboRow.addEventListener('click', function(){
-          if (comboRow.classList.contains('combo-row-disabled')) return;
+          if (comboRow.classList.contains('combo-tile-disabled')) return;
           var expandEl = contentEl.querySelector('.combo-drink-expand');
           if (expandEl) expandEl.classList.toggle('expanded');
         });
@@ -816,17 +815,17 @@
       return qualifyingCount > comboCount;
     }
 
-    // Multiple .combo-row elements can exist in the DOM at once --
+    // Multiple .combo-tile elements can exist in the DOM at once --
     // collapsing a category only hides it via CSS, it never clears
-    // that category's HTML. An unscoped querySelector('.combo-row')
+    // that category's HTML. An unscoped querySelector('.combo-tile')
     // would always grab the first one in document order regardless of
     // which category is actually open, which is exactly why this
     // previously worked within a category but not across categories.
     function refreshComboRowState(){
       if (!expandedCategory) return;
-      var comboRow = document.querySelector('.combo-row[data-cat="' + cssEscape(expandedCategory) + '"]');
+      var comboRow = document.querySelector('.combo-tile[data-cat="' + cssEscape(expandedCategory) + '"]');
       if (!comboRow) return;
-      comboRow.classList.toggle('combo-row-disabled', !canAddCombo());
+      comboRow.classList.toggle('combo-tile-disabled', !canAddCombo());
     }
 
     var COMBO_DRINK_NAMES = ['Coke','Diet Coke','Coke Zero','Sprite','Root Beer','Water'];
