@@ -56,7 +56,7 @@
   #startOverBtn{ background:none; color:var(--muted); font-size:15px; font-weight:600; padding:10px 18px; border:1px solid var(--line); border-radius:100px; }
 
   #inactivityTimer{
-    position:fixed; bottom:110px; right:24px; z-index:80;
+    position:fixed; top:95px; right:24px; z-index:80;
     width:64px; height:64px; display:flex; align-items:center; justify-content:center;
   }
   .inactivity-ring{ width:100%; height:100%; transform:rotate(-90deg); position:absolute; top:0; left:0; }
@@ -91,23 +91,27 @@
   .category-block.expanded .category-row .chev{ transform:rotate(180deg); }
 
   .category-expanded{ max-height:0; overflow:hidden; transition:max-height .3s ease; background:var(--black); }
-  .category-block.expanded .category-expanded{ max-height:3000px; }
+  .category-block.expanded .category-expanded{ max-height:6000px; }
 
-  .category-photo{
-    width:100%; max-height:240px; object-fit:contain; display:block;
-    background:var(--black); padding:12px 0;
+  .items-grid{
+    display:grid; grid-template-columns:repeat(3, 1fr); gap:14px;
+    padding:18px 20px;
   }
-
-  .item-row{
-    display:flex; align-items:center; justify-content:space-between; gap:16px;
-    padding:18px 24px; border-top:1px solid var(--line);
+  .item-tile, .variant-tile{
+    display:flex; flex-direction:column; background:var(--panel);
+    border:1px solid var(--line); border-radius:14px; overflow:hidden;
+    min-width:0; cursor:default;
   }
-  .item-photo{ width:56px; height:56px; border-radius:10px; object-fit:cover; flex:none; background:var(--panel); }
-  .item-info{ flex:1; min-width:0; }
-  .item-name{ font-size:16px; font-weight:700; color:var(--cream); }
-  .item-desc{ font-size:12.5px; color:var(--muted); margin-top:3px; }
-  .item-price{ font-size:15px; font-weight:700; color:var(--gold); margin-top:5px; }
-  .item-add-control{ flex:none; }
+  .variant-tile{ cursor:pointer; }
+  .variant-tile:active{ border-color:var(--gold); }
+  .item-tile-photo{ width:100%; aspect-ratio:1; object-fit:cover; background:var(--black); display:block; }
+  .item-tile-photo-placeholder{ width:100%; aspect-ratio:1; background:var(--black); }
+  .item-tile-body{ padding:10px 12px 12px; display:flex; flex-direction:column; flex:1; }
+  .item-tile-name{ font-size:13.5px; font-weight:700; color:var(--cream); line-height:1.25; min-height:2.6em; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .item-tile-desc{ font-size:11px; color:var(--muted); margin-top:3px; }
+  .item-tile-price{ font-size:14px; font-weight:800; color:var(--gold); margin-top:6px; }
+  .item-tile-control{ margin-top:auto; padding-top:10px; display:flex; justify-content:center; }
+  .item-tile-badge-row{ margin-top:auto; padding-top:10px; display:flex; justify-content:center; }
   .quick-add-btn{
     width:38px; height:38px; border-radius:50%; background:var(--panel); border:1px solid var(--line); color:var(--gold);
     font-size:21px; font-weight:800; display:flex; align-items:center; justify-content:center;
@@ -425,17 +429,30 @@
     var itemsById = {};
     var categoryOrder = [];
 
-    var categoryImages = {
-      'Shawarma': 'menu-shawarma.jpg', 'Frankie Rolls': 'menu-frankie.jpg',
-      'Bowls': 'menu-bowl.jpg', 'Tacos': 'menu-tacos.jpg',
-      'Loaded Fries': 'menu-fries.jpg', 'Sides': 'menu-samosas.jpg',
-      'Kulfi Ice Cream': 'menu-kulfi.jpg', 'Drinks': 'menu-falooda.jpg'
-    };
-
     function escHtml(s){
       return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
         return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
       });
+    }
+
+    // Matches the exact naming convention documented for this menu's
+    // photo files: lowercase, spaces/punctuation collapsed to single
+    // hyphens, no leading or trailing hyphens.
+    function slugify(name){
+      return String(name).toLowerCase()
+        .replace(/[()]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+    }
+
+    // A Square-synced photo (item.image_url) takes priority when
+    // present; otherwise falls back to the predictable local filename
+    // for that item. onerror removes the tile's image slot entirely
+    // if neither actually exists as a real file, rather than showing
+    // a broken-image icon.
+    function itemPhotoHtml(item){
+      var src = item.image_url || ('item-' + slugify(item.name) + '.jpg');
+      return '<img class="item-tile-photo" src="' + escHtml(src) + '" alt="" loading="lazy" onerror="this.remove()">';
     }
 
     // Backend errors are sometimes a plain string, but Square's own
@@ -588,11 +605,10 @@
       var contentEl = document.querySelector('.category-expanded[data-cat="' + cssEscape(cat) + '"]');
       if (!contentEl) return;
       var items = (window.__kioskByCategory[cat] || []);
-      var img = categoryImages[cat] || 'menu-shawarma.jpg';
 
       // Group by name -- items sharing a name but different variant_name
-      // (e.g. protein choices) render as ONE expandable row, not one
-      // row per variant.
+      // (e.g. protein choices) render as ONE expandable tile, not one
+      // tile per variant.
       var groups = [];
       var groupsByName = {};
       items.forEach(function(item){
@@ -604,34 +620,32 @@
         groupsByName[item.name].items.push(item);
       });
 
-      var rowsHtml = groups.map(function(group){
+      var tilesHtml = groups.map(function(group){
         if (group.items.length === 1) {
           var item = group.items[0];
           var label = item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : '');
-          var photoHtml = item.image_url ? '<img class="item-photo" src="' + escHtml(item.image_url) + '" alt="" loading="lazy" onerror="this.remove()">' : '';
-          return '<div class="item-row">' +
-            photoHtml +
-            '<div class="item-info">' +
-              '<div class="item-name">' + escHtml(label) + '</div>' +
-              (item.description ? '<div class="item-desc">' + escHtml(item.description) + '</div>' : '') +
-              '<div class="item-price">$' + Number(item.price).toFixed(2) + '</div>' +
+          return '<div class="item-tile">' +
+            itemPhotoHtml(item) +
+            '<div class="item-tile-body">' +
+              '<div class="item-tile-name">' + escHtml(label) + '</div>' +
+              (item.description ? '<div class="item-tile-desc">' + escHtml(item.description) + '</div>' : '') +
+              '<div class="item-tile-price">$' + Number(item.price).toFixed(2) + '</div>' +
+              '<div class="item-tile-control"><div class="item-add-control" data-id="' + item.id + '"></div></div>' +
             '</div>' +
-            '<div class="item-add-control" data-id="' + item.id + '"></div>' +
           '</div>';
         }
 
         var groupKey = escHtml(group.name);
         var firstItem = group.items[0];
-        var groupPhotoHtml = firstItem.image_url ? '<img class="item-photo" src="' + escHtml(firstItem.image_url) + '" alt="" loading="lazy" onerror="this.remove()">' : '';
-        return '<div class="variant-row" data-variant-group="' + groupKey + '">' +
-            groupPhotoHtml +
-            '<div class="item-info">' +
-              '<div class="item-name">' + escHtml(group.name) + '</div>' +
-              '<div class="item-price">$' + Number(firstItem.price).toFixed(2) + '</div>' +
+        return '<div class="variant-tile" data-variant-group="' + groupKey + '">' +
+            itemPhotoHtml(firstItem) +
+            '<div class="item-tile-body">' +
+              '<div class="item-tile-name">' + escHtml(group.name) + '</div>' +
+              '<div class="item-tile-price">$' + Number(firstItem.price).toFixed(2) + '</div>' +
+              '<div class="item-tile-badge-row"><div class="variant-row-badge" data-variant-group="' + groupKey + '"></div></div>' +
             '</div>' +
-            '<div class="variant-row-badge" data-variant-group="' + groupKey + '"></div>' +
           '</div>' +
-          '<div class="variant-expand" data-variant-group="' + groupKey + '">' +
+          '<div class="variant-expand" data-variant-group="' + groupKey + '" style="grid-column:1 / -1;">' +
             '<div class="variant-expand-inner">' +
               '<div class="variant-expand-title">Choose your protein</div>' +
               group.items.map(function(item){
@@ -649,17 +663,18 @@
       // any item's combo_upcharge tells us which, and the row itself
       // just adds fries + a drink, independent of which specific
       // entree the customer already added above. Disabled/grayed out
-      // until the cart actually has a qualifying entree in it.
+      // until the cart actually has a qualifying entree in it. Spans
+      // the full grid width, same as the variant expansion above.
       var comboUpcharge = items.length && items[0].combo_upcharge;
       var comboHtml = '';
       if (comboUpcharge) {
         var comboEnabled = canAddCombo();
         comboHtml =
-          '<div class="combo-row' + (comboEnabled ? '' : ' combo-row-disabled') + '" data-cat="' + escHtml(cat) + '">' +
+          '<div class="combo-row' + (comboEnabled ? '' : ' combo-row-disabled') + '" data-cat="' + escHtml(cat) + '" style="grid-column:1 / -1;">' +
             '<span class="combo-row-label">Make it a Combo +$' + Number(comboUpcharge).toFixed(2) + '</span>' +
             '<span class="combo-row-plus">+</span>' +
           '</div>' +
-          '<div class="combo-drink-expand" data-cat="' + escHtml(cat) + '">' +
+          '<div class="combo-drink-expand" data-cat="' + escHtml(cat) + '" style="grid-column:1 / -1;">' +
             '<div class="combo-drink-inner">' +
               '<div class="combo-drink-title">Choose your drink</div>' +
               '<div class="combo-drink-grid">' +
@@ -671,7 +686,7 @@
           '</div>';
       }
 
-      contentEl.innerHTML = '<img class="category-photo" src="' + img + '" alt="' + escHtml(cat) + '">' + rowsHtml + comboHtml;
+      contentEl.innerHTML = '<div class="items-grid">' + tilesHtml + comboHtml + '</div>';
 
       groups.forEach(function(group){
         if (group.items.length === 1) {
@@ -682,9 +697,9 @@
         }
       });
 
-      contentEl.querySelectorAll('.variant-row').forEach(function(row){
-        row.addEventListener('click', function(){
-          var key = row.getAttribute('data-variant-group');
+      contentEl.querySelectorAll('.variant-tile').forEach(function(tile){
+        tile.addEventListener('click', function(){
+          var key = tile.getAttribute('data-variant-group');
           var expandEl = contentEl.querySelector('.variant-expand[data-variant-group="' + key + '"]');
           if (expandEl) expandEl.classList.toggle('expanded');
         });
@@ -1034,6 +1049,7 @@
     function showOrderConfirmed(referenceCode, items, isCash){
       scanToPayScreen.classList.add('hidden');
       checkoutScreen.classList.add('hidden');
+      document.getElementById('tipScreen').classList.add('hidden');
       var screen = document.getElementById('orderConfirmedScreen');
       screen.classList.remove('hidden');
 
