@@ -94,7 +94,7 @@
   .category-block.expanded .category-expanded{ max-height:6000px; }
 
   .items-grid{
-    display:flex; flex-wrap:wrap; align-items:flex-end; gap:14px;
+    display:flex; flex-wrap:wrap; gap:14px;
     padding:18px 20px;
   }
   .item-tile, .select-tile{
@@ -143,17 +143,11 @@
   .combo-drink-thumb{ width:28px; height:28px; border-radius:6px; object-fit:contain; background:var(--panel); flex:none; }
   .combo-drink-row .protein-choice-name{ flex:1; }
 
-  /* ---- Combo tile: always trails last (bottom-right-ish, since ---- */
-  /* ---- flex-wrap flows left-to-right/top-to-bottom) and quarter- ---- */
-  /* ---- scale versus a regular tile, consistently in every category. ---- */
-  .combo-tile{ order:9999; flex:0 0 auto; width:52px; max-width:52px; align-self:flex-end; }
+  /* Combo tile always trails last in each category's row (flex-wrap
+     flows left-to-right/top-to-bottom), same size as every other tile. */
+  .combo-tile{ order:9999; }
   .combo-tile-disabled{ opacity:0.4; }
   .combo-tile-disabled .select-tile-plus{ background:var(--line); color:var(--muted); pointer-events:none; }
-  .combo-tile .item-tile-body{ padding:4px 4px 6px; }
-  .combo-tile .item-tile-name{ font-size:8.5px; min-height:0; -webkit-line-clamp:1; margin-top:2px; }
-  .combo-tile .item-tile-price{ font-size:9px; margin-top:2px; }
-  .combo-tile .select-tile-plus{ width:20px; height:20px; font-size:13px; right:4px; bottom:4px; }
-  .combo-tile .select-tile-overlay{ width:100%; }
   .item-tile-control{ margin-top:auto; padding-top:10px; display:flex; justify-content:center; }
   .item-tile-badge-row{ margin-top:auto; padding-top:10px; display:flex; justify-content:center; }
   .quick-add-btn{
@@ -620,7 +614,7 @@
       // different protein/style -- collapsed into one tile showing
       // every option directly, rather than one tile per distinctly-
       // named item or the same-name variant grouping used elsewhere.
-      var PROTEIN_CHOICE_CATEGORIES = ['Loaded Fries', 'Bowls'];
+      var PROTEIN_CHOICE_CATEGORIES = ['Loaded Fries'];
       var isProteinChoiceCategory = PROTEIN_CHOICE_CATEGORIES.indexOf(cat) !== -1 && items.length > 1;
 
       var groups = [];
@@ -655,9 +649,11 @@
       // the same way: a plus button reveals a panel that slides in
       // from the left covering 90% of the tile, with the tile's own
       // photo fading to 10% opacity behind it.
-      function selectTileMarkup(key, optionsHtml, disabled){
-        return '<button type="button" class="select-tile-plus"' + (disabled ? ' disabled' : '') + ' data-select-group="' + key + '">+</button>' +
-          '<div class="select-tile-overlay" data-select-group="' + key + '">' +
+      function selectTilePlusHtml(key, disabled){
+        return '<button type="button" class="select-tile-plus"' + (disabled ? ' disabled' : '') + ' data-select-group="' + key + '">+</button>';
+      }
+      function selectTileOverlayHtml(key, optionsHtml){
+        return '<div class="select-tile-overlay" data-select-group="' + key + '">' +
             '<button type="button" class="select-tile-overlay-close" data-select-group="' + key + '">&times;</button>' +
             '<div class="select-tile-overlay-scroll">' + optionsHtml + '</div>' +
           '</div>';
@@ -678,8 +674,9 @@
             '<div class="item-tile-body">' +
               '<div class="item-tile-name">' + escHtml(group.name) + '</div>' +
               '<div class="item-tile-price">$' + Number(firstItem.price).toFixed(2) + '</div>' +
-              selectTileMarkup(key, optionsHtml) +
+              selectTilePlusHtml(key) +
             '</div>' +
+            selectTileOverlayHtml(key, optionsHtml) +
           '</div>';
         }
         if (group.items.length === 1) {
@@ -710,8 +707,9 @@
               '<div class="item-tile-name">' + escHtml(group.name) + '</div>' +
               '<div class="item-tile-price">$' + Number(firstItem.price).toFixed(2) + '</div>' +
               '<div class="item-tile-badge-row" data-variant-group="' + groupKey + '"></div>' +
-              selectTileMarkup(groupKey, variantOptionsHtml) +
+              selectTilePlusHtml(groupKey) +
             '</div>' +
+            selectTileOverlayHtml(groupKey, variantOptionsHtml) +
           '</div>';
       }).join('');
 
@@ -745,8 +743,9 @@
             '<div class="item-tile-body">' +
               '<div class="item-tile-name">Combo</div>' +
               '<div class="item-tile-price">+$' + Number(comboUpcharge).toFixed(2) + '</div>' +
-              selectTileMarkup(comboKey, comboDrinkOptionsHtml, !comboEnabled) +
+              selectTilePlusHtml(comboKey, !comboEnabled) +
             '</div>' +
+            selectTileOverlayHtml(comboKey, comboDrinkOptionsHtml) +
           '</div>';
       }
 
