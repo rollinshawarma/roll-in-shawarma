@@ -120,8 +120,8 @@
   }
   .select-tile-plus:active{ background:var(--white); }
   .select-tile-overlay{
-    position:absolute; inset:0; width:90%; background:var(--black);
-    transform:translateX(-100%); transition:transform .25s ease; z-index:3;
+    position:absolute; top:0; bottom:0; right:0; width:90%; background:var(--black);
+    transform:translateX(100%); transition:transform .25s ease; z-index:3;
     display:flex; flex-direction:column;
   }
   .select-tile-overlay.active{ transform:translateX(0); }
@@ -149,16 +149,11 @@
   .combo-tile-disabled{ opacity:0.4; }
   .combo-tile-disabled .select-tile-plus{ background:var(--line); color:var(--muted); pointer-events:none; }
   .item-tile-control{ margin-top:auto; padding-top:10px; display:flex; justify-content:center; }
-  .item-tile-badge-row{ margin-top:auto; padding-top:10px; display:flex; justify-content:center; }
-  .quick-add-btn{
-    width:38px; height:38px; border-radius:50%; background:var(--panel); border:1px solid var(--line); color:var(--gold);
-    font-size:21px; font-weight:800; display:flex; align-items:center; justify-content:center;
-  }
+  .item-qty-stepper{ display:flex; align-items:center; gap:8px; }
+  .item-qty-btn{ width:28px; height:28px; border-radius:50%; background:var(--panel); border:1px solid var(--line); color:var(--cream); font-size:16px; display:flex; align-items:center; justify-content:center; }
+  .item-qty-value{ min-width:16px; text-align:center; font-size:15px; font-weight:800; color:var(--white); }
   .quick-add-btn:active{ background:var(--gold); color:#241902; border-color:var(--gold); }
-  .item-qty-stepper{ display:flex; align-items:center; gap:12px; }
-  .item-qty-btn{ width:34px; height:34px; border-radius:50%; background:var(--panel); border:1px solid var(--line); color:var(--cream); font-size:19px; display:flex; align-items:center; justify-content:center; }
   .item-qty-btn:active{ background:var(--gold); color:#241902; }
-  .item-qty-value{ min-width:20px; text-align:center; font-size:17px; font-weight:800; color:var(--white); }
   .empty-hint{ color:var(--muted); font-size:15px; text-align:center; padding:30px 20px; }
 
   /* ---------- CART PANEL (right side of the split layout) ---------- */
@@ -664,9 +659,8 @@
           var firstItem = group.items[0].item;
           var key = escHtml(group.name);
           var optionsHtml = group.items.map(function(entry){
-            return '<div class="protein-choice-row">' +
+            return '<div class="protein-choice-row" data-pick-id="' + entry.item.id + '">' +
               '<span class="protein-choice-name">' + escHtml(entry.label) + '</span>' +
-              '<div class="variant-choice-control" data-id="' + entry.item.id + '"></div>' +
             '</div>';
           }).join('');
           return '<div class="select-tile" data-select-group="' + key + '">' +
@@ -696,9 +690,8 @@
         var groupKey = escHtml(group.name);
         var firstItem = group.items[0];
         var variantOptionsHtml = group.items.map(function(item){
-          return '<div class="protein-choice-row">' +
+          return '<div class="protein-choice-row" data-pick-id="' + item.id + '">' +
             '<span class="protein-choice-name">' + escHtml(item.variant_name || item.name) + '</span>' +
-            '<div class="variant-choice-control" data-id="' + item.id + '"></div>' +
           '</div>';
         }).join('');
         return '<div class="select-tile" data-select-group="' + groupKey + '">' +
@@ -731,10 +724,9 @@
       if (comboUpcharge && !comboExcludedCategory) {
         var comboEnabled = canAddCombo();
         var comboDrinkOptionsHtml = ['Coke','Diet Coke','Coke Zero','Sprite','Root Beer','Water'].map(function(drink){
-          return '<div class="protein-choice-row combo-drink-row">' +
+          return '<div class="protein-choice-row combo-drink-row" data-pick-drink="' + escHtml(drink) + '">' +
             '<img class="combo-drink-thumb" src="item-combo-drink-' + slugify(drink) + '.jpg" alt="" loading="lazy" onerror="this.remove()">' +
             '<span class="protein-choice-name">' + escHtml(drink) + '</span>' +
-            '<button type="button" class="quick-add-btn combo-drink-pick-btn" data-drink="' + escHtml(drink) + '">+</button>' +
           '</div>';
         }).join('');
         comboHtml =
@@ -752,19 +744,22 @@
       contentEl.innerHTML = '<div class="items-grid">' + tilesHtml + comboHtml + '</div>';
 
       groups.forEach(function(group){
-        if (group.isProteinChoice) {
-          group.items.forEach(function(entry){ renderVariantChoiceControl(entry.item.id); });
-        } else if (group.items.length === 1) {
+        if (group.items.length === 1 && !group.isProteinChoice) {
           renderItemControl(group.items[0].id);
-        } else {
+        } else if (!group.isProteinChoice) {
           renderVariantGroupBadge(group);
-          group.items.forEach(function(item){ renderVariantChoiceControl(item.id); });
         }
       });
 
-      // Shared open/close wiring for every select-tile's plus button
-      // and its overlay's close button, regardless of which kind of
-      // tile it belongs to.
+      function closeOverlay(key){
+        var overlay = contentEl.querySelector('.select-tile-overlay[data-select-group="' + key + '"]');
+        var photo = contentEl.querySelector('.select-tile[data-select-group="' + key + '"] .item-tile-photo, .combo-tile[data-select-group="' + key + '"] .item-tile-photo');
+        if (overlay) overlay.classList.remove('active');
+        if (photo) photo.classList.remove('faded');
+      }
+
+      // Shared open wiring for every select-tile's plus button,
+      // regardless of which kind of tile it belongs to.
       contentEl.querySelectorAll('.select-tile-plus').forEach(function(btn){
         btn.addEventListener('click', function(e){
           e.stopPropagation();
@@ -779,23 +774,38 @@
       contentEl.querySelectorAll('.select-tile-overlay-close').forEach(function(btn){
         btn.addEventListener('click', function(e){
           e.stopPropagation();
-          var key = btn.getAttribute('data-select-group');
-          var overlay = contentEl.querySelector('.select-tile-overlay[data-select-group="' + key + '"]');
-          var photo = contentEl.querySelector('.select-tile[data-select-group="' + key + '"] .item-tile-photo, .combo-tile[data-select-group="' + key + '"] .item-tile-photo');
-          if (overlay) overlay.classList.remove('active');
-          if (photo) photo.classList.remove('faded');
+          closeOverlay(btn.getAttribute('data-select-group'));
         });
       });
 
-      contentEl.querySelectorAll('.combo-drink-pick-btn').forEach(function(btn){
-        btn.addEventListener('click', function(e){
+      // Tapping a protein/size option picks it directly and closes --
+      // no separate plus button inside the row anymore.
+      contentEl.querySelectorAll('.protein-choice-row[data-pick-id]').forEach(function(row){
+        row.addEventListener('click', function(e){
           e.stopPropagation();
-          var drink = btn.getAttribute('data-drink');
-          addComboAddon(drink);
-          var overlay = contentEl.querySelector('.select-tile-overlay[data-select-group="' + comboKey + '"]');
-          var photo = contentEl.querySelector('.combo-tile[data-select-group="' + comboKey + '"] .item-tile-photo');
-          if (overlay) overlay.classList.remove('active');
-          if (photo) photo.classList.remove('faded');
+          addOne(row.getAttribute('data-pick-id'));
+          var key = row.closest('.select-tile-overlay').getAttribute('data-select-group');
+          closeOverlay(key);
+        });
+      });
+
+      // Same tap-to-pick pattern for combo drink rows.
+      contentEl.querySelectorAll('.combo-drink-row[data-pick-drink]').forEach(function(row){
+        row.addEventListener('click', function(e){
+          e.stopPropagation();
+          addComboAddon(row.getAttribute('data-pick-drink'));
+          closeOverlay(comboKey);
+        });
+      });
+
+      // Tapping anywhere else within the tile (the visible photo
+      // sliver, or empty space inside the open overlay) closes it --
+      // option rows and the plus/close buttons already stop this
+      // click from bubbling up when THEY'RE what's tapped.
+      contentEl.querySelectorAll('.select-tile, .combo-tile').forEach(function(tile){
+        tile.addEventListener('click', function(){
+          var key = tile.getAttribute('data-select-group');
+          if (key) closeOverlay(key);
         });
       });
     }
