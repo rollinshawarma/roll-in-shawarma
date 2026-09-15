@@ -619,9 +619,6 @@
       // named item or the same-name variant grouping used elsewhere.
       var PROTEIN_CHOICE_CATEGORIES = ['Loaded Fries', 'Bowls'];
       var isProteinChoiceCategory = PROTEIN_CHOICE_CATEGORIES.indexOf(cat) !== -1 && items.length > 1;
-      // Manual overrides for specific items whose full name doesn't
-      // shorten well with the generic category-suffix stripping below.
-      var PROTEIN_LABEL_OVERRIDES = { 'Chicken Over Rice Bowl': 'Chicken' };
 
       var groups = [];
       if (isProteinChoiceCategory) {
@@ -632,7 +629,15 @@
           name: cat,
           isProteinChoice: true,
           items: items.map(function(item){
-            var label = PROTEIN_LABEL_OVERRIDES[item.name] || item.name.replace(suffixPattern, '').trim() || item.name;
+            var label = item.name.replace(suffixPattern, '').trim();
+            // Bowls-specific: "Chicken" is redundant across every option
+            // there (Butter Chicken, Chicken Tikka, etc. all include it),
+            // so strip it as a standalone word once the category suffix
+            // is already gone, leaving just the distinguishing word.
+            if (cat === 'Bowls') {
+              label = label.replace(/\bchicken\b/i, '').replace(/\s+/g, ' ').trim();
+            }
+            label = label || item.name;
             return { item: item, label: label };
           })
         });
@@ -658,7 +663,7 @@
       // from the left covering 90% of the tile, with the tile's own
       // photo fading to 10% opacity behind it.
       function selectTilePlusHtml(key, disabled){
-        return '<button type="button" class="select-tile-plus"' + (disabled ? ' disabled' : '') + ' data-select-group="' + key + '">Select</button>';
+        return '<button type="button" class="select-tile-plus"' + (disabled ? ' disabled' : '') + ' data-select-group="' + key + '">Add to Cart</button>';
       }
       function selectTileOverlayHtml(key, optionsHtml){
         return '<div class="select-tile-overlay" data-select-group="' + key + '">' +
