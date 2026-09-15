@@ -153,15 +153,15 @@
     height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:20px;
     cursor:pointer;
   }
-  #idleScreen img{ width:120px; height:120px; border-radius:50%; box-shadow:0 0 0 3px var(--black), 0 0 0 5px var(--gold); }
-  #idleScreen .tap-hint{ font-size:15px; color:var(--muted); font-weight:600; }
+  #idleScreen img{ width:180px; height:180px; border-radius:50%; object-fit:cover; box-shadow:0 0 90px rgba(247,173,40,0.3); }
+  #idleScreen .tap-hint{ font-size:22px; color:var(--muted); font-weight:600; }
   #mainMenuScreen{
     height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px;
   }
-  #mainMenuScreen img{ width:64px; height:64px; border-radius:50%; margin-bottom:10px; }
+  #mainMenuScreen img{ width:120px; height:120px; border-radius:50%; object-fit:cover; margin-bottom:10px; box-shadow:0 0 60px rgba(247,173,40,0.25); }
   .menu-choice-btn{
-    width:280px; padding:26px; border-radius:18px; background:var(--panel); border:2px solid var(--line);
-    color:var(--white); font-size:20px; font-weight:800; text-align:center;
+    width:320px; padding:28px; border-radius:100px; background:var(--panel); border:2px solid var(--line);
+    color:var(--white); font-size:28px; font-weight:800; text-align:center;
   }
   .menu-choice-btn:active{ border-color:var(--gold); background:rgba(247,173,40,0.1); }
   #mainMenuBackBtn{ font-size:14px; color:var(--muted); font-weight:700; padding:8px 14px; margin-top:10px; }
