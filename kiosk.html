@@ -56,7 +56,7 @@
   #startOverBtn{ background:none; color:var(--muted); font-size:15px; font-weight:600; padding:10px 18px; border:1px solid var(--line); border-radius:100px; }
 
   #inactivityTimer{
-    position:fixed; top:95px; right:24px; z-index:80;
+    position:fixed; bottom:24px; right:24px; z-index:80;
     width:64px; height:64px; display:flex; align-items:center; justify-content:center;
   }
   .inactivity-ring{ width:100%; height:100%; transform:rotate(-90deg); position:absolute; top:0; left:0; }
@@ -131,9 +131,13 @@
   }
   .select-tile-overlay-scroll{ overflow-y:auto; flex:1; padding:0 10px 8px; }
   .protein-choice-list{ margin-top:8px; }
-  .protein-choice-row{ display:flex; align-items:center; justify-content:space-between; gap:6px; padding:7px 0; border-top:1px solid var(--line); }
-  .protein-choice-row:first-child{ border-top:none; }
-  .protein-choice-name{ font-size:11.5px; font-weight:700; color:var(--cream); line-height:1.2; }
+  .protein-choice-row{
+    display:flex; align-items:center; justify-content:space-between; gap:6px;
+    padding:12px 10px; margin-bottom:8px; background:var(--panel); border:1px solid var(--line); border-radius:10px;
+  }
+  .protein-choice-row:last-child{ margin-bottom:0; }
+  .protein-choice-row:active{ border-color:var(--gold); background:rgba(247,173,40,0.1); }
+  .protein-choice-name{ font-size:15.5px; font-weight:700; color:var(--cream); line-height:1.25; }
   .protein-choice-row .quick-add-btn{ width:26px; height:26px; font-size:15px; }
   .protein-choice-row .item-qty-stepper{ gap:6px; }
   .protein-choice-row .item-qty-btn{ width:22px; height:22px; font-size:14px; }
@@ -152,6 +156,10 @@
   .item-qty-stepper{ display:flex; align-items:center; gap:8px; }
   .item-qty-btn{ width:28px; height:28px; border-radius:50%; background:var(--panel); border:1px solid var(--line); color:var(--cream); font-size:16px; display:flex; align-items:center; justify-content:center; }
   .item-qty-value{ min-width:16px; text-align:center; font-size:15px; font-weight:800; color:var(--white); }
+  .quick-add-btn{
+    width:32px; height:32px; border-radius:50%; background:var(--panel); border:1px solid var(--line); color:var(--gold);
+    font-size:18px; font-weight:800; display:flex; align-items:center; justify-content:center;
+  }
   .quick-add-btn:active{ background:var(--gold); color:#241902; border-color:var(--gold); }
   .item-qty-btn:active{ background:var(--gold); color:#241902; }
   .empty-hint{ color:var(--muted); font-size:15px; text-align:center; padding:30px 20px; }
@@ -609,12 +617,14 @@
       // different protein/style -- collapsed into one tile showing
       // every option directly, rather than one tile per distinctly-
       // named item or the same-name variant grouping used elsewhere.
-      var PROTEIN_CHOICE_CATEGORIES = ['Loaded Fries'];
+      var PROTEIN_CHOICE_CATEGORIES = ['Loaded Fries', 'Bowls'];
       var isProteinChoiceCategory = PROTEIN_CHOICE_CATEGORIES.indexOf(cat) !== -1 && items.length > 1;
 
       var groups = [];
       if (isProteinChoiceCategory) {
-        var suffixPattern = new RegExp('\\s*' + cat.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '\\s*$', 'i');
+        var catEscaped = cat.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        var singularEscaped = cat.replace(/s$/i, '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        var suffixPattern = new RegExp('\\s*(' + catEscaped + '|' + singularEscaped + ')\\s*$', 'i');
         groups.push({
           name: cat,
           isProteinChoice: true,
