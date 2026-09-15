@@ -151,13 +151,12 @@
   .combo-tile-disabled{ opacity:0.4; }
   .combo-tile-disabled .select-tile-plus{ background:var(--line); color:var(--muted); pointer-events:none; }
   .item-tile-control{ margin-top:auto; padding-top:10px; display:flex; }
-  .item-tile-control .add-to-cart-btn{ width:100%; }
   .item-tile-control .item-qty-stepper{ width:100%; justify-content:center; }
   .item-qty-stepper{ display:flex; align-items:center; gap:8px; }
   .item-qty-btn{ width:28px; height:28px; border-radius:50%; background:var(--panel); border:1px solid var(--line); color:var(--cream); font-size:16px; display:flex; align-items:center; justify-content:center; }
   .item-qty-value{ min-width:16px; text-align:center; font-size:15px; font-weight:800; color:var(--white); }
   .add-to-cart-btn{
-    background:var(--gold); color:#241902; border-radius:100px; padding:9px 16px;
+    width:100%; background:var(--gold); color:#241902; border-radius:100px; padding:9px 16px;
     font-size:13px; font-weight:800; white-space:nowrap;
   }
   .add-to-cart-btn:active{ background:var(--white); }
@@ -543,6 +542,15 @@
     function loadMenu(){
       sbShared.from('menu_items').select('*').order('display_order').then(function(res){
         if (res.error || !res.data) return;
+        // Reset first -- this function is called again each time a new
+        // order starts (to pick up any price/menu changes made in the
+        // database since the kiosk page was first loaded), and without
+        // clearing these first, a second call would append duplicate
+        // category entries on top of the stale ones instead of
+        // actually replacing them.
+        itemsById = {};
+        comboAddonsByName = {};
+        categoryOrder = [];
         var byCategory = {};
         res.data.forEach(function(item){
           itemsById[item.id] = item;
@@ -629,6 +637,16 @@
           name: cat,
           isProteinChoice: true,
           items: items.map(function(item){
+            // If this item is distinguished by variant_name rather than
+            // by its own name (the same pattern used for size choices
+            // like Fries Small/Large), that IS the distinguishing label
+            // -- stripping the category suffix from a shared item.name
+            // would otherwise produce the identical label for every
+            // option, since name-based stripping has nothing to work
+            // with when the name itself doesn't vary.
+            if (item.variant_name) {
+              return { item: item, label: item.variant_name };
+            }
             var label = item.name.replace(suffixPattern, '').trim();
             // Bowls-specific: "Chicken" is redundant across every option
             // there (Butter Chicken, Chicken Tikka, etc. all include it),
@@ -1059,6 +1077,7 @@
       idleScreen.classList.add('hidden');
       checkoutScreen.classList.add('hidden');
       orderScreen.classList.remove('hidden');
+      loadMenu();
       resetInactivityTimer();
     }
     function goToCheckoutScreen(){
