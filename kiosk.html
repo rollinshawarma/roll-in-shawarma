@@ -107,9 +107,9 @@
   .item-tile-photo-placeholder{ width:100%; aspect-ratio:1; background:var(--panel); }
   .item-tile-photo.faded{ opacity:0.1; }
   .item-tile-body{ padding:10px 12px 12px; display:flex; flex-direction:column; flex:1; position:relative; }
-  .item-tile-name{ font-size:13.5px; font-weight:700; color:var(--cream); line-height:1.25; min-height:2.6em; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
-  .item-tile-desc{ font-size:11px; color:var(--muted); margin-top:3px; }
-  .item-tile-price{ font-size:14px; font-weight:800; color:var(--gold); margin-top:6px; }
+  .item-tile-name{ font-size:15px; font-weight:700; color:var(--cream); line-height:1.25; min-height:2.6em; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .item-tile-desc{ font-size:12px; color:var(--muted); margin-top:3px; }
+  .item-tile-price{ font-size:16px; font-weight:800; color:var(--gold); margin-top:6px; }
 
   /* ---- Unified "tap + to pick from options" pattern, shared by ---- */
   /* ---- variant groups (sizes), protein-choice groups, and combo ---- */
@@ -138,7 +138,6 @@
   .protein-choice-row:last-child{ margin-bottom:0; }
   .protein-choice-row:active{ border-color:var(--gold); background:rgba(247,173,40,0.1); }
   .protein-choice-name{ font-size:15.5px; font-weight:700; color:var(--cream); line-height:1.25; }
-  .protein-choice-row .quick-add-btn{ width:26px; height:26px; font-size:15px; }
   .protein-choice-row .item-qty-stepper{ gap:6px; }
   .protein-choice-row .item-qty-btn{ width:22px; height:22px; font-size:14px; }
   .protein-choice-row .item-qty-value{ min-width:14px; font-size:13px; }
@@ -152,15 +151,17 @@
   .combo-tile{ order:9999; }
   .combo-tile-disabled{ opacity:0.4; }
   .combo-tile-disabled .select-tile-plus{ background:var(--line); color:var(--muted); pointer-events:none; }
-  .item-tile-control{ margin-top:auto; padding-top:10px; display:flex; justify-content:center; }
+  .item-tile-control{ margin-top:auto; padding-top:10px; display:flex; }
+  .item-tile-control .add-to-cart-btn{ width:100%; }
+  .item-tile-control .item-qty-stepper{ width:100%; justify-content:center; }
   .item-qty-stepper{ display:flex; align-items:center; gap:8px; }
   .item-qty-btn{ width:28px; height:28px; border-radius:50%; background:var(--panel); border:1px solid var(--line); color:var(--cream); font-size:16px; display:flex; align-items:center; justify-content:center; }
   .item-qty-value{ min-width:16px; text-align:center; font-size:15px; font-weight:800; color:var(--white); }
-  .quick-add-btn{
-    width:32px; height:32px; border-radius:50%; background:var(--panel); border:1px solid var(--line); color:var(--gold);
-    font-size:18px; font-weight:800; display:flex; align-items:center; justify-content:center;
+  .add-to-cart-btn{
+    background:var(--gold); color:#241902; border-radius:100px; padding:9px 16px;
+    font-size:13px; font-weight:800; white-space:nowrap;
   }
-  .quick-add-btn:active{ background:var(--gold); color:#241902; border-color:var(--gold); }
+  .add-to-cart-btn:active{ background:var(--white); }
   .item-qty-btn:active{ background:var(--gold); color:#241902; }
   .empty-hint{ color:var(--muted); font-size:15px; text-align:center; padding:30px 20px; }
 
@@ -619,6 +620,9 @@
       // named item or the same-name variant grouping used elsewhere.
       var PROTEIN_CHOICE_CATEGORIES = ['Loaded Fries', 'Bowls'];
       var isProteinChoiceCategory = PROTEIN_CHOICE_CATEGORIES.indexOf(cat) !== -1 && items.length > 1;
+      // Manual overrides for specific items whose full name doesn't
+      // shorten well with the generic category-suffix stripping below.
+      var PROTEIN_LABEL_OVERRIDES = { 'Chicken Over Rice Bowl': 'Chicken' };
 
       var groups = [];
       if (isProteinChoiceCategory) {
@@ -629,7 +633,7 @@
           name: cat,
           isProteinChoice: true,
           items: items.map(function(item){
-            var label = item.name.replace(suffixPattern, '').trim() || item.name;
+            var label = PROTEIN_LABEL_OVERRIDES[item.name] || item.name.replace(suffixPattern, '').trim() || item.name;
             return { item: item, label: label };
           })
         });
@@ -826,8 +830,8 @@
       var line = findLine(itemId);
 
       if (!line) {
-        controlEl.innerHTML = '<button type="button" class="quick-add-btn" data-id="' + itemId + '">+</button>';
-        controlEl.querySelector('.quick-add-btn').addEventListener('click', function(){ addOne(itemId); });
+        controlEl.innerHTML = '<button type="button" class="add-to-cart-btn" data-id="' + itemId + '">Add to Cart</button>';
+        controlEl.querySelector('.add-to-cart-btn').addEventListener('click', function(){ addOne(itemId); });
       } else {
         controlEl.innerHTML =
           '<div class="item-qty-stepper">' +
@@ -855,31 +859,6 @@
       badgeEl.innerHTML = total > 0 ? '<div class="qty-pill">' + total + '</div>' : '';
     }
 
-    // Same tap-to-add / stepper-once-added pattern as renderItemControl,
-    // just scoped to one specific variant choice within the expansion.
-    function renderVariantChoiceControl(itemId){
-      var controlEl = document.querySelector('.variant-choice-control[data-id="' + itemId + '"]');
-      if (!controlEl) return;
-      var line = findLine(itemId);
-
-      if (!line) {
-        controlEl.innerHTML = '<button type="button" class="quick-add-btn" data-id="' + itemId + '">+</button>';
-        controlEl.querySelector('.quick-add-btn').addEventListener('click', function(){ addOne(itemId); });
-      } else {
-        controlEl.innerHTML =
-          '<div class="item-qty-stepper">' +
-            '<button type="button" class="item-qty-btn" data-id="' + itemId + '" data-dir="-1">\u2212</button>' +
-            '<span class="item-qty-value">' + line.quantity + '</span>' +
-            '<button type="button" class="item-qty-btn" data-id="' + itemId + '" data-dir="1">+</button>' +
-          '</div>';
-        controlEl.querySelectorAll('.item-qty-btn').forEach(function(btn){
-          btn.addEventListener('click', function(){
-            if (btn.getAttribute('data-dir') === '1') addOne(itemId); else removeOne(itemId);
-          });
-        });
-      }
-    }
-
     // Refreshes whichever display actually applies to this item --
     // a plain single item, or one specific choice within a variant
     // group (in which case the group's total badge also needs
@@ -887,7 +866,6 @@
     // nothing if that particular DOM element isn't present.
     function refreshItemDisplay(itemId){
       renderItemControl(itemId);
-      renderVariantChoiceControl(itemId);
       var item = itemsById[itemId];
       if (item && item.variant_name) {
         var groupItems = Object.keys(itemsById)
