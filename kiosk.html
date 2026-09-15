@@ -114,9 +114,8 @@
   /* ---- Unified "tap + to pick from options" pattern, shared by ---- */
   /* ---- variant groups (sizes), protein-choice groups, and combo ---- */
   .select-tile-plus{
-    position:absolute; right:10px; bottom:10px; width:30px; height:30px; border-radius:50%;
-    background:var(--gold); color:#241902; font-size:19px; font-weight:800;
-    display:flex; align-items:center; justify-content:center; z-index:2;
+    margin-top:auto; width:100%; background:var(--gold); color:#241902; border-radius:100px; padding:9px 16px;
+    font-size:13px; font-weight:800; white-space:nowrap; z-index:2;
   }
   .select-tile-plus:active{ background:var(--white); }
   .select-tile-overlay{
@@ -659,7 +658,7 @@
       // from the left covering 90% of the tile, with the tile's own
       // photo fading to 10% opacity behind it.
       function selectTilePlusHtml(key, disabled){
-        return '<button type="button" class="select-tile-plus"' + (disabled ? ' disabled' : '') + ' data-select-group="' + key + '">+</button>';
+        return '<button type="button" class="select-tile-plus"' + (disabled ? ' disabled' : '') + ' data-select-group="' + key + '">Select</button>';
       }
       function selectTileOverlayHtml(key, optionsHtml){
         return '<div class="select-tile-overlay" data-select-group="' + key + '">' +
