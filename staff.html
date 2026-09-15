@@ -225,6 +225,8 @@
   .emp-edit-row .name{ flex:1; min-width:120px; font-weight:600; color:var(--white); font-size:14px; }
   .emp-edit-row input[type=number]{ width:90px; margin:0; padding:8px 10px; }
   .emp-edit-row select{ width:120px; }
+  .emp-edit-row .dob-month-select{ width:110px; }
+  .emp-edit-row .dob-day-input{ width:60px; margin:0; padding:8px 10px; }
 
   /* ---------- DOCUMENTS ---------- */
   .doc-card{ display:flex; align-items:center; gap:12px; padding:14px 0; border-bottom:1px solid var(--line); flex-wrap:wrap; }
@@ -1835,7 +1837,7 @@
   }
 
   function loadApprovals(){
-    sb.from('employees').select('id,name,hourly_rate').then(function(empRes){
+    sb.from('employees').select('*').then(function(empRes){
       approvalsEmpMap = {};
       (empRes.data || []).forEach(function(e){ approvalsEmpMap[e.id] = e; });
       allEmployeesCache = empRes.data || [];
@@ -2353,10 +2355,17 @@
   }
 
   // ---------------- ADMIN TAB ----------------
+  var MONTH_OPTIONS = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+
   function renderAdminList(){
     var q = (document.getElementById('adminSearch').value || '').toLowerCase().trim();
     var filtered = allEmployeesCache.filter(function(e){ return !q || e.name.toLowerCase().indexOf(q) > -1; });
     document.getElementById('employeeList').innerHTML = filtered.map(function(e){
+      // PIN is stored as zero-padded MMDD, so it parses back into
+      // month/day unambiguously -- lets an existing PIN's DOB show
+      // pre-filled instead of blank, e.g. when just correcting a typo.
+      var pinMonth = e.pin ? parseInt(e.pin.slice(0, 2), 10) : '';
+      var pinDay = e.pin ? parseInt(e.pin.slice(2, 4), 10) : '';
       return '<div class="emp-edit-row" data-id="' + e.id + '">' +
         '<span class="name">' + esc(e.name) + '</span>' +
         '<input type="number" step="0.01" min="0" class="rate-input" value="' + e.hourly_rate + '">' +
@@ -2365,7 +2374,15 @@
             return '<option value="' + r + '"' + (r===e.role?' selected':'') + '>' + r + '</option>';
           }).join('') +
         '</select>' +
+        '<select class="dob-month-select" title="Birth month (sets clock-in PIN)">' +
+          '<option value="">Month</option>' +
+          MONTH_OPTIONS.map(function(m, i){
+            return '<option value="' + (i+1) + '"' + ((i+1)===pinMonth?' selected':'') + '>' + m + '</option>';
+          }).join('') +
+        '</select>' +
+        '<input type="number" min="1" max="31" placeholder="Day" class="dob-day-input" value="' + pinDay + '">' +
         '<button class="btn-primary btn-small save-emp-btn">Save</button>' +
+        '<button class="btn-reject btn-small delete-emp-btn">Delete</button>' +
       '</div>';
     }).join('') || '<p class="hint">No staff found.</p>';
 
@@ -2375,10 +2392,33 @@
         var id = row.dataset.id;
         var rate = parseFloat(row.querySelector('.rate-input').value);
         var role = row.querySelector('.role-select').value;
+        var month = row.querySelector('.dob-month-select').value;
+        var day = row.querySelector('.dob-day-input').value;
+        var pin = null;
+        if (month && day) {
+          var d = parseInt(day, 10);
+          if (d >= 1 && d <= 31) pin = month.padStart(2, '0') + String(d).padStart(2, '0');
+        }
         btn.disabled = true; btn.textContent = 'Saving...';
-        sb.rpc('admin_update_employee', {emp_id:id, new_rate:rate, new_role:role}).then(function(res){
+        sb.rpc('admin_update_employee', {emp_id:id, new_rate:rate, new_role:role, new_pin:pin}).then(function(res){
           btn.disabled = false; btn.textContent = 'Save';
-          if (!res.error) { btn.textContent = 'Saved'; setTimeout(function(){ btn.textContent='Save'; }, 1500); loadAdmin(); }
+          if (res.error) { alert(res.error.message); return; }
+          btn.textContent = 'Saved'; setTimeout(function(){ btn.textContent='Save'; }, 1500); loadAdmin();
+        });
+      });
+    });
+
+    document.querySelectorAll('.delete-emp-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var row = btn.closest('.emp-edit-row');
+        var id = row.dataset.id;
+        var name = row.querySelector('.name').textContent;
+        if (!confirm('Remove ' + name + ' from active staff? Their past hours and pay records are kept -- this just stops them from clocking in or showing up in staff lists going forward.')) return;
+        btn.disabled = true;
+        sb.rpc('admin_deactivate_employee', {emp_id:id}).then(function(res){
+          btn.disabled = false;
+          if (res.error) { alert(res.error.message); return; }
+          loadAdmin();
         });
       });
     });
@@ -2386,7 +2426,7 @@
   document.getElementById('adminSearch').addEventListener('input', renderAdminList);
 
   function loadAdmin(){
-    sb.from('employees').select('*').order('name').then(function(res){
+    sb.from('employees').select('*').eq('active', true).order('name').then(function(res){
       if (res.error) return;
       allEmployeesCache = res.data;
       renderAdminList();
