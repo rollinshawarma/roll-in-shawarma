@@ -332,7 +332,7 @@
     </div>
     <div class="tabs" id="tabs">
       <div class="nav-section-label">My Account</div>
-      <button class="nav-link active" data-tab="home"><svg class="icon"><use href="#ic-home"/></svg>Check-In</button>
+      <button class="nav-link active" data-tab="home"><svg class="icon"><use href="#ic-home"/></svg>Home</button>
       <button class="nav-link" data-tab="dashboard"><svg class="icon"><use href="#ic-dollar"/></svg>My Stats</button>
       <button class="nav-link" data-tab="clock"><svg class="icon"><use href="#ic-clock"/></svg>Clock History</button>
       <button class="nav-link" data-tab="absence"><svg class="icon"><use href="#ic-clock"/></svg>Absence Request</button>
@@ -365,9 +365,7 @@
     <div class="home-greeting">Signed in as <b id="homeWhoName">&mdash;</b></div>
     <div class="home-date" id="homeDate"></div>
     <div class="home-status" id="homeStatus">&mdash;</div>
-    <div id="homeClockMsg"></div>
-    <button class="btn-clockin btn-home-clock" id="clockInBtn">Clock In</button>
-    <button class="btn-clockout btn-home-clock hidden" id="clockOutBtn">Clock Out</button>
+    <p class="hint">Clock in and out at the station up front &mdash; enter your PIN there. Your status shows here once you do.</p>
   </div>
 
   <!-- WEBSITE BANNER -->
@@ -790,6 +788,22 @@
         </table>
       </div>
     </div>
+    <div class="card">
+      <h2>Website Email Signups</h2>
+      <p class="hint">People who signed up on the public site to hear about new stops.</p>
+      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
+        <span id="signupCount" class="hint" style="margin:0;">&mdash;</span>
+        <button class="btn-export btn-small" id="exportSignupsBtn">
+          <svg class="icon" style="width:13px;height:13px;"><use href="#ic-download"/></svg>Export CSV
+        </button>
+      </div>
+      <div style="overflow-x:auto;">
+        <table>
+          <thead><tr><th>Email</th><th>Signed Up</th></tr></thead>
+          <tbody id="signupsBody"></tbody>
+        </table>
+      </div>
+    </div>
   </div>
 
   <div class="tab-panel hidden" id="panelAdmin">
@@ -803,7 +817,7 @@
     </div>
     <div class="card">
       <h2>Add Employee</h2>
-      <p class="hint">They'll be able to sign in the moment they use this exact email.</p>
+      <p class="hint">They'll be able to sign in the moment they use this exact email. Their birthday's month and day becomes their 4-digit clock-in PIN at the station.</p>
       <div id="addEmpMsg"></div>
       <label>Name</label>
       <input type="text" id="newEmpName">
@@ -823,23 +837,24 @@
           </select>
         </div>
       </div>
+      <div class="row2">
+        <div>
+          <label>Birth Month</label>
+          <select id="newEmpDobMonth">
+            <option value="">Month</option>
+            <option value="1">January</option><option value="2">February</option><option value="3">March</option>
+            <option value="4">April</option><option value="5">May</option><option value="6">June</option>
+            <option value="7">July</option><option value="8">August</option><option value="9">September</option>
+            <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+          </select>
+        </div>
+        <div>
+          <label>Birth Day</label>
+          <input type="number" id="newEmpDobDay" min="1" max="31" placeholder="1-31">
+        </div>
+      </div>
+      <p class="hint" id="newEmpPinPreview"></p>
       <button class="btn-primary" id="addEmpBtn">Add Employee</button>
-    </div>
-    <div class="card">
-      <h2>Website Email Signups</h2>
-      <p class="hint">People who signed up on the public site to hear about new stops.</p>
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-        <span id="signupCount" class="hint" style="margin:0;">&mdash;</span>
-        <button class="btn-export btn-small" id="exportSignupsBtn">
-          <svg class="icon" style="width:13px;height:13px;"><use href="#ic-download"/></svg>Export CSV
-        </button>
-      </div>
-      <div style="overflow-x:auto;">
-        <table>
-          <thead><tr><th>Email</th><th>Signed Up</th></tr></thead>
-          <tbody id="signupsBody"></tbody>
-        </table>
-      </div>
     </div>
   </div>
   </div>
@@ -1120,39 +1135,9 @@
   });
 
   // ---------------- CLOCK ACTIONS (single set of controls, lives on Home) ----------------
-  function doClockIn(msgElId, onDone){
-    sb.rpc('clock_in').then(function(res){
-      if (res.error) { showMsg(msgElId, res.error.message, 'error'); return; }
-      showMsg(msgElId, 'Clocked in at ' + fmtTime(res.data.clock_in) + '.', 'ok');
-      loadMyEntries();
-      if (onDone) onDone(res.data);
-    });
-  }
-  function doClockOut(msgElId, onDone){
-    sb.rpc('clock_out').then(function(res){
-      if (res.error) { showMsg(msgElId, res.error.message, 'error'); return; }
-      showMsg(msgElId, 'Clocked out at ' + fmtTime(res.data.clock_out) + '. Awaiting manager approval.', 'ok');
-      loadMyEntries();
-      if (onDone) onDone(res.data);
-    });
-  }
-
-  document.getElementById('clockInBtn').addEventListener('click', function(){
-    var btn = this; btn.disabled = true;
-    doClockIn('homeClockMsg', function(){ btn.disabled = false; });
-  });
-  document.getElementById('clockOutBtn').addEventListener('click', function(){
-    var btn = this; btn.disabled = true;
-    doClockOut('homeClockMsg', function(){ btn.disabled = false; });
-  });
-
   function refreshTodayUI(todaysEntries){
-    var inBtn = document.getElementById('clockInBtn'), outBtn = document.getElementById('clockOutBtn');
     var openEntry = todaysEntries.find(function(e){ return e.clock_in && !e.clock_out; });
     var state = openEntry ? 'out' : 'in';
-
-    inBtn.classList.toggle('hidden', state !== 'in');
-    outBtn.classList.toggle('hidden', state !== 'out');
 
     var totalHoursToday = todaysEntries.reduce(function(s,e){ return s + rawHours(e.clock_in, e.clock_out); }, 0);
 
@@ -2427,20 +2412,41 @@
     downloadCSV('email_signups.csv', rows);
   });
 
+  function computeDobPin(){
+    var month = document.getElementById('newEmpDobMonth').value;
+    var day = document.getElementById('newEmpDobDay').value;
+    if (!month || !day) return null;
+    var d = parseInt(day, 10);
+    if (!(d >= 1 && d <= 31)) return null;
+    return month.padStart(2, '0') + String(d).padStart(2, '0');
+  }
+
+  function updatePinPreview(){
+    var pin = computeDobPin();
+    document.getElementById('newEmpPinPreview').textContent = pin ? ('Clock-in PIN will be: ' + pin) : '';
+  }
+  document.getElementById('newEmpDobMonth').addEventListener('change', updatePinPreview);
+  document.getElementById('newEmpDobDay').addEventListener('input', updatePinPreview);
+
   document.getElementById('addEmpBtn').addEventListener('click', function(){
     var name = document.getElementById('newEmpName').value.trim();
     var email = document.getElementById('newEmpEmail').value.trim();
     var rate = parseFloat(document.getElementById('newEmpRate').value) || 0;
     var role = document.getElementById('newEmpRole').value;
+    var pin = computeDobPin();
     if (!name || !email) { showMsg('addEmpMsg', 'Name and email are required.', 'error'); return; }
+    if (!pin) { showMsg('addEmpMsg', 'Birth month and day are required, to set their clock-in PIN.', 'error'); return; }
     var btn = this; btn.disabled = true;
-    sb.rpc('admin_add_employee', {emp_name:name, emp_email:email, emp_rate:rate, emp_role:role}).then(function(res){
+    sb.rpc('admin_add_employee', {emp_name:name, emp_email:email, emp_rate:rate, emp_role:role, emp_pin:pin}).then(function(res){
       btn.disabled = false;
       if (res.error) { showMsg('addEmpMsg', res.error.message, 'error'); return; }
-      showMsg('addEmpMsg', name + ' added. They can sign in with ' + esc(email) + '.', 'ok');
+      showMsg('addEmpMsg', name + ' added. They can sign in with ' + esc(email) + ', and clock in at the station with PIN ' + esc(pin) + '.', 'ok');
       document.getElementById('newEmpName').value = '';
       document.getElementById('newEmpEmail').value = '';
       document.getElementById('newEmpRate').value = '';
+      document.getElementById('newEmpDobMonth').value = '';
+      document.getElementById('newEmpDobDay').value = '';
+      document.getElementById('newEmpPinPreview').textContent = '';
       loadAdmin();
     });
   });
