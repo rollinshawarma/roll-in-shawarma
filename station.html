@@ -195,6 +195,25 @@
     height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:28px;
   }
   #employeePinScreen h1{ font-size:24px; font-weight:800; color:var(--white); }
+
+  #kitchenLoginScreen{
+    height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; padding:0 40px; text-align:center;
+  }
+  #kitchenLoginScreen h1{ font-size:24px; font-weight:800; color:var(--white); }
+  .login-hint{ font-size:14px; color:var(--muted); max-width:340px; }
+  #kitchenLoginMsg{ min-height:20px; font-size:14px; font-weight:700; }
+  #kitchenLoginMsg.ok{ color:var(--green); }
+  #kitchenLoginMsg.error{ color:var(--red); }
+  #kitchenEmailStep, #kitchenCodeStep{ display:flex; flex-direction:column; gap:12px; width:280px; }
+  #kitchenEmailInput, #kitchenCodeInput{
+    background:var(--panel); border:1px solid var(--line); color:var(--white);
+    font-size:16px; padding:14px 16px; border-radius:12px; text-align:center;
+  }
+  #kitchenSendCodeBtn, #kitchenVerifyCodeBtn{
+    background:var(--gold); color:#241902; font-size:16px; font-weight:800; padding:14px; border-radius:100px;
+  }
+  #kitchenBackToEmailBtn{ font-size:13px; color:var(--muted); font-weight:600; }
+  #kitchenLoginBackBtn{ font-size:14px; color:var(--muted); font-weight:700; padding:8px 14px; margin-top:6px; }
   #employeeClockScreen{
     height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:18px; text-align:center; padding:0 30px;
   }
@@ -257,6 +276,22 @@
   <button type="button" class="station-clock-btn" id="stationClockInBtn">Clock In</button>
   <button type="button" class="station-clock-btn hidden" id="stationClockOutBtn">Clock Out</button>
   <button type="button" id="employeeExitBtn">Exit</button>
+</div>
+
+<div id="kitchenLoginScreen" class="hidden">
+  <h1>Kitchen Sign-In Required</h1>
+  <p class="login-hint">One staff member signs in here once per device. After that, everyone can use the quick PIN below to switch.</p>
+  <div id="kitchenLoginMsg"></div>
+  <div id="kitchenEmailStep">
+    <input type="email" id="kitchenEmailInput" placeholder="you@example.com" autocomplete="email">
+    <button type="button" id="kitchenSendCodeBtn">Send Code</button>
+  </div>
+  <div id="kitchenCodeStep" class="hidden">
+    <input type="text" id="kitchenCodeInput" placeholder="123456" inputmode="numeric" maxlength="6">
+    <button type="button" id="kitchenVerifyCodeBtn">Verify &amp; Sign In</button>
+    <button type="button" id="kitchenBackToEmailBtn">Use a different email</button>
+  </div>
+  <button type="button" id="kitchenLoginBackBtn">&larr; Back to menu</button>
 </div>
 
 <div id="pinScreen" class="hidden">
@@ -428,7 +463,7 @@
     var pinScreen = document.getElementById('pinScreen');
 
     function showOnly(screen){
-      [idleScreen, mainMenuScreen, employeePinScreen, employeeClockScreen, pinScreen].forEach(function(s){
+      [idleScreen, mainMenuScreen, employeePinScreen, employeeClockScreen, pinScreen, document.getElementById('kitchenLoginScreen')].forEach(function(s){
         s.classList.toggle('hidden', s !== screen);
       });
     }
@@ -449,19 +484,86 @@
       showOnly(mainMenuScreen);
     });
 
-    document.getElementById('menuKitchenBtn').addEventListener('click', function(){
+    function proceedToKitchenPinOrBoard(){
       var alreadyUnlocked = false;
       try { alreadyUnlocked = sessionStorage.getItem('kdsUnlocked') === '1'; } catch(e){}
-      idleScreen.classList.add('hidden');
-      mainMenuScreen.classList.add('hidden');
-      employeePinScreen.classList.add('hidden');
-      employeeClockScreen.classList.add('hidden');
       if (alreadyUnlocked) {
         pinScreen.classList.add('hidden');
         document.getElementById('stationChoiceScreen').classList.remove('hidden');
       } else {
         showOnly(pinScreen);
       }
+    }
+
+    document.getElementById('menuKitchenBtn').addEventListener('click', function(){
+      idleScreen.classList.add('hidden');
+      mainMenuScreen.classList.add('hidden');
+      employeePinScreen.classList.add('hidden');
+      employeeClockScreen.classList.add('hidden');
+
+      sb.auth.getSession().then(function(res){
+        var hasSession = !!(res.data && res.data.session);
+        if (!hasSession) {
+          showOnly(document.getElementById('kitchenLoginScreen'));
+          return;
+        }
+        proceedToKitchenPinOrBoard();
+      });
+    });
+
+    // ---- Kitchen login (email + code) ----
+    var kitchenPendingEmail = '';
+    function showKitchenLoginMsg(text, kind){
+      var el = document.getElementById('kitchenLoginMsg');
+      el.textContent = text;
+      el.className = kind || '';
+    }
+
+    document.getElementById('kitchenSendCodeBtn').addEventListener('click', function(){
+      var email = document.getElementById('kitchenEmailInput').value.trim();
+      if (!email) { showKitchenLoginMsg('Enter your email first.', 'error'); return; }
+      showKitchenLoginMsg('', '');
+      var btn = this; btn.disabled = true; btn.textContent = 'Sending...';
+      sb.auth.signInWithOtp({ email: email }).then(function(res){
+        btn.disabled = false; btn.textContent = 'Send Code';
+        if (res.error) { showKitchenLoginMsg(res.error.message, 'error'); return; }
+        kitchenPendingEmail = email;
+        document.getElementById('kitchenEmailStep').classList.add('hidden');
+        document.getElementById('kitchenCodeStep').classList.remove('hidden');
+        showKitchenLoginMsg('Code sent to ' + email + '.', 'ok');
+      });
+    });
+
+    document.getElementById('kitchenBackToEmailBtn').addEventListener('click', function(){
+      document.getElementById('kitchenCodeStep').classList.add('hidden');
+      document.getElementById('kitchenEmailStep').classList.remove('hidden');
+      showKitchenLoginMsg('', '');
+    });
+
+    document.getElementById('kitchenVerifyCodeBtn').addEventListener('click', function(){
+      var code = document.getElementById('kitchenCodeInput').value.trim();
+      if (!code) { showKitchenLoginMsg('Enter the code from your email.', 'error'); return; }
+      var btn = this; btn.disabled = true; btn.textContent = 'Verifying...';
+      sb.auth.verifyOtp({ email: kitchenPendingEmail, token: code, type: 'email' }).then(function(res){
+        btn.disabled = false; btn.textContent = 'Verify & Sign In';
+        if (res.error) { showKitchenLoginMsg(res.error.message, 'error'); return; }
+        // Signing in with Supabase auth isn't the same as being staff --
+        // this confirms the account is actually a registered employee
+        // before granting kitchen access, same safeguard staff.html uses.
+        sb.rpc('claim_employee_record').then(function(claimRes){
+          if (claimRes.error || !claimRes.data) {
+            showKitchenLoginMsg("This email isn't registered as staff. Ask a manager to add you first.", 'error');
+            sb.auth.signOut();
+            return;
+          }
+          document.getElementById('kitchenCodeInput').value = '';
+          proceedToKitchenPinOrBoard();
+        });
+      });
+    });
+
+    document.getElementById('kitchenLoginBackBtn').addEventListener('click', function(){
+      showOnly(mainMenuScreen);
     });
 
     // ---- Employee clock-in PIN entry ----
