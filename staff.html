@@ -349,8 +349,10 @@
       <button class="nav-link hidden" data-tab="kitchen" id="tabKitchenBtn"><svg class="icon"><use href="#ic-clock"/></svg>Kitchen</button>
       <button class="nav-link hidden" data-tab="events" id="tabEventsBtn"><svg class="icon"><use href="#ic-clock"/></svg>Events</button>
 
-      <div class="nav-section-label hidden" id="navSectionPerks">Perks</div>
+      <div class="nav-section-label hidden" id="navSectionLoyalty">Loyalty</div>
       <button class="nav-link hidden" data-tab="perks" id="tabPerksBtn"><svg class="icon"><use href="#ic-check"/></svg>Redeem Free Roll</button>
+
+      <div class="nav-section-label hidden" id="navSectionPerks">Perks</div>
       <button class="nav-link hidden" data-tab="promotions" id="tabPromotionsBtn"><svg class="icon"><use href="#ic-dollar"/></svg>Promotions</button>
 
       <div class="nav-section-label hidden" id="navSectionAdmin">Admin</div>
@@ -1085,6 +1087,7 @@
       if (isManager) {
         document.getElementById('tabApproveBtn').classList.remove('hidden');
         document.getElementById('tabPerksBtn').classList.remove('hidden');
+        document.getElementById('navSectionLoyalty').classList.remove('hidden');
         document.getElementById('navSectionPerks').classList.remove('hidden');
         document.getElementById('tabEventsBtn').classList.remove('hidden');
         document.getElementById('tabPayrollBtn').classList.remove('hidden');
