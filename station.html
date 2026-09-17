@@ -184,6 +184,9 @@
     height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px;
   }
   #mainMenuScreen img.logo-small{ width:120px; height:120px; border-radius:50%; object-fit:cover; margin-bottom:10px; box-shadow:0 0 60px rgba(247,173,40,0.25); }
+  #stationChoiceScreen{
+    height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px;
+  }
   .menu-choice-btn{
     width:320px; padding:28px; border-radius:100px; background:var(--gold); color:#241902;
     font-size:28px; font-weight:800; text-align:center;
@@ -512,11 +515,29 @@
     });
 
     // ---- Kitchen login (email + code) ----
+    // Home-screen "Add to Home Screen" PWAs are frequently suspended
+    // or fully reloaded by the OS when the user switches away (e.g.
+    // to their Mail app to read the code) -- a plain JS variable
+    // would silently reset to empty in that case, causing verifyOtp
+    // to be called with the wrong (blank) email paired against the
+    // real code, which Supabase correctly reports as an invalid/
+    // expired token even though the code itself was fine. Persisting
+    // to sessionStorage survives that reload.
     var kitchenPendingEmail = '';
+    try { kitchenPendingEmail = sessionStorage.getItem('kitchenPendingEmail') || ''; } catch(e){}
+
     function showKitchenLoginMsg(text, kind){
       var el = document.getElementById('kitchenLoginMsg');
       el.textContent = text;
       el.className = kind || '';
+    }
+
+    // If a send was already in progress before a reload, jump
+    // straight back to the code-entry step instead of making the
+    // user start over from typing their email again.
+    if (kitchenPendingEmail) {
+      document.getElementById('kitchenEmailStep').classList.add('hidden');
+      document.getElementById('kitchenCodeStep').classList.remove('hidden');
     }
 
     document.getElementById('kitchenSendCodeBtn').addEventListener('click', function(){
@@ -528,6 +549,7 @@
         btn.disabled = false; btn.textContent = 'Send Code';
         if (res.error) { showKitchenLoginMsg(res.error.message, 'error'); return; }
         kitchenPendingEmail = email;
+        try { sessionStorage.setItem('kitchenPendingEmail', email); } catch(e){}
         document.getElementById('kitchenEmailStep').classList.add('hidden');
         document.getElementById('kitchenCodeStep').classList.remove('hidden');
         showKitchenLoginMsg('Code sent to ' + email + '.', 'ok');
@@ -535,6 +557,8 @@
     });
 
     document.getElementById('kitchenBackToEmailBtn').addEventListener('click', function(){
+      kitchenPendingEmail = '';
+      try { sessionStorage.removeItem('kitchenPendingEmail'); } catch(e){}
       document.getElementById('kitchenCodeStep').classList.add('hidden');
       document.getElementById('kitchenEmailStep').classList.remove('hidden');
       showKitchenLoginMsg('', '');
@@ -543,10 +567,12 @@
     document.getElementById('kitchenVerifyCodeBtn').addEventListener('click', function(){
       var code = document.getElementById('kitchenCodeInput').value.trim();
       if (!code) { showKitchenLoginMsg('Enter the code from your email.', 'error'); return; }
+      if (!kitchenPendingEmail) { showKitchenLoginMsg('Session was reset -- please request a new code.', 'error'); return; }
       var btn = this; btn.disabled = true; btn.textContent = 'Verifying...';
       sb.auth.verifyOtp({ email: kitchenPendingEmail, token: code, type: 'email' }).then(function(res){
         btn.disabled = false; btn.textContent = 'Verify & Sign In';
         if (res.error) { showKitchenLoginMsg(res.error.message, 'error'); return; }
+        try { sessionStorage.removeItem('kitchenPendingEmail'); } catch(e){}
         // Signing in with Supabase auth isn't the same as being staff --
         // this confirms the account is actually a registered employee
         // before granting kitchen access, same safeguard staff.html uses.
@@ -677,7 +703,7 @@
   (function(){
     var pinScreen = document.getElementById('pinScreen');
     var board = document.getElementById('board');
-    var dots = document.querySelectorAll('.pin-dot');
+    var dots = document.querySelectorAll('#pinDots .pin-dot');
     var errorEl = document.getElementById('pinError');
     var entered = '';
 
