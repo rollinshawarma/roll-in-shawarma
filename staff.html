@@ -221,6 +221,8 @@
   .toolbar input[type=search]{ margin-bottom:0; flex:1; min-width:180px; }
 
   .emp-edit-row{ display:flex; align-items:center; gap:10px; padding:12px 0; border-bottom:1px solid var(--line); flex-wrap:wrap; }
+  .emp-edit-row.emp-inactive{ opacity:0.55; }
+  .inactive-badge{ font-size:11px; font-weight:700; color:var(--muted); border:1px solid var(--line); border-radius:100px; padding:2px 8px; margin-left:6px; }
   .emp-edit-row:last-child{ border-bottom:none; }
   .emp-edit-row .name{ flex:1; min-width:120px; font-weight:600; color:var(--white); font-size:14px; }
   .emp-edit-row input[type=number]{ width:90px; margin:0; padding:8px 10px; }
@@ -2364,29 +2366,34 @@
   function renderAdminList(){
     var q = (document.getElementById('adminSearch').value || '').toLowerCase().trim();
     var filtered = allEmployeesCache.filter(function(e){ return !q || e.name.toLowerCase().indexOf(q) > -1; });
+    // Active staff first, inactive staff grouped at the bottom so the
+    // list you actually work from day-to-day isn't interrupted by them.
+    filtered.sort(function(a, b){ return (b.active ? 1 : 0) - (a.active ? 1 : 0); });
+
     document.getElementById('employeeList').innerHTML = filtered.map(function(e){
-      // PIN is stored as zero-padded MMDD, so it parses back into
-      // month/day unambiguously -- lets an existing PIN's DOB show
-      // pre-filled instead of blank, e.g. when just correcting a typo.
       var pinMonth = e.pin ? parseInt(e.pin.slice(0, 2), 10) : '';
       var pinDay = e.pin ? parseInt(e.pin.slice(2, 4), 10) : '';
-      return '<div class="emp-edit-row" data-id="' + e.id + '">' +
-        '<span class="name">' + esc(e.name) + '</span>' +
-        '<input type="number" step="0.01" min="0" class="rate-input" value="' + e.hourly_rate + '">' +
-        '<select class="role-select">' +
+      var inactiveBadge = !e.active ? ' <span class="inactive-badge">Inactive</span>' : '';
+      var actionBtn = e.active
+        ? '<button class="btn-reject btn-small delete-emp-btn">Delete</button>'
+        : '<button class="btn-approve btn-small reactivate-emp-btn">Reactivate</button>';
+      return '<div class="emp-edit-row' + (e.active ? '' : ' emp-inactive') + '" data-id="' + e.id + '">' +
+        '<span class="name">' + esc(e.name) + inactiveBadge + '</span>' +
+        '<input type="number" step="0.01" min="0" class="rate-input" value="' + e.hourly_rate + '"' + (e.active ? '' : ' disabled') + '>' +
+        '<select class="role-select"' + (e.active ? '' : ' disabled') + '>' +
           ['employee','manager','admin'].map(function(r){
             return '<option value="' + r + '"' + (r===e.role?' selected':'') + '>' + r + '</option>';
           }).join('') +
         '</select>' +
-        '<select class="dob-month-select" title="Birth month (sets clock-in PIN)">' +
+        '<select class="dob-month-select" title="Birth month (sets clock-in PIN)"' + (e.active ? '' : ' disabled') + '>' +
           '<option value="">Month</option>' +
           MONTH_OPTIONS.map(function(m, i){
             return '<option value="' + (i+1) + '"' + ((i+1)===pinMonth?' selected':'') + '>' + m + '</option>';
           }).join('') +
         '</select>' +
-        '<input type="number" min="1" max="31" placeholder="Day" class="dob-day-input" value="' + pinDay + '">' +
-        '<button class="btn-primary btn-small save-emp-btn">Save</button>' +
-        '<button class="btn-reject btn-small delete-emp-btn">Delete</button>' +
+        '<input type="number" min="1" max="31" placeholder="Day" class="dob-day-input" value="' + pinDay + '"' + (e.active ? '' : ' disabled') + '>' +
+        (e.active ? '<button class="btn-primary btn-small save-emp-btn">Save</button>' : '') +
+        actionBtn +
       '</div>';
     }).join('') || '<p class="hint">No staff found.</p>';
 
@@ -2426,11 +2433,24 @@
         });
       });
     });
+
+    document.querySelectorAll('.reactivate-emp-btn').forEach(function(btn){
+      btn.addEventListener('click', function(){
+        var row = btn.closest('.emp-edit-row');
+        var id = row.dataset.id;
+        btn.disabled = true; btn.textContent = 'Reactivating...';
+        sb.rpc('admin_reactivate_employee', {emp_id:id}).then(function(res){
+          btn.disabled = false;
+          if (res.error) { alert(res.error.message); btn.textContent = 'Reactivate'; return; }
+          loadAdmin();
+        });
+      });
+    });
   }
   document.getElementById('adminSearch').addEventListener('input', renderAdminList);
 
   function loadAdmin(){
-    sb.from('employees').select('*').eq('active', true).order('name').then(function(res){
+    sb.from('employees').select('*').order('name').then(function(res){
       if (res.error) return;
       allEmployeesCache = res.data;
       renderAdminList();
