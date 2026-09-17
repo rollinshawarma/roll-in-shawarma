@@ -108,6 +108,7 @@
     background:var(--panel); border-left:1px solid var(--line); z-index:301;
     transform:translateX(100%); transition:transform .3s ease;
     display:flex; flex-direction:column; padding:20px;
+    overflow-y:auto; -webkit-overflow-scrolling:touch;
   }
   .nav-drawer.open{ transform:translateX(0); }
   .nav-drawer .who-block{ padding-bottom:16px; border-bottom:1px solid var(--line); margin-bottom:10px; }
@@ -223,6 +224,8 @@
   .emp-edit-row{ display:flex; align-items:center; gap:10px; padding:12px 0; border-bottom:1px solid var(--line); flex-wrap:wrap; }
   .emp-edit-row.emp-inactive{ opacity:0.55; }
   .inactive-badge{ font-size:11px; font-weight:700; color:var(--muted); border:1px solid var(--line); border-radius:100px; padding:2px 8px; margin-left:6px; }
+  .free-roll-claimed{ color:var(--muted); font-weight:600; font-size:13px; }
+  .free-roll-available{ color:var(--gold); font-weight:700; font-size:13px; }
   .emp-edit-row:last-child{ border-bottom:none; }
   .emp-edit-row .name{ flex:1; min-width:120px; font-weight:600; color:var(--white); font-size:14px; }
   .emp-edit-row input[type=number]{ width:90px; margin:0; padding:8px 10px; }
@@ -789,7 +792,7 @@
       <p class="hint">Everyone who's signed up as a member on the website. Birthdays are month/day only &mdash; no year is ever collected.</p>
       <div style="overflow-x:auto;">
         <table>
-          <thead><tr><th>Name</th><th>Email</th><th>Birthday</th><th>Signed Up</th></tr></thead>
+          <thead><tr><th>Name</th><th>Email</th><th>Birthday</th><th>Signed Up</th><th>Free Roll</th></tr></thead>
           <tbody id="customerInfoBody"></tbody>
         </table>
       </div>
@@ -2343,21 +2346,25 @@
     sb.from('email_signups').select('*').order('created_at', {ascending:false}).then(function(res){
       var tbody = document.getElementById('customerInfoBody');
       if (res.error) {
-        tbody.innerHTML = '<tr class="empty-row"><td colspan="4">Could not load customer info \u2014 ' + esc(res.error.message) + '</td></tr>';
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="5">Could not load customer info \u2014 ' + esc(res.error.message) + '</td></tr>';
         return;
       }
       if (!res.data.length) {
-        tbody.innerHTML = '<tr class="empty-row"><td colspan="4">No signups yet.</td></tr>';
+        tbody.innerHTML = '<tr class="empty-row"><td colspan="5">No signups yet.</td></tr>';
         return;
       }
       tbody.innerHTML = res.data.map(function(c){
         var name = [c.first_name, c.last_name].filter(Boolean).join(' ') || '\u2014';
         var birthday = c.birth_month ? (MONTH_NAMES[c.birth_month - 1] + ' ' + c.birth_day) : '\u2014';
+        var freeRollStatus = c.free_roll_redeemed
+          ? '<span class="free-roll-claimed">Claimed' + (c.redeemed_at ? ' \u2014 ' + new Date(c.redeemed_at).toLocaleDateString() : '') + '</span>'
+          : '<span class="free-roll-available">Available</span>';
         return '<tr>' +
           '<td>' + esc(name) + '</td>' +
           '<td>' + esc(c.email) + '</td>' +
           '<td>' + birthday + '</td>' +
           '<td>' + new Date(c.created_at).toLocaleDateString() + '</td>' +
+          '<td>' + freeRollStatus + '</td>' +
         '</tr>';
       }).join('');
     });
