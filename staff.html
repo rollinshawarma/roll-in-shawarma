@@ -1716,11 +1716,13 @@
 
   // ---------------- MANUAL TIME ENTRY (missed clock-in) ----------------
   var manualConfirmedOverwrite = false;
+  var manualExistingEntryId = null;
   var manualDupWarnEl = document.getElementById('manualDupWarning');
   var manualBtn = document.getElementById('manualEntryBtn');
 
   function resetManualConfirm(){
     manualConfirmedOverwrite = false;
+    manualExistingEntryId = null;
     manualDupWarnEl.innerHTML = '';
     manualBtn.textContent = 'Save Hours';
   }
@@ -1730,7 +1732,8 @@
 
   function doSaveManualEntry(empId, dateStr, inIso, outIso, note){
     sb.rpc('manual_time_entry', {
-      target_employee_id: empId, entry_date: dateStr, in_time: inIso, out_time: outIso, entry_note: note || null
+      target_employee_id: empId, entry_date: dateStr, in_time: inIso, out_time: outIso, entry_note: note || null,
+      existing_entry_id: manualExistingEntryId
     }).then(function(res){
       manualBtn.disabled = false;
       if (res.error) { showMsg('manualEntryMsg', res.error.message, 'error'); return; }
@@ -1777,6 +1780,7 @@
 
       if (res.data) {
         var existing = res.data;
+        manualExistingEntryId = existing.id;
         var empName = (approvalsEmpMap[empId] || {}).name || 'This employee';
         var existingHours = existing.clock_out ? fmtHours(existing.clock_in, existing.clock_out) : '—';
         manualDupWarnEl.innerHTML = '<div class="warn-box">' +
