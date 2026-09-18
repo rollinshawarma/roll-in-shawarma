@@ -93,6 +93,30 @@
   .category-expanded{ max-height:0; overflow:hidden; transition:max-height .3s ease; background:var(--black); }
   .category-block.expanded .category-expanded{ max-height:6000px; }
 
+  #dealsSection{
+    margin-top:18px; padding:20px; border-radius:16px;
+    background:linear-gradient(145deg, rgba(247,173,40,0.14), rgba(247,173,40,0.04));
+    border:2px solid var(--gold);
+  }
+  #dealsSection .deals-heading{
+    font-size:20px; font-weight:800; color:var(--gold); margin-bottom:14px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .deal-card{
+    display:flex; justify-content:space-between; align-items:center; gap:14px;
+    background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:18px 20px; margin-bottom:12px;
+  }
+  .deal-card:last-child{ margin-bottom:0; }
+  .deal-card-info .deal-name{ font-size:17px; font-weight:800; color:var(--white); margin-bottom:4px; }
+  .deal-card-info .deal-desc{ font-size:13px; color:var(--muted); line-height:1.4; }
+  .deal-card-action{ display:flex; flex-direction:column; align-items:flex-end; gap:8px; flex:none; }
+  .deal-card-price{ font-size:19px; font-weight:800; color:var(--gold); }
+  .deal-card-btn{
+    background:var(--gold); color:#241902; font-weight:800; font-size:14px;
+    padding:10px 18px; border-radius:100px; white-space:nowrap;
+  }
+
   .items-grid{
     display:flex; flex-wrap:wrap; gap:14px;
     padding:18px 20px;
@@ -129,6 +153,49 @@
     background:var(--panel); color:var(--muted); font-size:13px; display:flex; align-items:center; justify-content:center; flex:none;
   }
   .select-tile-overlay-scroll{ overflow-y:auto; flex:1; padding:0 10px 8px; }
+
+  #dealPickerOverlay{
+    position:fixed; inset:0; z-index:500; background:rgba(0,0,0,0.75);
+    display:flex; align-items:center; justify-content:center; padding:20px;
+  }
+  .deal-picker-panel{
+    background:var(--panel); border-radius:20px; border:2px solid var(--gold);
+    width:100%; max-width:520px; max-height:85vh; display:flex; flex-direction:column;
+    padding:24px;
+  }
+  .deal-picker-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+  .deal-picker-title{ font-size:20px; font-weight:800; color:var(--white); }
+  .deal-picker-close{ background:none; border:none; color:var(--muted); font-size:26px; line-height:1; padding:4px 8px; }
+  .deal-picker-step-label{ font-size:14px; color:var(--gold); font-weight:700; margin-bottom:16px; }
+  .deal-picker-options{ flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:10px; }
+  .deal-picker-option{
+    display:flex; align-items:center; justify-content:space-between;
+    background:var(--black); border:2px solid var(--line); border-radius:12px;
+    padding:16px 18px; color:var(--white); font-size:15px; font-weight:600;
+  }
+  .deal-picker-option.selected{ border-color:var(--gold); background:rgba(247,173,40,0.12); }
+  .deal-picker-option-controls{ display:flex; align-items:center; gap:10px; }
+  .deal-picker-minus{
+    background:var(--panel-2); border:1px solid var(--line); color:var(--white); font-weight:800;
+    width:30px; height:30px; border-radius:100px; font-size:18px; line-height:1; padding:0;
+  }
+  .deal-picker-option-count{
+    background:var(--gold); color:#241902; font-weight:800; font-size:13px;
+    min-width:22px; height:22px; border-radius:100px; display:none; align-items:center; justify-content:center; padding:0 6px;
+  }
+  .deal-picker-option.selected .deal-picker-option-count{ display:flex; }
+  .deal-picker-footer{ display:flex; gap:12px; margin-top:18px; }
+  .deal-picker-back{
+    background:none; border:1px solid var(--line); color:var(--muted); font-weight:700;
+    padding:14px 18px; border-radius:100px;
+  }
+  .deal-picker-back.hidden{ visibility:hidden; }
+  .deal-picker-next{
+    flex:1; background:var(--gold); color:#241902; font-weight:800; font-size:15px;
+    padding:14px; border-radius:100px;
+  }
+  .deal-picker-next:disabled{ background:var(--line); color:var(--muted); }
+
   .protein-choice-list{ margin-top:8px; }
   .protein-choice-row{
     display:flex; align-items:center; justify-content:space-between; gap:6px;
@@ -318,6 +385,21 @@
   <button type="button" id="startOrderBtn">Tap to Start Your Order</button>
 </div>
 
+<div id="dealPickerOverlay" class="hidden">
+  <div class="deal-picker-panel">
+    <div class="deal-picker-header">
+      <div class="deal-picker-title" id="dealPickerTitle"></div>
+      <button type="button" class="deal-picker-close" id="dealPickerCloseBtn">&times;</button>
+    </div>
+    <div class="deal-picker-step-label" id="dealPickerStepLabel"></div>
+    <div class="deal-picker-options" id="dealPickerOptions"></div>
+    <div class="deal-picker-footer">
+      <button type="button" class="deal-picker-back" id="dealPickerBackBtn">&larr; Back</button>
+      <button type="button" class="deal-picker-next" id="dealPickerNextBtn">Next</button>
+    </div>
+  </div>
+</div>
+
 <div id="orderScreen" class="hidden">
   <div class="kiosk-header">
     <h2>Build Your Order</h2>
@@ -326,6 +408,7 @@
   <div class="order-split">
     <div class="menu-wrap">
       <div id="categoryList"></div>
+      <div id="dealsSection" class="hidden"></div>
     </div>
     <div class="cart-panel">
       <div class="cart-panel-header">Your Order</div>
@@ -551,12 +634,16 @@
         // actually replacing them.
         itemsById = {};
         comboAddonsByName = {};
+        dealsByName = {};
+        dealSelectionsByName = {};
         categoryOrder = [];
         var byCategory = {};
         res.data.forEach(function(item){
           itemsById[item.id] = item;
           if (item.category === 'Combo Add-ons') comboAddonsByName[item.name] = item;
-          if (item.category === 'Catering' || item.category === 'Combo Add-ons') return;
+          if (item.category === 'Deals') dealsByName[item.name] = item;
+          if (item.category === 'Deal Selections') dealSelectionsByName[item.name] = item;
+          if (item.category === 'Catering' || item.category === 'Combo Add-ons' || item.category === 'Deals' || item.category === 'Deal Selections') return;
           if (!byCategory[item.category]) {
             byCategory[item.category] = [];
             categoryOrder.push(item.category);
@@ -565,7 +652,209 @@
         });
         window.__kioskByCategory = byCategory;
         renderCategoryList();
+        refreshDealsSection();
       });
+    }
+
+    // Deals only show at regular spots -- if there's a confirmed
+    // event covering today, the truck isn't at its usual location,
+    // so the deals section hides entirely rather than showing
+    // offers that may not apply to wherever the event actually is.
+    function refreshDealsSection(){
+      var section = document.getElementById('dealsSection');
+      var todayStr = new Date().toISOString().slice(0, 10);
+
+      sbShared.from('events').select('id')
+        .eq('status', 'confirmed')
+        .lte('start_date', todayStr)
+        .gte('end_date', todayStr)
+        .then(function(res){
+          var atEventToday = !res.error && res.data && res.data.length > 0;
+          if (atEventToday || !dealsByName || !Object.keys(dealsByName).length) {
+            section.classList.add('hidden');
+            section.innerHTML = '';
+            return;
+          }
+          renderDealsSection();
+        });
+    }
+
+    function renderDealsSection(){
+      var section = document.getElementById('dealsSection');
+      var deals = Object.keys(dealsByName).map(function(name){ return dealsByName[name]; })
+        .sort(function(a, b){ return a.display_order - b.display_order; });
+
+      section.innerHTML =
+        '<div class="deals-heading">\uD83C\uDF89 Today\u2019s Deals</div>' +
+        deals.map(function(deal){
+          return '<div class="deal-card">' +
+            '<div class="deal-card-info">' +
+              '<div class="deal-name">' + escHtml(deal.name) + '</div>' +
+              '<div class="deal-desc">' + escHtml(deal.description || '') + '</div>' +
+            '</div>' +
+            '<div class="deal-card-action">' +
+              '<div class="deal-card-price">$' + Number(deal.price).toFixed(2) + '</div>' +
+              '<button type="button" class="deal-card-btn" data-deal-id="' + deal.id + '">Choose</button>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+      section.classList.remove('hidden');
+
+      section.querySelectorAll('.deal-card-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          openDealPicker(itemsById[btn.getAttribute('data-deal-id')]);
+        });
+      });
+    }
+
+    // ---------------- Deal picker (multi-step) ----------------
+    var DEAL_SPECS = {
+      'Family Deal': {
+        fixed: ['Chicken Shawarma'],
+        steps: [
+          { label: 'Choose 2 Frankie Rolls', count: 2, options: ['Butter Chicken Frankie', 'Chicken Tikka Frankie', 'Tandoori Chicken Frankie', 'Signature Chicken Frankie', 'Paneer Frankie'] },
+          { label: 'Choose 1 Rice Bowl', count: 1, options: ['Chicken Bowl', 'Veggie Bowl'] }
+        ]
+      },
+      'Dinner Party Deal': {
+        fixed: ['Chicken Shawarma', 'Chicken Shawarma', 'Peri Peri Fries', 'Peri Peri Fries'],
+        steps: [
+          { label: 'Choose 2 Frankie Rolls', count: 2, options: ['Butter Chicken Frankie', 'Chicken Tikka Frankie', 'Tandoori Chicken Frankie', 'Signature Chicken Frankie', 'Paneer Frankie'] },
+          { label: 'Choose 2 Rice Bowls', count: 2, options: ['Chicken Bowl', 'Veggie Bowl'] },
+          { label: 'Choose 2 Sodas', count: 2, options: ['Soda - Coke', 'Soda - Diet Coke', 'Soda - Coke Zero', 'Soda - Sprite', 'Soda - Root Beer', 'Soda - Water'] }
+        ]
+      }
+    };
+
+    var dealPickerState = null; // { deal, spec, stepIndex, picks: [{}, {}, ...] per step }
+
+    function openDealPicker(deal){
+      var spec = DEAL_SPECS[deal.name];
+      if (!spec) return;
+      dealPickerState = {
+        deal: deal,
+        spec: spec,
+        stepIndex: 0,
+        picks: spec.steps.map(function(){ return {}; }) // per step: { optionName: count }
+      };
+      document.getElementById('dealPickerOverlay').classList.remove('hidden');
+      renderDealPickerStep();
+    }
+
+    function closeDealPicker(){
+      document.getElementById('dealPickerOverlay').classList.add('hidden');
+      dealPickerState = null;
+    }
+    document.getElementById('dealPickerCloseBtn').addEventListener('click', closeDealPicker);
+
+    function currentStepTotal(){
+      var picks = dealPickerState.picks[dealPickerState.stepIndex];
+      return Object.keys(picks).reduce(function(sum, k){ return sum + picks[k]; }, 0);
+    }
+
+    function renderDealPickerStep(){
+      var st = dealPickerState;
+      var step = st.spec.steps[st.stepIndex];
+      var picks = st.picks[st.stepIndex];
+
+      document.getElementById('dealPickerTitle').textContent = st.deal.name;
+      document.getElementById('dealPickerStepLabel').textContent =
+        'Step ' + (st.stepIndex + 1) + ' of ' + st.spec.steps.length + ' \u2014 ' + step.label;
+
+      document.getElementById('dealPickerOptions').innerHTML = step.options.map(function(name){
+        var count = picks[name] || 0;
+        return '<div class="deal-picker-option' + (count > 0 ? ' selected' : '') + '" data-option="' + escHtml(name) + '">' +
+          '<span class="deal-picker-option-name">' + escHtml(name) + '</span>' +
+          '<span class="deal-picker-option-controls">' +
+            (count > 0 ? '<button type="button" class="deal-picker-minus" data-option="' + escHtml(name) + '">&minus;</button>' : '') +
+            '<span class="deal-picker-option-count">' + count + '</span>' +
+          '</span>' +
+        '</div>';
+      }).join('');
+
+      // Tapping anywhere on the option row (except the minus button)
+      // always adds one, up to the step's total budget -- this is
+      // what actually makes picking the same flavor twice possible,
+      // which a single tap-to-toggle design could never do.
+      document.querySelectorAll('.deal-picker-option').forEach(function(row){
+        row.addEventListener('click', function(e){
+          if (e.target.classList.contains('deal-picker-minus')) return;
+          var name = row.getAttribute('data-option');
+          if (currentStepTotal() < step.count) {
+            picks[name] = (picks[name] || 0) + 1;
+            renderDealPickerStep();
+          }
+        });
+      });
+
+      document.querySelectorAll('.deal-picker-minus').forEach(function(btn){
+        btn.addEventListener('click', function(e){
+          e.stopPropagation();
+          var name = btn.getAttribute('data-option');
+          picks[name] = (picks[name] || 0) - 1;
+          if (picks[name] <= 0) delete picks[name];
+          renderDealPickerStep();
+        });
+      });
+
+      var backBtn = document.getElementById('dealPickerBackBtn');
+      backBtn.classList.toggle('hidden', st.stepIndex === 0);
+
+      var nextBtn = document.getElementById('dealPickerNextBtn');
+      var isLastStep = st.stepIndex === st.spec.steps.length - 1;
+      nextBtn.textContent = isLastStep ? 'Add to Cart' : 'Next';
+      nextBtn.disabled = currentStepTotal() !== step.count;
+    }
+
+    document.getElementById('dealPickerBackBtn').addEventListener('click', function(){
+      if (dealPickerState.stepIndex > 0) {
+        dealPickerState.stepIndex -= 1;
+        renderDealPickerStep();
+      }
+    });
+
+    document.getElementById('dealPickerNextBtn').addEventListener('click', function(){
+      var st = dealPickerState;
+      var isLastStep = st.stepIndex === st.spec.steps.length - 1;
+      if (!isLastStep) {
+        st.stepIndex += 1;
+        renderDealPickerStep();
+        return;
+      }
+      addDealToCart(st);
+      closeDealPicker();
+    });
+
+    // Adds the deal at its real, full price as one line item, plus a
+    // $0 line item for every fixed and chosen component -- this is
+    // what makes the kitchen board show exactly what to prepare
+    // without double-charging, since the deal's own price already
+    // covers everything in it.
+    function addDealToCart(st){
+      cart.push({ menu_item_id: st.deal.id, name: st.deal.name, unitPrice: Number(st.deal.price), quantity: 1 });
+
+      st.spec.fixed.forEach(function(name){
+        addDealSelectionToCart(name, 1);
+      });
+      st.picks.forEach(function(stepPicks){
+        Object.keys(stepPicks).forEach(function(name){
+          addDealSelectionToCart(name, stepPicks[name]);
+        });
+      });
+
+      syncCombos();
+      renderCartView();
+    }
+
+    function addDealSelectionToCart(name, qty){
+      var item = dealSelectionsByName[name];
+      if (!item) return;
+      var line = findLine(item.id);
+      if (line) {
+        line.quantity += qty;
+      } else {
+        cart.push({ menu_item_id: item.id, name: item.name, unitPrice: 0, quantity: qty });
+      }
     }
 
     var expandedCategory = null;
