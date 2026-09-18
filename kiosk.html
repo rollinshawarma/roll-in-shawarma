@@ -797,7 +797,12 @@
       btn.disabled = true; btn.textContent = 'Checking...';
       sbShared.rpc('kiosk_verify_member', { p_code: code }).then(function(res){
         btn.disabled = false; btn.textContent = 'Check In';
-        var row = !res.error && res.data && res.data[0];
+        if (res.error) {
+          console.error('kiosk_verify_member error:', res.error);
+          errorEl.textContent = 'Something went wrong checking that -- please tell a staff member (' + res.error.message + ').';
+          return;
+        }
+        var row = res.data && res.data[0];
         if (!row || !row.valid) {
           errorEl.textContent = "That Member ID wasn't found -- check it and try again.";
           return;
