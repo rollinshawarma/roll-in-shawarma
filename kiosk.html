@@ -196,6 +196,22 @@
   }
   .deal-picker-next:disabled{ background:var(--line); color:var(--muted); }
 
+  .deal-checkin-prompt{ display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+  .deal-checkin-text{ color:var(--muted); font-size:14px; flex:1; min-width:200px; }
+  .deal-checkin-btn{
+    background:var(--gold); color:#241902; font-weight:800; font-size:15px;
+    padding:12px 24px; border-radius:100px; white-space:nowrap;
+  }
+  .member-checkin-panel{ max-width:400px; }
+  .member-checkin-hint{ font-size:14px; color:var(--muted); margin-bottom:16px; }
+  .member-id-input{
+    width:100%; background:var(--black); border:2px solid var(--line); border-radius:12px;
+    color:var(--white); font-size:18px; font-weight:700; text-align:center;
+    padding:16px; margin-bottom:10px; text-transform:uppercase;
+  }
+  .member-id-input:focus{ border-color:var(--gold); outline:none; }
+  .member-checkin-error{ color:var(--red); font-size:14px; font-weight:600; min-height:20px; margin-bottom:10px; text-align:center; }
+
   .protein-choice-list{ margin-top:8px; }
   .protein-choice-row{
     display:flex; align-items:center; justify-content:space-between; gap:6px;
@@ -383,6 +399,19 @@
   <h1>Roll-In Shawarma</h1>
   <p>Middle Eastern &amp; Indian fusion, made fresh to order.</p>
   <button type="button" id="startOrderBtn">Tap to Start Your Order</button>
+</div>
+
+<div id="memberCheckInOverlay" class="hidden">
+  <div class="deal-picker-panel member-checkin-panel">
+    <div class="deal-picker-header">
+      <div class="deal-picker-title">Member Check-In</div>
+      <button type="button" class="deal-picker-close" id="memberCheckInCloseBtn">&times;</button>
+    </div>
+    <div class="member-checkin-hint">Enter the Member ID from your loyalty QR code.</div>
+    <input type="text" id="memberIdInput" class="member-id-input" placeholder="MEMBER-1234" autocapitalize="characters">
+    <div class="member-checkin-error" id="memberCheckInError"></div>
+    <button type="button" class="deal-picker-next" id="memberCheckInSubmitBtn">Check In</button>
+  </div>
 </div>
 
 <div id="dealPickerOverlay" class="hidden">
@@ -679,13 +708,28 @@
         });
     }
 
+    var memberVerified = false;
+    var memberFirstName = '';
+
     function renderDealsSection(){
       var section = document.getElementById('dealsSection');
       var deals = Object.keys(dealsByName).map(function(name){ return dealsByName[name]; })
         .sort(function(a, b){ return a.display_order - b.display_order; });
 
+      if (!memberVerified) {
+        section.innerHTML =
+          '<div class="deals-heading">\uD83C\uDF89 Member Deals</div>' +
+          '<div class="deal-checkin-prompt">' +
+            '<div class="deal-checkin-text">Enter your Member ID to unlock today\u2019s member-only deals.</div>' +
+            '<button type="button" class="deal-checkin-btn" id="dealCheckInBtn">Check In</button>' +
+          '</div>';
+        document.getElementById('dealCheckInBtn').addEventListener('click', openMemberCheckIn);
+        section.classList.remove('hidden');
+        return;
+      }
+
       section.innerHTML =
-        '<div class="deals-heading">\uD83C\uDF89 Today\u2019s Deals</div>' +
+        '<div class="deals-heading">\uD83C\uDF89 Member Deals' + (memberFirstName ? ' \u2014 Welcome back, ' + escHtml(memberFirstName) + '!' : '') + '</div>' +
         deals.map(function(deal){
           return '<div class="deal-card">' +
             '<div class="deal-card-info">' +
@@ -725,6 +769,39 @@
         ]
       }
     };
+
+    function openMemberCheckIn(){
+      document.getElementById('memberIdInput').value = '';
+      document.getElementById('memberCheckInError').textContent = '';
+      document.getElementById('memberCheckInOverlay').classList.remove('hidden');
+      document.getElementById('memberIdInput').focus();
+    }
+
+    function closeMemberCheckIn(){
+      document.getElementById('memberCheckInOverlay').classList.add('hidden');
+    }
+    document.getElementById('memberCheckInCloseBtn').addEventListener('click', closeMemberCheckIn);
+
+    document.getElementById('memberCheckInSubmitBtn').addEventListener('click', function(){
+      var code = document.getElementById('memberIdInput').value.trim().toUpperCase();
+      var errorEl = document.getElementById('memberCheckInError');
+      if (!code) { errorEl.textContent = 'Enter your Member ID first.'; return; }
+
+      var btn = this;
+      btn.disabled = true; btn.textContent = 'Checking...';
+      sbShared.rpc('kiosk_verify_member', { p_code: code }).then(function(res){
+        btn.disabled = false; btn.textContent = 'Check In';
+        var row = !res.error && res.data && res.data[0];
+        if (!row || !row.valid) {
+          errorEl.textContent = "That Member ID wasn't found -- check it and try again.";
+          return;
+        }
+        memberVerified = true;
+        memberFirstName = row.first_name || '';
+        closeMemberCheckIn();
+        renderDealsSection();
+      });
+    });
 
     var dealPickerState = null; // { deal, spec, stepIndex, picks: [{}, {}, ...] per step }
 
