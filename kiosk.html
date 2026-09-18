@@ -208,6 +208,7 @@
     overflow-y:auto; padding:40px 20px;
   }
   .member-screen-panel{ width:100%; max-width:480px; text-align:center; }
+  .member-deals-panel{ max-width:900px; }
   .member-screen-back{
     background:none; border:none; color:var(--muted); font-weight:700; font-size:15px;
     padding:8px 0; margin-bottom:20px; text-align:center; width:100%;
@@ -419,7 +420,7 @@
   <div class="member-screen-panel">
     <button type="button" class="member-screen-back" id="memberCheckInBackBtn">&larr; Back to Menu</button>
     <div class="member-screen-title">Member Check-In</div>
-    <div class="member-checkin-hint">Enter the number from your Member ID (e.g. just 1602 from MEMBER-1602).</div>
+    <div class="member-checkin-hint">Enter the number from your Member ID (e.g. just 1234 from MEMBER-1234).</div>
     <input type="text" id="memberIdInput" class="member-id-input" placeholder="1234" autocapitalize="characters" inputmode="numeric">
     <div class="member-checkin-error" id="memberCheckInError"></div>
     <button type="button" class="deal-picker-next" id="memberCheckInSubmitBtn">Check In</button>
@@ -758,6 +759,21 @@
 
     // ---------------- Deal picker (multi-step) ----------------
     var DEAL_SPECS = {
+      'Treat Yourself': {
+        fixed: [],
+        steps: [
+          { label: 'Choose your Loaded Fries', count: 1, options: ['Loaded Fries - Chicken', 'Loaded Fries - Veggie'] },
+          { label: 'Choose 1 Frankie Roll', count: 1, options: ['Butter Chicken Frankie', 'Chicken Tikka Frankie', 'Tandoori Chicken Frankie', 'Signature Chicken Frankie', 'Paneer Frankie'] },
+          { label: 'Choose 1 Soda', count: 1, options: ['Soda - Coke', 'Soda - Diet Coke', 'Soda - Coke Zero', 'Soda - Sprite', 'Soda - Root Beer', 'Soda - Water'] }
+        ]
+      },
+      'Flavor Fiesta': {
+        fixed: ['Chicken Shawarma', 'Fries'],
+        steps: [
+          { label: 'Choose 1 Taco', count: 1, options: ['Butter Chicken Tacos', 'Chicken Tikka Tacos', 'Tandoori Chicken Tacos', 'Signature Chicken Tacos'] },
+          { label: 'Choose 1 Soda', count: 1, options: ['Soda - Coke', 'Soda - Diet Coke', 'Soda - Coke Zero', 'Soda - Sprite', 'Soda - Root Beer', 'Soda - Water'] }
+        ]
+      },
       'Family Deal': {
         fixed: ['Chicken Shawarma'],
         steps: [
@@ -824,23 +840,22 @@
 
     function openMemberDealsScreen(){
       var deals = Object.keys(dealsByName).map(function(name){ return dealsByName[name]; })
-        .sort(function(a, b){ return a.display_order - b.display_order; });
+        .sort(function(a, b){ return Number(a.price) - Number(b.price); });
 
       document.getElementById('memberDealsTitle').textContent =
         '\uD83C\uDF89 Member Deals' + (memberFirstName ? ' \u2014 Welcome back, ' + escHtml(memberFirstName) + '!' : '');
 
-      document.getElementById('memberDealsList').innerHTML = deals.map(function(deal){
-        return '<div class="deal-card">' +
-          '<div class="deal-card-info">' +
-            '<div class="deal-name">' + escHtml(deal.name) + '</div>' +
-            '<div class="deal-desc">' + escHtml(deal.description || '') + '</div>' +
-          '</div>' +
-          '<div class="deal-card-action">' +
-            '<div class="deal-card-price">$' + Number(deal.price).toFixed(2) + '</div>' +
-            '<button type="button" class="deal-card-btn" data-deal-id="' + deal.id + '">Choose</button>' +
-          '</div>' +
-        '</div>';
-      }).join('');
+      document.getElementById('memberDealsList').innerHTML = '<div class="items-grid">' +
+        deals.map(function(deal){
+          return '<div class="item-tile">' +
+            itemPhotoHtml(deal) +
+            '<div class="item-tile-body">' +
+              '<div class="item-tile-name">' + escHtml(deal.name) + '</div>' +
+              '<div class="item-tile-control"><button type="button" class="add-to-cart-btn deal-card-btn" data-deal-id="' + deal.id + '">Add to Cart</button></div>' +
+            '</div>' +
+          '</div>';
+        }).join('') +
+      '</div>';
 
       document.getElementById('memberDealsList').querySelectorAll('.deal-card-btn').forEach(function(btn){
         btn.addEventListener('click', function(){
