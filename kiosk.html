@@ -415,8 +415,8 @@
   <div class="member-screen-panel">
     <button type="button" class="member-screen-back" id="memberCheckInBackBtn">&larr; Back to Menu</button>
     <div class="member-screen-title">Member Check-In</div>
-    <div class="member-checkin-hint">Enter the Member ID from your loyalty QR code.</div>
-    <input type="text" id="memberIdInput" class="member-id-input" placeholder="MEMBER-1234" autocapitalize="characters">
+    <div class="member-checkin-hint">Enter the number from your Member ID (e.g. just 1602 from MEMBER-1602).</div>
+    <input type="text" id="memberIdInput" class="member-id-input" placeholder="1602" autocapitalize="characters" inputmode="numeric">
     <div class="member-checkin-error" id="memberCheckInError"></div>
     <button type="button" class="deal-picker-next" id="memberCheckInSubmitBtn">Check In</button>
   </div>
@@ -789,7 +789,11 @@
     document.getElementById('memberDealsBackBtn').addEventListener('click', backToMenuFromMemberFlow);
 
     document.getElementById('memberCheckInSubmitBtn').addEventListener('click', function(){
-      var code = document.getElementById('memberIdInput').value.trim().toUpperCase();
+      var raw = document.getElementById('memberIdInput').value.trim().toUpperCase();
+      // Most people read "MEMBER-1602" as a label plus a number, not
+      // as one string to type verbatim -- accept just the digits too,
+      // and add the prefix automatically so both work.
+      var code = raw && !raw.startsWith('MEMBER-') && /^\d+$/.test(raw) ? 'MEMBER-' + raw : raw;
       var errorEl = document.getElementById('memberCheckInError');
       if (!code) { errorEl.textContent = 'Enter your Member ID first.'; return; }
 
