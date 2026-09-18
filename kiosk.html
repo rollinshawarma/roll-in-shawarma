@@ -204,13 +204,13 @@
   }
   #memberCheckInScreen, #memberDealsScreen{
     position:fixed; inset:0; z-index:400; background:var(--black);
-    display:flex; align-items:flex-start; justify-content:center;
+    display:flex; align-items:center; justify-content:center;
     overflow-y:auto; padding:40px 20px;
   }
-  .member-screen-panel{ width:100%; max-width:480px; }
+  .member-screen-panel{ width:100%; max-width:480px; text-align:center; }
   .member-screen-back{
     background:none; border:none; color:var(--muted); font-weight:700; font-size:15px;
-    padding:8px 0; margin-bottom:20px;
+    padding:8px 0; margin-bottom:20px; text-align:center; width:100%;
   }
   .member-screen-title{ font-size:26px; font-weight:800; color:var(--white); margin-bottom:20px; }
   .member-checkin-hint{ font-size:14px; color:var(--muted); margin-bottom:16px; }
@@ -305,6 +305,10 @@
   .payment-method-btn svg{ width:22px; height:22px; flex:none; }
   .payment-method-btn:disabled{ opacity:0.35; }
   .payment-method-btn:not(:disabled):active{ border-color:var(--gold); background:rgba(247,173,40,0.1); }
+  .payment-method-btn-highlighted:not(:disabled){
+    background:var(--gold); color:#241902; border-color:var(--gold);
+    box-shadow:0 10px 30px rgba(247,173,40,0.35);
+  }
 
   /* ---------- SCAN TO PAY ---------- */
   #scanToPayScreen{
@@ -383,7 +387,7 @@
     background:var(--gold); color:#241902; border-color:var(--gold);
   }
   .payment-method-btn-large svg{ width:26px; height:26px; }
-  #exploreOtherPaymentsBtn{ display:block; width:100%; margin-top:12px; background:none; color:var(--cream); font-size:15px; font-weight:700; padding:14px; border:1px solid var(--line); border-radius:14px; }
+  #exploreOtherPaymentsBtn{ display:block; width:100%; margin-top:12px; background:var(--gold); color:#241902; font-size:18px; font-weight:800; padding:18px; border-radius:14px; border:none; }
   #kioskBackBtn{ display:block; margin:16px auto 0; background:none; color:var(--muted); font-size:15px; }
   #kioskCheckoutMsg{ text-align:center; font-size:14px; color:var(--red); min-height:20px; margin-top:12px; }
 
@@ -416,7 +420,7 @@
     <button type="button" class="member-screen-back" id="memberCheckInBackBtn">&larr; Back to Menu</button>
     <div class="member-screen-title">Member Check-In</div>
     <div class="member-checkin-hint">Enter the number from your Member ID (e.g. just 1602 from MEMBER-1602).</div>
-    <input type="text" id="memberIdInput" class="member-id-input" placeholder="1602" autocapitalize="characters" inputmode="numeric">
+    <input type="text" id="memberIdInput" class="member-id-input" placeholder="1234" autocapitalize="characters" inputmode="numeric">
     <div class="member-checkin-error" id="memberCheckInError"></div>
     <button type="button" class="deal-picker-next" id="memberCheckInSubmitBtn">Check In</button>
   </div>
@@ -485,11 +489,11 @@
     </div>
   </div>
   <div class="checkout-footer">
-    <button type="button" id="payTapDirectBtn" class="payment-method-btn payment-method-btn-large">
+    <button type="button" id="payTapDirectBtn" class="payment-method-btn payment-method-btn-large hidden">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8.32a7.43 7.43 0 0 1 0 7.36"></path><path d="M9.46 6.21a11.76 11.76 0 0 1 0 11.58"></path><path d="M12.91 4.1a15.91 15.91 0 0 1 .01 15.8"></path><path d="M16.37 2a20.16 20.16 0 0 1 0 20"></path></svg>
       Tap to Pay
     </button>
-    <button type="button" id="exploreOtherPaymentsBtn">Explore Other Payment Options</button>
+    <button type="button" id="exploreOtherPaymentsBtn">Continue to Payment</button>
     <div id="kioskCheckoutMsg"></div>
     <button type="button" id="kioskBackBtn">&larr; Back to menu</button>
   </div>
@@ -509,7 +513,7 @@
   <div class="checkout-footer">
     <p class="tip-choose-hint" id="tipChooseHint">Choose a tip above to continue</p>
     <div class="payment-methods-row">
-      <button type="button" id="payScanBtn" class="payment-method-btn" disabled>
+      <button type="button" id="payScanBtn" class="payment-method-btn payment-method-btn-highlighted" disabled>
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"></path><path d="M17 3h2a2 2 0 0 1 2 2v2"></path><path d="M21 17v2a2 2 0 0 1-2 2h-2"></path><path d="M7 21H5a2 2 0 0 1-2-2v-2"></path><rect x="7" y="7" width="10" height="10" rx="1"></rect></svg>
         Scan to Pay
       </button>
@@ -946,6 +950,11 @@
       }
       addDealToCart(st);
       closeDealPicker();
+      // Return to the main order screen so the customer immediately
+      // sees their cart with the deal just added, rather than being
+      // left on the Member Deals screen with no visible cart.
+      document.getElementById('memberDealsScreen').classList.add('hidden');
+      document.getElementById('orderScreen').classList.remove('hidden');
     });
 
     // Adds the deal at its real, full price as one line item, plus a
