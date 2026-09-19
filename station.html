@@ -53,9 +53,9 @@
     display:flex; align-items:center; justify-content:space-between; padding:16px 24px;
     border-bottom:1px solid var(--line); flex:none;
   }
-  #boardHeader h1{ font-size:38px; font-weight:800; color:var(--white); }
-  #boardClock{ font-size:30px; color:var(--muted); font-weight:600; }
-  .board-last-updated{ font-size:24px; color:var(--muted); opacity:0.7; margin-right:14px; }
+  #boardHeader h1{ font-size:28px; font-weight:800; color:var(--white); }
+  #boardClock{ font-size:23px; color:var(--muted); font-weight:600; }
+  .board-last-updated{ font-size:18px; color:var(--muted); opacity:0.7; margin-right:14px; }
   .board-last-updated.stale{ color:var(--red); opacity:1; font-weight:700; }
   #lockBtn{ font-size:14px; color:var(--muted); font-weight:700; padding:8px 14px; border:1px solid var(--line); border-radius:100px; }
   #fryerLockBtn{ font-size:14px; color:var(--muted); font-weight:700; padding:8px 14px; border:1px solid var(--line); border-radius:100px; }
@@ -66,8 +66,8 @@
     display:flex; align-items:center; justify-content:space-between; padding:16px 24px;
     border-bottom:1px solid var(--line); flex:none;
   }
-  #fryerBoardHeader h1{ font-size:38px; font-weight:800; color:var(--white); }
-  #fryerBoardClock{ font-size:30px; color:var(--muted); font-weight:600; }
+  #fryerBoardHeader h1{ font-size:28px; font-weight:800; color:var(--white); }
+  #fryerBoardClock{ font-size:23px; color:var(--muted); font-weight:600; }
   #fryerBoardErrorBanner{ background:rgba(216,52,46,0.16); color:var(--red); font-size:14.5px; font-weight:700; padding:10px 24px; border-bottom:1px solid var(--red); flex:none; }
   #fryerPanels{ flex:1; min-height:0; display:flex; }
   #fryerItemPanel{ flex:1; min-width:0; display:flex; flex-direction:column; }
@@ -79,7 +79,7 @@
   #queuePanel{ flex:1; min-width:0; display:flex; flex-direction:column; }
 
   .panel-head{
-    padding:14px 20px; font-size:26px; font-weight:800; text-transform:uppercase; letter-spacing:0.06em;
+    padding:14px 20px; font-size:20px; font-weight:800; text-transform:uppercase; letter-spacing:0.06em;
     color:var(--muted); border-bottom:1px solid var(--line); flex:none;
   }
 
@@ -87,7 +87,7 @@
   #itemColumns{ flex:1; min-height:0; display:flex; }
   .item-col{ flex:1; min-width:0; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:10px; }
   .item-col-label{
-    font-size:24px; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; text-align:center;
+    font-size:18px; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; text-align:center;
     padding-bottom:8px; flex:none;
   }
   #colQueued .item-col-label{ color:var(--muted); }
@@ -101,8 +101,8 @@
     display:flex; align-items:center; justify-content:space-between; gap:10px;
     border-radius:14px; flex:none;
   }
-  .item-box .nm{ font-size:33px; font-weight:700; }
-  .item-box .cnt{ font-size:38px; font-weight:800; }
+  .item-box .nm{ font-size:25px; font-weight:700; }
+  .item-box .cnt{ font-size:28px; font-weight:800; }
 
   /* Gray and orange get a bigger tap target since they're the ones
      actually tapped repeatedly during a rush -- green is display-only
@@ -135,9 +135,9 @@
   .order-card{ background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px 16px; }
   .order-card.order-complete{ border-color:var(--green); background:rgba(11,175,76,0.1); }
   .order-card-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
-  .order-ref{ font-size:34px; font-weight:800; color:var(--white); }
-  .order-name{ font-size:27px; color:var(--muted); font-weight:600; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .wait-time{ font-size:27px; font-weight:800; color:var(--muted); flex:none; white-space:nowrap; }
+  .order-ref{ font-size:26px; font-weight:800; color:var(--white); }
+  .order-name{ font-size:20px; color:var(--muted); font-weight:600; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .wait-time{ font-size:20px; font-weight:800; color:var(--muted); flex:none; white-space:nowrap; }
   @keyframes waitTimeBlink{
     0%, 49%{ opacity:1; }
     50%, 100%{ opacity:0.25; }
@@ -146,7 +146,7 @@
   .wait-time.warn{ color:var(--red); animation:waitTimeBlink 1s step-start infinite; }
   .order-pills{ display:flex; flex-wrap:wrap; gap:6px; }
   .item-pill{
-    font-size:25px; font-weight:700; padding:6px 11px; border-radius:100px;
+    font-size:19px; font-weight:700; padding:6px 11px; border-radius:100px;
     background:rgba(216,52,46,0.16); color:var(--red); border:1px solid rgba(216,52,46,0.4);
   }
   .item-pill.pill-ready{ background:rgba(11,175,76,0.16); color:var(--green); border-color:rgba(11,175,76,0.4); }
@@ -155,16 +155,16 @@
   .order-card.order-curbside{ border-color:var(--blue); }
   .cash-warning{
     background:rgba(216,52,46,0.18); color:var(--red); border:1px solid var(--red); border-radius:8px;
-    padding:8px 12px; font-size:26px; font-weight:800; text-transform:uppercase; letter-spacing:0.03em;
+    padding:8px 12px; font-size:20px; font-weight:800; text-transform:uppercase; letter-spacing:0.03em;
     text-align:center; margin-bottom:10px;
   }
   .curbside-badge{
     background:rgba(59,157,255,0.16); color:var(--blue); border:1px solid var(--blue); border-radius:8px;
-    padding:8px 12px; font-size:28px; font-weight:800; text-align:center; margin-bottom:10px;
+    padding:8px 12px; font-size:21px; font-weight:800; text-align:center; margin-bottom:10px;
   }
   .complete-btn{
     margin-top:12px; width:100%; background:var(--green); color:#04220F; font-weight:800;
-    font-size:29px; padding:12px; border-radius:10px;
+    font-size:22px; padding:12px; border-radius:10px;
   }
   /* ---------- IDLE / MAIN MENU / EMPLOYEE CLOCK-IN ---------- */
   #idleScreen{
@@ -425,52 +425,68 @@
       } catch(e) { /* Web Audio unsupported -- sounds just won't play, nothing else depends on this */ }
     };
 
-    function beep(freq, startTime, duration, type){
+    // A real bell's character comes from several overtones that are
+    // NOT simple integer multiples of the fundamental (unlike most
+    // instruments) -- these ratios are a standard approximation used
+    // in bell synthesis. Higher partials also decay faster than the
+    // fundamental, which is part of what makes a struck bell sound
+    // different from a plain sustained tone.
+    var BELL_PARTIALS = [
+      { ratio: 1.0,  gain: 1.0,  decay: 1.1 },
+      { ratio: 2.0,  gain: 0.55, decay: 0.9 },
+      { ratio: 2.6,  gain: 0.35, decay: 0.7 },
+      { ratio: 3.4,  gain: 0.22, decay: 0.55 },
+      { ratio: 5.3,  gain: 0.12, decay: 0.35 }
+    ];
+
+    function ringBell(freq, startTime, volume){
       if (!audioCtx) return;
-      var osc = audioCtx.createOscillator();
-      var gain = audioCtx.createGain();
-      osc.type = type || 'sine';
-      osc.frequency.value = freq;
-      gain.gain.setValueAtTime(0.0001, startTime);
-      gain.gain.exponentialRampToValueAtTime(0.28, startTime + 0.02);
-      gain.gain.exponentialRampToValueAtTime(0.0001, startTime + duration);
-      osc.connect(gain);
-      gain.connect(audioCtx.destination);
-      osc.start(startTime);
-      osc.stop(startTime + duration + 0.02);
+      volume = volume || 0.32;
+      BELL_PARTIALS.forEach(function(p){
+        var osc = audioCtx.createOscillator();
+        var gain = audioCtx.createGain();
+        osc.type = 'sine';
+        osc.frequency.value = freq * p.ratio;
+        var peak = volume * p.gain;
+        gain.gain.setValueAtTime(0.0001, startTime);
+        gain.gain.exponentialRampToValueAtTime(peak, startTime + 0.008); // sharp strike
+        gain.gain.exponentialRampToValueAtTime(0.0001, startTime + p.decay);
+        osc.connect(gain);
+        gain.connect(audioCtx.destination);
+        osc.start(startTime);
+        osc.stop(startTime + p.decay + 0.05);
+      });
     }
 
     var SOUNDS = {
-      // Kiosk: a single, clear beep -- the most common source, kept simple.
+      // Kiosk: a single clear bell strike -- the most common source, kept simple.
       kiosk: function(){
-        var t = audioCtx.currentTime;
-        beep(660, t, 0.16, 'sine');
+        ringBell(660, audioCtx.currentTime, 0.32);
       },
-      // QR: two quick beeps at a higher pitch.
+      // QR: two quick, higher-pitched strikes.
       qr: function(){
         var t = audioCtx.currentTime;
-        beep(784, t, 0.1, 'sine');
-        beep(784, t + 0.14, 0.1, 'sine');
+        ringBell(880, t, 0.3);
+        ringBell(880, t + 0.22, 0.3);
       },
-      // Website/online: a rising two-tone chime.
+      // Website/online: a rising two-note bell pattern.
       website: function(){
         var t = audioCtx.currentTime;
-        beep(523, t, 0.13, 'sine');
-        beep(659, t + 0.13, 0.16, 'sine');
+        ringBell(523, t, 0.3);
+        ringBell(698, t + 0.2, 0.32);
       },
-      // DoorDash: deliberately different timbre (square wave) and a
-      // 3-tone pattern, since it's external and worth extra attention.
+      // DoorDash: lower-pitched and three strikes, since it's external
+      // and worth extra attention -- still a bell, just more insistent.
       doordash: function(){
         var t = audioCtx.currentTime;
-        beep(440, t, 0.1, 'square');
-        beep(440, t + 0.13, 0.1, 'square');
-        beep(349, t + 0.26, 0.16, 'square');
+        ringBell(392, t, 0.34);
+        ringBell(392, t + 0.2, 0.34);
+        ringBell(294, t + 0.4, 0.36);
       },
-      // Walk-up POS orders: a low, single tone -- distinct from kiosk
-      // but doesn't need the urgency of the external-order pattern.
+      // Walk-up POS orders: a single low strike -- distinct from
+      // kiosk but doesn't need the urgency of the external pattern.
       pos: function(){
-        var t = audioCtx.currentTime;
-        beep(330, t, 0.18, 'triangle');
+        ringBell(330, audioCtx.currentTime, 0.3);
       }
     };
     SOUNDS.qr_scan = SOUNDS.qr; // in case order_source is ever stored with an underscore variant
