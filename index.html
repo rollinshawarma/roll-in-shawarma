@@ -1953,6 +1953,7 @@
       items.forEach(function(item){
         itemsById[item.id] = item;
         if (item.category === 'Catering') return; // rendered in its own dedicated section instead
+        if (item.category === 'Deals' || item.category === 'Deal Selections') return; // kiosk-only member deals feature
         if (!byCategory[item.category]) {
           byCategory[item.category] = [];
           categoryOrder.push(item.category);
