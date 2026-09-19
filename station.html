@@ -53,9 +53,9 @@
     display:flex; align-items:center; justify-content:space-between; padding:16px 24px;
     border-bottom:1px solid var(--line); flex:none;
   }
-  #boardHeader h1{ font-size:19px; font-weight:800; color:var(--white); }
-  #boardClock{ font-size:15px; color:var(--muted); font-weight:600; }
-  .board-last-updated{ font-size:12px; color:var(--muted); opacity:0.7; margin-right:14px; }
+  #boardHeader h1{ font-size:38px; font-weight:800; color:var(--white); }
+  #boardClock{ font-size:30px; color:var(--muted); font-weight:600; }
+  .board-last-updated{ font-size:24px; color:var(--muted); opacity:0.7; margin-right:14px; }
   .board-last-updated.stale{ color:var(--red); opacity:1; font-weight:700; }
   #lockBtn{ font-size:14px; color:var(--muted); font-weight:700; padding:8px 14px; border:1px solid var(--line); border-radius:100px; }
   #fryerLockBtn{ font-size:14px; color:var(--muted); font-weight:700; padding:8px 14px; border:1px solid var(--line); border-radius:100px; }
@@ -66,8 +66,8 @@
     display:flex; align-items:center; justify-content:space-between; padding:16px 24px;
     border-bottom:1px solid var(--line); flex:none;
   }
-  #fryerBoardHeader h1{ font-size:19px; font-weight:800; color:var(--white); }
-  #fryerBoardClock{ font-size:15px; color:var(--muted); font-weight:600; }
+  #fryerBoardHeader h1{ font-size:38px; font-weight:800; color:var(--white); }
+  #fryerBoardClock{ font-size:30px; color:var(--muted); font-weight:600; }
   #fryerBoardErrorBanner{ background:rgba(216,52,46,0.16); color:var(--red); font-size:14.5px; font-weight:700; padding:10px 24px; border-bottom:1px solid var(--red); flex:none; }
   #fryerPanels{ flex:1; min-height:0; display:flex; }
   #fryerItemPanel{ flex:1; min-width:0; display:flex; flex-direction:column; }
@@ -79,7 +79,7 @@
   #queuePanel{ flex:1; min-width:0; display:flex; flex-direction:column; }
 
   .panel-head{
-    padding:14px 20px; font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:0.06em;
+    padding:14px 20px; font-size:26px; font-weight:800; text-transform:uppercase; letter-spacing:0.06em;
     color:var(--muted); border-bottom:1px solid var(--line); flex:none;
   }
 
@@ -87,7 +87,7 @@
   #itemColumns{ flex:1; min-height:0; display:flex; }
   .item-col{ flex:1; min-width:0; overflow-y:auto; padding:14px; display:flex; flex-direction:column; gap:10px; }
   .item-col-label{
-    font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; text-align:center;
+    font-size:24px; font-weight:800; text-transform:uppercase; letter-spacing:0.05em; text-align:center;
     padding-bottom:8px; flex:none;
   }
   #colQueued .item-col-label{ color:var(--muted); }
@@ -101,8 +101,8 @@
     display:flex; align-items:center; justify-content:space-between; gap:10px;
     border-radius:14px; flex:none;
   }
-  .item-box .nm{ font-size:16.5px; font-weight:700; }
-  .item-box .cnt{ font-size:19px; font-weight:800; }
+  .item-box .nm{ font-size:33px; font-weight:700; }
+  .item-box .cnt{ font-size:38px; font-weight:800; }
 
   /* Gray and orange get a bigger tap target since they're the ones
      actually tapped repeatedly during a rush -- green is display-only
@@ -135,9 +135,9 @@
   .order-card{ background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px 16px; }
   .order-card.order-complete{ border-color:var(--green); background:rgba(11,175,76,0.1); }
   .order-card-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin-bottom:10px; }
-  .order-ref{ font-size:17px; font-weight:800; color:var(--white); }
-  .order-name{ font-size:13.5px; color:var(--muted); font-weight:600; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .wait-time{ font-size:13.5px; font-weight:800; color:var(--muted); flex:none; white-space:nowrap; }
+  .order-ref{ font-size:34px; font-weight:800; color:var(--white); }
+  .order-name{ font-size:27px; color:var(--muted); font-weight:600; flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .wait-time{ font-size:27px; font-weight:800; color:var(--muted); flex:none; white-space:nowrap; }
   @keyframes waitTimeBlink{
     0%, 49%{ opacity:1; }
     50%, 100%{ opacity:0.25; }
@@ -146,7 +146,7 @@
   .wait-time.warn{ color:var(--red); animation:waitTimeBlink 1s step-start infinite; }
   .order-pills{ display:flex; flex-wrap:wrap; gap:6px; }
   .item-pill{
-    font-size:12.5px; font-weight:700; padding:6px 11px; border-radius:100px;
+    font-size:25px; font-weight:700; padding:6px 11px; border-radius:100px;
     background:rgba(216,52,46,0.16); color:var(--red); border:1px solid rgba(216,52,46,0.4);
   }
   .item-pill.pill-ready{ background:rgba(11,175,76,0.16); color:var(--green); border-color:rgba(11,175,76,0.4); }
@@ -155,16 +155,16 @@
   .order-card.order-curbside{ border-color:var(--blue); }
   .cash-warning{
     background:rgba(216,52,46,0.18); color:var(--red); border:1px solid var(--red); border-radius:8px;
-    padding:8px 12px; font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:0.03em;
+    padding:8px 12px; font-size:26px; font-weight:800; text-transform:uppercase; letter-spacing:0.03em;
     text-align:center; margin-bottom:10px;
   }
   .curbside-badge{
     background:rgba(59,157,255,0.16); color:var(--blue); border:1px solid var(--blue); border-radius:8px;
-    padding:8px 12px; font-size:14px; font-weight:800; text-align:center; margin-bottom:10px;
+    padding:8px 12px; font-size:28px; font-weight:800; text-align:center; margin-bottom:10px;
   }
   .complete-btn{
     margin-top:12px; width:100%; background:var(--green); color:#04220F; font-weight:800;
-    font-size:14.5px; padding:12px; border-radius:10px;
+    font-size:29px; padding:12px; border-radius:10px;
   }
   /* ---------- IDLE / MAIN MENU / EMPLOYEE CLOCK-IN ---------- */
   #idleScreen{
@@ -378,6 +378,31 @@
     'https://njcmcaoyzujijiyfardx.supabase.co',
     'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_'
   );
+
+  // ---------------- Keep the tablet awake while a board is active ----------------
+  // Uses the Screen Wake Lock API, supported on modern Chrome/Android and
+  // recent iOS Safari. Not supported everywhere -- for full reliability,
+  // also set the tablet's own OS-level auto-lock/sleep setting to Never
+  // for this kiosk, since a browser API alone can't override every device.
+  var activeWakeLock = null;
+  function requestWakeLock(){
+    if (!('wakeLock' in navigator)) return;
+    navigator.wakeLock.request('screen').then(function(lock){
+      activeWakeLock = lock;
+    }).catch(function(err){
+      console.error('Wake lock request failed:', err);
+    });
+  }
+  function releaseWakeLock(){
+    if (activeWakeLock) { activeWakeLock.release(); activeWakeLock = null; }
+  }
+  // The lock is automatically released when the tab is backgrounded --
+  // re-acquire it the moment the tablet's screen comes back, so a brief
+  // app-switch or lock-screen wake doesn't leave it unprotected.
+  document.addEventListener('visibilitychange', function(){
+    if (document.visibilityState === 'visible' && stationOnActiveBoard) requestWakeLock();
+  });
+  var stationOnActiveBoard = false;
 
   function escHtml(s){
     return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
@@ -821,6 +846,8 @@
     var waitTimeTimer = null;
 
     window.startKdsBoard = function(){
+      stationOnActiveBoard = true;
+      requestWakeLock();
       fetchAndRender();
       realtimeChannel = sb.channel('kds-board')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'prep_units' }, fetchAndRender)
@@ -836,6 +863,8 @@
     };
 
     window.stopKdsBoard = function(){
+      stationOnActiveBoard = false;
+      releaseWakeLock();
       if (realtimeChannel) { sb.removeChannel(realtimeChannel); realtimeChannel = null; }
       if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
       if (staleCheckTimer) { clearInterval(staleCheckTimer); staleCheckTimer = null; }
@@ -1112,8 +1141,32 @@
     var isFirstItemRender = true;
     var lastFetchAt = null;
     var staleCheckTimer = null;
+    var knownFryerOrderIds = null; // null until the first fetch establishes a baseline
+
+    // Same pattern as the main board's detection, kept independent
+    // (own baseline, own state) since the two boards can be open on
+    // different devices at different times and shouldn't affect each
+    // other. Scoped to fryer-relevant items only -- an order with
+    // nothing fried in it shouldn't chime at the fryer station.
+    function detectNewFryerOrdersAndPlaySounds(fryerRows){
+      var currentOrders = {};
+      fryerRows.forEach(function(r){ currentOrders[r.order_id] = r.order_source; });
+
+      if (knownFryerOrderIds === null) {
+        knownFryerOrderIds = currentOrders;
+        return;
+      }
+      for (var orderId in currentOrders) {
+        if (!(orderId in knownFryerOrderIds)) {
+          window.playOrderSound(currentOrders[orderId]);
+        }
+      }
+      knownFryerOrderIds = currentOrders;
+    }
 
     window.startFryerBoard = function(){
+      stationOnActiveBoard = true;
+      requestWakeLock();
       fetchAndRender();
       realtimeChannel = sb.channel('kds-fryer-board')
         .on('postgres_changes', { event: '*', schema: 'public', table: 'prep_units' }, fetchAndRender)
@@ -1124,11 +1177,14 @@
     };
 
     window.stopFryerBoard = function(){
+      stationOnActiveBoard = false;
+      releaseWakeLock();
       if (realtimeChannel) { sb.removeChannel(realtimeChannel); realtimeChannel = null; }
       if (pollTimer) { clearInterval(pollTimer); pollTimer = null; }
       if (staleCheckTimer) { clearInterval(staleCheckTimer); staleCheckTimer = null; }
       previousCounts = {};
       isFirstItemRender = true;
+      knownFryerOrderIds = null;
       lastFetchAt = null;
     };
 
@@ -1145,7 +1201,9 @@
           return;
         }
         clearFryerError();
-        renderFryerItemPanel(res.data.filter(isFryerItem));
+        var fryerRows = res.data.filter(isFryerItem);
+        detectNewFryerOrdersAndPlaySounds(fryerRows);
+        renderFryerItemPanel(fryerRows);
         lastFetchAt = Date.now();
         updateLastUpdatedDisplay();
       }).catch(function(err){
