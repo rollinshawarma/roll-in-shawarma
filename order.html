@@ -422,7 +422,7 @@
         res.data.forEach(function(item){
           itemsById[item.id] = item;
           if (item.category === 'Combo Add-ons') comboAddonsByName[item.name] = item;
-          if (item.category === 'Catering' || item.category === 'Combo Add-ons') return;
+          if (item.category === 'Catering' || item.category === 'Combo Add-ons' || item.category === 'Deals' || item.category === 'Deal Selections') return;
           if (!byCategory[item.category]) {
             byCategory[item.category] = [];
             categoryOrder.push(item.category);
