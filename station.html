@@ -786,11 +786,13 @@
     }
 
     document.getElementById('chooseMainStationBtn').addEventListener('click', function(){
+      window.initKdsAudio();
       document.getElementById('stationChoiceScreen').classList.add('hidden');
       board.classList.remove('hidden');
       window.startKdsBoard();
     });
     document.getElementById('chooseSubStationBtn').addEventListener('click', function(){
+      window.initKdsAudio();
       document.getElementById('stationChoiceScreen').classList.add('hidden');
       document.getElementById('fryerBoard').classList.remove('hidden');
       window.startFryerBoard();
