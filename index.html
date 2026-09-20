@@ -521,6 +521,7 @@
   .cal-dot-available{ background:var(--green) !important; }
   .cal-day.selected .cal-dot-available{ background:#04220F !important; }
   .cal-day.is-past{ opacity:0.35; }
+  .cal-day.is-closed{ opacity:0.35; }
   .cal-available-card{ border-color:var(--green) !important; }
   .cal-book-btn{ margin-top:14px; width:100%; }
   .cal-detail{ max-width:480px; margin:24px auto 0; }
@@ -551,6 +552,10 @@
   .standard-loc-address:hover{ color:var(--gold); }
   .find-note{ margin-top:16px; font-size:12.5px; color:var(--muted); line-height:1.5; }
   .find-note a{ color:var(--gold); border-bottom:1px dashed var(--gold); }
+  .business-hours{ margin-top:20px; padding-top:20px; border-top:1px solid var(--line); text-align:left; }
+  .business-hours-label{ font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:0.06em; color:var(--gold); margin-bottom:10px; text-align:center; }
+  .hours-row{ display:flex; justify-content:space-between; gap:12px; font-size:13.5px; color:var(--cream); padding:4px 0; }
+  .hours-closed{ color:var(--muted); font-weight:600; }
 
   /* ---------- EMAIL SIGNUP ---------- */
   #notify{ background:var(--panel); padding:80px 0; border-top:1px solid var(--line); text-align:center; }
@@ -1410,6 +1415,13 @@
     <div class="standard-loc">
       <div class="standard-loc-label">Our Standard Spot</div>
       <a class="standard-loc-address" href="https://www.google.com/maps/dir/?api=1&destination=3554+S+Arlington+Rd,+Akron,+OH+44312" target="_blank" rel="noopener">3554 S Arlington Rd, Akron, OH 44312</a>
+      <div class="business-hours">
+        <div class="business-hours-label">Hours</div>
+        <div class="hours-row"><span>Monday</span><span class="hours-closed">Closed</span></div>
+        <div class="hours-row"><span>Tuesday &ndash; Thursday</span><span>4:00 PM &ndash; 9:00 PM</span></div>
+        <div class="hours-row"><span>Friday &amp; Saturday</span><span>4:00 PM &ndash; 9:30 PM</span></div>
+        <div class="hours-row"><span>Sunday</span><span>4:00 PM &ndash; 8:00 PM</span></div>
+      </div>
       <p class="find-note">Not seeing the truck here? We're probably out catering a private event &mdash; check the banner above for today's schedule, or give us a call and we'll let you know where we are.</p>
     </div>
   </div>
@@ -2454,8 +2466,11 @@
 
     function standardHoursFor(ds){
       var d = new Date(ds + 'T00:00:00');
-      var isFriday = d.getDay() === 5;
-      return isFriday ? '4:00 PM \u2013 10:00 PM' : '4:00 PM \u2013 9:00 PM';
+      var day = d.getDay(); // 0=Sun, 1=Mon, ... 6=Sat
+      if (day === 1) return 'Closed';
+      if (day === 0) return '4:00 PM \u2013 8:00 PM';
+      if (day === 5 || day === 6) return '4:00 PM \u2013 9:30 PM';
+      return '4:00 PM \u2013 9:00 PM'; // Tue-Thu
     }
 
     function eventsOnDay(ds){
@@ -2512,6 +2527,12 @@
         return;
       }
 
+      var isMonday = new Date(ds + 'T00:00:00').getDay() === 1;
+      if (isMonday) {
+        detailEl.innerHTML = '<p class="cal-empty-hint">We\u2019re closed Mondays \u2014 back at our standard spot Tuesday.</p>';
+        return;
+      }
+
       var mapLink = '<a href="https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(STANDARD_MAP_QUERY) + '" target="_blank" rel="noopener">Get Directions</a>';
       detailEl.innerHTML = '<div class="cal-event-card cal-available-card">' +
         '<h4>We\u2019ll be at our standard spot</h4>' +
@@ -2543,12 +2564,14 @@
         var ds = dateStr(viewYear, viewMonth, day);
         var isPast = ds < todayStr;
         var hasEvent = eventsOnDay(ds).length > 0;
-        var isAvailable = !isPast && !hasEvent;
+        var isMonday = new Date(ds + 'T00:00:00').getDay() === 1;
+        var isAvailable = !isPast && !hasEvent && !isMonday;
         var classes = ['cal-day'];
         if (ds === todayStr) classes.push('today');
         if (hasEvent) classes.push('has-event');
         if (isAvailable) classes.push('is-available');
         if (isPast) classes.push('is-past');
+        if (isMonday && !hasEvent && !isPast) classes.push('is-closed');
         if (ds === selectedDateStr) classes.push('selected');
         var dot = hasEvent ? '<span class="cal-dot"></span>' : (isAvailable ? '<span class="cal-dot cal-dot-available"></span>' : '');
         html += '<div class="' + classes.join(' ') + '" data-date="' + ds + '">' + day + dot + '</div>';
