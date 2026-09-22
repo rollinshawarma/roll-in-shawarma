@@ -15,6 +15,7 @@
     --cream:#F3EAC9;
     --muted:rgba(243,234,201,0.62);
     --gold:#F7AD28;
+    --orange:#FF8C1A;
     --red:#D8342E;
     --green:#0BAF4C;
     --blue:#3B9DFF;
@@ -102,6 +103,8 @@
     border-radius:14px; flex:none;
   }
   .item-box .nm{ font-size:22px; font-weight:700; }
+  .item-variation{ display:block; font-size:0.68em; font-weight:700; color:var(--orange); }
+  .item-modifier{ display:block; font-size:0.68em; font-weight:700; color:var(--red); }
   .item-box .cnt{ font-size:24px; font-weight:800; }
 
   /* Gray and orange get a bigger tap target since they're the ones
@@ -408,6 +411,36 @@
     return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
       return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
     });
+  }
+
+  // item_name may carry a variation and/or modifiers, added by the
+  // backend using distinct separators (" - " before a variation,
+  // " // " before modifiers) specifically so they can be pulled back
+  // apart here and shown in their own color -- variation in orange,
+  // customizations/modifiers in red -- without needing a schema
+  // change or touching item_name's role as the grouping key
+  // everything else (including kds_start_prep) relies on.
+  function renderItemNameHtml(rawName){
+    var beforeModifiers = rawName;
+    var modifierText = null;
+    var modSplit = rawName.indexOf(' // ');
+    if (modSplit !== -1) {
+      beforeModifiers = rawName.slice(0, modSplit);
+      modifierText = rawName.slice(modSplit + 4);
+    }
+
+    var baseName = beforeModifiers;
+    var variationText = null;
+    var varSplit = beforeModifiers.indexOf(' - ');
+    if (varSplit !== -1) {
+      baseName = beforeModifiers.slice(0, varSplit);
+      variationText = beforeModifiers.slice(varSplit + 3);
+    }
+
+    var html = escHtml(baseName);
+    if (variationText) html += '<span class="item-variation">' + escHtml(variationText) + '</span>';
+    if (modifierText) html += '<span class="item-modifier">' + escHtml(modifierText) + '</span>';
+    return html;
   }
 
   // ---------------- Sound system ----------------
@@ -1038,7 +1071,7 @@
         var shouldFlash = !isFirstItemRender && count !== priorCount;
         var box = document.createElement('div');
         box.className = 'item-box ' + boxClass + (shouldFlash ? ' flash' : '');
-        box.innerHTML = '<span class="nm">' + escHtml(name) + '</span><span class="cnt">x' + count + '</span>';
+        box.innerHTML = '<span class="nm">' + renderItemNameHtml(name) + '</span><span class="cnt">x' + count + '</span>';
         if (makeHandler) box.addEventListener('click', makeHandler(name));
         col.appendChild(box);
       });
@@ -1104,7 +1137,7 @@
           // previously prepping looked identical to queued (both just
           // "not ready"), which didn't actually show progress.
           var pillClass = i.status === 'ready' ? ' pill-ready' : (i.status === 'prepping' ? ' pill-prepping' : '');
-          return '<span class="item-pill' + pillClass + '">' + escHtml(i.name) + '</span>';
+          return '<span class="item-pill' + pillClass + '">' + renderItemNameHtml(i.name) + '</span>';
         }).join('');
         var isCash = o.paymentMethod === 'cash';
         var isCurbside = o.pickupMethod === 'curbside';
@@ -1304,7 +1337,7 @@
         var shouldFlash = !isFirstItemRender && count !== priorCount;
         var box = document.createElement('div');
         box.className = 'item-box ' + boxClass + (shouldFlash ? ' flash' : '');
-        box.innerHTML = '<span class="nm">' + escHtml(name) + '</span><span class="cnt">x' + count + '</span>';
+        box.innerHTML = '<span class="nm">' + renderItemNameHtml(name) + '</span><span class="cnt">x' + count + '</span>';
         if (makeHandler) box.addEventListener('click', makeHandler(name));
         col.appendChild(box);
       });
