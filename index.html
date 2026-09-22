@@ -583,12 +583,12 @@
   .foot-bottom{ padding-top:20px; font-size:12px; color:var(--muted); display:flex; justify-content:space-between; flex-wrap:wrap; gap:10px; }
   /* ---------- FLOATING ORDER BUTTONS ---------- */
   #halalBadge{
-    position:fixed; top:90px; right:16px; z-index:90;
+    position:fixed; top:100px; right:16px; z-index:110;
     pointer-events:none; opacity:0.94;
     perspective:600px;
   }
   .halal-coin{
-    width:78px; height:78px; border-radius:50%;
+    position:relative; width:78px; height:78px; border-radius:50%;
     transform-style:preserve-3d;
     animation:halalCoinFlip 3.2s linear infinite;
   }
@@ -597,18 +597,19 @@
     to{ transform:rotateY(360deg); }
   }
   .halal-coin-face{
-    width:100%; height:100%; border-radius:50%;
+    position:absolute; inset:0; border-radius:50%;
     background:radial-gradient(circle at 35% 30%, #FFE9A8, var(--gold) 70%);
     border:3px solid #B8841E;
     box-shadow:0 8px 22px rgba(0,0,0,0.45), inset 0 2px 4px rgba(255,255,255,0.5);
     display:flex; flex-direction:column; align-items:center; justify-content:center;
     backface-visibility:hidden;
   }
+  .halal-coin-back{ transform:rotateY(180deg); }
   .halal-coin-pct{ font-size:15px; font-weight:800; color:#241902; line-height:1.1; }
   .halal-coin-word{ font-size:11px; font-weight:800; color:#241902; letter-spacing:0.03em; line-height:1.1; }
   .halal-coin-sub{ font-size:8px; font-weight:700; color:#5c4110; letter-spacing:0.08em; line-height:1.1; }
   @media (max-width:480px){
-    #halalBadge{ top:84px; right:12px; }
+    #halalBadge{ top:92px; right:12px; }
     .halal-coin{ width:60px; height:60px; }
     .halal-coin-pct{ font-size:12px; }
     .halal-coin-word{ font-size:9px; }
@@ -2855,7 +2856,12 @@
 
 <div id="halalBadge" aria-label="100% Halal Meat">
   <div class="halal-coin">
-    <div class="halal-coin-face">
+    <div class="halal-coin-face halal-coin-front">
+      <div class="halal-coin-pct">100%</div>
+      <div class="halal-coin-word">HALAL</div>
+      <div class="halal-coin-sub">MEAT</div>
+    </div>
+    <div class="halal-coin-face halal-coin-back">
       <div class="halal-coin-pct">100%</div>
       <div class="halal-coin-word">HALAL</div>
       <div class="halal-coin-sub">MEAT</div>
