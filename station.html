@@ -463,6 +463,16 @@
     if (varSplit !== -1) {
       baseName = beforeModifiers.slice(0, varSplit);
       variationText = beforeModifiers.slice(varSplit + 3);
+    } else {
+      // Loaded Fries are four separate menu items with the flavor built
+      // into the name ("Butter Chicken Loaded Fries") rather than a
+      // variation like bowls, so the flavor is split off here to show
+      // in orange the same way. Display only -- item_name is unchanged.
+      var lf = beforeModifiers.match(/^(.+?)\s+Loaded Fries$/i);
+      if (lf) {
+        baseName = 'Loaded Fries';
+        variationText = lf[1];
+      }
     }
 
     var html = escHtml(baseName);
