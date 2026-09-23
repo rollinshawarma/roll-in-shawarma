@@ -61,6 +61,7 @@
   #lockBtn{ font-size:14px; color:var(--muted); font-weight:700; padding:8px 14px; border:1px solid var(--line); border-radius:100px; }
   #fryerLockBtn{ font-size:14px; color:var(--muted); font-weight:700; padding:8px 14px; border:1px solid var(--line); border-radius:100px; }
   #boardErrorBanner{ background:rgba(216,52,46,0.16); color:var(--red); font-size:14.5px; font-weight:700; padding:10px 24px; border-bottom:1px solid var(--red); flex:none; }
+  #canceledOrdersBanner{ background:rgba(255,140,26,0.16); color:var(--orange); font-size:14.5px; font-weight:700; padding:10px 24px; border-bottom:1px solid var(--orange); flex:none; }
 
   #fryerBoard{ height:100%; display:flex; flex-direction:column; }
   #fryerBoardHeader{
@@ -70,9 +71,24 @@
   #fryerBoardHeader h1{ font-size:24px; font-weight:800; color:var(--white); }
   #fryerBoardClock{ font-size:20px; color:var(--muted); font-weight:600; }
   #fryerBoardErrorBanner{ background:rgba(216,52,46,0.16); color:var(--red); font-size:14.5px; font-weight:700; padding:10px 24px; border-bottom:1px solid var(--red); flex:none; }
+  #fryerCanceledOrdersBanner{ background:rgba(255,140,26,0.16); color:var(--orange); font-size:14.5px; font-weight:700; padding:10px 24px; border-bottom:1px solid var(--orange); flex:none; }
   #fryerPanels{ flex:1; min-height:0; display:flex; }
   #fryerItemPanel{ flex:1; min-width:0; display:flex; flex-direction:column; }
   #fryerItemColumns{ flex:1; min-height:0; display:flex; }
+  #recallBtn{ font-size:14px; color:var(--gold); font-weight:700; padding:8px 14px; border:1px solid var(--gold); border-radius:100px; margin-right:10px; }
+  #recallPanel{ flex:none; background:var(--panel); border-bottom:1px solid var(--gold); padding:12px 24px; }
+  .recall-panel-head{ display:flex; justify-content:space-between; align-items:center; font-size:17px; font-weight:800; color:var(--gold); margin-bottom:10px; }
+  .recall-sub{ font-size:13px; font-weight:600; color:var(--muted); }
+  #recallCloseBtn{ font-size:28px; line-height:1; color:var(--muted); padding:0 6px; }
+  #recallList{ display:flex; flex-wrap:wrap; gap:10px; }
+  .recall-item{ display:flex; align-items:center; gap:12px; background:var(--black); border:1px solid var(--line); border-radius:10px; padding:8px 12px; font-size:16px; font-weight:700; }
+  .recall-item .recall-meta{ color:var(--muted); font-weight:600; font-size:14px; }
+  .recall-go{ background:var(--gold); color:#241902; font-weight:800; font-size:15px; padding:8px 14px; border-radius:8px; }
+  .recall-empty{ color:var(--muted); font-size:15px; }
+  .order-notes{ margin:0 0 10px; padding:8px 12px; border-radius:8px; font-size:17px; font-weight:700; background:rgba(243,234,201,0.08); color:var(--cream); border:1px solid var(--line); white-space:pre-wrap; word-break:break-word; }
+  .order-notes.allergy{ background:rgba(216,52,46,0.22); color:#FFD9D6; border:2px solid var(--red); }
+  .order-notes .allergy-tag{ display:block; color:var(--red); font-size:15px; font-weight:800; letter-spacing:0.04em; margin-bottom:2px; }
+  .order-card.order-allergy{ border-color:var(--red); box-shadow:0 0 0 2px rgba(216,52,46,0.35); }
   #switchToFryerBtn, #switchToMainBtn{ font-size:14px; color:var(--muted); font-weight:700; padding:8px 14px; border:1px solid var(--line); border-radius:100px; margin-right:10px; }
 
   #panels{ flex:1; min-height:0; display:flex; }
@@ -334,10 +350,19 @@
     <h1>Kitchen Board</h1>
     <div id="boardLastUpdated" class="board-last-updated">&mdash;</div>
     <div id="boardClock">&mdash;</div>
+    <button type="button" id="recallBtn">&#8634; Recall</button>
     <button type="button" id="switchToFryerBtn">Switch to Sub Station</button>
     <button type="button" id="lockBtn">Lock Screen</button>
   </div>
   <div id="boardErrorBanner" class="hidden"></div>
+  <div id="canceledOrdersBanner" class="hidden"></div>
+  <div id="recallPanel" class="hidden">
+    <div class="recall-panel-head">
+      <span>Recall a picked-up order <span class="recall-sub">(last 30 min)</span></span>
+      <button type="button" id="recallCloseBtn">&times;</button>
+    </div>
+    <div id="recallList"></div>
+  </div>
   <div id="panels">
     <div id="itemPanel">
       <div class="panel-head">Item Prep</div>
@@ -363,6 +388,7 @@
     <button type="button" id="fryerLockBtn">Lock Screen</button>
   </div>
   <div id="fryerBoardErrorBanner" class="hidden"></div>
+  <div id="fryerCanceledOrdersBanner" class="hidden"></div>
   <div id="fryerPanels">
     <div id="fryerItemPanel">
       <div class="panel-head">Fryer Items</div>
@@ -978,6 +1004,7 @@
         detectNewOrdersAndPlaySounds(res.data);
         renderItemPanel(res.data);
         renderQueuePanel(res.data);
+        checkForCanceledOrders();
         lastFetchAt = Date.now();
         updateLastUpdatedDisplay();
       }).catch(function(err){
@@ -1029,6 +1056,26 @@
     function clearBoardError(){
       var el = document.getElementById('boardErrorBanner');
       if (el) el.classList.add('hidden');
+    }
+
+    // A canceled order simply disappears from the active board (by
+    // design -- get_kds_board_state deliberately excludes it), which
+    // could look to staff like it just vanished with no explanation.
+    // This is a separate, independent query specifically so it never
+    // touches that core filtering logic at all.
+    function checkForCanceledOrders(){
+      sb.rpc('get_recently_canceled_orders').then(function(res){
+        var el = document.getElementById('canceledOrdersBanner');
+        if (!el) return;
+        if (res.error || !res.data || !res.data.length) {
+          el.classList.add('hidden');
+          return;
+        }
+        el.innerHTML = '\u26A0\uFE0F Canceled: ' + res.data.map(function(o){
+          return escHtml(o.reference_code) + ' (' + escHtml(o.customer_name || 'no name') + ')';
+        }).join(' \u2022 ');
+        el.classList.remove('hidden');
+      });
     }
 
     // ---- Left panel: one dedicated row per item, all three stages
@@ -1092,10 +1139,19 @@
     function pushFulfillmentIfNewlyReady(orderId){
       if (pushedThisSession[orderId]) return;
       pushedThisSession[orderId] = true;
-      fetch(PUSH_FULFILLMENT_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KDS_ANON_KEY },
-        body: JSON.stringify({ orderId: orderId })
+      // Sends the logged-in employee's own session token -- the edge
+      // function now verifies it's a real employee before touching
+      // Square, instead of accepting anyone holding the public key.
+      sb.auth.getSession().then(function(r){
+        var token = r && r.data && r.data.session && r.data.session.access_token;
+        if (!token) throw new Error('no session');
+        return fetch(PUSH_FULFILLMENT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token, 'apikey': KDS_ANON_KEY },
+          body: JSON.stringify({ orderId: orderId })
+        });
+      }).then(function(res){
+        if (res && !res.ok) throw new Error('push failed ' + res.status);
       }).catch(function(){
         // Not surfaced to the kitchen screen -- the internal
         // fulfillment_status this board relies on is already correct
@@ -1107,6 +1163,76 @@
       });
     }
 
+    // Word-boundary match so e.g. "eggplant" doesn't trigger "egg".
+    // Deliberately errs on the side of flagging: a false alarm costs a
+    // glance, a missed allergy can put someone in the hospital.
+    var ALLERGY_PATTERN = /\b(allerg\w*|anaphyla\w*|epi-?pen|nuts?|peanuts?|tree ?nuts?|almonds?|cashews?|walnuts?|pecans?|pistachios?|gluten|celiac|coeliac|wheat|dairy|lactose|milk|shellfish|shrimp|fish|sesame|soy|eggs?)\b/i;
+
+    // Pulls just the "Note: ..." text out of an item name's red
+    // customization segment (everything after " // ").
+    function extractItemNote(rawName){
+      var modSplit = (rawName || '').indexOf(' // ');
+      if (modSplit === -1) return '';
+      var custom = rawName.slice(modSplit + 4);
+      var n = custom.indexOf('Note: ');
+      return n === -1 ? '' : custom.slice(n + 6);
+    }
+
+    // ---- Recall: undo an accidental "Mark Picked Up" ----
+    var recallPanel = document.getElementById('recallPanel');
+    var recallList = document.getElementById('recallList');
+
+    function loadRecallList(){
+      recallList.innerHTML = '<span class="recall-empty">Loading\u2026</span>';
+      sb.rpc('get_recently_picked_up_orders').then(function(res){
+        if (res.error) {
+          recallList.innerHTML = '<span class="recall-empty">Could not load \u2014 ' + escHtml(res.error.message || 'unknown error') + '</span>';
+          return;
+        }
+        if (!res.data || !res.data.length) {
+          recallList.innerHTML = '<span class="recall-empty">No orders picked up in the last 30 minutes.</span>';
+          return;
+        }
+        recallList.innerHTML = res.data.map(function(o){
+          var mins = Math.max(0, Math.round((Date.now() - new Date(o.picked_up_at).getTime()) / 60000));
+          return '<div class="recall-item">' +
+            '<span>' + escHtml(o.reference_code) + ' <span class="recall-meta">' + escHtml(o.customer_name || '') + ' \u00B7 ' + mins + 'm ago</span></span>' +
+            '<button type="button" class="recall-go" data-order-id="' + escHtml(o.order_id) + '">Recall</button>' +
+          '</div>';
+        }).join('');
+        recallList.querySelectorAll('.recall-go').forEach(function(btn){
+          btn.addEventListener('click', function(){
+            btn.disabled = true;
+            btn.textContent = 'Recalling\u2026';
+            sb.rpc('kds_recall_order', { p_order_id: btn.getAttribute('data-order-id') }).then(function(r){
+              if (r.error) {
+                showBoardError('Could not recall that order \u2014 ' + (r.error.message || 'unknown error'));
+                btn.disabled = false;
+                btn.textContent = 'Recall';
+                return;
+              }
+              recallPanel.classList.add('hidden');
+              fetchAndRender();
+            });
+          });
+        });
+      }).catch(function(){
+        recallList.innerHTML = '<span class="recall-empty">Couldn\u2019t reach the server \u2014 check your connection.</span>';
+      });
+    }
+
+    document.getElementById('recallBtn').addEventListener('click', function(){
+      if (recallPanel.classList.contains('hidden')) {
+        recallPanel.classList.remove('hidden');
+        loadRecallList();
+      } else {
+        recallPanel.classList.add('hidden');
+      }
+    });
+    document.getElementById('recallCloseBtn').addEventListener('click', function(){
+      recallPanel.classList.add('hidden');
+    });
+
     function renderQueuePanel(rows){
       var listEl = document.getElementById('queueList');
       var orderIds = [];
@@ -1116,6 +1242,7 @@
           byOrder[r.order_id] = {
             reference_code: r.reference_code, customer_name: r.customer_name, paymentMethod: r.payment_method,
             createdAt: r.order_created_at, pickupMethod: r.pickup_method, carMake: r.car_make, carColor: r.car_color,
+            notes: r.order_notes,
             items: []
           };
           orderIds.push(r.order_id);
@@ -1141,7 +1268,29 @@
         }).join('');
         var isCash = o.paymentMethod === 'cash';
         var isCurbside = o.pickupMethod === 'curbside';
-        return '<div class="order-card' + (allReady ? ' order-complete' : '') + (isCash ? ' order-cash' : '') + (isCurbside ? ' order-curbside' : '') + '" data-order-id="' + orderId + '">' +
+        var notesText = (o.notes || '').trim();
+        // Allergies can be written on the whole order OR on one item
+        // (e.g. "Note: no peanuts" typed on a single POS item), so both
+        // are scanned. Only the item's "Note:" text is checked -- not
+        // modifier names -- so a modifier like "Add Egg" doesn't raise
+        // a false allergy alarm.
+        var itemNotesAllergy = o.items.some(function(i){ return ALLERGY_PATTERN.test(extractItemNote(i.name)); });
+        var orderNotesAllergy = !!notesText && ALLERGY_PATTERN.test(notesText);
+        var isAllergy = orderNotesAllergy || itemNotesAllergy;
+        // The ALLERGY tag goes on whichever note actually contains it,
+        // so a cook never reads an allergy warning stuck to something
+        // unrelated like "leave at door".
+        var notesHtml = '';
+        if (itemNotesAllergy && !orderNotesAllergy) {
+          notesHtml += '<div class="order-notes allergy"><span class="allergy-tag">\u26A0\uFE0F ALLERGY</span>See item note below</div>';
+        }
+        if (notesText) {
+          notesHtml += '<div class="order-notes' + (orderNotesAllergy ? ' allergy' : '') + '">' +
+              (orderNotesAllergy ? '<span class="allergy-tag">\u26A0\uFE0F ALLERGY</span>' : '\uD83D\uDCDD ') +
+              escHtml(notesText) +
+            '</div>';
+        }
+        return '<div class="order-card' + (allReady ? ' order-complete' : '') + (isCash ? ' order-cash' : '') + (isCurbside ? ' order-curbside' : '') + (isAllergy ? ' order-allergy' : '') + '" data-order-id="' + orderId + '">' +
           '<div class="order-card-head">' +
             '<span class="order-ref">' + escHtml(o.reference_code || '') + '</span>' +
             '<span class="order-name">' + escHtml(o.customer_name || '') + '</span>' +
@@ -1149,6 +1298,7 @@
           '</div>' +
           (isCash ? '<div class="cash-warning">Confirm Cash Payment</div>' : '') +
           (isCurbside ? '<div class="curbside-badge">\uD83D\uDE97 Curbside &mdash; ' + escHtml([o.carColor, o.carMake].filter(Boolean).join(' ') || 'car details missing') + '</div>' : '') +
+          notesHtml +
           '<div class="order-pills">' + pillsHtml + '</div>' +
           (allReady ? '<button type="button" class="complete-btn" data-order-id="' + orderId + '">Mark Picked Up</button>' : '') +
         '</div>';
@@ -1272,6 +1422,7 @@
         var fryerRows = res.data.filter(isFryerItem);
         detectNewFryerOrdersAndPlaySounds(fryerRows);
         renderFryerItemPanel(fryerRows);
+        checkForFryerCanceledOrders();
         lastFetchAt = Date.now();
         updateLastUpdatedDisplay();
       }).catch(function(err){
@@ -1298,6 +1449,21 @@
     function clearFryerError(){
       var el = document.getElementById('fryerBoardErrorBanner');
       if (el) el.classList.add('hidden');
+    }
+
+    function checkForFryerCanceledOrders(){
+      sb.rpc('get_recently_canceled_orders').then(function(res){
+        var el = document.getElementById('fryerCanceledOrdersBanner');
+        if (!el) return;
+        if (res.error || !res.data || !res.data.length) {
+          el.classList.add('hidden');
+          return;
+        }
+        el.innerHTML = '\u26A0\uFE0F Canceled: ' + res.data.map(function(o){
+          return escHtml(o.reference_code) + ' (' + escHtml(o.customer_name || 'no name') + ')';
+        }).join(' \u2022 ');
+        el.classList.remove('hidden');
+      });
     }
 
     function renderFryerItemPanel(rows){
