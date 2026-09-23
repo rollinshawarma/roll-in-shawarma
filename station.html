@@ -40,6 +40,8 @@
   .pin-dot{ width:18px; height:18px; border-radius:50%; border:2px solid var(--line); }
   .pin-dot.filled{ background:var(--gold); border-color:var(--gold); }
   #pinError{ font-size:15px; color:var(--red); font-weight:700; min-height:20px; }
+  #empPinError{ font-size:15px; color:var(--red); font-weight:700; min-height:20px; text-align:center; max-width:440px; line-height:1.4; }
+  #empPinError.emp-pin-locked{ font-size:17px; background:rgba(216,52,46,0.16); border:2px solid var(--red); border-radius:12px; padding:14px 18px; }
   .pin-pad{ display:grid; grid-template-columns:repeat(3, 84px); gap:16px; }
   .pin-key{
     width:84px; height:84px; border-radius:50%; background:var(--panel); border:1px solid var(--line);
@@ -737,14 +739,43 @@
       showOnly(mainMenuScreen);
     });
 
+    // Clock-in locks for everyone after 10 wrong PINs in a row, until a
+    // manager resets it in the staff portal (Home screen).
+    var EMP_PIN_LOCKED_MSG = '\uD83D\uDD12 Clock-in is locked after too many wrong PINs. Ask a manager to reset it in the staff portal.';
+    var empErrTimer = null;
+    function isPinLocked(err){ return !!(err && /PIN_LOCKED/.test(err.message || '')); }
+    function showEmpPinError(msg, ms){
+      if (empErrTimer) clearTimeout(empErrTimer);
+      empErrorEl.classList.remove('emp-pin-locked');
+      empErrorEl.textContent = msg;
+      empErrTimer = setTimeout(function(){ empErrorEl.textContent = ''; }, ms);
+    }
+    function showEmpPinLocked(){
+      if (empErrTimer) clearTimeout(empErrTimer);
+      clearEmpDots();
+      empErrorEl.classList.add('emp-pin-locked');
+      empErrorEl.textContent = EMP_PIN_LOCKED_MSG;
+    }
+
     function tryEmpPinLookup(){
       sb.rpc('station_lookup_by_pin', { p_pin: empEntered }).then(function(res){
+        if (isPinLocked(res.error)) { showEmpPinLocked(); return; }
         if (res.error || !res.data || !res.data.length) {
-          empErrorEl.textContent = 'Incorrect PIN';
           clearEmpDots();
-          setTimeout(function(){ empErrorEl.textContent = ''; }, 1500);
+          // After a wrong PIN, check how many tries remain so staff get
+          // a warning before they accidentally lock everyone out.
+          sb.rpc('station_pin_status').then(function(st){
+            var s = st && st.data && st.data[0];
+            if (s && s.locked) { showEmpPinLocked(); return; }
+            var left = s ? s.attempts_left : null;
+            var warn = (left !== null && left <= 5)
+              ? ' \u2014 ' + left + (left === 1 ? ' try' : ' tries') + ' left before clock-in locks'
+              : '';
+            showEmpPinError('Incorrect PIN' + warn, 2500);
+          }).catch(function(){ showEmpPinError('Incorrect PIN', 1500); });
           return;
         }
+        empErrorEl.classList.remove('emp-pin-locked');
         currentStationEmployee = res.data[0];
         showEmployeeClockScreen();
       });
@@ -791,7 +822,10 @@
       sb.rpc('station_clock_in', { p_pin: empEntered }).then(function(res){
         btn.disabled = false;
         var msgEl = document.getElementById('employeeClockMsg');
-        if (res.error) { msgEl.textContent = res.error.message; return; }
+        if (res.error) { msgEl.textContent = isPinLocked(res.error) ? EMP_PIN_LOCKED_MSG : res.error.message; return; }
+        // A wrong PIN now comes back as an empty result (so the database
+        // can record the failed attempt) instead of an error.
+        if (!res.data || !res.data.id) { msgEl.textContent = 'Incorrect PIN'; return; }
         msgEl.textContent = '';
         currentStationEmployee.currently_clocked_in = true;
         refreshEmployeeClockUI();
@@ -802,7 +836,10 @@
       sb.rpc('station_clock_out', { p_pin: empEntered }).then(function(res){
         btn.disabled = false;
         var msgEl = document.getElementById('employeeClockMsg');
-        if (res.error) { msgEl.textContent = res.error.message; return; }
+        if (res.error) { msgEl.textContent = isPinLocked(res.error) ? EMP_PIN_LOCKED_MSG : res.error.message; return; }
+        // A wrong PIN now comes back as an empty result (so the database
+        // can record the failed attempt) instead of an error.
+        if (!res.data || !res.data.id) { msgEl.textContent = 'Incorrect PIN'; return; }
         msgEl.textContent = '';
         currentStationEmployee.currently_clocked_in = false;
         refreshEmployeeClockUI();
