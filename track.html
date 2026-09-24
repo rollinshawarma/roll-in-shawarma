@@ -15,13 +15,15 @@
   :root{
     --black:#000000; --panel:#16130F; --panel-2:#211C16; --line:rgba(243,234,201,0.13);
     --cream:#F3EAC9; --white:#FFFCF3; --muted:rgba(243,234,201,0.64);
-    --gold:#F7AD28; --gold-ink:#241902; --red:#D8342E; --green:#0BAF4C; --orange:#FF8C1A;
+    --gold:#F7AD28; --gold-ink:#241902; --red:#D8342E; --green:#0BAF4C; --green-ink:#03220f; --orange:#FF8C1A;
     --display:'Barlow Condensed', 'Arial Narrow', 'Inter', sans-serif;
     --body:'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
   }
   *{ box-sizing:border-box; margin:0; padding:0; }
   body{ background:var(--black); color:var(--cream); font-family:var(--body); font-size:15px; line-height:1.45; min-height:100vh; }
-  button{ font:inherit; color:inherit; background:none; border:none; cursor:pointer; }
+  button, input, select{ font:inherit; color:inherit; }
+  button{ background:none; border:none; cursor:pointer; }
+  button:disabled{ cursor:not-allowed; opacity:0.6; }
   a{ color:var(--gold); }
   .hidden{ display:none !important; }
   :focus-visible{ outline:3px solid var(--gold); outline-offset:2px; border-radius:6px; }
@@ -36,49 +38,71 @@
   .live.stale .live-dot{ background:var(--gold); animation:none; }
   @keyframes pulse{ 0%{ box-shadow:0 0 0 0 rgba(11,175,76,0.5); } 70%{ box-shadow:0 0 0 7px rgba(11,175,76,0); } 100%{ box-shadow:0 0 0 0 rgba(11,175,76,0); } }
 
-  /* Status card: the one bold element */
-  .status{ background:var(--panel); border:1px solid var(--line); border-radius:22px; padding:22px 20px; transition:background .4s ease, border-color .4s ease; }
-  .status .order-no{ font-family:var(--display); font-weight:800; font-size:44px; line-height:1; color:var(--white); letter-spacing:0.01em; }
-  .status .for{ color:var(--muted); font-size:14px; margin-top:4px; }
-  .status h1{ font-family:var(--display); font-weight:800; font-size:34px; line-height:1.05; color:var(--gold); margin-top:18px; }
+  /* ---------- Status card ---------- */
+  .status{ background:var(--panel); border:1px solid var(--line); border-radius:22px; padding:22px 20px 20px; transition:background .4s ease, border-color .4s ease; }
+  .status .order-label{ font-size:13px; color:var(--muted); font-weight:600; }
+  .status .order-no{ font-family:var(--display); font-weight:800; font-size:56px; line-height:0.95; color:var(--white); }
+  .status .for{ color:var(--muted); font-size:14px; margin-top:2px; }
+  .status h1{ font-family:var(--display); font-weight:800; font-size:34px; line-height:1.05; color:var(--gold); margin-top:16px; }
   .status .sub{ margin-top:6px; font-size:16px; color:var(--cream); max-width:44ch; }
   .status.is-ready{ background:var(--green); border-color:var(--green); }
-  .status.is-ready .order-no, .status.is-ready h1, .status.is-ready .sub, .status.is-ready .for{ color:#03220f; }
+  .status.is-ready .order-no, .status.is-ready h1, .status.is-ready .sub, .status.is-ready .for, .status.is-ready .order-label{ color:var(--green-ink); }
   .status.is-done h1{ color:var(--cream); }
   .status.is-canceled h1{ color:var(--red); }
-  .status.flash{ animation:flash 0.6s ease 3; }
-  @keyframes flash{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.025); } }
 
-  .steps{ list-style:none; display:grid; grid-template-columns:repeat(4, 1fr); gap:6px; margin:18px 0 6px; }
-  .steps li{ text-align:center; font-size:12.5px; color:var(--muted); font-weight:600; }
-  .steps .bar{ height:6px; border-radius:100px; background:var(--panel-2); margin-bottom:7px; }
-  .steps li.done .bar{ background:var(--gold); }
-  .steps li.current .bar{ background:var(--gold); animation:grow 1.6s ease-in-out infinite alternate; }
-  .steps li.done, .steps li.current{ color:var(--cream); }
-  .status.is-ready .steps li{ color:#03220f; } .status.is-ready .steps .bar{ background:rgba(3,34,15,0.25); }
-  .status.is-ready .steps li.done .bar, .status.is-ready .steps li.current .bar{ background:#03220f; animation:none; }
-  @keyframes grow{ from{ opacity:0.45; } to{ opacity:1; } }
+  /* Step tracker with icons */
+  .steps{ list-style:none; display:grid; grid-template-columns:repeat(4, 1fr); margin-top:22px; }
+  .steps li{ position:relative; display:flex; flex-direction:column; align-items:center; gap:7px; text-align:center; font-size:12.5px; font-weight:600; color:var(--muted); }
+  .steps li::before{ content:""; position:absolute; top:22px; right:50%; width:100%; height:3px; background:var(--panel-2); z-index:0; }
+  .steps li:first-child::before{ display:none; }
+  .steps .ic{ position:relative; z-index:1; width:46px; height:46px; border-radius:50%; background:var(--panel-2); border:2px solid var(--panel-2); display:flex; align-items:center; justify-content:center; color:var(--muted); }
+  .steps .ic svg{ width:22px; height:22px; }
+  .steps li.done{ color:var(--cream); }
+  .steps li.done::before, .steps li.current::before{ background:var(--gold); }
+  .steps li.done .ic{ background:var(--gold); border-color:var(--gold); color:var(--gold-ink); }
+  .steps li.current{ color:var(--white); }
+  .steps li.current .ic{ background:var(--black); border-color:var(--gold); color:var(--gold); animation:ring 1.8s infinite; }
+  @keyframes ring{ 0%{ box-shadow:0 0 0 0 rgba(247,173,40,0.5); } 70%{ box-shadow:0 0 0 9px rgba(247,173,40,0); } 100%{ box-shadow:0 0 0 0 rgba(247,173,40,0); } }
+  .status.is-ready .steps li{ color:var(--green-ink); }
+  .status.is-ready .steps li::before{ background:rgba(3,34,15,0.25); }
+  .status.is-ready .steps li.done::before, .status.is-ready .steps li.current::before{ background:var(--green-ink); }
+  .status.is-ready .steps .ic{ background:rgba(3,34,15,0.12); border-color:transparent; color:var(--green-ink); }
+  .status.is-ready .steps li.done .ic{ background:var(--green-ink); color:var(--green); }
+  .status.is-ready .steps li.current .ic{ background:var(--white); border-color:var(--white); color:var(--green-ink); animation:none; }
 
   .card{ background:var(--panel); border:1px solid var(--line); border-radius:18px; padding:18px; margin-top:14px; }
-  .card h2{ font-family:var(--display); font-weight:800; font-size:23px; color:var(--white); margin-bottom:10px; }
+  .card h2{ font-family:var(--display); font-weight:800; font-size:24px; color:var(--white); margin-bottom:10px; line-height:1.1; }
 
-  .alert-btn{ width:100%; min-height:54px; border-radius:100px; background:var(--gold); color:var(--gold-ink); font-weight:800; font-size:16px; display:flex; align-items:center; justify-content:center; gap:10px; }
-  .alert-btn svg{ width:20px; height:20px; }
+  .btn{ width:100%; min-height:54px; border-radius:100px; background:var(--gold); color:var(--gold-ink); font-weight:800; font-size:16px; display:flex; align-items:center; justify-content:center; gap:10px; }
+  .btn svg{ width:20px; height:20px; }
+  .link-btn{ margin-top:10px; font-size:13.5px; color:var(--muted); text-decoration:underline; }
+  .note{ color:var(--muted); font-size:13.5px; margin-top:8px; }
   .alert-on{ display:flex; gap:12px; align-items:flex-start; }
   .alert-on svg{ width:22px; height:22px; color:var(--green); flex:none; margin-top:1px; }
-  .alert-note{ color:var(--muted); font-size:13.5px; margin-top:8px; }
-  .test-link{ margin-top:8px; font-size:13.5px; color:var(--muted); text-decoration:underline; }
 
-  .item{ display:flex; align-items:center; gap:12px; padding:11px 0; border-bottom:1px solid var(--line); }
+  .item{ padding:11px 0; border-bottom:1px solid var(--line); }
   .item:last-child{ border-bottom:none; }
-  .item-info{ flex:1; min-width:0; }
   .item-name{ font-weight:700; color:var(--white); }
   .item-var{ color:var(--orange); font-size:13.5px; font-weight:600; }
   .item-mod{ color:var(--muted); font-size:13px; }
-  .item-count{ color:var(--muted); font-size:12.5px; }
-  .pill{ flex:none; font-size:12.5px; font-weight:700; padding:6px 11px; border-radius:100px; border:1px solid var(--line); color:var(--muted); white-space:nowrap; }
-  .pill.cooking{ color:var(--gold); border-color:rgba(247,173,40,0.5); background:rgba(247,173,40,0.1); }
-  .pill.ready{ color:var(--green); border-color:rgba(11,175,76,0.55); background:rgba(11,175,76,0.12); }
+
+  /* Free roll */
+  .reward{ border:1px dashed rgba(247,173,40,0.6); background:linear-gradient(160deg, rgba(247,173,40,0.12), rgba(247,173,40,0.02) 60%), var(--panel); }
+  .reward-head{ display:flex; gap:14px; align-items:center; margin-bottom:12px; }
+  .reward-head .badge{ width:54px; height:54px; border-radius:16px; background:var(--gold); color:var(--gold-ink); display:flex; align-items:center; justify-content:center; flex:none; }
+  .reward-head .badge svg{ width:30px; height:30px; }
+  .reward-head h2{ margin:0; }
+  .terms{ display:flex; flex-wrap:wrap; gap:8px; margin:0 0 14px; }
+  .terms span{ font-size:13px; font-weight:600; padding:6px 11px; border-radius:100px; background:var(--black); border:1px solid var(--line); color:var(--cream); }
+  .field{ margin-bottom:12px; }
+  .field label{ display:block; font-weight:600; color:var(--white); font-size:14px; margin-bottom:6px; }
+  .field label small{ color:var(--muted); font-weight:500; }
+  .field input, .field select{ width:100%; background:var(--black); border:1px solid var(--line); border-radius:12px; padding:13px 14px; font-size:16px; color:var(--white); }
+  .field input:focus, .field select:focus{ outline:none; border-color:var(--gold); box-shadow:0 0 0 3px rgba(247,173,40,0.25); }
+  .code-input{ letter-spacing:0.3em; font-family:var(--display) !important; font-size:26px !important; text-align:center; }
+  .row2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .err{ color:#FF7A74; font-size:13.5px; font-weight:600; margin:4px 0 10px; min-height:1em; }
+  .member-code{ font-family:var(--display); font-weight:800; font-size:36px; color:var(--white); background:var(--black); border:1px solid var(--line); border-radius:14px; text-align:center; padding:10px; margin:12px 0 4px; letter-spacing:0.02em; }
 
   .foot{ text-align:center; color:var(--muted); font-size:13px; margin-top:22px; }
   .empty{ text-align:center; padding:60px 10px; }
@@ -86,10 +110,12 @@
   .empty p{ color:var(--muted); margin:8px 0 20px; }
   .empty a{ display:inline-block; background:var(--gold); color:var(--gold-ink); font-weight:800; padding:13px 24px; border-radius:100px; text-decoration:none; }
 
+  #confetti{ position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:100; }
   @media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } }
 </style>
 </head>
 <body>
+<canvas id="confetti" class="hidden" aria-hidden="true"></canvas>
 <div class="wrap">
   <div class="top">
     <img src="logo.jpg" alt="" onerror="this.remove()">
@@ -107,38 +133,104 @@
 
   <div id="tracker" class="hidden">
     <section class="status" id="statusCard" aria-live="polite">
+      <div class="order-label">Order</div>
       <div class="order-no" id="orderNo"></div>
       <div class="for" id="orderFor"></div>
       <h1 id="stageTitle"></h1>
       <p class="sub" id="stageSub"></p>
       <ol class="steps" aria-label="Order progress">
-        <li data-step="received"><div class="bar"></div>Received</li>
-        <li data-step="preparing"><div class="bar"></div>Cooking</li>
-        <li data-step="ready"><div class="bar"></div>Ready</li>
-        <li data-step="picked_up"><div class="bar"></div>Picked up</li>
+        <li data-step="received"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 11l3 3L22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg></span>Received</li>
+        <li data-step="preparing"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M8.5 14.5A2.5 2.5 0 0 0 11 12c0-1.38-.5-2-1-3-1.07-2.14-.22-4.05 2-6 .5 2.5 2 4.9 4 6.5 2 1.6 3 3.5 3 5.5a7 7 0 1 1-14 0c0-1.15.43-2.29 1-3a2.5 2.5 0 0 0 2.5 2.5z"/></svg></span>Cooking</li>
+        <li data-step="ready"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></span>Ready</li>
+        <li data-step="picked_up"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></span>Picked up</li>
       </ol>
     </section>
 
     <section class="card" id="alertCard">
       <div id="alertOff">
-        <button type="button" class="alert-btn" id="alertBtn">
+        <button type="button" class="btn" id="alertBtn">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
           Buzz me when it&rsquo;s ready
         </button>
-        <p class="alert-note">Tap once so your phone is allowed to alert you, then keep this page open.</p>
+        <p class="note">Tap once so your phone is allowed to alert you, then keep this page open.</p>
       </div>
       <div id="alertOnBox" class="hidden">
         <div class="alert-on">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
-          <div><strong style="color:var(--white)">Alerts are on</strong><p class="alert-note" id="alertOnText" style="margin-top:2px;"></p></div>
+          <div><strong style="color:var(--white)">Alerts are on</strong><p class="note" id="alertOnText" style="margin-top:2px;"></p></div>
         </div>
-        <button type="button" class="test-link" id="alertTestBtn">Test the alert</button>
+        <button type="button" class="link-btn" id="alertTestBtn">Test the alert</button>
       </div>
     </section>
 
     <section class="card">
       <h2>Your food</h2>
       <div id="items"></div>
+    </section>
+
+    <!-- Free roll on your next visit -->
+    <section class="card reward hidden" id="rewardCard" aria-live="polite">
+      <div class="reward-head">
+        <span class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="8" width="18" height="4" rx="1"/><path d="M12 8v13"/><path d="M19 12v7a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2v-7"/><path d="M7.5 8a2.5 2.5 0 0 1 0-5A4.8 8 0 0 1 12 8a4.8 8 0 0 1 4.5-5 2.5 2.5 0 0 1 0 5"/></svg></span>
+        <h2 id="rewardTitle">Free roll on your next visit</h2>
+      </div>
+
+      <div data-view="offer">
+        <div class="terms"><span>Good for 7 days</span><span>On orders of $20 or more</span></div>
+        <button type="button" class="btn" id="claimBtn">Claim my free roll</button>
+        <p class="note">Saved to your free member account.</p>
+      </div>
+
+      <div data-view="email" class="hidden">
+        <div class="field">
+          <label for="rwEmail">Your email</label>
+          <input type="email" id="rwEmail" autocomplete="email" inputmode="email" placeholder="you@example.com">
+        </div>
+        <div class="err" id="rwEmailErr" role="alert"></div>
+        <button type="button" class="btn" id="rwSendBtn">Email me a sign-in code</button>
+        <p class="note">New here? This also creates your free member account.</p>
+      </div>
+
+      <div data-view="code" class="hidden">
+        <p style="margin-bottom:12px;">We sent a code to <b id="rwEmailShown" style="color:var(--white)"></b>.</p>
+        <div class="field">
+          <label for="rwCode">Code from the email</label>
+          <input type="text" id="rwCode" class="code-input" inputmode="numeric" autocomplete="one-time-code" maxlength="10">
+        </div>
+        <div class="err" id="rwCodeErr" role="alert"></div>
+        <button type="button" class="btn" id="rwVerifyBtn">Verify</button>
+        <p class="note">Or just tap the link in that email.</p>
+        <button type="button" class="link-btn" id="rwBackBtn">Use a different email</button>
+      </div>
+
+      <div data-view="profile" class="hidden">
+        <p style="margin-bottom:12px;">You&rsquo;re in. Tell us your name to finish your member account.</p>
+        <div class="row2">
+          <div class="field"><label for="rwFirst">First name</label><input type="text" id="rwFirst" autocomplete="given-name"></div>
+          <div class="field"><label for="rwLast">Last name <small>(optional)</small></label><input type="text" id="rwLast" autocomplete="family-name"></div>
+        </div>
+        <div class="field">
+          <label>Birthday <small>(optional, for a birthday treat)</small></label>
+          <div class="row2">
+            <select id="rwBMonth" aria-label="Birth month"><option value="">Month</option></select>
+            <select id="rwBDay" aria-label="Birth day"><option value="">Day</option></select>
+          </div>
+        </div>
+        <div class="err" id="rwProfileErr" role="alert"></div>
+        <button type="button" class="btn" id="rwProfileBtn">Save my free roll</button>
+      </div>
+
+      <div data-view="working" class="hidden"><p class="note">One moment&hellip;</p></div>
+
+      <div data-view="done" class="hidden">
+        <p id="rwDoneText"></p>
+        <div id="rwCodeWrap" class="hidden">
+          <p class="note" style="margin-top:12px;">At the window, show your member code:</p>
+          <div class="member-code" id="rwMemberCode"></div>
+        </div>
+      </div>
+
+      <div data-view="error" class="hidden"><p class="err" id="rwFatal" style="min-height:0;"></p></div>
     </section>
 
     <p class="foot"><span id="updatedText"></span><br><a href="order.html">Order more</a></p>
@@ -160,15 +252,22 @@
         return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
       });
     }
+    // "QRScan007" -> "#007": customers only need the number.
+    function displayOrderNo(ref){
+      var m = /^[A-Za-z]+-?(\d+)$/.exec(ref || '');
+      return m ? '#' + m[1] : (ref || '');
+    }
 
-    var orderId = new URLSearchParams(location.search).get('order') || '';
+    var params = new URLSearchParams(location.search);
+    var orderId = params.get('order') || '';
+    var returningFromEmailLink = params.get('claim') === '1';
     if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(orderId)) {
       $('loading').classList.add('hidden');
       $('notFound').classList.remove('hidden');
       return;
     }
 
-    // ---------- alerts: vibrate twice + chime when ready ----------
+    // ---------- ready alerts: vibrate twice + chime ----------
     var canVibrate = typeof navigator.vibrate === 'function';
     var alertsOn = false, audioCtx = null, wakeLock = null;
     function playChime(){
@@ -187,7 +286,6 @@
       } catch(e){}
     }
     function buzzTwice(){
-      // Two firm buzzes with a short gap.
       if (canVibrate) { try { navigator.vibrate([400, 200, 400]); } catch(e){} }
       playChime();
     }
@@ -196,7 +294,6 @@
       navigator.wakeLock.request('screen').then(function(l){ wakeLock = l; }).catch(function(){});
     }
     $('alertBtn').addEventListener('click', function(){
-      // This tap is what browsers require before a page may vibrate or play sound.
       try {
         var AC = window.AudioContext || window.webkitAudioContext;
         if (AC && !audioCtx) audioCtx = new AC();
@@ -212,12 +309,47 @@
       $('alertOnBox').classList.remove('hidden');
     });
     $('alertTestBtn').addEventListener('click', buzzTwice);
-    document.addEventListener('visibilitychange', function(){
-      if (document.visibilityState === 'visible') {
-        if (alertsOn && !done) requestWakeLock();
-        poll(); // catch up immediately after the phone wakes
+
+    // ---------- confetti (once per order) ----------
+    var reducedMotion = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    function launchConfetti(){
+      var key = 'rollin_confetti_' + orderId;
+      try { if (sessionStorage.getItem(key)) return; sessionStorage.setItem(key, '1'); } catch(e){}
+      if (reducedMotion) return;
+      var canvas = $('confetti');
+      var ctx = canvas.getContext && canvas.getContext('2d');
+      if (!ctx) return;
+      canvas.classList.remove('hidden');
+      var dpr = Math.min(window.devicePixelRatio || 1, 2);
+      var W = canvas.width = window.innerWidth * dpr, H = canvas.height = window.innerHeight * dpr;
+      var colors = ['#F7AD28', '#D8342E', '#0BAF4C', '#FFFCF3', '#FF8C1A'];
+      var pieces = [];
+      for (var i = 0; i < 170; i++) {
+        pieces.push({
+          x: W * (0.2 + Math.random() * 0.6), y: H * 0.35 + (Math.random() - 0.5) * H * 0.1,
+          vx: (Math.random() - 0.5) * 16 * dpr, vy: (-6 - Math.random() * 12) * dpr,
+          w: (6 + Math.random() * 6) * dpr, h: (8 + Math.random() * 10) * dpr,
+          r: Math.random() * Math.PI, vr: (Math.random() - 0.5) * 0.3,
+          c: colors[i % colors.length]
+        });
       }
-    });
+      var start = null, DURATION = 3600;
+      function frame(ts){
+        if (!start) start = ts;
+        var t = ts - start;
+        ctx.clearRect(0, 0, W, H);
+        ctx.globalAlpha = t > DURATION - 800 ? Math.max(0, (DURATION - t) / 800) : 1;
+        pieces.forEach(function(p){
+          p.vy += 0.35 * dpr; p.vx *= 0.99; p.x += p.vx; p.y += p.vy; p.r += p.vr;
+          ctx.save(); ctx.translate(p.x, p.y); ctx.rotate(p.r);
+          ctx.fillStyle = p.c; ctx.fillRect(-p.w / 2, -p.h / 2, p.w, p.h * Math.abs(Math.cos(p.r)));
+          ctx.restore();
+        });
+        if (t < DURATION) requestAnimationFrame(frame);
+        else { ctx.clearRect(0, 0, W, H); canvas.classList.add('hidden'); }
+      }
+      requestAnimationFrame(frame);
+    }
 
     // ---------- rendering ----------
     function parseItemName(raw){
@@ -234,9 +366,9 @@
     }
     var STAGE_COPY = {
       awaiting_payment: ['Waiting for your payment', 'Finish paying on the checkout page. This updates on its own.'],
-      received: ['We\u2019ve got your order', ''],
+      received: ['We\u2019ve got your order', 'We\u2019ll start cooking it shortly.'],
       preparing: ['Your food is cooking', 'It\u2019s on the grill now.'],
-      ready: ['Your order is ready!', ''],
+      ready: ['Your order is on the way!', ''],
       picked_up: ['Enjoy your meal!', 'Thanks for rolling with us.'],
       canceled: ['This order was canceled', 'Questions? Ask at the window.']
     };
@@ -246,18 +378,19 @@
       $('loading').classList.add('hidden');
       $('tracker').classList.remove('hidden');
       $('live').classList.remove('hidden');
-      $('orderNo').textContent = t.reference_code;
+      $('orderNo').textContent = displayOrderNo(t.reference_code);
       $('orderFor').textContent = t.first_name ? 'For ' + t.first_name : '';
 
       var stage = t.stage;
       var copy = STAGE_COPY[stage] || STAGE_COPY.received;
       var sub = copy[1];
-      if (stage === 'received') sub = t.orders_ahead > 0 ? t.orders_ahead + (t.orders_ahead === 1 ? ' order' : ' orders') + ' ahead of you.' : 'You\u2019re next in line.';
-      if (stage === 'ready') sub = t.pickup_method === 'curbside' ? 'We\u2019re bringing it out to your car.' : 'Come to the window and give us your name.';
-      if (stage === 'ready' && t.payment_method === 'cash') sub += ' Please have cash ready.';
+      if (stage === 'ready') {
+        sub = t.pickup_method === 'curbside' ? 'We\u2019re bringing it out to your car.' : 'Come to the window and give us your name.';
+        if (t.payment_method === 'cash') sub += ' Please have cash ready.';
+      }
       $('stageTitle').textContent = copy[0];
       $('stageSub').textContent = sub;
-      document.title = (stage === 'ready' ? '\u2705 Ready! ' : '') + t.reference_code + ' \u2014 Roll-In Shawarma';
+      document.title = (stage === 'ready' ? '\u2705 On the way! ' : '') + 'Order ' + displayOrderNo(t.reference_code) + ' \u2014 Roll-In Shawarma';
 
       var card = $('statusCard');
       card.classList.toggle('is-ready', stage === 'ready');
@@ -266,41 +399,176 @@
 
       var idx = STEP_ORDER.indexOf(stage === 'awaiting_payment' ? 'received' : stage);
       document.querySelectorAll('.steps li').forEach(function(li, i){
-        li.classList.toggle('done', idx > i || stage === 'picked_up');
-        li.classList.toggle('current', idx === i && stage !== 'picked_up' && stage !== 'canceled');
-        if (idx === i) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current');
+        var isDone = idx > i || stage === 'picked_up';
+        var isCurrent = idx === i && stage !== 'picked_up' && stage !== 'canceled';
+        li.classList.toggle('done', isDone);
+        li.classList.toggle('current', isCurrent);
+        if (isCurrent) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current');
       });
 
       $('items').innerHTML = (t.items || []).map(function(it){
         var p = parseItemName(it.name);
-        var cls = '', label = 'In line';
-        if (it.ready >= it.total) { cls = 'ready'; label = 'Ready'; }
-        else if (it.prepping > 0 || it.ready > 0) { cls = 'cooking'; label = 'Cooking'; }
-        return '<div class="item"><div class="item-info">' +
-          '<div class="item-name">' + escHtml(p.base) + (it.total > 1 ? ' \u00d7 ' + it.total : '') + '</div>' +
+        return '<div class="item"><div class="item-name">' + escHtml(p.base) + (it.quantity > 1 ? ' \u00d7 ' + it.quantity : '') + '</div>' +
           (p.variation ? '<div class="item-var">' + escHtml(p.variation) + '</div>' : '') +
-          (p.mods ? '<div class="item-mod">' + escHtml(p.mods) + '</div>' : '') +
-          (it.total > 1 && it.ready > 0 && it.ready < it.total ? '<div class="item-count">' + it.ready + ' of ' + it.total + ' ready</div>' : '') +
-          '</div><span class="pill ' + cls + '">' + label + '</span></div>';
-      }).join('') || '<p class="alert-note">Your items will show here in a moment.</p>';
+          (p.mods ? '<div class="item-mod">' + escHtml(p.mods) + '</div>' : '') + '</div>';
+      }).join('') || '<p class="note">Your items will show here in a moment.</p>';
 
-      // Alert only on the change INTO ready -- not if the page is opened
-      // after it was already ready (the customer is looking at it).
-      if (stage === 'ready' && lastStage && lastStage !== 'ready') {
-        if (alertsOn) buzzTwice();
-        card.classList.remove('flash'); void card.offsetWidth; card.classList.add('flash');
+      if (stage === 'ready') {
+        if (lastStage && lastStage !== 'ready' && alertsOn) buzzTwice();
+        launchConfetti();
       }
       lastStage = stage;
 
+      if (stage === 'ready' || stage === 'picked_up' || stage === 'canceled') $('alertCard').classList.add('hidden');
       if (stage === 'picked_up' || stage === 'canceled') {
         done = true;
-        $('alertCard').classList.add('hidden');
         $('live').classList.add('hidden');
         if (wakeLock) { try { wakeLock.release(); } catch(e){} wakeLock = null; }
       }
-      if (stage === 'ready') $('alertCard').classList.add('hidden');
+      renderReward(t);
     }
 
+    // ---------- free roll on the next visit ----------
+    var rewardView = null;       // current step of the claim flow
+    var rewardFinished = false;  // claimed during this visit -> keep the success view
+    var pendingEmail = '';
+    function showView(name){
+      rewardView = name;
+      $('rewardCard').querySelectorAll('[data-view]').forEach(function(v){ v.classList.toggle('hidden', v.getAttribute('data-view') !== name); });
+    }
+    function renderReward(t){
+      var card = $('rewardCard');
+      if (rewardFinished) return;
+      if (t.reward_claimed) {
+        card.classList.remove('hidden');
+        if (rewardView !== 'done') {
+          $('rewardTitle').textContent = 'Free roll saved';
+          $('rwDoneText').textContent = 'This order\u2019s free roll is saved to a member account. It\u2019s good for 7 days on an order of $20 or more.';
+          showView('done');
+          sb.auth.getSession().then(function(r){ if (r && r.data && r.data.session) showMyReward(); });
+        }
+        return;
+      }
+      if (!t.reward_eligible) { card.classList.add('hidden'); return; }
+      card.classList.remove('hidden');
+      if (!rewardView) {
+        showView('offer');
+        if (returningFromEmailLink) {
+          returningFromEmailLink = false;
+          sb.auth.getSession().then(function(r){ if (r && r.data && r.data.session) continueClaim(); });
+        }
+      }
+    }
+    function friendlyDate(iso){
+      try { return new Date(iso).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' }); } catch(e){ return ''; }
+    }
+    function showDone(result){
+      rewardFinished = true;
+      var when = friendlyDate(result.expires_at);
+      var min = Number(result.min_purchase || 20).toFixed(0);
+      $('rewardTitle').textContent = result.result === 'already_have' ? 'You already have a free roll' : 'Your free roll is saved';
+      $('rwDoneText').textContent = result.result === 'already_have'
+        ? 'You have one waiting. Use it by ' + when + ' on an order of $' + min + ' or more, and you can earn another.'
+        : 'Use it by ' + when + ' on an order of $' + min + ' or more.';
+      if (result.member_code) {
+        $('rwMemberCode').textContent = result.member_code;
+        $('rwCodeWrap').classList.remove('hidden');
+      }
+      showView('done');
+    }
+    function showMyReward(){
+      sb.rpc('get_my_member_profile').then(function(p){
+        var code = p && p.data && p.data.redeem_code;
+        sb.rpc('get_my_rewards').then(function(r){
+          var first = r && r.data && r.data[0];
+          if (first) showDone({ result: 'claimed', expires_at: first.expires_at, min_purchase: first.min_purchase, member_code: code });
+        });
+      });
+    }
+    function claimError(err){
+      var msg = (err && err.message) || '';
+      if (/NOT_SIGNED_IN/.test(msg)) { showView('email'); return; }
+      if (/NO_MEMBER_PROFILE/.test(msg)) { showView('profile'); return; }
+      $('rwFatal').textContent = /ALREADY_CLAIMED/.test(msg) ? 'This order\u2019s free roll was already claimed.'
+        : /ORDER_NOT_ELIGIBLE/.test(msg) ? 'This order can\u2019t earn a free roll yet. Try again once you\u2019ve picked it up.'
+        : 'We couldn\u2019t save your free roll. Please try again.';
+      showView('error');
+    }
+    function doClaim(){
+      showView('working');
+      sb.rpc('claim_order_reward', { p_order_id: orderId }).then(function(res){
+        if (res.error) { claimError(res.error); return; }
+        showDone(res.data || {});
+      }).catch(function(){ claimError(null); });
+    }
+    function continueClaim(){
+      showView('working');
+      sb.rpc('get_my_member_profile').then(function(res){
+        if (res.error) { claimError(res.error); return; }
+        if (!res.data) { showView('profile'); $('rwFirst').focus(); return; }
+        doClaim();
+      }).catch(function(){ claimError(null); });
+    }
+
+    $('claimBtn').addEventListener('click', function(){
+      sb.auth.getSession().then(function(r){
+        if (r && r.data && r.data.session) continueClaim();
+        else { showView('email'); $('rwEmail').focus(); }
+      }).catch(function(){ showView('email'); });
+    });
+    $('rwSendBtn').addEventListener('click', function(){
+      var btn = this, email = $('rwEmail').value.trim();
+      $('rwEmailErr').textContent = '';
+      if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) { $('rwEmailErr').textContent = 'Enter a valid email address.'; return; }
+      btn.disabled = true;
+      var back = location.origin + location.pathname + '?order=' + encodeURIComponent(orderId) + '&claim=1';
+      sb.auth.signInWithOtp({ email: email, options: { shouldCreateUser: true, emailRedirectTo: back } }).then(function(res){
+        btn.disabled = false;
+        if (res.error) { $('rwEmailErr').textContent = res.error.message || 'We couldn\u2019t send the email. Try again.'; return; }
+        pendingEmail = email;
+        $('rwEmailShown').textContent = email;
+        showView('code');
+        $('rwCode').focus();
+      }).catch(function(){ btn.disabled = false; $('rwEmailErr').textContent = 'We couldn\u2019t send the email. Check your connection.'; });
+    });
+    $('rwVerifyBtn').addEventListener('click', function(){
+      var btn = this, token = $('rwCode').value.replace(/\s/g, '');
+      $('rwCodeErr').textContent = '';
+      if (!/^\d{6,10}$/.test(token)) { $('rwCodeErr').textContent = 'Enter the number code from the email.'; return; }
+      btn.disabled = true;
+      sb.auth.verifyOtp({ email: pendingEmail, token: token, type: 'email' }).then(function(res){
+        btn.disabled = false;
+        if (res.error) { $('rwCodeErr').textContent = 'That code didn\u2019t work. Check it, or send a new one.'; return; }
+        continueClaim();
+      }).catch(function(){ btn.disabled = false; $('rwCodeErr').textContent = 'We couldn\u2019t check the code. Try again.'; });
+    });
+    $('rwBackBtn').addEventListener('click', function(){ showView('email'); });
+
+    (function fillBirthday(){
+      var months = ['January','February','March','April','May','June','July','August','September','October','November','December'];
+      $('rwBMonth').insertAdjacentHTML('beforeend', months.map(function(m, i){ return '<option value="' + (i + 1) + '">' + m + '</option>'; }).join(''));
+      var days = ''; for (var d = 1; d <= 31; d++) days += '<option value="' + d + '">' + d + '</option>';
+      $('rwBDay').insertAdjacentHTML('beforeend', days);
+    })();
+    $('rwProfileBtn').addEventListener('click', function(){
+      var btn = this, first = $('rwFirst').value.trim();
+      $('rwProfileErr').textContent = '';
+      if (!first) { $('rwProfileErr').textContent = 'Add your first name.'; $('rwFirst').focus(); return; }
+      var m = parseInt($('rwBMonth').value, 10), d = parseInt($('rwBDay').value, 10);
+      btn.disabled = true;
+      sb.rpc('create_member_profile', {
+        p_first_name: first,
+        p_last_name: $('rwLast').value.trim() || null,
+        p_birth_month: isFinite(m) ? m : null,
+        p_birth_day: isFinite(d) ? d : null
+      }).then(function(res){
+        btn.disabled = false;
+        if (res.error) { $('rwProfileErr').textContent = res.error.message || 'We couldn\u2019t save that. Try again.'; return; }
+        doClaim();
+      }).catch(function(){ btn.disabled = false; $('rwProfileErr').textContent = 'We couldn\u2019t save that. Check your connection.'; });
+    });
+
+    // ---------- polling ----------
     var lastOkAt = 0, pollTimer = null, inFlight = false;
     function poll(){
       if (done || inFlight) return;
@@ -319,6 +587,12 @@
       }).catch(function(){ inFlight = false; schedule(); });
     }
     function schedule(){ if (!done) pollTimer = setTimeout(poll, POLL_MS); }
+    document.addEventListener('visibilitychange', function(){
+      if (document.visibilityState === 'visible') {
+        if (alertsOn && !done) requestWakeLock();
+        poll();
+      }
+    });
     setInterval(function(){
       if (!lastOkAt || done) return;
       var secs = Math.round((Date.now() - lastOkAt) / 1000);
