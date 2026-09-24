@@ -37,6 +37,12 @@
   .check-badge svg{ width:32px; height:32px; color:var(--green); }
   h1{ font-size:24px; font-weight:800; color:var(--white); margin-bottom:8px; }
   .sub{ font-size:14px; color:var(--muted); margin-bottom:26px; }
+  .track-btn{
+    display:block; width:100%; max-width:360px; margin:-10px auto 24px; text-align:center;
+    background:var(--gold); color:#241902; font-weight:800; font-size:16px;
+    padding:15px 20px; border-radius:100px; text-decoration:none;
+  }
+  .track-btn:focus-visible{ outline:3px solid #fff; outline-offset:3px; }
   .ref-badge{
     display:inline-block; background:var(--black); border:1px solid var(--line); border-radius:100px;
     padding:6px 16px; font-size:12.5px; font-weight:700; color:var(--gold); margin-bottom:26px;
@@ -105,6 +111,7 @@
     <h1 id="thankYouTitle">Thank you for your order!</h1>
     <div class="sub" id="thankYouSub">Please allow a few minutes to roll &mdash; it's worth the wait.</div>
     <div class="ref-badge" id="refBadge"></div>
+    <a id="trackBtn" class="track-btn hidden" href="#">Track your order live</a>
 
     <div id="statusStepper" class="status-stepper hidden">
       <div class="status-step" data-stage="received">
@@ -132,10 +139,12 @@
     <div id="itemsBlock" class="order-items hidden"></div>
     <div id="summaryBlock" class="order-summary-text hidden"></div>
 
+    <div id="priceBlock">
     <div class="breakdown-row">Subtotal <span id="subtotalDisplay">$0.00</span></div>
     <div class="breakdown-row">Sales Tax (6.75%) <span id="taxDisplay">$0.00</span></div>
     <div class="breakdown-row">Online Processing Fee <span id="feeDisplay">$0.00</span></div>
     <div class="total-row">Total <span id="totalDisplay">$0.00</span></div>
+    </div>
 
     <div id="pickupNote" class="pickup-note hidden"></div>
     <div id="statusNote" class="status-note hidden"></div>
@@ -158,6 +167,10 @@
     var params = new URLSearchParams(window.location.search);
     var ref = params.get('ref');
     var isCashOrder = params.get('cash') === 'true';
+    // Secret per-order ID from checkout: unlocks full order details and
+    // the live tracking page. Without it, only non-personal status shows.
+    var trackingToken = params.get('t') || '';
+    var tokenParam = /^[0-9a-f-]{36}$/i.test(trackingToken) ? '&t=' + encodeURIComponent(trackingToken) : '';
 
     var loadingEl = document.getElementById('loadingState');
     var errorEl = document.getElementById('errorState');
@@ -210,7 +223,7 @@
     function pollFulfillmentStatus(referenceCode){
       clearTimeout(statusPollTimer);
       statusPollTimer = setTimeout(function(){
-        fetch(EDGE_FUNCTION_URL + '?ref=' + encodeURIComponent(referenceCode), {
+        fetch(EDGE_FUNCTION_URL + '?ref=' + encodeURIComponent(referenceCode) + tokenParam, {
           headers: { 'Authorization': 'Bearer ' + ANON_KEY }
         }).then(function(res){ return res.json(); })
           .then(function(order){
@@ -224,7 +237,7 @@
     }
 
     function attemptFetch(retriesLeft){
-      fetch(EDGE_FUNCTION_URL + '?ref=' + encodeURIComponent(ref), {
+      fetch(EDGE_FUNCTION_URL + '?ref=' + encodeURIComponent(ref) + tokenParam, {
         headers: { 'Authorization': 'Bearer ' + ANON_KEY }
       }).then(function(res){
         return res.json().then(function(data){ return { ok: res.ok, data: data }; });
@@ -264,9 +277,19 @@
         }
 
         document.getElementById('refBadge').textContent = order.referenceCode;
+        if (order.trackingId) {
+          var trackBtn = document.getElementById('trackBtn');
+          trackBtn.href = 'track.html?order=' + encodeURIComponent(order.trackingId);
+          trackBtn.classList.remove('hidden');
+          try {
+            localStorage.setItem('rollin_last_order', JSON.stringify({ id: order.trackingId, ref: order.referenceCode, savedAt: Date.now() }));
+          } catch(e){}
+        }
         if (isCashOrder) {
           document.getElementById('thankYouTitle').textContent = order.firstName ? 'Thanks, ' + order.firstName + '!' : 'Order Placed!';
-          document.getElementById('thankYouSub').innerHTML = 'Please pay <b>$' + Number(order.total).toFixed(2) + '</b> at the counter. We\u2019ll call your name when it\u2019s ready.';
+          document.getElementById('thankYouSub').innerHTML = order.limited
+            ? 'Please pay at the window. We\u2019ll call your name when it\u2019s ready.'
+            : 'Please pay <b>$' + Number(order.total).toFixed(2) + '</b> at the counter. We\u2019ll call your name when it\u2019s ready.';
         } else if (order.firstName) {
           document.getElementById('thankYouTitle').textContent = 'Thank you, ' + order.firstName + '!';
         }
@@ -289,6 +312,9 @@
           summaryBlock.textContent = order.summary;
         }
 
+        // Opened without the secret order ID (e.g. an old or shared
+        // link): prices and items aren't sent, so don't show zeros.
+        if (order.limited) document.getElementById('priceBlock').classList.add('hidden');
         var subtotal = Number(order.subtotal) || 0;
         var total = Number(order.total) || 0;
         var breakdown = computeBreakdown(subtotal, total);
