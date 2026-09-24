@@ -34,6 +34,12 @@
   .brand .sub{ font-size:12.5px; color:var(--muted); margin-top:4px; letter-spacing:0.04em; text-transform:uppercase; }
 
   .card{ background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:26px; margin-bottom:18px; }
+  .nv-rewards{ margin-top:16px; padding-top:14px; border-top:1px dashed var(--line); text-align:left; }
+  .nv-title{ font-weight:800; color:var(--gold); margin-bottom:8px; }
+  .nv-row{ padding:10px 0; }
+  .nv-terms{ font-size:14px; margin-bottom:10px; }
+  .nv-label{ display:block; font-size:13px; color:var(--muted); margin-bottom:6px; }
+  .nv-msg{ margin-top:8px; }
   .pin-lock-alert{ background:rgba(216,52,46,0.14); border:2px solid var(--red); border-radius:16px; padding:18px 20px; margin:0 auto 20px; max-width:560px; text-align:left; }
   .pin-lock-alert h3{ margin:0 0 6px; font-size:17px; color:var(--red); }
   .pin-lock-alert p{ margin:0 0 12px; font-size:14px; line-height:1.5; }
@@ -1392,10 +1398,11 @@
         }
         var row = res.data;
         if (row.free_roll_redeemed) {
-          showScanResult(false, 'Already redeemed on ' + row.redeemed_at.slice(0,10) + '.');
-          return;
+          showScanResult(false, 'Welcome free roll already redeemed on ' + row.redeemed_at.slice(0,10) + '.');
+        } else {
+          showScanResult(true, 'Valid member — welcome free roll available.', row);
         }
-        showScanResult(true, 'Valid member — free roll available.', row);
+        appendNextVisitRewards(resultBox, { code: row.redeem_code });
       });
     }
 
@@ -1697,6 +1704,50 @@
     });
   });
 
+  // ---------------- NEXT-VISIT FREE ROLL (earned on the tracking page) ----------------
+  // Shown under any member lookup (scan or email). Good for 7 days;
+  // the order must be $20+ before the free roll -- the database checks
+  // the subtotal entered here and refuses anything lower.
+  var nvLookupSeq = 0;
+  function appendNextVisitRewards(containerEl, lookup){
+    var seq = ++nvLookupSeq;
+    var holder = document.createElement('div');
+    holder.className = 'nv-rewards';
+    holder.innerHTML = '<p class="hint">Checking for a next-visit free roll&hellip;</p>';
+    containerEl.appendChild(holder);
+    sb.rpc('staff_member_rewards', { p_code: lookup.code || null, p_email: lookup.email || null }).then(function(res){
+      if (seq !== nvLookupSeq || !document.body.contains(holder)) return;
+      if (res.error) { holder.innerHTML = '<div class="msg error">' + esc(res.error.message) + '</div>'; return; }
+      var rows = res.data || [];
+      if (!rows.length) { holder.innerHTML = '<p class="hint">No next-visit free roll on this account.</p>'; return; }
+      holder.innerHTML = '<div class="nv-title">Next-visit free roll</div>' + rows.map(function(r){
+        var until = new Date(r.expires_at).toLocaleDateString([], { weekday: 'short', month: 'short', day: 'numeric' });
+        var min = Number(r.min_purchase).toFixed(2);
+        return '<div class="nv-row" data-id="' + esc(r.reward_id) + '">' +
+          '<div class="nv-terms">Good until <b>' + esc(until) + '</b>. The order must be <b>$' + min + ' or more</b> before the free roll.</div>' +
+          '<label class="nv-label">Order subtotal, before the free roll</label>' +
+          '<div class="row2"><input type="number" class="nv-subtotal" min="0" step="0.01" inputmode="decimal" placeholder="' + min + '">' +
+          '<button class="btn-approve btn-small nv-redeem" style="height:fit-content;">Redeem free roll</button></div>' +
+          '<div class="nv-msg"></div></div>';
+      }).join('');
+      holder.querySelectorAll('.nv-redeem').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          var row = btn.closest('.nv-row');
+          var msgEl = row.querySelector('.nv-msg');
+          var subtotal = parseFloat(row.querySelector('.nv-subtotal').value);
+          msgEl.innerHTML = '';
+          if (!isFinite(subtotal)) { msgEl.innerHTML = '<div class="msg error">Enter the order subtotal first.</div>'; return; }
+          btn.disabled = true;
+          sb.rpc('staff_redeem_member_reward', { p_reward_id: row.getAttribute('data-id'), p_order_subtotal: subtotal }).then(function(r2){
+            btn.disabled = false;
+            if (r2.error) { msgEl.innerHTML = '<div class="msg error">' + esc(r2.error.message) + '</div>'; return; }
+            row.innerHTML = '<div class="msg ok">Next-visit free roll redeemed on a $' + subtotal.toFixed(2) + ' order.</div>';
+          });
+        });
+      });
+    });
+  }
+
   // ---------------- FREE ROLL REDEMPTION ----------------
   function renderRedeemResult(row){
     var el = document.getElementById('redeemResult');
@@ -1705,11 +1756,13 @@
       return;
     }
     if (row.free_roll_redeemed) {
-      el.innerHTML = '<div class="msg error">Already redeemed on ' + row.redeemed_at.slice(0,10) + '. Cannot be used again.</div>';
+      el.innerHTML = '<div class="msg error">Welcome free roll already redeemed on ' + row.redeemed_at.slice(0,10) + '. Cannot be used again.</div>';
+      appendNextVisitRewards(el, { email: row.email });
       return;
     }
-    el.innerHTML = '<div class="msg ok">Member since ' + row.created_at.slice(0,10) + ' — free roll not yet used.</div>' +
+    el.innerHTML = '<div class="msg ok">Member since ' + row.created_at.slice(0,10) + ' — welcome free roll not yet used.</div>' +
       '<button class="btn-approve btn-small" id="confirmRedeemBtn">Mark Redeemed</button>';
+    appendNextVisitRewards(el, { email: row.email });
     document.getElementById('confirmRedeemBtn').addEventListener('click', function(){
       var btn = this; btn.disabled = true;
       sb.rpc('redeem_free_roll', {signup_email: row.email}).then(function(res){
