@@ -1,0 +1,334 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<meta name="robots" content="noindex">
+<title>Track your order — Roll-In Shawarma</title>
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  :root{
+    --black:#000000; --panel:#16130F; --panel-2:#211C16; --line:rgba(243,234,201,0.13);
+    --cream:#F3EAC9; --white:#FFFCF3; --muted:rgba(243,234,201,0.64);
+    --gold:#F7AD28; --gold-ink:#241902; --red:#D8342E; --green:#0BAF4C; --orange:#FF8C1A;
+    --display:'Barlow Condensed', 'Arial Narrow', 'Inter', sans-serif;
+    --body:'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{ background:var(--black); color:var(--cream); font-family:var(--body); font-size:15px; line-height:1.45; min-height:100vh; }
+  button{ font:inherit; color:inherit; background:none; border:none; cursor:pointer; }
+  a{ color:var(--gold); }
+  .hidden{ display:none !important; }
+  :focus-visible{ outline:3px solid var(--gold); outline-offset:2px; border-radius:6px; }
+  .wrap{ max-width:560px; margin:0 auto; padding:16px 16px calc(40px + env(safe-area-inset-bottom, 0px)); }
+
+  .top{ display:flex; align-items:center; gap:10px; padding:4px 0 16px; }
+  .top img{ width:36px; height:36px; border-radius:50%; object-fit:cover; }
+  .top .brand{ font-family:var(--display); font-weight:800; font-size:21px; }
+  .top .brand .w1{ color:var(--gold); } .top .brand .w2{ color:var(--red); }
+  .live{ margin-left:auto; display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--muted); }
+  .live-dot{ width:8px; height:8px; border-radius:50%; background:var(--green); animation:pulse 2s infinite; }
+  .live.stale .live-dot{ background:var(--gold); animation:none; }
+  @keyframes pulse{ 0%{ box-shadow:0 0 0 0 rgba(11,175,76,0.5); } 70%{ box-shadow:0 0 0 7px rgba(11,175,76,0); } 100%{ box-shadow:0 0 0 0 rgba(11,175,76,0); } }
+
+  /* Status card: the one bold element */
+  .status{ background:var(--panel); border:1px solid var(--line); border-radius:22px; padding:22px 20px; transition:background .4s ease, border-color .4s ease; }
+  .status .order-no{ font-family:var(--display); font-weight:800; font-size:44px; line-height:1; color:var(--white); letter-spacing:0.01em; }
+  .status .for{ color:var(--muted); font-size:14px; margin-top:4px; }
+  .status h1{ font-family:var(--display); font-weight:800; font-size:34px; line-height:1.05; color:var(--gold); margin-top:18px; }
+  .status .sub{ margin-top:6px; font-size:16px; color:var(--cream); max-width:44ch; }
+  .status.is-ready{ background:var(--green); border-color:var(--green); }
+  .status.is-ready .order-no, .status.is-ready h1, .status.is-ready .sub, .status.is-ready .for{ color:#03220f; }
+  .status.is-done h1{ color:var(--cream); }
+  .status.is-canceled h1{ color:var(--red); }
+  .status.flash{ animation:flash 0.6s ease 3; }
+  @keyframes flash{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.025); } }
+
+  .steps{ list-style:none; display:grid; grid-template-columns:repeat(4, 1fr); gap:6px; margin:18px 0 6px; }
+  .steps li{ text-align:center; font-size:12.5px; color:var(--muted); font-weight:600; }
+  .steps .bar{ height:6px; border-radius:100px; background:var(--panel-2); margin-bottom:7px; }
+  .steps li.done .bar{ background:var(--gold); }
+  .steps li.current .bar{ background:var(--gold); animation:grow 1.6s ease-in-out infinite alternate; }
+  .steps li.done, .steps li.current{ color:var(--cream); }
+  .status.is-ready .steps li{ color:#03220f; } .status.is-ready .steps .bar{ background:rgba(3,34,15,0.25); }
+  .status.is-ready .steps li.done .bar, .status.is-ready .steps li.current .bar{ background:#03220f; animation:none; }
+  @keyframes grow{ from{ opacity:0.45; } to{ opacity:1; } }
+
+  .card{ background:var(--panel); border:1px solid var(--line); border-radius:18px; padding:18px; margin-top:14px; }
+  .card h2{ font-family:var(--display); font-weight:800; font-size:23px; color:var(--white); margin-bottom:10px; }
+
+  .alert-btn{ width:100%; min-height:54px; border-radius:100px; background:var(--gold); color:var(--gold-ink); font-weight:800; font-size:16px; display:flex; align-items:center; justify-content:center; gap:10px; }
+  .alert-btn svg{ width:20px; height:20px; }
+  .alert-on{ display:flex; gap:12px; align-items:flex-start; }
+  .alert-on svg{ width:22px; height:22px; color:var(--green); flex:none; margin-top:1px; }
+  .alert-note{ color:var(--muted); font-size:13.5px; margin-top:8px; }
+  .test-link{ margin-top:8px; font-size:13.5px; color:var(--muted); text-decoration:underline; }
+
+  .item{ display:flex; align-items:center; gap:12px; padding:11px 0; border-bottom:1px solid var(--line); }
+  .item:last-child{ border-bottom:none; }
+  .item-info{ flex:1; min-width:0; }
+  .item-name{ font-weight:700; color:var(--white); }
+  .item-var{ color:var(--orange); font-size:13.5px; font-weight:600; }
+  .item-mod{ color:var(--muted); font-size:13px; }
+  .item-count{ color:var(--muted); font-size:12.5px; }
+  .pill{ flex:none; font-size:12.5px; font-weight:700; padding:6px 11px; border-radius:100px; border:1px solid var(--line); color:var(--muted); white-space:nowrap; }
+  .pill.cooking{ color:var(--gold); border-color:rgba(247,173,40,0.5); background:rgba(247,173,40,0.1); }
+  .pill.ready{ color:var(--green); border-color:rgba(11,175,76,0.55); background:rgba(11,175,76,0.12); }
+
+  .foot{ text-align:center; color:var(--muted); font-size:13px; margin-top:22px; }
+  .empty{ text-align:center; padding:60px 10px; }
+  .empty h1{ font-family:var(--display); font-weight:800; font-size:32px; color:var(--white); }
+  .empty p{ color:var(--muted); margin:8px 0 20px; }
+  .empty a{ display:inline-block; background:var(--gold); color:var(--gold-ink); font-weight:800; padding:13px 24px; border-radius:100px; text-decoration:none; }
+
+  @media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="top">
+    <img src="logo.jpg" alt="" onerror="this.remove()">
+    <span class="brand"><span class="w1">Roll-In</span> <span class="w2">Shawarma</span></span>
+    <span class="live hidden" id="live"><span class="live-dot" aria-hidden="true"></span><span id="liveText">Live</span></span>
+  </div>
+
+  <div id="loading" class="empty"><p>Loading your order&hellip;</p></div>
+
+  <div id="notFound" class="empty hidden">
+    <h1>We can&rsquo;t find that order</h1>
+    <p>Tracking links work for 24 hours after ordering. Ask at the window if you need a hand.</p>
+    <a href="order.html">Back to the menu</a>
+  </div>
+
+  <div id="tracker" class="hidden">
+    <section class="status" id="statusCard" aria-live="polite">
+      <div class="order-no" id="orderNo"></div>
+      <div class="for" id="orderFor"></div>
+      <h1 id="stageTitle"></h1>
+      <p class="sub" id="stageSub"></p>
+      <ol class="steps" aria-label="Order progress">
+        <li data-step="received"><div class="bar"></div>Received</li>
+        <li data-step="preparing"><div class="bar"></div>Cooking</li>
+        <li data-step="ready"><div class="bar"></div>Ready</li>
+        <li data-step="picked_up"><div class="bar"></div>Picked up</li>
+      </ol>
+    </section>
+
+    <section class="card" id="alertCard">
+      <div id="alertOff">
+        <button type="button" class="alert-btn" id="alertBtn">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9"/><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0"/></svg>
+          Buzz me when it&rsquo;s ready
+        </button>
+        <p class="alert-note">Tap once so your phone is allowed to alert you, then keep this page open.</p>
+      </div>
+      <div id="alertOnBox" class="hidden">
+        <div class="alert-on">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>
+          <div><strong style="color:var(--white)">Alerts are on</strong><p class="alert-note" id="alertOnText" style="margin-top:2px;"></p></div>
+        </div>
+        <button type="button" class="test-link" id="alertTestBtn">Test the alert</button>
+      </div>
+    </section>
+
+    <section class="card">
+      <h2>Your food</h2>
+      <div id="items"></div>
+    </section>
+
+    <p class="foot"><span id="updatedText"></span><br><a href="order.html">Order more</a></p>
+  </div>
+</div>
+
+<script>
+  (function(){
+    var sb = supabase.createClient(
+      'https://njcmcaoyzujijiyfardx.supabase.co',
+      'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_'
+    );
+    var POLL_MS = 4000;
+    var STEP_ORDER = ['received', 'preparing', 'ready', 'picked_up'];
+
+    function $(id){ return document.getElementById(id); }
+    function escHtml(s){
+      return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
+        return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
+      });
+    }
+
+    var orderId = new URLSearchParams(location.search).get('order') || '';
+    if (!/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(orderId)) {
+      $('loading').classList.add('hidden');
+      $('notFound').classList.remove('hidden');
+      return;
+    }
+
+    // ---------- alerts: vibrate twice + chime when ready ----------
+    var canVibrate = typeof navigator.vibrate === 'function';
+    var alertsOn = false, audioCtx = null, wakeLock = null;
+    function playChime(){
+      if (!audioCtx) return;
+      try {
+        var t0 = audioCtx.currentTime;
+        [[0, 880], [0.18, 1175], [0.7, 880], [0.88, 1175]].forEach(function(n){
+          var o = audioCtx.createOscillator(), g = audioCtx.createGain();
+          o.type = 'sine'; o.frequency.value = n[1];
+          g.gain.setValueAtTime(0.0001, t0 + n[0]);
+          g.gain.exponentialRampToValueAtTime(0.35, t0 + n[0] + 0.02);
+          g.gain.exponentialRampToValueAtTime(0.0001, t0 + n[0] + 0.4);
+          o.connect(g); g.connect(audioCtx.destination);
+          o.start(t0 + n[0]); o.stop(t0 + n[0] + 0.42);
+        });
+      } catch(e){}
+    }
+    function buzzTwice(){
+      // Two firm buzzes with a short gap.
+      if (canVibrate) { try { navigator.vibrate([400, 200, 400]); } catch(e){} }
+      playChime();
+    }
+    function requestWakeLock(){
+      if (!('wakeLock' in navigator) || document.visibilityState !== 'visible') return;
+      navigator.wakeLock.request('screen').then(function(l){ wakeLock = l; }).catch(function(){});
+    }
+    $('alertBtn').addEventListener('click', function(){
+      // This tap is what browsers require before a page may vibrate or play sound.
+      try {
+        var AC = window.AudioContext || window.webkitAudioContext;
+        if (AC && !audioCtx) audioCtx = new AC();
+        if (audioCtx && audioCtx.state === 'suspended') audioCtx.resume();
+      } catch(e){}
+      if (canVibrate) { try { navigator.vibrate(60); } catch(e){} }
+      alertsOn = true;
+      requestWakeLock();
+      $('alertOnText').textContent = canVibrate
+        ? 'Keep this page open. Your phone will buzz twice and chime when your food is ready.'
+        : 'Keep this page open with your volume up. iPhones don\u2019t let websites vibrate, so you\u2019ll hear a chime instead.';
+      $('alertOff').classList.add('hidden');
+      $('alertOnBox').classList.remove('hidden');
+    });
+    $('alertTestBtn').addEventListener('click', buzzTwice);
+    document.addEventListener('visibilitychange', function(){
+      if (document.visibilityState === 'visible') {
+        if (alertsOn && !done) requestWakeLock();
+        poll(); // catch up immediately after the phone wakes
+      }
+    });
+
+    // ---------- rendering ----------
+    function parseItemName(raw){
+      var mods = '', base = raw || '', variation = '';
+      var m = base.indexOf(' // ');
+      if (m !== -1) { mods = base.slice(m + 4); base = base.slice(0, m); }
+      var v = base.indexOf(' - ');
+      if (v !== -1) { variation = base.slice(v + 3); base = base.slice(0, v); }
+      else {
+        var lf = base.match(/^(.+?)\s+Loaded Fries$/i);
+        if (lf) { variation = lf[1]; base = 'Loaded Fries'; }
+      }
+      return { base: base, variation: variation, mods: mods };
+    }
+    var STAGE_COPY = {
+      awaiting_payment: ['Waiting for your payment', 'Finish paying on the checkout page. This updates on its own.'],
+      received: ['We\u2019ve got your order', ''],
+      preparing: ['Your food is cooking', 'It\u2019s on the grill now.'],
+      ready: ['Your order is ready!', ''],
+      picked_up: ['Enjoy your meal!', 'Thanks for rolling with us.'],
+      canceled: ['This order was canceled', 'Questions? Ask at the window.']
+    };
+    var lastStage = null, done = false;
+
+    function render(t){
+      $('loading').classList.add('hidden');
+      $('tracker').classList.remove('hidden');
+      $('live').classList.remove('hidden');
+      $('orderNo').textContent = t.reference_code;
+      $('orderFor').textContent = t.first_name ? 'For ' + t.first_name : '';
+
+      var stage = t.stage;
+      var copy = STAGE_COPY[stage] || STAGE_COPY.received;
+      var sub = copy[1];
+      if (stage === 'received') sub = t.orders_ahead > 0 ? t.orders_ahead + (t.orders_ahead === 1 ? ' order' : ' orders') + ' ahead of you.' : 'You\u2019re next in line.';
+      if (stage === 'ready') sub = t.pickup_method === 'curbside' ? 'We\u2019re bringing it out to your car.' : 'Come to the window and give us your name.';
+      if (stage === 'ready' && t.payment_method === 'cash') sub += ' Please have cash ready.';
+      $('stageTitle').textContent = copy[0];
+      $('stageSub').textContent = sub;
+      document.title = (stage === 'ready' ? '\u2705 Ready! ' : '') + t.reference_code + ' \u2014 Roll-In Shawarma';
+
+      var card = $('statusCard');
+      card.classList.toggle('is-ready', stage === 'ready');
+      card.classList.toggle('is-done', stage === 'picked_up');
+      card.classList.toggle('is-canceled', stage === 'canceled');
+
+      var idx = STEP_ORDER.indexOf(stage === 'awaiting_payment' ? 'received' : stage);
+      document.querySelectorAll('.steps li').forEach(function(li, i){
+        li.classList.toggle('done', idx > i || stage === 'picked_up');
+        li.classList.toggle('current', idx === i && stage !== 'picked_up' && stage !== 'canceled');
+        if (idx === i) li.setAttribute('aria-current', 'step'); else li.removeAttribute('aria-current');
+      });
+
+      $('items').innerHTML = (t.items || []).map(function(it){
+        var p = parseItemName(it.name);
+        var cls = '', label = 'In line';
+        if (it.ready >= it.total) { cls = 'ready'; label = 'Ready'; }
+        else if (it.prepping > 0 || it.ready > 0) { cls = 'cooking'; label = 'Cooking'; }
+        return '<div class="item"><div class="item-info">' +
+          '<div class="item-name">' + escHtml(p.base) + (it.total > 1 ? ' \u00d7 ' + it.total : '') + '</div>' +
+          (p.variation ? '<div class="item-var">' + escHtml(p.variation) + '</div>' : '') +
+          (p.mods ? '<div class="item-mod">' + escHtml(p.mods) + '</div>' : '') +
+          (it.total > 1 && it.ready > 0 && it.ready < it.total ? '<div class="item-count">' + it.ready + ' of ' + it.total + ' ready</div>' : '') +
+          '</div><span class="pill ' + cls + '">' + label + '</span></div>';
+      }).join('') || '<p class="alert-note">Your items will show here in a moment.</p>';
+
+      // Alert only on the change INTO ready -- not if the page is opened
+      // after it was already ready (the customer is looking at it).
+      if (stage === 'ready' && lastStage && lastStage !== 'ready') {
+        if (alertsOn) buzzTwice();
+        card.classList.remove('flash'); void card.offsetWidth; card.classList.add('flash');
+      }
+      lastStage = stage;
+
+      if (stage === 'picked_up' || stage === 'canceled') {
+        done = true;
+        $('alertCard').classList.add('hidden');
+        $('live').classList.add('hidden');
+        if (wakeLock) { try { wakeLock.release(); } catch(e){} wakeLock = null; }
+      }
+      if (stage === 'ready') $('alertCard').classList.add('hidden');
+    }
+
+    var lastOkAt = 0, pollTimer = null, inFlight = false;
+    function poll(){
+      if (done || inFlight) return;
+      inFlight = true;
+      clearTimeout(pollTimer);
+      sb.rpc('get_order_tracking', { p_order_id: orderId }).then(function(res){
+        inFlight = false;
+        if (res.error) throw res.error;
+        if (!res.data) {
+          if (!lastOkAt) { $('loading').classList.add('hidden'); $('notFound').classList.remove('hidden'); done = true; return; }
+        } else {
+          lastOkAt = Date.now();
+          render(res.data);
+        }
+        schedule();
+      }).catch(function(){ inFlight = false; schedule(); });
+    }
+    function schedule(){ if (!done) pollTimer = setTimeout(poll, POLL_MS); }
+    setInterval(function(){
+      if (!lastOkAt || done) return;
+      var secs = Math.round((Date.now() - lastOkAt) / 1000);
+      var stale = secs > 20;
+      $('live').classList.toggle('stale', stale);
+      $('liveText').textContent = stale ? 'Reconnecting\u2026' : 'Live';
+      $('updatedText').textContent = stale ? 'Last updated ' + secs + ' seconds ago' : 'Updates automatically';
+    }, 1000);
+    poll();
+  })();
+</script>
+</body>
+</html>
