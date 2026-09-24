@@ -1199,7 +1199,8 @@
         if (!last || !last.id || Date.now() - last.savedAt > 3 * 60 * 60 * 1000) return;
         var b = $('trackBanner');
         b.querySelector('a').href = 'track.html?order=' + encodeURIComponent(last.id);
-        $('trackBannerRef').textContent = last.ref || 'your order';
+        var m = /^[A-Za-z]+-?(\d+)$/.exec(last.ref || '');
+        $('trackBannerRef').textContent = m ? '#' + m[1] : (last.ref || 'your order');
         b.classList.remove('hidden');
       } catch(e){}
     }
