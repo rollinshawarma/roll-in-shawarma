@@ -1315,7 +1315,7 @@
         if (!byOrder[r.order_id]) {
           byOrder[r.order_id] = {
             reference_code: r.reference_code, customer_name: r.customer_name, paymentMethod: r.payment_method,
-            createdAt: r.order_created_at, pickupMethod: r.pickup_method, carMake: r.car_make, carColor: r.car_color,
+            createdAt: r.order_created_at, pickupMethod: r.pickup_method, carMake: r.car_make, carColor: r.car_color, parkingSpot: r.parking_spot,
             notes: r.order_notes,
             items: []
           };
@@ -1371,7 +1371,10 @@
             '<span class="wait-time" data-created-at="' + escHtml(o.createdAt || '') + '">&mdash;</span>' +
           '</div>' +
           (isCash ? '<div class="cash-warning">Confirm Cash Payment</div>' : '') +
-          (isCurbside ? '<div class="curbside-badge">\uD83D\uDE97 Curbside &mdash; ' + escHtml([o.carColor, o.carMake].filter(Boolean).join(' ') || 'car details missing') + '</div>' : '') +
+          (isCurbside ? '<div class="curbside-badge">\uD83D\uDE97 ' +
+            (o.parkingSpot ? 'Spot ' + escHtml(o.parkingSpot) : 'Curbside') +
+            (function(){ var car = [o.carColor, o.carMake].filter(Boolean).join(' '); return car ? ' &mdash; ' + escHtml(car) : (o.parkingSpot ? '' : ' &mdash; no spot or car details'); })() +
+          '</div>' : '') +
           notesHtml +
           '<div class="order-pills">' + pillsHtml + '</div>' +
           (allReady ? '<button type="button" class="complete-btn" data-order-id="' + orderId + '">Mark Picked Up</button>' : '') +
