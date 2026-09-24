@@ -786,6 +786,86 @@
     .mrow .pr{ color:#333 !important; }
     .desc{ color:#555 !important; }
   }
+
+  /* ===== Online menu: kiosk / QR-style photo tiles ===== */
+  .ws-menu{ margin-top:34px; }
+  .ws-rail{ position:sticky; top:72px; z-index:90; margin:0 -32px; padding:10px 32px; background:rgba(0,0,0,0.92); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); border-bottom:1px solid var(--line); }
+  @media (max-width:640px){ .ws-rail{ margin:0 -22px; padding:10px 22px; } }
+  .ws-rail-inner{ display:flex; gap:8px; overflow-x:auto; scrollbar-width:none; }
+  .ws-rail-inner::-webkit-scrollbar{ display:none; }
+  .ws-chip{ flex:none; display:flex; align-items:center; gap:8px; padding:4px 14px 4px 4px; border-radius:100px; background:var(--panel); border:1px solid var(--line); color:var(--cream); font-weight:600; font-size:14px; white-space:nowrap; min-height:44px; cursor:pointer; font-family:inherit; }
+  .ws-chip img{ width:34px; height:34px; border-radius:50%; object-fit:cover; }
+  .ws-chip[aria-current="true"]{ background:var(--gold); border-color:var(--gold); color:#241902; }
+  .ws-sec{ padding-top:26px; scroll-margin-top:140px; }
+  .ws-sec-title{ font-size:26px; font-weight:800; color:var(--white); line-height:1.1; }
+  .ws-sec-desc{ color:var(--muted); font-size:14px; margin-top:4px; }
+  .ws-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:12px; margin-top:14px; }
+  @media (min-width:640px){ .ws-grid{ grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:16px; } }
+  .ws-tile{ position:relative; background:var(--panel); border:1px solid var(--line); border-radius:16px; overflow:hidden; display:flex; flex-direction:column; }
+  .ws-open{ display:flex; flex-direction:column; text-align:left; width:100%; flex:1; background:none; border:none; color:inherit; font:inherit; cursor:pointer; padding:0; }
+  .ws-photo{ position:relative; display:block; aspect-ratio:1; overflow:hidden; min-height:0; background:#1d1915; }
+  .ws-photo img{ position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
+  .ws-photo img.is-fallback{ object-fit:cover; opacity:0.85; }
+  .ws-body{ display:flex; flex-direction:column; gap:2px; padding:10px 12px 14px; flex:1; }
+  .ws-name{ font-weight:700; font-size:15px; line-height:1.25; color:var(--white); }
+  .ws-sub{ font-size:12.5px; color:var(--muted); }
+  .ws-price{ font-weight:800; font-size:17px; color:var(--gold); margin-top:auto; padding-top:4px; }
+  .ws-anchor{ position:absolute; left:0; right:0; top:0; aspect-ratio:1; pointer-events:none; }
+  .ws-anchor > *{ pointer-events:auto; }
+  .ws-add{ position:absolute; right:8px; bottom:8px; width:44px; height:44px; border-radius:50%; background:var(--gold); color:#241902; font-size:26px; font-weight:700; line-height:1; display:flex; align-items:center; justify-content:center; border:none; cursor:pointer; box-shadow:0 4px 14px rgba(0,0,0,0.45); font-family:inherit; }
+  .ws-add .ws-count{ font-size:18px; font-weight:800; }
+  .ws-step{ position:absolute; right:8px; bottom:8px; display:flex; align-items:center; background:var(--gold); color:#241902; border-radius:100px; box-shadow:0 4px 14px rgba(0,0,0,0.45); }
+  .ws-step button{ width:40px; height:44px; font-size:22px; font-weight:700; color:#241902; background:none; border:none; cursor:pointer; font-family:inherit; }
+  .ws-step span{ min-width:20px; text-align:center; font-weight:800; font-size:17px; }
+  .ws-tile.is-soldout .ws-photo img{ filter:grayscale(1); opacity:0.35; }
+  .ws-tile.is-soldout .ws-price{ color:var(--muted); }
+  .ws-soldout{ position:absolute; left:8px; bottom:8px; background:#000; color:var(--cream); border:1px solid var(--line); font-size:12px; font-weight:700; padding:5px 10px; border-radius:100px; }
+  .ws-scrim{ position:fixed; inset:0; z-index:440; background:rgba(0,0,0,0.66); }
+  .ws-sheet{ position:fixed; left:0; right:0; bottom:0; z-index:450; max-height:92vh; display:flex; flex-direction:column; background:var(--panel); border-radius:22px 22px 0 0; border-top:1px solid var(--line); max-width:600px; margin:0 auto; color:var(--cream); }
+  .ws-sheet[hidden], .ws-scrim[hidden]{ display:none; }
+  @media (min-width:700px){ .ws-sheet{ bottom:auto; top:50%; transform:translateY(-50%); border-radius:22px; border:1px solid var(--line); max-height:88vh; } }
+  .ws-sheet-head{ display:flex; justify-content:flex-end; padding:12px 14px 4px; }
+  .ws-x{ width:44px; height:44px; border-radius:50%; background:#221d18; color:var(--cream); font-size:24px; border:none; cursor:pointer; }
+  .ws-sheet-body{ overflow-y:auto; padding:0 16px 16px; flex:1; }
+  .ws-sheet-photo{ background:#1d1915; border-radius:16px; overflow:hidden; }
+  .ws-sheet-photo img{ width:100%; max-height:34vh; object-fit:contain; display:block; margin:0 auto; }
+  .ws-sheet-photo img.is-fallback{ object-fit:cover; }
+  .ws-title{ font-size:26px; font-weight:800; color:var(--white); margin-top:14px; line-height:1.1; }
+  .ws-sheet-price{ font-size:19px; font-weight:800; color:var(--gold); margin-top:2px; }
+  .ws-desc{ color:var(--muted); margin-top:6px; }
+  .ws-opts{ margin-top:16px; border:none; padding:0; }
+  .ws-opts legend{ font-weight:700; color:var(--white); margin-bottom:8px; padding:0; }
+  .ws-opts legend small{ color:var(--muted); font-weight:500; margin-left:6px; }
+  .ws-opt{ display:flex; align-items:center; gap:12px; padding:12px 14px; border:1px solid var(--line); border-radius:12px; margin-bottom:8px; cursor:pointer; background:#000; }
+  .ws-opt input{ accent-color:var(--gold); width:20px; height:20px; }
+  .ws-opt-name{ flex:1; font-weight:600; }
+  .ws-opt-price{ color:var(--muted); font-size:14px; }
+  .ws-opt.is-disabled{ opacity:0.45; cursor:not-allowed; }
+  .ws-combo{ margin-top:16px; border:1px dashed rgba(247,173,40,0.55); border-radius:14px; padding:14px; background:rgba(247,173,40,0.05); }
+  .ws-combo label{ display:flex; gap:12px; align-items:center; cursor:pointer; }
+  .ws-combo input{ accent-color:var(--gold); width:22px; height:22px; }
+  .ws-combo strong{ display:block; color:var(--white); }
+  .ws-combo .sub{ color:var(--muted); font-size:13.5px; }
+  .ws-drinks{ display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+  .ws-drinks[hidden]{ display:none; }
+  .ws-drink{ padding:10px 14px; border-radius:100px; border:1px solid var(--line); background:#000; color:var(--cream); font-weight:600; font-size:14px; min-height:44px; cursor:pointer; font-family:inherit; }
+  .ws-drink[aria-pressed="true"]{ background:var(--gold); color:#241902; border-color:var(--gold); }
+  .ws-hint{ color:var(--red); font-size:13.5px; font-weight:600; margin-top:10px; min-height:1em; }
+  .ws-sheet-foot{ display:flex; gap:10px; align-items:center; padding:12px 16px calc(14px + env(safe-area-inset-bottom, 0px)); border-top:1px solid var(--line); }
+  .ws-qty{ display:flex; align-items:center; background:#000; border:1px solid var(--line); border-radius:100px; }
+  .ws-qty button{ width:44px; height:48px; font-size:22px; font-weight:700; background:none; border:none; color:var(--cream); cursor:pointer; }
+  .ws-qty button:disabled{ opacity:0.4; cursor:not-allowed; }
+  .ws-qty span{ min-width:24px; text-align:center; font-weight:800; font-size:18px; }
+  .ws-cta{ flex:1; min-height:52px; border-radius:100px; background:var(--gold); color:#241902; font-weight:800; font-size:16px; border:none; cursor:pointer; font-family:inherit; }
+  .ws-cta:disabled{ background:#221d18; color:var(--muted); cursor:not-allowed; }
+  .ws-toast{ position:fixed; left:50%; bottom:92px; transform:translate(-50%, 20px); z-index:460; background:var(--white); color:#241902; font-weight:700; padding:11px 18px; border-radius:100px; box-shadow:0 10px 30px rgba(0,0,0,0.5); opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease; white-space:nowrap; max-width:calc(100% - 32px); overflow:hidden; text-overflow:ellipsis; }
+  .ws-toast.show{ opacity:1; transform:translate(-50%, 0); }
+  body.ws-locked{ overflow:hidden; }
+  @media (prefers-reduced-motion: reduce){ .ws-toast{ transition:none; } }
+  /* The floating halal coin steps aside while browsing the menu, so it
+     never covers the category chips. */
+  #halalBadge{ transition:opacity .25s ease, visibility .25s ease; }
+  body.ws-in-menu #halalBadge{ opacity:0; visibility:hidden; }
 </style>
 <script type="application/ld+json">
 {
@@ -814,6 +894,16 @@
   "acceptsReservations": "False"
 }
 </script>
+<div class="ws-scrim" id="wsScrim" hidden></div>
+<section class="ws-sheet" id="wsSheet" role="dialog" aria-modal="true" aria-labelledby="wsTitle" hidden>
+  <div class="ws-sheet-head"><button type="button" class="ws-x" id="wsClose" aria-label="Close">&times;</button></div>
+  <div class="ws-sheet-body" id="wsSheetBody"></div>
+  <div class="ws-sheet-foot">
+    <div class="ws-qty" aria-label="Quantity"><button type="button" id="wsQtyDec" aria-label="Decrease quantity">&minus;</button><span id="wsQty">1</span><button type="button" id="wsQtyInc" aria-label="Increase quantity">+</button></div>
+    <button type="button" class="ws-cta" id="wsAddBtn">Add to order <span id="wsAddAmt"></span></button>
+  </div>
+</section>
+<div class="ws-toast" id="wsToast" role="status" aria-live="polite"></div>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 </head>
@@ -988,7 +1078,10 @@
       </a>
     </div>
 
-    <div class="menu-acc" id="menuAccContainer"><p class="menu-loading-hint">Loading menu…</p></div>
+    <div class="ws-menu">
+  <nav class="ws-rail" aria-label="Menu categories"><div class="ws-rail-inner" id="wsRail"></div></nav>
+  <div id="menuAccContainer"><p class="menu-loading-hint">Loading menu…</p></div>
+</div>
   </div>
 </section>
 
@@ -1821,6 +1914,7 @@
         var label = item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : '');
         cart.push({ menu_item_id: itemId, name: label, unitPrice: Number(item.price), quantity: 1 });
       }
+      wsSyncCombos();
       saveCart();
       renderCartUI();
     }
@@ -1841,6 +1935,7 @@
           cart = cart.filter(function(c){ return c.menu_item_id !== itemId; });
         }
       }
+      wsSyncCombos();
       saveCart();
       renderCartUI();
     }
@@ -1905,6 +2000,7 @@
     }
 
     function renderCartUI(){
+      refreshTileActions();
       var fab = document.getElementById('cartFab');
       var countEl = document.getElementById('cartFabCount');
       var totalEl = document.getElementById('cartFabTotal');
@@ -1940,7 +2036,7 @@
             '<div class="cart-item-qty">' +
               '<button type="button" class="cart-qty-btn" data-id="' + c.menu_item_id + '" data-dir="-1" title="' + (atMin ? 'Remove (minimum quantity is ' + minQty + ')' : 'Decrease') + '">\u2212</button>' +
               '<span>' + c.quantity + '</span>' +
-              '<button type="button" class="cart-qty-btn" data-id="' + c.menu_item_id + '" data-dir="1">+</button>' +
+              (lineItem && lineItem.category === 'Combo Add-ons' ? '' : '<button type="button" class="cart-qty-btn" data-id="' + c.menu_item_id + '" data-dir="1">+</button>') +
             '</div>' +
           '</div>';
         }).join('');
@@ -1993,77 +2089,335 @@
       'Sides': 'Regular / Large where noted'
     };
 
-    function renderMenu(items){
-      var byCategory = {};
-      var categoryOrder = [];
-      items.forEach(function(item){
-        itemsById[item.id] = item;
-        if (item.category === 'Catering') return; // rendered in its own dedicated section instead
-        if (item.category === 'Deals' || item.category === 'Deal Selections') return; // kiosk-only member deals feature
-        if (!byCategory[item.category]) {
-          byCategory[item.category] = [];
-          categoryOrder.push(item.category);
-        }
-        byCategory[item.category].push(item);
-      });
-
-      var html = categoryOrder.map(function(cat){
-        var catItems = byCategory[cat];
-        var prices = catItems.map(function(i){ return Number(i.price); });
-        var minPrice = Math.min.apply(null, prices);
-        var allSame = prices.every(function(p){ return p === minPrice; });
-        var priceLabel = (catItems.length > 1 && !allSame) ? 'From $' + minPrice.toFixed(2) : '$' + minPrice.toFixed(2);
-        var img = categoryImages[cat] || 'menu-shawarma.jpg';
-        var desc = categoryDescriptions[cat];
-        var hasCombo = catItems.some(function(i){ return i.combo_upcharge; });
-
-        var rowsHtml = catItems.map(function(item){
-          var label = item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : '');
-          return '<div class="menu-item-row" data-item-id="' + item.id + '">' +
-            '<div class="menu-item-info"><span class="nm">' + escHtml(label) + '</span>' +
-            (item.description ? '<span class="menu-item-desc">' + escHtml(item.description) + '</span>' : '') + '</div>' +
-            '<div class="menu-item-price">$' + Number(item.price).toFixed(2) + '</div>' +
-            '<div class="menu-item-controls">' +
-              '<button type="button" class="menu-qty-minus" data-id="' + item.id + '">\u2212</button>' +
-              '<span class="menu-item-qty-value">0</span>' +
-              '<button type="button" class="menu-qty-plus" data-id="' + item.id + '">+</button>' +
-            '</div>' +
-          '</div>';
-        }).join('');
-
-        return '<div class="menu-acc-item">' +
-          '<button class="menu-acc-head" type="button">' +
-            '<img class="menu-acc-thumb" src="' + img + '" alt="">' +
-            '<div class="menu-acc-title"><h4>' + escHtml(cat) + '</h4><span class="menu-acc-price">' + priceLabel + '</span></div>' +
-            '<svg class="menu-acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>' +
-          '</button>' +
-          '<div class="menu-acc-body"><div class="menu-acc-inner">' +
-            (desc ? '<div class="desc">' + escHtml(desc) + '</div>' : '') +
-            rowsHtml +
-            (hasCombo ? '<div class="mnote">+ $3.99 make it a combo (fries &amp; a soda)</div>' : '') +
-          '</div></div>' +
-        '</div>';
-      }).join('');
-
-      menuContainer.innerHTML = html || '<p class="menu-loading-hint">Menu unavailable right now &mdash; please call us.</p>';
-
-      menuContainer.querySelectorAll('.menu-acc-head').forEach(function(btn){
-        btn.addEventListener('click', function(){
-          btn.closest('.menu-acc-item').classList.toggle('open');
-        });
-      });
-      menuContainer.querySelectorAll('.menu-qty-plus').forEach(function(btn){
-        btn.addEventListener('click', function(e){ e.stopPropagation(); addOne(btn.getAttribute('data-id')); });
-      });
-      menuContainer.querySelectorAll('.menu-qty-minus').forEach(function(btn){
-        btn.addEventListener('click', function(e){ e.stopPropagation(); removeOne(btn.getAttribute('data-id')); });
-      });
-
-      renderCartUI();
+    // ================= ONLINE MENU (same layout and photos as the kiosk and QR page) =================
+    var WS_HIDDEN = { 'Catering': 1, 'Combo Add-ons': 1, 'Deals': 1, 'Deal Selections': 1 };
+    var WS_DRINKS = ['Coke', 'Diet Coke', 'Coke Zero', 'Sprite', 'Root Beer', 'Water'];
+    var WS_MAX_QTY = 20;
+    var wsSections = [], wsGroups = {}, wsComboAddons = {};
+    function wsEl(id){ return document.getElementById(id); }
+    function wsMoney(n){ return '$' + Number(n).toFixed(2); }
+    function wsAvail(i){ return !!i && i.is_available !== false; }
+    function wsSlug(n){ return String(n).toLowerCase().replace(/[()]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
+    function wsLabel(item){ return item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : ''); }
+    function wsAttr(v){ return String(v).replace(/\\/g, '\\\\').replace(/"/g, '\\"'); }
+    // Same photos as the kiosk: item-<name>.jpg; the category photo if a
+    // dish has none yet; combo fries/drinks reuse the fries/soda photos.
+    window.wsImgFallback = function(img){
+      var fb = img.getAttribute('data-fallback');
+      if (fb && img.getAttribute('src') !== fb) { img.removeAttribute('data-fallback'); img.classList.add('is-fallback'); img.src = fb; }
+      else { img.onerror = null; img.remove(); }
+    };
+    function wsPhoto(item, cat, groupName){
+      var src = item.image_url || (cat === 'Combo Add-ons'
+        ? (item.name === 'Combo Fries' ? 'item-fries.jpg' : item.name === 'Combo Water' ? 'item-water.jpg' : 'item-soda.jpg')
+        : 'item-' + wsSlug(groupName || item.name) + '.jpg');
+      return '<img src="' + escHtml(src) + '" alt="" loading="lazy" decoding="async" data-fallback="' + escHtml(categoryImages[cat] || '') + '" onerror="wsImgFallback(this)">';
+    }
+    var wsToastTimer = null;
+    function wsToast(msg, ms){
+      var t = wsEl('wsToast'); t.textContent = msg; t.classList.add('show');
+      clearTimeout(wsToastTimer); wsToastTimer = setTimeout(function(){ t.classList.remove('show'); }, ms || 1800);
     }
 
+    // Combos are fries + a drink as their own lines, never more than the
+    // combo-eligible items in the cart (the server checks this too).
+    function wsSyncCombos(){
+      var fries = wsComboAddons['Combo Fries'];
+      if (!fries) return;
+      var qualifying = cart.reduce(function(sum, l){ var it = itemsById[l.menu_item_id]; return sum + (it && it.combo_upcharge ? l.quantity : 0); }, 0);
+      var friesLine = findLine(fries.id);
+      var drinkLines = WS_DRINKS.map(function(n){ var d = wsComboAddons['Combo ' + n]; return d ? findLine(d.id) : null; }).filter(Boolean);
+      var drinkQty = drinkLines.reduce(function(s2, l){ return s2 + l.quantity; }, 0);
+      var valid = Math.min(qualifying, friesLine ? friesLine.quantity : 0, drinkQty);
+      if (friesLine && friesLine.quantity > valid) {
+        friesLine.quantity = valid;
+        if (valid <= 0) cart = cart.filter(function(c){ return c.menu_item_id !== fries.id; });
+      }
+      var excess = drinkQty - valid;
+      for (var i = drinkLines.length - 1; i >= 0 && excess > 0; i--) {
+        var by = Math.min(excess, drinkLines[i].quantity);
+        drinkLines[i].quantity -= by; excess -= by;
+        if (drinkLines[i].quantity <= 0) { var rid = drinkLines[i].menu_item_id; cart = cart.filter(function(c){ return c.menu_item_id !== rid; }); }
+      }
+    }
+    function wsAddRaw(itemId){
+      var item = itemsById[itemId];
+      if (!item) return;
+      var line = findLine(itemId);
+      if (line) { if (line.quantity < WS_MAX_QTY) line.quantity += 1; }
+      else cart.push({ menu_item_id: itemId, name: wsLabel(item), unitPrice: Number(item.price), quantity: 1 });
+    }
+
+    function renderMenu(items){
+      wsSections = []; wsGroups = {}; wsComboAddons = {};
+      var byCat = {};
+      items.forEach(function(item){
+        // Unavailable catering items stay out entirely (as before).
+        if (item.category === 'Catering' && !wsAvail(item)) return;
+        itemsById[item.id] = item;
+        if (item.category === 'Combo Add-ons') wsComboAddons[item.name] = item;
+        if (WS_HIDDEN[item.category]) return;
+        if (!byCat[item.category]) { byCat[item.category] = { cat: item.category, groups: [] }; wsSections.push(byCat[item.category]); }
+        var key = item.category + '::' + item.name;
+        if (!wsGroups[key]) { wsGroups[key] = { key: key, cat: item.category, name: item.name, items: [] }; byCat[item.category].groups.push(wsGroups[key]); }
+        wsGroups[key].items.push(item);
+      });
+      // A saved cart: drop anything sold out or no longer on the menu,
+      // and use today's prices.
+      cart = cart.filter(function(c){ return wsAvail(itemsById[c.menu_item_id]); });
+      cart.forEach(function(c){ c.unitPrice = Number(itemsById[c.menu_item_id].price); });
+      wsSyncCombos();
+      saveCart();
+
+      wsEl('wsRail').innerHTML = wsSections.map(function(sec, i){
+        return '<button type="button" class="ws-chip" data-ws-jump="ws-sec-' + i + '"' + (i === 0 ? ' aria-current="true"' : '') + '>' +
+          '<img src="' + escHtml(categoryImages[sec.cat] || '') + '" alt="" onerror="this.remove()">' + escHtml(sec.cat) + '</button>';
+      }).join('');
+      menuContainer.innerHTML = wsSections.map(function(sec, i){
+        return '<section class="ws-sec" id="ws-sec-' + i + '" aria-labelledby="ws-sec-' + i + '-t">' +
+          '<h3 class="ws-sec-title" id="ws-sec-' + i + '-t">' + escHtml(sec.cat) + '</h3>' +
+          (categoryDescriptions[sec.cat] ? '<p class="ws-sec-desc">' + escHtml(categoryDescriptions[sec.cat]) + '</p>' : '') +
+          '<div class="ws-grid">' + sec.groups.map(wsTileHtml).join('') + '</div></section>';
+      }).join('') || '<p class="menu-loading-hint">Menu unavailable right now &mdash; please call us.</p>';
+      wsSetupScrollSpy();
+      renderCartUI();
+      wsStartAvailability();
+    }
+
+    function wsGroupPrice(g){
+      var pool = g.items.filter(wsAvail); if (!pool.length) pool = g.items;
+      var prices = pool.map(function(i){ return Number(i.price); });
+      var min = Math.min.apply(null, prices), max = Math.max.apply(null, prices);
+      return (g.items.length > 1 && min !== max ? 'From ' : '') + wsMoney(min);
+    }
+    function wsTileHtml(g){
+      var soldOut = !g.items.some(wsAvail);
+      var price = wsGroupPrice(g);
+      return '<article class="ws-tile' + (soldOut ? ' is-soldout' : '') + '" data-ws-group="' + escHtml(g.key) + '">' +
+        '<button type="button" class="ws-open" data-ws-open="' + escHtml(g.key) + '"' + (soldOut ? ' disabled' : '') +
+          ' aria-label="' + escHtml(g.name + ', ' + price + (soldOut ? ', sold out' : ', see details')) + '">' +
+          '<span class="ws-photo">' + wsPhoto(g.items[0], g.cat, g.name) + '</span>' +
+          '<span class="ws-body"><span class="ws-name">' + escHtml(g.name) + '</span>' +
+          (g.items.length > 1 ? '<span class="ws-sub">' + g.items.length + ' options</span>' : '') +
+          '<span class="ws-price">' + price + '</span></span>' +
+        '</button>' +
+        '<div class="ws-anchor" data-ws-action="' + escHtml(g.key) + '">' + wsActionHtml(g) + '</div>' +
+      '</article>';
+    }
+    function wsActionHtml(g){
+      if (!g.items.some(wsAvail)) return '<span class="ws-soldout">Sold out</span>';
+      if (g.items.length > 1) {
+        var qty = g.items.reduce(function(sum, i){ var l = findLine(i.id); return sum + (l ? l.quantity : 0); }, 0);
+        return '<button type="button" class="ws-add" data-ws-open="' + escHtml(g.key) + '" aria-label="Choose options for ' + escHtml(g.name) + '">' +
+          (qty ? '<span class="ws-count">' + qty + '</span>' : '+') + '</button>';
+      }
+      var item = g.items[0], line = findLine(item.id);
+      if (!line) return '<button type="button" class="ws-add" data-ws-add="' + item.id + '" aria-label="Add ' + escHtml(g.name) + '">+</button>';
+      return '<div class="ws-step" role="group" aria-label="' + escHtml(g.name) + ' quantity">' +
+        '<button type="button" data-ws-dec="' + item.id + '" aria-label="Remove one ' + escHtml(g.name) + '">&minus;</button>' +
+        '<span>' + line.quantity + '</span>' +
+        '<button type="button" data-ws-inc="' + item.id + '" aria-label="Add one more ' + escHtml(g.name) + '">+</button></div>';
+    }
+    // Keeps tile steppers in step with the cart drawer (called by renderCartUI).
+    function refreshTileActions(){
+      Object.keys(wsGroups).forEach(function(key){
+        var el = menuContainer.querySelector('.ws-anchor[data-ws-action="' + wsAttr(key) + '"]');
+        if (el) el.innerHTML = wsActionHtml(wsGroups[key]);
+      });
+    }
+    menuContainer.addEventListener('click', function(e){
+      var t = e.target.closest('[data-ws-add],[data-ws-inc],[data-ws-dec],[data-ws-open]');
+      if (!t || t.disabled) return;
+      if (t.hasAttribute('data-ws-add')) { addOne(t.getAttribute('data-ws-add')); wsToast('Added ' + itemsById[t.getAttribute('data-ws-add')].name); }
+      else if (t.hasAttribute('data-ws-inc')) addOne(t.getAttribute('data-ws-inc'));
+      else if (t.hasAttribute('data-ws-dec')) removeOne(t.getAttribute('data-ws-dec'));
+      else wsOpenSheet(t.getAttribute('data-ws-open'));
+    });
+
+    // Category chips: jump, and follow the scroll.
+    var wsActiveChip = null;
+    function wsSetChip(id){
+      if (id === wsActiveChip) return;
+      wsActiveChip = id;
+      var rail = wsEl('wsRail');
+      rail.querySelectorAll('.ws-chip').forEach(function(c){
+        var on = c.getAttribute('data-ws-jump') === id;
+        if (on) { c.setAttribute('aria-current', 'true'); if (typeof rail.scrollTo === 'function') rail.scrollTo({ left: Math.max(0, c.offsetLeft - (rail.clientWidth - c.offsetWidth) / 2), behavior: 'smooth' }); }
+        else c.removeAttribute('aria-current');
+      });
+    }
+    wsEl('wsRail').addEventListener('click', function(e){
+      var c = e.target.closest('[data-ws-jump]');
+      if (!c) return;
+      var sec = wsEl(c.getAttribute('data-ws-jump'));
+      if (sec && typeof sec.scrollIntoView === 'function') sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      wsSetChip(c.getAttribute('data-ws-jump'));
+    });
+    function wsSetupScrollSpy(){
+      if (!('IntersectionObserver' in window)) return;
+      var tops = {};
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(en){ tops[en.target.id] = en.isIntersecting ? en.boundingClientRect.top : null; });
+        var best = null, bestTop = Infinity;
+        Object.keys(tops).forEach(function(id){ if (tops[id] !== null && tops[id] < bestTop) { best = id; bestTop = tops[id]; } });
+        if (best) wsSetChip(best);
+      }, { rootMargin: '-140px 0px -55% 0px' });
+      menuContainer.querySelectorAll('.ws-sec').forEach(function(sec){ io.observe(sec); });
+    }
+
+    // ---- Item sheet: options, quantity, "make it a combo" ----
+    var wsSheet = { group: null, itemId: null, qty: 1, combo: false, drink: null }, wsLastFocus = null;
+    function wsComboDrinks(){ return WS_DRINKS.filter(function(n){ return wsAvail(wsComboAddons['Combo ' + n]); }); }
+    function wsComboOk(item){ return !!(item && item.combo_upcharge && wsAvail(wsComboAddons['Combo Fries']) && wsComboDrinks().length); }
+    function wsOpenSheet(key){
+      var g = wsGroups[key]; if (!g) return;
+      var first = g.items.filter(wsAvail)[0]; if (!first) return;
+      wsSheet = { group: g, itemId: first.id, qty: 1, combo: false, drink: null };
+      wsRenderSheet();
+      wsLastFocus = document.activeElement;
+      wsEl('wsScrim').hidden = false; wsEl('wsSheet').hidden = false;
+      document.body.classList.add('ws-locked');
+      wsEl('wsClose').focus();
+    }
+    function wsCloseSheet(){
+      if (wsEl('wsSheet').hidden) return;
+      wsEl('wsScrim').hidden = true; wsEl('wsSheet').hidden = true;
+      document.body.classList.remove('ws-locked');
+      if (wsLastFocus && document.body.contains(wsLastFocus)) wsLastFocus.focus();
+    }
+    wsEl('wsClose').addEventListener('click', wsCloseSheet);
+    wsEl('wsScrim').addEventListener('click', wsCloseSheet);
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape') wsCloseSheet(); });
+    function wsComboPrice(){
+      var fries = wsComboAddons['Combo Fries'], drink = wsSheet.drink ? wsComboAddons['Combo ' + wsSheet.drink] : null;
+      return fries && drink ? Number(fries.price) + Number(drink.price) : Number(itemsById[wsSheet.itemId].combo_upcharge) || 0;
+    }
+    function wsRenderSheet(){
+      var g = wsSheet.group, item = itemsById[wsSheet.itemId];
+      var desc = item.description || categoryDescriptions[g.cat] || '';
+      var html = '<div class="ws-sheet-photo">' + wsPhoto(g.items[0], g.cat, g.name) + '</div>' +
+        '<h3 class="ws-title" id="wsTitle">' + escHtml(g.name) + '</h3>' +
+        '<div class="ws-sheet-price">' + wsMoney(item.price) + '</div>' +
+        (desc ? '<p class="ws-desc">' + escHtml(desc) + '</p>' : '');
+      if (g.items.length > 1) {
+        var diff = g.items.some(function(i){ return Number(i.price) !== Number(g.items[0].price); });
+        html += '<fieldset class="ws-opts"><legend>' + (/Bowls|Shawarma|Frankie/.test(g.cat) ? 'Choose your protein' : 'Choose one') + '<small>Required</small></legend>' +
+          g.items.map(function(i){
+            var ok = wsAvail(i);
+            return '<label class="ws-opt' + (ok ? '' : ' is-disabled') + '"><input type="radio" name="wsOpt" value="' + i.id + '"' +
+              (i.id === wsSheet.itemId ? ' checked' : '') + (ok ? '' : ' disabled') + '><span class="ws-opt-name">' + escHtml(i.variant_name || i.name) + '</span>' +
+              '<span class="ws-opt-price">' + (ok ? (diff ? wsMoney(i.price) : '') : 'Sold out') + '</span></label>';
+          }).join('') + '</fieldset>';
+      }
+      if (wsComboOk(item)) {
+        html += '<div class="ws-combo"><label><input type="checkbox" id="wsComboToggle"' + (wsSheet.combo ? ' checked' : '') + '>' +
+          '<span><strong>Make it a combo</strong><span class="sub">Adds fries and a drink for ' + wsMoney(item.combo_upcharge) + ' more</span></span></label>' +
+          '<div class="ws-drinks" id="wsDrinks"' + (wsSheet.combo ? '' : ' hidden') + ' role="group" aria-label="Choose your drink">' +
+          wsComboDrinks().map(function(d){ return '<button type="button" class="ws-drink" data-ws-drink="' + escHtml(d) + '" aria-pressed="' + (wsSheet.drink === d) + '">' + escHtml(d) + '</button>'; }).join('') +
+          '</div></div>';
+      }
+      html += '<div class="ws-hint" id="wsHint"></div>';
+      wsEl('wsSheetBody').innerHTML = html;
+      wsUpdateCta();
+    }
+    function wsUpdateCta(){
+      var unit = Number(itemsById[wsSheet.itemId].price) + (wsSheet.combo ? wsComboPrice() : 0);
+      wsEl('wsQty').textContent = wsSheet.qty;
+      wsEl('wsAddAmt').textContent = wsMoney(unit * wsSheet.qty);
+      var needDrink = wsSheet.combo && !wsSheet.drink;
+      wsEl('wsAddBtn').disabled = needDrink;
+      wsEl('wsHint').textContent = needDrink ? 'Choose a drink for your combo.' : '';
+      wsEl('wsQtyDec').disabled = wsSheet.qty <= 1;
+    }
+    wsEl('wsSheetBody').addEventListener('change', function(e){
+      if (e.target.name === 'wsOpt') {
+        wsSheet.itemId = e.target.value;
+        if (!(wsSheet.combo && wsComboOk(itemsById[wsSheet.itemId]))) { wsSheet.combo = false; wsSheet.drink = null; }
+        wsRenderSheet();
+      } else if (e.target.id === 'wsComboToggle') {
+        wsSheet.combo = e.target.checked; if (!wsSheet.combo) wsSheet.drink = null;
+        wsEl('wsDrinks').hidden = !wsSheet.combo;
+        wsEl('wsDrinks').querySelectorAll('.ws-drink').forEach(function(b){ b.setAttribute('aria-pressed', 'false'); });
+        wsUpdateCta();
+      }
+    });
+    wsEl('wsSheetBody').addEventListener('click', function(e){
+      var b = e.target.closest('[data-ws-drink]'); if (!b) return;
+      wsSheet.drink = b.getAttribute('data-ws-drink');
+      wsEl('wsDrinks').querySelectorAll('.ws-drink').forEach(function(x){ x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      wsUpdateCta();
+    });
+    wsEl('wsQtyDec').addEventListener('click', function(){ if (wsSheet.qty > 1) { wsSheet.qty--; wsUpdateCta(); } });
+    wsEl('wsQtyInc').addEventListener('click', function(){ if (wsSheet.qty < WS_MAX_QTY) { wsSheet.qty++; wsUpdateCta(); } });
+    wsEl('wsAddBtn').addEventListener('click', function(){
+      if (this.disabled) return;
+      var item = itemsById[wsSheet.itemId];
+      var fries = wsComboAddons['Combo Fries'], drink = wsSheet.drink ? wsComboAddons['Combo ' + wsSheet.drink] : null;
+      for (var k = 0; k < wsSheet.qty; k++) {
+        wsAddRaw(item.id);
+        if (wsSheet.combo && fries && drink) { wsAddRaw(fries.id); wsAddRaw(drink.id); }
+      }
+      wsSyncCombos(); saveCart(); renderCartUI();
+      wsCloseSheet();
+      wsToast('Added ' + (wsSheet.qty > 1 ? wsSheet.qty + ' \u00d7 ' : '') + item.name + (wsSheet.combo ? ' combo' : ''));
+    });
+
+    // ---- Live sold-out updates (same source as the QR page) ----
+    function wsApplyAvailability(id, available){
+      var item = itemsById[id];
+      if (!item || (item.is_available !== false) === available) return;
+      item.is_available = available;
+      var g = wsGroups[item.category + '::' + item.name];
+      if (g) { var tile = menuContainer.querySelector('.ws-tile[data-ws-group="' + wsAttr(g.key) + '"]'); if (tile) tile.outerHTML = wsTileHtml(g); }
+      if (!available && findLine(id)) {
+        cart = cart.filter(function(c){ return c.menu_item_id !== id; });
+        wsSyncCombos(); saveCart(); renderCartUI();
+        wsToast(item.name + ' just sold out and was removed', 4500);
+      }
+      if (!wsEl('wsSheet').hidden && wsSheet.group === g) {
+        var next = g.items.filter(wsAvail)[0];
+        if (!next) wsCloseSheet(); else { if (wsSheet.itemId === id) wsSheet.itemId = next.id; wsRenderSheet(); }
+      }
+    }
+    var wsAvailStarted = false;
+    function wsRefreshAvailability(){
+      sbShared.from('menu_item_availability').select('menu_item_id,is_available').then(function(res){
+        if (res && !res.error && Array.isArray(res.data)) res.data.forEach(function(r){ wsApplyAvailability(r.menu_item_id, r.is_available !== false); });
+      }, function(){});
+    }
+    function wsStartAvailability(){
+      if (wsAvailStarted) return; wsAvailStarted = true;
+      try {
+        sbShared.channel('ws-menu-availability')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'menu_item_availability' }, function(p){
+            var r = p && p.new; if (r && r.menu_item_id) wsApplyAvailability(r.menu_item_id, r.is_available !== false);
+          }).subscribe();
+      } catch(e){}
+      setInterval(wsRefreshAvailability, 30000);
+      document.addEventListener('visibilitychange', function(){ if (document.visibilityState === 'visible') wsRefreshAvailability(); });
+    }
+
+    // The floating "100% halal" coin would sit on top of the category
+    // chips while someone browses the menu, so it steps aside there.
+    (function(){
+      var menuSec = document.getElementById('menu'), ticking = false;
+      function check(){
+        ticking = false;
+        if (!menuSec) return;
+        var r = menuSec.getBoundingClientRect();
+        document.body.classList.toggle('ws-in-menu', r.top <= 150 && r.bottom > 150);
+      }
+      window.addEventListener('scroll', function(){ if (!ticking) { ticking = true; requestAnimationFrame(check); } }, { passive: true });
+      check();
+    })();
+
     loadCart();
-    sbShared.from('menu_items').select('*').order('display_order').then(function(res){
+    // get_public_menu includes sold-out items so they show greyed out;
+    // falls back to the table if that function isn't deployed yet.
+    sbShared.rpc('get_public_menu').then(function(res){
+      if (res.error || !Array.isArray(res.data) || !res.data.length) return sbShared.from('menu_items').select('*').order('display_order');
+      return res;
+    }).then(function(res){
       if (res.error || !res.data || !res.data.length) {
         menuContainer.innerHTML = '<p class="menu-loading-hint">Menu unavailable right now &mdash; please call us at (330) 587-5203.</p>';
         return;
