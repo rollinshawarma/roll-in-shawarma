@@ -2,370 +2,380 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
 <title>Order Here — Roll-In Shawarma</title>
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
-    --black:#000000; --panel:#121110; --white:#FFFCF3; --cream:#F3EAC9;
-    --muted:rgba(243,234,201,0.62); --gold:#F7AD28; --red:#D8342E; --green:#0BAF4C;
-    --line:rgba(243,234,201,0.14);
+    --black:#000000; --panel:#16130F; --panel-2:#211C16; --line:rgba(243,234,201,0.13);
+    --cream:#F3EAC9; --white:#FFFCF3; --muted:rgba(243,234,201,0.64);
+    --gold:#F7AD28; --gold-ink:#241902; --red:#D8342E; --green:#0BAF4C;
+    --display:'Barlow Condensed', 'Arial Narrow', 'Inter', sans-serif;
+    --body:'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --rail-h:64px;
+    --safe-b:env(safe-area-inset-bottom, 0px);
   }
-  *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
-  html, body{ background:var(--black); }
-  body{
-    color:var(--cream); font-family:'Inter', -apple-system, sans-serif;
-    line-height:1.4; min-height:100vh; padding-bottom:100px;
-  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ -webkit-text-size-adjust:100%; }
+  body{ background:var(--black); color:var(--cream); font-family:var(--body); font-size:15px; line-height:1.45; min-height:100vh; }
+  body.locked{ overflow:hidden; }
+  button, input, select, textarea{ font:inherit; color:inherit; }
+  button{ background:none; border:none; cursor:pointer; }
+  button:disabled{ cursor:not-allowed; }
+  img{ display:block; max-width:100%; }
   .hidden{ display:none !important; }
-  button{ font-family:inherit; cursor:pointer; border:none; background:none; }
-  input, textarea{ font-family:inherit; }
+  :focus-visible{ outline:3px solid var(--gold); outline-offset:2px; border-radius:6px; }
+  .sr-only{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 
-  /* ---------- header ---------- */
-  .app-header{ padding:24px 20px 8px; background:var(--black); }
-  .app-header h1{ font-size:26px; font-weight:800; letter-spacing:-0.01em; }
-  .brand-roll{ color:var(--gold); }
-  .brand-shawarma{ color:var(--red); }
-  .menu-label{ font-size:22px; font-weight:800; color:var(--white); padding:18px 0 4px; }
-  .app-header p{ font-size:13px; color:var(--muted); margin-top:4px; }
+  /* ---------- Header ---------- */
+  .top{ display:flex; align-items:center; gap:14px; padding:18px 16px 14px; max-width:1040px; margin:0 auto; }
+  .top-logo{ width:52px; height:52px; border-radius:50%; object-fit:cover; flex:none; border:2px solid var(--panel-2); }
+  .top h1{ font-family:var(--display); font-weight:800; font-size:30px; line-height:1; letter-spacing:0.01em; }
+  .top h1 .w1{ color:var(--gold); } .top h1 .w2{ color:var(--red); }
+  .top-meta{ display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; margin-top:6px; font-size:13px; color:var(--muted); }
+  .halal-pill{ display:inline-flex; align-items:center; gap:5px; color:var(--cream); font-weight:600; }
+  .halal-pill svg{ width:15px; height:15px; color:var(--green); }
+  .pulse{ display:inline-flex; align-items:center; gap:6px; }
+  .pulse-dot{ width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 0 0 rgba(11,175,76,0.6); animation:pulse 2s infinite; }
+  .pulse.busy .pulse-dot{ background:var(--gold); box-shadow:0 0 0 0 rgba(247,173,40,0.6); }
+  @keyframes pulse{ 0%{ box-shadow:0 0 0 0 rgba(11,175,76,0.5); } 70%{ box-shadow:0 0 0 7px rgba(11,175,76,0); } 100%{ box-shadow:0 0 0 0 rgba(11,175,76,0); } }
 
-  .wrap{ max-width:560px; margin:0 auto; padding:8px 20px; background:var(--black); }
+  /* ---------- Sticky photo-chip rail (the one bold element) ---------- */
+  .cat-rail{ position:sticky; top:0; z-index:40; background:rgba(0,0,0,0.92); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); border-bottom:1px solid var(--line); }
+  .cat-rail-inner{ display:flex; gap:8px; overflow-x:auto; padding:10px 16px; max-width:1040px; margin:0 auto; scrollbar-width:none; scroll-behavior:smooth; }
+  .cat-rail-inner::-webkit-scrollbar{ display:none; }
+  .chip{ flex:none; display:flex; align-items:center; gap:8px; padding:4px 14px 4px 4px; border-radius:100px; background:var(--panel); border:1px solid var(--line); color:var(--cream); font-weight:600; font-size:14px; white-space:nowrap; min-height:44px; transition:background .15s ease, border-color .15s ease, color .15s ease; }
+  .chip img{ width:34px; height:34px; border-radius:50%; object-fit:cover; background:var(--panel-2); }
+  .chip[aria-current="true"]{ background:var(--gold); border-color:var(--gold); color:var(--gold-ink); }
 
-  /* ---------- category accordion: collapsed list, one at a time expands ---------- */
-  .category-block{ border:1px solid var(--line); border-radius:14px; margin-bottom:10px; overflow:hidden; background:var(--panel); }
-  .category-row{
-    display:flex; align-items:center; justify-content:space-between; width:100%; text-align:left;
-    background:var(--panel); color:var(--white); font-size:19px; font-weight:800; padding:18px 20px;
-  }
-  .category-row .chev{ color:var(--muted); transition:transform .2s ease; font-size:13px; }
-  .category-block.expanded .category-row .chev{ transform:rotate(180deg); }
+  /* ---------- Menu ---------- */
+  .menu{ max-width:1040px; margin:0 auto; padding:6px 16px 130px; }
+  .menu-state{ padding:40px 0; text-align:center; color:var(--muted); }
+  .menu-state button{ margin-top:14px; background:var(--gold); color:var(--gold-ink); font-weight:800; padding:12px 22px; border-radius:100px; }
+  .section{ padding-top:22px; scroll-margin-top:calc(var(--rail-h) + 6px); }
+  .section-title{ font-family:var(--display); font-weight:800; font-size:30px; line-height:1.05; color:var(--white); }
+  .section-desc{ color:var(--muted); font-size:14px; margin-top:4px; max-width:60ch; }
+  .grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:12px; margin-top:14px; }
+  @media (min-width:620px){ .grid{ grid-template-columns:repeat(auto-fill, minmax(190px, 1fr)); gap:16px; } }
 
-  .category-expanded{ max-height:0; overflow:hidden; transition:max-height .3s ease; background:var(--black); }
-  .category-block.expanded .category-expanded{ max-height:3000px; }
+  /* Kiosk-model tile: uncropped square photo, name, price, action */
+  .tile{ position:relative; background:var(--panel); border:1px solid var(--line); border-radius:16px; overflow:hidden; display:flex; flex-direction:column; }
+  .tile-open{ display:flex; flex-direction:column; text-align:left; width:100%; flex:1; }
+  .tile-photo{ position:relative; aspect-ratio:1; background:var(--panel-2); display:block; overflow:hidden; min-height:0; }
+  .tile-photo img{ position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
+  .tile-photo img.is-fallback{ object-fit:cover; opacity:0.85; }
+  .tile-body{ display:flex; flex-direction:column; gap:2px; padding:10px 12px 14px; padding-right:12px; flex:1; }
+  .tile-name{ font-weight:700; font-size:15px; line-height:1.25; color:var(--white); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .tile-sub{ font-size:12.5px; color:var(--muted); }
+  .tile-price{ font-family:var(--display); font-weight:700; font-size:20px; color:var(--gold); margin-top:auto; padding-top:4px; }
+  .tile-actions-anchor{ position:absolute; left:0; right:0; top:0; aspect-ratio:1; pointer-events:none; }
+  .tile-actions-anchor > *{ pointer-events:auto; }
+  .add-btn{ position:absolute; right:8px; bottom:8px; width:44px; height:44px; border-radius:50%; background:var(--gold); color:var(--gold-ink); font-size:26px; font-weight:700; line-height:1; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 14px rgba(0,0,0,0.45); }
+  .add-btn .add-count{ font-family:var(--display); font-size:21px; font-weight:800; }
+  .add-btn:active{ transform:scale(0.94); }
+  .stepper{ position:absolute; right:8px; bottom:8px; display:flex; align-items:center; background:var(--gold); color:var(--gold-ink); border-radius:100px; box-shadow:0 4px 14px rgba(0,0,0,0.45); }
+  .stepper button{ width:40px; height:44px; font-size:22px; font-weight:700; color:var(--gold-ink); }
+  .stepper span{ min-width:22px; text-align:center; font-family:var(--display); font-weight:800; font-size:20px; }
+  .tile.is-soldout .tile-photo img{ filter:grayscale(1); opacity:0.35; }
+  .tile.is-soldout .tile-price{ color:var(--muted); }
+  .soldout-tag{ position:absolute; left:8px; bottom:8px; background:var(--black); color:var(--cream); border:1px solid var(--line); font-size:12px; font-weight:700; padding:5px 10px; border-radius:100px; }
 
-  /* photo only rendered/shown once the category is actually expanded */
-  .category-photo{
-    width:100%; max-height:200px; object-fit:contain; display:block;
-    background:var(--black); padding:10px 0;
-  }
+  .menu-foot{ margin-top:34px; padding-top:18px; border-top:1px solid var(--line); color:var(--muted); font-size:13px; }
 
-  .item-row{
-    display:flex; align-items:center; justify-content:space-between; gap:14px;
-    padding:16px 20px; border-top:1px solid var(--line); background:var(--black);
-  }
-  .item-info{ flex:1; min-width:0; }
-  .item-name{ font-size:16px; font-weight:700; color:var(--cream); }
-  .item-desc{ font-size:11.5px; color:var(--muted); margin-top:2px; }
-  .item-price{ font-size:13.5px; font-weight:700; color:var(--gold); margin-top:4px; }
-  .item-add-control{ flex:none; }
-  .quick-add-btn{
-    width:34px; height:34px; border-radius:50%; background:var(--panel); border:1px solid var(--line); color:var(--gold);
-    font-size:19px; font-weight:800; display:flex; align-items:center; justify-content:center;
-  }
-  .quick-add-btn:active{ background:var(--gold); color:#241902; border-color:var(--gold); }
-  .item-qty-stepper{ display:flex; align-items:center; gap:11px; }
-  .item-qty-btn{ width:32px; height:32px; border-radius:50%; background:var(--panel); border:1px solid var(--line); color:var(--cream); font-size:18px; display:flex; align-items:center; justify-content:center; }
-  .item-qty-btn:active{ background:var(--gold); color:#241902; }
-  .item-qty-value{ min-width:18px; text-align:center; font-size:16px; font-weight:800; color:var(--white); }
+  /* ---------- Sticky order bar ---------- */
+  .order-bar{ position:fixed; left:0; right:0; bottom:0; z-index:50; padding:10px 16px calc(10px + var(--safe-b)); background:linear-gradient(to top, rgba(0,0,0,0.96) 70%, rgba(0,0,0,0)); }
+  .order-bar button{ display:flex; align-items:center; gap:12px; width:100%; max-width:560px; margin:0 auto; background:var(--gold); color:var(--gold-ink); border-radius:100px; padding:10px 20px 10px 10px; min-height:56px; font-weight:800; font-size:16px; box-shadow:0 8px 26px rgba(0,0,0,0.5); }
+  .ob-count{ background:var(--gold-ink); color:var(--gold); border-radius:100px; min-width:36px; height:36px; display:flex; align-items:center; justify-content:center; font-family:var(--display); font-size:19px; padding:0 8px; }
+  .ob-total{ margin-left:auto; font-family:var(--display); font-size:22px; }
+  .order-bar.bump button{ animation:bump .35s ease; }
+  @keyframes bump{ 0%{ transform:scale(1); } 40%{ transform:scale(1.04); } 100%{ transform:scale(1); } }
 
-  /* ---------- COMBO: inline row + expansion, no modal ---------- */
-  .combo-row{
-    display:flex; align-items:center; justify-content:space-between; gap:12px;
-    background:var(--gold); color:#241902; padding:12px 20px; cursor:pointer;
-  }
-  .combo-row.combo-row-disabled{ background:var(--panel); color:var(--muted); cursor:default; }
-  .combo-row.combo-row-disabled .combo-row-plus{ background:var(--line); color:var(--muted); }
-  .combo-row-label{ font-size:14px; font-weight:800; }
-  .combo-row-plus{
-    width:26px; height:26px; border-radius:50%; background:#241902; color:var(--gold);
-    font-size:17px; font-weight:800; display:flex; align-items:center; justify-content:center; flex:none;
-  }
-  .combo-drink-expand{
-    max-height:0; overflow:hidden; transition:max-height .25s ease; background:var(--panel);
-  }
-  .combo-drink-expand.expanded{ max-height:600px; }
-  .combo-drink-inner{ padding:14px 20px; }
-  .combo-drink-title{ font-size:12.5px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; margin-bottom:10px; }
-  .combo-drink-grid{ display:grid; grid-template-columns:1fr 1fr; gap:9px; }
-  .combo-drink-btn{ background:var(--black); border:1px solid var(--line); color:var(--cream); font-size:15px; font-weight:700; padding:14px 8px; border-radius:11px; text-align:center; }
-  .combo-drink-btn:active{ background:var(--gold); color:#241902; }
+  /* ---------- Sheets (item detail + cart) ---------- */
+  .scrim{ position:fixed; inset:0; z-index:60; background:rgba(0,0,0,0.66); }
+  .sheet{ position:fixed; left:0; right:0; bottom:0; z-index:70; max-height:92vh; display:flex; flex-direction:column; background:var(--panel); border-radius:22px 22px 0 0; border-top:1px solid var(--line); max-width:640px; margin:0 auto; }
+  @media (min-width:700px){ .sheet{ bottom:auto; top:50%; transform:translateY(-50%); border-radius:22px; border:1px solid var(--line); max-height:88vh; } }
+  .sheet-head{ display:flex; align-items:center; justify-content:space-between; padding:14px 16px 6px; flex:none; }
+  .sheet-head h2{ font-family:var(--display); font-weight:800; font-size:28px; color:var(--white); }
+  .sheet-close{ width:44px; height:44px; border-radius:50%; background:var(--panel-2); color:var(--cream); font-size:24px; line-height:1; display:flex; align-items:center; justify-content:center; flex:none; }
+  .sheet-scroll{ overflow-y:auto; padding:0 16px 16px; -webkit-overflow-scrolling:touch; flex:1; }
+  .sheet-foot{ flex:none; padding:12px 16px calc(14px + var(--safe-b)); border-top:1px solid var(--line); display:flex; gap:10px; align-items:center; background:var(--panel); border-radius:0 0 22px 22px; }
+  .sheet-photo{ background:var(--panel-2); border-radius:16px; overflow:hidden; }
+  .sheet-photo img{ width:100%; max-height:34vh; object-fit:contain; margin:0 auto; }
+  .sheet-photo img.is-fallback{ object-fit:cover; }
+  .item-title{ font-family:var(--display); font-weight:800; font-size:30px; line-height:1.05; color:var(--white); margin-top:14px; }
+  .item-price{ font-family:var(--display); font-weight:700; font-size:22px; color:var(--gold); margin-top:2px; }
+  .item-desc{ color:var(--muted); margin-top:6px; max-width:60ch; }
+  .opt-group{ margin-top:18px; border:none; }
+  .opt-group legend{ font-weight:700; color:var(--white); font-size:15px; margin-bottom:8px; }
+  .opt-group legend small{ font-weight:500; color:var(--muted); margin-left:6px; font-size:13px; }
+  .opt{ display:flex; align-items:center; gap:12px; padding:12px 14px; border:1px solid var(--line); border-radius:12px; margin-bottom:8px; cursor:pointer; min-height:52px; background:var(--black); }
+  .opt input{ accent-color:var(--gold); width:20px; height:20px; flex:none; }
+  .opt-name{ flex:1; font-weight:600; }
+  .opt-price{ color:var(--muted); font-size:14px; }
+  .opt:has(input:checked){ border-color:var(--gold); background:rgba(247,173,40,0.08); }
+  .opt.is-disabled{ opacity:0.45; cursor:not-allowed; }
+  .combo{ margin-top:18px; border:1px dashed rgba(247,173,40,0.55); border-radius:14px; padding:14px; background:rgba(247,173,40,0.05); }
+  .combo-toggle{ display:flex; align-items:center; gap:12px; cursor:pointer; }
+  .combo-toggle input{ accent-color:var(--gold); width:22px; height:22px; flex:none; }
+  .combo-toggle strong{ color:var(--white); font-size:16px; display:block; }
+  .combo-toggle span.combo-sub{ color:var(--muted); font-size:13.5px; }
+  .combo-drinks{ display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; }
+  .drink-chip{ padding:10px 14px; border-radius:100px; border:1px solid var(--line); background:var(--black); font-weight:600; font-size:14px; min-height:44px; }
+  .drink-chip[aria-pressed="true"]{ background:var(--gold); color:var(--gold-ink); border-color:var(--gold); }
+  .qty{ display:flex; align-items:center; background:var(--black); border:1px solid var(--line); border-radius:100px; flex:none; }
+  .qty button{ width:44px; height:48px; font-size:22px; font-weight:700; }
+  .qty span{ min-width:26px; text-align:center; font-family:var(--display); font-weight:800; font-size:21px; }
+  .cta{ flex:1; background:var(--gold); color:var(--gold-ink); font-weight:800; font-size:16px; border-radius:100px; min-height:52px; padding:0 18px; display:flex; align-items:center; justify-content:center; gap:8px; }
+  .cta .cta-amt{ font-family:var(--display); font-size:21px; }
+  .cta:disabled{ background:var(--panel-2); color:var(--muted); }
+  .sheet-hint{ color:var(--red); font-size:13.5px; font-weight:600; margin-top:10px; min-height:1em; }
 
-  /* ---------- VARIANT PICKER (e.g. bowl protein choice) ---------- */
-  .variant-row{
-    display:flex; align-items:center; justify-content:space-between; gap:14px;
-    padding:16px 20px; border-top:1px solid var(--line); cursor:pointer;
-  }
-  .variant-row:active{ background:var(--panel); }
-  .variant-row-plus{
-    width:26px; height:26px; border-radius:50%; background:var(--panel); border:1px solid var(--line); color:var(--gold);
-    font-size:16px; font-weight:800; display:flex; align-items:center; justify-content:center; flex:none;
-  }
-  .variant-row-badge{ flex:none; min-width:32px; display:flex; justify-content:flex-end; }
-  .qty-pill{
-    background:var(--gold); color:#241902; font-size:15px; font-weight:800;
-    min-width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center;
-  }
-  .variant-expand{ max-height:0; overflow:hidden; transition:max-height .25s ease; background:var(--black); }
-  .variant-expand.expanded{ max-height:600px; }
-  .variant-expand-inner{ padding:6px 20px 10px; }
-  .variant-expand-title{ font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.05em; margin:10px 0; }
-  .variant-choice-row{ display:flex; align-items:center; justify-content:space-between; gap:14px; padding:11px 0; border-top:1px solid var(--line); }
-  .variant-choice-row:first-of-type{ border-top:none; }
-  .variant-choice-name{ font-size:14.5px; font-weight:700; color:var(--cream); }
+  /* Cart */
+  .cart-clear{ color:var(--muted); font-size:14px; text-decoration:underline; padding:10px 4px; }
+  .line{ display:flex; gap:12px; align-items:center; padding:12px 0; border-bottom:1px solid var(--line); }
+  .line-photo{ width:54px; height:54px; border-radius:12px; background:var(--panel-2); overflow:hidden; flex:none; }
+  .line-photo img{ width:100%; height:100%; object-fit:contain; }
+  .line-photo img.is-fallback{ object-fit:cover; }
+  .line-info{ flex:1; min-width:0; }
+  .line-name{ font-weight:600; color:var(--white); }
+  .line-each{ color:var(--muted); font-size:13px; }
+  .line-var{ color:#FF8C1A; font-size:13.5px; font-weight:600; }
+  .qty:has(> button:only-of-type){ padding-right:10px; }
+  .line-amt{ font-family:var(--display); font-weight:700; font-size:19px; color:var(--cream); min-width:60px; text-align:right; }
+  .line .qty button{ width:38px; height:40px; font-size:19px; }
+  .line .qty span{ min-width:20px; font-size:18px; }
+  .upsell{ margin-top:20px; }
+  .upsell h3{ font-weight:700; color:var(--white); font-size:16px; }
+  .upsell-row{ display:flex; gap:10px; overflow-x:auto; padding:10px 0 4px; scrollbar-width:none; }
+  .upsell-row::-webkit-scrollbar{ display:none; }
+  .mini{ flex:none; width:128px; background:var(--black); border:1px solid var(--line); border-radius:14px; overflow:hidden; position:relative; }
+  .mini .tile-photo{ aspect-ratio:1; }
+  .mini-name{ font-size:13px; font-weight:600; padding:8px 10px 0; line-height:1.25; min-height:2.5em; color:var(--white); }
+  .mini-price{ font-family:var(--display); font-weight:700; font-size:17px; color:var(--gold); padding:0 10px 10px; }
+  .mini .add-btn{ width:38px; height:38px; font-size:22px; right:6px; bottom:6px; }
+  .totals{ margin-top:18px; }
+  .totals div{ display:flex; justify-content:space-between; padding:3px 0; color:var(--muted); }
+  .totals .grand{ color:var(--white); font-weight:700; font-size:17px; padding-top:8px; }
+  .totals .grand span:last-child{ font-family:var(--display); font-size:24px; color:var(--gold); }
 
-  /* ---------- CART VIEW ---------- */
-  #cartViewScreen{ position:fixed; inset:0; background:var(--black); z-index:80; overflow-y:auto; }
-  #pickupMethodScreen{ position:fixed; inset:0; background:var(--black); z-index:80; overflow-y:auto; }
-  .cart-view-header{ display:flex; align-items:center; justify-content:space-between; padding:24px 20px 10px; max-width:560px; margin:0 auto; }
-  .cart-view-header h2{ font-size:24px; font-weight:800; color:var(--white); }
-  #clearCartBtn{ background:none; color:var(--red); font-size:14px; font-weight:700; }
-  .cart-view-list{ padding:10px 20px 140px; max-width:560px; margin:0 auto; }
-  .cart-view-row{
-    display:flex; align-items:center; justify-content:space-between; gap:14px;
-    padding:16px 0; border-bottom:1px solid var(--line);
-  }
-  .cart-view-info{ flex:1; min-width:0; }
-  .cart-view-name{ font-size:15px; font-weight:700; color:var(--white); }
-  .cart-view-linetotal{ font-size:13px; color:var(--muted); margin-top:3px; }
-  .cart-view-stepper{ display:flex; align-items:center; gap:12px; flex:none; }
-  .cart-qty-btn{ width:34px; height:34px; border-radius:50%; background:var(--panel); border:1px solid var(--line); color:var(--cream); font-size:19px; display:flex; align-items:center; justify-content:center; }
-  .cart-qty-btn:active{ background:var(--gold); color:#241902; }
-  .cart-qty-value{ min-width:20px; text-align:center; font-size:16px; font-weight:800; color:var(--white); }
-  .cart-view-footer{ position:fixed; left:0; right:0; bottom:0; background:var(--black); padding:18px 20px; border-top:1px solid var(--line); max-width:560px; margin:0 auto; }
-  .cart-view-total-row{ display:flex; justify-content:space-between; font-size:19px; font-weight:800; color:var(--white); margin-bottom:14px; }
-  .cart-view-total-row span{ color:var(--gold); }
-  #proceedToCheckoutBtn{ width:100%; background:var(--gold); color:#241902; font-size:18px; font-weight:800; padding:18px; border-radius:14px; }
-  #backToMenuFromCartBtn{ display:block; margin:14px auto 0; background:none; color:var(--muted); font-size:14px; }
+  /* ---------- Checkout (one page) ---------- */
+  .checkout{ position:fixed; inset:0; z-index:80; background:var(--black); overflow-y:auto; -webkit-overflow-scrolling:touch; }
+  .co-head{ position:sticky; top:0; z-index:2; display:flex; align-items:center; gap:10px; padding:12px 16px; background:var(--black); border-bottom:1px solid var(--line); }
+  .co-head h2{ font-family:var(--display); font-weight:800; font-size:28px; color:var(--white); }
+  .co-body{ max-width:620px; margin:0 auto; padding:8px 16px 150px; }
+  .co-sec{ padding:20px 0; border-bottom:1px solid var(--line); }
+  .co-sec h3{ font-family:var(--display); font-weight:800; font-size:23px; color:var(--white); margin-bottom:12px; }
+  .seg{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .seg button, .pay-opt{ text-align:left; padding:14px; border-radius:14px; border:1px solid var(--line); background:var(--panel); min-height:64px; }
+  .seg button strong, .pay-opt strong{ display:block; color:var(--white); font-size:15.5px; }
+  .seg button span, .pay-opt span{ display:block; color:var(--muted); font-size:13px; margin-top:2px; }
+  .seg button[aria-pressed="true"], .pay-opt[aria-pressed="true"]{ border-color:var(--gold); background:rgba(247,173,40,0.09); box-shadow:inset 0 0 0 1px var(--gold); }
+  .pay-opts{ display:grid; gap:10px; }
+  .pay-opt:disabled{ opacity:0.45; }
+  .field{ margin-bottom:14px; }
+  .field label{ display:block; font-weight:600; color:var(--white); margin-bottom:6px; font-size:14.5px; }
+  .field label small{ color:var(--muted); font-weight:500; }
+  .field input, .field select, .field textarea{ width:100%; background:var(--panel); border:1px solid var(--line); border-radius:12px; padding:13px 14px; font-size:16px; color:var(--white); }
+  .field input:focus, .field select:focus, .field textarea:focus{ outline:none; border-color:var(--gold); box-shadow:0 0 0 3px rgba(247,173,40,0.25); }
+  .field .hint{ color:var(--muted); font-size:13px; margin-top:5px; }
+  .field.invalid input, .field.invalid select{ border-color:var(--red); }
+  .swatches{ display:grid; grid-template-columns:repeat(auto-fill, minmax(92px, 1fr)); gap:8px; }
+  .swatch-btn{ display:flex; align-items:center; gap:8px; padding:10px; border:1px solid var(--line); border-radius:12px; background:var(--panel); font-size:13.5px; min-height:44px; }
+  .swatch-btn .sw{ width:18px; height:18px; border-radius:50%; flex:none; border:1px solid rgba(255,255,255,0.25); }
+  .swatch-btn[aria-pressed="true"]{ border-color:var(--gold); box-shadow:inset 0 0 0 1px var(--gold); }
+  .tips{ display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; }
+  .tip-btn{ padding:10px 6px; border:1px solid var(--line); border-radius:12px; background:var(--panel); min-height:58px; }
+  .tip-btn strong{ display:block; color:var(--white); font-size:14.5px; }
+  .tip-btn span{ display:block; color:var(--muted); font-size:12.5px; }
+  .tip-btn[aria-pressed="true"]{ border-color:var(--gold); background:rgba(247,173,40,0.09); box-shadow:inset 0 0 0 1px var(--gold); }
+  .co-summary .sum-line{ display:flex; justify-content:space-between; gap:10px; padding:4px 0; color:var(--cream); font-size:14.5px; }
+  .co-summary .sum-line span:last-child{ white-space:nowrap; }
+  .co-foot{ position:fixed; left:0; right:0; bottom:0; z-index:3; padding:12px 16px calc(12px + var(--safe-b)); background:linear-gradient(to top, rgba(0,0,0,0.98) 75%, rgba(0,0,0,0)); }
+  .co-foot-inner{ max-width:620px; margin:0 auto; }
+  .co-msg{ color:var(--red); font-weight:600; font-size:14px; margin-bottom:8px; min-height:1em; }
+  .co-secure{ text-align:center; color:var(--muted); font-size:12.5px; margin-top:8px; }
 
-  /* ---------- persistent cart bar ---------- */
-  #cartBar{
-    position:fixed; left:0; right:0; bottom:0; background:var(--gold); color:#241902;
-    display:flex; align-items:center; padding:14px 16px;
-    box-shadow:0 -8px 30px rgba(0,0,0,0.4); z-index:70; gap:8px;
-  }
-  #cartBar.hidden{ display:none !important; }
-  #cartBarInfo{ font-size:13px; font-weight:800; flex:1; min-width:0; }
-  #cartBarClearBtn{
-    background:rgba(36,25,2,0.12); border:none; width:34px; height:34px; border-radius:50%;
-    display:flex; align-items:center; justify-content:center; flex:none;
-  }
-  #cartBarClearBtn svg{ width:16px; height:16px; color:#241902; }
-  #cartBarClearBtn:active{ background:rgba(36,25,2,0.22); }
-  #cartBarBtn{ background:rgba(36,25,2,0.12); color:#241902; font-size:13px; font-weight:800; padding:11px 14px; border-radius:100px; flex:none; white-space:nowrap; }
-  #cartBarCheckoutBtn{ background:#241902; color:var(--gold); font-size:13px; font-weight:800; padding:11px 16px; border-radius:100px; flex:none; white-space:nowrap; }
+  /* ---------- Toast ---------- */
+  .toast{ position:fixed; left:50%; bottom:calc(92px + var(--safe-b)); transform:translate(-50%, 20px); z-index:90; background:var(--white); color:var(--gold-ink); font-weight:700; padding:11px 18px; border-radius:100px; box-shadow:0 10px 30px rgba(0,0,0,0.5); opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease; display:flex; align-items:center; gap:8px; max-width:calc(100% - 32px); white-space:nowrap; }
+  .toast span{ overflow:hidden; text-overflow:ellipsis; }
+  .toast.show{ opacity:1; transform:translate(-50%, 0); }
+  .toast svg{ width:18px; height:18px; color:var(--green); flex:none; }
 
-  /* ---------- checkout screen ---------- */
-  #checkoutScreen{ position:fixed; inset:0; background:var(--black); z-index:80; overflow-y:auto; }
-
-  /* ---------- TIP SCREEN ---------- */
-  #tipScreen{ position:fixed; inset:0; background:var(--black); z-index:80; overflow-y:auto; }
-  .tip-total-line{ color:var(--muted); font-size:16px; margin-bottom:24px; }
-  .tip-options-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
-  .tip-option-btn{
-    background:var(--panel); border:2px solid var(--line); border-radius:14px;
-    padding:18px 12px; text-align:center; color:var(--cream);
+  @media (prefers-reduced-motion: reduce){
+    *{ animation:none !important; transition:none !important; scroll-behavior:auto !important; }
   }
-  .tip-option-btn .tip-option-label{ font-size:16px; font-weight:700; display:block; }
-  .tip-option-btn .tip-option-amount{ font-size:14px; color:var(--muted); display:block; margin-top:4px; }
-  .tip-option-btn.selected{ border-color:var(--gold); background:rgba(247,173,40,0.14); }
-  .tip-option-btn.selected .tip-option-amount{ color:var(--gold); }
-  .tip-final-total-row{ display:flex; justify-content:space-between; font-size:22px; font-weight:800; color:var(--white); margin-top:28px; padding-top:20px; border-top:1px solid var(--line); }
-  .tip-final-total-row span{ color:var(--gold); }
-  #tipContinueBtn{ width:100%; background:var(--gold); color:#241902; font-size:20px; font-weight:800; padding:20px; border-radius:16px; }
-  #tipContinueBtn:disabled{ opacity:0.45; }
-  #tipBackBtn{ display:block; margin:16px auto 0; background:none; color:var(--muted); font-size:15px; }
-  .checkout-body{ padding:20px; max-width:560px; margin:0 auto; padding-bottom:140px; }
-  .checkout-body h2{ font-size:24px; font-weight:800; color:var(--white); margin-bottom:4px; }
-  .checkout-roll-msg{ font-size:13px; color:var(--muted); margin-bottom:18px; }
-  .checkout-items-list{ border:1px solid var(--line); border-radius:14px; padding:16px 18px; margin-bottom:20px; }
-  .checkout-item-row{ display:flex; justify-content:space-between; padding:7px 0; font-size:14.5px; }
-  .checkout-item-row .nm{ color:var(--white); }
-  .checkout-item-row .amt{ color:var(--muted); }
-  .checkout-breakdown-row{ display:flex; justify-content:space-between; padding:6px 0; font-size:14px; color:var(--muted); }
-  .checkout-total-row{ display:flex; justify-content:space-between; font-size:19px; font-weight:800; color:var(--white); padding-top:12px; margin-top:8px; border-top:1px solid var(--line); }
-  .checkout-total-row span{ color:var(--gold); }
-
-  .kiosk-field{ margin-bottom:18px; }
-  .kiosk-field label{ display:block; font-size:13px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:8px; }
-  .kiosk-field input, .kiosk-field textarea{
-    width:100%; background:var(--panel); border:1px solid var(--line); border-radius:12px;
-    padding:14px 14px; color:var(--white); font-size:16px;
-  }
-  .kiosk-field input:focus, .kiosk-field textarea:focus{ outline:none; border-color:var(--gold); }
-
-  .payment-choice{ display:flex; gap:10px; margin-bottom:20px; }
-  .payment-choice-btn{
-    flex:1; background:var(--panel); border:1px solid var(--line); border-radius:12px;
-    padding:16px; color:var(--cream); font-size:19px; font-weight:800; text-align:center; line-height:1.25;
-  }
-  .payment-choice-btn.selected{ background:var(--gold); border-color:var(--gold); color:#241902; }
-
-  .kiosk-field select{
-    width:100%; background:var(--panel); border:1px solid var(--line); border-radius:10px;
-    padding:14px 16px; color:var(--cream); font-size:16px; font-family:inherit;
-  }
-  .color-swatch-grid{ display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; }
-  .color-swatch-btn{
-    display:flex; align-items:center; gap:8px; background:var(--panel); border:1px solid var(--line);
-    border-radius:10px; padding:10px 12px; color:var(--cream); font-size:13px; font-weight:700;
-  }
-  .color-swatch-btn.selected{ border-color:var(--gold); background:rgba(247,173,40,0.12); }
-  .color-swatch-btn .swatch{ width:18px; height:18px; border-radius:50%; flex:none; }
-
-  .checkout-footer{ position:fixed; left:0; right:0; bottom:0; background:var(--black); padding:16px 20px; border-top:1px solid var(--line); max-width:560px; margin:0 auto; }
-  #proceedToPayBtn{ width:100%; background:var(--gold); color:#241902; font-size:18px; font-weight:800; padding:18px; border-radius:14px; }
-  #proceedToPayBtn:disabled{ opacity:0.6; }
-  #backToMenuBtn{ display:block; margin:14px auto 0; background:none; color:var(--muted); font-size:14px; }
-  #checkoutMsg{ text-align:center; font-size:13.5px; color:var(--red); min-height:18px; margin-top:10px; }
-  #continueToCheckoutBtn{ width:100%; background:var(--gold); color:#241902; font-size:18px; font-weight:800; padding:18px; border-radius:14px; }
-  #backToCartFromPickupBtn{ display:block; margin:14px auto 0; background:none; color:var(--muted); font-size:14px; }
-  #pickupMethodMsg{ text-align:center; font-size:13.5px; color:var(--red); min-height:18px; margin-top:10px; }
-
-  .empty-hint{ color:var(--muted); font-size:14px; text-align:center; padding:30px 20px; }
 </style>
 </head>
 <body>
 
-<div class="app-header">
-  <h1><span class="brand-roll">Roll-In</span> <span class="brand-shawarma">Shawarma</span></h1>
-  <p>Give us a few minutes to roll &mdash; worth the wait.</p>
-</div>
-
-<div class="wrap">
-  <h2 class="menu-label">Menu</h2>
-  <div id="categoryList"></div>
-</div>
-
-<div id="cartBar" class="hidden">
-  <div id="cartBarInfo">0 items &middot; $0.00</div>
-  <button type="button" id="cartBarClearBtn" aria-label="Clear cart">
-    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"></path><path d="M10 11v6"></path><path d="M14 11v6"></path><path d="M9 6V4a2 2 0 0 1 2-2h2a2 2 0 0 1 2 2v2"></path></svg>
-  </button>
-  <button type="button" id="cartBarBtn">View Cart</button>
-  <button type="button" id="cartBarCheckoutBtn">Checkout &rarr;</button>
-</div>
-
-<div id="cartViewScreen" class="hidden">
-  <div class="cart-view-header">
-    <h2>Your Cart</h2>
-    <button type="button" id="clearCartBtn">Clear Cart</button>
-  </div>
-  <div class="cart-view-list" id="cartViewList"></div>
-  <div class="cart-view-footer">
-    <div class="cart-view-total-row">Total <span id="cartViewTotal">$0.00</span></div>
-    <button type="button" id="proceedToCheckoutBtn">Proceed to Checkout</button>
-    <button type="button" id="backToMenuFromCartBtn">&larr; Back to menu</button>
-  </div>
-</div>
-
-<div id="pickupMethodScreen" class="hidden">
-  <div class="checkout-body">
-    <h2>How would you like<br>to get your order?</h2>
-
-    <div class="kiosk-field">
-      <div class="payment-choice">
-        <button type="button" class="payment-choice-btn selected" id="windowChoiceBtn">Pickup at Window</button>
-        <button type="button" class="payment-choice-btn" id="curbsideChoiceBtn">Drive-Up (Curbside)</button>
-      </div>
+<header class="top">
+  <img class="top-logo" src="logo.jpg" alt="" onerror="this.remove()">
+  <div>
+    <h1><span class="w1">Roll-In</span> <span class="w2">Shawarma</span></h1>
+    <div class="top-meta">
+      <span class="halal-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>100% halal meat</span>
+      <span id="kitchenPulse" class="pulse hidden" aria-live="polite"><span class="pulse-dot" aria-hidden="true"></span><span id="kitchenPulseText"></span></span>
     </div>
+  </div>
+</header>
 
-    <div id="curbsideDetails" class="hidden">
-      <div class="kiosk-field">
-        <label>Car make</label>
-        <select id="carMakeSelect">
-          <option value="">Select your car's make&hellip;</option>
-          <option>Toyota</option><option>Honda</option><option>Ford</option><option>Chevrolet</option>
-          <option>Nissan</option><option>Jeep</option><option>Hyundai</option><option>Kia</option>
-          <option>Subaru</option><option>GMC</option><option>Ram</option><option>Dodge</option>
-          <option>Volkswagen</option><option>BMW</option><option>Mercedes-Benz</option><option>Audi</option>
-          <option>Mazda</option><option>Lexus</option><option>Tesla</option><option>Chrysler</option>
-          <option>Buick</option><option>Cadillac</option><option>Acura</option><option>Infiniti</option>
-          <option>Volvo</option><option>Mitsubishi</option>
-          <option value="Other">Other</option>
-        </select>
-        <input type="text" id="carMakeOther" class="hidden" placeholder="Type your car's make" style="margin-top:8px;">
+<nav class="cat-rail" aria-label="Menu categories">
+  <div class="cat-rail-inner" id="catRail"></div>
+</nav>
+
+<main class="menu" id="menu">
+  <div class="menu-state" id="menuState">Loading the menu&hellip;</div>
+</main>
+
+<div class="order-bar hidden" id="orderBar">
+  <button type="button" id="orderBarBtn">
+    <span class="ob-count" id="obCount">0</span>
+    <span>View order</span>
+    <span class="ob-total" id="obTotal">$0.00</span>
+  </button>
+</div>
+
+<div class="scrim hidden" id="scrim"></div>
+
+<!-- Item detail sheet -->
+<section class="sheet hidden" id="itemSheet" role="dialog" aria-modal="true" aria-labelledby="itemTitle">
+  <div class="sheet-head">
+    <span class="sr-only">Item details</span>
+    <span></span>
+    <button type="button" class="sheet-close" data-close aria-label="Close">&times;</button>
+  </div>
+  <div class="sheet-scroll" id="itemBody"></div>
+  <div class="sheet-foot">
+    <div class="qty" aria-label="Quantity">
+      <button type="button" id="itemQtyDec" aria-label="Decrease quantity">&minus;</button>
+      <span id="itemQty" aria-live="polite">1</span>
+      <button type="button" id="itemQtyInc" aria-label="Increase quantity">+</button>
+    </div>
+    <button type="button" class="cta" id="itemAddBtn">Add to order <span class="cta-amt" id="itemAddAmt"></span></button>
+  </div>
+</section>
+
+<!-- Cart sheet -->
+<section class="sheet hidden" id="cartSheet" role="dialog" aria-modal="true" aria-labelledby="cartTitle">
+  <div class="sheet-head">
+    <h2 id="cartTitle">Your order</h2>
+    <div style="display:flex; align-items:center; gap:6px;">
+      <button type="button" class="cart-clear" id="cartClearBtn">Clear</button>
+      <button type="button" class="sheet-close" data-close aria-label="Close">&times;</button>
+    </div>
+  </div>
+  <div class="sheet-scroll" id="cartBody"></div>
+  <div class="sheet-foot">
+    <button type="button" class="cta" id="toCheckoutBtn">Checkout <span class="cta-amt" id="toCheckoutAmt"></span></button>
+  </div>
+</section>
+
+<!-- Checkout: one page -->
+<section class="checkout hidden" id="checkoutScreen" aria-labelledby="coTitle">
+  <div class="co-head">
+    <button type="button" class="sheet-close" id="coBackBtn" aria-label="Back to your order">&larr;</button>
+    <h2 id="coTitle">Checkout</h2>
+  </div>
+  <div class="co-body">
+
+    <div class="co-sec">
+      <h3>Pickup</h3>
+      <div class="seg" role="group" aria-label="Pickup method">
+        <button type="button" data-pickup="window" aria-pressed="true"><strong>At the window</strong><span>We&rsquo;ll call your name</span></button>
+        <button type="button" data-pickup="curbside" aria-pressed="false"><strong>Drive-up</strong><span>We bring it to your car</span></button>
       </div>
-      <div class="kiosk-field">
-        <label>Car color</label>
-        <div class="color-swatch-grid" id="carColorGrid">
-          <button type="button" class="color-swatch-btn" data-color="Black"><span class="swatch" style="background:#1a1a1a;"></span>Black</button>
-          <button type="button" class="color-swatch-btn" data-color="White"><span class="swatch" style="background:#f5f5f0; border:1px solid #ccc;"></span>White</button>
-          <button type="button" class="color-swatch-btn" data-color="Silver/Gray"><span class="swatch" style="background:#9a9a9a;"></span>Silver/Gray</button>
-          <button type="button" class="color-swatch-btn" data-color="Red"><span class="swatch" style="background:#c62828;"></span>Red</button>
-          <button type="button" class="color-swatch-btn" data-color="Blue"><span class="swatch" style="background:#1e5fa8;"></span>Blue</button>
-          <button type="button" class="color-swatch-btn" data-color="Green"><span class="swatch" style="background:#2e7d32;"></span>Green</button>
-          <button type="button" class="color-swatch-btn" data-color="Gold/Yellow"><span class="swatch" style="background:#d4a828;"></span>Gold/Yellow</button>
-          <button type="button" class="color-swatch-btn" data-color="Brown/Tan"><span class="swatch" style="background:#7a5c3e;"></span>Brown/Tan</button>
-          <button type="button" class="color-swatch-btn" data-color="Other"><span class="swatch" style="background:linear-gradient(45deg,#888,#ccc);"></span>Other</button>
+      <div id="curbsideDetails" class="hidden" style="margin-top:16px;">
+        <div class="field" id="carMakeField">
+          <label for="carMakeSelect">Car make</label>
+          <select id="carMakeSelect">
+            <option value="">Choose your car&rsquo;s make</option>
+            <option>Toyota</option><option>Honda</option><option>Ford</option><option>Chevrolet</option>
+            <option>Nissan</option><option>Jeep</option><option>Hyundai</option><option>Kia</option>
+            <option>Subaru</option><option>GMC</option><option>Ram</option><option>Dodge</option>
+            <option>Volkswagen</option><option>BMW</option><option>Mercedes-Benz</option><option>Audi</option>
+            <option>Mazda</option><option>Lexus</option><option>Tesla</option><option>Chrysler</option>
+            <option>Buick</option><option>Cadillac</option><option>Acura</option><option>Infiniti</option>
+            <option>Volvo</option><option>Mitsubishi</option>
+            <option value="Other">Other</option>
+          </select>
+          <input type="text" id="carMakeOther" class="hidden" placeholder="Type your car&rsquo;s make" style="margin-top:8px;" autocomplete="off">
+        </div>
+        <div class="field" id="carColorField">
+          <label id="carColorLabel">Car color</label>
+          <div class="swatches" role="group" aria-labelledby="carColorLabel" id="carColorGrid">
+            <button type="button" class="swatch-btn" data-color="Black" aria-pressed="false"><span class="sw" style="background:#1a1a1a"></span>Black</button>
+            <button type="button" class="swatch-btn" data-color="White" aria-pressed="false"><span class="sw" style="background:#f5f5f0"></span>White</button>
+            <button type="button" class="swatch-btn" data-color="Silver/Gray" aria-pressed="false"><span class="sw" style="background:#9a9a9a"></span>Silver/Gray</button>
+            <button type="button" class="swatch-btn" data-color="Red" aria-pressed="false"><span class="sw" style="background:#c62828"></span>Red</button>
+            <button type="button" class="swatch-btn" data-color="Blue" aria-pressed="false"><span class="sw" style="background:#1e5fa8"></span>Blue</button>
+            <button type="button" class="swatch-btn" data-color="Green" aria-pressed="false"><span class="sw" style="background:#2e7d32"></span>Green</button>
+            <button type="button" class="swatch-btn" data-color="Gold/Yellow" aria-pressed="false"><span class="sw" style="background:#d4a828"></span>Gold/Yellow</button>
+            <button type="button" class="swatch-btn" data-color="Brown/Tan" aria-pressed="false"><span class="sw" style="background:#7a5c3e"></span>Brown/Tan</button>
+            <button type="button" class="swatch-btn" data-color="Other" aria-pressed="false"><span class="sw" style="background:linear-gradient(45deg,#888,#ccc)"></span>Other</button>
+          </div>
         </div>
       </div>
     </div>
-  </div>
-  <div class="checkout-footer">
-    <button type="button" id="continueToCheckoutBtn">Continue</button>
-    <div id="pickupMethodMsg"></div>
-    <button type="button" id="backToCartFromPickupBtn">&larr; Back to cart</button>
-  </div>
-</div>
 
-<div id="checkoutScreen" class="hidden">
-  <div class="checkout-body">
-    <h2>Almost there!</h2>
-    <p class="checkout-roll-msg">Give us a few minutes to roll &mdash; worth the wait.</p>
-    <div class="checkout-items-list" id="checkoutItemsList"></div>
-
-    <div class="checkout-breakdown-row">Subtotal <span id="ckSubtotal">$0.00</span></div>
-    <div class="checkout-total-row">Total <span id="ckTotal">$0.00</span></div>
-
-    <div class="kiosk-field" style="margin-top:24px;">
-      <label>Name (so we can call you)</label>
-      <input type="text" id="custName" placeholder="Your first name">
-    </div>
-    <div class="kiosk-field">
-      <label>Email (for your receipt)</label>
-      <input type="email" id="custEmail" placeholder="you@example.com">
-    </div>
-    <div class="kiosk-field">
-      <label>Phone (optional)</label>
-      <input type="tel" id="custPhone">
+    <div class="co-sec">
+      <h3>Your details</h3>
+      <div class="field" id="nameField">
+        <label for="custName">First name</label>
+        <input type="text" id="custName" autocomplete="given-name" placeholder="We&rsquo;ll call this out">
+      </div>
+      <div class="field">
+        <label for="custEmail">Email <small>(optional)</small></label>
+        <input type="email" id="custEmail" autocomplete="email" inputmode="email" placeholder="you@example.com">
+        <div class="hint">We&rsquo;ll send your receipt and email you the moment your food is ready.</div>
+      </div>
+      <div class="field">
+        <label for="custPhone">Phone <small>(optional)</small></label>
+        <input type="tel" id="custPhone" autocomplete="tel" inputmode="tel">
+      </div>
+      <div class="field">
+        <label for="custNotes">Special requests <small>(optional)</small></label>
+        <textarea id="custNotes" rows="2" placeholder="Extra napkins, allergies, anything we should know"></textarea>
+      </div>
     </div>
 
-    <div class="kiosk-field">
-      <label>How you'll pay</label>
-      <p id="paymentMethodNote" class="tip-total-line" style="margin-bottom:0;">Cash at the window when you pick up.</p>
+    <div class="co-sec">
+      <h3>Add a tip</h3>
+      <div class="tips" id="tipGrid" role="group" aria-label="Tip"></div>
+      <div class="field hidden" id="tipCustomField" style="margin-top:12px;">
+        <label for="tipCustom">Tip amount</label>
+        <input type="number" id="tipCustom" min="0" step="0.01" inputmode="decimal" placeholder="0.00">
+      </div>
     </div>
 
-    <div class="kiosk-field">
-      <label>Notes (optional)</label>
-      <textarea id="custNotes" rows="2" placeholder="Any special requests..."></textarea>
+    <div class="co-sec">
+      <h3>Payment</h3>
+      <div class="pay-opts" role="group" aria-label="Payment">
+        <button type="button" class="pay-opt" data-pay="card" aria-pressed="true"><strong>Pay now</strong><span>By card on Square&rsquo;s secure checkout</span></button>
+        <button type="button" class="pay-opt" data-pay="cash" aria-pressed="false"><strong>Pay cash at the window</strong><span id="cashOptNote">Pay when you pick up</span></button>
+      </div>
+    </div>
+
+    <div class="co-sec co-summary" style="border-bottom:none;">
+      <h3>Summary</h3>
+      <div id="coLines"></div>
+      <div class="totals" id="coTotals"></div>
     </div>
   </div>
-
-  <div class="checkout-footer">
-    <button type="button" id="proceedToPayBtn">Proceed to Pay</button>
-    <div id="checkoutMsg"></div>
-    <button type="button" id="backToMenuBtn">&larr; Back to menu</button>
-  </div>
-</div>
-
-<div id="tipScreen" class="hidden">
-  <div class="checkout-body">
-    <h2>Add a Tip?</h2>
-    <p class="tip-total-line">Order total: <span id="tipBaseTotalDisplay">$0.00</span></p>
-    <div class="tip-options-grid" id="tipOptionsGrid"></div>
-    <div class="kiosk-field" id="tipCustomFieldWrap" style="display:none;">
-      <label>Custom Tip Amount</label>
-      <input type="number" id="tipCustomAmount" min="0" step="0.01" placeholder="$0.00">
+  <div class="co-foot">
+    <div class="co-foot-inner">
+      <div class="co-msg" id="coMsg" role="alert"></div>
+      <button type="button" class="cta" id="placeOrderBtn" style="width:100%;"></button>
+      <div class="co-secure" id="coSecure"></div>
     </div>
-    <div class="tip-final-total-row">New Total <span id="tipFinalTotalDisplay">$0.00</span></div>
   </div>
-  <div class="checkout-footer">
-    <button type="button" id="tipContinueBtn" disabled>Continue to Payment</button>
-    <button type="button" id="tipBackBtn">&larr; Back</button>
-  </div>
-</div>
+</section>
+
+<div class="toast" id="toast" role="status" aria-live="polite"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg><span id="toastText"></span></div>
 
 <script>
   var sbShared = supabase.createClient(
@@ -373,35 +383,75 @@
     'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_'
   );
 
+  // Photo fallback: dish photo first (item-<name>.jpg, same as the
+  // kiosk); if a dish has no photo yet, show its category photo
+  // instead of an empty square; if that's missing too, remove it.
+  window.rsImgFallback = function(img){
+    var fb = img.getAttribute('data-fallback');
+    if (fb && img.getAttribute('src') !== fb) {
+      img.removeAttribute('data-fallback');
+      img.classList.add('is-fallback');
+      img.src = fb;
+    } else {
+      img.onerror = null;
+      img.remove();
+    }
+  };
+
   (function(){
-    var cart = [];
-    var itemsById = {};
-    var categoryOrder = [];
-    var expandedCategory = null;
-    var paymentMethod = 'card';
-
+    var CARD_CHECKOUT_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/create-order-checkout';
+    var CASH_ORDER_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/create-cash-order';
+    var ANON_KEY = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
     var TAX_RATE = 0.0675;
-    // No online processing fee for orders through this page at all --
-    // neither card nor cash. The backend (create-order-checkout.ts)
-    // already skips this fee for orderSource:'qr', so this preview
-    // just needs to match what will actually be charged.
-
-    var categoryImages = {
+    var HIDDEN_CATEGORIES = { 'Catering': 1, 'Combo Add-ons': 1, 'Deals': 1, 'Deal Selections': 1 };
+    var CATEGORY_IMAGES = {
       'Shawarma': 'menu-shawarma.jpg', 'Frankie Rolls': 'menu-frankie.jpg',
       'Bowls': 'menu-bowl.jpg', 'Tacos': 'menu-tacos.jpg',
       'Loaded Fries': 'menu-fries.jpg', 'Sides': 'menu-samosas.jpg',
       'Kulfi Ice Cream': 'menu-kulfi.jpg', 'Drinks': 'menu-falooda.jpg'
     };
+    // Same wording as the main website's menu.
+    var CATEGORY_DESCRIPTIONS = {
+      'Shawarma': 'Marinated chicken or falafel, white sauce, fries & pickled cucumber',
+      'Frankie Rolls': 'Marinated chicken or paneer, fresh veggies, cilantro & lime',
+      'Bowls': 'Flavored rice, cucumber, peppers, lettuce, tomato & sauce',
+      'Sides': 'Regular / Large where noted'
+    };
+    var UPSELL_CATEGORIES = ['Sides', 'Kulfi Ice Cream', 'Drinks'];
+    var COMBO_DRINK_NAMES = ['Coke', 'Diet Coke', 'Coke Zero', 'Sprite', 'Root Beer', 'Water'];
+    var STORE_KEY = 'rollin_qr_cart_v1';
+    var STORE_TTL_MS = 3 * 60 * 60 * 1000;
+    var MAX_QTY = 20;
 
+    var itemsById = {};
+    var comboAddonsByName = {};
+    var sections = [];          // [{ cat, groups: [group] }]
+    var groupsByKey = {};       // key -> { key, cat, name, items }
+    var cart = [];              // [{ menu_item_id, name, unitPrice, quantity }]
+
+    // ---------- helpers ----------
+    function $(id){ return document.getElementById(id); }
     function escHtml(s){
       return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
         return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
       });
     }
-
-    // Square's own API errors come back as an array of {category,
-    // code, detail} objects, not a plain string -- String() on that
-    // produces the useless literal text "[object Object]".
+    function money(n){ return '$' + Number(n).toFixed(2); }
+    function slugify(name){
+      return String(name).toLowerCase().replace(/[()]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
+    }
+    function isAvailable(item){ return item && item.is_available !== false; }
+    function itemLabel(item){ return item.name + (item.variant_name ? ' \u2013 ' + item.variant_name : ''); }
+    function comboAddonPhoto(name){
+      if (name === 'Combo Fries') return 'item-fries.jpg';
+      if (name === 'Combo Water') return 'item-water.jpg';
+      return 'item-soda.jpg';
+    }
+    function photoImg(item, cat, groupName){
+      var src = item.image_url || (cat === 'Combo Add-ons' ? comboAddonPhoto(item.name) : ('item-' + slugify(groupName || item.name) + '.jpg'));
+      var fb = CATEGORY_IMAGES[cat] || '';
+      return '<img src="' + escHtml(src) + '" alt="" loading="lazy" decoding="async" data-fallback="' + escHtml(fb) + '" onerror="rsImgFallback(this)">';
+    }
     function formatErrorMessage(err){
       if (!err) return null;
       if (typeof err === 'string') return err;
@@ -413,670 +463,684 @@
       if (typeof err === 'object') return err.detail || err.message || JSON.stringify(err);
       return String(err);
     }
+    var toastTimer = null;
+    function hideToast(){ if (toastTimer) clearTimeout(toastTimer); $('toast').classList.remove('show'); }
+    function toast(msg){
+      $('toastText').textContent = msg;
+      $('toast').classList.add('show');
+      if (toastTimer) clearTimeout(toastTimer);
+      toastTimer = setTimeout(function(){ $('toast').classList.remove('show'); }, 1800);
+    }
 
-    var comboAddonsByName = {};
+    // ---------- menu ----------
     function loadMenu(){
+      $('menuState').classList.remove('hidden');
+      $('menuState').innerHTML = 'Loading the menu&hellip;';
       sbShared.from('menu_items').select('*').order('display_order').then(function(res){
-        if (res.error || !res.data) return;
-        var byCategory = {};
-        res.data.forEach(function(item){
-          itemsById[item.id] = item;
-          if (item.category === 'Combo Add-ons') comboAddonsByName[item.name] = item;
-          if (item.category === 'Catering' || item.category === 'Combo Add-ons' || item.category === 'Deals' || item.category === 'Deal Selections') return;
-          if (!byCategory[item.category]) {
-            byCategory[item.category] = [];
-            categoryOrder.push(item.category);
-          }
-          byCategory[item.category].push(item);
-        });
-        window.__orderByCategory = byCategory;
-        renderCategoryList();
+        if (res.error || !res.data) {
+          $('menuState').innerHTML = 'We couldn&rsquo;t load the menu. Check your connection and try again.<br><button type="button" id="menuRetryBtn">Try again</button>';
+          $('menuRetryBtn').addEventListener('click', loadMenu);
+          return;
+        }
+        buildMenu(res.data);
+        restoreCart();
+        renderMenu();
+        afterCartChange(false);
+      }).catch(function(){
+        $('menuState').innerHTML = 'We couldn&rsquo;t load the menu. Check your connection and try again.<br><button type="button" id="menuRetryBtn">Try again</button>';
+        $('menuRetryBtn').addEventListener('click', loadMenu);
       });
     }
 
-    // Categories render collapsed by default -- name only, no photo,
-    // no items. A photo only ever appears once a category is
-    // actually expanded, and collapses away again when it's closed.
-    function renderCategoryList(){
-      var listEl = document.getElementById('categoryList');
-      if (!categoryOrder.length) {
-        listEl.innerHTML = '<div class="empty-hint">Menu is loading, one moment&hellip;</div>';
-        return;
-      }
+    function buildMenu(rows){
+      itemsById = {}; comboAddonsByName = {}; sections = []; groupsByKey = {};
+      var byCat = {};
+      rows.forEach(function(item){
+        itemsById[item.id] = item;
+        if (item.category === 'Combo Add-ons') comboAddonsByName[item.name] = item;
+        if (HIDDEN_CATEGORIES[item.category]) return;
+        if (!byCat[item.category]) { byCat[item.category] = { cat: item.category, groups: [] }; sections.push(byCat[item.category]); }
+        // Items sharing a name are one dish with options (e.g. bowl proteins).
+        var key = item.category + '::' + item.name;
+        if (!groupsByKey[key]) {
+          groupsByKey[key] = { key: key, cat: item.category, name: item.name, items: [] };
+          byCat[item.category].groups.push(groupsByKey[key]);
+        }
+        groupsByKey[key].items.push(item);
+      });
+    }
 
-      listEl.innerHTML = categoryOrder.map(function(cat){
-        return '<div class="category-block" data-cat="' + escHtml(cat) + '">' +
-          '<button type="button" class="category-row" data-cat="' + escHtml(cat) + '">' +
-            escHtml(cat) + '<span class="chev">\u25BC</span>' +
-          '</button>' +
-          '<div class="category-expanded" data-cat="' + escHtml(cat) + '"></div>' +
-        '</div>';
+    function groupPriceText(g){
+      var pool = g.items.filter(isAvailable);
+      if (!pool.length) pool = g.items;
+      var prices = pool.map(function(i){ return Number(i.price); });
+      var min = Math.min.apply(null, prices), max = Math.max.apply(null, prices);
+      return (g.items.length > 1 && min !== max ? 'From ' : '') + money(min);
+    }
+
+    function renderMenu(){
+      $('menuState').classList.add('hidden');
+      var menu = $('menu');
+      menu.querySelectorAll('.section, .menu-foot').forEach(function(n){ n.remove(); });
+
+      $('catRail').innerHTML = sections.map(function(s, i){
+        return '<button type="button" class="chip" data-jump="sec-' + i + '"' + (i === 0 ? ' aria-current="true"' : '') + '>' +
+          '<img src="' + escHtml(CATEGORY_IMAGES[s.cat] || '') + '" alt="" onerror="this.remove()">' + escHtml(s.cat) + '</button>';
       }).join('');
 
-      listEl.querySelectorAll('.category-row').forEach(function(btn){
-        btn.addEventListener('click', function(){ toggleCategory(btn.getAttribute('data-cat')); });
-      });
-    }
-
-    // Only one category open at a time -- opening a new one collapses
-    // whatever was previously open, back to the plain category list.
-    function toggleCategory(cat){
-      var wasExpanded = expandedCategory === cat;
-
-      document.querySelectorAll('.category-block').forEach(function(block){
-        block.classList.remove('expanded');
-      });
-
-      if (wasExpanded) {
-        expandedCategory = null;
-        return;
-      }
-
-      expandedCategory = cat;
-      var block = document.querySelector('.category-block[data-cat="' + cssEscape(cat) + '"]');
-      if (block) block.classList.add('expanded');
-
-      renderCategoryContent(cat);
-    }
-
-    function cssEscape(s){ return String(s).replace(/"/g, '\\"'); }
-
-    function renderCategoryContent(cat){
-      var contentEl = document.querySelector('.category-expanded[data-cat="' + cssEscape(cat) + '"]');
-      if (!contentEl) return;
-      var items = (window.__orderByCategory[cat] || []);
-      var img = categoryImages[cat] || 'menu-shawarma.jpg';
-
-      // Group by name -- items sharing a name but different variant_name
-      // (e.g. protein choices) render as ONE expandable row, not one
-      // row per variant.
-      var groups = [];
-      var groupsByName = {};
-      items.forEach(function(item){
-        if (!groupsByName[item.name]) {
-          var g = { name: item.name, items: [] };
-          groupsByName[item.name] = g;
-          groups.push(g);
-        }
-        groupsByName[item.name].items.push(item);
-      });
-
-      var rowsHtml = groups.map(function(group){
-        if (group.items.length === 1) {
-          var item = group.items[0];
-          var label = item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : '');
-          return '<div class="item-row">' +
-            '<div class="item-info">' +
-              '<div class="item-name">' + escHtml(label) + '</div>' +
-              (item.description ? '<div class="item-desc">' + escHtml(item.description) + '</div>' : '') +
-              '<div class="item-price">$' + Number(item.price).toFixed(2) + '</div>' +
-            '</div>' +
-            '<div class="item-add-control" data-id="' + item.id + '"></div>' +
-          '</div>';
-        }
-
-        var groupKey = escHtml(group.name);
-        var firstItem = group.items[0];
-        return '<div class="variant-row" data-variant-group="' + groupKey + '">' +
-            '<div class="item-info">' +
-              '<div class="item-name">' + escHtml(group.name) + '</div>' +
-              '<div class="item-price">$' + Number(firstItem.price).toFixed(2) + '</div>' +
-            '</div>' +
-            '<div class="variant-row-badge" data-variant-group="' + groupKey + '"></div>' +
-          '</div>' +
-          '<div class="variant-expand" data-variant-group="' + groupKey + '">' +
-            '<div class="variant-expand-inner">' +
-              '<div class="variant-expand-title">Choose your protein</div>' +
-              group.items.map(function(item){
-                return '<div class="variant-choice-row">' +
-                  '<span class="variant-choice-name">' + escHtml(item.variant_name || item.name) + '</span>' +
-                  '<div class="variant-choice-control" data-id="' + item.id + '"></div>' +
-                '</div>';
-              }).join('') +
-            '</div>' +
-          '</div>';
+      var html = sections.map(function(s, i){
+        return '<section class="section" id="sec-' + i + '" aria-labelledby="sec-' + i + '-t">' +
+          '<h2 class="section-title" id="sec-' + i + '-t">' + escHtml(s.cat) + '</h2>' +
+          (CATEGORY_DESCRIPTIONS[s.cat] ? '<p class="section-desc">' + escHtml(CATEGORY_DESCRIPTIONS[s.cat]) + '</p>' : '') +
+          '<div class="grid">' + s.groups.map(tileHtml).join('') + '</div>' +
+        '</section>';
       }).join('');
+      menu.insertAdjacentHTML('beforeend', html +
+        '<p class="menu-foot">Prices are before 6.75% sales tax. Pay by card now, or cash when you pick up at the window.</p>');
+      setupScrollSpy();
+    }
 
-      // One shared combo row per category, not per item. Disabled
-      // until the cart has a qualifying entree in it.
-      var comboUpcharge = items.length && items[0].combo_upcharge;
-      var comboHtml = '';
-      if (comboUpcharge) {
-        var comboEnabled = canAddCombo();
-        comboHtml =
-          '<div class="combo-row' + (comboEnabled ? '' : ' combo-row-disabled') + '" data-cat="' + escHtml(cat) + '">' +
-            '<span class="combo-row-label">Make it a Combo +$' + Number(comboUpcharge).toFixed(2) + '</span>' +
-            '<span class="combo-row-plus">+</span>' +
-          '</div>' +
-          '<div class="combo-drink-expand" data-cat="' + escHtml(cat) + '">' +
-            '<div class="combo-drink-inner">' +
-              '<div class="combo-drink-title">Choose your drink</div>' +
-              '<div class="combo-drink-grid">' +
-                ['Coke','Diet Coke','Coke Zero','Sprite','Root Beer','Water'].map(function(drink){
-                  return '<button type="button" class="combo-drink-btn" data-drink="' + drink + '">' + drink + '</button>';
-                }).join('') +
-              '</div>' +
-            '</div>' +
-          '</div>';
+    function tileHtml(g){
+      var soldOut = !g.items.some(isAvailable);
+      var priceText = groupPriceText(g);
+      var sub = g.items.length > 1 ? g.items.length + ' options' : '';
+      return '<article class="tile' + (soldOut ? ' is-soldout' : '') + '" data-group="' + escHtml(g.key) + '">' +
+        '<button type="button" class="tile-open" data-open="' + escHtml(g.key) + '"' + (soldOut ? ' disabled' : '') +
+          ' aria-label="' + escHtml(g.name + ', ' + priceText + (soldOut ? ', sold out' : ', see details')) + '">' +
+          '<span class="tile-photo">' + photoImg(g.items[0], g.cat, g.name) + '</span>' +
+          '<span class="tile-body">' +
+            '<span class="tile-name">' + escHtml(g.name) + '</span>' +
+            (sub ? '<span class="tile-sub">' + sub + '</span>' : '') +
+            '<span class="tile-price">' + priceText + '</span>' +
+          '</span>' +
+        '</button>' +
+        '<div class="tile-actions-anchor" data-action="' + escHtml(g.key) + '">' + actionHtml(g) + '</div>' +
+      '</article>';
+    }
+
+    function actionHtml(g){
+      if (!g.items.some(isAvailable)) return '<span class="soldout-tag">Sold out</span>';
+      if (g.items.length > 1) {
+        var qty = g.items.reduce(function(s, i){ var l = findLine(i.id); return s + (l ? l.quantity : 0); }, 0);
+        return '<button type="button" class="add-btn" data-open="' + escHtml(g.key) + '" aria-label="Choose options for ' + escHtml(g.name) + (qty ? ', ' + qty + ' in your order' : '') + '">' +
+          (qty ? '<span class="add-count">' + qty + '</span>' : '+') + '</button>';
       }
+      var item = g.items[0];
+      var line = findLine(item.id);
+      if (!line) return '<button type="button" class="add-btn" data-add="' + item.id + '" aria-label="Add ' + escHtml(g.name) + '">+</button>';
+      return '<div class="stepper" role="group" aria-label="' + escHtml(g.name) + ' quantity">' +
+        '<button type="button" data-dec="' + item.id + '" aria-label="Remove one ' + escHtml(g.name) + '">&minus;</button>' +
+        '<span>' + line.quantity + '</span>' +
+        '<button type="button" data-inc="' + item.id + '" aria-label="Add one more ' + escHtml(g.name) + '">+</button>' +
+      '</div>';
+    }
 
-      contentEl.innerHTML = '<img class="category-photo" src="' + img + '" alt="' + escHtml(cat) + '">' + rowsHtml + comboHtml;
+    function refreshTileActions(){
+      Object.keys(groupsByKey).forEach(function(key){
+        var el = document.querySelector('.tile-actions-anchor[data-action="' + cssAttr(key) + '"]');
+        if (el) el.innerHTML = actionHtml(groupsByKey[key]);
+      });
+    }
+    function cssAttr(s){ return String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"'); }
 
-      groups.forEach(function(group){
-        if (group.items.length === 1) {
-          renderItemControl(group.items[0].id);
-        } else {
-          renderVariantGroupBadge(group);
-          group.items.forEach(function(item){ renderVariantChoiceControl(item.id); });
+    // Menu clicks (delegated)
+    $('menu').addEventListener('click', function(e){
+      var t = e.target.closest('[data-add],[data-inc],[data-dec],[data-open]');
+      if (!t || t.disabled) return;
+      if (t.hasAttribute('data-add')) { addOne(t.getAttribute('data-add')); toast('Added ' + itemsById[t.getAttribute('data-add')].name); }
+      else if (t.hasAttribute('data-inc')) addOne(t.getAttribute('data-inc'));
+      else if (t.hasAttribute('data-dec')) removeOne(t.getAttribute('data-dec'));
+      else if (t.hasAttribute('data-open')) openItemSheet(t.getAttribute('data-open'));
+    });
+
+    // Category chips: jump + follow the scroll
+    $('catRail').addEventListener('click', function(e){
+      var chip = e.target.closest('[data-jump]');
+      if (!chip) return;
+      var sec = $(chip.getAttribute('data-jump'));
+      if (sec && typeof sec.scrollIntoView === 'function') sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setActiveChip(chip.getAttribute('data-jump'));
+    });
+    var activeChipId = null;
+    function setActiveChip(id){
+      if (id === activeChipId) return;
+      activeChipId = id;
+      var rail = $('catRail');
+      rail.querySelectorAll('.chip').forEach(function(c){
+        var on = c.getAttribute('data-jump') === id;
+        if (on) c.setAttribute('aria-current', 'true'); else c.removeAttribute('aria-current');
+        if (on) {
+          var left = c.offsetLeft - (rail.clientWidth - c.offsetWidth) / 2;
+          if (typeof rail.scrollTo === 'function') rail.scrollTo({ left: Math.max(0, left), behavior: 'smooth' });
         }
       });
-
-      contentEl.querySelectorAll('.variant-row').forEach(function(row){
-        row.addEventListener('click', function(){
-          var key = row.getAttribute('data-variant-group');
-          var expandEl = contentEl.querySelector('.variant-expand[data-variant-group="' + key + '"]');
-          if (expandEl) expandEl.classList.toggle('expanded');
+    }
+    function setupScrollSpy(){
+      if (!('IntersectionObserver' in window)) return;
+      var visible = {};
+      var io = new IntersectionObserver(function(entries){
+        entries.forEach(function(en){ visible[en.target.id] = en.isIntersecting ? en.boundingClientRect.top : null; });
+        var best = null, bestTop = Infinity;
+        Object.keys(visible).forEach(function(id){
+          var top = visible[id];
+          if (top !== null && top < bestTop) { best = id; bestTop = top; }
         });
-      });
-
-      var comboRow = contentEl.querySelector('.combo-row');
-      if (comboRow) {
-        comboRow.addEventListener('click', function(){
-          if (comboRow.classList.contains('combo-row-disabled')) return;
-          var expandEl = contentEl.querySelector('.combo-drink-expand');
-          if (expandEl) expandEl.classList.toggle('expanded');
-        });
-      }
-
-      contentEl.querySelectorAll('.combo-drink-btn').forEach(function(btn){
-        btn.addEventListener('click', function(){
-          var drink = btn.getAttribute('data-drink');
-          addComboAddon(drink);
-          var expandEl = contentEl.querySelector('.combo-drink-expand');
-          if (expandEl) expandEl.classList.remove('expanded');
-        });
-      });
+        if (best) setActiveChip(best);
+      }, { rootMargin: '-70px 0px -55% 0px' });
+      document.querySelectorAll('.section').forEach(function(s){ io.observe(s); });
     }
 
-    function renderItemControl(itemId){
-      var controlEl = document.querySelector('.item-add-control[data-id="' + itemId + '"]');
-      if (!controlEl) return;
-      var line = findLine(itemId);
-
-      if (!line) {
-        controlEl.innerHTML = '<button type="button" class="quick-add-btn" data-id="' + itemId + '">+</button>';
-        controlEl.querySelector('.quick-add-btn').addEventListener('click', function(){ addOne(itemId); });
-      } else {
-        controlEl.innerHTML =
-          '<div class="item-qty-stepper">' +
-            '<button type="button" class="item-qty-btn" data-id="' + itemId + '" data-dir="-1">\u2212</button>' +
-            '<span class="item-qty-value">' + line.quantity + '</span>' +
-            '<button type="button" class="item-qty-btn" data-id="' + itemId + '" data-dir="1">+</button>' +
-          '</div>';
-        controlEl.querySelectorAll('.item-qty-btn').forEach(function(btn){
-          btn.addEventListener('click', function(){
-            if (btn.getAttribute('data-dir') === '1') addOne(itemId); else removeOne(itemId);
-          });
-        });
-      }
-    }
-
-    // Total quantity across every variant in the group, shown on the
-    // collapsed row so it's visible without needing to expand.
-    function renderVariantGroupBadge(group){
-      var badgeEl = document.querySelector('.variant-row-badge[data-variant-group="' + cssEscape(group.name) + '"]');
-      if (!badgeEl) return;
-      var total = group.items.reduce(function(sum, item){
-        var line = findLine(item.id);
-        return sum + (line ? line.quantity : 0);
-      }, 0);
-      badgeEl.innerHTML = total > 0 ? '<div class="qty-pill">' + total + '</div>' : '<span class="variant-row-plus">+</span>';
-    }
-
-    // Same tap-to-add / stepper-once-added pattern as renderItemControl,
-    // just scoped to one specific variant choice within the expansion.
-    function renderVariantChoiceControl(itemId){
-      var controlEl = document.querySelector('.variant-choice-control[data-id="' + itemId + '"]');
-      if (!controlEl) return;
-      var line = findLine(itemId);
-
-      if (!line) {
-        controlEl.innerHTML = '<button type="button" class="quick-add-btn" data-id="' + itemId + '">+</button>';
-        controlEl.querySelector('.quick-add-btn').addEventListener('click', function(){ addOne(itemId); });
-      } else {
-        controlEl.innerHTML =
-          '<div class="item-qty-stepper">' +
-            '<button type="button" class="item-qty-btn" data-id="' + itemId + '" data-dir="-1">\u2212</button>' +
-            '<span class="item-qty-value">' + line.quantity + '</span>' +
-            '<button type="button" class="item-qty-btn" data-id="' + itemId + '" data-dir="1">+</button>' +
-          '</div>';
-        controlEl.querySelectorAll('.item-qty-btn').forEach(function(btn){
-          btn.addEventListener('click', function(){
-            if (btn.getAttribute('data-dir') === '1') addOne(itemId); else removeOne(itemId);
-          });
-        });
-      }
-    }
-
-    // Refreshes whichever display actually applies to this item --
-    // a plain single item, or one specific choice within a variant
-    // group (in which case the group's total badge also needs
-    // recomputing). Each individual render call harmlessly does
-    // nothing if that particular DOM element isn't present.
-    function refreshItemDisplay(itemId){
-      renderItemControl(itemId);
-      renderVariantChoiceControl(itemId);
-      var item = itemsById[itemId];
-      if (item && item.variant_name) {
-        var groupItems = Object.keys(itemsById)
-          .map(function(id){ return itemsById[id]; })
-          .filter(function(i){ return i.name === item.name && i.variant_name; });
-        renderVariantGroupBadge({ name: item.name, items: groupItems });
-      }
-    }
-
+    // ---------- cart (same line + combo model the backend expects) ----------
     function findLine(itemId){ return cart.find(function(c){ return c.menu_item_id === itemId; }); }
-
-    function canAddCombo(){
-      var qualifyingCount = cart.reduce(function(sum, line){
-        var item = itemsById[line.menu_item_id];
-        return sum + (item && item.combo_upcharge ? line.quantity : 0);
-      }, 0);
-      var friesItem = comboAddonsByName['Combo Fries'];
-      var friesLine = friesItem ? findLine(friesItem.id) : null;
-      var comboCount = friesLine ? friesLine.quantity : 0;
-      return qualifyingCount > comboCount;
-    }
-
-    // Multiple .combo-row elements can exist in the DOM at once --
-    // collapsing a category only hides it via CSS, it never clears
-    // that category's HTML.
-    function refreshComboRowState(){
-      if (!expandedCategory) return;
-      var comboRow = document.querySelector('.combo-row[data-cat="' + cssEscape(expandedCategory) + '"]');
-      if (!comboRow) return;
-      comboRow.classList.toggle('combo-row-disabled', !canAddCombo());
-    }
-
-    var COMBO_DRINK_NAMES = ['Coke','Diet Coke','Coke Zero','Sprite','Root Beer','Water'];
-
-    // Fries and a drink are married together, and a combo can't
-    // outlive the entree it came with. After any cart change, this
-    // trims fries/drinks back down so: fries qty == total drink qty
-    // == however many qualifying entrees are actually still in the
-    // cart, whichever of those three is smallest.
-    function syncCombos(){
-      var qualifyingCount = cart.reduce(function(sum, line){
-        var item = itemsById[line.menu_item_id];
-        return sum + (item && item.combo_upcharge ? line.quantity : 0);
-      }, 0);
-
-      var friesItem = comboAddonsByName['Combo Fries'];
-      if (!friesItem) return;
-      var friesLine = findLine(friesItem.id);
-      var friesQty = friesLine ? friesLine.quantity : 0;
-
-      var drinkLines = COMBO_DRINK_NAMES.map(function(name){
-        var di = comboAddonsByName['Combo ' + name];
-        return di ? findLine(di.id) : null;
-      }).filter(Boolean);
-      var totalDrinkQty = drinkLines.reduce(function(sum, l){ return sum + l.quantity; }, 0);
-
-      var validComboCount = Math.min(qualifyingCount, friesQty, totalDrinkQty);
-
-      if (friesLine && friesLine.quantity > validComboCount) {
-        friesLine.quantity = validComboCount;
-        if (friesLine.quantity <= 0) cart = cart.filter(function(c){ return c.menu_item_id !== friesItem.id; });
-      }
-
-      var excessDrinks = totalDrinkQty - validComboCount;
-      for (var i = drinkLines.length - 1; i >= 0 && excessDrinks > 0; i--) {
-        var dLine = drinkLines[i];
-        var reduceBy = Math.min(excessDrinks, dLine.quantity);
-        dLine.quantity -= reduceBy;
-        excessDrinks -= reduceBy;
-        if (dLine.quantity <= 0) {
-          var idToRemove = dLine.menu_item_id;
-          cart = cart.filter(function(c){ return c.menu_item_id !== idToRemove; });
-        }
-      }
-    }
-
-    function addComboAddon(drinkName){
-      var friesItem = comboAddonsByName['Combo Fries'];
-      var drinkItem = comboAddonsByName['Combo ' + drinkName];
-      if (friesItem) addOneRaw(friesItem.id);
-      if (drinkItem) addOneRaw(drinkItem.id);
-      syncCombos();
-      renderCartBar();
-      if (friesItem) renderItemControl(friesItem.id);
-      if (drinkItem) renderItemControl(drinkItem.id);
-      refreshComboRowState();
-      if (!cartViewScreen.classList.contains('hidden')) renderCartView();
-    }
-
     function addOneRaw(itemId){
       var item = itemsById[itemId];
       if (!item) return;
       var line = findLine(itemId);
-      if (line) {
-        line.quantity += 1;
-      } else {
-        var label = item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : '');
-        cart.push({ menu_item_id: itemId, name: label, unitPrice: Number(item.price), quantity: 1 });
+      if (line) { if (line.quantity < MAX_QTY) line.quantity += 1; }
+      else cart.push({ menu_item_id: itemId, name: itemLabel(item), unitPrice: Number(item.price), quantity: 1 });
+    }
+    // Combos are fries + a drink added as their own lines. There can't be
+    // more combos than combo-eligible items; extras are trimmed.
+    function syncCombos(){
+      var qualifying = cart.reduce(function(sum, line){
+        var item = itemsById[line.menu_item_id];
+        return sum + (item && item.combo_upcharge ? line.quantity : 0);
+      }, 0);
+      var friesItem = comboAddonsByName['Combo Fries'];
+      if (!friesItem) return;
+      var friesLine = findLine(friesItem.id);
+      var friesQty = friesLine ? friesLine.quantity : 0;
+      var drinkLines = COMBO_DRINK_NAMES.map(function(n){
+        var di = comboAddonsByName['Combo ' + n];
+        return di ? findLine(di.id) : null;
+      }).filter(Boolean);
+      var drinkQty = drinkLines.reduce(function(s, l){ return s + l.quantity; }, 0);
+      var valid = Math.min(qualifying, friesQty, drinkQty);
+      if (friesLine && friesLine.quantity > valid) {
+        friesLine.quantity = valid;
+        if (friesLine.quantity <= 0) cart = cart.filter(function(c){ return c.menu_item_id !== friesItem.id; });
+      }
+      var excess = drinkQty - valid;
+      for (var i = drinkLines.length - 1; i >= 0 && excess > 0; i--) {
+        var dl = drinkLines[i];
+        var by = Math.min(excess, dl.quantity);
+        dl.quantity -= by; excess -= by;
+        if (dl.quantity <= 0) { var rid = dl.menu_item_id; cart = cart.filter(function(c){ return c.menu_item_id !== rid; }); }
       }
     }
-
-    function addOne(itemId){
-      addOneRaw(itemId);
-      syncCombos();
-      renderCartBar();
-      refreshItemDisplay(itemId);
-      refreshComboRowState();
-      if (!cartViewScreen.classList.contains('hidden')) renderCartView();
-    }
-
+    function addOne(itemId){ addOneRaw(itemId); syncCombos(); afterCartChange(true); }
     function removeOne(itemId){
       var item = itemsById[itemId];
       var line = findLine(itemId);
       if (!line) return;
       var minQty = item && item.min_quantity;
-      if (minQty && line.quantity <= minQty) {
-        cart = cart.filter(function(c){ return c.menu_item_id !== itemId; });
-      } else {
+      if (minQty && line.quantity <= minQty) cart = cart.filter(function(c){ return c.menu_item_id !== itemId; });
+      else {
         line.quantity -= 1;
         if (line.quantity <= 0) cart = cart.filter(function(c){ return c.menu_item_id !== itemId; });
       }
       syncCombos();
-      renderCartBar();
-      refreshItemDisplay(itemId);
-      refreshComboRowState();
-      if (!cartViewScreen.classList.contains('hidden')) renderCartView();
+      afterCartChange(false);
     }
-
-    function cartTotal(){ return cart.reduce(function(s,c){ return s + c.unitPrice*c.quantity; }, 0); }
-    function cartCount(){ return cart.reduce(function(s,c){ return s + c.quantity; }, 0); }
-
-    function renderCartBar(){
-      var bar = document.getElementById('cartBar');
-      var count = cartCount();
-      if (count === 0) { bar.classList.add('hidden'); return; }
-      bar.classList.remove('hidden');
-      document.getElementById('cartBarInfo').textContent = count + ' item' + (count === 1 ? '' : 's') + ' \u00b7 $' + cartTotal().toFixed(2) + ' + tax';
-    }
-
-    function clearCart(){
-      if (!cart.length) return;
-      if (!confirm('Clear your whole cart?')) return;
-      cart = [];
-      renderCartBar();
-      if (expandedCategory) renderCategoryContent(expandedCategory);
-      if (!cartViewScreen.classList.contains('hidden')) renderCartView();
-    }
-
-    document.getElementById('cartBarClearBtn').addEventListener('click', clearCart);
-    document.getElementById('clearCartBtn').addEventListener('click', clearCart);
-
-    // Card and cash both cost exactly subtotal + tax -- no processing
-    // fee either way for orders placed through this page.
-    function computeTotals(){
-      var subtotalCents = Math.round(cartTotal() * 100);
+    function cartSubtotal(){ return cart.reduce(function(s, c){ return s + c.unitPrice * c.quantity; }, 0); }
+    function cartCount(){ return cart.reduce(function(s, c){ return s + c.quantity; }, 0); }
+    function computeTotals(tip){
+      var subtotalCents = Math.round(cartSubtotal() * 100);
       var taxCents = Math.round(subtotalCents * TAX_RATE);
-      var totalCents = subtotalCents + taxCents;
-      return {
-        subtotal: subtotalCents / 100,
-        tax: taxCents / 100,
-        total: totalCents / 100,
-      };
+      var tipCents = Math.round((tip || 0) * 100);
+      return { subtotal: subtotalCents / 100, tax: taxCents / 100, tip: tipCents / 100, total: (subtotalCents + taxCents + tipCents) / 100, base: (subtotalCents + taxCents) / 100 };
     }
 
-    function refreshCheckoutBreakdown(){
-      var totals = computeTotals();
-      document.getElementById('ckSubtotal').textContent = '$' + totals.subtotal.toFixed(2) + ' + $' + totals.tax.toFixed(2) + ' tax';
-      document.getElementById('ckTotal').textContent = '$' + totals.total.toFixed(2);
+    function afterCartChange(bump){
+      refreshTileActions();
+      renderOrderBar(bump);
+      saveCart();
+      if (!$('cartSheet').classList.contains('hidden')) renderCart();
+    }
+    function renderOrderBar(bump){
+      var bar = $('orderBar');
+      var count = cartCount();
+      if (!count) { bar.classList.add('hidden'); return; }
+      bar.classList.remove('hidden');
+      $('obCount').textContent = count;
+      $('obTotal').textContent = money(cartSubtotal());
+      $('orderBarBtn').setAttribute('aria-label', 'View order, ' + count + ' item' + (count === 1 ? '' : 's') + ', ' + money(cartSubtotal()) + ' before tax');
+      if (bump) { bar.classList.remove('bump'); void bar.offsetWidth; bar.classList.add('bump'); }
     }
 
-    var checkoutScreen = document.getElementById('checkoutScreen');
-    var cartViewScreen = document.getElementById('cartViewScreen');
-
-    // Quantity management (increase, decrease, remove) lives here now,
-    // separate from the menu -- tapping a menu item just adds one.
-    function renderCartView(){
-      var listEl = document.getElementById('cartViewList');
-      if (!cart.length) {
-        listEl.innerHTML = '<div class="empty-hint">Your cart is empty.</div>';
-      } else {
-        listEl.innerHTML = cart.map(function(c){
-          return '<div class="cart-view-row">' +
-            '<div class="cart-view-info">' +
-              '<div class="cart-view-name">' + escHtml(c.name) + '</div>' +
-              '<div class="cart-view-linetotal">$' + c.unitPrice.toFixed(2) + ' each &middot; $' + (c.unitPrice * c.quantity).toFixed(2) + '</div>' +
-            '</div>' +
-            '<div class="cart-view-stepper">' +
-              '<button type="button" class="cart-qty-btn" data-id="' + c.menu_item_id + '" data-dir="-1">\u2212</button>' +
-              '<span class="cart-qty-value">' + c.quantity + '</span>' +
-              '<button type="button" class="cart-qty-btn" data-id="' + c.menu_item_id + '" data-dir="1">+</button>' +
-            '</div>' +
-          '</div>';
-        }).join('');
-
-        listEl.querySelectorAll('.cart-qty-btn').forEach(function(btn){
-          btn.addEventListener('click', function(){
-            var id = btn.getAttribute('data-id');
-            if (btn.getAttribute('data-dir') === '1') addOne(id); else removeOne(id);
-            renderCartView();
-          });
+    // Survives a reload or switching apps; rebuilt from today's menu
+    // (current prices, sold-out items dropped).
+    function saveCart(){
+      try {
+        localStorage.setItem(STORE_KEY, JSON.stringify({
+          savedAt: Date.now(),
+          lines: cart.map(function(c){ return { id: c.menu_item_id, qty: c.quantity }; })
+        }));
+      } catch(e){}
+    }
+    function restoreCart(){
+      try {
+        var raw = localStorage.getItem(STORE_KEY);
+        if (!raw) return;
+        var saved = JSON.parse(raw);
+        if (!saved || !saved.savedAt || Date.now() - saved.savedAt > STORE_TTL_MS) { localStorage.removeItem(STORE_KEY); return; }
+        cart = [];
+        (saved.lines || []).forEach(function(l){
+          var item = itemsById[l.id];
+          if (!item || !isAvailable(item)) return;
+          var q = Math.max(1, Math.min(MAX_QTY, parseInt(l.qty, 10) || 1));
+          cart.push({ menu_item_id: item.id, name: itemLabel(item), unitPrice: Number(item.price), quantity: q });
         });
+        syncCombos();
+      } catch(e){}
+    }
+
+    // ---------- sheets ----------
+    var openSheetEl = null, lastFocus = null;
+    function openSheet(el){
+      if (openSheetEl && openSheetEl !== el) openSheetEl.classList.add('hidden');
+      lastFocus = document.activeElement;
+      openSheetEl = el;
+      hideToast();
+      $('scrim').classList.remove('hidden');
+      el.classList.remove('hidden');
+      document.body.classList.add('locked');
+      var closeBtn = el.querySelector('[data-close]');
+      if (closeBtn) closeBtn.focus();
+    }
+    function closeSheet(){
+      if (!openSheetEl) return;
+      openSheetEl.classList.add('hidden');
+      openSheetEl = null;
+      $('scrim').classList.add('hidden');
+      document.body.classList.remove('locked');
+      if (lastFocus && document.body.contains(lastFocus)) lastFocus.focus();
+    }
+    $('scrim').addEventListener('click', closeSheet);
+    document.querySelectorAll('.sheet [data-close]').forEach(function(b){ b.addEventListener('click', closeSheet); });
+    document.addEventListener('keydown', function(e){
+      if (e.key !== 'Escape') return;
+      if (!$('checkoutScreen').classList.contains('hidden')) { closeCheckout(); return; }
+      closeSheet();
+    });
+
+    // Item sheet
+    var sheet = { group: null, itemId: null, qty: 1, combo: false, drink: null };
+    function comboAvailableFor(item){
+      if (!item || !item.combo_upcharge) return false;
+      var fries = comboAddonsByName['Combo Fries'];
+      return !!(fries && isAvailable(fries) && comboDrinks().length);
+    }
+    function comboDrinks(){
+      return COMBO_DRINK_NAMES.filter(function(n){ var d = comboAddonsByName['Combo ' + n]; return d && isAvailable(d); });
+    }
+    function openItemSheet(key){
+      var g = groupsByKey[key];
+      if (!g) return;
+      var firstAvail = g.items.filter(isAvailable)[0];
+      if (!firstAvail) return;
+      sheet = { group: g, itemId: firstAvail.id, qty: 1, combo: false, drink: null };
+      renderItemSheet();
+      openSheet($('itemSheet'));
+    }
+    function renderItemSheet(){
+      var g = sheet.group;
+      var item = itemsById[sheet.itemId];
+      var desc = item.description || CATEGORY_DESCRIPTIONS[g.cat] || '';
+      var html = '<div class="sheet-photo">' + photoImg(g.items[0], g.cat, g.name) + '</div>' +
+        '<h2 class="item-title" id="itemTitle">' + escHtml(g.name) + '</h2>' +
+        '<div class="item-price">' + money(item.price) + '</div>' +
+        (desc ? '<p class="item-desc">' + escHtml(desc) + '</p>' : '');
+
+      if (g.items.length > 1) {
+        var anyPriceDiff = g.items.some(function(i){ return Number(i.price) !== Number(g.items[0].price); });
+        html += '<fieldset class="opt-group"><legend>' + (g.cat === 'Bowls' || g.cat === 'Shawarma' || g.cat === 'Frankie Rolls' ? 'Choose your protein' : 'Choose one') + ' <small>Required</small></legend>' +
+          g.items.map(function(i){
+            var avail = isAvailable(i);
+            return '<label class="opt' + (avail ? '' : ' is-disabled') + '">' +
+              '<input type="radio" name="itemOpt" value="' + i.id + '"' + (i.id === sheet.itemId ? ' checked' : '') + (avail ? '' : ' disabled') + '>' +
+              '<span class="opt-name">' + escHtml(i.variant_name || i.name) + '</span>' +
+              '<span class="opt-price">' + (avail ? (anyPriceDiff ? money(i.price) : '') : 'Sold out') + '</span>' +
+            '</label>';
+          }).join('') +
+        '</fieldset>';
       }
 
-      document.getElementById('cartViewTotal').textContent = '$' + cartTotal().toFixed(2);
-    }
-
-    function showCartView(){
-      if (!cart.length) return;
-      cartViewScreen.classList.remove('hidden');
-      renderCartView();
-    }
-
-    function showCheckout(){
-      if (!cart.length) return;
-      cartViewScreen.classList.add('hidden');
-      checkoutScreen.classList.remove('hidden');
-      document.getElementById('checkoutItemsList').innerHTML = cart.map(function(c){
-        return '<div class="checkout-item-row"><span class="nm">' + escHtml(c.name) + ' \u00d7 ' + c.quantity + '</span>' +
-          '<span class="amt">$' + (c.unitPrice * c.quantity).toFixed(2) + '</span></div>';
-      }).join('');
-      refreshCheckoutBreakdown();
-      document.getElementById('paymentMethodNote').textContent = pickupMethod === 'curbside'
-        ? "You'll pay by card next, right after this."
-        : 'Cash at the window when you pick up.';
-    }
-
-    document.getElementById('cartBarBtn').addEventListener('click', showCartView);
-    function goToPickupMethodScreen(){
-      if (!cart.length) return;
-      cartViewScreen.classList.add('hidden');
-      document.getElementById('pickupMethodScreen').classList.remove('hidden');
-    }
-
-    document.getElementById('proceedToCheckoutBtn').addEventListener('click', goToPickupMethodScreen);
-    document.getElementById('cartBarCheckoutBtn').addEventListener('click', goToPickupMethodScreen);
-    document.getElementById('backToMenuFromCartBtn').addEventListener('click', function(){
-      cartViewScreen.classList.add('hidden');
-    });
-    document.getElementById('backToMenuBtn').addEventListener('click', function(){
-      checkoutScreen.classList.add('hidden');
-    });
-
-    // ---- Pickup method screen ----
-    var pickupMethod = 'window';
-    var selectedCarColor = null;
-
-    document.getElementById('windowChoiceBtn').addEventListener('click', function(){
-      pickupMethod = 'window';
-      paymentMethod = 'cash';
-      this.classList.add('selected');
-      document.getElementById('curbsideChoiceBtn').classList.remove('selected');
-      document.getElementById('curbsideDetails').classList.add('hidden');
-    });
-    document.getElementById('curbsideChoiceBtn').addEventListener('click', function(){
-      pickupMethod = 'curbside';
-      paymentMethod = 'card';
-      this.classList.add('selected');
-      document.getElementById('windowChoiceBtn').classList.remove('selected');
-      document.getElementById('curbsideDetails').classList.remove('hidden');
-    });
-
-    document.getElementById('carMakeSelect').addEventListener('change', function(){
-      document.getElementById('carMakeOther').classList.toggle('hidden', this.value !== 'Other');
-    });
-
-    document.querySelectorAll('.color-swatch-btn').forEach(function(btn){
-      btn.addEventListener('click', function(){
-        selectedCarColor = btn.getAttribute('data-color');
-        document.querySelectorAll('.color-swatch-btn').forEach(function(b){ b.classList.remove('selected'); });
-        btn.classList.add('selected');
-      });
-    });
-
-    document.getElementById('backToCartFromPickupBtn').addEventListener('click', function(){
-      document.getElementById('pickupMethodScreen').classList.add('hidden');
-    });
-
-    document.getElementById('continueToCheckoutBtn').addEventListener('click', function(){
-      var msgEl = document.getElementById('pickupMethodMsg');
-      msgEl.textContent = '';
-
-      if (pickupMethod === 'curbside') {
-        var makeSelect = document.getElementById('carMakeSelect');
-        var makeValue = makeSelect.value === 'Other' ? document.getElementById('carMakeOther').value.trim() : makeSelect.value;
-        if (!makeValue) { msgEl.textContent = 'Please select your car\u2019s make.'; return; }
-        if (!selectedCarColor) { msgEl.textContent = 'Please select your car\u2019s color.'; return; }
+      if (comboAvailableFor(item)) {
+        html += '<div class="combo">' +
+          '<label class="combo-toggle"><input type="checkbox" id="comboToggle"' + (sheet.combo ? ' checked' : '') + '>' +
+            '<span><strong>Make it a combo</strong><span class="combo-sub">Adds fries and a drink for ' + money(item.combo_upcharge) + ' more</span></span></label>' +
+          '<div class="combo-drinks' + (sheet.combo ? '' : ' hidden') + '" id="comboDrinks" role="group" aria-label="Choose your drink">' +
+            comboDrinks().map(function(d){
+              return '<button type="button" class="drink-chip" data-drink="' + escHtml(d) + '" aria-pressed="' + (sheet.drink === d) + '">' + escHtml(d) + '</button>';
+            }).join('') +
+          '</div>' +
+        '</div>';
       }
-
-      document.getElementById('pickupMethodScreen').classList.add('hidden');
-      showCheckout();
+      html += '<div class="sheet-hint" id="itemHint"></div>';
+      $('itemBody').innerHTML = html;
+      updateItemCta();
+    }
+    function itemUnitTotal(){
+      var item = itemsById[sheet.itemId];
+      return Number(item.price) + (sheet.combo ? comboPriceFor() : 0);
+    }
+    // What a combo actually costs = the fries line + the chosen drink line.
+    function comboPriceFor(){
+      var fries = comboAddonsByName['Combo Fries'];
+      var drink = sheet.drink ? comboAddonsByName['Combo ' + sheet.drink] : null;
+      var item = itemsById[sheet.itemId];
+      if (fries && drink) return Number(fries.price) + Number(drink.price);
+      return Number(item.combo_upcharge) || 0;
+    }
+    function updateItemCta(){
+      $('itemQty').textContent = sheet.qty;
+      $('itemAddAmt').textContent = money(itemUnitTotal() * sheet.qty);
+      var needsDrink = sheet.combo && !sheet.drink;
+      $('itemAddBtn').disabled = needsDrink;
+      $('itemHint').textContent = needsDrink ? 'Choose a drink for your combo.' : '';
+      $('itemQtyDec').disabled = sheet.qty <= 1;
+    }
+    $('itemBody').addEventListener('change', function(e){
+      if (e.target.name === 'itemOpt') {
+        sheet.itemId = e.target.value;
+        var keepCombo = sheet.combo && comboAvailableFor(itemsById[sheet.itemId]);
+        if (!keepCombo) { sheet.combo = false; sheet.drink = null; }
+        renderItemSheet();
+      } else if (e.target.id === 'comboToggle') {
+        sheet.combo = e.target.checked;
+        if (!sheet.combo) sheet.drink = null;
+        $('comboDrinks').classList.toggle('hidden', !sheet.combo);
+        $('comboDrinks').querySelectorAll('.drink-chip').forEach(function(c){ c.setAttribute('aria-pressed', 'false'); });
+        updateItemCta();
+      }
+    });
+    $('itemBody').addEventListener('click', function(e){
+      var chip = e.target.closest('.drink-chip');
+      if (!chip) return;
+      sheet.drink = chip.getAttribute('data-drink');
+      $('comboDrinks').querySelectorAll('.drink-chip').forEach(function(c){ c.setAttribute('aria-pressed', c === chip ? 'true' : 'false'); });
+      $('itemAddAmt').textContent = money(itemUnitTotal() * sheet.qty);
+      updateItemCta();
+    });
+    $('itemQtyDec').addEventListener('click', function(){ if (sheet.qty > 1) { sheet.qty--; updateItemCta(); } });
+    $('itemQtyInc').addEventListener('click', function(){ if (sheet.qty < MAX_QTY) { sheet.qty++; updateItemCta(); } });
+    $('itemAddBtn').addEventListener('click', function(){
+      if (this.disabled) return;
+      var item = itemsById[sheet.itemId];
+      var fries = comboAddonsByName['Combo Fries'];
+      var drink = sheet.drink ? comboAddonsByName['Combo ' + sheet.drink] : null;
+      for (var k = 0; k < sheet.qty; k++) {
+        addOneRaw(item.id);
+        if (sheet.combo && fries && drink) { addOneRaw(fries.id); addOneRaw(drink.id); }
+      }
+      syncCombos();
+      afterCartChange(true);
+      closeSheet();
+      toast('Added ' + (sheet.qty > 1 ? sheet.qty + ' \u00d7 ' : '') + item.name + (sheet.combo ? ' combo' : ''));
     });
 
-    var CARD_CHECKOUT_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/create-order-checkout';
-    var CASH_ORDER_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/create-cash-order';
-    var ANON_KEY = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
-
-    // ---- Tip screen (shown after checkout details, before actually ----
-    // ---- proceeding to Square or submitting a cash order) ----
-    var selectedTipAmount = null;
-    var tipScreenBaseTotal = 0;
-
-    function roundUpTip(total){
-      return Math.round((Math.ceil(total) - total) * 100) / 100;
+    // Cart sheet
+    function lineGroupPhoto(item){
+      var g = groupsByKey[item.category + '::' + item.name];
+      return photoImg(item, item.category, g ? g.name : item.name);
     }
-
-    function renderTipOptions(baseTotal){
-      var options = [
-        { label: 'Round Up', amount: roundUpTip(baseTotal) },
-        { label: '5%', amount: Math.round(baseTotal * 0.05 * 100) / 100 },
-        { label: '10%', amount: Math.round(baseTotal * 0.10 * 100) / 100 },
-        { label: '15%', amount: Math.round(baseTotal * 0.15 * 100) / 100 },
-        { label: '20%', amount: Math.round(baseTotal * 0.20 * 100) / 100 },
-        { label: 'No Tip', amount: 0 },
-        { label: 'Other', amount: null }
-      ];
-
-      var grid = document.getElementById('tipOptionsGrid');
-      grid.innerHTML = options.map(function(opt, i){
-        var amountLabel = opt.amount === null ? 'Enter amount' : (opt.amount === 0 ? '+$0.00' : '+$' + opt.amount.toFixed(2));
-        return '<button type="button" class="tip-option-btn" data-index="' + i + '">' +
-          '<span class="tip-option-label">' + opt.label + '</span>' +
-          '<span class="tip-option-amount">' + amountLabel + '</span>' +
-        '</button>';
-      }).join('');
-
-      grid.querySelectorAll('.tip-option-btn').forEach(function(btn, i){
-        btn.addEventListener('click', function(){
-          grid.querySelectorAll('.tip-option-btn').forEach(function(b){ b.classList.remove('selected'); });
-          btn.classList.add('selected');
-          var opt = options[i];
-          var customWrap = document.getElementById('tipCustomFieldWrap');
-          var continueBtn = document.getElementById('tipContinueBtn');
-          if (opt.amount === null) {
-            customWrap.style.display = 'block';
-            document.getElementById('tipCustomAmount').value = '';
-            document.getElementById('tipCustomAmount').focus();
-            selectedTipAmount = null;
-            continueBtn.disabled = true;
-          } else {
-            customWrap.style.display = 'none';
-            selectedTipAmount = opt.amount;
-            continueBtn.disabled = false;
-          }
-          updateTipFinalTotal();
-        });
-      });
-    }
-
-    function updateTipFinalTotal(){
-      var display = selectedTipAmount === null ? tipScreenBaseTotal : (tipScreenBaseTotal + selectedTipAmount);
-      document.getElementById('tipFinalTotalDisplay').textContent = '$' + display.toFixed(2);
-    }
-
-    document.getElementById('tipCustomAmount').addEventListener('input', function(){
-      var val = parseFloat(this.value);
-      var valid = isFinite(val) && val >= 0 && this.value.trim() !== '';
-      selectedTipAmount = valid ? val : null;
-      document.getElementById('tipContinueBtn').disabled = !valid;
-      updateTipFinalTotal();
-    });
-
-    document.getElementById('proceedToPayBtn').addEventListener('click', function(){
+    function renderCart(){
       if (!cart.length) {
-        document.getElementById('checkoutMsg').textContent = 'Your cart is empty.';
+        $('cartBody').innerHTML = '<p class="menu-state">Your order is empty. Add something from the menu.</p>';
+        $('toCheckoutBtn').disabled = true;
+        $('toCheckoutAmt').textContent = '';
+        $('cartClearBtn').classList.add('hidden');
         return;
       }
-      tipScreenBaseTotal = computeTotals().total;
-      selectedTipAmount = null;
+      $('cartClearBtn').classList.remove('hidden');
+      var t = computeTotals(0);
+      var html = cart.map(function(c){
+        var item = itemsById[c.menu_item_id] || {};
+        // Combo fries/drinks follow the combo-eligible items, so they
+        // only get a remove button -- a "+" on them alone does nothing.
+        var isComboPart = item.category === 'Combo Add-ons';
+        return '<div class="line">' +
+          '<div class="line-photo">' + lineGroupPhoto(item) + '</div>' +
+          '<div class="line-info"><div class="line-name">' + escHtml(item.name || c.name) + '</div>' +
+            (item.variant_name ? '<div class="line-var">' + escHtml(item.variant_name) + '</div>' : '') +
+            '<div class="line-each">' + money(c.unitPrice) + ' each</div></div>' +
+          '<div class="qty" role="group" aria-label="' + escHtml(c.name) + ' quantity">' +
+            '<button type="button" data-dec="' + c.menu_item_id + '" aria-label="Remove one ' + escHtml(c.name) + '">&minus;</button>' +
+            '<span>' + c.quantity + '</span>' +
+            (isComboPart ? '' : '<button type="button" data-inc="' + c.menu_item_id + '" aria-label="Add one more ' + escHtml(c.name) + '">+</button>') +
+          '</div>' +
+          '<div class="line-amt">' + money(c.unitPrice * c.quantity) + '</div>' +
+        '</div>';
+      }).join('');
 
-      document.getElementById('tipBaseTotalDisplay').textContent = '$' + tipScreenBaseTotal.toFixed(2);
-      document.getElementById('tipCustomFieldWrap').style.display = 'none';
-      document.getElementById('tipContinueBtn').disabled = true;
-      renderTipOptions(tipScreenBaseTotal);
-      updateTipFinalTotal();
-
-      document.getElementById('checkoutScreen').classList.add('hidden');
-      document.getElementById('tipScreen').classList.remove('hidden');
-    });
-
-    document.getElementById('tipBackBtn').addEventListener('click', function(){
-      document.getElementById('tipScreen').classList.add('hidden');
-      document.getElementById('checkoutScreen').classList.remove('hidden');
-    });
-
-    document.getElementById('tipContinueBtn').addEventListener('click', function(){
-      var payBtn = this;
-      var msgEl = document.getElementById('checkoutMsg');
-      var name = document.getElementById('custName').value.trim();
-      var email = document.getElementById('custEmail').value.trim();
-      var phone = document.getElementById('custPhone').value.trim();
-      var notes = document.getElementById('custNotes').value.trim();
-      var tipAmount = selectedTipAmount || 0;
-
-      msgEl.textContent = '';
-
-      if (!cart.length) { msgEl.textContent = 'Your cart is empty.'; return; }
-
-      payBtn.disabled = true;
-
-      var itemsPayload = cart.map(function(c){
-        return { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name };
+      // "Complete your meal": one-tap sides, desserts and drinks not yet in the order.
+      var picks = [];
+      UPSELL_CATEGORIES.forEach(function(cat){
+        sections.forEach(function(s){
+          if (s.cat !== cat) return;
+          s.groups.forEach(function(g){
+            if (g.items.length !== 1) return;
+            var it = g.items[0];
+            if (isAvailable(it) && !findLine(it.id)) picks.push({ g: g, it: it });
+          });
+        });
       });
+      picks = picks.slice(0, 8);
+      if (picks.length) {
+        html += '<div class="upsell"><h3>Add a side or something sweet</h3><div class="upsell-row">' +
+          picks.map(function(p){
+            return '<div class="mini">' +
+              '<div class="tile-photo">' + photoImg(p.it, p.g.cat, p.g.name) +
+                '<button type="button" class="add-btn" data-add="' + p.it.id + '" aria-label="Add ' + escHtml(p.g.name) + '">+</button></div>' +
+              '<div class="mini-name">' + escHtml(p.g.name) + '</div><div class="mini-price">' + money(p.it.price) + '</div>' +
+            '</div>';
+          }).join('') +
+        '</div></div>';
+      }
+      html += '<div class="totals">' +
+        '<div><span>Subtotal</span><span>' + money(t.subtotal) + '</span></div>' +
+        '<div><span>Tax (6.75%)</span><span>' + money(t.tax) + '</span></div>' +
+        '<div class="grand"><span>Total</span><span>' + money(t.total) + '</span></div>' +
+      '</div>';
+      $('cartBody').innerHTML = html;
+      $('toCheckoutBtn').disabled = false;
+      $('toCheckoutAmt').textContent = money(t.total);
+    }
+    $('cartBody').addEventListener('click', function(e){
+      var t = e.target.closest('[data-add],[data-inc],[data-dec]');
+      if (!t) return;
+      if (t.hasAttribute('data-add')) { addOne(t.getAttribute('data-add')); toast('Added ' + itemsById[t.getAttribute('data-add')].name); }
+      else if (t.hasAttribute('data-inc')) addOne(t.getAttribute('data-inc'));
+      else removeOne(t.getAttribute('data-dec'));
+    });
+    $('orderBarBtn').addEventListener('click', function(){ renderCart(); openSheet($('cartSheet')); });
+    $('cartClearBtn').addEventListener('click', function(){
+      if (!cart.length || !confirm('Remove everything from your order?')) return;
+      cart = [];
+      afterCartChange(false);
+      closeSheet();
+    });
+
+    // ---------- checkout ----------
+    var pickupMethod = 'window';
+    var paymentMethod = 'card';
+    var selectedCarColor = null;
+    var tipOptions = [];
+    var selectedTip = null;   // number, or null when not chosen / custom invalid
+    var tipChoiceIndex = null;
+
+    $('toCheckoutBtn').addEventListener('click', openCheckout);
+    function openCheckout(){
+      if (!cart.length) return;
+      closeSheet();
+      $('coMsg').textContent = '';
+      buildTipOptions();
+      renderCheckout();
+      $('checkoutScreen').classList.remove('hidden');
+      document.body.classList.add('locked');
+      $('checkoutScreen').scrollTop = 0;
+      $('coBackBtn').focus();
+    }
+    function closeCheckout(){
+      $('checkoutScreen').classList.add('hidden');
+      document.body.classList.remove('locked');
+      renderCart();
+      openSheet($('cartSheet'));
+    }
+    $('coBackBtn').addEventListener('click', closeCheckout);
+
+    function roundUpTip(total){ return Math.round((Math.ceil(total) - total) * 100) / 100; }
+    function buildTipOptions(){
+      var base = computeTotals(0).base;
+      tipOptions = [
+        { label: 'No tip', amount: 0 },
+        { label: 'Round up', amount: roundUpTip(base) },
+        { label: '5%', amount: Math.round(base * 0.05 * 100) / 100 },
+        { label: '10%', amount: Math.round(base * 0.10 * 100) / 100 },
+        { label: '15%', amount: Math.round(base * 0.15 * 100) / 100 },
+        { label: '20%', amount: Math.round(base * 0.20 * 100) / 100 },
+        { label: 'Other', amount: null }
+      ];
+      if (tipChoiceIndex !== null && tipOptions[tipChoiceIndex] && tipOptions[tipChoiceIndex].amount !== null) {
+        selectedTip = tipOptions[tipChoiceIndex].amount;
+      }
+      $('tipGrid').innerHTML = tipOptions.map(function(o, i){
+        return '<button type="button" class="tip-btn" data-tip="' + i + '" aria-pressed="' + (tipChoiceIndex === i) + '">' +
+          '<strong>' + o.label + '</strong><span>' + (o.amount === null ? 'Custom' : money(o.amount)) + '</span></button>';
+      }).join('');
+    }
+    $('tipGrid').addEventListener('click', function(e){
+      var b = e.target.closest('[data-tip]');
+      if (!b) return;
+      tipChoiceIndex = parseInt(b.getAttribute('data-tip'), 10);
+      $('tipGrid').querySelectorAll('.tip-btn').forEach(function(x){ x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      var opt = tipOptions[tipChoiceIndex];
+      if (opt.amount === null) {
+        $('tipCustomField').classList.remove('hidden');
+        $('tipCustom').value = '';
+        $('tipCustom').focus();
+        selectedTip = null;
+      } else {
+        $('tipCustomField').classList.add('hidden');
+        selectedTip = opt.amount;
+      }
+      renderCheckout();
+    });
+    $('tipCustom').addEventListener('input', function(){
+      var v = parseFloat(this.value);
+      selectedTip = (this.value.trim() !== '' && isFinite(v) && v >= 0) ? Math.round(v * 100) / 100 : null;
+      renderCheckout();
+    });
+
+    document.querySelectorAll('[data-pickup]').forEach(function(b){
+      b.addEventListener('click', function(){
+        pickupMethod = b.getAttribute('data-pickup');
+        document.querySelectorAll('[data-pickup]').forEach(function(x){ x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+        $('curbsideDetails').classList.toggle('hidden', pickupMethod !== 'curbside');
+        // Drive-up orders are paid online; cash is only for window pickup.
+        if (pickupMethod === 'curbside') setPayment('card');
+        renderCheckout();
+      });
+    });
+    function setPayment(m){
+      paymentMethod = m;
+      document.querySelectorAll('[data-pay]').forEach(function(x){ x.setAttribute('aria-pressed', x.getAttribute('data-pay') === m ? 'true' : 'false'); });
+    }
+    document.querySelectorAll('[data-pay]').forEach(function(b){
+      b.addEventListener('click', function(){ if (!b.disabled) { setPayment(b.getAttribute('data-pay')); renderCheckout(); } });
+    });
+    $('carMakeSelect').addEventListener('change', function(){
+      $('carMakeOther').classList.toggle('hidden', this.value !== 'Other');
+      $('carMakeField').classList.remove('invalid');
+    });
+    $('carColorGrid').addEventListener('click', function(e){
+      var b = e.target.closest('[data-color]');
+      if (!b) return;
+      selectedCarColor = b.getAttribute('data-color');
+      $('carColorGrid').querySelectorAll('[data-color]').forEach(function(x){ x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      $('carColorField').classList.remove('invalid');
+    });
+    $('custName').addEventListener('input', function(){ $('nameField').classList.remove('invalid'); });
+
+    function renderCheckout(){
+      var cashBtn = document.querySelector('[data-pay="cash"]');
+      cashBtn.disabled = pickupMethod === 'curbside';
+      $('cashOptNote').textContent = pickupMethod === 'curbside' ? 'Not available for drive-up' : 'Pay when you pick up';
+
+      var t = computeTotals(selectedTip || 0);
+      $('coLines').innerHTML = cart.map(function(c){
+        var item = itemsById[c.menu_item_id] || {};
+        return '<div class="sum-line"><span>' + c.quantity + ' \u00d7 ' + escHtml(item.name || c.name) +
+          (item.variant_name ? '<br><span class="line-var">' + escHtml(item.variant_name) + '</span>' : '') +
+          '</span><span>' + money(c.unitPrice * c.quantity) + '</span></div>';
+      }).join('');
+      $('coTotals').innerHTML =
+        '<div><span>Subtotal</span><span>' + money(t.subtotal) + '</span></div>' +
+        '<div><span>Tax (6.75%)</span><span>' + money(t.tax) + '</span></div>' +
+        '<div><span>Tip</span><span>' + (selectedTip === null ? '&mdash;' : money(t.tip)) + '</span></div>' +
+        '<div class="grand"><span>Total</span><span>' + money(t.total) + '</span></div>';
+
+      var btn = $('placeOrderBtn');
+      if (paymentMethod === 'cash') {
+        btn.innerHTML = 'Place order <span class="cta-amt">' + money(t.total) + '</span>';
+        $('coSecure').textContent = 'You\u2019ll pay cash at the window when you pick up.';
+      } else {
+        btn.innerHTML = 'Continue to payment <span class="cta-amt">' + money(t.total) + '</span>';
+        $('coSecure').textContent = 'You\u2019ll pay on Square\u2019s secure checkout page next.';
+      }
+    }
+
+    function validateCheckout(){
+      var problems = [];
+      if (!$('custName').value.trim()) { problems.push('your first name'); $('nameField').classList.add('invalid'); }
+      if (pickupMethod === 'curbside') {
+        var make = $('carMakeSelect').value === 'Other' ? $('carMakeOther').value.trim() : $('carMakeSelect').value;
+        if (!make) { problems.push('your car\u2019s make'); $('carMakeField').classList.add('invalid'); }
+        if (!selectedCarColor) { problems.push('your car\u2019s color'); $('carColorField').classList.add('invalid'); }
+      }
+      if (tipChoiceIndex === null) problems.push('a tip option (No tip is fine)');
+      else if (selectedTip === null) problems.push('a tip amount');
+      return problems;
+    }
+
+    $('placeOrderBtn').addEventListener('click', function(){
+      var btn = this;
+      var msg = $('coMsg');
+      msg.textContent = '';
+      if (!cart.length) { msg.textContent = 'Your order is empty.'; return; }
+      var problems = validateCheckout();
+      if (problems.length) {
+        msg.textContent = 'Please add ' + problems.join(', ') + '.';
+        var firstBad = document.querySelector('#checkoutScreen .invalid input, #checkoutScreen .invalid select');
+        if (firstBad) firstBad.focus();
+        return;
+      }
 
       var carMakeValue = null;
       if (pickupMethod === 'curbside') {
-        var makeSelect = document.getElementById('carMakeSelect');
-        carMakeValue = makeSelect.value === 'Other' ? document.getElementById('carMakeOther').value.trim() : makeSelect.value;
+        carMakeValue = $('carMakeSelect').value === 'Other' ? $('carMakeOther').value.trim() : $('carMakeSelect').value;
       }
-
+      var name = $('custName').value.trim();
+      var email = $('custEmail').value.trim();
+      var phone = $('custPhone').value.trim();
+      var notes = $('custNotes').value.trim();
+      var body = {
+        items: cart.map(function(c){ return { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name }; }),
+        customerName: name,
+        customerEmail: email || undefined,
+        customerPhone: phone || undefined,
+        notes: notes || undefined,
+        orderSource: 'qr',
+        pickupMethod: pickupMethod,
+        carMake: carMakeValue,
+        carColor: pickupMethod === 'curbside' ? selectedCarColor : null,
+        tipAmount: selectedTip || 0
+      };
       var url = paymentMethod === 'cash' ? CASH_ORDER_URL : CARD_CHECKOUT_URL;
-      var body = { items: itemsPayload, customerName: name || 'QR Order', customerEmail: email || undefined, customerPhone: phone || undefined, notes: notes || undefined, orderSource: 'qr', pickupMethod: pickupMethod, carMake: carMakeValue, carColor: selectedCarColor, tipAmount: tipAmount };
+      var prevHtml = btn.innerHTML;
+      btn.disabled = true;
+      btn.textContent = paymentMethod === 'cash' ? 'Placing your order\u2026' : 'Opening secure checkout\u2026';
 
       fetch(url, {
         method: 'POST',
@@ -1085,42 +1149,46 @@
       }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
         .then(function(result){
           if (!result.ok) {
-            payBtn.disabled = false;
-            msgEl.textContent = formatErrorMessage(result.data && result.data.error) || "Couldn't start checkout \u2014 please try again.";
+            btn.disabled = false; btn.innerHTML = prevHtml;
+            msg.textContent = formatErrorMessage(result.data && result.data.error) || 'We couldn\u2019t start checkout. Please try again.';
             return;
           }
           if (paymentMethod === 'cash') {
+            // Order is placed; thank-you.html also clears the saved cart.
+            try { localStorage.removeItem(STORE_KEY); } catch(e){}
             window.location.href = 'thank-you.html?ref=' + encodeURIComponent(result.data.referenceCode) + '&cash=true';
             return;
           }
+          // Card: the cart is kept until payment is confirmed on
+          // thank-you.html, so backing out of Square's page keeps it.
           window.location.href = result.data.url;
         })
         .catch(function(){
-          payBtn.disabled = false;
-          msgEl.textContent = "Couldn't reach checkout \u2014 please try again.";
+          btn.disabled = false; btn.innerHTML = prevHtml;
+          msg.textContent = 'We couldn\u2019t reach checkout. Check your connection and try again.';
         });
     });
 
-    // When the browser restores this page from its back-forward cache
-    // (e.g. the customer goes to Square's payment page, then taps
-    // back), the page reappears exactly as it looked the instant they
-    // left -- including the Continue button still disabled from the
-    // in-flight request. Nothing else re-runs on a bfcache restore,
-    // so without this the button could be stuck. event.persisted is
-    // true specifically for this restored-from-cache case.
-    window.addEventListener('pageshow', function(event){
-      if (event.persisted) {
-        var continueBtn = document.getElementById('tipContinueBtn');
-        // Only re-enable if a tip choice is actually still in place --
-        // otherwise this would incorrectly enable it with no tip
-        // selected at all.
-        if (selectedTipAmount !== null) continueBtn.disabled = false;
-      }
+    window.addEventListener('pageshow', function(e){
+      if (e.persisted) { $('placeOrderBtn').disabled = false; renderCheckout(); }
     });
 
+    // ---------- live kitchen line (real orders in progress) ----------
+    function loadKitchenPulse(){
+      sbShared.rpc('get_public_order_status_board').then(function(res){
+        if (res.error || !Array.isArray(res.data)) { $('kitchenPulse').classList.add('hidden'); return; }
+        var cooking = res.data.filter(function(o){ return o.display_stage !== 'ready' && o.display_stage !== 'picked_up'; }).length;
+        $('kitchenPulseText').textContent = cooking === 0 ? 'No orders ahead of you'
+          : cooking + (cooking === 1 ? ' order' : ' orders') + ' cooking right now';
+        $('kitchenPulse').classList.toggle('busy', cooking >= 5);
+        $('kitchenPulse').classList.remove('hidden');
+      }).catch(function(){ $('kitchenPulse').classList.add('hidden'); });
+    }
+
     loadMenu();
+    loadKitchenPulse();
+    setInterval(loadKitchenPulse, 60000);
   })();
 </script>
-
 </body>
 </html>
