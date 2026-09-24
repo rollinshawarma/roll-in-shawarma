@@ -141,8 +141,11 @@
 
     <div id="priceBlock">
     <div class="breakdown-row">Subtotal <span id="subtotalDisplay">$0.00</span></div>
+    <div class="breakdown-row hidden" id="discountRow"><span id="discountLabel">Discount</span> <span id="discountDisplay">$0.00</span></div>
     <div class="breakdown-row">Sales Tax (6.75%) <span id="taxDisplay">$0.00</span></div>
-    <div class="breakdown-row">Online Processing Fee <span id="feeDisplay">$0.00</span></div>
+    <div class="breakdown-row hidden" id="tipRow">Tip <span id="tipDisplay">$0.00</span></div>
+    <div class="breakdown-row hidden" id="giftCardRow">Gift cards <span id="giftCardDisplay">$0.00</span></div>
+    <div class="breakdown-row hidden" id="feeRow">Online Processing Fee <span id="feeDisplay">$0.00</span></div>
     <div class="total-row">Total <span id="totalDisplay">$0.00</span></div>
     </div>
 
@@ -317,14 +320,28 @@
         // Opened without the secret order ID (e.g. an old or shared
         // link): prices and items aren't sent, so don't show zeros.
         if (order.limited) document.getElementById('priceBlock').classList.add('hidden');
-        var subtotal = Number(order.subtotal) || 0;
-        var total = Number(order.total) || 0;
-        var breakdown = computeBreakdown(subtotal, total);
-
-        document.getElementById('subtotalDisplay').textContent = '$' + subtotal.toFixed(2);
-        document.getElementById('taxDisplay').textContent = '$' + breakdown.tax.toFixed(2);
-        document.getElementById('feeDisplay').textContent = '$' + breakdown.fee.toFixed(2);
-        document.getElementById('totalDisplay').textContent = '$' + total.toFixed(2);
+        // The server sends the exact breakdown (tip and processing fee
+        // kept apart -- QR and kiosk orders have a tip but never a fee).
+        // Catering confirmations don't include one, so they use the old
+        // estimate.
+        var b = order.breakdown;
+        if (!b) {
+          var est = computeBreakdown(Number(order.subtotal) || 0, Number(order.total) || 0);
+          b = { subtotal: Number(order.subtotal) || 0, discount: 0, tax: est.tax, tip: 0, fee: est.fee, giftCards: 0, total: Number(order.total) || 0 };
+        }
+        function setRow(rowId, valueId, amount, negative){
+          var row = document.getElementById(rowId);
+          if (row) row.classList.toggle('hidden', !(amount > 0));
+          document.getElementById(valueId).textContent = (negative ? '\u2212$' : '$') + Number(amount || 0).toFixed(2);
+        }
+        document.getElementById('subtotalDisplay').textContent = '$' + Number(b.subtotal).toFixed(2);
+        document.getElementById('taxDisplay').textContent = '$' + Number(b.tax).toFixed(2);
+        document.getElementById('discountLabel').textContent = b.promoCode ? 'Discount (' + b.promoCode + ')' : 'Discount';
+        setRow('discountRow', 'discountDisplay', b.discount, true);
+        setRow('tipRow', 'tipDisplay', b.tip);
+        setRow('giftCardRow', 'giftCardDisplay', b.giftCards);
+        setRow('feeRow', 'feeDisplay', b.fee);
+        document.getElementById('totalDisplay').textContent = '$' + Number(b.total).toFixed(2);
 
         if (order.pickupDate) {
           var pickupEl = document.getElementById('pickupNote');
