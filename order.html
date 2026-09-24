@@ -192,6 +192,19 @@
   .swatch-btn{ display:flex; align-items:center; gap:8px; padding:10px; border:1px solid var(--line); border-radius:12px; background:var(--panel); font-size:13.5px; min-height:44px; }
   .swatch-btn .sw{ width:18px; height:18px; border-radius:50%; flex:none; border:1px solid rgba(255,255,255,0.25); }
   .swatch-btn[aria-pressed="true"]{ border-color:var(--gold); box-shadow:inset 0 0 0 1px var(--gold); }
+  .spots{ display:grid; grid-template-columns:repeat(5, 1fr); gap:8px; }
+  .spot-btn{ min-height:60px; border-radius:14px; border:1px solid var(--line); background:var(--panel); font-family:var(--display); font-weight:800; font-size:30px; color:var(--white); }
+  .spot-btn[aria-pressed="true"]{ background:var(--gold); border-color:var(--gold); color:var(--gold-ink); }
+  .field.invalid .spots .spot-btn{ border-color:var(--red); }
+  .co-subhead{ font-weight:700; color:var(--white); margin:18px 0 10px; }
+  .co-subhead small{ color:var(--muted); font-weight:500; }
+  .apply-row{ display:flex; gap:8px; }
+  .apply-row input{ flex:1; min-width:0; text-transform:uppercase; }
+  .apply-btn{ flex:none; padding:0 18px; border-radius:12px; background:var(--panel-2); border:1px solid var(--line); color:var(--white); font-weight:700; min-height:48px; }
+  .apply-msg{ font-size:13.5px; margin-top:6px; min-height:1em; }
+  .apply-msg.ok{ color:var(--green); font-weight:600; }
+  .apply-msg.bad{ color:#FF7A74; font-weight:600; }
+  .totals .disc span:last-child{ color:var(--green); }
   .tips{ display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; }
   .tip-btn{ padding:10px 6px; border:1px solid var(--line); border-radius:12px; background:var(--panel); min-height:58px; }
   .tip-btn strong{ display:block; color:var(--white); font-size:14.5px; }
@@ -295,12 +308,23 @@
     <div class="co-sec">
       <h3>Pickup</h3>
       <div class="seg" role="group" aria-label="Pickup method">
-        <button type="button" data-pickup="window" aria-pressed="true"><strong>At the window</strong><span>We&rsquo;ll call your name</span></button>
-        <button type="button" data-pickup="curbside" aria-pressed="false"><strong>Drive-up</strong><span>We bring it to your car</span></button>
+        <button type="button" data-pickup="curbside" aria-pressed="true"><strong>Drive-up</strong><span>We bring it to your car</span></button>
+        <button type="button" data-pickup="window" aria-pressed="false"><strong>At the window</strong><span>We&rsquo;ll call your name</span></button>
       </div>
-      <div id="curbsideDetails" class="hidden" style="margin-top:16px;">
+      <div id="curbsideDetails" style="margin-top:16px;">
+        <div class="field" id="spotField">
+          <label id="spotLabel">Which parking spot are you in?</label>
+          <div class="spots" role="group" aria-labelledby="spotLabel" id="spotGrid">
+            <button type="button" class="spot-btn" data-spot="1" aria-pressed="false">1</button>
+            <button type="button" class="spot-btn" data-spot="2" aria-pressed="false">2</button>
+            <button type="button" class="spot-btn" data-spot="3" aria-pressed="false">3</button>
+            <button type="button" class="spot-btn" data-spot="4" aria-pressed="false">4</button>
+            <button type="button" class="spot-btn" data-spot="5" aria-pressed="false">5</button>
+          </div>
+        </div>
+        <p class="co-subhead">Car details <small>(optional, helps us find you)</small></p>
         <div class="field" id="carMakeField">
-          <label for="carMakeSelect">Car make</label>
+          <label for="carMakeSelect">Make</label>
           <select id="carMakeSelect">
             <option value="">Choose your car&rsquo;s make</option>
             <option>Toyota</option><option>Honda</option><option>Ford</option><option>Chevrolet</option>
@@ -314,8 +338,12 @@
           </select>
           <input type="text" id="carMakeOther" class="hidden" placeholder="Type your car&rsquo;s make" style="margin-top:8px;" autocomplete="off">
         </div>
+        <div class="field">
+          <label for="carModel">Model</label>
+          <input type="text" id="carModel" placeholder="e.g. Civic, RAV4" autocomplete="off" maxlength="40">
+        </div>
         <div class="field" id="carColorField">
-          <label id="carColorLabel">Car color</label>
+          <label id="carColorLabel">Color</label>
           <div class="swatches" role="group" aria-labelledby="carColorLabel" id="carColorGrid">
             <button type="button" class="swatch-btn" data-color="Black" aria-pressed="false"><span class="sw" style="background:#1a1a1a"></span>Black</button>
             <button type="button" class="swatch-btn" data-color="White" aria-pressed="false"><span class="sw" style="background:#f5f5f0"></span>White</button>
@@ -362,10 +390,22 @@
     </div>
 
     <div class="co-sec">
-      <h3>Payment</h3>
-      <div class="pay-opts" role="group" aria-label="Payment">
-        <button type="button" class="pay-opt" data-pay="card" aria-pressed="true"><strong>Pay now</strong><span>By card on Square&rsquo;s secure checkout</span></button>
-        <button type="button" class="pay-opt" data-pay="cash" aria-pressed="false"><strong>Pay cash at the window</strong><span id="cashOptNote">Pay when you pick up</span></button>
+      <h3>Member ID &amp; promo code</h3>
+      <div class="field">
+        <label for="memberId">Member ID <small>(optional)</small></label>
+        <div class="apply-row">
+          <input type="text" id="memberId" placeholder="MEMBER-1234 or 1234" autocomplete="off" autocapitalize="characters">
+          <button type="button" class="apply-btn" id="memberApplyBtn">Apply</button>
+        </div>
+        <div class="apply-msg" id="memberMsg" aria-live="polite"></div>
+      </div>
+      <div class="field">
+        <label for="promoCode">Promo code <small>(optional)</small></label>
+        <div class="apply-row">
+          <input type="text" id="promoCode" placeholder="Enter code" autocomplete="off" autocapitalize="characters">
+          <button type="button" class="apply-btn" id="promoApplyBtn">Apply</button>
+        </div>
+        <div class="apply-msg" id="promoMsg" aria-live="polite"></div>
       </div>
     </div>
 
@@ -409,7 +449,7 @@
 
   (function(){
     var CARD_CHECKOUT_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/create-order-checkout';
-    var CASH_ORDER_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/create-cash-order';
+    var PROMO_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/validate-promo-code';
     var ANON_KEY = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
     var TAX_RATE = 0.0675;
     var HIDDEN_CATEGORIES = { 'Catering': 1, 'Combo Add-ons': 1, 'Deals': 1, 'Deal Selections': 1 };
@@ -552,7 +592,7 @@
         '</section>';
       }).join('');
       menu.insertAdjacentHTML('beforeend', html +
-        '<p class="menu-foot">Prices are before 6.75% sales tax. Pay by card now, or cash when you pick up at the window.</p>');
+        '<p class="menu-foot">Prices are before 6.75% sales tax. Pay by card at checkout.</p>');
       setupScrollSpy();
     }
 
@@ -700,11 +740,17 @@
     }
     function cartSubtotal(){ return cart.reduce(function(s, c){ return s + c.unitPrice * c.quantity; }, 0); }
     function cartCount(){ return cart.reduce(function(s, c){ return s + c.quantity; }, 0); }
+    var appliedPromo = null;   // { code, discountAmount } once validated
+    var appliedMember = null;  // 'MEMBER-1234' once verified
+    // Same math as the server: tax on the discounted subtotal.
     function computeTotals(tip){
       var subtotalCents = Math.round(cartSubtotal() * 100);
-      var taxCents = Math.round(subtotalCents * TAX_RATE);
+      var discountCents = appliedPromo ? Math.min(subtotalCents, Math.round(appliedPromo.discountAmount * 100)) : 0;
+      var taxedCents = subtotalCents - discountCents;
+      var taxCents = Math.round(taxedCents * TAX_RATE);
       var tipCents = Math.round((tip || 0) * 100);
-      return { subtotal: subtotalCents / 100, tax: taxCents / 100, tip: tipCents / 100, total: (subtotalCents + taxCents + tipCents) / 100, base: (subtotalCents + taxCents) / 100 };
+      return { subtotal: subtotalCents / 100, discount: discountCents / 100, tax: taxCents / 100, tip: tipCents / 100,
+               total: (taxedCents + taxCents + tipCents) / 100, base: (taxedCents + taxCents) / 100 };
     }
 
     function afterCartChange(bump){
@@ -979,8 +1025,10 @@
     });
 
     // ---------- checkout ----------
-    var pickupMethod = 'window';
+    // QR orders: drive-up by default, card only (paid on Square's page).
+    var pickupMethod = 'curbside';
     var paymentMethod = 'card';
+    var parkingSpot = null;
     var selectedCarColor = null;
     var tipOptions = [];
     var selectedTip = null;   // number, or null when not chosen / custom invalid
@@ -993,6 +1041,7 @@
       $('coMsg').textContent = '';
       buildTipOptions();
       renderCheckout();
+      if (appliedPromo) applyPromo();
       $('checkoutScreen').classList.remove('hidden');
       document.body.classList.add('locked');
       $('checkoutScreen').scrollTop = 0;
@@ -1054,36 +1103,86 @@
         pickupMethod = b.getAttribute('data-pickup');
         document.querySelectorAll('[data-pickup]').forEach(function(x){ x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
         $('curbsideDetails').classList.toggle('hidden', pickupMethod !== 'curbside');
-        // Drive-up orders are paid online; cash is only for window pickup.
-        if (pickupMethod === 'curbside') setPayment('card');
         renderCheckout();
       });
     });
-    function setPayment(m){
-      paymentMethod = m;
-      document.querySelectorAll('[data-pay]').forEach(function(x){ x.setAttribute('aria-pressed', x.getAttribute('data-pay') === m ? 'true' : 'false'); });
+    $('spotGrid').addEventListener('click', function(e){
+      var b = e.target.closest('[data-spot]');
+      if (!b) return;
+      parkingSpot = parseInt(b.getAttribute('data-spot'), 10);
+      $('spotGrid').querySelectorAll('[data-spot]').forEach(function(x){ x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
+      $('spotField').classList.remove('invalid');
+    });
+
+    // ---- Member ID (optional): checked, then linked to the order ----
+    function normalizeMember(v){
+      v = String(v || '').trim().toUpperCase();
+      return /^\d{3,6}$/.test(v) ? 'MEMBER-' + v : v;
     }
-    document.querySelectorAll('[data-pay]').forEach(function(b){
-      b.addEventListener('click', function(){ if (!b.disabled) { setPayment(b.getAttribute('data-pay')); renderCheckout(); } });
+    function applyMember(){
+      var code = normalizeMember($('memberId').value);
+      var msgEl = $('memberMsg');
+      appliedMember = null;
+      msgEl.className = 'apply-msg'; msgEl.textContent = '';
+      if (!code) return Promise.resolve(true);
+      msgEl.textContent = 'Checking\u2026';
+      return sbShared.rpc('kiosk_verify_member', { p_code: code }).then(function(res){
+        var row = res && Array.isArray(res.data) ? res.data[0] : (res && res.data);
+        if (res.error || !row || !row.valid) {
+          msgEl.className = 'apply-msg bad'; msgEl.textContent = 'We couldn\u2019t find that member ID.';
+          return false;
+        }
+        appliedMember = code;
+        $('memberId').value = code;
+        msgEl.className = 'apply-msg ok';
+        msgEl.textContent = 'Welcome back' + (row.first_name ? ', ' + row.first_name : '') + '! This order is linked to your membership.';
+        return true;
+      }).catch(function(){ msgEl.className = 'apply-msg bad'; msgEl.textContent = 'We couldn\u2019t check that right now.'; return false; });
+    }
+    $('memberApplyBtn').addEventListener('click', applyMember);
+    $('memberId').addEventListener('input', function(){ if (appliedMember) { appliedMember = null; $('memberMsg').textContent = ''; } });
+
+    // ---- Promo code (optional): previewed here, re-checked by checkout ----
+    function applyPromo(){
+      var code = $('promoCode').value.trim().toUpperCase();
+      var msgEl = $('promoMsg');
+      appliedPromo = null;
+      msgEl.className = 'apply-msg'; msgEl.textContent = '';
+      if (!code) { buildTipOptions(); renderCheckout(); return Promise.resolve(true); }
+      msgEl.textContent = 'Checking\u2026';
+      return fetch(PROMO_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ANON_KEY },
+        body: JSON.stringify({ code: code, subtotal: Math.round(cartSubtotal() * 100) / 100, hasCatering: false })
+      }).then(function(r){ return r.json(); }).then(function(d){
+        if (!d || !d.valid) {
+          msgEl.className = 'apply-msg bad'; msgEl.textContent = (d && d.error) || 'That code isn\u2019t valid.';
+          buildTipOptions(); renderCheckout();
+          return false;
+        }
+        appliedPromo = { code: d.code || code, discountAmount: Number(d.discountAmount) || 0 };
+        $('promoCode').value = appliedPromo.code;
+        msgEl.className = 'apply-msg ok'; msgEl.textContent = appliedPromo.code + ' applied. You save ' + money(appliedPromo.discountAmount) + '.';
+        buildTipOptions(); renderCheckout();
+        return true;
+      }).catch(function(){ msgEl.className = 'apply-msg bad'; msgEl.textContent = 'We couldn\u2019t check that code right now.'; return false; });
+    }
+    $('promoApplyBtn').addEventListener('click', applyPromo);
+    $('promoCode').addEventListener('input', function(){
+      if (appliedPromo) { appliedPromo = null; $('promoMsg').textContent = ''; buildTipOptions(); renderCheckout(); }
     });
     $('carMakeSelect').addEventListener('change', function(){
       $('carMakeOther').classList.toggle('hidden', this.value !== 'Other');
-      $('carMakeField').classList.remove('invalid');
     });
     $('carColorGrid').addEventListener('click', function(e){
       var b = e.target.closest('[data-color]');
       if (!b) return;
       selectedCarColor = b.getAttribute('data-color');
       $('carColorGrid').querySelectorAll('[data-color]').forEach(function(x){ x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
-      $('carColorField').classList.remove('invalid');
     });
     $('custName').addEventListener('input', function(){ $('nameField').classList.remove('invalid'); });
 
     function renderCheckout(){
-      var cashBtn = document.querySelector('[data-pay="cash"]');
-      cashBtn.disabled = pickupMethod === 'curbside';
-      $('cashOptNote').textContent = pickupMethod === 'curbside' ? 'Not available for drive-up' : 'Pay when you pick up';
-
       var t = computeTotals(selectedTip || 0);
       $('coLines').innerHTML = cart.map(function(c){
         var item = itemsById[c.menu_item_id] || {};
@@ -1093,28 +1192,19 @@
       }).join('');
       $('coTotals').innerHTML =
         '<div><span>Subtotal</span><span>' + money(t.subtotal) + '</span></div>' +
+        (t.discount > 0 ? '<div class="disc"><span>Promo (' + escHtml(appliedPromo.code) + ')</span><span>\u2212' + money(t.discount) + '</span></div>' : '') +
         '<div><span>Tax (6.75%)</span><span>' + money(t.tax) + '</span></div>' +
         '<div><span>Tip</span><span>' + (selectedTip === null ? '&mdash;' : money(t.tip)) + '</span></div>' +
         '<div class="grand"><span>Total</span><span>' + money(t.total) + '</span></div>';
 
-      var btn = $('placeOrderBtn');
-      if (paymentMethod === 'cash') {
-        btn.innerHTML = 'Place order <span class="cta-amt">' + money(t.total) + '</span>';
-        $('coSecure').textContent = 'You\u2019ll pay cash at the window when you pick up.';
-      } else {
-        btn.innerHTML = 'Continue to payment <span class="cta-amt">' + money(t.total) + '</span>';
-        $('coSecure').textContent = 'You\u2019ll pay on Square\u2019s secure checkout page next.';
-      }
+      $('placeOrderBtn').innerHTML = 'Continue to payment <span class="cta-amt">' + money(t.total) + '</span>';
+      $('coSecure').textContent = 'You\u2019ll pay by card on Square\u2019s secure checkout page next.';
     }
 
     function validateCheckout(){
       var problems = [];
       if (!$('custName').value.trim()) { problems.push('your first name'); $('nameField').classList.add('invalid'); }
-      if (pickupMethod === 'curbside') {
-        var make = $('carMakeSelect').value === 'Other' ? $('carMakeOther').value.trim() : $('carMakeSelect').value;
-        if (!make) { problems.push('your car\u2019s make'); $('carMakeField').classList.add('invalid'); }
-        if (!selectedCarColor) { problems.push('your car\u2019s color'); $('carColorField').classList.add('invalid'); }
-      }
+      if (pickupMethod === 'curbside' && !parkingSpot) { problems.push('your parking spot'); $('spotField').classList.add('invalid'); }
       if (tipChoiceIndex === null) problems.push('a tip option (No tip is fine)');
       else if (selectedTip === null) problems.push('a tip amount');
       return problems;
@@ -1128,14 +1218,28 @@
       var problems = validateCheckout();
       if (problems.length) {
         msg.textContent = 'Please add ' + problems.join(', ') + '.';
-        var firstBad = document.querySelector('#checkoutScreen .invalid input, #checkoutScreen .invalid select');
+        var firstBad = document.querySelector('#checkoutScreen .invalid input, #checkoutScreen .invalid select, #checkoutScreen .invalid button');
         if (firstBad) firstBad.focus();
         return;
       }
+      // A member ID or promo code typed but not applied: check it now,
+      // so the total shown is the total charged.
+      var needMember = $('memberId').value.trim() && !appliedMember;
+      var needPromo = $('promoCode').value.trim() && !appliedPromo;
+      if (needMember || needPromo) {
+        btn.disabled = true;
+        Promise.all([needMember ? applyMember() : true, needPromo ? applyPromo() : true]).then(function(ok){
+          btn.disabled = false;
+          if (ok[0] && ok[1]) btn.click();
+          else msg.textContent = 'Fix or clear the member ID / promo code above, then try again.';
+        });
+        return;
+      }
 
-      var carMakeValue = null;
+      var carMakeValue = null, carModelValue = null;
       if (pickupMethod === 'curbside') {
-        carMakeValue = $('carMakeSelect').value === 'Other' ? $('carMakeOther').value.trim() : $('carMakeSelect').value;
+        carMakeValue = ($('carMakeSelect').value === 'Other' ? $('carMakeOther').value.trim() : $('carMakeSelect').value) || null;
+        carModelValue = $('carModel').value.trim() || null;
       }
       var name = $('custName').value.trim();
       var email = $('custEmail').value.trim();
@@ -1149,14 +1253,18 @@
         notes: notes || undefined,
         orderSource: 'qr',
         pickupMethod: pickupMethod,
+        parkingSpot: pickupMethod === 'curbside' ? parkingSpot : null,
         carMake: carMakeValue,
+        carModel: carModelValue,
         carColor: pickupMethod === 'curbside' ? selectedCarColor : null,
+        memberCode: appliedMember || undefined,
+        promoCode: appliedPromo ? appliedPromo.code : undefined,
         tipAmount: selectedTip || 0
       };
-      var url = paymentMethod === 'cash' ? CASH_ORDER_URL : CARD_CHECKOUT_URL;
+      var url = CARD_CHECKOUT_URL;
       var prevHtml = btn.innerHTML;
       btn.disabled = true;
-      btn.textContent = paymentMethod === 'cash' ? 'Placing your order\u2026' : 'Opening secure checkout\u2026';
+      btn.textContent = 'Opening secure checkout\u2026';
 
       fetch(url, {
         method: 'POST',
@@ -1170,13 +1278,6 @@
             return;
           }
           rememberOrder(result.data);
-          if (paymentMethod === 'cash') {
-            // Order is placed; thank-you.html also clears the saved cart.
-            try { localStorage.removeItem(STORE_KEY); } catch(e){}
-            window.location.href = 'thank-you.html?ref=' + encodeURIComponent(result.data.referenceCode) + '&cash=true' +
-              (result.data.orderId ? '&t=' + encodeURIComponent(result.data.orderId) : '');
-            return;
-          }
           // Card: the cart is kept until payment is confirmed on
           // thank-you.html, so backing out of Square's page keeps it.
           window.location.href = result.data.url;
