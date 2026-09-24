@@ -164,6 +164,8 @@
       });
     }
 
+    // "QRScan007" -> "#007": customers only need the number.
+    function displayOrderNo(ref){ var m = /^[A-Za-z]+-?(\d+)$/.exec(ref || ''); return m ? '#' + m[1] : (ref || ''); }
     var params = new URLSearchParams(window.location.search);
     var ref = params.get('ref');
     var isCashOrder = params.get('cash') === 'true';
@@ -276,7 +278,7 @@
           } catch(e){}
         }
 
-        document.getElementById('refBadge').textContent = order.referenceCode;
+        document.getElementById('refBadge').textContent = displayOrderNo(order.referenceCode);
         if (order.trackingId) {
           var trackBtn = document.getElementById('trackBtn');
           trackBtn.href = 'track.html?order=' + encodeURIComponent(order.trackingId);
