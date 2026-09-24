@@ -431,8 +431,31 @@
   // re-acquire it the moment the tablet's screen comes back, so a brief
   // app-switch or lock-screen wake doesn't leave it unprotected.
   document.addEventListener('visibilitychange', function(){
-    if (document.visibilityState === 'visible' && stationOnActiveBoard) requestWakeLock();
+    if (document.visibilityState === 'visible' && stationOnActiveBoard) {
+      requestWakeLock();
+      // Renew the kitchen login as soon as the tablet wakes, so a board
+      // left up overnight doesn't miss the first orders of the day.
+      sb.auth.refreshSession().catch(function(){});
+    }
   });
+
+  // The kitchen board needs a logged-in employee, and logins expire.
+  // If a load fails for that reason, renew the login once and retry;
+  // only if that fails too, tell staff plainly -- instead of the board
+  // silently showing nothing while new orders come in.
+  var KITCHEN_LOGIN_EXPIRED_MSG = '\uD83D\uDD12 Kitchen login expired \u2014 NEW ORDERS WILL NOT SHOW. Tap Lock, then log in again.';
+  var kitchenLoginRenewing = false;
+  function isKitchenAuthError(err){
+    return !!(err && /not authorized|jwt|token|expired|401/i.test(err.message || ''));
+  }
+  function renewKitchenLogin(onRenewed, onFailed){
+    if (kitchenLoginRenewing) return;
+    kitchenLoginRenewing = true;
+    sb.auth.refreshSession().then(function(r){
+      kitchenLoginRenewing = false;
+      if (r && !r.error && r.data && r.data.session) onRenewed(); else onFailed();
+    }).catch(function(){ kitchenLoginRenewing = false; onFailed(); });
+  }
   var stationOnActiveBoard = false;
 
   function escHtml(s){
@@ -1039,6 +1062,10 @@
       sb.rpc('get_kds_board_state').then(function(res){
         if (res.error) {
           console.error('get_kds_board_state failed:', res.error);
+          if (isKitchenAuthError(res.error)) {
+            renewKitchenLogin(fetchAndRender, function(){ showBoardError(KITCHEN_LOGIN_EXPIRED_MSG); });
+            return;
+          }
           showBoardError('Could not load the board \u2014 ' + (res.error.message || 'unknown error'));
           return;
         }
@@ -1457,6 +1484,10 @@
       sb.rpc('get_kds_board_state').then(function(res){
         if (res.error) {
           console.error('get_kds_board_state failed:', res.error);
+          if (isKitchenAuthError(res.error)) {
+            renewKitchenLogin(fetchAndRender, function(){ showFryerError(KITCHEN_LOGIN_EXPIRED_MSG); });
+            return;
+          }
           showFryerError('Could not load the board \u2014 ' + (res.error.message || 'unknown error'));
           return;
         }
