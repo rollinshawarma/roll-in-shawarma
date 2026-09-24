@@ -385,7 +385,9 @@
       var copy = STAGE_COPY[stage] || STAGE_COPY.received;
       var sub = copy[1];
       if (stage === 'ready') {
-        sub = t.pickup_method === 'curbside' ? 'We\u2019re bringing it out to your car.' : 'Come to the window and give us your name.';
+        sub = t.pickup_method === 'curbside'
+          ? (t.parking_spot ? 'We\u2019re bringing it out to spot ' + t.parking_spot + '.' : 'We\u2019re bringing it out to your car.')
+          : 'Come to the window and give us your name.';
         if (t.payment_method === 'cash') sub += ' Please have cash ready.';
       }
       $('stageTitle').textContent = copy[0];
