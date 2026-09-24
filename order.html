@@ -45,6 +45,10 @@
   .pulse.busy .pulse-dot{ background:var(--gold); box-shadow:0 0 0 0 rgba(247,173,40,0.6); }
   @keyframes pulse{ 0%{ box-shadow:0 0 0 0 rgba(11,175,76,0.5); } 70%{ box-shadow:0 0 0 7px rgba(11,175,76,0); } 100%{ box-shadow:0 0 0 0 rgba(11,175,76,0); } }
 
+  .track-banner{ display:flex; align-items:center; justify-content:space-between; gap:12px; max-width:1040px; margin:0 auto 10px; padding:10px 14px; margin-left:16px; margin-right:16px; background:rgba(11,175,76,0.12); border:1px solid rgba(11,175,76,0.5); border-radius:14px; font-size:14px; }
+  @media (min-width:1072px){ .track-banner{ margin-left:auto; margin-right:auto; } }
+  .track-banner a{ flex:none; background:var(--green); color:#03220f; font-weight:800; text-decoration:none; padding:8px 14px; border-radius:100px; }
+
   /* ---------- Sticky photo-chip rail (the one bold element) ---------- */
   .cat-rail{ position:sticky; top:0; z-index:40; background:rgba(0,0,0,0.92); -webkit-backdrop-filter:blur(10px); backdrop-filter:blur(10px); border-bottom:1px solid var(--line); }
   .cat-rail-inner{ display:flex; gap:8px; overflow-x:auto; padding:10px 16px; max-width:1040px; margin:0 auto; scrollbar-width:none; scroll-behavior:smooth; }
@@ -223,6 +227,11 @@
     </div>
   </div>
 </header>
+
+<div class="track-banner hidden" id="trackBanner">
+  <span>Order <b id="trackBannerRef"></b> is in the works.</span>
+  <a href="#">Track it</a>
+</div>
 
 <nav class="cat-rail" aria-label="Menu categories">
   <div class="cat-rail-inner" id="catRail"></div>
@@ -465,18 +474,24 @@
     }
     var toastTimer = null;
     function hideToast(){ if (toastTimer) clearTimeout(toastTimer); $('toast').classList.remove('show'); }
-    function toast(msg){
+    function toast(msg, ms){
       $('toastText').textContent = msg;
       $('toast').classList.add('show');
       if (toastTimer) clearTimeout(toastTimer);
-      toastTimer = setTimeout(function(){ $('toast').classList.remove('show'); }, 1800);
+      toastTimer = setTimeout(function(){ $('toast').classList.remove('show'); }, ms || 1800);
     }
 
     // ---------- menu ----------
     function loadMenu(){
       $('menuState').classList.remove('hidden');
       $('menuState').innerHTML = 'Loading the menu&hellip;';
-      sbShared.from('menu_items').select('*').order('display_order').then(function(res){
+      // get_public_menu includes sold-out items so they can be shown
+      // greyed out; if it isn't deployed yet, fall back to the table
+      // (which only returns available items).
+      sbShared.rpc('get_public_menu').then(function(res){
+        if (res.error || !Array.isArray(res.data)) return sbShared.from('menu_items').select('*').order('display_order');
+        return res;
+      }).then(function(res){
         if (res.error || !res.data) {
           $('menuState').innerHTML = 'We couldn&rsquo;t load the menu. Check your connection and try again.<br><button type="button" id="menuRetryBtn">Try again</button>';
           $('menuRetryBtn').addEventListener('click', loadMenu);
@@ -486,6 +501,7 @@
         restoreCart();
         renderMenu();
         afterCartChange(false);
+        startAvailabilitySync();
       }).catch(function(){
         $('menuState').innerHTML = 'We couldn&rsquo;t load the menu. Check your connection and try again.<br><button type="button" id="menuRetryBtn">Try again</button>';
         $('menuRetryBtn').addEventListener('click', loadMenu);
@@ -1153,10 +1169,12 @@
             msg.textContent = formatErrorMessage(result.data && result.data.error) || 'We couldn\u2019t start checkout. Please try again.';
             return;
           }
+          rememberOrder(result.data);
           if (paymentMethod === 'cash') {
             // Order is placed; thank-you.html also clears the saved cart.
             try { localStorage.removeItem(STORE_KEY); } catch(e){}
-            window.location.href = 'thank-you.html?ref=' + encodeURIComponent(result.data.referenceCode) + '&cash=true';
+            window.location.href = 'thank-you.html?ref=' + encodeURIComponent(result.data.referenceCode) + '&cash=true' +
+              (result.data.orderId ? '&t=' + encodeURIComponent(result.data.orderId) : '');
             return;
           }
           // Card: the cart is kept until payment is confirmed on
@@ -1169,9 +1187,97 @@
         });
     });
 
+    // Remember the last order so a returning customer can jump to tracking.
+    var LAST_ORDER_KEY = 'rollin_last_order';
+    function rememberOrder(data){
+      if (!data || !data.orderId) return;
+      try { localStorage.setItem(LAST_ORDER_KEY, JSON.stringify({ id: data.orderId, ref: data.referenceCode, savedAt: Date.now() })); } catch(e){}
+    }
+    function showTrackBanner(){
+      try {
+        var last = JSON.parse(localStorage.getItem(LAST_ORDER_KEY) || 'null');
+        if (!last || !last.id || Date.now() - last.savedAt > 3 * 60 * 60 * 1000) return;
+        var b = $('trackBanner');
+        b.querySelector('a').href = 'track.html?order=' + encodeURIComponent(last.id);
+        $('trackBannerRef').textContent = last.ref || 'your order';
+        b.classList.remove('hidden');
+      } catch(e){}
+    }
+    showTrackBanner();
+
     window.addEventListener('pageshow', function(e){
       if (e.persisted) { $('placeOrderBtn').disabled = false; renderCheckout(); }
     });
+
+    // ---------- live sold-out sync ----------
+    // When an item is marked sold out in Square POS, sync-sold-out flips
+    // it in the menu, and menu_item_availability streams that change
+    // here in real time. A 30-second check (and a check whenever the
+    // phone wakes) backs up the live connection, which phones drop
+    // while asleep.
+    function applyAvailability(id, available){
+      var item = itemsById[id];
+      if (!item) return;
+      if ((item.is_available !== false) === available) return;
+      item.is_available = available;
+
+      var g = groupsByKey[item.category + '::' + item.name];
+      if (g) {
+        var tile = document.querySelector('.tile[data-group="' + cssAttr(g.key) + '"]');
+        if (tile) tile.outerHTML = tileHtml(g);
+      }
+
+      if (!available) {
+        if (findLine(id)) {
+          cart = cart.filter(function(c){ return c.menu_item_id !== id; });
+          syncCombos();
+          afterCartChange(false);
+          toast(item.name + ' just sold out and was removed', 4500);
+        }
+        // Item sheet open on this dish: switch to another option or close.
+        if (openSheetEl === $('itemSheet') && sheet.group && sheet.group === g) {
+          var next = g.items.filter(isAvailable)[0];
+          if (!next) { closeSheet(); toast(g.name + ' just sold out', 4500); }
+          else { if (sheet.itemId === id) { sheet.itemId = next.id; sheet.combo = false; sheet.drink = null; } renderItemSheet(); }
+        }
+      } else if (openSheetEl === $('itemSheet') && sheet.group && sheet.group === g) {
+        renderItemSheet();
+      }
+
+      if (!$('checkoutScreen').classList.contains('hidden')) {
+        if (!cart.length) {
+          $('checkoutScreen').classList.add('hidden');
+          document.body.classList.remove('locked');
+          toast('Your order is empty now \u2014 that item just sold out', 4500);
+        } else {
+          renderCheckout();
+        }
+      }
+      if (openSheetEl === $('cartSheet')) renderCart();
+    }
+    function refreshAvailability(){
+      sbShared.from('menu_item_availability').select('menu_item_id,is_available').then(function(res){
+        if (res.error || !Array.isArray(res.data)) return;
+        res.data.forEach(function(r){ applyAvailability(r.menu_item_id, r.is_available !== false); });
+      }).catch(function(){});
+    }
+    var availabilityStarted = false;
+    function startAvailabilitySync(){
+      if (availabilityStarted) return;
+      availabilityStarted = true;
+      try {
+        sbShared.channel('menu-availability')
+          .on('postgres_changes', { event: '*', schema: 'public', table: 'menu_item_availability' }, function(payload){
+            var r = payload && payload.new;
+            if (r && r.menu_item_id) applyAvailability(r.menu_item_id, r.is_available !== false);
+          })
+          .subscribe();
+      } catch(e){}
+      setInterval(refreshAvailability, 30000);
+      document.addEventListener('visibilitychange', function(){
+        if (document.visibilityState === 'visible') refreshAvailability();
+      });
+    }
 
     // ---------- live kitchen line (real orders in progress) ----------
     function loadKitchenPulse(){
