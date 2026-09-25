@@ -9,17 +9,17 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Inter+Tight:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --black:#ffffff;
-    --panel:#f5f5f7;
-    --white:#1d1d1f;
-    --cream:#424245;
-    --muted:#6e6e73;
-    --gold:#1d1d1f;
-    --orange:#e8710a;
-    --red:#d62d20;
+    --black:#000000;
+    --panel:#1c1c1e;
+    --white:#f5f5f7;
+    --cream:#d2d2d7;
+    --muted:#98989d;
+    --gold:#f5f5f7;
+    --orange:#FF8C1A;
+    --red:#ff453a;
     --green:#1f8a4c;
-    --blue:#0a66d6;
-    --line:#e3e3e8;
+    --blue:#3B9DFF;
+    --line:#38383a;
   }
   *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
   html, body{ overflow:hidden; height:100%; width:100%; overscroll-behavior:none; }
@@ -41,13 +41,13 @@
   .pin-dot.filled{ background:var(--gold); border-color:var(--gold); }
   #pinError{ font-size:15px; color:var(--red); font-weight:700; min-height:20px; }
   #empPinError{ font-size:15px; color:var(--red); font-weight:700; min-height:20px; text-align:center; max-width:440px; line-height:1.4; }
-  #empPinError.emp-pin-locked{ font-size:17px; background:rgba(214,45,32,0.16); border:2px solid var(--red); border-radius:12px; padding:14px 18px; }
+  #empPinError.emp-pin-locked{ font-size:17px; background:rgba(216,52,46,0.16); border:2px solid var(--red); border-radius:12px; padding:14px 18px; }
   .pin-pad{ display:grid; grid-template-columns:repeat(3, 84px); gap:16px; }
   .pin-key{
     width:84px; height:84px; border-radius:50%; background:var(--panel); border:1px solid var(--line);
     color:var(--white); font-size:30px; font-weight:700; display:flex; align-items:center; justify-content:center;
   }
-  .pin-key:active{ background:var(--gold); color:#ffffff; }
+  .pin-key:active{ background:var(--gold); color:#1d1d1f; }
   .pin-key.wide{ background:none; border:none; color:var(--muted); font-size:16px; font-weight:700; }
 
   /* ---------- BOARD LAYOUT ---------- */
@@ -62,7 +62,7 @@
   .board-last-updated.stale{ color:var(--red); opacity:1; font-weight:700; }
   #lockBtn{ font-size:14px; color:var(--muted); font-weight:700; padding:8px 14px; border:1px solid var(--line); border-radius:100px; }
   #fryerLockBtn{ font-size:14px; color:var(--muted); font-weight:700; padding:8px 14px; border:1px solid var(--line); border-radius:100px; }
-  #boardErrorBanner{ background:rgba(214,45,32,0.16); color:var(--red); font-size:14.5px; font-weight:700; padding:10px 24px; border-bottom:1px solid var(--red); flex:none; }
+  #boardErrorBanner{ background:rgba(216,52,46,0.16); color:var(--red); font-size:14.5px; font-weight:700; padding:10px 24px; border-bottom:1px solid var(--red); flex:none; }
   #canceledOrdersBanner{ background:rgba(255,140,26,0.16); color:var(--orange); font-size:14.5px; font-weight:700; padding:10px 24px; border-bottom:1px solid var(--orange); flex:none; }
 
   #fryerBoard{ height:100%; display:flex; flex-direction:column; }
@@ -72,7 +72,7 @@
   }
   #fryerBoardHeader h1{ font-size:24px; font-weight:800; color:var(--white); }
   #fryerBoardClock{ font-size:20px; color:var(--muted); font-weight:600; }
-  #fryerBoardErrorBanner{ background:rgba(214,45,32,0.16); color:var(--red); font-size:14.5px; font-weight:700; padding:10px 24px; border-bottom:1px solid var(--red); flex:none; }
+  #fryerBoardErrorBanner{ background:rgba(216,52,46,0.16); color:var(--red); font-size:14.5px; font-weight:700; padding:10px 24px; border-bottom:1px solid var(--red); flex:none; }
   #fryerCanceledOrdersBanner{ background:rgba(255,140,26,0.16); color:var(--orange); font-size:14.5px; font-weight:700; padding:10px 24px; border-bottom:1px solid var(--orange); flex:none; }
   #fryerPanels{ flex:1; min-height:0; display:flex; }
   #fryerItemPanel{ flex:1; min-width:0; display:flex; flex-direction:column; }
@@ -85,12 +85,12 @@
   #recallList{ display:flex; flex-wrap:wrap; gap:10px; }
   .recall-item{ display:flex; align-items:center; gap:12px; background:var(--black); border:1px solid var(--line); border-radius:10px; padding:8px 12px; font-size:16px; font-weight:700; }
   .recall-item .recall-meta{ color:var(--muted); font-weight:600; font-size:14px; }
-  .recall-go{ background:var(--gold); color:#ffffff; font-weight:800; font-size:15px; padding:8px 14px; border-radius:8px; }
+  .recall-go{ background:var(--gold); color:#1d1d1f; font-weight:800; font-size:15px; padding:8px 14px; border-radius:8px; }
   .recall-empty{ color:var(--muted); font-size:15px; }
-  .order-notes{ margin:0 0 10px; padding:8px 12px; border-radius:8px; font-size:17px; font-weight:700; background:rgba(29,29,31,0.06); color:var(--cream); border:1px solid var(--line); white-space:pre-wrap; word-break:break-word; }
-  .order-notes.allergy{ background:rgba(214,45,32,0.22); color:#FFD9D6; border:2px solid var(--red); }
+  .order-notes{ margin:0 0 10px; padding:8px 12px; border-radius:8px; font-size:17px; font-weight:700; background:rgba(255,255,255,0.08); color:var(--cream); border:1px solid var(--line); white-space:pre-wrap; word-break:break-word; }
+  .order-notes.allergy{ background:rgba(216,52,46,0.22); color:#FFD9D6; border:2px solid var(--red); }
   .order-notes .allergy-tag{ display:block; color:var(--red); font-size:15px; font-weight:800; letter-spacing:0.04em; margin-bottom:2px; }
-  .order-card.order-allergy{ border-color:var(--red); box-shadow:0 0 0 2px rgba(214,45,32,0.35); }
+  .order-card.order-allergy{ border-color:var(--red); box-shadow:0 0 0 2px rgba(216,52,46,0.35); }
   #switchToFryerBtn, #switchToMainBtn{ font-size:14px; color:var(--muted); font-weight:700; padding:8px 14px; border:1px solid var(--line); border-radius:100px; margin-right:10px; }
 
   #panels{ flex:1; min-height:0; display:flex; }
@@ -135,17 +135,17 @@
   .box-gray .nm, .box-gray .cnt{ color:var(--white); }
   .box-gray:active{ background:#1c1a18; }
 
-  .box-orange{ background:rgba(29,29,31,0.07); border:1px solid var(--gold); }
+  .box-orange{ background:rgba(255,255,255,0.084); border:1px solid var(--gold); }
   .box-orange .nm, .box-orange .cnt{ color:var(--gold); }
-  .box-orange:active{ background:rgba(29,29,31,0.12); }
+  .box-orange:active{ background:rgba(255,255,255,0.144); }
 
   .box-green{ background:rgba(31,138,76,0.14); border:1px solid var(--green); }
   .box-green .nm, .box-green .cnt{ color:var(--green); }
 
   @keyframes kdsFlash{
-    0%{ box-shadow:0 0 0 0 rgba(29,29,31,0.0); transform:scale(1); }
-    30%{ box-shadow:0 0 0 6px rgba(29,29,31,0.175); transform:scale(1.035); }
-    100%{ box-shadow:0 0 0 0 rgba(29,29,31,0.0); transform:scale(1); }
+    0%{ box-shadow:0 0 0 0 rgba(255,255,255,0.0); transform:scale(1); }
+    30%{ box-shadow:0 0 0 6px rgba(255,255,255,0.21); transform:scale(1.035); }
+    100%{ box-shadow:0 0 0 0 rgba(255,255,255,0.0); transform:scale(1); }
   }
   .item-box.flash{ animation:kdsFlash 0.7s ease-out; }
 
@@ -168,15 +168,15 @@
   .order-pills{ display:flex; flex-wrap:wrap; gap:6px; }
   .item-pill{
     font-size:17px; font-weight:700; padding:6px 11px; border-radius:100px;
-    background:rgba(214,45,32,0.16); color:var(--red); border:1px solid rgba(214,45,32,0.4);
+    background:rgba(216,52,46,0.16); color:var(--red); border:1px solid rgba(216,52,46,0.4);
   }
   .item-pill.pill-ready{ background:rgba(31,138,76,0.16); color:var(--green); border-color:rgba(31,138,76,0.4); }
-  .item-pill.pill-prepping{ background:rgba(29,29,31,0.08); color:var(--gold); border-color:rgba(29,29,31,0.2); }
+  .item-pill.pill-prepping{ background:rgba(255,255,255,0.096); color:var(--gold); border-color:rgba(255,255,255,0.24); }
   .order-card.order-cash{ border-color:var(--red); }
   .scheduled-badge{ display:inline-block; margin-bottom:10px; padding:5px 12px; border-radius:100px; font-size:17px; font-weight:800; color:#7cc4ff; background:rgba(64,156,255,0.16); border:1px solid rgba(64,156,255,0.45); }
   .order-card.order-curbside{ border-color:var(--blue); }
   .cash-warning{
-    background:rgba(214,45,32,0.18); color:var(--red); border:1px solid var(--red); border-radius:8px;
+    background:rgba(216,52,46,0.18); color:var(--red); border:1px solid var(--red); border-radius:8px;
     padding:8px 12px; font-size:17px; font-weight:800; text-transform:uppercase; letter-spacing:0.03em;
     text-align:center; margin-bottom:10px;
   }
@@ -185,32 +185,32 @@
     padding:8px 12px; font-size:18px; font-weight:800; text-align:center; margin-bottom:10px;
   }
   .complete-btn{
-    margin-top:12px; width:100%; background:var(--green); color:#ffffff; font-weight:800;
+    margin-top:12px; width:100%; background:var(--green); color:#04220F; font-weight:800;
     font-size:19px; padding:12px; border-radius:10px;
   }
   /* ---------- IDLE / MAIN MENU / EMPLOYEE CLOCK-IN ---------- */
   #idleScreen{
     height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;
-    text-align:center; padding:40px; background:radial-gradient(circle at 50% 30%, rgba(29,29,31,0.07), var(--black) 65%);
+    text-align:center; padding:40px; background:radial-gradient(circle at 50% 30%, rgba(255,255,255,0.084), var(--black) 65%);
   }
-  #idleScreen img.logo{ width:180px; height:180px; border-radius:50%; object-fit:cover; margin-bottom:36px; box-shadow:0 0 90px rgba(29,29,31,0.15); }
+  #idleScreen img.logo{ width:180px; height:180px; border-radius:50%; object-fit:cover; margin-bottom:36px; box-shadow:0 0 90px rgba(255,255,255,0.18); }
   #idleScreen h1{ font-size:56px; font-weight:800; color:var(--white); margin-bottom:16px; }
   #idleScreen p{ font-size:22px; color:var(--muted); margin-bottom:48px; }
   #startStationBtn{
-    background:var(--gold); color:#ffffff; font-size:28px; font-weight:800;
-    padding:28px 64px; border-radius:100px; box-shadow:0 20px 50px rgba(29,29,31,0.175);
+    background:var(--gold); color:#1d1d1f; font-size:28px; font-weight:800;
+    padding:28px 64px; border-radius:100px; box-shadow:0 20px 50px rgba(255,255,255,0.21);
     animation:pulse 2.2s ease-in-out infinite;
   }
   @keyframes pulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.035); } }
   #mainMenuScreen{
     height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px;
   }
-  #mainMenuScreen img.logo-small{ width:120px; height:120px; border-radius:50%; object-fit:cover; margin-bottom:10px; box-shadow:0 0 60px rgba(29,29,31,0.125); }
+  #mainMenuScreen img.logo-small{ width:120px; height:120px; border-radius:50%; object-fit:cover; margin-bottom:10px; box-shadow:0 0 60px rgba(255,255,255,0.15); }
   #stationChoiceScreen{
     height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:22px;
   }
   .menu-choice-btn{
-    width:320px; padding:28px; border-radius:100px; background:var(--gold); color:#ffffff;
+    width:320px; padding:28px; border-radius:100px; background:var(--gold); color:#1d1d1f;
     font-size:28px; font-weight:800; text-align:center;
   }
   .menu-choice-btn:active{ background:var(--white); }
@@ -235,7 +235,7 @@
     font-size:16px; padding:14px 16px; border-radius:12px; text-align:center;
   }
   #kitchenSendCodeBtn, #kitchenVerifyCodeBtn{
-    background:var(--gold); color:#ffffff; font-size:16px; font-weight:800; padding:14px; border-radius:100px;
+    background:var(--gold); color:#1d1d1f; font-size:16px; font-weight:800; padding:14px; border-radius:100px;
   }
   #kitchenBackToEmailBtn{ font-size:13px; color:var(--muted); font-weight:600; }
   #kitchenLoginBackBtn{ font-size:14px; color:var(--muted); font-weight:700; padding:8px 14px; margin-top:6px; }
@@ -256,10 +256,10 @@
   /* ---- Roll-In shared look (matches rollinshawarma.com) ---- */
   body{ font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; -webkit-font-smoothing:antialiased; }
   h1, h2, h3{ font-family:"Inter Tight","Inter",-apple-system,BlinkMacSystemFont,sans-serif; letter-spacing:-0.022em; }
-  input, select, textarea{ color-scheme:light; }
-  :focus-visible{ outline-color:#d62d20; }
+  input, select, textarea{ color-scheme:dark; }
+  :focus-visible{ outline-color:#f5f5f7; }
   #proceedToCheckoutBtn, #exploreOtherPaymentsBtn{ border-radius:999px; }
-  .w1, .w2{ color:#1d1d1f !important; font-family:"Inter Tight","Inter",sans-serif; letter-spacing:-0.015em; }
+  .w1, .w2{ color:#f5f5f7 !important; font-family:"Inter Tight","Inter",sans-serif; letter-spacing:-0.015em; }
 </style>
 </head>
 <body>
