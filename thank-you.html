@@ -343,6 +343,11 @@
         setRow('feeRow', 'feeDisplay', b.fee);
         document.getElementById('totalDisplay').textContent = '$' + Number(b.total).toFixed(2);
 
+        if (order.scheduledPickupAt) {
+          var schedEl = document.getElementById('pickupNote');
+          schedEl.classList.remove('hidden');
+          schedEl.textContent = 'Scheduled pickup: ' + new Date(order.scheduledPickupAt).toLocaleString('en-US', { timeZone: 'America/New_York', weekday: 'long', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+        }
         if (order.pickupDate) {
           var pickupEl = document.getElementById('pickupNote');
           pickupEl.classList.remove('hidden');
