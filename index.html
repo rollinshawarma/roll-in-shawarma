@@ -193,6 +193,11 @@
   .ws-chip:hover{ color:var(--ink); }
   .ws-chip[aria-current="true"]{ color:var(--ink); border-bottom-color:var(--ink); }
   .menu-loading-hint{ color:var(--muted); text-align:center; padding:48px 0; }
+  .delivery-strip{ display:flex; flex-wrap:wrap; align-items:center; justify-content:center; gap:10px 8px; margin-top:32px; }
+  .delivery-strip-label{ width:100%; text-align:center; font-size:15px; color:var(--muted); margin-bottom:2px; }
+  .dp-pill{ display:inline-flex; align-items:center; gap:8px; height:40px; padding:0 16px; border-radius:999px; background:var(--panel); font-size:15px; font-weight:600; transition:background .2s ease; }
+  .dp-pill:hover{ background:#e8e8ed; }
+  .dp-dot{ width:9px; height:9px; border-radius:50%; flex:none; }
   .menu-note{ text-align:center; color:var(--muted); font-size:15px; margin-top:28px; }
   .menu-note a{ color:var(--accent); font-weight:500; }
 
@@ -252,6 +257,29 @@
     .mn-detail-top{ display:none; }
     .ws-sec-title{ margin-top:0; }
   }
+
+  /* ---------- delivery chooser ---------- */
+  .dl-scrim{ position:fixed; inset:0; z-index:440; background:rgba(0,0,0,.42); }
+  .dl-sheet{ position:fixed; z-index:450; left:0; right:0; bottom:0; background:#fff; border-radius:24px 24px 0 0; padding:22px 22px calc(22px + var(--safe-b)); box-shadow:0 -10px 40px rgba(0,0,0,.18); }
+  @media (min-width:720px){ .dl-sheet{ left:50%; right:auto; top:50%; bottom:auto; width:440px; transform:translate(-50%, -50%); border-radius:24px; padding:26px; } }
+  .dl-head{ display:flex; align-items:center; justify-content:space-between; }
+  .dl-head h3{ font-family:var(--display); font-size:26px; font-weight:700; letter-spacing:-0.02em; }
+  .dl-x{ width:36px; height:36px; border-radius:50%; background:var(--panel); font-size:22px; line-height:1; }
+  .dl-sub{ font-size:15px; color:var(--muted); margin:6px 0 14px; }
+  .dl-list{ border-top:1px solid var(--line); }
+  .dl-row{ display:flex; align-items:center; gap:14px; padding:14px 2px; border-bottom:1px solid var(--line); }
+  .dl-row:hover .dl-name{ color:var(--accent); }
+  .dl-mark{ width:44px; height:44px; border-radius:12px; flex:none; display:flex; align-items:center; justify-content:center; color:#fff; font-family:var(--display); font-weight:700; font-size:20px; }
+  .dl-mark{ position:relative; overflow:hidden; }
+  .dl-mark img, .dp-dot img{ position:absolute; inset:0; width:100%; height:100%; object-fit:contain; }
+  .dl-mark.has-logo{ background:#fff !important; box-shadow:inset 0 0 0 1px var(--line); }
+  .dl-mark.has-logo .dl-letter{ visibility:hidden; }
+  .dp-dot{ position:relative; overflow:hidden; }
+  .dp-dot.has-logo{ width:22px; height:22px; border-radius:6px; background:#fff !important; margin-left:-4px; }
+  .dl-name{ flex:1; font-size:18px; font-weight:600; transition:color .15s ease; }
+  .dl-name small{ display:block; font-size:13px; font-weight:400; color:var(--muted); }
+  .dl-chev{ width:22px; height:22px; color:var(--accent); flex:none; }
+  .dl-pickup{ display:block; text-align:center; margin-top:16px; font-size:15px; font-weight:500; color:var(--accent); }
 
   /* ---------- item sheet ---------- */
   .ws-scrim{ position:fixed; inset:0; z-index:440; background:rgba(0,0,0,.42); }
@@ -503,7 +531,7 @@
   .foot-brand img{ width:36px; height:36px; border-radius:50%; }
   .foot-tag{ margin-top:10px; max-width:280px; }
   .foot-cols{ display:flex; flex-wrap:wrap; gap:56px; }
-  @media (max-width:640px){ .foot-cols{ display:grid; grid-template-columns:repeat(3, 1fr); gap:20px; width:100%; } }
+  @media (max-width:640px){ .foot-cols{ display:grid; grid-template-columns:repeat(2, 1fr); gap:20px; width:100%; } }
   .foot-col h5{ font-size:13px; font-weight:600; color:var(--ink); margin-bottom:10px; }
   .foot-col a{ display:block; margin-bottom:8px; }
   .foot-col a:hover{ color:var(--ink); text-decoration:underline; }
@@ -667,7 +695,7 @@
 </nav>
 <div class="mobile-nav">
   <a href="#menu">Order Pickup</a>
-  <a href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener">Order Delivery</a>
+  <a href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener" data-delivery-open>Order Delivery</a>
   <a href="#menu">Menu</a>
   <a href="#deals" class="member-hide">Rewards</a>
   <a href="#catering">Catering</a>
@@ -691,7 +719,7 @@
     </div>
     <div class="hero-ctas">
       <a class="btn btn-white" href="#menu">Order Pickup</a>
-      <a class="btn btn-glass" href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener">Order Delivery</a>
+      <a class="btn btn-glass" href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener" data-delivery-open>Order Delivery</a>
     </div>
   </div>
 </header>
@@ -714,7 +742,12 @@
       </div>
     </div>
 
-    <p class="menu-note">Rather have it delivered? <a href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener">Order on DoorDash</a></p>
+    <div class="delivery-strip" aria-label="Order delivery">
+      <span class="delivery-strip-label">Rather have it delivered?</span>
+      <a class="dp-pill" href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener"><i class="dp-dot" style="background:#ff3008"><img src="logo-doordash.png" alt="" onload="this.parentNode.classList.add('has-logo')" onerror="this.remove()"></i>DoorDash</a>
+      <a class="dp-pill" href="https://www.ubereats.com/store/roll-in-shawarma/7hTjb6vTRxuScZ_VzXq6aQ?diningMode=DELIVERY" target="_blank" rel="noopener"><i class="dp-dot" style="background:#06c167"><img src="logo-ubereats.png" alt="" onload="this.parentNode.classList.add('has-logo')" onerror="this.remove()"></i>Uber Eats</a>
+      <a class="dp-pill" href="https://www.grubhub.com/restaurant/roll-in-shawarma-3554-s-arlington-rd-akron/15619752" target="_blank" rel="noopener"><i class="dp-dot" style="background:#ff8000"><img src="logo-grubhub.png" alt="" onload="this.parentNode.classList.add('has-logo')" onerror="this.remove()"></i>Grubhub</a>
+    </div>
   </div>
 </section>
 
@@ -1214,9 +1247,14 @@
         <div class="foot-col">
           <h5>Order</h5>
           <a href="#menu">Menu</a>
-          <a href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener">Delivery</a>
           <a href="#gift-cards">Gift Cards</a>
           <a href="#deals" class="member-hide">Rewards</a>
+        </div>
+        <div class="foot-col">
+          <h5>Delivery</h5>
+          <a href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener">DoorDash</a>
+          <a href="https://www.ubereats.com/store/roll-in-shawarma/7hTjb6vTRxuScZ_VzXq6aQ?diningMode=DELIVERY" target="_blank" rel="noopener">Uber Eats</a>
+          <a href="https://www.grubhub.com/restaurant/roll-in-shawarma-3554-s-arlington-rd-akron/15619752" target="_blank" rel="noopener">Grubhub</a>
         </div>
         <div class="foot-col">
           <h5>About</h5>
@@ -1260,7 +1298,7 @@
 
 <div id="floatOrderGroup">
   <a id="floatPickup" class="float-btn" href="#menu">Order Pickup</a>
-  <a id="floatDelivery" class="float-btn" href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener">Delivery</a>
+  <a id="floatDelivery" class="float-btn" data-delivery-open href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener">Delivery</a>
 </div>
 
 <div id="cartFab" class="cart-fab hidden">
@@ -1339,6 +1377,21 @@
     </div>
   </div>
 </div>
+
+<div class="dl-scrim" id="deliveryScrim" hidden></div>
+<section class="dl-sheet" id="deliverySheet" role="dialog" aria-modal="true" aria-labelledby="deliveryTitle" hidden>
+  <div class="dl-head">
+    <h3 id="deliveryTitle">Order delivery</h3>
+    <button type="button" class="dl-x" id="deliveryClose" aria-label="Close">&times;</button>
+  </div>
+  <p class="dl-sub">Pick your favorite app. Same food, delivered by our partners. Prices and fees are set by each app.</p>
+  <div class="dl-list">
+    <a class="dl-row" href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener"><span class="dl-mark" style="background:#ff3008"><span class="dl-letter">D</span><img src="logo-doordash.png" alt="" onload="this.parentNode.classList.add('has-logo')" onerror="this.remove()"></span><span class="dl-name">DoorDash<small>Order delivery</small></span><svg class="dl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"></polyline></svg></a>
+    <a class="dl-row" href="https://www.ubereats.com/store/roll-in-shawarma/7hTjb6vTRxuScZ_VzXq6aQ?diningMode=DELIVERY" target="_blank" rel="noopener"><span class="dl-mark" style="background:#06c167"><span class="dl-letter">U</span><img src="logo-ubereats.png" alt="" onload="this.parentNode.classList.add('has-logo')" onerror="this.remove()"></span><span class="dl-name">Uber Eats<small>Order delivery</small></span><svg class="dl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"></polyline></svg></a>
+    <a class="dl-row" href="https://www.grubhub.com/restaurant/roll-in-shawarma-3554-s-arlington-rd-akron/15619752" target="_blank" rel="noopener"><span class="dl-mark" style="background:#ff8000"><span class="dl-letter">G</span><img src="logo-grubhub.png" alt="" onload="this.parentNode.classList.add('has-logo')" onerror="this.remove()"></span><span class="dl-name">Grubhub<small>Order delivery</small></span><svg class="dl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"></polyline></svg></a>
+  </div>
+  <a class="dl-pickup" href="#menu" id="deliveryPickup">Or order pickup here and skip the delivery fees</a>
+</section>
 
 <div class="ws-scrim" id="wsScrim" hidden></div>
 <section class="ws-sheet" id="wsSheet" role="dialog" aria-modal="true" aria-labelledby="wsTitle" hidden>
@@ -3077,6 +3130,35 @@
     window.addEventListener('scroll', function(){ if (m.classList.contains('open')) sync(); }, { passive: true });
     m.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', function(){ setTimeout(sync, 0); }); });
     window.addEventListener('resize', function(){ if (window.innerWidth > 920 && m.classList.contains('open')) { m.classList.remove('open'); sync(); } });
+  })();
+
+  // ---- Delivery chooser: DoorDash, Uber Eats or Grubhub ----
+  (function(){
+    var sheet = document.getElementById('deliverySheet'), scrim = document.getElementById('deliveryScrim');
+    if (!sheet || !scrim) return;
+    var lastFocus = null;
+    function open(){
+      lastFocus = document.activeElement;
+      sheet.hidden = false; scrim.hidden = false;
+      document.body.classList.add('ws-locked');
+      document.getElementById('deliveryClose').focus();
+    }
+    function close(){
+      if (sheet.hidden) return;
+      sheet.hidden = true; scrim.hidden = true;
+      document.body.classList.remove('ws-locked');
+      if (lastFocus && document.body.contains(lastFocus)) lastFocus.focus();
+    }
+    document.addEventListener('click', function(e){
+      var t = e.target.closest('[data-delivery-open]');
+      if (!t) return;
+      e.preventDefault();
+      open();
+    });
+    document.getElementById('deliveryClose').addEventListener('click', close);
+    scrim.addEventListener('click', close);
+    sheet.querySelectorAll('.dl-row, #deliveryPickup').forEach(function(a){ a.addEventListener('click', close); });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape') close(); });
   })();
 
   // ---- Pickup time for website orders (ASAP while open, otherwise scheduled) ----
