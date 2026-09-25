@@ -6,24 +6,24 @@
 <title>Order Status | Roll-In Shawarma</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Inter+Tight:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --black:#000000;
-    --panel:#121110;
-    --white:#FFFCF3;
-    --cream:#F3EAC9;
-    --muted:rgba(243,234,201,0.62);
-    --gold:#F7AD28;
-    --red:#D8342E;
-    --green:#0BAF4C;
-    --purple:#9B6DFF;
-    --line:rgba(243,234,201,0.14);
+    --black:#ffffff;
+    --panel:#f5f5f7;
+    --white:#1d1d1f;
+    --cream:#424245;
+    --muted:#6e6e73;
+    --gold:#1d1d1f;
+    --red:#d62d20;
+    --green:#1f8a4c;
+    --purple:#7c4dff;
+    --line:#e3e3e8;
   }
   *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
   html, body{ overflow:hidden; height:100%; width:100%; overscroll-behavior:none; }
   body{
-    background:var(--black); color:var(--cream); font-family:'Inter', -apple-system, sans-serif;
+    background:var(--black); color:var(--cream); font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
     line-height:1.4; user-select:none; display:flex; flex-direction:column;
   }
 
@@ -35,7 +35,7 @@
   header .sub{ font-size:13px; color:var(--muted); margin-top:2px; }
 
   #errorBanner{
-    display:none; background:rgba(216,52,46,0.16); color:var(--red); font-size:14px; font-weight:700;
+    display:none; background:rgba(214,45,32,0.16); color:var(--red); font-size:14px; font-weight:700;
     padding:10px 32px; border-bottom:1px solid var(--red); flex:none;
   }
 
@@ -43,7 +43,7 @@
 
   .order-column{ flex:1; min-width:0; display:flex; flex-direction:column; overflow:hidden; }
   .order-column + .order-column{ border-left:1px solid var(--line); }
-  #pickedUpColumn{ flex:0 0 34%; background:rgba(0,0,0,0.2); }
+  #pickedUpColumn{ flex:0 0 34%; background:rgba(0,0,0,0.033); }
   .column-title{
     flex:none; font-size:13px; font-weight:800; text-transform:uppercase; letter-spacing:0.05em;
     color:var(--muted); padding:16px 28px 4px;
@@ -55,8 +55,8 @@
     background:var(--panel); border:1px solid var(--line); border-radius:16px; padding:20px 28px;
   }
   #pickedUpColumn .order-row{ padding:14px 20px; }
-  .order-row.stage-preparing{ border-color:var(--gold); background:rgba(247,173,40,0.08); }
-  .order-row.stage-ready{ border-color:var(--green); background:rgba(11,175,76,0.1); }
+  .order-row.stage-preparing{ border-color:var(--gold); background:rgba(29,29,31,0.04); }
+  .order-row.stage-ready{ border-color:var(--green); background:rgba(31,138,76,0.1); }
   .order-row.stage-picked_up{ border-color:var(--purple); background:rgba(155,109,255,0.1); opacity:0.7; }
   .order-row-left{ display:flex; flex-direction:column; gap:4px; min-width:0; }
   .order-row-name{ font-size:24px; font-weight:800; color:var(--white); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
@@ -67,9 +67,9 @@
     padding:10px 20px; border-radius:100px;
   }
   #pickedUpColumn .status-badge{ font-size:12px; padding:7px 14px; }
-  .status-badge.placed{ background:rgba(243,234,201,0.1); color:var(--muted); border:1px solid var(--line); }
-  .status-badge.preparing{ background:rgba(247,173,40,0.16); color:var(--gold); border:1px solid var(--gold); }
-  .status-badge.ready{ background:var(--green); color:#04220F; }
+  .status-badge.placed{ background:rgba(29,29,31,0.075); color:var(--muted); border:1px solid var(--line); }
+  .status-badge.preparing{ background:rgba(29,29,31,0.08); color:var(--gold); border:1px solid var(--gold); }
+  .status-badge.ready{ background:var(--green); color:#ffffff; }
   .status-badge.picked_up{ background:var(--purple); color:#1A0B33; }
 
   #emptyHint{ text-align:center; color:var(--muted); font-size:18px; padding:60px 20px; }
@@ -87,6 +87,14 @@
     .order-column + .order-column{ border-left:none; border-top:1px solid var(--line); }
     #pickedUpColumn{ flex:0 0 auto; max-height:30vh; }
   }
+
+  /* ---- Roll-In shared look (matches rollinshawarma.com) ---- */
+  body{ font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; -webkit-font-smoothing:antialiased; }
+  h1, h2, h3{ font-family:"Inter Tight","Inter",-apple-system,BlinkMacSystemFont,sans-serif; letter-spacing:-0.022em; }
+  input, select, textarea{ color-scheme:light; }
+  :focus-visible{ outline-color:#d62d20; }
+  #proceedToCheckoutBtn, #exploreOtherPaymentsBtn{ border-radius:999px; }
+  .w1, .w2{ color:#1d1d1f !important; font-family:"Inter Tight","Inter",sans-serif; letter-spacing:-0.015em; }
 </style>
 </head>
 <body>
