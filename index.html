@@ -151,6 +151,8 @@
   .hero{ position:relative; height:calc(100svh - var(--nav-h) - 40px); min-height:540px; max-height:900px; color:#fff; overflow:hidden; background:#0b0b0c; }
   .hero-media{ position:absolute; inset:0; }
   .hero-media img{ width:100%; height:100%; object-fit:cover; object-position:50% 62%; }
+  .hero-video{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; opacity:0; transition:opacity .6s ease; pointer-events:none; }
+  .hero-video.is-playing{ opacity:1; }
   .hero::after{ content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,.55) 0%, rgba(0,0,0,.05) 38%, rgba(0,0,0,0) 60%, rgba(0,0,0,.55) 100%); }
   .hero-inner{ position:relative; z-index:1; height:100%; display:flex; flex-direction:column; align-items:center; justify-content:space-between; text-align:center; padding:clamp(56px, 11vh, 120px) 22px clamp(36px, 7vh, 72px); }
   .hero h1{ font-family:var(--display); font-size:clamp(42px, 7.4vw, 80px); line-height:1; letter-spacing:-0.035em; font-weight:700; }
@@ -365,6 +367,13 @@
   .member-qr svg{ width:200px; height:200px; margin:0 auto; display:block; }
   .member-qr-code{ font-weight:700; font-size:18px; letter-spacing:.08em; margin-top:12px; }
   .member-qr-hint{ font-size:13px; color:var(--muted); margin-top:4px; }
+  .wallet-row{ text-align:center; margin-top:16px; }
+  .wallet-btn{ display:inline-flex; align-items:center; justify-content:center; height:48px; padding:0 22px; border-radius:12px; background:#000; color:#fff; font-size:16px; font-weight:600; }
+  .wallet-btn img{ display:none; height:48px; width:auto; }
+  .wallet-btn.has-badge{ background:none; padding:0; }
+  .wallet-btn.has-badge img{ display:block; }
+  .wallet-btn.has-badge .wallet-fallback{ display:none; }
+  .wallet-btn:disabled{ opacity:.5; }
   .deals-grid{ display:grid; grid-template-columns:repeat(auto-fit, minmax(220px, 1fr)); gap:12px; margin-top:36px; }
   .deal-card{ background:#fff; border-radius:22px; padding:26px; }
   .deal-card.accent{ background:var(--ink); color:#fff; }
@@ -597,6 +606,17 @@
   .cart-checkout-form{ padding:20px 24px 0; }
   #promoSection{ padding:0 24px; }
   .pickup-time{ padding:0 24px 18px; }
+  .tip-section{ padding:14px 24px 4px; }
+  .tip-choice{ display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; }
+  .tip-opt{ height:44px; border:1.5px solid var(--line); border-radius:12px; font-weight:600; font-size:15px; }
+  .tip-opt[aria-checked="true"]{ border-color:var(--ink); box-shadow:inset 0 0 0 1px var(--ink); }
+  .wallet-pay{ display:flex; flex-direction:column; gap:10px; }
+  .apple-pay-btn{ display:block; width:100%; height:52px; -webkit-appearance:-apple-pay-button; appearance:-apple-pay-button; -apple-pay-button-type:plain; -apple-pay-button-style:black; border-radius:999px; border:0; }
+  .google-pay-btn{ height:52px; border-radius:999px; overflow:hidden; }
+  .apple-pay-btn.is-busy, .google-pay-btn.is-busy{ opacity:.5; pointer-events:none; }
+  .pay-or{ display:flex; align-items:center; gap:12px; color:var(--muted); font-size:13px; margin:2px 0 10px; }
+  .pay-or::before, .pay-or::after{ content:""; flex:1; height:1px; background:var(--line); }
+  .pay-or.hidden + #cartPayNowBtn{ margin-top:0; }
   .pickup-time-label{ font-size:13px; font-weight:600; color:var(--ink-2); margin-bottom:8px; }
   .pt-choice{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
   .pt-opt{ text-align:left; padding:12px 14px; border:1.5px solid var(--line); border-radius:14px; font-weight:600; font-size:16px; transition:border-color .15s ease, background .15s ease; }
@@ -710,7 +730,14 @@
 </div>
 
 <header class="hero member-hide" id="top">
-  <div class="hero-media"><img src="hero-truck.jpg" alt="The Roll-In Shawarma food truck" fetchpriority="high" onerror="this.onerror=null;this.src='truck-night.webp'"></div>
+  <div class="hero-media">
+    <img src="hero-truck.jpg" alt="The Roll-In Shawarma food truck" fetchpriority="high" onerror="this.onerror=null;this.src='truck-night.webp'">
+    <!-- Background video: always muted, no controls. If the file is missing or
+         can't play (e.g. iPhone Low Power Mode), the photo above shows instead. -->
+    <video class="hero-video" id="heroVideo" autoplay muted loop playsinline disablepictureinpicture disableremoteplayback preload="auto" aria-hidden="true" tabindex="-1">
+      <source src="hero-video.mp4" type="video/mp4" onerror="var v=this.parentNode; v.parentNode && v.parentNode.removeChild(v);">
+    </video>
+  </div>
   <div class="hero-inner">
     <div>
       <h1>Roll-In Shawarma</h1>
@@ -883,7 +910,15 @@
       <div class="member-qr-card">
         <div id="memberQrCanvas" class="member-qr"></div>
         <div class="member-qr-code" id="memberQrCode">&mdash;</div>
-        <div class="member-qr-hint">Screenshot this or keep this page open</div>
+        <div class="member-qr-hint">Screenshot this, keep this page open, or add it to your Wallet</div>
+      </div>
+
+      <div class="wallet-row hidden" id="walletRow">
+        <button type="button" class="wallet-btn" id="appleWalletBtn" aria-label="Add to Apple Wallet">
+          <img src="add-to-apple-wallet.svg" alt="" onload="this.parentNode.classList.add('has-badge')" onerror="this.remove()">
+          <span class="wallet-fallback">Add to Apple Wallet</span>
+        </button>
+        <div id="walletMsg" class="promo-msg"></div>
       </div>
 
       <div class="deals-grid">
@@ -1361,6 +1396,16 @@
         <div id="promoMsg" class="promo-msg"></div>
       </div>
 
+      <div id="tipSection" class="tip-section hidden">
+        <div class="pickup-time-label">Add a tip for the crew</div>
+        <div class="tip-choice" role="radiogroup" aria-label="Tip">
+          <button type="button" class="tip-opt" data-tip="0" role="radio" aria-checked="true">No tip</button>
+          <button type="button" class="tip-opt" data-tip="0.10" role="radio" aria-checked="false">10%</button>
+          <button type="button" class="tip-opt" data-tip="0.15" role="radio" aria-checked="false">15%</button>
+          <button type="button" class="tip-opt" data-tip="0.20" role="radio" aria-checked="false">20%</button>
+        </div>
+      </div>
+
       <div id="cartCheckoutMsg" class="square-pay-msg cart-checkout-msg"></div>
       <div class="cart-drawer-footer">
         <div class="cart-breakdown">
@@ -1369,8 +1414,14 @@
           <div class="cart-breakdown-row">Sales Tax (6.75%) <span id="cartCheckoutTax">$0.00</span></div>
           <div class="cart-breakdown-row hidden" id="giftCardTotalRow">Gift Cards <span id="cartCheckoutGiftCards">$0.00</span></div>
           <div class="cart-breakdown-row">Online Processing Fee <span id="cartCheckoutFee">$0.00</span></div>
+          <div class="cart-breakdown-row hidden" id="tipRow">Tip <span id="cartCheckoutTip">$0.00</span></div>
         </div>
         <div class="cart-total-row">Total <span id="cartCheckoutTotal">$0.00</span></div>
+        <div class="wallet-pay">
+          <button type="button" id="applePayBtn" class="apple-pay-btn hidden" lang="en" aria-label="Pay with Apple Pay"></button>
+          <div id="googlePayBtn" class="google-pay-btn hidden"></div>
+          <div class="pay-or hidden" id="payOr"><span>or</span></div>
+        </div>
         <button type="button" id="cartPayNowBtn" class="btn btn-light">Pay Now</button>
         <button type="button" id="cartBackToItemsBtn" class="cart-back-link">&larr; Back to order</button>
       </div>
@@ -2297,8 +2348,20 @@
     }
     var appliedPromo = null; // { code, discountAmount } once successfully applied
 
+    // Checkout total = the cart totals plus the tip chosen at checkout.
+    // Tip is a percentage of the food subtotal after any promo, matching
+    // what the checkout function charges.
+    var tipPct = 0;
+    function checkoutTotals(){
+      var t = computeOrderTotals(cartTotal(), appliedPromo ? appliedPromo.discountAmount : 0, giftCardCartTotal());
+      var tipCents = cart.length ? Math.round(Math.round((t.subtotal - t.discount) * 100) * tipPct) : 0;
+      t.tip = tipCents / 100;
+      t.totalCents = Math.round(t.total * 100) + tipCents;
+      t.total = t.totalCents / 100;
+      return t;
+    }
     function refreshCheckoutBreakdown(){
-      var totals = computeOrderTotals(cartTotal(), appliedPromo ? appliedPromo.discountAmount : 0, giftCardCartTotal());
+      var totals = checkoutTotals();
       document.getElementById('cartCheckoutSubtotal').textContent = '$' + totals.subtotal.toFixed(2);
       document.getElementById('cartCheckoutTax').textContent = '$' + totals.tax.toFixed(2);
       document.getElementById('cartCheckoutFee').textContent = '$' + totals.fee.toFixed(2);
@@ -2317,6 +2380,9 @@
       } else {
         giftRow.classList.add('hidden');
       }
+      document.getElementById('tipRow').classList.toggle('hidden', !(totals.tip > 0));
+      document.getElementById('cartCheckoutTip').textContent = '$' + totals.tip.toFixed(2);
+      if (window.__rollinWalletUpdate) window.__rollinWalletUpdate(totals);
     }
 
     function cartHasCateringItem(){
@@ -2347,8 +2413,10 @@
       var promoSection = document.getElementById('promoSection');
       promoSection.classList.toggle('hidden', hasCatering);
       if (window.rollinPickup) window.rollinPickup.setup(cart.length > 0 && !hasCatering);
+      resetTip();
 
       refreshCheckoutBreakdown();
+      prepareWallets();
     }
 
     // While the drawer is open, the page behind it must not scroll --
@@ -2438,85 +2506,188 @@
           });
       });
 
+      // ---- Pay: Apple Pay / Google Pay right here, or card on Square's page ----
       document.getElementById('cartPayNowBtn').addEventListener('click', function(){
-        var payBtn = this;
-        var msgEl = document.getElementById('cartCheckoutMsg');
-        var name = document.getElementById('cartCustomerName').value.trim();
-        var email = document.getElementById('cartCustomerEmail').value.trim();
-        var phone = document.getElementById('cartCustomerPhone').value.trim();
-        var notes = document.getElementById('cartCustomerNotes').value.trim();
-        var pickupDate = document.getElementById('cartPickupDate').value || undefined;
-
-        msgEl.textContent = '';
-        msgEl.className = 'square-pay-msg cart-checkout-msg';
-
-        if (!cart.length && !giftCardCart.length) {
-          msgEl.textContent = 'Your cart is empty.';
-          msgEl.className = 'square-pay-msg cart-checkout-msg error';
-          return;
-        }
-        if (!name || !email) {
-          msgEl.textContent = 'Please fill in your name and email so we can send your confirmation.';
-          msgEl.className = 'square-pay-msg cart-checkout-msg error';
-          return;
-        }
-
-        var scheduledPickupAt = null;
-        try { scheduledPickupAt = window.rollinPickup ? window.rollinPickup.value() : null; }
-        catch (ptErr) {
-          msgEl.textContent = ptErr.message;
-          msgEl.className = 'square-pay-msg cart-checkout-msg error';
-          return;
-        }
-
-        payBtn.disabled = true;
-        payBtn.textContent = 'Preparing checkout\u2026';
-
-        var itemsPayload = cart.map(function(c){
-          return { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name };
+        var order = collectCheckout();
+        if (!order) return;
+        setPayBusy(true, 'Preparing checkout…');
+        submitOrder(order).then(function(result){
+          if (!result) return;
+          // Don't clear the cart here -- going to Square's page doesn't
+          // mean payment succeeded. The cart only clears once
+          // thank-you.html confirms the payment went through.
+          closeCartDrawer();
+          showItemsView();
+          window.location.href = result.url;
         });
-        var giftCardsPayload = giftCardCart.map(function(g){
-          return { amount: g.amount, recipientName: g.recipientName, recipientEmail: g.recipientEmail, message: g.message };
-        });
-
-        fetch(ORDER_EDGE_FUNCTION_URL, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ORDER_ANON_KEY },
-          body: JSON.stringify({
-            items: itemsPayload, giftCards: giftCardsPayload,
-            customerName: name, customerEmail: email,
-            customerPhone: phone, notes: notes, pickupDate: pickupDate,
-            promoCode: appliedPromo ? appliedPromo.code : undefined,
-            scheduledPickupAt: scheduledPickupAt || undefined
-          })
-        }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
-          .then(function(result){
-            payBtn.disabled = false;
-            payBtn.textContent = 'Pay Now';
-            if (!result.ok || !result.data.url) {
-              if (result.data && (result.data.code === 'CLOSED' || result.data.code === 'BAD_PICKUP_TIME') && window.rollinPickup) window.rollinPickup.forceSchedule();
-              msgEl.textContent = formatErrorMessage(result.data && result.data.error) || "Couldn't start checkout \u2014 please try again in a moment.";
-              msgEl.className = 'square-pay-msg cart-checkout-msg error';
-              return;
-            }
-            // Don't clear the cart here -- clicking Pay Now doesn't
-            // mean payment succeeded. If they abandon Square's page
-            // or hit back, they should find their cart exactly as
-            // they left it, not have to rebuild it from scratch. The
-            // cart only actually clears once thank-you.html confirms
-            // the payment genuinely went through.
-            closeCartDrawer();
-            showItemsView();
-            window.location.href = result.data.url;
-          })
-          .catch(function(){
-            payBtn.disabled = false;
-            payBtn.textContent = 'Pay Now';
-            msgEl.textContent = "Couldn't reach checkout \u2014 please try again in a moment.";
-            msgEl.className = 'square-pay-msg cart-checkout-msg error';
-          });
       });
     }
+
+    // ---- Checkout helpers shared by every way to pay ----
+    var PAY_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/create-order-checkout';
+    var PAY_KEY = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
+
+    function checkoutMsg(text, isError){
+      var el = document.getElementById('cartCheckoutMsg');
+      el.textContent = text || '';
+      el.className = 'square-pay-msg cart-checkout-msg' + (text && isError !== false ? ' error' : '');
+    }
+    function setPayBusy(busy, label){
+      var btn = document.getElementById('cartPayNowBtn');
+      btn.disabled = busy;
+      btn.textContent = busy ? (label || 'Processing…') : payLabel();
+      ['applePayBtn', 'googlePayBtn'].forEach(function(id){ document.getElementById(id).classList.toggle('is-busy', busy); });
+    }
+    function payLabel(){ return walletShown ? 'Pay with card' : 'Pay Now'; }
+
+    // Checks the form synchronously (Apple Pay must open straight from the
+    // tap, before anything waits on the network) and returns the order.
+    function collectCheckout(){
+      checkoutMsg('');
+      var name = document.getElementById('cartCustomerName').value.trim();
+      var email = document.getElementById('cartCustomerEmail').value.trim();
+      if (!cart.length && !giftCardCart.length) { checkoutMsg('Your cart is empty.'); return null; }
+      if (!name || !email) { checkoutMsg('Please fill in your name and email so we can send your confirmation.'); return null; }
+      var scheduledPickupAt = null;
+      try { scheduledPickupAt = window.rollinPickup ? window.rollinPickup.value() : null; }
+      catch (ptErr) { checkoutMsg(ptErr.message); return null; }
+      var totals = checkoutTotals();
+      return {
+        totals: totals,
+        payload: {
+          items: cart.map(function(c){ return { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name }; }),
+          giftCards: giftCardCart.map(function(g){ return { amount: g.amount, recipientName: g.recipientName, recipientEmail: g.recipientEmail, message: g.message }; }),
+          customerName: name,
+          customerEmail: email,
+          customerPhone: document.getElementById('cartCustomerPhone').value.trim(),
+          notes: document.getElementById('cartCustomerNotes').value.trim(),
+          pickupDate: document.getElementById('cartPickupDate').value || undefined,
+          promoCode: appliedPromo ? appliedPromo.code : undefined,
+          scheduledPickupAt: scheduledPickupAt || undefined,
+          tipAmount: totals.tip || undefined
+        }
+      };
+    }
+
+    // Sends the order. Resolves with the server's reply on success, or
+    // null after showing the problem to the customer.
+    function submitOrder(order, extra){
+      var body = Object.assign({}, order.payload, extra || {});
+      return fetch(PAY_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + PAY_KEY },
+        body: JSON.stringify(body)
+      }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
+        .then(function(result){
+          setPayBusy(false);
+          var d = result.data || {};
+          if (result.ok && (d.url || d.paid)) return d;
+          if ((d.code === 'CLOSED' || d.code === 'BAD_PICKUP_TIME') && window.rollinPickup) window.rollinPickup.forceSchedule();
+          if (d.code === 'TOTAL_CHANGED') {
+            // A price changed since the menu loaded: reload today's prices
+            // so the next tap shows (and Apple Pay approves) the real total.
+            sbShared.rpc('get_public_menu').then(function(res){
+              if (res && !res.error && Array.isArray(res.data) && res.data.length) renderMenu(res.data);
+              refreshCheckoutBreakdown();
+            }, function(){ refreshCheckoutBreakdown(); });
+          }
+          checkoutMsg(formatErrorMessage(d.error) || "Couldn't start checkout — please try again in a moment.");
+          return null;
+        })
+        .catch(function(){
+          setPayBusy(false);
+          checkoutMsg("Couldn't reach checkout — please try again in a moment.");
+          return null;
+        });
+    }
+
+    // ---- Tip (asked here now; Square's page no longer asks) ----
+    var tipButtons = document.querySelectorAll('.tip-opt');
+    function resetTip(){
+      tipPct = 0;
+      tipButtons.forEach(function(b){ b.setAttribute('aria-checked', b.getAttribute('data-tip') === '0' ? 'true' : 'false'); });
+      document.getElementById('tipSection').classList.toggle('hidden', !cart.length);
+    }
+    tipButtons.forEach(function(b){
+      b.addEventListener('click', function(){
+        tipPct = parseFloat(b.getAttribute('data-tip')) || 0;
+        tipButtons.forEach(function(x){ x.setAttribute('aria-checked', x === b ? 'true' : 'false'); });
+        refreshCheckoutBreakdown();
+      });
+    });
+
+    // ---- Apple Pay / Google Pay through Square's Web Payments SDK ----
+    // Card details never touch our site: the phone gives Square a one-time
+    // token, and our checkout function charges it for the server's own total.
+    var SQUARE_APP_ID = 'sq0idp-REPLACE_WITH_YOUR_APPLICATION_ID';
+    var SQUARE_LOCATION_ID = 'LSGMC1VJ71JNG';
+    var walletShown = false, walletLoading = null, sqRequest = null, sqApplePay = null, sqGooglePay = null;
+
+    function walletTotal(t){ return { amount: t.total.toFixed(2), label: 'Roll-In Shawarma' }; }
+    window.__rollinWalletUpdate = function(t){
+      if (sqRequest) { try { sqRequest.update({ total: walletTotal(t) }); } catch (e) {} }
+    };
+    function loadSquareSdk(){
+      if (window.Square) return Promise.resolve();
+      return new Promise(function(resolve, reject){
+        var s = document.createElement('script');
+        s.src = 'https://web.squarecdn.com/v1/square.js';
+        s.onload = resolve; s.onerror = reject;
+        document.head.appendChild(s);
+      });
+    }
+    function prepareWallets(){
+      if (walletLoading) { window.__rollinWalletUpdate(checkoutTotals()); return walletLoading; }
+      if (SQUARE_APP_ID.indexOf('REPLACE') !== -1) return (walletLoading = Promise.resolve());
+      walletLoading = loadSquareSdk().then(function(){
+        var payments = window.Square.payments(SQUARE_APP_ID, SQUARE_LOCATION_ID);
+        sqRequest = payments.paymentRequest({ countryCode: 'US', currencyCode: 'USD', total: walletTotal(checkoutTotals()) });
+        // Each wallet only appears where it works (Apple Pay: Safari on
+        // Apple devices with a card in Wallet; Google Pay: Chrome/Android).
+        var apple = payments.applePay(sqRequest).then(function(ap){
+          sqApplePay = ap;
+          document.getElementById('applePayBtn').classList.remove('hidden');
+          walletShown = true;
+        }).catch(function(){});
+        var google = payments.googlePay(sqRequest).then(function(gp){
+          sqGooglePay = gp;
+          return gp.attach('#googlePayBtn', { buttonColor: 'black', buttonType: 'plain', buttonSizeMode: 'fill' }).then(function(){
+            document.getElementById('googlePayBtn').classList.remove('hidden');
+            walletShown = true;
+          });
+        }).catch(function(){});
+        return Promise.all([apple, google]).then(function(){
+          document.getElementById('payOr').classList.toggle('hidden', !walletShown);
+          setPayBusy(false);
+        });
+      }).catch(function(err){ console.error('Wallet setup failed:', err); });
+      return walletLoading;
+    }
+
+    function payWithWallet(method){
+      if (!method) return;
+      var order = collectCheckout();
+      if (!order) return;
+      // tokenize() must start inside the tap itself, or Safari blocks the sheet.
+      var tokenizing = method.tokenize();
+      setPayBusy(true, 'Processing…');
+      tokenizing.then(function(res){
+        if (!res || res.status !== 'OK' || !res.token) {
+          setPayBusy(false);
+          var detail = res && res.errors && res.errors[0] && res.errors[0].message;
+          if (res && res.status !== 'Cancel' && detail) checkoutMsg(detail);
+          return;
+        }
+        return submitOrder(order, { walletToken: res.token, expectedTotal: order.totals.total }).then(function(result){
+          if (!result || !result.paid) return;
+          closeCartDrawer();
+          showItemsView();
+          window.location.href = result.redirectUrl;
+        });
+      }).catch(function(){ setPayBusy(false); });
+    }
+    document.getElementById('applePayBtn').addEventListener('click', function(){ payWithWallet(sqApplePay); });
+    document.getElementById('googlePayBtn').addEventListener('click', function(){ payWithWallet(sqGooglePay); });
 
     // ---- Catering section: validate + add to the SAME shared cart ----
     var addCateringBtn = document.getElementById('addCateringToCartBtn');
@@ -3130,6 +3301,52 @@
     window.addEventListener('scroll', function(){ if (m.classList.contains('open')) sync(); }, { passive: true });
     m.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', function(){ setTimeout(sync, 0); }); });
     window.addEventListener('resize', function(){ if (window.innerWidth > 920 && m.classList.contains('open')) { m.classList.remove('open'); sync(); } });
+  })();
+
+  // ---- Hero background video: muted, fades in once it actually plays ----
+  (function(){
+    var v = document.getElementById('heroVideo');
+    if (!v) return;
+    v.muted = true; v.defaultMuted = true; v.volume = 0;
+    var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    if (reduce) { v.pause(); v.removeAttribute('autoplay'); v.remove(); return; } // photo only
+    v.addEventListener('playing', function(){ v.classList.add('is-playing'); });
+    var p = v.play && v.play();
+    if (p && p.catch) p.catch(function(){ /* autoplay blocked: the photo stays */ });
+    // Save battery/data: pause while the hero is off screen.
+    if ('IntersectionObserver' in window) {
+      new IntersectionObserver(function(es){
+        es.forEach(function(e){ if (e.isIntersecting) { var q = v.play(); if (q && q.catch) q.catch(function(){}); } else v.pause(); });
+      }).observe(v);
+    }
+  })();
+
+  // ---- Member card -> Apple Wallet (iPhone, iPad, and Safari on Mac) ----
+  (function(){
+    var row = document.getElementById('walletRow'), btn = document.getElementById('appleWalletBtn'), msg = document.getElementById('walletMsg');
+    if (!row || !btn || typeof sbShared === 'undefined') return;
+    var ua = navigator.userAgent || '';
+    var isIOS = /iPhone|iPad|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+    var isMacSafari = /Macintosh/.test(ua) && /Safari/.test(ua) && !/Chrome|Chromium|CriOS|Edg|Firefox|FxiOS/.test(ua);
+    if (!isIOS && !isMacSafari) return;
+    row.classList.remove('hidden');
+    var URL_ = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/apple-wallet-pass';
+    function fail(text){ msg.textContent = text; msg.className = 'promo-msg error'; btn.disabled = false; }
+    btn.addEventListener('click', function(){
+      btn.disabled = true;
+      msg.textContent = ''; msg.className = 'promo-msg';
+      sbShared.auth.getSession().then(function(res){
+        var token = res && res.data && res.data.session && res.data.session.access_token;
+        if (!token) return fail('Please sign in again, then tap Add to Apple Wallet.');
+        return fetch(URL_, { method: 'POST', headers: { 'Authorization': 'Bearer ' + token, 'apikey': 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_' } })
+          .then(function(r){ return r.json().then(function(d){ return { ok: r.ok, d: d }; }); })
+          .then(function(out){
+            if (!out.ok || !out.d.url) return fail((out.d && out.d.error) || 'Couldn’t create your Wallet card right now.');
+            btn.disabled = false;
+            window.location.href = out.d.url; // iPhone opens this straight into "Add to Apple Wallet"
+          });
+      }).catch(function(){ fail('Couldn’t reach the server. Check your connection and try again.'); });
+    });
   })();
 
   // ---- Delivery chooser: DoorDash, Uber Eats or Grubhub ----
