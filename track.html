@@ -3,21 +3,21 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-<meta name="theme-color" content="#000000">
+<meta name="theme-color" content="#ffffff">
 <meta name="robots" content="noindex">
 <title>Track your order — Roll-In Shawarma</title>
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Inter+Tight:wght@600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
   :root{
-    --black:#000000; --panel:#16130F; --panel-2:#211C16; --line:rgba(243,234,201,0.13);
-    --cream:#F3EAC9; --white:#FFFCF3; --muted:rgba(243,234,201,0.64);
-    --gold:#F7AD28; --gold-ink:#241902; --red:#D8342E; --green:#0BAF4C; --green-ink:#03220f; --orange:#FF8C1A;
-    --display:'Barlow Condensed', 'Arial Narrow', 'Inter', sans-serif;
-    --body:'Inter', -apple-system, 'Segoe UI', Roboto, sans-serif;
+    --black:#ffffff; --panel:#f5f5f7; --panel-2:#e8e8ed; --line:#e3e3e8;
+    --cream:#424245; --white:#1d1d1f; --muted:#6e6e73;
+    --gold:#1d1d1f; --gold-ink:#ffffff; --red:#d62d20; --green:#1f8a4c; --green-ink:#ffffff; --orange:#e8710a;
+    --display:"Inter Tight","Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    --body:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
   }
   *{ box-sizing:border-box; margin:0; padding:0; }
   body{ background:var(--black); color:var(--cream); font-family:var(--body); font-size:15px; line-height:1.45; min-height:100vh; }
@@ -36,7 +36,7 @@
   .live{ margin-left:auto; display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--muted); }
   .live-dot{ width:8px; height:8px; border-radius:50%; background:var(--green); animation:pulse 2s infinite; }
   .live.stale .live-dot{ background:var(--gold); animation:none; }
-  @keyframes pulse{ 0%{ box-shadow:0 0 0 0 rgba(11,175,76,0.5); } 70%{ box-shadow:0 0 0 7px rgba(11,175,76,0); } 100%{ box-shadow:0 0 0 0 rgba(11,175,76,0); } }
+  @keyframes pulse{ 0%{ box-shadow:0 0 0 0 rgba(31,138,76,0.5); } 70%{ box-shadow:0 0 0 7px rgba(31,138,76,0); } 100%{ box-shadow:0 0 0 0 rgba(31,138,76,0); } }
 
   /* ---------- Status card ---------- */
   .status{ background:var(--panel); border:1px solid var(--line); border-radius:22px; padding:22px 20px 20px; transition:background .4s ease, border-color .4s ease; }
@@ -62,11 +62,11 @@
   .steps li.done .ic{ background:var(--gold); border-color:var(--gold); color:var(--gold-ink); }
   .steps li.current{ color:var(--white); }
   .steps li.current .ic{ background:var(--black); border-color:var(--gold); color:var(--gold); animation:ring 1.8s infinite; }
-  @keyframes ring{ 0%{ box-shadow:0 0 0 0 rgba(247,173,40,0.5); } 70%{ box-shadow:0 0 0 9px rgba(247,173,40,0); } 100%{ box-shadow:0 0 0 0 rgba(247,173,40,0); } }
+  @keyframes ring{ 0%{ box-shadow:0 0 0 0 rgba(29,29,31,0.25); } 70%{ box-shadow:0 0 0 9px rgba(29,29,31,0.0); } 100%{ box-shadow:0 0 0 0 rgba(29,29,31,0.0); } }
   .status.is-ready .steps li{ color:var(--green-ink); }
-  .status.is-ready .steps li::before{ background:rgba(3,34,15,0.25); }
+  .status.is-ready .steps li::before{ background:rgba(0,0,0,0.15); }
   .status.is-ready .steps li.done::before, .status.is-ready .steps li.current::before{ background:var(--green-ink); }
-  .status.is-ready .steps .ic{ background:rgba(3,34,15,0.12); border-color:transparent; color:var(--green-ink); }
+  .status.is-ready .steps .ic{ background:rgba(0,0,0,0.072); border-color:transparent; color:var(--green-ink); }
   .status.is-ready .steps li.done .ic{ background:var(--green-ink); color:var(--green); }
   .status.is-ready .steps li.current .ic{ background:var(--white); border-color:var(--white); color:var(--green-ink); animation:none; }
 
@@ -87,7 +87,7 @@
   .item-mod{ color:var(--muted); font-size:13px; }
 
   /* Free roll */
-  .reward{ border:1px dashed rgba(247,173,40,0.6); background:linear-gradient(160deg, rgba(247,173,40,0.12), rgba(247,173,40,0.02) 60%), var(--panel); }
+  .reward{ border:1px dashed rgba(29,29,31,0.3); background:linear-gradient(160deg, rgba(29,29,31,0.06), rgba(29,29,31,0.01) 60%), var(--panel); }
   .reward-head{ display:flex; gap:14px; align-items:center; margin-bottom:12px; }
   .reward-head .badge{ width:54px; height:54px; border-radius:16px; background:var(--gold); color:var(--gold-ink); display:flex; align-items:center; justify-content:center; flex:none; }
   .reward-head .badge svg{ width:30px; height:30px; }
@@ -98,7 +98,7 @@
   .field label{ display:block; font-weight:600; color:var(--white); font-size:14px; margin-bottom:6px; }
   .field label small{ color:var(--muted); font-weight:500; }
   .field input, .field select{ width:100%; background:var(--black); border:1px solid var(--line); border-radius:12px; padding:13px 14px; font-size:16px; color:var(--white); }
-  .field input:focus, .field select:focus{ outline:none; border-color:var(--gold); box-shadow:0 0 0 3px rgba(247,173,40,0.25); }
+  .field input:focus, .field select:focus{ outline:none; border-color:var(--gold); box-shadow:0 0 0 3px rgba(29,29,31,0.125); }
   .code-input{ letter-spacing:0.3em; font-family:var(--display) !important; font-size:26px !important; text-align:center; }
   .row2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
   .err{ color:#FF7A74; font-size:13.5px; font-weight:600; margin:4px 0 10px; min-height:1em; }
@@ -111,7 +111,15 @@
   .empty a{ display:inline-block; background:var(--gold); color:var(--gold-ink); font-weight:800; padding:13px 24px; border-radius:100px; text-decoration:none; }
 
   #confetti{ position:fixed; inset:0; width:100%; height:100%; pointer-events:none; z-index:100; }
-  @media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } }
+  @media (prefers-reduced-motion:reduce){ *{ animation:none !important; transition:none !important; } }
+
+  /* ---- Roll-In shared look (matches rollinshawarma.com) ---- */
+  body{ font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; -webkit-font-smoothing:antialiased; }
+  h1, h2, h3{ font-family:"Inter Tight","Inter",-apple-system,BlinkMacSystemFont,sans-serif; letter-spacing:-0.022em; }
+  input, select, textarea{ color-scheme:light; }
+  :focus-visible{ outline-color:#d62d20; }
+  #proceedToCheckoutBtn, #exploreOtherPaymentsBtn{ border-radius:999px; }
+  .w1, .w2{ color:#1d1d1f !important; font-family:"Inter Tight","Inter",sans-serif; letter-spacing:-0.015em; }
 </style>
 </head>
 <body>
@@ -322,7 +330,7 @@
       canvas.classList.remove('hidden');
       var dpr = Math.min(window.devicePixelRatio || 1, 2);
       var W = canvas.width = window.innerWidth * dpr, H = canvas.height = window.innerHeight * dpr;
-      var colors = ['#F7AD28', '#D8342E', '#0BAF4C', '#FFFCF3', '#FF8C1A'];
+      var colors = ['#d62d20', '#1d1d1f', '#1f8a4c', '#f5a623', '#86868b'];
       var pieces = [];
       for (var i = 0; i < 170; i++) {
         pieces.push({
