@@ -390,6 +390,14 @@
           : 'Come to the window and give us your name.';
         if (t.payment_method === 'cash') sub += ' Please have cash ready.';
       }
+      if (t.scheduled_pickup_at && stage === 'received') {
+        var schedWhen = new Date(t.scheduled_pickup_at);
+        if (schedWhen.getTime() - Date.now() > 20 * 60000) {
+          copy = ['Your order is scheduled', ''];
+          sub = 'Pickup ' + schedWhen.toLocaleString('en-US', { timeZone: 'America/New_York', weekday: 'long', hour: 'numeric', minute: '2-digit' }) +
+            '. We\u2019ll start cooking about 20 minutes before.';
+        }
+      }
       $('stageTitle').textContent = copy[0];
       $('stageSub').textContent = sub;
       document.title = (stage === 'ready' ? '\u2705 On the way! ' : '') + 'Order ' + displayOrderNo(t.reference_code) + ' \u2014 Roll-In Shawarma';
