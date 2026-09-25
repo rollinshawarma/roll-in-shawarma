@@ -156,8 +156,12 @@
   .hero h1{ font-family:var(--display); font-size:clamp(42px, 7.4vw, 80px); line-height:1; letter-spacing:-0.035em; font-weight:700; }
   .hero-sub{ font-size:clamp(17px, 2vw, 22px); margin-top:12px; color:rgba(255,255,255,.9); }
   .open-status{ display:inline-flex; align-items:center; gap:8px; margin-top:18px; font-size:15px; font-weight:500; color:rgba(255,255,255,.92); min-height:22px; }
-  .open-status::before{ content:""; width:8px; height:8px; border-radius:50%; background:#8e8e93; }
-  .open-status.is-open::before{ background:#30d158; box-shadow:0 0 0 4px rgba(48,209,88,.25); }
+  .open-status::before{ content:""; width:9px; height:9px; border-radius:50%; background:#ff453a; flex:none; }
+  .open-status.is-open::before{ background:#30d158; animation:openPulse 1.6s ease-in-out infinite; }
+  @keyframes openPulse{
+    0%, 100%{ opacity:1; box-shadow:0 0 0 0 rgba(48,209,88,.6); }
+    50%{ opacity:.35; box-shadow:0 0 0 6px rgba(48,209,88,0); }
+  }
   .open-status:empty{ visibility:hidden; }
   .hero-ctas{ display:flex; gap:14px; width:100%; max-width:580px; }
   .hero-ctas .btn{ flex:1 1 0; height:52px; }
@@ -564,6 +568,16 @@
   .cart-back-link{ display:block; margin:12px auto 0; font-size:15px; font-weight:500; color:var(--accent); }
   .cart-checkout-form{ padding:20px 24px 0; }
   #promoSection{ padding:0 24px; }
+  .pickup-time{ padding:0 24px 18px; }
+  .pickup-time-label{ font-size:13px; font-weight:600; color:var(--ink-2); margin-bottom:8px; }
+  .pt-choice{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .pt-opt{ text-align:left; padding:12px 14px; border:1.5px solid var(--line); border-radius:14px; font-weight:600; font-size:16px; transition:border-color .15s ease, background .15s ease; }
+  .pt-opt span{ display:block; font-size:13px; font-weight:400; color:var(--muted); margin-top:2px; }
+  .pt-opt[aria-checked="true"]{ border-color:var(--ink); box-shadow:inset 0 0 0 1px var(--ink); }
+  .pt-opt:disabled{ opacity:.4; }
+  .pt-closed-note{ font-size:14px; color:var(--accent); margin-top:10px; }
+  .pt-pickers{ margin-top:12px; }
+  .pt-pickers label{ margin-bottom:0; }
   .promo-row{ display:flex; gap:8px; }
   #promoCodeInput{ flex:1; min-width:0; height:48px; padding:0 14px; border:1.5px solid var(--line); border-radius:12px; font:inherit; font-size:16px; text-transform:uppercase; }
   .promo-apply-btn{ height:48px; padding:0 20px; border-radius:12px; background:var(--panel); font-weight:600; }
@@ -1286,6 +1300,19 @@
         <label>Phone<input type="tel" id="cartCustomerPhone" autocomplete="tel"></label>
         <label id="cartPickupDateLabel" class="hidden">Pickup date (catering)<input type="date" id="cartPickupDate"></label>
         <label>Notes<textarea id="cartCustomerNotes" rows="2" placeholder="Any special requests..."></textarea></label>
+      </div>
+
+      <div id="pickupTimeSection" class="pickup-time hidden">
+        <div class="pickup-time-label">Pickup time</div>
+        <div class="pt-choice" role="radiogroup" aria-label="Pickup time">
+          <button type="button" class="pt-opt" id="ptAsap" role="radio" aria-checked="true">ASAP<span>Ready in about 15&ndash;20 min</span></button>
+          <button type="button" class="pt-opt" id="ptLater" role="radio" aria-checked="false">Schedule<span>Pick a day and time</span></button>
+        </div>
+        <p class="pt-closed-note hidden" id="ptClosedNote">We&rsquo;re closed right now, so your order will be scheduled. Pick a time during our open hours.</p>
+        <div class="row2 pt-pickers hidden" id="ptPickers">
+          <label>Day<select id="ptDay"></select></label>
+          <label>Time<select id="ptTime"></select></label>
+        </div>
       </div>
 
       <div id="promoSection">
@@ -2266,6 +2293,7 @@
 
       var promoSection = document.getElementById('promoSection');
       promoSection.classList.toggle('hidden', hasCatering);
+      if (window.rollinPickup) window.rollinPickup.setup(cart.length > 0 && !hasCatering);
 
       refreshCheckoutBreakdown();
     }
@@ -2380,6 +2408,14 @@
           return;
         }
 
+        var scheduledPickupAt = null;
+        try { scheduledPickupAt = window.rollinPickup ? window.rollinPickup.value() : null; }
+        catch (ptErr) {
+          msgEl.textContent = ptErr.message;
+          msgEl.className = 'square-pay-msg cart-checkout-msg error';
+          return;
+        }
+
         payBtn.disabled = true;
         payBtn.textContent = 'Preparing checkout\u2026';
 
@@ -2397,13 +2433,15 @@
             items: itemsPayload, giftCards: giftCardsPayload,
             customerName: name, customerEmail: email,
             customerPhone: phone, notes: notes, pickupDate: pickupDate,
-            promoCode: appliedPromo ? appliedPromo.code : undefined
+            promoCode: appliedPromo ? appliedPromo.code : undefined,
+            scheduledPickupAt: scheduledPickupAt || undefined
           })
         }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
           .then(function(result){
             payBtn.disabled = false;
             payBtn.textContent = 'Pay Now';
             if (!result.ok || !result.data.url) {
+              if (result.data && (result.data.code === 'CLOSED' || result.data.code === 'BAD_PICKUP_TIME') && window.rollinPickup) window.rollinPickup.forceSchedule();
               msgEl.textContent = formatErrorMessage(result.data && result.data.error) || "Couldn't start checkout \u2014 please try again in a moment.";
               msgEl.className = 'square-pay-msg cart-checkout-msg error';
               return;
@@ -3039,6 +3077,102 @@
     window.addEventListener('scroll', function(){ if (m.classList.contains('open')) sync(); }, { passive: true });
     m.querySelectorAll('a').forEach(function(a){ a.addEventListener('click', function(){ setTimeout(sync, 0); }); });
     window.addEventListener('resize', function(){ if (window.innerWidth > 920 && m.classList.contains('open')) { m.classList.remove('open'); sync(); } });
+  })();
+
+  // ---- Pickup time for website orders (ASAP while open, otherwise scheduled) ----
+  // Must match OPEN_HOURS and the slot rules in the create-order-checkout
+  // function, which checks every order again on the server.
+  (function(){
+    var TZ = 'America/New_York';
+    var OPEN = { 0:[960,1200], 2:[960,1260], 3:[960,1260], 4:[960,1260], 5:[960,1290], 6:[960,1290] }; // minutes after midnight
+    var SLOT = 15, BUFFER = 15, FIRST_AFTER_OPEN = 15, LEAD = 20, DAYS_AHEAD = 7;
+    var WD = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
+    var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+    function parts(d){
+      var o = {};
+      new Intl.DateTimeFormat('en-US', { timeZone: TZ, year:'numeric', month:'numeric', day:'numeric', weekday:'short', hour:'numeric', minute:'numeric', hourCycle:'h23' })
+        .formatToParts(d).forEach(function(p){ o[p.type] = p.value; });
+      return { y: +o.year, m: +o.month, d: +o.day, dow: WD.indexOf(o.weekday), mins: (+o.hour % 24) * 60 + (+o.minute) };
+    }
+    // Ohio wall-clock time -> real instant (handles daylight saving).
+    function ohioToDate(y, m, d, mins){
+      var target = Date.UTC(y, m - 1, d, Math.floor(mins / 60), mins % 60), t = target;
+      for (var i = 0; i < 3; i++) { var p = parts(new Date(t)); t = target - (Date.UTC(p.y, p.m - 1, p.d, Math.floor(p.mins / 60), p.mins % 60) - t); }
+      return new Date(t);
+    }
+    function fmtMins(mins){ var h = Math.floor(mins / 60), m = mins % 60; return (h % 12 || 12) + ':' + String(m).padStart(2, '0') + ' ' + (h >= 12 ? 'PM' : 'AM'); }
+    function asapOpen(){ var n = parts(new Date()), h = OPEN[n.dow]; return !!h && n.mins >= h[0] && n.mins < h[1] - BUFFER; }
+    function buildDays(){
+      var now = new Date(), n = parts(now), earliest = now.getTime() + LEAD * 60000, out = [];
+      for (var k = 0; k < DAYS_AHEAD; k++) {
+        var cal = new Date(Date.UTC(n.y, n.m - 1, n.d + k)), dow = cal.getUTCDay(), h = OPEN[dow];
+        if (!h) continue;
+        var y = cal.getUTCFullYear(), m = cal.getUTCMonth() + 1, d = cal.getUTCDate(), slots = [];
+        for (var t = h[0] + FIRST_AFTER_OPEN; t <= h[1] - BUFFER; t += SLOT) {
+          var when = ohioToDate(y, m, d, t);
+          if (when.getTime() >= earliest) slots.push({ iso: when.toISOString(), label: fmtMins(t) });
+        }
+        if (slots.length) out.push({ label: k === 0 ? 'Today' : k === 1 ? 'Tomorrow' : WD[dow] + ', ' + MON[m - 1] + ' ' + d, slots: slots });
+      }
+      return out;
+    }
+
+    var sec = document.getElementById('pickupTimeSection');
+    if (!sec) return;
+    var asapBtn = document.getElementById('ptAsap'), laterBtn = document.getElementById('ptLater');
+    var daySel = document.getElementById('ptDay'), timeSel = document.getElementById('ptTime');
+    var pickers = document.getElementById('ptPickers'), note = document.getElementById('ptClosedNote');
+    var mode = 'asap', days = [], needed = false;
+
+    function fillTimes(){
+      var day = days[daySel.selectedIndex];
+      timeSel.innerHTML = day ? day.slots.map(function(s){ return '<option value="' + s.iso + '">' + s.label + '</option>'; }).join('') : '';
+    }
+    function setMode(m){
+      mode = m;
+      asapBtn.setAttribute('aria-checked', m === 'asap' ? 'true' : 'false');
+      laterBtn.setAttribute('aria-checked', m === 'later' ? 'true' : 'false');
+      pickers.classList.toggle('hidden', m !== 'later');
+    }
+    function refresh(keepChoice){
+      var prevIso = timeSel.value;
+      days = buildDays();
+      daySel.innerHTML = days.map(function(d){ return '<option>' + d.label + '</option>'; }).join('');
+      fillTimes();
+      if (keepChoice && prevIso) {
+        days.forEach(function(d, i){ d.slots.forEach(function(s){ if (s.iso === prevIso) { daySel.selectedIndex = i; fillTimes(); timeSel.value = prevIso; } }); });
+      }
+      var open = asapOpen();
+      asapBtn.disabled = !open;
+      note.classList.toggle('hidden', open);
+      if (!open) setMode('later');
+    }
+    asapBtn.addEventListener('click', function(){ if (!asapBtn.disabled) setMode('asap'); });
+    laterBtn.addEventListener('click', function(){ setMode('later'); });
+    daySel.addEventListener('change', fillTimes);
+
+    window.rollinPickup = {
+      // Called each time checkout opens. needsTime is false for gift-card-only
+      // and catering carts (catering has its own pickup date).
+      setup: function(needsTime){
+        needed = !!needsTime;
+        sec.classList.toggle('hidden', !needed);
+        if (!needed) return;
+        refresh(false);
+        setMode(asapOpen() ? 'asap' : 'later');
+      },
+      // The time to send (ISO), or null for ASAP. Throws a friendly
+      // message if a time is required but none is left.
+      value: function(){
+        if (!needed) return null;
+        refresh(true);
+        if (mode === 'asap') return null;
+        if (!timeSel.value) throw new Error('No pickup times are available right now. Please call us at (330) 587-5203.');
+        return timeSel.value;
+      },
+      // The server said we're closed or the time is gone: switch to scheduling.
+      forceSchedule: function(){ refresh(false); setMode('later'); }
+    };
   })();
 
   // ---- Gift card preview follows the chosen amount ----
