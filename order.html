@@ -228,6 +228,13 @@
   body.has-wallet .co-secure{ display:none; }
   .pay-or::before, .pay-or::after{ content:""; flex:1; height:1px; background:var(--line); }
   body.has-wallet .co-body{ padding-bottom:200px; }
+  /* Two steps: details first, then review & pay */
+  #checkoutScreen[data-step="details"] .co-summary,
+  #checkoutScreen[data-step="details"] .pay-only{ display:none; }
+  #checkoutScreen[data-step="pay"] .co-sec:not(.co-summary),
+  #checkoutScreen[data-step="pay"] .details-only{ display:none; }
+  #checkoutScreen[data-step="details"] .co-body{ padding-bottom:120px; }
+  .co-for{ color:var(--cream); font-weight:700; font-size:15px; margin:-4px 0 12px; }
   .more-details summary{ cursor:pointer; list-style:none; color:var(--gold); font-weight:700; font-size:15px; padding:6px 0; }
   .more-details summary::-webkit-details-marker{ display:none; }
   .more-details summary::before{ content:"+ "; }
@@ -316,7 +323,7 @@
 </section>
 
 <!-- Checkout: one page -->
-<section class="checkout hidden" id="checkoutScreen" aria-labelledby="coTitle">
+<section class="checkout hidden" id="checkoutScreen" aria-labelledby="coTitle" data-step="details">
   <div class="co-head">
     <button type="button" class="sheet-close" id="coBackBtn" aria-label="Back to your order">&larr;</button>
     <h2 id="coTitle">Checkout</h2>
@@ -431,7 +438,8 @@
     </div>
 
     <div class="co-sec co-summary" style="border-bottom:none;">
-      <h3>Summary</h3>
+      <h3>Review your order</h3>
+      <div class="co-for" id="coForLine"></div>
       <div id="coLines"></div>
       <div class="totals" id="coTotals"></div>
     </div>
@@ -439,6 +447,8 @@
   <div class="co-foot">
     <div class="co-foot-inner">
       <div class="co-msg" id="coMsg" role="alert"></div>
+      <button type="button" class="cta details-only" id="reviewOrderBtn" style="width:100%;"></button>
+      <div class="pay-only">
       <div class="wallet-pay">
         <button type="button" id="applePayBtn" class="apple-pay-btn hidden" lang="en" aria-label="Pay with Apple Pay"></button>
         <div id="googlePayBtn" class="google-pay-btn hidden"></div>
@@ -446,6 +456,7 @@
       <div class="pay-or hidden" id="payOr"><span>or</span></div>
       <button type="button" class="cta" id="placeOrderBtn" style="width:100%;"></button>
       <div class="co-secure" id="coSecure"></div>
+      </div>
     </div>
   </div>
 </section>
@@ -1061,9 +1072,16 @@
     var tipChoiceIndex = 1;   // Round up is chosen by default
 
     $('toCheckoutBtn').addEventListener('click', openCheckout);
+    function setCoStep(step){
+      $('checkoutScreen').setAttribute('data-step', step);
+      $('coTitle').textContent = step === 'pay' ? 'Review & pay' : 'Checkout';
+      $('coMsg').textContent = '';
+      $('checkoutScreen').scrollTop = 0;
+    }
     function openCheckout(){
       if (!cart.length) return;
       closeSheet();
+      setCoStep('details');
       $('coMsg').textContent = '';
       buildTipOptions();
       renderCheckout();
@@ -1074,6 +1092,8 @@
       $('coBackBtn').focus();
     }
     function closeCheckout(){
+      // From "Review & pay", the back arrow returns to the details step.
+      if ($('checkoutScreen').getAttribute('data-step') === 'pay') { setCoStep('details'); return; }
       $('checkoutScreen').classList.add('hidden');
       document.body.classList.remove('locked');
       renderCart();
@@ -1223,6 +1243,9 @@
         '<div><span>Tip</span><span>' + (selectedTip === null ? '&mdash;' : money(t.tip)) + '</span></div>' +
         '<div class="grand"><span>Total</span><span>' + money(t.total) + '</span></div>';
 
+      $('reviewOrderBtn').innerHTML = 'Review order <span class="cta-amt">' + money(t.total) + '</span>';
+      var spotText = pickupMethod === 'curbside' ? (parkingSpot ? 'Drive-up, spot ' + parkingSpot : 'Drive-up') : 'At the window';
+      $('coForLine').textContent = ($('custName').value.trim() ? 'For ' + $('custName').value.trim() + ' \u00b7 ' : '') + spotText;
       $('placeOrderBtn').innerHTML = (walletShown ? 'Pay with card' : 'Continue to payment') + ' <span class="cta-amt">' + money(t.total) + '</span>';
       $('coSecure').textContent = walletShown ? 'Payments are processed securely by Square.' : 'You\u2019ll pay by card on Square\u2019s secure checkout page next.';
       if (window.__qrWalletUpdate) window.__qrWalletUpdate(t);
@@ -1322,6 +1345,22 @@
         });
     });
 
+    // Details step -> review & pay. Typed member ID / promo codes are
+    // checked here, so the review shows the real total.
+    $('reviewOrderBtn').addEventListener('click', function(){
+      if (!checkoutReady()) return;
+      var btn = this;
+      var needMember = $('memberId').value.trim() && !appliedMember;
+      var needPromo = $('promoCode').value.trim() && !appliedPromo;
+      btn.disabled = true;
+      Promise.all([needMember ? applyMember() : true, needPromo ? applyPromo() : true]).then(function(ok){
+        btn.disabled = false;
+        if (!(ok[0] && ok[1])) { $('coMsg').textContent = 'Fix or clear the member ID / promo code above, then try again.'; return; }
+        renderCheckout();
+        setCoStep('pay');
+      });
+    });
+
     // ---------- Apple Pay / Google Pay (Square Web Payments SDK) ----------
     // Card details never touch this page: the phone gives Square a one-time
     // token and create-order-checkout charges it for the server's own total.
@@ -1351,6 +1390,8 @@
           });
         }).catch(function(){});
         return Promise.all([apple, google]).then(function(){
+          // iPhone / iPad / Mac Safari: Apple Pay only, no Google Pay button.
+          if (sqApplePay) $('googlePayBtn').classList.add('hidden');
           $('payOr').classList.toggle('hidden', !walletShown);
           document.body.classList.toggle('has-wallet', walletShown);
           renderCheckout();
