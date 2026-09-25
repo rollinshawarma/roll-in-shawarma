@@ -216,6 +216,24 @@
   .co-foot-inner{ max-width:620px; margin:0 auto; }
   .co-msg{ color:var(--red); font-weight:600; font-size:14px; margin-bottom:8px; min-height:1em; }
   .co-secure{ text-align:center; color:var(--muted); font-size:12.5px; margin-top:8px; }
+  /* Apple Pay / Google Pay (only appear on phones that support them) */
+  .wallet-pay{ display:flex; gap:8px; }
+  .wallet-pay:not(:has(> :not(.hidden))){ display:none; }
+  .apple-pay-btn{ flex:1 1 0; min-width:0; display:block; height:44px; -webkit-appearance:-apple-pay-button; appearance:-apple-pay-button; -apple-pay-button-type:plain; -apple-pay-button-style:white; border:0; border-radius:12px; }
+  .google-pay-btn{ flex:1 1 0; min-width:0; height:44px; border-radius:12px; overflow:hidden; }
+  .apple-pay-btn.is-busy, .google-pay-btn.is-busy{ opacity:.5; pointer-events:none; }
+  .pay-or{ display:flex; align-items:center; gap:12px; color:var(--muted); font-size:12px; margin:6px 0; }
+  body.has-wallet #placeOrderBtn{ min-height:44px; font-size:15px; }
+  body.has-wallet #placeOrderBtn .cta-amt{ font-size:17px; }
+  body.has-wallet .co-secure{ display:none; }
+  .pay-or::before, .pay-or::after{ content:""; flex:1; height:1px; background:var(--line); }
+  body.has-wallet .co-body{ padding-bottom:200px; }
+  .more-details summary{ cursor:pointer; list-style:none; color:var(--gold); font-weight:700; font-size:15px; padding:6px 0; }
+  .more-details summary::-webkit-details-marker{ display:none; }
+  .more-details summary::before{ content:"+ "; }
+  .more-details[open] summary::before{ content:"\2212 "; }
+  .more-details summary small{ color:var(--muted); font-weight:500; }
+  .more-details[open] summary{ margin-bottom:10px; }
 
   /* ---------- Toast ---------- */
   .toast{ position:fixed; left:50%; bottom:calc(92px + var(--safe-b)); transform:translate(-50%, 20px); z-index:90; background:var(--white); color:var(--gold-ink); font-weight:700; padding:11px 18px; border-radius:100px; box-shadow:0 10px 30px rgba(0,0,0,0.5); opacity:0; pointer-events:none; transition:opacity .2s ease, transform .2s ease; display:flex; align-items:center; gap:8px; max-width:calc(100% - 32px); white-space:nowrap; }
@@ -365,19 +383,22 @@
         <label for="custName">First name</label>
         <input type="text" id="custName" autocomplete="given-name" placeholder="We&rsquo;ll call this out">
       </div>
-      <div class="field">
-        <label for="custEmail">Email <small>(optional)</small></label>
-        <input type="email" id="custEmail" autocomplete="email" inputmode="email" placeholder="you@example.com">
-        <div class="hint">We&rsquo;ll send your receipt and email you the moment your food is ready.</div>
-      </div>
-      <div class="field">
-        <label for="custPhone">Phone <small>(optional)</small></label>
-        <input type="tel" id="custPhone" autocomplete="tel" inputmode="tel">
-      </div>
-      <div class="field">
-        <label for="custNotes">Special requests <small>(optional)</small></label>
-        <textarea id="custNotes" rows="2" placeholder="Extra napkins, allergies, anything we should know"></textarea>
-      </div>
+      <details class="more-details">
+        <summary>Add email, phone or special requests <small>(optional)</small></summary>
+        <div class="field">
+          <label for="custEmail">Email</label>
+          <input type="email" id="custEmail" autocomplete="email" inputmode="email" placeholder="you@example.com">
+          <div class="hint">For your receipt and a ready alert. Apple Pay / Google Pay can share it for you.</div>
+        </div>
+        <div class="field">
+          <label for="custPhone">Phone</label>
+          <input type="tel" id="custPhone" autocomplete="tel" inputmode="tel">
+        </div>
+        <div class="field">
+          <label for="custNotes">Special requests</label>
+          <textarea id="custNotes" rows="2" placeholder="Extra napkins, allergies, anything we should know"></textarea>
+        </div>
+      </details>
     </div>
 
     <div class="co-sec">
@@ -394,7 +415,7 @@
       <div class="field">
         <label for="memberId">Member ID <small>(optional)</small></label>
         <div class="apply-row">
-          <input type="text" id="memberId" placeholder="MEMBER-1234 or 1234" autocomplete="off" autocapitalize="characters">
+          <input type="text" id="memberId" placeholder="MEMBER-48213907 or 48213907" autocomplete="off" autocapitalize="characters">
           <button type="button" class="apply-btn" id="memberApplyBtn">Apply</button>
         </div>
         <div class="apply-msg" id="memberMsg" aria-live="polite"></div>
@@ -418,6 +439,11 @@
   <div class="co-foot">
     <div class="co-foot-inner">
       <div class="co-msg" id="coMsg" role="alert"></div>
+      <div class="wallet-pay">
+        <button type="button" id="applePayBtn" class="apple-pay-btn hidden" lang="en" aria-label="Pay with Apple Pay"></button>
+        <div id="googlePayBtn" class="google-pay-btn hidden"></div>
+      </div>
+      <div class="pay-or hidden" id="payOr"><span>or</span></div>
       <button type="button" class="cta" id="placeOrderBtn" style="width:100%;"></button>
       <div class="co-secure" id="coSecure"></div>
     </div>
@@ -1117,7 +1143,7 @@
     // ---- Member ID (optional): checked, then linked to the order ----
     function normalizeMember(v){
       v = String(v || '').trim().toUpperCase();
-      return /^\d{3,6}$/.test(v) ? 'MEMBER-' + v : v;
+      return /^\d{3,8}$/.test(v) ? 'MEMBER-' + v : v;
     }
     function applyMember(){
       var code = normalizeMember($('memberId').value);
@@ -1197,8 +1223,9 @@
         '<div><span>Tip</span><span>' + (selectedTip === null ? '&mdash;' : money(t.tip)) + '</span></div>' +
         '<div class="grand"><span>Total</span><span>' + money(t.total) + '</span></div>';
 
-      $('placeOrderBtn').innerHTML = 'Continue to payment <span class="cta-amt">' + money(t.total) + '</span>';
-      $('coSecure').textContent = 'You\u2019ll pay by card on Square\u2019s secure checkout page next.';
+      $('placeOrderBtn').innerHTML = (walletShown ? 'Pay with card' : 'Continue to payment') + ' <span class="cta-amt">' + money(t.total) + '</span>';
+      $('coSecure').textContent = walletShown ? 'Payments are processed securely by Square.' : 'You\u2019ll pay by card on Square\u2019s secure checkout page next.';
+      if (window.__qrWalletUpdate) window.__qrWalletUpdate(t);
     }
 
     function validateCheckout(){
@@ -1210,18 +1237,49 @@
       return problems;
     }
 
-    $('placeOrderBtn').addEventListener('click', function(){
-      var btn = this;
+    // Checks the form right away (no waiting), so Apple Pay can open
+    // straight from the tap. Returns false and shows what's missing.
+    function checkoutReady(){
       var msg = $('coMsg');
       msg.textContent = '';
-      if (!cart.length) { msg.textContent = 'Your order is empty.'; return; }
+      if (!cart.length) { msg.textContent = 'Your order is empty.'; return false; }
       var problems = validateCheckout();
       if (problems.length) {
         msg.textContent = 'Please add ' + problems.join(', ') + '.';
         var firstBad = document.querySelector('#checkoutScreen .invalid input, #checkoutScreen .invalid select, #checkoutScreen .invalid button');
         if (firstBad) firstBad.focus();
-        return;
+        return false;
       }
+      return true;
+    }
+    function buildOrderBody(){
+      var carMakeValue = null, carModelValue = null;
+      if (pickupMethod === 'curbside') {
+        carMakeValue = ($('carMakeSelect').value === 'Other' ? $('carMakeOther').value.trim() : $('carMakeSelect').value) || null;
+        carModelValue = $('carModel').value.trim() || null;
+      }
+      return {
+        items: cart.map(function(c){ return { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name }; }),
+        customerName: $('custName').value.trim(),
+        customerEmail: $('custEmail').value.trim() || undefined,
+        customerPhone: $('custPhone').value.trim() || undefined,
+        notes: $('custNotes').value.trim() || undefined,
+        orderSource: 'qr',
+        pickupMethod: pickupMethod,
+        parkingSpot: pickupMethod === 'curbside' ? parkingSpot : null,
+        carMake: carMakeValue,
+        carModel: carModelValue,
+        carColor: pickupMethod === 'curbside' ? selectedCarColor : null,
+        memberCode: appliedMember || undefined,
+        promoCode: appliedPromo ? appliedPromo.code : undefined,
+        tipAmount: selectedTip || 0
+      };
+    }
+
+    $('placeOrderBtn').addEventListener('click', function(){
+      var btn = this;
+      var msg = $('coMsg');
+      if (!checkoutReady()) return;
       // A member ID or promo code typed but not applied: check it now,
       // so the total shown is the total charged.
       var needMember = $('memberId').value.trim() && !appliedMember;
@@ -1236,31 +1294,7 @@
         return;
       }
 
-      var carMakeValue = null, carModelValue = null;
-      if (pickupMethod === 'curbside') {
-        carMakeValue = ($('carMakeSelect').value === 'Other' ? $('carMakeOther').value.trim() : $('carMakeSelect').value) || null;
-        carModelValue = $('carModel').value.trim() || null;
-      }
-      var name = $('custName').value.trim();
-      var email = $('custEmail').value.trim();
-      var phone = $('custPhone').value.trim();
-      var notes = $('custNotes').value.trim();
-      var body = {
-        items: cart.map(function(c){ return { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name }; }),
-        customerName: name,
-        customerEmail: email || undefined,
-        customerPhone: phone || undefined,
-        notes: notes || undefined,
-        orderSource: 'qr',
-        pickupMethod: pickupMethod,
-        parkingSpot: pickupMethod === 'curbside' ? parkingSpot : null,
-        carMake: carMakeValue,
-        carModel: carModelValue,
-        carColor: pickupMethod === 'curbside' ? selectedCarColor : null,
-        memberCode: appliedMember || undefined,
-        promoCode: appliedPromo ? appliedPromo.code : undefined,
-        tipAmount: selectedTip || 0
-      };
+      var body = buildOrderBody();
       var url = CARD_CHECKOUT_URL;
       var prevHtml = btn.innerHTML;
       btn.disabled = true;
@@ -1287,6 +1321,92 @@
           msg.textContent = 'We couldn\u2019t reach checkout. Check your connection and try again.';
         });
     });
+
+    // ---------- Apple Pay / Google Pay (Square Web Payments SDK) ----------
+    // Card details never touch this page: the phone gives Square a one-time
+    // token and create-order-checkout charges it for the server's own total.
+    var SQUARE_APP_ID = 'sq0idp-6truvfPUiZyRoli_quQVJg';
+    var SQUARE_LOCATION_ID = 'LSGMC1VJ71JNG';
+    var walletShown = false, walletLoading = null, sqRequest = null, sqApplePay = null, sqGooglePay = null;
+    function walletTotal(t){ return { amount: t.total.toFixed(2), label: 'Roll-In Shawarma' }; }
+    window.__qrWalletUpdate = function(t){ if (sqRequest) { try { sqRequest.update({ total: walletTotal(t) }); } catch (e) {} } };
+    function prepareWallets(){
+      if (walletLoading) return walletLoading;
+      walletLoading = new Promise(function(resolve, reject){
+        if (window.Square) return resolve();
+        var sc = document.createElement('script');
+        sc.src = 'https://web.squarecdn.com/v1/square.js';
+        sc.onload = resolve; sc.onerror = reject;
+        document.head.appendChild(sc);
+      }).then(function(){
+        var payments = window.Square.payments(SQUARE_APP_ID, SQUARE_LOCATION_ID);
+        sqRequest = payments.paymentRequest({ countryCode: 'US', currencyCode: 'USD', total: walletTotal(computeTotals(selectedTip || 0)), requestBillingContact: true });
+        var apple = payments.applePay(sqRequest).then(function(ap){
+          sqApplePay = ap; walletShown = true; $('applePayBtn').classList.remove('hidden');
+        }).catch(function(){});
+        var google = payments.googlePay(sqRequest).then(function(gp){
+          sqGooglePay = gp;
+          return gp.attach('#googlePayBtn', { buttonColor: 'white', buttonType: 'plain', buttonSizeMode: 'fill' }).then(function(){
+            walletShown = true; $('googlePayBtn').classList.remove('hidden');
+          });
+        }).catch(function(){});
+        return Promise.all([apple, google]).then(function(){
+          $('payOr').classList.toggle('hidden', !walletShown);
+          document.body.classList.toggle('has-wallet', walletShown);
+          renderCheckout();
+        });
+      }).catch(function(err){ console.error('Wallet setup failed:', err); });
+      return walletLoading;
+    }
+    function setWalletBusy(busy){
+      $('placeOrderBtn').disabled = busy;
+      ['applePayBtn', 'googlePayBtn'].forEach(function(id){ $(id).classList.toggle('is-busy', busy); });
+    }
+    function payWithWallet(method){
+      if (!method || !checkoutReady()) return;
+      var msg = $('coMsg');
+      // Apple Pay must open straight from the tap, so a typed-but-unapplied
+      // member ID or promo code can't be checked first.
+      if (($('memberId').value.trim() && !appliedMember) || ($('promoCode').value.trim() && !appliedPromo)) {
+        msg.textContent = 'Tap Apply on your member ID or promo code first (or clear it).';
+        return;
+      }
+      var body = buildOrderBody();
+      var t = computeTotals(selectedTip || 0);
+      var tokenizing = method.tokenize();
+      setWalletBusy(true);
+      tokenizing.then(function(res){
+        if (!res || res.status !== 'OK' || !res.token) {
+          setWalletBusy(false);
+          var detail = res && res.errors && res.errors[0] && res.errors[0].message;
+          if (res && res.status !== 'Cancel' && detail) msg.textContent = detail;
+          return;
+        }
+        body.walletToken = res.token;
+        body.expectedTotal = t.total;
+        // Email/phone the wallet shared, if the customer left them blank.
+        var d = res.details || {}, bc = d.billing || {}, sc = (d.shipping && d.shipping.contact) || {};
+        if (!body.customerEmail && (bc.email || sc.email)) body.customerEmail = bc.email || sc.email;
+        if (!body.customerPhone && (bc.phone || sc.phone)) body.customerPhone = bc.phone || sc.phone;
+        return fetch(CARD_CHECKOUT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ANON_KEY },
+          body: JSON.stringify(body)
+        }).then(function(r){ return r.json().then(function(d){ return { ok: r.ok, data: d }; }); }).then(function(result){
+          if (!result.ok || !result.data.paid) {
+            setWalletBusy(false);
+            if (result.data && result.data.code === 'TOTAL_CHANGED') loadMenu();
+            msg.textContent = formatErrorMessage(result.data && result.data.error) || 'Your payment didn\u2019t go through. You haven\u2019t been charged.';
+            return;
+          }
+          rememberOrder(result.data);
+          window.location.href = result.data.redirectUrl;
+        });
+      }).catch(function(){ setWalletBusy(false); msg.textContent = 'We couldn\u2019t reach checkout. Check your connection and try again.'; });
+    }
+    $('applePayBtn').addEventListener('click', function(){ payWithWallet(sqApplePay); });
+    $('googlePayBtn').addEventListener('click', function(){ payWithWallet(sqGooglePay); });
+    prepareWallets();
 
     // Remember the last order so a returning customer can jump to tracking.
     var LAST_ORDER_KEY = 'rollin_last_order';
