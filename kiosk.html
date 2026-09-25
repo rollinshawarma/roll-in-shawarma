@@ -11,15 +11,15 @@
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <style>
   :root{
-    --black:#ffffff;
-    --panel:#f5f5f7;
-    --white:#1d1d1f;
-    --cream:#424245;
-    --muted:#6e6e73;
-    --gold:#1d1d1f;
-    --red:#d62d20;
+    --black:#000000;
+    --panel:#1c1c1e;
+    --white:#f5f5f7;
+    --cream:#d2d2d7;
+    --muted:#98989d;
+    --gold:#f5f5f7;
+    --red:#ff453a;
     --green:#1f8a4c;
-    --line:#e3e3e8;
+    --line:#38383a;
   }
   *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
   html, body{ overflow:hidden; height:100%; width:100%; overscroll-behavior:none; }
@@ -34,14 +34,14 @@
   /* ---------- IDLE / ATTRACT SCREEN ---------- */
   #idleScreen{
     position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
-    text-align:center; padding:40px; background:radial-gradient(circle at 50% 30%, rgba(29,29,31,0.07), var(--black) 65%);
+    text-align:center; padding:40px; background:radial-gradient(circle at 50% 30%, rgba(255,255,255,0.084), var(--black) 65%);
   }
-  #idleScreen img.logo{ width:180px; height:180px; border-radius:50%; object-fit:cover; margin-bottom:36px; box-shadow:0 0 90px rgba(29,29,31,0.15); }
+  #idleScreen img.logo{ width:180px; height:180px; border-radius:50%; object-fit:cover; margin-bottom:36px; box-shadow:0 0 90px rgba(255,255,255,0.18); }
   #idleScreen h1{ font-size:56px; font-weight:800; color:var(--white); margin-bottom:16px; }
   #idleScreen p{ font-size:22px; color:var(--muted); margin-bottom:48px; }
   #startOrderBtn{
-    background:var(--gold); color:#ffffff; font-size:28px; font-weight:800;
-    padding:28px 64px; border-radius:100px; box-shadow:0 20px 50px rgba(29,29,31,0.175);
+    background:var(--gold); color:#1d1d1f; font-size:28px; font-weight:800;
+    padding:28px 64px; border-radius:100px; box-shadow:0 20px 50px rgba(255,255,255,0.21);
     animation:pulse 2.2s ease-in-out infinite;
   }
   @keyframes pulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.035); } }
@@ -60,7 +60,7 @@
     width:64px; height:64px; display:flex; align-items:center; justify-content:center;
   }
   .inactivity-ring{ width:100%; height:100%; transform:rotate(-90deg); position:absolute; top:0; left:0; }
-  .inactivity-ring-bg{ fill:none; stroke:rgba(29,29,31,0.1); stroke-width:5; }
+  .inactivity-ring-bg{ fill:none; stroke:rgba(255,255,255,0.12); stroke-width:5; }
   .inactivity-ring-progress{
     fill:none; stroke:var(--gold); stroke-width:5; stroke-linecap:round;
     stroke-dasharray:163.36; stroke-dashoffset:0; transition:stroke-dashoffset 1s linear;
@@ -95,7 +95,7 @@
 
   #dealsSection{
     margin-top:18px; padding:20px; border-radius:16px;
-    background:linear-gradient(145deg, rgba(29,29,31,0.07), rgba(29,29,31,0.02));
+    background:linear-gradient(145deg, rgba(255,255,255,0.084), rgba(255,255,255,0.024));
     border:2px solid var(--gold);
   }
   #dealsSection .deals-heading{
@@ -113,7 +113,7 @@
   .deal-card-action{ display:flex; flex-direction:column; align-items:flex-end; gap:8px; flex:none; }
   .deal-card-price{ font-size:19px; font-weight:800; color:var(--gold); }
   .deal-card-btn{
-    background:var(--gold); color:#ffffff; font-weight:800; font-size:14px;
+    background:var(--gold); color:#1d1d1f; font-weight:800; font-size:14px;
     padding:10px 18px; border-radius:100px; white-space:nowrap;
   }
 
@@ -138,7 +138,7 @@
   /* ---- Unified "tap + to pick from options" pattern, shared by ---- */
   /* ---- variant groups (sizes), protein-choice groups, and combo ---- */
   .select-tile-plus{
-    margin-top:auto; width:100%; background:var(--gold); color:#ffffff; border-radius:100px; padding:9px 16px;
+    margin-top:auto; width:100%; background:var(--gold); color:#1d1d1f; border-radius:100px; padding:9px 16px;
     font-size:13px; font-weight:800; white-space:nowrap; z-index:2;
   }
   .select-tile-plus:active{ background:var(--white); }
@@ -155,7 +155,7 @@
   .select-tile-overlay-scroll{ overflow-y:auto; flex:1; padding:0 10px 8px; }
 
   #dealPickerOverlay{
-    position:fixed; inset:0; z-index:500; background:rgba(0,0,0,0.4);
+    position:fixed; inset:0; z-index:500; background:rgba(0,0,0,0.75);
     display:flex; align-items:center; justify-content:center; padding:20px;
   }
   .deal-picker-panel{
@@ -173,14 +173,14 @@
     background:var(--black); border:2px solid var(--line); border-radius:12px;
     padding:16px 18px; color:var(--white); font-size:15px; font-weight:600;
   }
-  .deal-picker-option.selected{ border-color:var(--gold); background:rgba(29,29,31,0.06); }
+  .deal-picker-option.selected{ border-color:var(--gold); background:rgba(255,255,255,0.072); }
   .deal-picker-option-controls{ display:flex; align-items:center; gap:10px; }
   .deal-picker-minus{
     background:var(--panel-2); border:1px solid var(--line); color:var(--white); font-weight:800;
     width:30px; height:30px; border-radius:100px; font-size:18px; line-height:1; padding:0;
   }
   .deal-picker-option-count{
-    background:var(--gold); color:#ffffff; font-weight:800; font-size:13px;
+    background:var(--gold); color:#1d1d1f; font-weight:800; font-size:13px;
     min-width:22px; height:22px; border-radius:100px; display:none; align-items:center; justify-content:center; padding:0 6px;
   }
   .deal-picker-option.selected .deal-picker-option-count{ display:flex; }
@@ -191,7 +191,7 @@
   }
   .deal-picker-back.hidden{ visibility:hidden; }
   .deal-picker-next{
-    flex:1; background:var(--gold); color:#ffffff; font-weight:800; font-size:15px;
+    flex:1; background:var(--gold); color:#1d1d1f; font-weight:800; font-size:15px;
     padding:14px; border-radius:100px;
   }
   .deal-picker-next:disabled{ background:var(--line); color:var(--muted); }
@@ -199,7 +199,7 @@
   .deal-checkin-prompt{ display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
   .deal-checkin-text{ color:var(--muted); font-size:14px; flex:1; min-width:200px; }
   .deal-checkin-btn{
-    background:var(--gold); color:#ffffff; font-weight:800; font-size:15px;
+    background:var(--gold); color:#1d1d1f; font-weight:800; font-size:15px;
     padding:12px 24px; border-radius:100px; white-space:nowrap;
   }
   #memberCheckInScreen, #memberDealsScreen{
@@ -229,7 +229,7 @@
     padding:12px 10px; margin-bottom:8px; background:var(--panel); border:1px solid var(--line); border-radius:10px;
   }
   .protein-choice-row:last-child{ margin-bottom:0; }
-  .protein-choice-row:active{ border-color:var(--gold); background:rgba(29,29,31,0.05); }
+  .protein-choice-row:active{ border-color:var(--gold); background:rgba(255,255,255,0.06); }
   .protein-choice-name{ font-size:15.5px; font-weight:700; color:var(--cream); line-height:1.25; }
   .protein-choice-row .item-qty-stepper{ gap:6px; }
   .protein-choice-row .item-qty-btn{ width:22px; height:22px; font-size:14px; }
@@ -251,11 +251,11 @@
   .item-qty-btn{ width:28px; height:28px; border-radius:50%; background:var(--panel); border:1px solid var(--line); color:var(--cream); font-size:16px; display:flex; align-items:center; justify-content:center; }
   .item-qty-value{ min-width:16px; text-align:center; font-size:15px; font-weight:800; color:var(--white); }
   .add-to-cart-btn{
-    width:100%; background:var(--gold); color:#ffffff; border-radius:100px; padding:9px 16px;
+    width:100%; background:var(--gold); color:#1d1d1f; border-radius:100px; padding:9px 16px;
     font-size:13px; font-weight:800; white-space:nowrap;
   }
   .add-to-cart-btn:active{ background:var(--white); }
-  .item-qty-btn:active{ background:var(--gold); color:#ffffff; }
+  .item-qty-btn:active{ background:var(--gold); color:#1d1d1f; }
   .empty-hint{ color:var(--muted); font-size:15px; text-align:center; padding:30px 20px; }
 
   /* ---------- CART PANEL (right side of the split layout) ---------- */
@@ -270,11 +270,11 @@
   .cart-view-linetotal{ font-size:13px; color:var(--muted); margin-top:3px; }
   .cart-view-stepper{ display:flex; align-items:center; gap:10px; flex:none; }
   .cart-qty-btn{ width:34px; height:34px; border-radius:50%; background:var(--black); border:1px solid var(--line); color:var(--cream); font-size:19px; display:flex; align-items:center; justify-content:center; }
-  .cart-qty-btn:active{ background:var(--gold); color:#ffffff; }
+  .cart-qty-btn:active{ background:var(--gold); color:#1d1d1f; }
   .cart-qty-value{ min-width:20px; text-align:center; font-size:16px; font-weight:800; color:var(--white); }
   .cart-view-total-row{ display:flex; justify-content:space-between; font-size:19px; font-weight:800; color:var(--white); margin-bottom:14px; }
   .cart-view-total-row span{ color:var(--gold); }
-  #proceedToCheckoutBtn{ width:100%; background:var(--gold); color:#ffffff; font-size:18px; font-weight:800; padding:18px; border-radius:14px; }
+  #proceedToCheckoutBtn{ width:100%; background:var(--gold); color:#1d1d1f; font-size:18px; font-weight:800; padding:18px; border-radius:14px; }
   #clearCartBtn{ display:block; width:100%; margin-top:12px; background:none; color:var(--red); font-size:15px; font-weight:700; padding:8px; }
 
   /* ---------- CHECKOUT SCREEN ---------- */
@@ -290,7 +290,7 @@
   }
   .tip-option-btn .tip-option-label{ font-size:16px; font-weight:700; display:block; }
   .tip-option-btn .tip-option-amount{ font-size:14px; color:var(--muted); display:block; margin-top:4px; }
-  .tip-option-btn.selected{ border-color:var(--gold); background:rgba(29,29,31,0.07); }
+  .tip-option-btn.selected{ border-color:var(--gold); background:rgba(255,255,255,0.084); }
   .tip-option-btn.selected .tip-option-amount{ color:var(--gold); }
   .tip-final-total-row{ display:flex; justify-content:space-between; font-size:22px; font-weight:800; color:var(--white); margin-top:28px; padding-top:20px; border-top:1px solid var(--line); }
   .tip-final-total-row span{ color:var(--gold); }
@@ -305,10 +305,10 @@
   }
   .payment-method-btn svg{ width:22px; height:22px; flex:none; }
   .payment-method-btn:disabled{ opacity:0.35; }
-  .payment-method-btn:not(:disabled):active{ border-color:var(--gold); background:rgba(29,29,31,0.05); }
+  .payment-method-btn:not(:disabled):active{ border-color:var(--gold); background:rgba(255,255,255,0.06); }
   .payment-method-btn-highlighted:not(:disabled){
-    background:var(--gold); color:#ffffff; border-color:var(--gold);
-    box-shadow:0 10px 30px rgba(29,29,31,0.175);
+    background:var(--gold); color:#1d1d1f; border-color:var(--gold);
+    box-shadow:0 10px 30px rgba(255,255,255,0.21);
   }
 
   /* ---------- SCAN TO PAY ---------- */
@@ -326,19 +326,19 @@
     animation:spin 0.9s linear infinite;
   }
   @keyframes spin{ to{ transform:rotate(360deg); } }
-  #scanCheckNowBtn{ background:var(--gold); color:#ffffff; font-size:17px; font-weight:800; padding:14px 28px; border-radius:100px; margin-bottom:18px; }
+  #scanCheckNowBtn{ background:var(--gold); color:#1d1d1f; font-size:17px; font-weight:800; padding:14px 28px; border-radius:100px; margin-bottom:18px; }
   #scanCancelBtn{ background:none; color:var(--muted); font-size:14px; margin-top:16px; }
   .scan-error-msg{ color:var(--red); font-size:13.5px; margin-top:14px; max-width:340px; }
 
   /* ---------- ORDER CONFIRMED (in-page, no navigation) ---------- */
   /* ---------- COMBO: inline row + expansion, no modal ---------- */
-  .combo-tile{ border-color:var(--gold); background:rgba(29,29,31,0.04); }
+  .combo-tile{ border-color:var(--gold); background:rgba(255,255,255,0.048); }
   .combo-tile .item-tile-name{ color:var(--gold); }
   .combo-tile-disabled{ opacity:0.4; cursor:default; border-color:var(--line); background:var(--panel); }
   .combo-tile-disabled .item-tile-name{ color:var(--muted); }
 
   .qty-pill{
-    background:var(--gold); color:#ffffff; font-size:13px; font-weight:800;
+    background:var(--gold); color:#1d1d1f; font-size:13px; font-weight:800;
     min-width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center;
   }
 
@@ -385,10 +385,10 @@
   .checkout-footer{ flex:none; padding:24px 32px; border-top:1px solid var(--line); max-width:560px; margin:0 auto; width:100%; }
   .payment-method-btn.payment-method-btn-large{
     flex-direction:row; gap:12px; width:100%; font-size:20px; padding:20px;
-    background:var(--gold); color:#ffffff; border-color:var(--gold);
+    background:var(--gold); color:#1d1d1f; border-color:var(--gold);
   }
   .payment-method-btn-large svg{ width:26px; height:26px; }
-  #exploreOtherPaymentsBtn{ display:block; width:100%; margin-top:12px; background:var(--gold); color:#ffffff; font-size:18px; font-weight:800; padding:18px; border-radius:14px; border:none; }
+  #exploreOtherPaymentsBtn{ display:block; width:100%; margin-top:12px; background:var(--gold); color:#1d1d1f; font-size:18px; font-weight:800; padding:18px; border-radius:14px; border:none; }
   #kioskBackBtn{ display:block; margin:16px auto 0; background:none; color:var(--muted); font-size:15px; }
   #kioskCheckoutMsg{ text-align:center; font-size:14px; color:var(--red); min-height:20px; margin-top:12px; }
 
@@ -401,10 +401,10 @@
   /* ---- Roll-In shared look (matches rollinshawarma.com) ---- */
   body{ font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; -webkit-font-smoothing:antialiased; }
   h1, h2, h3{ font-family:"Inter Tight","Inter",-apple-system,BlinkMacSystemFont,sans-serif; letter-spacing:-0.022em; }
-  input, select, textarea{ color-scheme:light; }
-  :focus-visible{ outline-color:#d62d20; }
+  input, select, textarea{ color-scheme:dark; }
+  :focus-visible{ outline-color:#f5f5f7; }
   #proceedToCheckoutBtn, #exploreOtherPaymentsBtn{ border-radius:999px; }
-  .w1, .w2{ color:#1d1d1f !important; font-family:"Inter Tight","Inter",sans-serif; letter-spacing:-0.015em; }
+  .w1, .w2{ color:#f5f5f7 !important; font-family:"Inter Tight","Inter",sans-serif; letter-spacing:-0.015em; }
 </style>
 </head>
 <body>
@@ -1738,7 +1738,7 @@
       fallback.id = 'qrFallbackLink';
       fallback.href = checkoutUrl;
       fallback.textContent = 'Tap here to pay';
-      fallback.style.cssText = 'display:block; background:var(--gold); color:#ffffff; font-size:18px; font-weight:800; padding:22px 40px; border-radius:16px; margin-bottom:28px;';
+      fallback.style.cssText = 'display:block; background:var(--gold); color:#1d1d1f; font-size:18px; font-weight:800; padding:22px 40px; border-radius:16px; margin-bottom:28px;';
       canvasWrap.insertBefore(fallback, canvas);
     }
 
