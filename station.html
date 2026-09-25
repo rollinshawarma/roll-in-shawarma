@@ -173,6 +173,7 @@
   .item-pill.pill-ready{ background:rgba(11,175,76,0.16); color:var(--green); border-color:rgba(11,175,76,0.4); }
   .item-pill.pill-prepping{ background:rgba(247,173,40,0.16); color:var(--gold); border-color:rgba(247,173,40,0.4); }
   .order-card.order-cash{ border-color:var(--red); }
+  .scheduled-badge{ display:inline-block; margin-bottom:10px; padding:5px 12px; border-radius:100px; font-size:17px; font-weight:800; color:#7cc4ff; background:rgba(64,156,255,0.16); border:1px solid rgba(64,156,255,0.45); }
   .order-card.order-curbside{ border-color:var(--blue); }
   .cash-warning{
     background:rgba(216,52,46,0.18); color:var(--red); border:1px solid var(--red); border-radius:8px;
@@ -1315,7 +1316,7 @@
         if (!byOrder[r.order_id]) {
           byOrder[r.order_id] = {
             reference_code: r.reference_code, customer_name: r.customer_name, paymentMethod: r.payment_method,
-            createdAt: r.order_created_at, pickupMethod: r.pickup_method, carMake: r.car_make, carColor: r.car_color, parkingSpot: r.parking_spot,
+            createdAt: r.order_created_at, pickupMethod: r.pickup_method, carMake: r.car_make, carColor: r.car_color, parkingSpot: r.parking_spot, scheduledAt: r.scheduled_pickup_at,
             notes: r.order_notes,
             items: []
           };
@@ -1371,6 +1372,7 @@
             '<span class="wait-time" data-created-at="' + escHtml(o.createdAt || '') + '">&mdash;</span>' +
           '</div>' +
           (isCash ? '<div class="cash-warning">Confirm Cash Payment</div>' : '') +
+          (o.scheduledAt ? '<div class="scheduled-badge">\u23F0 Scheduled pickup ' + escHtml(new Date(o.scheduledAt).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' })) + '</div>' : '') +
           (isCurbside ? '<div class="curbside-badge">\uD83D\uDE97 ' +
             (o.parkingSpot ? 'Spot ' + escHtml(o.parkingSpot) : 'Curbside') +
             (function(){ var car = [o.carColor, o.carMake].filter(Boolean).join(' '); return car ? ' &mdash; ' + escHtml(car) : (o.parkingSpot ? '' : ' &mdash; no spot or car details'); })() +
