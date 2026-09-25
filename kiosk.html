@@ -420,8 +420,8 @@
   <div class="member-screen-panel">
     <button type="button" class="member-screen-back" id="memberCheckInBackBtn">&larr; Back to Menu</button>
     <div class="member-screen-title">Member Check-In</div>
-    <div class="member-checkin-hint">Enter the number from your Member ID (e.g. just 1234 from MEMBER-1234).</div>
-    <input type="text" id="memberIdInput" class="member-id-input" placeholder="1234" autocapitalize="characters" inputmode="numeric">
+    <div class="member-checkin-hint">Enter the numbers from your Member ID (e.g. just 48213907 from MEMBER-48213907).</div>
+    <input type="text" id="memberIdInput" class="member-id-input" placeholder="48213907" autocapitalize="characters" inputmode="numeric">
     <div class="member-checkin-error" id="memberCheckInError"></div>
     <button type="button" class="deal-picker-next" id="memberCheckInSubmitBtn">Check In</button>
   </div>
@@ -1563,6 +1563,65 @@
     // value still needs to be filled in before this button will work.
     var SQUARE_APPLICATION_ID = 'sq0idp-jXoAXWpu2_M9v9OT054JEg';
     var CASH_ORDER_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/create-cash-order';
+    // ---- Registered kiosk tablet (set up once in kiosk-setup.html) ----
+    // The tablet keeps a signing key its browser can never export, in this
+    // site's own storage. Cash orders are signed with it; the server
+    // refuses cash orders from anything that isn't a registered tablet.
+    var kioskDevice = null; // { id, key } once loaded
+    var KIOSK_DEVICE_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/kiosk-device';
+    function kioskDb(){
+      return new Promise(function(resolve, reject){
+        var open = indexedDB.open('rollin-kiosk', 1);
+        open.onupgradeneeded = function(){ open.result.createObjectStore('device'); };
+        open.onsuccess = function(){ resolve(open.result); };
+        open.onerror = function(){ reject(open.error); };
+      });
+    }
+    function loadKioskDevice(){
+      return kioskDb().then(function(db){
+        return new Promise(function(resolve){
+          var get = db.transaction('device', 'readonly').objectStore('device').get('current');
+          get.onsuccess = function(){ resolve(get.result || null); };
+          get.onerror = function(){ resolve(null); };
+        });
+      }).catch(function(){ return null; });
+    }
+    function toB64url(buf){
+      var s = '', b = new Uint8Array(buf);
+      for (var i = 0; i < b.length; i++) s += String.fromCharCode(b[i]);
+      return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+    function toHex(buf){
+      return Array.prototype.map.call(new Uint8Array(buf), function(x){ return ('0' + x.toString(16)).slice(-2); }).join('');
+    }
+    // Headers proving this request comes from this registered tablet.
+    function signKioskRequest(bodyStr){
+      if (!kioskDevice) return Promise.reject(new Error('This tablet isn\u2019t registered for cash orders.'));
+      var ts = String(Math.floor(Date.now() / 1000));
+      return crypto.subtle.digest('SHA-256', new TextEncoder().encode(bodyStr)).then(function(h){
+        var msg = new TextEncoder().encode(kioskDevice.id + '.' + ts + '.' + toHex(h));
+        return crypto.subtle.sign({ name: 'ECDSA', hash: 'SHA-256' }, kioskDevice.key, msg);
+      }).then(function(sig){
+        return { 'x-kiosk-device': kioskDevice.id, 'x-kiosk-ts': ts, 'x-kiosk-sig': toB64url(sig) };
+      });
+    }
+    (function(){
+      var cashBtnEl = document.getElementById('payCashBtn');
+      if (cashBtnEl) cashBtnEl.style.display = 'none'; // shown once the tablet checks out
+      loadKioskDevice().then(function(dev){
+        if (!dev || !dev.id || !dev.key) return;
+        return fetch(KIOSK_DEVICE_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KIOSK_ANON_KEY },
+          body: JSON.stringify({ action: 'status', deviceId: dev.id })
+        }).then(function(r){ return r.json(); }).then(function(res){
+          if (res && res.active) {
+            kioskDevice = dev;
+            if (cashBtnEl) cashBtnEl.style.display = '';
+          }
+        });
+      }).catch(function(){});
+    })();
     var CONFIRMATION_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/get-order-confirmation';
     var KIOSK_ANON_KEY = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
 
@@ -1760,16 +1819,19 @@
       var name = document.getElementById('kioskName').value.trim();
       var email = document.getElementById('kioskEmail').value.trim();
 
-      fetch(CASH_ORDER_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KIOSK_ANON_KEY },
-        body: JSON.stringify({
-          items: itemsPayload,
-          customerName: name || 'Kiosk Guest',
-          customerEmail: email || undefined,
-          orderSource: 'kiosk',
-          tipAmount: tipAmount || 0
-        })
+      var cashBody = JSON.stringify({
+        items: itemsPayload,
+        customerName: name || 'Kiosk Guest',
+        customerEmail: email || undefined,
+        orderSource: 'kiosk',
+        tipAmount: tipAmount || 0
+      });
+      signKioskRequest(cashBody).then(function(proof){
+        return fetch(CASH_ORDER_URL, {
+          method: 'POST',
+          headers: Object.assign({ 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KIOSK_ANON_KEY }, proof),
+          body: cashBody
+        });
       }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
         .then(function(result){
           if (!result.ok) {
@@ -1932,12 +1994,12 @@
 
     function renderTipOptions(baseTotal){
       var options = [
+        { label: 'No Tip', amount: 0 },
         { label: 'Round Up', amount: roundUpTip(baseTotal) },
-        { label: '5%', amount: Math.round(baseTotal * 0.05 * 100) / 100 },
         { label: '10%', amount: Math.round(baseTotal * 0.10 * 100) / 100 },
         { label: '15%', amount: Math.round(baseTotal * 0.15 * 100) / 100 },
-        { label: '20%', amount: Math.round(baseTotal * 0.20 * 100) / 100 },
-        { label: 'No Tip', amount: 0 },
+        { label: '25%', amount: Math.round(baseTotal * 0.25 * 100) / 100 },
+        { label: '30%', amount: Math.round(baseTotal * 0.30 * 100) / 100 },
         { label: 'Other', amount: null }
       ];
 
@@ -2004,9 +2066,10 @@
       document.getElementById('tipBaseTotalDisplay').textContent = '$' + tipScreenBaseTotal.toFixed(2);
       document.getElementById('tipCustomFieldWrap').style.display = 'none';
       renderTipOptions(tipScreenBaseTotal);
-      updateTipFinalTotal();
-      setPaymentButtonsDisabled(true);
-      document.getElementById('tipChooseHint').style.display = 'block';
+      // Round Up is chosen by default; the customer can change it.
+      var roundUpBtn = document.querySelectorAll('#tipOptionsGrid .tip-option-btn')[1];
+      if (roundUpBtn) roundUpBtn.click();
+      else { updateTipFinalTotal(); setPaymentButtonsDisabled(true); document.getElementById('tipChooseHint').style.display = 'block'; }
 
       checkoutScreen.classList.add('hidden');
       document.getElementById('tipScreen').classList.remove('hidden');
