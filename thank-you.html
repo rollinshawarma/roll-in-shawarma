@@ -6,23 +6,23 @@
 <title>Order Confirmed — Roll-In Shawarma</title>
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <meta name="robots" content="noindex">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Inter+Tight:wght@600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
-    --black:#000000;
-    --panel:#121110;
-    --white:#FFFCF3;
-    --cream:#F3EAC9;
-    --muted:rgba(243,234,201,0.62);
-    --gold:#F7AD28;
-    --red:#D8342E;
-    --green:#0BAF4C;
-    --line:rgba(243,234,201,0.14);
+    --black:#ffffff;
+    --panel:#f5f5f7;
+    --white:#1d1d1f;
+    --cream:#424245;
+    --muted:#6e6e73;
+    --gold:#1d1d1f;
+    --red:#d62d20;
+    --green:#1f8a4c;
+    --line:#e3e3e8;
   }
   *{box-sizing:border-box; margin:0; padding:0;}
   html{overflow-x:hidden;}
   body{
-    background:var(--black); color:var(--cream); font-family:'Inter', -apple-system, sans-serif;
+    background:var(--black); color:var(--cream); font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
     line-height:1.5; min-height:100vh; display:flex; align-items:center; justify-content:center;
     padding:32px 16px; overflow-x:hidden; width:100%;
   }
@@ -31,7 +31,7 @@
     border-radius:20px; padding:36px 28px; text-align:center;
   }
   .check-badge{
-    width:64px; height:64px; border-radius:50%; background:rgba(11,175,76,0.14);
+    width:64px; height:64px; border-radius:50%; background:rgba(31,138,76,0.14);
     display:flex; align-items:center; justify-content:center; margin:0 auto 20px;
   }
   .check-badge svg{ width:32px; height:32px; color:var(--green); }
@@ -39,10 +39,10 @@
   .sub{ font-size:14px; color:var(--muted); margin-bottom:26px; }
   .track-btn{
     display:block; width:100%; max-width:360px; margin:-10px auto 24px; text-align:center;
-    background:var(--gold); color:#241902; font-weight:800; font-size:16px;
+    background:var(--gold); color:#ffffff; font-weight:800; font-size:16px;
     padding:15px 20px; border-radius:100px; text-decoration:none;
   }
-  .track-btn:focus-visible{ outline:3px solid #fff; outline-offset:3px; }
+  .track-btn:focus-visible{ outline:3px solid #1d1d1f; outline-offset:3px; }
   .ref-badge{
     display:inline-block; background:var(--black); border:1px solid var(--line); border-radius:100px;
     padding:6px 16px; font-size:12.5px; font-weight:700; color:var(--gold); margin-bottom:26px;
@@ -55,13 +55,13 @@
   }
   .status-dot svg{ width:18px; height:18px; stroke:var(--muted); transition:stroke .4s ease; }
   .status-step.active .status-dot{ background:var(--gold); border-color:var(--gold); }
-  .status-step.active .status-dot svg{ stroke:#241902; }
+  .status-step.active .status-dot svg{ stroke:#ffffff; }
   .status-step.done .status-dot{ background:var(--green); border-color:var(--green); }
-  .status-step.done .status-dot svg{ stroke:#04220F; }
+  .status-step.done .status-dot svg{ stroke:#ffffff; }
   @keyframes statusPulse{
-    0%{ box-shadow:0 0 0 0 rgba(247,173,40,0.5); }
-    70%{ box-shadow:0 0 0 10px rgba(247,173,40,0); }
-    100%{ box-shadow:0 0 0 0 rgba(247,173,40,0); }
+    0%{ box-shadow:0 0 0 0 rgba(29,29,31,0.25); }
+    70%{ box-shadow:0 0 0 10px rgba(29,29,31,0.0); }
+    100%{ box-shadow:0 0 0 0 rgba(29,29,31,0.0); }
   }
   .status-step.active .status-dot{ animation:statusPulse 1.8s infinite; }
   .status-label{ font-size:11px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.04em; transition:color .4s ease; }
@@ -86,12 +86,20 @@
   .pickup-note{ font-size:13px; color:var(--muted); margin-top:18px; }
   .status-note{ font-size:12.5px; color:var(--muted); margin-top:18px; font-style:italic; }
   .btn{
-    display:inline-block; margin-top:26px; background:var(--gold); color:#241902; font-weight:700;
+    display:inline-block; margin-top:26px; background:var(--gold); color:#ffffff; font-weight:700;
     font-size:14px; padding:13px 26px; border-radius:100px; text-decoration:none;
   }
   .loading, .error-state{ padding:20px 0; color:var(--muted); font-size:14px; }
   .error-state{ color:var(--red); }
   .hidden{ display:none !important; }
+
+  /* ---- Roll-In shared look (matches rollinshawarma.com) ---- */
+  body{ font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; -webkit-font-smoothing:antialiased; }
+  h1, h2, h3{ font-family:"Inter Tight","Inter",-apple-system,BlinkMacSystemFont,sans-serif; letter-spacing:-0.022em; }
+  input, select, textarea{ color-scheme:light; }
+  :focus-visible{ outline-color:#d62d20; }
+  #proceedToCheckoutBtn, #exploreOtherPaymentsBtn{ border-radius:999px; }
+  .w1, .w2{ color:#1d1d1f !important; font-family:"Inter Tight","Inter",sans-serif; letter-spacing:-0.015em; }
 </style>
 </head>
 <body>
