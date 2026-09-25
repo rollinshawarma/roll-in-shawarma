@@ -668,7 +668,7 @@
 </div>
 
 <header class="hero member-hide" id="top">
-  <div class="hero-media"><img src="truck-night.webp" alt="The Roll-In Shawarma food truck lit up at night" fetchpriority="high"></div>
+  <div class="hero-media"><img src="hero-truck.jpg" alt="The Roll-In Shawarma food truck" fetchpriority="high" onerror="this.onerror=null;this.src='truck-night.webp'"></div>
   <div class="hero-inner">
     <div>
       <h1>Roll-In Shawarma</h1>
@@ -793,7 +793,7 @@
 
       <form id="authCodeForm" class="cform member-signup-form hidden">
         <p class="auth-hint" id="codeSentHint"></p>
-        <label>6-digit code<input type="text" id="authCode" inputmode="numeric" maxlength="6" placeholder="123456" required autocomplete="one-time-code"></label>
+        <label>Sign-in code from your email<input type="text" id="authCode" inputmode="numeric" maxlength="12" placeholder="Enter the code" required autocomplete="one-time-code"></label>
         <button type="submit" id="verifyCodeBtn">Verify</button>
         <button type="button" class="auth-link" id="useDifferentEmailBtn">Use a different email</button>
       </form>
@@ -2833,7 +2833,7 @@
 
     codeForm.addEventListener('submit', function(e){
       e.preventDefault();
-      var code = document.getElementById('authCode').value.trim();
+      var code = document.getElementById('authCode').value.replace(/\s+/g, '');
       if (!code) return;
       var btn = document.getElementById('verifyCodeBtn');
       btn.disabled = true;
