@@ -7,15 +7,15 @@
 <title>Staff Portal | Roll-In Shawarma</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Inter+Tight:wght@600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
 <style>
   :root{
-    --black:#0F172A; --panel:#F8FAFC; --panel-2:#FFFFFF;
-    --white:#0F172A; --cream:#374151; --muted:rgba(55,65,81,0.62);
-    --gold:#4F46E5; --gold-hover:#4338CA; --red:#D97706; --green:#16A34A;
-    --line:#E5E7EB;
+    --black:#1d1d1f; --panel:#f5f5f7; --panel-2:#ffffff;
+    --white:#1d1d1f; --cream:#424245; --muted:#6e6e73;
+    --gold:#1d1d1f; --gold-hover:#000000; --red:#d62d20; --green:#1f8a4c;
+    --line:#e3e3e8;
   }
   *{ box-sizing:border-box; margin:0; padding:0; }
   body{
@@ -40,7 +40,7 @@
   .nv-terms{ font-size:14px; margin-bottom:10px; }
   .nv-label{ display:block; font-size:13px; color:var(--muted); margin-bottom:6px; }
   .nv-msg{ margin-top:8px; }
-  .pin-lock-alert{ background:rgba(216,52,46,0.14); border:2px solid var(--red); border-radius:16px; padding:18px 20px; margin:0 auto 20px; max-width:560px; text-align:left; }
+  .pin-lock-alert{ background:rgba(214,45,32,0.14); border:2px solid var(--red); border-radius:16px; padding:18px 20px; margin:0 auto 20px; max-width:560px; text-align:left; }
   .pin-lock-alert h3{ margin:0 0 6px; font-size:17px; color:var(--red); }
   .pin-lock-alert p{ margin:0 0 12px; font-size:14px; line-height:1.5; }
   .pin-lock-alert .pin-lock-msg{ font-size:13px; margin-top:8px; min-height:16px; }
@@ -59,7 +59,7 @@
   }
   textarea:focus{ outline:none; border-color:var(--gold); }
   input:focus{ outline:none; border-color:var(--gold); }
-  .warn-box{ background:rgba(79,70,229,0.14); border:1px solid var(--gold); border-radius:10px; padding:12px 14px; font-size:13px; color:var(--gold); margin-bottom:14px; line-height:1.5; }
+  .warn-box{ background:rgba(29,29,31,0.07); border:1px solid var(--gold); border-radius:10px; padding:12px 14px; font-size:13px; color:var(--gold); margin-bottom:14px; line-height:1.5; }
   .warn-box b{ color:var(--white); }
   select{
     width:100%; background:var(--panel-2); border:1px solid var(--line); border-radius:10px;
@@ -73,20 +73,20 @@
   }
   button:hover{ transform:translateY(-1px); }
   button:disabled{ opacity:0.4; cursor:not-allowed; transform:none; }
-  .btn-primary{ background:var(--red); color:var(--white); width:100%; }
-  .btn-primary:hover{ background:var(--gold); color:#FFFFFF; }
+  .btn-primary{ background:#1d1d1f; color:#ffffff; width:100%; border-radius:999px; }
+  .btn-primary:hover{ background:#000000; color:#ffffff; }
   .btn-clockin{ background:var(--green); color:#FFFFFF; width:100%; padding:15px; font-size:15px; }
   .btn-clockout{ background:var(--gold); color:#FFFFFF; width:100%; padding:15px; font-size:15px; }
   .btn-ghost{ background:transparent; border:1px solid var(--line); color:var(--cream); }
   .btn-small{ padding:7px 14px; font-size:12.5px; }
   .btn-approve{ background:var(--green); color:#FFFFFF; }
-  .btn-reject{ background:var(--red); color:var(--white); }
+  .btn-reject{ background:var(--red); color:#ffffff; }
   .btn-export{ background:var(--panel-2); border:1px solid var(--gold); color:var(--gold); }
   .btn-export:hover{ background:var(--gold); color:#FFFFFF; }
 
   .msg{ font-size:13px; padding:10px 14px; border-radius:10px; margin-bottom:14px; }
-  .msg.error{ background:rgba(217,119,6,0.15); color:#D97706; border:1px solid rgba(217,119,6,0.4); }
-  .msg.ok{ background:rgba(22,163,74,0.15); color:#7fe3a6; border:1px solid rgba(22,163,74,0.4); }
+  .msg.error{ background:rgba(214,45,32,0.15); color:#d62d20; border:1px solid rgba(214,45,32,0.4); }
+  .msg.ok{ background:rgba(31,138,76,0.15); color:#7fe3a6; border:1px solid rgba(31,138,76,0.4); }
 
   .hidden{ display:none !important; }
 
@@ -222,10 +222,10 @@
   .empty-row td{ color:var(--muted); white-space:normal; text-align:center; padding:22px 8px; }
 
   .pill{ display:inline-flex; align-items:center; gap:4px; padding:3px 10px; border-radius:100px; font-size:10.5px; font-weight:700; text-transform:uppercase; }
-  .pill.pending{ background:rgba(79,70,229,0.18); color:var(--gold); }
-  .pill.approved{ background:rgba(22,163,74,0.18); color:var(--green); }
-  .pill.rejected{ background:rgba(217,119,6,0.18); color:#D97706; }
-  .pill.missing{ background:rgba(217,119,6,0.22); color:#D97706; }
+  .pill.pending{ background:rgba(29,29,31,0.09); color:var(--gold); }
+  .pill.approved{ background:rgba(31,138,76,0.18); color:var(--green); }
+  .pill.rejected{ background:rgba(214,45,32,0.18); color:#d62d20; }
+  .pill.missing{ background:rgba(214,45,32,0.22); color:#d62d20; }
 
   .row2{ display:grid; grid-template-columns:1fr 1fr; gap:14px; }
   .toolbar{ display:flex; gap:10px; align-items:center; margin-bottom:16px; flex-wrap:wrap; }
@@ -254,9 +254,9 @@
   .doc-owner{ font-size:11.5px; color:var(--muted); min-width:80px; }
   .doc-actions{ display:flex; gap:8px; align-items:center; }
   .exp-badge{ display:inline-flex; align-items:center; gap:4px; padding:3px 9px; border-radius:100px; font-size:10.5px; font-weight:700; text-transform:uppercase; }
-  .exp-badge.ok{ background:rgba(22,163,74,0.18); color:var(--green); }
-  .exp-badge.soon{ background:rgba(79,70,229,0.2); color:var(--gold); }
-  .exp-badge.expired{ background:rgba(217,119,6,0.22); color:#D97706; }
+  .exp-badge.ok{ background:rgba(31,138,76,0.18); color:var(--green); }
+  .exp-badge.soon{ background:rgba(29,29,31,0.1); color:var(--gold); }
+  .exp-badge.expired{ background:rgba(214,45,32,0.22); color:#d62d20; }
   input[type=file]{
     width:100%; background:var(--panel-2); border:1px solid var(--line); border-radius:10px;
     padding:10px 12px; color:var(--cream); font-size:13px; font-family:'Inter'; margin-bottom:14px;
@@ -277,8 +277,8 @@
   .manual-entry-toggle > *:not(summary){ margin-top:0; }
   .manual-entry-toggle label:first-of-type{ margin-top:14px; }
   .scan-result-box{ padding:26px 20px; border-radius:16px; text-align:center; margin-top:12px; }
-  .scan-result-box.go{ background:rgba(22,163,74,0.16); border:2px solid var(--green); }
-  .scan-result-box.stop{ background:rgba(217,119,6,0.16); border:2px solid var(--red); }
+  .scan-result-box.go{ background:rgba(31,138,76,0.16); border:2px solid var(--green); }
+  .scan-result-box.stop{ background:rgba(214,45,32,0.16); border:2px solid var(--red); }
   .scan-result-box .big-icon{ font-size:44px; margin-bottom:10px; line-height:1; }
   .scan-result-box .result-text{ font-size:15px; font-weight:700; color:var(--white); }
   @keyframes spin{ to{ transform:rotate(360deg); } }
@@ -296,6 +296,14 @@
     button{ min-height:44px; }
     .btn-small{ min-height:38px; }
   }
+
+  /* ---- Roll-In shared look (matches rollinshawarma.com) ---- */
+  body{ font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; -webkit-font-smoothing:antialiased; }
+  h1, h2, h3{ font-family:"Inter Tight","Inter",-apple-system,BlinkMacSystemFont,sans-serif; letter-spacing:-0.022em; }
+  input, select, textarea{ color-scheme:light; }
+  :focus-visible{ outline-color:#d62d20; }
+  #proceedToCheckoutBtn, #exploreOtherPaymentsBtn{ border-radius:999px; }
+  .w1, .w2{ color:#1d1d1f !important; font-family:"Inter Tight","Inter",sans-serif; letter-spacing:-0.015em; }
 </style>
 </head>
 <body>
