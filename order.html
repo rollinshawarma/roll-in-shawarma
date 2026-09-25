@@ -1058,7 +1058,7 @@
     var selectedCarColor = null;
     var tipOptions = [];
     var selectedTip = null;   // number, or null when not chosen / custom invalid
-    var tipChoiceIndex = null;
+    var tipChoiceIndex = 1;   // Round up is chosen by default
 
     $('toCheckoutBtn').addEventListener('click', openCheckout);
     function openCheckout(){
@@ -1087,10 +1087,10 @@
       tipOptions = [
         { label: 'No tip', amount: 0 },
         { label: 'Round up', amount: roundUpTip(base) },
-        { label: '5%', amount: Math.round(base * 0.05 * 100) / 100 },
         { label: '10%', amount: Math.round(base * 0.10 * 100) / 100 },
         { label: '15%', amount: Math.round(base * 0.15 * 100) / 100 },
-        { label: '20%', amount: Math.round(base * 0.20 * 100) / 100 },
+        { label: '25%', amount: Math.round(base * 0.25 * 100) / 100 },
+        { label: '30%', amount: Math.round(base * 0.30 * 100) / 100 },
         { label: 'Other', amount: null }
       ];
       if (tipChoiceIndex !== null && tipOptions[tipChoiceIndex] && tipOptions[tipChoiceIndex].amount !== null) {
