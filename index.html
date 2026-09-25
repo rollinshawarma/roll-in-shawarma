@@ -611,6 +611,14 @@
   .more-details[open] summary::before{ content:"\2212 "; }
   .more-details[open] summary{ margin-bottom:10px; }
   .checkout-summary{ padding:14px 24px 24px; }
+  #coStepDetails, #coStepPay{ display:flex; flex-direction:column; flex:1; }
+  #coStepDetails.hidden, #coStepPay.hidden{ display:none !important; }
+  .co-for{ font-size:15px; font-weight:600; margin-bottom:12px; }
+  .co-items{ border-top:1px solid var(--line); border-bottom:1px solid var(--line); padding:8px 0; margin-bottom:12px; }
+  .co-item{ display:flex; justify-content:space-between; gap:12px; padding:6px 0; font-size:15px; }
+  .co-item b{ font-weight:600; }
+  .co-item span:last-child{ white-space:nowrap; }
+  #coContinueBtn{ width:100%; height:48px; }
   /* Compact pay bar: total, wallets, card */
   .checkout-foot{ padding-top:12px; }
   .checkout-foot .cart-total-row{ margin:0 0 10px; font-size:17px; }
@@ -1386,7 +1394,9 @@
     </div>
 
     <div id="cartCheckoutView" class="hidden">
-      <button type="button" id="cartBackToItemsBtn" class="cart-back-link">&larr; Back to order</button>
+      <!-- Step 1: details -->
+      <div id="coStepDetails">
+        <button type="button" id="cartBackToItemsBtn" class="cart-back-link">&larr; Back to order</button>
       <div class="cform cart-checkout-form">
         <label>Name for the order*<input type="text" id="cartCustomerName" required autocomplete="name"></label>
         <label>Email for your receipt <span class="opt">(optional with Apple Pay / Google Pay)</span><input type="email" id="cartCustomerEmail" autocomplete="email"></label>
@@ -1434,10 +1444,19 @@
           <input type="number" id="tipCustomInput" min="0" step="0.01" inputmode="decimal" placeholder="Tip amount, e.g. 3.00" aria-label="Custom tip amount">
         </div>
       </div>
+
+        <div class="cart-drawer-footer checkout-foot">
+          <div id="coDetailsMsg" class="square-pay-msg cart-checkout-msg"></div>
+          <button type="button" id="coContinueBtn" class="btn btn-light">Review order <span id="coContinueAmt"></span></button>
+        </div>
       </div>
 
-      <div class="checkout-summary">
-        <div class="pickup-time-label">Order summary</div>
+      <!-- Step 2: review & pay -->
+      <div id="coStepPay" class="hidden">
+        <button type="button" id="coEditDetailsBtn" class="cart-back-link">&larr; Edit details</button>
+        <div class="checkout-summary">
+          <div class="co-for" id="coForLine"></div>
+          <div class="co-items" id="coItemsList"></div>
         <div class="cart-breakdown">
           <div class="cart-breakdown-row">Subtotal <span id="cartCheckoutSubtotal">$0.00</span></div>
           <div class="cart-breakdown-row promo-discount-row hidden" id="promoDiscountRow">Discount <span id="cartCheckoutDiscount">&minus;$0.00</span></div>
@@ -1446,17 +1465,18 @@
           <div class="cart-breakdown-row">Online Processing Fee <span id="cartCheckoutFee">$0.00</span></div>
           <div class="cart-breakdown-row hidden" id="tipRow">Tip <span id="cartCheckoutTip">$0.00</span></div>
         </div>
-      </div>
-
-      <div class="cart-drawer-footer checkout-foot">
-        <div id="cartCheckoutMsg" class="square-pay-msg cart-checkout-msg"></div>
-        <div class="cart-total-row">Total <span id="cartCheckoutTotal">$0.00</span></div>
-        <div class="wallet-pay">
-          <button type="button" id="applePayBtn" class="apple-pay-btn hidden" lang="en" aria-label="Pay with Apple Pay"></button>
-          <div id="googlePayBtn" class="google-pay-btn hidden"></div>
         </div>
-        <div class="pay-or hidden" id="payOr"><span>or</span></div>
-        <button type="button" id="cartPayNowBtn" class="btn btn-light">Pay Now</button>
+
+        <div class="cart-drawer-footer checkout-foot">
+          <div id="cartCheckoutMsg" class="square-pay-msg cart-checkout-msg"></div>
+          <div class="cart-total-row">Total <span id="cartCheckoutTotal">$0.00</span></div>
+          <div class="wallet-pay">
+            <button type="button" id="applePayBtn" class="apple-pay-btn hidden" lang="en" aria-label="Pay with Apple Pay"></button>
+            <div id="googlePayBtn" class="google-pay-btn hidden"></div>
+          </div>
+          <div class="pay-or hidden" id="payOr"><span>or</span></div>
+          <button type="button" id="cartPayNowBtn" class="btn btn-light">Pay Now</button>
+        </div>
       </div>
     </div>
   </div>
@@ -2426,6 +2446,8 @@
         if (amt) amt.textContent = c === 'other' ? 'Custom' : '$' + (tipCentsFor(c, baseTotals) / 100).toFixed(2);
       });
       document.getElementById('tipRow').classList.toggle('hidden', !(totals.tip > 0));
+      var contAmt = document.getElementById('coContinueAmt');
+      if (contAmt) contAmt.textContent = '· $' + totals.total.toFixed(2);
       document.getElementById('cartCheckoutTip').textContent = '$' + totals.tip.toFixed(2);
       if (window.__rollinWalletUpdate) window.__rollinWalletUpdate(totals);
     }
@@ -2459,6 +2481,7 @@
       promoSection.classList.toggle('hidden', hasCatering);
       if (window.rollinPickup) window.rollinPickup.setup(cart.length > 0 && !hasCatering);
       resetTip();
+      showCoStep('details');
 
       refreshCheckoutBreakdown();
       prepareWallets();
@@ -2572,8 +2595,38 @@
     var PAY_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/create-order-checkout';
     var PAY_KEY = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
 
+    // Two steps: 1) details (name, pickup, promo, tip)  2) review & pay.
+    var coStep = 'details';
+    function showCoStep(step){
+      coStep = step;
+      document.getElementById('coStepDetails').classList.toggle('hidden', step !== 'details');
+      document.getElementById('coStepPay').classList.toggle('hidden', step !== 'pay');
+      drawerTitle.textContent = step === 'pay' ? 'Review & pay' : 'Checkout';
+      checkoutMsg('');
+      var panel = document.querySelector('.cart-drawer-panel');
+      if (panel) panel.scrollTop = 0;
+    }
+    function renderReview(order){
+      var lines = cart.map(function(c){
+        return '<div class="co-item"><span><b>' + c.quantity + '\u00d7</b> ' + escHtml(c.name) + '</span><span>$' + (c.unitPrice * c.quantity).toFixed(2) + '</span></div>';
+      }).concat(giftCardCart.map(function(g){
+        return '<div class="co-item"><span><b>1\u00d7</b> Gift card to ' + escHtml(g.recipientEmail) + '</span><span>$' + g.amount.toFixed(2) + '</span></div>';
+      }));
+      document.getElementById('coItemsList').innerHTML = lines.join('');
+      var when = cart.length && window.rollinPickup ? window.rollinPickup.label() : '';
+      document.getElementById('coForLine').textContent = 'For ' + order.payload.customerName + (when ? ' \u00b7 Pickup ' + when : '');
+    }
+    document.getElementById('coContinueBtn').addEventListener('click', function(){
+      var order = collectCheckout();
+      if (!order) return;
+      renderReview(order);
+      showCoStep('pay');
+      prepareWallets();
+    });
+    document.getElementById('coEditDetailsBtn').addEventListener('click', function(){ showCoStep('details'); });
+
     function checkoutMsg(text, isError){
-      var el = document.getElementById('cartCheckoutMsg');
+      var el = document.getElementById(coStep === 'pay' ? 'cartCheckoutMsg' : 'coDetailsMsg');
       el.textContent = text || '';
       el.className = 'square-pay-msg cart-checkout-msg' + (text && isError !== false ? ' error' : '');
     }
@@ -2628,7 +2681,7 @@
           setPayBusy(false);
           var d = result.data || {};
           if (result.ok && (d.url || d.paid)) return d;
-          if ((d.code === 'CLOSED' || d.code === 'BAD_PICKUP_TIME') && window.rollinPickup) window.rollinPickup.forceSchedule();
+          if ((d.code === 'CLOSED' || d.code === 'BAD_PICKUP_TIME') && window.rollinPickup) { window.rollinPickup.forceSchedule(); showCoStep('details'); }
           if (d.code === 'TOTAL_CHANGED') {
             // A price changed since the menu loaded: reload today's prices
             // so the next tap shows (and Apple Pay approves) the real total.
@@ -2716,6 +2769,8 @@
           });
         }).catch(function(){});
         return Promise.all([apple, google]).then(function(){
+          // iPhone / iPad / Mac Safari: Apple Pay only, no Google Pay button.
+          if (sqApplePay) document.getElementById('googlePayBtn').classList.add('hidden');
           document.getElementById('payOr').classList.toggle('hidden', !walletShown);
           setPayBusy(false);
         });
@@ -3539,7 +3594,14 @@
         return timeSel.value;
       },
       // The server said we're closed or the time is gone: switch to scheduling.
-      forceSchedule: function(){ refresh(false); setMode('later'); }
+      forceSchedule: function(){ refresh(false); setMode('later'); },
+      // e.g. "ASAP" or "Tomorrow at 5:30 PM"
+      label: function(){
+        if (!needed) return '';
+        if (mode === 'asap') return 'ASAP';
+        var d = daySel.options[daySel.selectedIndex], t = timeSel.options[timeSel.selectedIndex];
+        return d && t ? d.text + ' at ' + t.text : '';
+      }
     };
   })();
 
