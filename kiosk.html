@@ -3,10 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>Order Confirmed — Roll-In Shawarma</title>
+<title>Order Here — Roll-In Shawarma</title>
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <meta name="robots" content="noindex">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Inter+Tight:wght@600;700;800&display=swap" rel="stylesheet">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <style>
   :root{
     --black:#000000;
@@ -15,36 +17,386 @@
     --cream:#d2d2d7;
     --muted:#98989d;
     --gold:#f5f5f7;
+    --red:#ff453a;
     --green:#1f8a4c;
     --line:#38383a;
   }
   *{box-sizing:border-box; margin:0; padding:0; -webkit-tap-highlight-color:transparent;}
-  html, body{ overflow:hidden; height:100%; width:100%; }
+  html, body{ overflow:hidden; height:100%; width:100%; overscroll-behavior:none; }
   body{
-    background:radial-gradient(circle at 50% 25%, rgba(31,138,76,0.16), var(--black) 65%);
-    color:var(--cream); font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height:1.4; user-select:none;
-    display:flex; align-items:center; justify-content:center; padding:40px;
+    background:var(--black); color:var(--cream); font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif;
+    line-height:1.4; user-select:none;
   }
   .hidden{ display:none !important; }
-  .kiosk-confirm-card{ text-align:center; max-width:640px; width:100%; }
-  .check-badge{
-    width:110px; height:110px; border-radius:50%; background:rgba(31,138,76,0.16);
-    display:flex; align-items:center; justify-content:center; margin:0 auto 32px;
+  button{ font-family:inherit; cursor:pointer; border:none; }
+  input{ font-family:inherit; }
+
+  /* ---------- IDLE / ATTRACT SCREEN ---------- */
+  #idleScreen{
+    position:fixed; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center;
+    text-align:center; padding:40px; background:radial-gradient(circle at 50% 30%, rgba(255,255,255,0.084), var(--black) 65%);
   }
-  .check-badge svg{ width:56px; height:56px; color:var(--green); }
-  h1{ font-size:32px; font-weight:800; color:var(--white); margin-bottom:12px; }
-  .order-number-box{
+  #idleScreen img.logo{ width:180px; height:180px; border-radius:50%; object-fit:cover; margin-bottom:36px; box-shadow:0 0 90px rgba(255,255,255,0.18); }
+  #idleScreen h1{ font-size:56px; font-weight:800; color:var(--white); margin-bottom:16px; }
+  #idleScreen p{ font-size:22px; color:var(--muted); margin-bottom:48px; }
+  #startOrderBtn{
+    background:var(--gold); color:#1d1d1f; font-size:28px; font-weight:800;
+    padding:28px 64px; border-radius:100px; box-shadow:0 20px 50px rgba(255,255,255,0.21);
+    animation:pulse 2.2s ease-in-out infinite;
+  }
+  @keyframes pulse{ 0%,100%{ transform:scale(1); } 50%{ transform:scale(1.035); } }
+
+  /* ---------- ORDER SCREEN ---------- */
+  #orderScreen{ position:fixed; inset:0; display:flex; flex-direction:column; }
+  .kiosk-header{
+    display:flex; align-items:center; justify-content:space-between; padding:20px 28px;
+    border-bottom:1px solid var(--line); background:var(--panel); flex:none;
+  }
+  .kiosk-header h2{ font-size:22px; font-weight:800; color:var(--white); }
+  #startOverBtn{ background:none; color:var(--muted); font-size:15px; font-weight:600; padding:10px 18px; border:1px solid var(--line); border-radius:100px; }
+
+  #inactivityTimer{
+    position:fixed; bottom:24px; right:24px; z-index:80;
+    width:64px; height:64px; display:flex; align-items:center; justify-content:center;
+  }
+  .inactivity-ring{ width:100%; height:100%; transform:rotate(-90deg); position:absolute; top:0; left:0; }
+  .inactivity-ring-bg{ fill:none; stroke:rgba(255,255,255,0.12); stroke-width:5; }
+  .inactivity-ring-progress{
+    fill:none; stroke:var(--gold); stroke-width:5; stroke-linecap:round;
+    stroke-dasharray:163.36; stroke-dashoffset:0; transition:stroke-dashoffset 1s linear;
+  }
+  .inactivity-ring-number{ position:relative; font-size:19px; font-weight:800; color:var(--white); }
+
+  /* ---------- MENU: split layout -- menu left, live cart right ---------- */
+  .order-split{ flex:1; display:flex; overflow:hidden; }
+  .menu-wrap{ flex:1; overflow-y:auto; padding:16px 20px 40px; min-width:0; }
+
+  .cart-panel{
+    width:380px; flex:none; display:flex; flex-direction:column;
+    border-left:1px solid var(--line); background:var(--panel);
+  }
+  .cart-panel-header{
+    flex:none; padding:20px 24px 14px; font-size:18px; font-weight:800; color:var(--white);
+    border-bottom:1px solid var(--line);
+  }
+  .cart-panel .cart-view-list{ flex:1; overflow-y:auto; padding:8px 20px; }
+  .cart-panel-footer{ flex:none; padding:18px 88px 24px 24px; border-top:1px solid var(--line); position:relative; }
+
+  .category-block{ border:1px solid var(--line); border-radius:14px; margin-bottom:10px; overflow:hidden; background:var(--panel); }
+  .category-row{
+    display:flex; align-items:center; justify-content:space-between; width:100%; text-align:left;
+    background:var(--panel); color:var(--white); font-size:19px; font-weight:800; padding:20px 24px;
+  }
+  .category-row .chev{ color:var(--muted); transition:transform .2s ease; font-size:14px; }
+  .category-block.expanded .category-row .chev{ transform:rotate(180deg); }
+
+  .category-expanded{ max-height:0; overflow:hidden; transition:max-height .3s ease; background:var(--black); }
+  .category-block.expanded .category-expanded{ max-height:6000px; }
+
+  #dealsSection{
+    margin-top:18px; padding:20px; border-radius:16px;
+    background:linear-gradient(145deg, rgba(255,255,255,0.084), rgba(255,255,255,0.024));
+    border:2px solid var(--gold);
+  }
+  #dealsSection .deals-heading{
+    font-size:20px; font-weight:800; color:var(--gold); margin-bottom:14px;
+    display:flex; align-items:center; gap:8px;
+  }
+  .deal-card{
+    display:flex; justify-content:space-between; align-items:center; gap:14px;
+    background:var(--panel); border:1px solid var(--line); border-radius:14px;
+    padding:18px 20px; margin-bottom:12px;
+  }
+  .deal-card:last-child{ margin-bottom:0; }
+  .deal-card-info .deal-name{ font-size:17px; font-weight:800; color:var(--white); margin-bottom:4px; }
+  .deal-card-info .deal-desc{ font-size:13px; color:var(--muted); line-height:1.4; }
+  .deal-card-action{ display:flex; flex-direction:column; align-items:flex-end; gap:8px; flex:none; }
+  .deal-card-price{ font-size:19px; font-weight:800; color:var(--gold); }
+  .deal-card-btn{
+    background:var(--gold); color:#1d1d1f; font-weight:800; font-size:14px;
+    padding:10px 18px; border-radius:100px; white-space:nowrap;
+  }
+
+  .items-grid{
+    display:flex; flex-wrap:wrap; gap:14px;
+    padding:18px 20px;
+  }
+  .item-tile, .select-tile{
+    display:flex; flex-direction:column; background:var(--panel);
+    border:1px solid var(--line); border-radius:14px; overflow:hidden;
+    flex:1 1 150px; max-width:210px; min-width:0; cursor:default;
+    position:relative;
+  }
+  .item-tile-photo{ width:100%; aspect-ratio:1; object-fit:contain; background:var(--panel); display:block; transition:opacity .25s ease; }
+  .item-tile-photo-placeholder{ width:100%; aspect-ratio:1; background:var(--panel); }
+  .item-tile-photo.faded{ opacity:0.1; }
+  .item-tile-body{ padding:10px 12px 12px; display:flex; flex-direction:column; flex:1; position:relative; }
+  .item-tile-name{ font-size:15px; font-weight:700; color:var(--cream); line-height:1.25; min-height:2.6em; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .item-tile-desc{ font-size:12px; color:var(--muted); margin-top:3px; }
+  .item-tile-price{ font-size:16px; font-weight:800; color:var(--gold); margin-top:6px; }
+
+  /* ---- Unified "tap + to pick from options" pattern, shared by ---- */
+  /* ---- variant groups (sizes), protein-choice groups, and combo ---- */
+  .select-tile-plus{
+    margin-top:auto; width:100%; background:var(--gold); color:#1d1d1f; border-radius:100px; padding:9px 16px;
+    font-size:13px; font-weight:800; white-space:nowrap; z-index:2;
+  }
+  .select-tile-plus:active{ background:var(--white); }
+  .select-tile-overlay{
+    position:absolute; top:0; bottom:0; right:0; width:90%; background:var(--black);
+    transform:translateX(100%); transition:transform .25s ease; z-index:3;
+    display:flex; flex-direction:column;
+  }
+  .select-tile-overlay.active{ transform:translateX(0); }
+  .select-tile-overlay-close{
+    align-self:flex-end; margin:6px 8px 0 0; width:22px; height:22px; border-radius:50%;
+    background:var(--panel); color:var(--muted); font-size:13px; display:flex; align-items:center; justify-content:center; flex:none;
+  }
+  .select-tile-overlay-scroll{ overflow-y:auto; flex:1; padding:0 10px 8px; }
+
+  #dealPickerOverlay{
+    position:fixed; inset:0; z-index:500; background:rgba(0,0,0,0.75);
+    display:flex; align-items:center; justify-content:center; padding:20px;
+  }
+  .deal-picker-panel{
+    background:var(--panel); border-radius:20px; border:2px solid var(--gold);
+    width:100%; max-width:520px; max-height:85vh; display:flex; flex-direction:column;
+    padding:24px;
+  }
+  .deal-picker-header{ display:flex; align-items:center; justify-content:space-between; margin-bottom:6px; }
+  .deal-picker-title{ font-size:20px; font-weight:800; color:var(--white); }
+  .deal-picker-close{ background:none; border:none; color:var(--muted); font-size:26px; line-height:1; padding:4px 8px; }
+  .deal-picker-step-label{ font-size:14px; color:var(--gold); font-weight:700; margin-bottom:16px; }
+  .deal-picker-options{ flex:1; overflow-y:auto; display:flex; flex-direction:column; gap:10px; }
+  .deal-picker-option{
+    display:flex; align-items:center; justify-content:space-between;
+    background:var(--black); border:2px solid var(--line); border-radius:12px;
+    padding:16px 18px; color:var(--white); font-size:15px; font-weight:600;
+  }
+  .deal-picker-option.selected{ border-color:var(--gold); background:rgba(255,255,255,0.072); }
+  .deal-picker-option-controls{ display:flex; align-items:center; gap:10px; }
+  .deal-picker-minus{
+    background:var(--panel-2); border:1px solid var(--line); color:var(--white); font-weight:800;
+    width:30px; height:30px; border-radius:100px; font-size:18px; line-height:1; padding:0;
+  }
+  .deal-picker-option-count{
+    background:var(--gold); color:#1d1d1f; font-weight:800; font-size:13px;
+    min-width:22px; height:22px; border-radius:100px; display:none; align-items:center; justify-content:center; padding:0 6px;
+  }
+  .deal-picker-option.selected .deal-picker-option-count{ display:flex; }
+  .deal-picker-footer{ display:flex; gap:12px; margin-top:18px; }
+  .deal-picker-back{
+    background:none; border:1px solid var(--line); color:var(--muted); font-weight:700;
+    padding:14px 18px; border-radius:100px;
+  }
+  .deal-picker-back.hidden{ visibility:hidden; }
+  .deal-picker-next{
+    flex:1; background:var(--gold); color:#1d1d1f; font-weight:800; font-size:15px;
+    padding:14px; border-radius:100px;
+  }
+  .deal-picker-next:disabled{ background:var(--line); color:var(--muted); }
+
+  .deal-checkin-prompt{ display:flex; align-items:center; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+  .deal-checkin-text{ color:var(--muted); font-size:14px; flex:1; min-width:200px; }
+  .deal-checkin-btn{
+    background:var(--gold); color:#1d1d1f; font-weight:800; font-size:15px;
+    padding:12px 24px; border-radius:100px; white-space:nowrap;
+  }
+  #memberCheckInScreen, #memberDealsScreen{
+    position:fixed; inset:0; z-index:400; background:var(--black);
+    display:flex; align-items:center; justify-content:center;
+    overflow-y:auto; padding:40px 20px;
+  }
+  .member-screen-panel{ width:100%; max-width:480px; text-align:center; }
+  .member-deals-panel{ max-width:900px; }
+  .member-screen-back{
+    background:none; border:none; color:var(--muted); font-weight:700; font-size:15px;
+    padding:8px 0; margin-bottom:20px; text-align:center; width:100%;
+  }
+  .member-screen-title{ font-size:26px; font-weight:800; color:var(--white); margin-bottom:20px; }
+  .member-checkin-hint{ font-size:14px; color:var(--muted); margin-bottom:16px; }
+  .member-id-input{
+    width:100%; background:var(--panel); border:2px solid var(--line); border-radius:12px;
+    color:var(--white); font-size:18px; font-weight:700; text-align:center;
+    padding:16px; margin-bottom:10px; text-transform:uppercase;
+  }
+  .member-id-input:focus{ border-color:var(--gold); outline:none; }
+  .member-checkin-error{ color:var(--red); font-size:14px; font-weight:600; min-height:20px; margin-bottom:10px; text-align:center; }
+
+  .protein-choice-list{ margin-top:8px; }
+  .protein-choice-row{
+    display:flex; align-items:center; justify-content:space-between; gap:6px;
+    padding:12px 10px; margin-bottom:8px; background:var(--panel); border:1px solid var(--line); border-radius:10px;
+  }
+  .protein-choice-row:last-child{ margin-bottom:0; }
+  .protein-choice-row:active{ border-color:var(--gold); background:rgba(255,255,255,0.06); }
+  .protein-choice-name{ font-size:15.5px; font-weight:700; color:var(--cream); line-height:1.25; }
+  .protein-choice-row .item-qty-stepper{ gap:6px; }
+  .protein-choice-row .item-qty-btn{ width:22px; height:22px; font-size:14px; }
+  .protein-choice-row .item-qty-value{ min-width:14px; font-size:13px; }
+  .item-tile-badge-row{ position:absolute; top:8px; right:8px; z-index:2; }
+  .combo-drink-row{ gap:8px; }
+  .combo-drink-thumb{ width:28px; height:28px; border-radius:6px; object-fit:contain; background:var(--panel); flex:none; }
+  .combo-drink-row .protein-choice-name{ flex:1; }
+
+  /* Combo tile always trails last in each category's row (flex-wrap
+     flows left-to-right/top-to-bottom), same size as every other tile. */
+  .combo-tile{ order:9999; }
+  .combo-tile-disabled{ opacity:0.4; }
+  .combo-tile-disabled .select-tile-plus{ background:var(--line); color:var(--muted); pointer-events:none; }
+  .item-tile-control{ margin-top:auto; padding-top:10px; display:flex; }
+  .item-add-control{ flex:1; min-width:0; }
+  .item-tile-control .item-qty-stepper{ width:100%; justify-content:center; }
+  .item-qty-stepper{ display:flex; align-items:center; gap:8px; }
+  .item-qty-btn{ width:28px; height:28px; border-radius:50%; background:var(--panel); border:1px solid var(--line); color:var(--cream); font-size:16px; display:flex; align-items:center; justify-content:center; }
+  .item-qty-value{ min-width:16px; text-align:center; font-size:15px; font-weight:800; color:var(--white); }
+  .add-to-cart-btn{
+    width:100%; background:var(--gold); color:#1d1d1f; border-radius:100px; padding:9px 16px;
+    font-size:13px; font-weight:800; white-space:nowrap;
+  }
+  .add-to-cart-btn:active{ background:var(--white); }
+  .item-qty-btn:active{ background:var(--gold); color:#1d1d1f; }
+  .empty-hint{ color:var(--muted); font-size:15px; text-align:center; padding:30px 20px; }
+
+  /* ---------- CART PANEL (right side of the split layout) ---------- */
+  .cart-view-list{ padding:10px 0; }
+  .empty-hint{ color:var(--muted); font-size:14.5px; padding:20px 0; text-align:center; }
+  .cart-view-row{
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+    padding:16px 0; border-bottom:1px solid var(--line);
+  }
+  .cart-view-info{ flex:1; min-width:0; }
+  .cart-view-name{ font-size:15px; font-weight:700; color:var(--white); }
+  .cart-view-linetotal{ font-size:13px; color:var(--muted); margin-top:3px; }
+  .cart-view-stepper{ display:flex; align-items:center; gap:10px; flex:none; }
+  .cart-qty-btn{ width:34px; height:34px; border-radius:50%; background:var(--black); border:1px solid var(--line); color:var(--cream); font-size:19px; display:flex; align-items:center; justify-content:center; }
+  .cart-qty-btn:active{ background:var(--gold); color:#1d1d1f; }
+  .cart-qty-value{ min-width:20px; text-align:center; font-size:16px; font-weight:800; color:var(--white); }
+  .cart-view-total-row{ display:flex; justify-content:space-between; font-size:19px; font-weight:800; color:var(--white); margin-bottom:14px; }
+  .cart-view-total-row span{ color:var(--gold); }
+  #proceedToCheckoutBtn{ width:100%; background:var(--gold); color:#1d1d1f; font-size:18px; font-weight:800; padding:18px; border-radius:14px; }
+  #clearCartBtn{ display:block; width:100%; margin-top:12px; background:none; color:var(--red); font-size:15px; font-weight:700; padding:8px; }
+
+  /* ---------- CHECKOUT SCREEN ---------- */
+  #checkoutScreen{ position:fixed; inset:0; display:flex; flex-direction:column; background:var(--black); }
+
+  /* ---------- TIP SCREEN ---------- */
+  #tipScreen{ position:fixed; inset:0; display:flex; flex-direction:column; background:var(--black); }
+  .tip-total-line{ color:var(--muted); font-size:16px; margin-bottom:24px; }
+  .tip-options-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .tip-option-btn{
+    background:var(--panel); border:2px solid var(--line); border-radius:14px;
+    padding:18px 12px; text-align:center; color:var(--cream);
+  }
+  .tip-option-btn .tip-option-label{ font-size:16px; font-weight:700; display:block; }
+  .tip-option-btn .tip-option-amount{ font-size:14px; color:var(--muted); display:block; margin-top:4px; }
+  .tip-option-btn.selected{ border-color:var(--gold); background:rgba(255,255,255,0.084); }
+  .tip-option-btn.selected .tip-option-amount{ color:var(--gold); }
+  .tip-final-total-row{ display:flex; justify-content:space-between; font-size:22px; font-weight:800; color:var(--white); margin-top:28px; padding-top:20px; border-top:1px solid var(--line); }
+  .tip-final-total-row span{ color:var(--gold); }
+  #tipBackBtn{ display:block; margin:16px auto 0; background:none; color:var(--muted); font-size:15px; }
+  .tip-choose-hint{ text-align:center; color:var(--muted); font-size:14px; margin-bottom:14px; }
+  .payment-methods-row{ display:flex; gap:10px; margin-top:4px; }
+  .payment-method-btn{
+    display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px;
+    flex:1; min-width:0; background:var(--panel); color:var(--cream);
+    font-size:13px; font-weight:700; padding:14px 6px; border:2px solid var(--line); border-radius:14px;
+    text-align:center; line-height:1.2;
+  }
+  .payment-method-btn svg{ width:22px; height:22px; flex:none; }
+  .payment-method-btn:disabled{ opacity:0.35; }
+  .payment-method-btn:not(:disabled):active{ border-color:var(--gold); background:rgba(255,255,255,0.06); }
+  .payment-method-btn-highlighted:not(:disabled){
+    background:var(--gold); color:#1d1d1f; border-color:var(--gold);
+    box-shadow:0 10px 30px rgba(255,255,255,0.21);
+  }
+
+  /* ---------- SCAN TO PAY ---------- */
+  #scanToPayScreen{
+    position:fixed; inset:0; background:var(--black); display:flex; flex-direction:column;
+    align-items:center; justify-content:center; text-align:center; padding:40px; z-index:90;
+  }
+  #scanToPayScreen h2{ font-size:28px; font-weight:800; color:var(--white); margin-bottom:10px; }
+  #scanToPayScreen p{ font-size:17px; color:var(--muted); max-width:420px; margin-bottom:32px; }
+  #qrCodeCanvas{ background:var(--white); padding:20px; border-radius:20px; margin-bottom:28px; }
+  .scan-total{ font-size:22px; font-weight:800; color:var(--gold); margin-bottom:32px; }
+  .scan-waiting{ display:flex; align-items:center; gap:10px; color:var(--muted); font-size:14px; margin-bottom:28px; }
+  .scan-waiting .spin{
+    width:16px; height:16px; border-radius:50%; border:2px solid var(--line); border-top-color:var(--gold);
+    animation:spin 0.9s linear infinite;
+  }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  #scanCheckNowBtn{ background:var(--gold); color:#1d1d1f; font-size:17px; font-weight:800; padding:14px 28px; border-radius:100px; margin-bottom:18px; }
+  #scanCancelBtn{ background:none; color:var(--muted); font-size:14px; margin-top:16px; }
+  .scan-error-msg{ color:var(--red); font-size:13.5px; margin-top:14px; max-width:340px; }
+
+  /* ---------- ORDER CONFIRMED (in-page, no navigation) ---------- */
+  /* ---------- COMBO: inline row + expansion, no modal ---------- */
+  .combo-tile{ border-color:var(--gold); background:rgba(255,255,255,0.048); }
+  .combo-tile .item-tile-name{ color:var(--gold); }
+  .combo-tile-disabled{ opacity:0.4; cursor:default; border-color:var(--line); background:var(--panel); }
+  .combo-tile-disabled .item-tile-name{ color:var(--muted); }
+
+  .qty-pill{
+    background:var(--gold); color:#1d1d1f; font-size:13px; font-weight:800;
+    min-width:30px; height:30px; border-radius:50%; display:flex; align-items:center; justify-content:center;
+  }
+
+  #orderConfirmedScreen{
+    position:fixed; inset:0; background:radial-gradient(circle at 50% 25%, rgba(31,138,76,0.16), var(--black) 65%);
+    display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center;
+    padding:40px; z-index:95;
+  }
+  .confirm-badge{
+    width:96px; height:96px; border-radius:50%; background:rgba(31,138,76,0.16);
+    display:flex; align-items:center; justify-content:center; margin-bottom:26px;
+  }
+  .confirm-badge svg{ width:48px; height:48px; color:var(--green); }
+  #orderConfirmedScreen h2{ font-size:30px; font-weight:800; color:var(--white); margin-bottom:8px; }
+  .confirm-order-number-box{
     background:var(--panel); border:2px solid var(--gold); border-radius:20px;
-    padding:32px; margin:28px 0; display:inline-block; min-width:320px;
+    padding:22px 32px; margin:22px 0; width:fit-content; max-width:90vw;
   }
-  .order-number-label{ font-size:14px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:10px; }
-  .order-number-value{ font-size:56px; font-weight:800; color:var(--gold); letter-spacing:2px; }
-  .order-instructions{ font-size:19px; color:var(--cream); margin:20px 0 8px; }
-  .order-items{ text-align:left; max-width:420px; margin:24px auto; font-size:14px; color:var(--muted); }
-  .order-item-row{ display:flex; justify-content:space-between; padding:6px 0; }
-  .order-item-row .nm{ color:var(--white); }
-  .countdown-note{ font-size:14px; color:var(--muted); margin-top:36px; }
-  .loading{ font-size:20px; color:var(--muted); }
+  .confirm-order-number-label{ font-size:13px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.08em; margin-bottom:8px; }
+  .confirm-order-number-value{ font-size:40px; font-weight:800; color:var(--gold); letter-spacing:1px; white-space:nowrap; }
+  #orderConfirmedScreen p{ font-size:17px; color:var(--cream); max-width:420px; margin-bottom:6px; }
+  .confirm-items{ font-size:14px; color:var(--muted); max-width:360px; margin:18px 0; }
+  .confirm-countdown{ font-size:14px; color:var(--muted); margin-top:30px; }
+  .checkout-body{ flex:1; overflow-y:auto; padding:32px; max-width:560px; margin:0 auto; width:100%; }
+  .checkout-body h2{ font-size:28px; font-weight:800; color:var(--white); margin-bottom:24px; text-align:center; }
+  .checkout-items-list{ border:1px solid var(--line); border-radius:14px; padding:18px 20px; margin-bottom:24px; }
+  .checkout-item-row{ display:flex; justify-content:space-between; padding:8px 0; font-size:15px; }
+  .checkout-item-row .nm{ color:var(--white); }
+  .checkout-item-row .amt{ color:var(--muted); }
+  .checkout-breakdown-row{ display:flex; justify-content:space-between; font-size:14px; color:var(--muted); padding-top:12px; }
+  .checkout-total-row{ display:flex; justify-content:space-between; font-size:20px; font-weight:800; color:var(--white); padding-top:14px; margin-top:8px; border-top:1px solid var(--line); }
+  .checkout-total-row span{ color:var(--gold); }
+
+  .kiosk-field{ margin-bottom:20px; }
+  .kiosk-field label{ display:block; font-size:14px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:0.04em; margin-bottom:10px; }
+  .kiosk-field input{
+    width:100%; background:var(--panel); border:1px solid var(--line); border-radius:12px;
+    padding:18px 16px; color:var(--white); font-size:20px;
+  }
+  .kiosk-field input:focus{ outline:none; border-color:var(--gold); }
+  .kiosk-field input:disabled{ opacity:0.4; }
+  .skip-email-btn{ background:none; color:var(--muted); font-size:14px; font-weight:600; margin-top:8px; text-decoration:underline; }
+
+  .checkout-footer{ flex:none; padding:24px 32px; border-top:1px solid var(--line); max-width:560px; margin:0 auto; width:100%; }
+  .payment-method-btn.payment-method-btn-large{
+    flex-direction:row; gap:12px; width:100%; font-size:20px; padding:20px;
+    background:var(--gold); color:#1d1d1f; border-color:var(--gold);
+  }
+  .payment-method-btn-large svg{ width:26px; height:26px; }
+  #exploreOtherPaymentsBtn{ display:block; width:100%; margin-top:12px; background:var(--gold); color:#1d1d1f; font-size:18px; font-weight:800; padding:18px; border-radius:14px; border:none; }
+  #kioskBackBtn{ display:block; margin:16px auto 0; background:none; color:var(--muted); font-size:15px; }
+  #kioskCheckoutMsg{ text-align:center; font-size:14px; color:var(--red); min-height:20px; margin-top:12px; }
+
+  @media (max-width:600px){
+    #idleScreen h1{ font-size:38px; }
+    #idleScreen p{ font-size:17px; }
+    #startOrderBtn{ font-size:22px; padding:22px 48px; }
+  }
 
   /* ---- Roll-In shared look (matches rollinshawarma.com) ---- */
   body{ font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; -webkit-font-smoothing:antialiased; }
@@ -57,32 +409,173 @@
 </head>
 <body>
 
-<div class="kiosk-confirm-card">
-  <div id="loadingState" class="loading">Confirming your order&hellip;</div>
+<div id="inactivityTimer" class="hidden">
+  <svg viewBox="0 0 60 60" class="inactivity-ring">
+    <circle class="inactivity-ring-bg" cx="30" cy="30" r="26"></circle>
+    <circle class="inactivity-ring-progress" id="inactivityRingProgress" cx="30" cy="30" r="26"></circle>
+  </svg>
+  <span class="inactivity-ring-number" id="inactivityRingNumber">15</span>
+</div>
 
-  <div id="confirmedState" class="hidden">
-    <div class="check-badge">
-      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
-    </div>
-    <h1 id="thankYouTitle">Order Confirmed!</h1>
+<div id="idleScreen">
+  <img class="logo" src="logo.jpg" alt="Roll-In Shawarma">
+  <h1>Roll-In Shawarma</h1>
+  <p>Middle Eastern &amp; Indian fusion, made fresh to order.</p>
+  <button type="button" id="startOrderBtn">Tap to Start Your Order</button>
+</div>
 
-    <div class="order-number-box">
-      <div class="order-number-label">Your Order Number</div>
-      <div class="order-number-value" id="orderNumberValue">&mdash;</div>
-    </div>
-
-    <p class="order-instructions">We'll call your name when it's ready.</p>
-
-    <div class="order-items" id="itemsBlock"></div>
-
-    <div class="countdown-note">Starting a new order in <span id="countdownValue">5</span>s&hellip;</div>
+<div id="memberCheckInScreen" class="hidden">
+  <div class="member-screen-panel">
+    <button type="button" class="member-screen-back" id="memberCheckInBackBtn">&larr; Back to Menu</button>
+    <div class="member-screen-title">Member Check-In</div>
+    <div class="member-checkin-hint">Enter the numbers from your Member ID (e.g. just 48213907 from MEMBER-48213907).</div>
+    <input type="text" id="memberIdInput" class="member-id-input" placeholder="48213907" autocapitalize="characters" inputmode="numeric">
+    <div class="member-checkin-error" id="memberCheckInError"></div>
+    <button type="button" class="deal-picker-next" id="memberCheckInSubmitBtn">Check In</button>
   </div>
 </div>
 
+<div id="memberDealsScreen" class="hidden">
+  <div class="member-screen-panel member-deals-panel">
+    <button type="button" class="member-screen-back" id="memberDealsBackBtn">&larr; Back to Menu</button>
+    <div class="member-screen-title" id="memberDealsTitle"></div>
+    <div id="memberDealsList"></div>
+  </div>
+</div>
+
+<div id="dealPickerOverlay" class="hidden">
+  <div class="deal-picker-panel">
+    <div class="deal-picker-header">
+      <div class="deal-picker-title" id="dealPickerTitle"></div>
+      <button type="button" class="deal-picker-close" id="dealPickerCloseBtn">&times;</button>
+    </div>
+    <div class="deal-picker-step-label" id="dealPickerStepLabel"></div>
+    <div class="deal-picker-options" id="dealPickerOptions"></div>
+    <div class="deal-picker-footer">
+      <button type="button" class="deal-picker-back" id="dealPickerBackBtn">&larr; Back</button>
+      <button type="button" class="deal-picker-next" id="dealPickerNextBtn">Next</button>
+    </div>
+  </div>
+</div>
+
+<div id="orderScreen" class="hidden">
+  <div class="kiosk-header">
+    <h2>Build Your Order</h2>
+    <button type="button" id="startOverBtn">Start Over</button>
+  </div>
+  <div class="order-split">
+    <div class="menu-wrap">
+      <div id="categoryList"></div>
+      <div id="dealsSection" class="hidden"></div>
+    </div>
+    <div class="cart-panel">
+      <div class="cart-panel-header">Your Order</div>
+      <div class="cart-view-list" id="cartViewList"></div>
+      <div class="cart-panel-footer">
+        <div class="cart-view-total-row">Total <span id="cartViewTotal">$0.00</span></div>
+        <button type="button" id="proceedToCheckoutBtn">Proceed to Checkout</button>
+        <button type="button" id="clearCartBtn">Clear Cart</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="checkoutScreen" class="hidden">
+  <div class="checkout-body">
+    <h2>Almost there!</h2>
+    <div class="checkout-items-list" id="checkoutItemsList"></div>
+    <div class="checkout-breakdown-row">Subtotal <span id="checkoutSubtotalDisplay">$0.00</span></div>
+    <div class="checkout-total-row">Total <span id="checkoutTotalDisplay">$0.00</span></div>
+
+    <div class="kiosk-field" style="margin-top:28px;">
+      <label>Name (so we can call you)</label>
+      <input type="text" id="kioskName" placeholder="Your first name">
+    </div>
+    <div class="kiosk-field">
+      <label>Email (optional)</label>
+      <input type="email" id="kioskEmail" placeholder="For a receipt">
+      <button type="button" class="skip-email-btn" id="skipEmailBtn">Skip &mdash; I'll just get my order number</button>
+    </div>
+  </div>
+  <div class="checkout-footer">
+    <button type="button" id="payTapDirectBtn" class="payment-method-btn payment-method-btn-large hidden">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8.32a7.43 7.43 0 0 1 0 7.36"></path><path d="M9.46 6.21a11.76 11.76 0 0 1 0 11.58"></path><path d="M12.91 4.1a15.91 15.91 0 0 1 .01 15.8"></path><path d="M16.37 2a20.16 20.16 0 0 1 0 20"></path></svg>
+      Tap to Pay
+    </button>
+    <button type="button" id="exploreOtherPaymentsBtn">Continue to Payment</button>
+    <div id="kioskCheckoutMsg"></div>
+    <button type="button" id="kioskBackBtn">&larr; Back to menu</button>
+  </div>
+</div>
+
+<div id="tipScreen" class="hidden">
+  <div class="checkout-body">
+    <h2>Add a Tip?</h2>
+    <p class="tip-total-line">Order total: <span id="tipBaseTotalDisplay">$0.00</span></p>
+    <div class="tip-options-grid" id="tipOptionsGrid"></div>
+    <div class="kiosk-field" id="tipCustomFieldWrap" style="display:none;">
+      <label>Custom Tip Amount</label>
+      <input type="number" id="tipCustomAmount" min="0" step="0.01" placeholder="$0.00">
+    </div>
+    <div class="tip-final-total-row">New Total <span id="tipFinalTotalDisplay">$0.00</span></div>
+  </div>
+  <div class="checkout-footer">
+    <p class="tip-choose-hint" id="tipChooseHint">Choose a tip above to continue</p>
+    <div class="payment-methods-row">
+      <button type="button" id="payScanBtn" class="payment-method-btn payment-method-btn-highlighted" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 7V5a2 2 0 0 1 2-2h2"></path><path d="M17 3h2a2 2 0 0 1 2 2v2"></path><path d="M21 17v2a2 2 0 0 1-2 2h-2"></path><path d="M7 21H5a2 2 0 0 1-2-2v-2"></path><rect x="7" y="7" width="10" height="10" rx="1"></rect></svg>
+        Scan to Pay
+      </button>
+      <button type="button" id="payCashBtn" class="payment-method-btn" disabled>
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"></rect><circle cx="12" cy="12" r="3"></circle><path d="M6 12h.01M18 12h.01"></path></svg>
+        Cash at Window
+      </button>
+    </div>
+    <button type="button" id="tipBackBtn">&larr; Back</button>
+  </div>
+</div>
+
+<div id="scanToPayScreen" class="hidden">
+  <h2>Scan to Pay</h2>
+  <p>Scan this code with your phone to pay with Apple Pay, Google Pay, or card.</p>
+  <canvas id="qrCodeCanvas"></canvas>
+  <div class="scan-total">Total: <span id="scanTotalDisplay">$0.00</span></div>
+  <div class="scan-waiting"><span class="spin"></span> Waiting for payment&hellip;</div>
+  <button type="button" id="scanCheckNowBtn">Already paid? Check now &rarr;</button>
+  <div id="scanToPayMsg" class="scan-error-msg"></div>
+  <button type="button" id="scanCancelBtn">&larr; Back to checkout</button>
+</div>
+
+<div id="orderConfirmedScreen" class="hidden">
+  <div class="confirm-badge">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>
+  </div>
+  <h2 id="confirmedTitle">Order Confirmed!</h2>
+  <div class="confirm-order-number-box">
+    <div class="confirm-order-number-label">Your Order Number</div>
+    <div class="confirm-order-number-value" id="confirmedOrderNumber">&mdash;</div>
+  </div>
+  <p id="confirmedInstructions">We'll call your name when it's ready.</p>
+  <div id="confirmedItemsList" class="confirm-items"></div>
+  <div class="confirm-countdown">Starting a new order in <span id="confirmedCountdown">15</span>s&hellip;</div>
+</div>
+
 <script>
+  var sbShared = supabase.createClient(
+    'https://njcmcaoyzujijiyfardx.supabase.co',
+    'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_'
+  );
+
   (function(){
-    var EDGE_FUNCTION_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/get-order-confirmation';
-    var ANON_KEY = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
+    var idleScreen = document.getElementById('idleScreen');
+    var orderScreen = document.getElementById('orderScreen');
+    var checkoutScreen = document.getElementById('checkoutScreen');
+
+    var cart = []; // in-memory only, on purpose -- a shared device should never
+                    // carry a previous customer's order into the next one
+    var TAX_RATE = 0.0675; // matches the backend exactly -- this is for display only, the actual charge is always computed server-side
+    var itemsById = {};
+    var categoryOrder = [];
 
     function escHtml(s){
       return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
@@ -90,93 +583,1609 @@
       });
     }
 
-    var params = new URLSearchParams(window.location.search);
-    var ref = params.get('ref');
-    var isCashOrder = params.get('cash') === 'true';
+    // Matches the exact naming convention documented for this menu's
+    // photo files: lowercase, spaces/punctuation collapsed to single
+    // hyphens, no leading or trailing hyphens.
+    function slugify(name){
+      return String(name).toLowerCase()
+        .replace(/[()]/g, '')
+        .replace(/[^a-z0-9]+/g, '-')
+        .replace(/^-+|-+$/g, '');
+    }
 
-    var loadingEl = document.getElementById('loadingState');
-    var confirmedEl = document.getElementById('confirmedState');
+    // A Square-synced photo (item.image_url) takes priority when
+    // present; otherwise falls back to the predictable local filename
+    // for that item. onerror removes the tile's image slot entirely
+    // if neither actually exists as a real file, rather than showing
+    // a broken-image icon.
+    function itemPhotoHtml(item){
+      var src = item.image_url || ('item-' + slugify(item.name) + '.jpg');
+      return '<img class="item-tile-photo" src="' + escHtml(src) + '" alt="" loading="lazy" onerror="this.remove()">';
+    }
 
-    function startResetCountdown(){
-      var seconds = 5;
-      var countdownEl = document.getElementById('countdownValue');
+    // Backend errors are sometimes a plain string, but Square's own
+    // API errors come back as an array of {category, code, detail}
+    // objects -- String() on that produces the useless literal text
+    // "[object Object]" instead of anything readable. This pulls out
+    // an actual message regardless of which shape it is.
+    function formatErrorMessage(err){
+      if (!err) return null;
+      if (typeof err === 'string') return err;
+      if (Array.isArray(err) && err.length) {
+        var first = err[0];
+        if (first && typeof first === 'object') return first.detail || first.code || JSON.stringify(first);
+        return String(first);
+      }
+      if (typeof err === 'object') return err.detail || err.message || JSON.stringify(err);
+      return String(err);
+    }
+
+    // ---- Inactivity auto-reset: if someone walks away mid-order,
+    // return to the idle screen after a timeout so the next customer
+    // never sees (or accidentally pays for) a stranger's cart. Stays
+    // silent at first -- only shows a visible warning in the final
+    // stretch, not the whole time. Any touch resets it back to full. ----
+    var INACTIVITY_LIMIT_SECONDS = 60;
+    var VISIBLE_WARNING_SECONDS = 15;
+    var secondsRemaining = INACTIVITY_LIMIT_SECONDS;
+    var inactivityInterval = null;
+    // While waiting for a phone-based payment, the customer is
+    // expected to NOT be touching the kiosk -- but a stray bump from
+    // someone else (staff, next customer) shouldn't be able to
+    // restart the countdown and eventually reload the page out from
+    // under an in-progress payment. This flag makes resetInactivityTimer
+    // a no-op for as long as it's true.
+    var awaitingPhonePayment = false;
+
+    function updateInactivityDisplay(){
+      var el = document.getElementById('inactivityTimer');
+      if (!el) return;
+      var shouldShow = idleScreen.classList.contains('hidden') && secondsRemaining <= VISIBLE_WARNING_SECONDS;
+      if (shouldShow) {
+        el.classList.remove('hidden');
+        document.getElementById('inactivityRingNumber').textContent = secondsRemaining;
+        // 163.36 = 2*pi*26, the ring's full circumference -- depletes
+        // from full to empty across the 15-second warning window,
+        // not the full 60-second inactivity period.
+        var fraction = secondsRemaining / VISIBLE_WARNING_SECONDS;
+        document.getElementById('inactivityRingProgress').style.strokeDashoffset = String(163.36 * (1 - fraction));
+      } else {
+        el.classList.add('hidden');
+      }
+    }
+
+    function startInactivityCountdown(){
+      clearInterval(inactivityInterval);
+      if (idleScreen.classList.contains('hidden')) {
+        inactivityInterval = setInterval(function(){
+          secondsRemaining -= 1;
+          updateInactivityDisplay();
+          if (secondsRemaining <= 0) {
+            clearInterval(inactivityInterval);
+            window.location.reload();
+          }
+        }, 1000);
+      }
+      updateInactivityDisplay();
+    }
+
+    function resetInactivityTimer(){
+      if (awaitingPhonePayment) return;
+      secondsRemaining = INACTIVITY_LIMIT_SECONDS;
+      startInactivityCountdown();
+    }
+    ['touchstart','mousedown','keydown'].forEach(function(evt){
+      document.addEventListener(evt, resetInactivityTimer, { passive: true });
+    });
+
+    // ---- Fetch menu (excluding Catering and Combo Add-ons -- those
+    // are never browsed directly, only added programmatically) ----
+    var comboAddonsByName = {};
+    function loadMenu(){
+      sbShared.from('menu_items').select('*').order('display_order').then(function(res){
+        if (res.error || !res.data) return;
+        // Reset first -- this function is called again each time a new
+        // order starts (to pick up any price/menu changes made in the
+        // database since the kiosk page was first loaded), and without
+        // clearing these first, a second call would append duplicate
+        // category entries on top of the stale ones instead of
+        // actually replacing them.
+        itemsById = {};
+        comboAddonsByName = {};
+        dealsByName = {};
+        dealSelectionsByName = {};
+        categoryOrder = [];
+        var byCategory = {};
+        res.data.forEach(function(item){
+          itemsById[item.id] = item;
+          if (item.category === 'Combo Add-ons') comboAddonsByName[item.name] = item;
+          if (item.category === 'Deals') dealsByName[item.name] = item;
+          if (item.category === 'Deal Selections') dealSelectionsByName[item.name] = item;
+          if (item.category === 'Catering' || item.category === 'Combo Add-ons' || item.category === 'Deals' || item.category === 'Deal Selections') return;
+          if (!byCategory[item.category]) {
+            byCategory[item.category] = [];
+            categoryOrder.push(item.category);
+          }
+          byCategory[item.category].push(item);
+        });
+        window.__kioskByCategory = byCategory;
+        renderCategoryList();
+        refreshDealsSection();
+      });
+    }
+
+    // Deals only show at regular spots -- if there's a confirmed
+    // event covering today, the truck isn't at its usual location,
+    // so the deals section hides entirely rather than showing
+    // offers that may not apply to wherever the event actually is.
+    function refreshDealsSection(){
+      var section = document.getElementById('dealsSection');
+      var todayStr = new Date().toISOString().slice(0, 10);
+
+      sbShared.from('events').select('id')
+        .eq('status', 'confirmed')
+        .lte('start_date', todayStr)
+        .gte('end_date', todayStr)
+        .then(function(res){
+          var atEventToday = !res.error && res.data && res.data.length > 0;
+          if (atEventToday || !dealsByName || !Object.keys(dealsByName).length) {
+            section.classList.add('hidden');
+            section.innerHTML = '';
+            return;
+          }
+          renderDealsSection();
+        });
+    }
+
+    var memberVerified = false;
+    var memberFirstName = '';
+
+    function renderDealsSection(){
+      var section = document.getElementById('dealsSection');
+
+      if (!memberVerified) {
+        section.innerHTML =
+          '<div class="deals-heading">\uD83C\uDF89 Member Deals</div>' +
+          '<div class="deal-checkin-prompt">' +
+            '<div class="deal-checkin-text">Enter your Member ID to unlock today\u2019s member-only deals.</div>' +
+            '<button type="button" class="deal-checkin-btn" id="dealCheckInBtn">Check In</button>' +
+          '</div>';
+        document.getElementById('dealCheckInBtn').addEventListener('click', openMemberCheckIn);
+        section.classList.remove('hidden');
+        return;
+      }
+
+      section.innerHTML =
+        '<div class="deals-heading">\uD83C\uDF89 Member Deals</div>' +
+        '<div class="deal-checkin-prompt">' +
+          '<div class="deal-checkin-text">' + (memberFirstName ? 'You\u2019re checked in, ' + escHtml(memberFirstName) + '!' : 'You\u2019re checked in!') + '</div>' +
+          '<button type="button" class="deal-checkin-btn" id="dealViewBtn">View Deals</button>' +
+        '</div>';
+      document.getElementById('dealViewBtn').addEventListener('click', openMemberDealsScreen);
+      section.classList.remove('hidden');
+    }
+
+    // ---------------- Deal picker (multi-step) ----------------
+    var DEAL_SPECS = {
+      'Treat Yourself': {
+        fixed: [],
+        steps: [
+          { label: 'Choose your Loaded Fries', count: 1, options: ['Loaded Fries - Butter Chicken', 'Loaded Fries - Chicken Tikka', 'Loaded Fries - Tandoori Chicken', 'Loaded Fries - Signature Chicken'] },
+          { label: 'Choose 1 Frankie Roll', count: 1, options: ['Butter Chicken Frankie', 'Chicken Tikka Frankie', 'Tandoori Chicken Frankie', 'Signature Chicken Frankie', 'Paneer Frankie'] },
+          { label: 'Choose 1 Soda', count: 1, options: ['Soda - Coke', 'Soda - Diet Coke', 'Soda - Coke Zero', 'Soda - Sprite', 'Soda - Root Beer', 'Soda - Water'] }
+        ]
+      },
+      'Flavor Fiesta': {
+        fixed: ['Chicken Shawarma', 'Fries'],
+        steps: [
+          { label: 'Choose 1 Taco', count: 1, options: ['Butter Chicken Tacos', 'Chicken Tikka Tacos', 'Tandoori Chicken Tacos', 'Signature Chicken Tacos'] },
+          { label: 'Choose 1 Soda', count: 1, options: ['Soda - Coke', 'Soda - Diet Coke', 'Soda - Coke Zero', 'Soda - Sprite', 'Soda - Root Beer', 'Soda - Water'] }
+        ]
+      },
+      'Family Deal': {
+        fixed: ['Chicken Shawarma'],
+        steps: [
+          { label: 'Choose 2 Frankie Rolls', count: 2, options: ['Butter Chicken Frankie', 'Chicken Tikka Frankie', 'Tandoori Chicken Frankie', 'Signature Chicken Frankie', 'Paneer Frankie'] },
+          { label: 'Choose 1 Rice Bowl', count: 1, options: ['Butter Chicken Bowl', 'Chicken Tikka Bowl', 'Tandoori Chicken Bowl', 'Signature Chicken Bowl', 'Veggie Bowl'] }
+        ]
+      },
+      'Dinner Party Deal': {
+        fixed: ['Chicken Shawarma', 'Chicken Shawarma', 'Peri Peri Fries', 'Peri Peri Fries'],
+        steps: [
+          { label: 'Choose 2 Frankie Rolls', count: 2, options: ['Butter Chicken Frankie', 'Chicken Tikka Frankie', 'Tandoori Chicken Frankie', 'Signature Chicken Frankie', 'Paneer Frankie'] },
+          { label: 'Choose 2 Rice Bowls', count: 2, options: ['Butter Chicken Bowl', 'Chicken Tikka Bowl', 'Tandoori Chicken Bowl', 'Signature Chicken Bowl', 'Veggie Bowl'] },
+          { label: 'Choose 2 Sodas', count: 2, options: ['Soda - Coke', 'Soda - Diet Coke', 'Soda - Coke Zero', 'Soda - Sprite', 'Soda - Root Beer', 'Soda - Water'] }
+        ]
+      }
+    };
+
+    function openMemberCheckIn(){
+      document.getElementById('memberIdInput').value = '';
+      document.getElementById('memberCheckInError').textContent = '';
+      document.getElementById('orderScreen').classList.add('hidden');
+      document.getElementById('memberDealsScreen').classList.add('hidden');
+      document.getElementById('memberCheckInScreen').classList.remove('hidden');
+      document.getElementById('memberIdInput').focus();
+    }
+
+    function backToMenuFromMemberFlow(){
+      document.getElementById('memberCheckInScreen').classList.add('hidden');
+      document.getElementById('memberDealsScreen').classList.add('hidden');
+      document.getElementById('orderScreen').classList.remove('hidden');
+    }
+    document.getElementById('memberCheckInBackBtn').addEventListener('click', backToMenuFromMemberFlow);
+    document.getElementById('memberDealsBackBtn').addEventListener('click', backToMenuFromMemberFlow);
+
+    document.getElementById('memberCheckInSubmitBtn').addEventListener('click', function(){
+      var raw = document.getElementById('memberIdInput').value.trim().toUpperCase();
+      // Most people read "MEMBER-1602" as a label plus a number, not
+      // as one string to type verbatim -- accept just the digits too,
+      // and add the prefix automatically so both work.
+      var code = raw && !raw.startsWith('MEMBER-') && /^\d+$/.test(raw) ? 'MEMBER-' + raw : raw;
+      var errorEl = document.getElementById('memberCheckInError');
+      if (!code) { errorEl.textContent = 'Enter your Member ID first.'; return; }
+
+      var btn = this;
+      btn.disabled = true; btn.textContent = 'Checking...';
+      sbShared.rpc('kiosk_verify_member', { p_code: code }).then(function(res){
+        btn.disabled = false; btn.textContent = 'Check In';
+        if (res.error) {
+          console.error('kiosk_verify_member error:', res.error);
+          errorEl.textContent = 'Something went wrong checking that -- please tell a staff member (' + res.error.message + ').';
+          return;
+        }
+        var row = res.data && res.data[0];
+        if (!row || !row.valid) {
+          errorEl.textContent = "That Member ID wasn't found -- check it and try again.";
+          return;
+        }
+        memberVerified = true;
+        memberFirstName = row.first_name || '';
+        renderDealsSection();
+        openMemberDealsScreen();
+      });
+    });
+
+    function openMemberDealsScreen(){
+      var deals = Object.keys(dealsByName).map(function(name){ return dealsByName[name]; })
+        .sort(function(a, b){ return Number(a.price) - Number(b.price); });
+
+      document.getElementById('memberDealsTitle').textContent =
+        '\uD83C\uDF89 Member Deals' + (memberFirstName ? ' \u2014 Welcome back, ' + escHtml(memberFirstName) + '!' : '');
+
+      document.getElementById('memberDealsList').innerHTML = '<div class="items-grid">' +
+        deals.map(function(deal){
+          return '<div class="item-tile">' +
+            itemPhotoHtml(deal) +
+            '<div class="item-tile-body">' +
+              '<div class="item-tile-name">' + escHtml(deal.name) + '</div>' +
+              '<div class="item-tile-control"><button type="button" class="add-to-cart-btn deal-card-btn" data-deal-id="' + deal.id + '">Add to Cart</button></div>' +
+            '</div>' +
+          '</div>';
+        }).join('') +
+      '</div>';
+
+      document.getElementById('memberDealsList').querySelectorAll('.deal-card-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          openDealPicker(itemsById[btn.getAttribute('data-deal-id')]);
+        });
+      });
+
+      document.getElementById('memberCheckInScreen').classList.add('hidden');
+      document.getElementById('orderScreen').classList.add('hidden');
+      document.getElementById('memberDealsScreen').classList.remove('hidden');
+    }
+
+    var dealPickerState = null; // { deal, spec, stepIndex, picks: [{}, {}, ...] per step }
+
+    function openDealPicker(deal){
+      var spec = DEAL_SPECS[deal.name];
+      if (!spec) return;
+      dealPickerState = {
+        deal: deal,
+        spec: spec,
+        stepIndex: 0,
+        picks: spec.steps.map(function(){ return {}; }) // per step: { optionName: count }
+      };
+      document.getElementById('dealPickerOverlay').classList.remove('hidden');
+      renderDealPickerStep();
+    }
+
+    function closeDealPicker(){
+      document.getElementById('dealPickerOverlay').classList.add('hidden');
+      dealPickerState = null;
+    }
+    document.getElementById('dealPickerCloseBtn').addEventListener('click', closeDealPicker);
+
+    function currentStepTotal(){
+      var picks = dealPickerState.picks[dealPickerState.stepIndex];
+      return Object.keys(picks).reduce(function(sum, k){ return sum + picks[k]; }, 0);
+    }
+
+    function renderDealPickerStep(){
+      var st = dealPickerState;
+      var step = st.spec.steps[st.stepIndex];
+      var picks = st.picks[st.stepIndex];
+
+      document.getElementById('dealPickerTitle').textContent = st.deal.name;
+      document.getElementById('dealPickerStepLabel').textContent =
+        'Step ' + (st.stepIndex + 1) + ' of ' + st.spec.steps.length + ' \u2014 ' + step.label;
+
+      document.getElementById('dealPickerOptions').innerHTML = step.options.map(function(name){
+        var count = picks[name] || 0;
+        return '<div class="deal-picker-option' + (count > 0 ? ' selected' : '') + '" data-option="' + escHtml(name) + '">' +
+          '<span class="deal-picker-option-name">' + escHtml(name) + '</span>' +
+          '<span class="deal-picker-option-controls">' +
+            (count > 0 ? '<button type="button" class="deal-picker-minus" data-option="' + escHtml(name) + '">&minus;</button>' : '') +
+            '<span class="deal-picker-option-count">' + count + '</span>' +
+          '</span>' +
+        '</div>';
+      }).join('');
+
+      // Tapping anywhere on the option row (except the minus button)
+      // always adds one, up to the step's total budget -- this is
+      // what actually makes picking the same flavor twice possible,
+      // which a single tap-to-toggle design could never do.
+      document.querySelectorAll('.deal-picker-option').forEach(function(row){
+        row.addEventListener('click', function(e){
+          if (e.target.classList.contains('deal-picker-minus')) return;
+          var name = row.getAttribute('data-option');
+          if (currentStepTotal() < step.count) {
+            picks[name] = (picks[name] || 0) + 1;
+            renderDealPickerStep();
+          }
+        });
+      });
+
+      document.querySelectorAll('.deal-picker-minus').forEach(function(btn){
+        btn.addEventListener('click', function(e){
+          e.stopPropagation();
+          var name = btn.getAttribute('data-option');
+          picks[name] = (picks[name] || 0) - 1;
+          if (picks[name] <= 0) delete picks[name];
+          renderDealPickerStep();
+        });
+      });
+
+      var backBtn = document.getElementById('dealPickerBackBtn');
+      backBtn.classList.toggle('hidden', st.stepIndex === 0);
+
+      var nextBtn = document.getElementById('dealPickerNextBtn');
+      var isLastStep = st.stepIndex === st.spec.steps.length - 1;
+      nextBtn.textContent = isLastStep ? 'Add to Cart' : 'Next';
+      nextBtn.disabled = currentStepTotal() !== step.count;
+    }
+
+    document.getElementById('dealPickerBackBtn').addEventListener('click', function(){
+      if (dealPickerState.stepIndex > 0) {
+        dealPickerState.stepIndex -= 1;
+        renderDealPickerStep();
+      }
+    });
+
+    document.getElementById('dealPickerNextBtn').addEventListener('click', function(){
+      var st = dealPickerState;
+      var isLastStep = st.stepIndex === st.spec.steps.length - 1;
+      if (!isLastStep) {
+        st.stepIndex += 1;
+        renderDealPickerStep();
+        return;
+      }
+      addDealToCart(st);
+      closeDealPicker();
+      // Return to the main order screen so the customer immediately
+      // sees their cart with the deal just added, rather than being
+      // left on the Member Deals screen with no visible cart.
+      document.getElementById('memberDealsScreen').classList.add('hidden');
+      document.getElementById('orderScreen').classList.remove('hidden');
+    });
+
+    // Adds the deal at its real, full price as one line item, plus a
+    // $0 line item for every fixed and chosen component -- this is
+    // what makes the kitchen board show exactly what to prepare
+    // without double-charging, since the deal's own price already
+    // covers everything in it.
+    function addDealToCart(st){
+      cart.push({ menu_item_id: st.deal.id, name: st.deal.name, unitPrice: Number(st.deal.price), quantity: 1 });
+
+      st.spec.fixed.forEach(function(name){
+        addDealSelectionToCart(name, 1);
+      });
+      st.picks.forEach(function(stepPicks){
+        Object.keys(stepPicks).forEach(function(name){
+          addDealSelectionToCart(name, stepPicks[name]);
+        });
+      });
+
+      syncCombos();
+      renderCartView();
+    }
+
+    function addDealSelectionToCart(name, qty){
+      var item = dealSelectionsByName[name];
+      if (!item) return;
+      var line = findLine(item.id);
+      if (line) {
+        line.quantity += qty;
+      } else {
+        cart.push({ menu_item_id: item.id, name: item.name, unitPrice: 0, quantity: qty });
+      }
+    }
+
+    var expandedCategory = null;
+
+    // Categories render collapsed by default -- name only, no photo,
+    // no items. A photo only ever appears once a category is
+    // actually expanded, and collapses away again when it's closed.
+    function renderCategoryList(){
+      var listEl = document.getElementById('categoryList');
+      if (!categoryOrder.length) {
+        listEl.innerHTML = '<div class="empty-hint">Menu is loading, one moment&hellip;</div>';
+        return;
+      }
+
+      listEl.innerHTML = categoryOrder.map(function(cat){
+        return '<div class="category-block" data-cat="' + escHtml(cat) + '">' +
+          '<button type="button" class="category-row" data-cat="' + escHtml(cat) + '">' +
+            escHtml(cat) + '<span class="chev">\u25BC</span>' +
+          '</button>' +
+          '<div class="category-expanded" data-cat="' + escHtml(cat) + '"></div>' +
+        '</div>';
+      }).join('');
+
+      listEl.querySelectorAll('.category-row').forEach(function(btn){
+        btn.addEventListener('click', function(){ toggleCategory(btn.getAttribute('data-cat')); });
+      });
+    }
+
+    // Only one category open at a time -- opening a new one collapses
+    // whatever was previously open, back to the plain category list.
+    function toggleCategory(cat){
+      var wasExpanded = expandedCategory === cat;
+
+      document.querySelectorAll('.category-block').forEach(function(block){
+        block.classList.remove('expanded');
+      });
+
+      if (wasExpanded) {
+        expandedCategory = null;
+        return;
+      }
+
+      expandedCategory = cat;
+      var block = document.querySelector('.category-block[data-cat="' + cssEscape(cat) + '"]');
+      if (block) block.classList.add('expanded');
+
+      renderCategoryContent(cat);
+    }
+
+    function cssEscape(s){ return String(s).replace(/"/g, '\\"'); }
+
+    function renderCategoryContent(cat){
+      var contentEl = document.querySelector('.category-expanded[data-cat="' + cssEscape(cat) + '"]');
+      if (!contentEl) return;
+      var items = (window.__kioskByCategory[cat] || []);
+
+      // Categories where every item is really the same dish with a
+      // different protein/style -- collapsed into one tile showing
+      // every option directly, rather than one tile per distinctly-
+      // named item or the same-name variant grouping used elsewhere.
+      var PROTEIN_CHOICE_CATEGORIES = ['Loaded Fries', 'Bowls'];
+      var isProteinChoiceCategory = PROTEIN_CHOICE_CATEGORIES.indexOf(cat) !== -1 && items.length > 1;
+
+      var groups = [];
+      if (isProteinChoiceCategory) {
+        var catEscaped = cat.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        var singularEscaped = cat.replace(/s$/i, '').replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+        var suffixPattern = new RegExp('\\s*(' + catEscaped + '|' + singularEscaped + ')\\s*$', 'i');
+        groups.push({
+          name: cat,
+          isProteinChoice: true,
+          items: items.map(function(item){
+            // If this item is distinguished by variant_name rather than
+            // by its own name (the same pattern used for size choices
+            // like Fries Small/Large), that IS the distinguishing label
+            // -- stripping the category suffix from a shared item.name
+            // would otherwise produce the identical label for every
+            // option, since name-based stripping has nothing to work
+            // with when the name itself doesn't vary.
+            if (item.variant_name) {
+              return { item: item, label: item.variant_name };
+            }
+            var label = item.name.replace(suffixPattern, '').trim();
+            // Bowls-specific: "Chicken" is redundant across every option
+            // there (Butter Chicken, Chicken Tikka, etc. all include it),
+            // so strip it as a standalone word once the category suffix
+            // is already gone, leaving just the distinguishing word.
+            if (cat === 'Bowls') {
+              label = label.replace(/\bchicken\b/i, '').replace(/\s+/g, ' ').trim();
+            }
+            label = label || item.name;
+            return { item: item, label: label };
+          })
+        });
+      } else {
+        // Group by name -- items sharing a name but different variant_name
+        // (e.g. size choices) render as ONE selectable tile, not one
+        // tile per variant.
+        var groupsByName = {};
+        items.forEach(function(item){
+          if (!groupsByName[item.name]) {
+            var g = { name: item.name, items: [] };
+            groupsByName[item.name] = g;
+            groups.push(g);
+          }
+          groupsByName[item.name].items.push(item);
+        });
+      }
+
+      // Shared markup for the "tap + to pick from options" pattern --
+      // used identically by variant groups, protein-choice groups, and
+      // (further below) the combo, so every selectable tile behaves
+      // the same way: a plus button reveals a panel that slides in
+      // from the left covering 90% of the tile, with the tile's own
+      // photo fading to 10% opacity behind it.
+      function selectTilePlusHtml(key, disabled){
+        return '<button type="button" class="select-tile-plus"' + (disabled ? ' disabled' : '') + ' data-select-group="' + key + '">Add to Cart</button>';
+      }
+      function selectTileOverlayHtml(key, optionsHtml){
+        return '<div class="select-tile-overlay" data-select-group="' + key + '">' +
+            '<button type="button" class="select-tile-overlay-close" data-select-group="' + key + '">&times;</button>' +
+            '<div class="select-tile-overlay-scroll">' + optionsHtml + '</div>' +
+          '</div>';
+      }
+
+      var tilesHtml = groups.map(function(group){
+        if (group.isProteinChoice) {
+          var firstItem = group.items[0].item;
+          var key = escHtml(group.name);
+          var optionsHtml = group.items.map(function(entry){
+            return '<div class="protein-choice-row" data-pick-id="' + entry.item.id + '">' +
+              '<span class="protein-choice-name">' + escHtml(entry.label) + '</span>' +
+            '</div>';
+          }).join('');
+          return '<div class="select-tile" data-select-group="' + key + '">' +
+            itemPhotoHtml({ image_url: firstItem.image_url, name: group.name }) +
+            '<div class="item-tile-body">' +
+              '<div class="item-tile-name">' + escHtml(group.name) + '</div>' +
+              '<div class="item-tile-price">$' + Number(firstItem.price).toFixed(2) + '</div>' +
+              selectTilePlusHtml(key) +
+            '</div>' +
+            selectTileOverlayHtml(key, optionsHtml) +
+          '</div>';
+        }
+        if (group.items.length === 1) {
+          var item = group.items[0];
+          var label = item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : '');
+          return '<div class="item-tile">' +
+            itemPhotoHtml(item) +
+            '<div class="item-tile-body">' +
+              '<div class="item-tile-name">' + escHtml(label) + '</div>' +
+              (item.description ? '<div class="item-tile-desc">' + escHtml(item.description) + '</div>' : '') +
+              '<div class="item-tile-price">$' + Number(item.price).toFixed(2) + '</div>' +
+              '<div class="item-tile-control"><div class="item-add-control" data-id="' + item.id + '"></div></div>' +
+            '</div>' +
+          '</div>';
+        }
+
+        var groupKey = escHtml(group.name);
+        var firstItem = group.items[0];
+        var variantOptionsHtml = group.items.map(function(item){
+          return '<div class="protein-choice-row" data-pick-id="' + item.id + '">' +
+            '<span class="protein-choice-name">' + escHtml(item.variant_name || item.name) + '</span>' +
+          '</div>';
+        }).join('');
+        return '<div class="select-tile" data-select-group="' + groupKey + '">' +
+            itemPhotoHtml(firstItem) +
+            '<div class="item-tile-body">' +
+              '<div class="item-tile-name">' + escHtml(group.name) + '</div>' +
+              '<div class="item-tile-price">$' + Number(firstItem.price).toFixed(2) + '</div>' +
+              '<div class="item-tile-badge-row" data-variant-group="' + groupKey + '"></div>' +
+              selectTilePlusHtml(groupKey) +
+            '</div>' +
+            selectTileOverlayHtml(groupKey, variantOptionsHtml) +
+          '</div>';
+      }).join('');
+
+      // One shared combo tile per category, not per item -- this
+      // category either has combo-eligible items or it doesn't, so
+      // any item's combo_upcharge tells us which, and the tile itself
+      // just adds fries + a drink, independent of which specific
+      // entree the customer already added above. Explicitly excluded
+      // for Sides/Drinks regardless of combo_upcharge, since a combo
+      // built from fries + a drink makes no sense for those
+      // categories themselves. Disabled/grayed out (not clickable)
+      // until the cart actually has a qualifying entree in it. Uses
+      // the exact same select-tile pattern as everything else, just
+      // at quarter scale and always trailing last in the row.
+      var comboUpcharge = items.length && items[0].combo_upcharge;
+      var comboExcludedCategory = (cat === 'Sides' || cat === 'Drinks');
+      var comboHtml = '';
+      var comboKey = 'combo-' + escHtml(cat);
+      if (comboUpcharge && !comboExcludedCategory) {
+        var comboEnabled = canAddCombo();
+        var comboDrinkOptionsHtml = ['Coke','Diet Coke','Coke Zero','Sprite','Root Beer','Water'].map(function(drink){
+          return '<div class="protein-choice-row combo-drink-row" data-pick-drink="' + escHtml(drink) + '">' +
+            '<img class="combo-drink-thumb" src="item-combo-drink-' + slugify(drink) + '.jpg" alt="" loading="lazy" onerror="this.remove()">' +
+            '<span class="protein-choice-name">' + escHtml(drink) + '</span>' +
+          '</div>';
+        }).join('');
+        comboHtml =
+          '<div class="combo-tile select-tile' + (comboEnabled ? '' : ' combo-tile-disabled') + '" data-cat="' + escHtml(cat) + '" data-select-group="' + comboKey + '">' +
+            '<img class="item-tile-photo" src="item-combo.jpg" alt="" loading="lazy" onerror="this.remove()">' +
+            '<div class="item-tile-body">' +
+              '<div class="item-tile-name">Combo</div>' +
+              '<div class="item-tile-price">+$' + Number(comboUpcharge).toFixed(2) + '</div>' +
+              selectTilePlusHtml(comboKey, !comboEnabled) +
+            '</div>' +
+            selectTileOverlayHtml(comboKey, comboDrinkOptionsHtml) +
+          '</div>';
+      }
+
+      contentEl.innerHTML = '<div class="items-grid">' + tilesHtml + comboHtml + '</div>';
+
+      groups.forEach(function(group){
+        if (group.items.length === 1 && !group.isProteinChoice) {
+          renderItemControl(group.items[0].id);
+        } else if (!group.isProteinChoice) {
+          renderVariantGroupBadge(group);
+        }
+      });
+
+      function closeOverlay(key){
+        var overlay = contentEl.querySelector('.select-tile-overlay[data-select-group="' + key + '"]');
+        var photo = contentEl.querySelector('.select-tile[data-select-group="' + key + '"] .item-tile-photo, .combo-tile[data-select-group="' + key + '"] .item-tile-photo');
+        if (overlay) overlay.classList.remove('active');
+        if (photo) photo.classList.remove('faded');
+      }
+
+      // Shared open wiring for every select-tile's plus button,
+      // regardless of which kind of tile it belongs to.
+      contentEl.querySelectorAll('.select-tile-plus').forEach(function(btn){
+        btn.addEventListener('click', function(e){
+          e.stopPropagation();
+          if (btn.disabled) return;
+          var key = btn.getAttribute('data-select-group');
+          var overlay = contentEl.querySelector('.select-tile-overlay[data-select-group="' + key + '"]');
+          var photo = contentEl.querySelector('.select-tile[data-select-group="' + key + '"] .item-tile-photo, .combo-tile[data-select-group="' + key + '"] .item-tile-photo');
+          if (overlay) overlay.classList.add('active');
+          if (photo) photo.classList.add('faded');
+        });
+      });
+      contentEl.querySelectorAll('.select-tile-overlay-close').forEach(function(btn){
+        btn.addEventListener('click', function(e){
+          e.stopPropagation();
+          closeOverlay(btn.getAttribute('data-select-group'));
+        });
+      });
+
+      // Tapping a protein/size option picks it directly and closes --
+      // no separate plus button inside the row anymore.
+      contentEl.querySelectorAll('.protein-choice-row[data-pick-id]').forEach(function(row){
+        row.addEventListener('click', function(e){
+          e.stopPropagation();
+          addOne(row.getAttribute('data-pick-id'));
+          var key = row.closest('.select-tile-overlay').getAttribute('data-select-group');
+          closeOverlay(key);
+        });
+      });
+
+      // Same tap-to-pick pattern for combo drink rows.
+      contentEl.querySelectorAll('.combo-drink-row[data-pick-drink]').forEach(function(row){
+        row.addEventListener('click', function(e){
+          e.stopPropagation();
+          addComboAddon(row.getAttribute('data-pick-drink'));
+          closeOverlay(comboKey);
+        });
+      });
+
+      // Tapping anywhere else within the tile (the visible photo
+      // sliver, or empty space inside the open overlay) closes it --
+      // option rows and the plus/close buttons already stop this
+      // click from bubbling up when THEY'RE what's tapped.
+      contentEl.querySelectorAll('.select-tile, .combo-tile').forEach(function(tile){
+        tile.addEventListener('click', function(){
+          var key = tile.getAttribute('data-select-group');
+          if (key) closeOverlay(key);
+        });
+      });
+    }
+
+    function renderItemControl(itemId){
+      var controlEl = document.querySelector('.item-add-control[data-id="' + itemId + '"]');
+      if (!controlEl) return;
+      var line = findLine(itemId);
+
+      if (!line) {
+        controlEl.innerHTML = '<button type="button" class="add-to-cart-btn" data-id="' + itemId + '">Add to Cart</button>';
+        controlEl.querySelector('.add-to-cart-btn').addEventListener('click', function(){ addOne(itemId); });
+      } else {
+        controlEl.innerHTML =
+          '<div class="item-qty-stepper">' +
+            '<button type="button" class="item-qty-btn" data-id="' + itemId + '" data-dir="-1">\u2212</button>' +
+            '<span class="item-qty-value">' + line.quantity + '</span>' +
+            '<button type="button" class="item-qty-btn" data-id="' + itemId + '" data-dir="1">+</button>' +
+          '</div>';
+        controlEl.querySelectorAll('.item-qty-btn').forEach(function(btn){
+          btn.addEventListener('click', function(){
+            if (btn.getAttribute('data-dir') === '1') addOne(itemId); else removeOne(itemId);
+          });
+        });
+      }
+    }
+
+    // Total quantity across every variant in the group, shown on the
+    // collapsed row so it's visible without needing to expand.
+    function renderVariantGroupBadge(group){
+      var badgeEl = document.querySelector('.item-tile-badge-row[data-variant-group="' + cssEscape(group.name) + '"]');
+      if (!badgeEl) return;
+      var total = group.items.reduce(function(sum, item){
+        var line = findLine(item.id);
+        return sum + (line ? line.quantity : 0);
+      }, 0);
+      badgeEl.innerHTML = total > 0 ? '<div class="qty-pill">' + total + '</div>' : '';
+    }
+
+    // Refreshes whichever display actually applies to this item --
+    // a plain single item, or one specific choice within a variant
+    // group (in which case the group's total badge also needs
+    // recomputing). Each individual render call harmlessly does
+    // nothing if that particular DOM element isn't present.
+    function refreshItemDisplay(itemId){
+      renderItemControl(itemId);
+      var item = itemsById[itemId];
+      if (item && item.variant_name) {
+        var groupItems = Object.keys(itemsById)
+          .map(function(id){ return itemsById[id]; })
+          .filter(function(i){ return i.name === item.name && i.variant_name; });
+        renderVariantGroupBadge({ name: item.name, items: groupItems });
+      }
+    }
+
+    function findLine(itemId){ return cart.find(function(c){ return c.menu_item_id === itemId; }); }
+
+    // One combo allowed per qualifying entree in the cart -- not just
+    // "any entree unlocks unlimited combos." Counts entrees by summing
+    function canAddCombo(){
+      var qualifyingCount = cart.reduce(function(sum, line){
+        var item = itemsById[line.menu_item_id];
+        return sum + (item && item.combo_upcharge ? line.quantity : 0);
+      }, 0);
+      var friesItem = comboAddonsByName['Combo Fries'];
+      var friesLine = friesItem ? findLine(friesItem.id) : null;
+      var comboCount = friesLine ? friesLine.quantity : 0;
+      return qualifyingCount > comboCount;
+    }
+
+    // Multiple .combo-tile elements can exist in the DOM at once --
+    // collapsing a category only hides it via CSS, it never clears
+    // that category's HTML. An unscoped querySelector('.combo-tile')
+    // would always grab the first one in document order regardless of
+    // which category is actually open, which is exactly why this
+    // previously worked within a category but not across categories.
+    function refreshComboRowState(){
+      if (!expandedCategory) return;
+      var comboRow = document.querySelector('.combo-tile[data-cat="' + cssEscape(expandedCategory) + '"]');
+      if (!comboRow) return;
+      var enabled = canAddCombo();
+      comboRow.classList.toggle('combo-tile-disabled', !enabled);
+      var plusBtn = comboRow.querySelector('.select-tile-plus');
+      if (plusBtn) plusBtn.disabled = !enabled;
+    }
+
+    var COMBO_DRINK_NAMES = ['Coke','Diet Coke','Coke Zero','Sprite','Root Beer','Water'];
+
+    // Fries and a drink are married together, and a combo can't
+    // outlive the entree it came with. After any cart change, this
+    // trims fries/drinks back down so: fries qty == total drink qty
+    // == however many qualifying entrees are actually still in the
+    // cart, whichever of those three is smallest. Covers both "entree
+    // removed" and "one combo item individually removed" the same way.
+    function syncCombos(){
+      var qualifyingCount = cart.reduce(function(sum, line){
+        var item = itemsById[line.menu_item_id];
+        return sum + (item && item.combo_upcharge ? line.quantity : 0);
+      }, 0);
+
+      var friesItem = comboAddonsByName['Combo Fries'];
+      if (!friesItem) return;
+      var friesLine = findLine(friesItem.id);
+      var friesQty = friesLine ? friesLine.quantity : 0;
+
+      var drinkLines = COMBO_DRINK_NAMES.map(function(name){
+        var di = comboAddonsByName['Combo ' + name];
+        return di ? findLine(di.id) : null;
+      }).filter(Boolean);
+      var totalDrinkQty = drinkLines.reduce(function(sum, l){ return sum + l.quantity; }, 0);
+
+      var validComboCount = Math.min(qualifyingCount, friesQty, totalDrinkQty);
+
+      if (friesLine && friesLine.quantity > validComboCount) {
+        friesLine.quantity = validComboCount;
+        if (friesLine.quantity <= 0) cart = cart.filter(function(c){ return c.menu_item_id !== friesItem.id; });
+      }
+
+      var excessDrinks = totalDrinkQty - validComboCount;
+      for (var i = drinkLines.length - 1; i >= 0 && excessDrinks > 0; i--) {
+        var dLine = drinkLines[i];
+        var reduceBy = Math.min(excessDrinks, dLine.quantity);
+        dLine.quantity -= reduceBy;
+        excessDrinks -= reduceBy;
+        if (dLine.quantity <= 0) {
+          var idToRemove = dLine.menu_item_id;
+          cart = cart.filter(function(c){ return c.menu_item_id !== idToRemove; });
+        }
+      }
+    }
+
+    // Adds fries plus the chosen drink at their combo-split prices --
+    // the entree itself is added separately, whenever the customer
+    // taps + on whichever specific item they want from this category.
+    function addComboAddon(drinkName){
+      var friesItem = comboAddonsByName['Combo Fries'];
+      var drinkItem = comboAddonsByName['Combo ' + drinkName];
+      if (friesItem) addOneRaw(friesItem.id);
+      if (drinkItem) addOneRaw(drinkItem.id);
+      syncCombos();
+      if (friesItem) renderItemControl(friesItem.id);
+      if (drinkItem) renderItemControl(drinkItem.id);
+      refreshComboRowState();
+      renderCartView();
+    }
+
+    function addOneRaw(itemId){
+      var item = itemsById[itemId];
+      if (!item) return;
+      var line = findLine(itemId);
+      if (line) {
+        line.quantity += 1;
+      } else {
+        var label = item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : '');
+        cart.push({ menu_item_id: itemId, name: label, unitPrice: Number(item.price), quantity: 1 });
+      }
+    }
+
+    function addOne(itemId){
+      addOneRaw(itemId);
+      syncCombos();
+      refreshItemDisplay(itemId);
+      refreshComboRowState();
+      renderCartView();
+    }
+
+    function removeOne(itemId){
+      var item = itemsById[itemId];
+      var line = findLine(itemId);
+      if (!line) return;
+      var minQty = item && item.min_quantity;
+      if (minQty && line.quantity <= minQty) {
+        cart = cart.filter(function(c){ return c.menu_item_id !== itemId; });
+      } else {
+        line.quantity -= 1;
+        if (line.quantity <= 0) cart = cart.filter(function(c){ return c.menu_item_id !== itemId; });
+      }
+      syncCombos();
+      refreshItemDisplay(itemId);
+      refreshComboRowState();
+      renderCartView();
+    }
+
+    function cartTotal(){ return cart.reduce(function(sum, c){ return sum + c.unitPrice * c.quantity; }, 0); }
+    function cartCount(){ return cart.reduce(function(sum, c){ return sum + c.quantity; }, 0); }
+
+    function clearCart(){
+      if (!cart.length) return;
+      if (!confirm('Clear your whole cart?')) return;
+      cart = [];
+      if (expandedCategory) renderCategoryContent(expandedCategory);
+      renderCartView();
+    }
+
+    document.getElementById('clearCartBtn').addEventListener('click', clearCart);
+
+    // Quantity management (increase, decrease, remove) lives here now,
+    // separate from the menu -- tapping a menu item just adds one.
+    // Runs on every cart change, since the cart panel is always
+    // visible alongside the menu rather than a separate screen.
+    function renderCartView(){
+      var listEl = document.getElementById('cartViewList');
+      if (!cart.length) {
+        listEl.innerHTML = '<div class="empty-hint">Your cart is empty.</div>';
+      } else {
+        listEl.innerHTML = cart.map(function(c){
+          return '<div class="cart-view-row">' +
+            '<div class="cart-view-info">' +
+              '<div class="cart-view-name">' + escHtml(c.name) + '</div>' +
+              '<div class="cart-view-linetotal">$' + c.unitPrice.toFixed(2) + ' each &middot; $' + (c.unitPrice * c.quantity).toFixed(2) + '</div>' +
+            '</div>' +
+            '<div class="cart-view-stepper">' +
+              '<button type="button" class="cart-qty-btn" data-id="' + c.menu_item_id + '" data-dir="-1">\u2212</button>' +
+              '<span class="cart-qty-value">' + c.quantity + '</span>' +
+              '<button type="button" class="cart-qty-btn" data-id="' + c.menu_item_id + '" data-dir="1">+</button>' +
+            '</div>' +
+          '</div>';
+        }).join('');
+
+        listEl.querySelectorAll('.cart-qty-btn').forEach(function(btn){
+          btn.addEventListener('click', function(){
+            var id = btn.getAttribute('data-id');
+            if (btn.getAttribute('data-dir') === '1') addOne(id); else removeOne(id);
+          });
+        });
+      }
+
+      document.getElementById('cartViewTotal').textContent = '$' + cartTotal().toFixed(2);
+    }
+
+    // ---- Screen navigation ----
+    function goToOrderScreen(){
+      idleScreen.classList.add('hidden');
+      checkoutScreen.classList.add('hidden');
+      orderScreen.classList.remove('hidden');
+      loadMenu();
+      resetInactivityTimer();
+    }
+    function goToCheckoutScreen(){
+      if (!cart.length) return;
+      orderScreen.classList.add('hidden');
+      checkoutScreen.classList.remove('hidden');
+      document.getElementById('checkoutItemsList').innerHTML = cart.map(function(c){
+        return '<div class="checkout-item-row"><span class="nm">' + escHtml(c.name) + ' &times; ' + c.quantity + '</span>' +
+          '<span class="amt">$' + (c.unitPrice * c.quantity).toFixed(2) + '</span></div>';
+      }).join('');
+      var subtotalCents = Math.round(cartTotal() * 100);
+      var taxCents = Math.round(subtotalCents * TAX_RATE);
+      var totalCents = subtotalCents + taxCents;
+      document.getElementById('checkoutSubtotalDisplay').textContent = '$' + (subtotalCents / 100).toFixed(2) + ' + $' + (taxCents / 100).toFixed(2) + ' tax';
+      document.getElementById('checkoutTotalDisplay').textContent = '$' + (totalCents / 100).toFixed(2);
+      resetInactivityTimer();
+    }
+
+    document.getElementById('startOrderBtn').addEventListener('click', goToOrderScreen);
+    document.getElementById('startOverBtn').addEventListener('click', function(){ window.location.reload(); });
+    document.getElementById('proceedToCheckoutBtn').addEventListener('click', goToCheckoutScreen);
+    document.getElementById('kioskBackBtn').addEventListener('click', function(){
+      checkoutScreen.classList.add('hidden');
+      orderScreen.classList.remove('hidden');
+    });
+
+    var emailSkipped = false;
+    document.getElementById('skipEmailBtn').addEventListener('click', function(){
+      var emailInput = document.getElementById('kioskEmail');
+      emailSkipped = !emailSkipped;
+      if (emailSkipped) {
+        emailInput.value = '';
+        emailInput.disabled = true;
+        this.textContent = 'Email skipped \u2014 tap to add one instead';
+      } else {
+        emailInput.disabled = false;
+        this.textContent = "Skip \u2014 I'll just get my order number";
+      }
+    });
+
+    // ---- Checkout / payment ----
+    var KIOSK_EDGE_FUNCTION_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/create-order-checkout';
+    var CONFIRM_READER_PAYMENT_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/confirm-reader-payment';
+    // Found in the Square Developer Dashboard under your application
+    // (NOT the same as your SQUARE_ACCESS_TOKEN) -- this specific
+    // value still needs to be filled in before this button will work.
+    var SQUARE_APPLICATION_ID = 'sq0idp-jXoAXWpu2_M9v9OT054JEg';
+    var CASH_ORDER_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/create-cash-order';
+    // ---- Registered kiosk tablet (set up once in kiosk-setup.html) ----
+    // The tablet keeps a signing key its browser can never export, in this
+    // site's own storage. Cash orders are signed with it; the server
+    // refuses cash orders from anything that isn't a registered tablet.
+    var kioskDevice = null; // { id, key } once loaded
+    var KIOSK_DEVICE_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/kiosk-device';
+    function kioskDb(){
+      return new Promise(function(resolve, reject){
+        var open = indexedDB.open('rollin-kiosk', 1);
+        open.onupgradeneeded = function(){ open.result.createObjectStore('device'); };
+        open.onsuccess = function(){ resolve(open.result); };
+        open.onerror = function(){ reject(open.error); };
+      });
+    }
+    function loadKioskDevice(){
+      return kioskDb().then(function(db){
+        return new Promise(function(resolve){
+          var get = db.transaction('device', 'readonly').objectStore('device').get('current');
+          get.onsuccess = function(){ resolve(get.result || null); };
+          get.onerror = function(){ resolve(null); };
+        });
+      }).catch(function(){ return null; });
+    }
+    function toB64url(buf){
+      var s = '', b = new Uint8Array(buf);
+      for (var i = 0; i < b.length; i++) s += String.fromCharCode(b[i]);
+      return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+    }
+    function toHex(buf){
+      return Array.prototype.map.call(new Uint8Array(buf), function(x){ return ('0' + x.toString(16)).slice(-2); }).join('');
+    }
+    // Headers proving this request comes from this registered tablet.
+    function signKioskRequest(bodyStr){
+      if (!kioskDevice) return Promise.reject(new Error('This tablet isn\u2019t registered for cash orders.'));
+      var ts = String(Math.floor(Date.now() / 1000));
+      return crypto.subtle.digest('SHA-256', new TextEncoder().encode(bodyStr)).then(function(h){
+        var msg = new TextEncoder().encode(kioskDevice.id + '.' + ts + '.' + toHex(h));
+        return crypto.subtle.sign({ name: 'ECDSA', hash: 'SHA-256' }, kioskDevice.key, msg);
+      }).then(function(sig){
+        return { 'x-kiosk-device': kioskDevice.id, 'x-kiosk-ts': ts, 'x-kiosk-sig': toB64url(sig) };
+      });
+    }
+    (function(){
+      var cashBtnEl = document.getElementById('payCashBtn');
+      if (cashBtnEl) cashBtnEl.style.display = 'none'; // shown once the tablet checks out
+      loadKioskDevice().then(function(dev){
+        if (!dev || !dev.id || !dev.key) return;
+        return fetch(KIOSK_DEVICE_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KIOSK_ANON_KEY },
+          body: JSON.stringify({ action: 'status', deviceId: dev.id })
+        }).then(function(r){ return r.json(); }).then(function(res){
+          if (res && res.active) {
+            kioskDevice = dev;
+            if (cashBtnEl) cashBtnEl.style.display = '';
+          }
+        });
+      }).catch(function(){});
+    })();
+    var CONFIRMATION_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/get-order-confirmation';
+    var KIOSK_ANON_KEY = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
+
+    var scanToPayScreen = document.getElementById('scanToPayScreen');
+    var pollTimer = null;
+    var pollAttempts = 0;
+    var POLL_INTERVAL_MS = 2500;
+    var POLL_MAX_ATTEMPTS = 120; // ~5 minutes
+
+    function stopPolling(){
+      clearTimeout(pollTimer);
+      pollTimer = null;
+      pollAttempts = 0;
+      awaitingPhonePayment = false;
+    }
+
+    // Shown directly in the kiosk itself -- for both cash orders and
+    // poll-detected card payments. No navigation to another page at
+    // all, which avoids ever relying on a separate page's own retry
+    // logic racing against this one. Auto-resets after 5 seconds.
+    function showOrderConfirmed(referenceCode, items, isCash){
+      scanToPayScreen.classList.add('hidden');
+      checkoutScreen.classList.add('hidden');
+      document.getElementById('tipScreen').classList.add('hidden');
+      var screen = document.getElementById('orderConfirmedScreen');
+      screen.classList.remove('hidden');
+
+      document.getElementById('confirmedOrderNumber').textContent = String(referenceCode).replace('ORDER-', '');
+      document.getElementById('confirmedTitle').textContent = isCash ? 'Order Placed!' : 'Order Confirmed!';
+      document.getElementById('confirmedInstructions').textContent = isCash
+        ? "Please pay at the counter. We'll call your name when it's ready."
+        : "We'll call your name when it's ready.";
+
+      var itemsEl = document.getElementById('confirmedItemsList');
+      if (items && items.length) {
+        itemsEl.innerHTML = items.map(function(it){
+          return escHtml(it.name) + ' \u00d7 ' + it.quantity;
+        }).join('<br>');
+      } else {
+        itemsEl.innerHTML = '';
+      }
+
+      var seconds = 15;
+      var countdownEl = document.getElementById('confirmedCountdown');
+      countdownEl.textContent = seconds;
       var timer = setInterval(function(){
         seconds -= 1;
-        if (countdownEl) countdownEl.textContent = seconds;
+        countdownEl.textContent = seconds;
         if (seconds <= 0) {
           clearInterval(timer);
-          window.location.href = 'kiosk.html';
+          window.location.reload();
         }
       }, 1000);
     }
 
-    function showFallback(){
-      // Even if confirmation lookup fails for some reason, a kiosk
-      // customer standing at the truck still needs *something* on
-      // screen and a way back -- never leave them stuck looking at
-      // a bare error with no path forward.
-      loadingEl.classList.add('hidden');
-      confirmedEl.classList.remove('hidden');
-      document.getElementById('orderNumberValue').textContent = ref ? ref.replace('ORDER-', '') : '\u2014';
-      document.getElementById('thankYouTitle').textContent = 'Order Received!';
-      startResetCountdown();
-    }
+    var pollConsecutiveFailures = 0;
 
-    if (!ref) {
-      showFallback();
-      return;
-    }
-
-    function attemptFetch(retriesLeft){
-      fetch(EDGE_FUNCTION_URL + '?ref=' + encodeURIComponent(ref), {
-        headers: { 'Authorization': 'Bearer ' + ANON_KEY }
+    function pollForPayment(referenceCode){
+      pollAttempts += 1;
+      fetch(CONFIRMATION_URL + '?ref=' + encodeURIComponent(referenceCode), {
+        headers: { 'Authorization': 'Bearer ' + KIOSK_ANON_KEY }
       }).then(function(res){
-        return res.json().then(function(data){ return { ok: res.ok, data: data }; });
-      }).then(function(result){
-        if (!result.ok || !result.data) {
-          showFallback();
+        if (!res.ok) throw new Error('confirmation check failed: ' + res.status);
+        return res.json();
+      }).then(function(order){
+        pollConsecutiveFailures = 0;
+        var waitEl = document.querySelector('.scan-waiting');
+        if (waitEl) waitEl.innerHTML = '<span class="spin"></span> Waiting for payment&hellip;';
+
+        if (order && order.status === 'paid') {
+          stopPolling();
+          showOrderConfirmed(referenceCode, order.items, false);
           return;
         }
-        var order = result.data;
-
-        // A cash order never becomes 'paid' via webhook -- there's no
-        // payment to confirm yet, so don't waste time retrying for
-        // something that will never happen. Show it right away.
-        if (order.status !== 'paid' && !isCashOrder && retriesLeft > 0) {
-          setTimeout(function(){ attemptFetch(retriesLeft - 1); }, 1500);
+        if (pollAttempts >= POLL_MAX_ATTEMPTS) {
+          stopPolling();
+          if (waitEl) waitEl.innerHTML = "Still waiting &mdash; you can keep waiting, or go back and pay cash at the window instead.";
           return;
         }
+        pollTimer = setTimeout(function(){ pollForPayment(referenceCode); }, POLL_INTERVAL_MS);
+      })
+        .catch(function(err){
+          pollConsecutiveFailures += 1;
+          console.error('Payment check failed (attempt ' + pollAttempts + '):', err);
+          // Several failures in a row usually means a real connectivity
+          // problem on THIS device, not "payment hasn't happened yet" --
+          // worth being honest about that on screen instead of silently
+          // looking identical to a normal wait, which is exactly what
+          // made this undiagnosable before.
+          if (pollConsecutiveFailures >= 3) {
+            var waitEl = document.querySelector('.scan-waiting');
+            if (waitEl) waitEl.innerHTML = '<span class="spin"></span> Having trouble checking payment status &mdash; still trying&hellip; (if this continues, try "pay cash at the window")';
+          }
+          if (pollAttempts < POLL_MAX_ATTEMPTS) {
+            pollTimer = setTimeout(function(){ pollForPayment(referenceCode); }, POLL_INTERVAL_MS);
+          }
+        });
+    }
 
-        loadingEl.classList.add('hidden');
-        confirmedEl.classList.remove('hidden');
+    function showQrFallback(canvasWrap, checkoutUrl){
+      var canvas = document.getElementById('qrCodeCanvas');
+      canvas.classList.add('hidden');
+      var existing = document.getElementById('qrFallbackLink');
+      if (existing) existing.remove();
+      var fallback = document.createElement('a');
+      fallback.id = 'qrFallbackLink';
+      fallback.href = checkoutUrl;
+      fallback.textContent = 'Tap here to pay';
+      fallback.style.cssText = 'display:block; background:var(--gold); color:#1d1d1f; font-size:18px; font-weight:800; padding:22px 40px; border-radius:16px; margin-bottom:28px;';
+      canvasWrap.insertBefore(fallback, canvas);
+    }
 
-        document.getElementById('orderNumberValue').textContent = order.referenceCode.replace('ORDER-', '');
+    function showScanToPay(checkoutUrl, referenceCode, total){
+      checkoutScreen.classList.add('hidden');
+      scanToPayScreen.classList.remove('hidden');
+      document.getElementById('scanTotalDisplay').textContent = '$' + Number(total).toFixed(2);
+      document.querySelector('.scan-waiting').innerHTML = '<span class="spin"></span> Waiting for payment&hellip;';
+      document.getElementById('scanToPayMsg').textContent = '';
+      pollConsecutiveFailures = 0;
 
-        if (isCashOrder) {
-          document.getElementById('thankYouTitle').textContent = order.firstName ? 'Thanks, ' + order.firstName + '!' : 'Order Placed!';
-          var instructionsEl = document.querySelector('.order-instructions');
-          if (instructionsEl) instructionsEl.innerHTML = 'Please pay <b>$' + Number(order.total).toFixed(2) + '</b> at the counter. We\u2019ll call your name when it\u2019s ready.';
-        } else if (order.firstName) {
-          document.getElementById('thankYouTitle').textContent = 'Thanks, ' + order.firstName + '!';
-        }
+      // Everything below is critical -- it must run regardless of
+      // whether QR generation (further down) succeeds or fails, so a
+      // rendering problem with the code can never also break the
+      // ability to pay on the kiosk directly or go back.
 
-        if (order.items && order.items.length) {
-          document.getElementById('itemsBlock').innerHTML = order.items.map(function(li){
-            return '<div class="order-item-row"><span class="nm">' + escHtml(li.name) + ' &times; ' + li.quantity + '</span></div>';
-          }).join('');
-        }
+      // While waiting for a phone-based payment, the customer isn't
+      // touching the kiosk on purpose -- that's expected here, not
+      // abandonment, so the normal inactivity auto-reset is paused
+      // for as long as this screen is showing.
+      clearInterval(inactivityInterval);
+      document.getElementById('inactivityTimer').classList.add('hidden');
+      awaitingPhonePayment = true;
 
-        startResetCountdown();
-      }).catch(function(){
-        if (retriesLeft > 0) {
-          setTimeout(function(){ attemptFetch(retriesLeft - 1); }, 1500);
-        } else {
-          showFallback();
-        }
+      document.getElementById('scanCheckNowBtn').onclick = function(){
+        var checkBtn = this;
+        checkBtn.disabled = true;
+        checkBtn.textContent = 'Checking\u2026';
+        fetch(CONFIRMATION_URL + '?ref=' + encodeURIComponent(referenceCode), {
+          headers: { 'Authorization': 'Bearer ' + KIOSK_ANON_KEY }
+        }).then(function(res){ return res.json(); })
+          .then(function(order){
+            checkBtn.disabled = false;
+            checkBtn.textContent = 'Already paid? Check now \u2192';
+            if (order && order.status === 'paid') {
+              stopPolling();
+              showOrderConfirmed(referenceCode, order.items, false);
+            } else {
+              var msgEl = document.getElementById('scanToPayMsg');
+              msgEl.textContent = "Not showing as paid yet \u2014 still checking automatically.";
+            }
+          })
+          .catch(function(){
+            checkBtn.disabled = false;
+            checkBtn.textContent = 'Already paid? Check now \u2192';
+            document.getElementById('scanToPayMsg').textContent = "Couldn't reach the server \u2014 please try again.";
+          });
+      };
+
+      document.getElementById('scanCancelBtn').onclick = function(){
+        stopPolling();
+        scanToPayScreen.classList.add('hidden');
+        checkoutScreen.classList.remove('hidden');
+        resetInactivityTimer();
+      };
+
+      pollForPayment(referenceCode);
+
+      // QR generation is isolated here on purpose -- if it fails for
+      // any reason (library didn't load, canvas issue, etc.), the
+      // customer still has a tappable link to pay with, and every
+      // button above still works either way.
+      var canvasWrap = document.getElementById('qrCodeCanvas').parentElement;
+      try {
+        if (typeof QRCode === 'undefined') throw new Error('QR library not loaded');
+        var canvas = document.getElementById('qrCodeCanvas');
+        canvas.classList.remove('hidden');
+        QRCode.toCanvas(canvas, checkoutUrl, { width: 240, margin: 1 }, function(err){
+          if (err) showQrFallback(canvasWrap, checkoutUrl);
+        });
+      } catch (e) {
+        showQrFallback(canvasWrap, checkoutUrl);
+      }
+    }
+
+    function submitCashOrder(btn, msgEl, onCancelPolling, tipAmount){
+      msgEl.textContent = '';
+      if (onCancelPolling) onCancelPolling();
+      btn.disabled = true;
+      var originalLabel = btn.textContent;
+      btn.textContent = 'One moment\u2026';
+
+      var itemsPayload = cart.map(function(c){
+        return { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name };
+      });
+      var name = document.getElementById('kioskName').value.trim();
+      var email = document.getElementById('kioskEmail').value.trim();
+
+      var cashBody = JSON.stringify({
+        items: itemsPayload,
+        customerName: name || 'Kiosk Guest',
+        customerEmail: email || undefined,
+        orderSource: 'kiosk',
+        tipAmount: tipAmount || 0
+      });
+      signKioskRequest(cashBody).then(function(proof){
+        return fetch(CASH_ORDER_URL, {
+          method: 'POST',
+          headers: Object.assign({ 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KIOSK_ANON_KEY }, proof),
+          body: cashBody
+        });
+      }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
+        .then(function(result){
+          if (!result.ok) {
+            console.error('Cash order failed:', result.data);
+            btn.disabled = false;
+            btn.textContent = originalLabel;
+            msgEl.textContent = formatErrorMessage(result.data && result.data.error) || "Couldn't place the order \u2014 please ask for help.";
+            return;
+          }
+          var confirmedItems = cart.map(function(c){ return { name: c.name, quantity: c.quantity }; });
+          showOrderConfirmed(result.data.referenceCode, confirmedItems, true);
+        })
+        .catch(function(err){
+          console.error('Cash order request failed:', err);
+          btn.disabled = false;
+          btn.textContent = originalLabel;
+          msgEl.textContent = "Couldn't reach the server \u2014 please ask for help.";
+        });
+    }
+
+    // ---- Scan to Pay: creates the order and shows a QR code ----
+    // ---- linking to Square's own hosted checkout page.        ----
+    function startScanPayment(tipAmount){
+      var payBtn = document.getElementById('payScanBtn');
+      var msgEl = document.getElementById('kioskCheckoutMsg');
+      var name = document.getElementById('kioskName').value.trim();
+      var email = document.getElementById('kioskEmail').value.trim();
+
+      msgEl.textContent = '';
+
+      if (!cart.length) {
+        msgEl.textContent = 'Your cart is empty.';
+        return;
+      }
+
+      setPaymentButtonsDisabled(true);
+      msgEl.textContent = 'Preparing checkout\u2026';
+
+      var itemsPayload = cart.map(function(c){
+        return { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name };
+      });
+
+      fetch(KIOSK_EDGE_FUNCTION_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KIOSK_ANON_KEY },
+        body: JSON.stringify({
+          items: itemsPayload,
+          customerName: name || 'Kiosk Guest',
+          customerEmail: email || undefined,
+          orderSource: 'kiosk',
+          tipAmount: tipAmount
+        })
+      }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
+        .then(function(result){
+          setPaymentButtonsDisabled(false);
+          msgEl.textContent = '';
+          if (!result.ok || !result.data.url) {
+            msgEl.textContent = formatErrorMessage(result.data && result.data.error) || "Couldn't start checkout \u2014 please ask for help.";
+            return;
+          }
+          showScanToPay(result.data.url, result.data.referenceCode, result.data.total);
+        })
+        .catch(function(){
+          setPaymentButtonsDisabled(false);
+          msgEl.textContent = "Couldn't reach checkout \u2014 please ask for help.";
+        });
+    }
+
+    // ---- Helper shared by all three payment buttons: disables/    ----
+    // ---- enables them together without ever touching their inner  ----
+    // ---- HTML, since each contains an SVG icon that a textContent ----
+    // ---- change would silently wipe out.                          ----
+    function setPaymentButtonsDisabled(disabled){
+      ['payScanBtn', 'payCashBtn'].forEach(function(id){
+        document.getElementById(id).disabled = disabled;
       });
     }
 
-    attemptFetch(4);
+    // ---- Pay with Card Reader: hands off to the Square Point of ----
+    // ---- Sale app (installed separately on this tablet), which ----
+    // ---- talks to the paired Bluetooth reader directly.          ----
+    function startReaderPayment(tipAmount){
+      var msgEl = document.getElementById('kioskCheckoutMsg');
+      var name = document.getElementById('kioskName').value.trim();
+      var email = document.getElementById('kioskEmail').value.trim();
+
+      if (!cart.length) {
+        msgEl.textContent = 'Your cart is empty.';
+        return;
+      }
+
+      setPaymentButtonsDisabled(true);
+      msgEl.textContent = 'Preparing checkout\u2026';
+
+      var itemsPayload = cart.map(function(c){
+        return { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name };
+      });
+
+      fetch(KIOSK_EDGE_FUNCTION_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KIOSK_ANON_KEY },
+        body: JSON.stringify({
+          items: itemsPayload,
+          customerName: name || 'Kiosk Guest',
+          customerEmail: email || undefined,
+          orderSource: 'kiosk',
+          paymentMethod: 'reader',
+          tipAmount: tipAmount
+        })
+      }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
+        .then(function(result){
+          if (!result.ok || !result.data.orderId) {
+            setPaymentButtonsDisabled(false);
+            msgEl.textContent = formatErrorMessage(result.data && result.data.error) || "Couldn't start checkout \u2014 please ask for help.";
+            return;
+          }
+
+          // Square's iOS callback returns only its own "data" param --
+          // it isn't guaranteed to preserve a custom query string we
+          // append to our callback URL, so the pending order id is
+          // stashed here instead and read back on return, independent
+          // of whatever Square does with the URL itself.
+          localStorage.setItem('pendingReaderOrderId', result.data.orderId);
+
+          // The trip to the Square POS app and back is a full page
+          // reload, which wipes the entire cart from memory -- if
+          // payment fails or is canceled, the customer needs to see
+          // their cart exactly as it was, not an empty one. Cleared
+          // once the return is actually handled, whichever way it goes.
+          localStorage.setItem('pendingReaderCart', JSON.stringify({ cart: cart, name: name, email: email }));
+
+          var totalCents = Math.round(Number(result.data.total) * 100);
+          var thisPageUrl = window.location.origin + window.location.pathname;
+
+          var dataParameter = {
+            amount_money: { amount: String(totalCents), currency_code: 'USD' },
+            callback_url: thisPageUrl,
+            client_id: SQUARE_APPLICATION_ID,
+            version: '1.3',
+            notes: 'Order ' + result.data.referenceCode,
+            auto_return: true,
+            options: { supported_tender_types: ['CREDIT_CARD'] }
+          };
+
+          window.location.href = 'square-commerce-v1://payment/create?data=' + encodeURIComponent(JSON.stringify(dataParameter));
+        })
+        .catch(function(){
+          setPaymentButtonsDisabled(false);
+          msgEl.textContent = "Couldn't reach checkout \u2014 please ask for help.";
+        });
+    }
+
+    // ---- Tip screen ----
+    var selectedTipAmount = 0;
+    var tipScreenBaseTotal = 0;
+
+    function roundUpTip(total){
+      return Math.round((Math.ceil(total) - total) * 100) / 100;
+    }
+
+    function renderTipOptions(baseTotal){
+      var options = [
+        { label: 'No Tip', amount: 0 },
+        { label: 'Round Up', amount: roundUpTip(baseTotal) },
+        { label: '10%', amount: Math.round(baseTotal * 0.10 * 100) / 100 },
+        { label: '15%', amount: Math.round(baseTotal * 0.15 * 100) / 100 },
+        { label: '25%', amount: Math.round(baseTotal * 0.25 * 100) / 100 },
+        { label: '30%', amount: Math.round(baseTotal * 0.30 * 100) / 100 },
+        { label: 'Other', amount: null }
+      ];
+
+      var grid = document.getElementById('tipOptionsGrid');
+      grid.innerHTML = options.map(function(opt, i){
+        var amountLabel = opt.amount === null ? 'Enter amount' : (opt.amount === 0 ? '+$0.00' : '+$' + opt.amount.toFixed(2));
+        return '<button type="button" class="tip-option-btn" data-index="' + i + '">' +
+          '<span class="tip-option-label">' + opt.label + '</span>' +
+          '<span class="tip-option-amount">' + amountLabel + '</span>' +
+        '</button>';
+      }).join('');
+
+      grid.querySelectorAll('.tip-option-btn').forEach(function(btn, i){
+        btn.addEventListener('click', function(){
+          grid.querySelectorAll('.tip-option-btn').forEach(function(b){ b.classList.remove('selected'); });
+          btn.classList.add('selected');
+          var opt = options[i];
+          var customWrap = document.getElementById('tipCustomFieldWrap');
+          if (opt.amount === null) {
+            customWrap.style.display = 'block';
+            document.getElementById('tipCustomAmount').value = '';
+            document.getElementById('tipCustomAmount').focus();
+            // Nothing entered yet -- stay disabled until a real
+            // amount is typed, rather than treating "Other" alone as
+            // an implicit $0 tip.
+            selectedTipAmount = null;
+            setPaymentButtonsDisabled(true);
+            document.getElementById('tipChooseHint').style.display = 'block';
+          } else {
+            customWrap.style.display = 'none';
+            selectedTipAmount = opt.amount;
+            setPaymentButtonsDisabled(false);
+            document.getElementById('tipChooseHint').style.display = 'none';
+          }
+          updateTipFinalTotal();
+        });
+      });
+    }
+
+    function updateTipFinalTotal(){
+      var display = selectedTipAmount === null ? tipScreenBaseTotal : (tipScreenBaseTotal + selectedTipAmount);
+      document.getElementById('tipFinalTotalDisplay').textContent = '$' + display.toFixed(2);
+    }
+
+    document.getElementById('tipCustomAmount').addEventListener('input', function(){
+      var val = parseFloat(this.value);
+      var valid = isFinite(val) && val >= 0 && this.value.trim() !== '';
+      selectedTipAmount = valid ? val : null;
+      setPaymentButtonsDisabled(!valid);
+      document.getElementById('tipChooseHint').style.display = valid ? 'none' : 'block';
+      updateTipFinalTotal();
+    });
+
+    document.getElementById('exploreOtherPaymentsBtn').addEventListener('click', function(){
+      if (!cart.length) {
+        document.getElementById('kioskCheckoutMsg').textContent = 'Your cart is empty.';
+        return;
+      }
+      var subtotalCents = Math.round(cartTotal() * 100);
+      var taxCents = Math.round(subtotalCents * TAX_RATE);
+      tipScreenBaseTotal = (subtotalCents + taxCents) / 100;
+      selectedTipAmount = null;
+
+      document.getElementById('tipBaseTotalDisplay').textContent = '$' + tipScreenBaseTotal.toFixed(2);
+      document.getElementById('tipCustomFieldWrap').style.display = 'none';
+      renderTipOptions(tipScreenBaseTotal);
+      // Round Up is chosen by default; the customer can change it.
+      var roundUpBtn = document.querySelectorAll('#tipOptionsGrid .tip-option-btn')[1];
+      if (roundUpBtn) roundUpBtn.click();
+      else { updateTipFinalTotal(); setPaymentButtonsDisabled(true); document.getElementById('tipChooseHint').style.display = 'block'; }
+
+      checkoutScreen.classList.add('hidden');
+      document.getElementById('tipScreen').classList.remove('hidden');
+      resetInactivityTimer();
+    });
+
+    document.getElementById('tipBackBtn').addEventListener('click', function(){
+      document.getElementById('tipScreen').classList.add('hidden');
+      checkoutScreen.classList.remove('hidden');
+      resetInactivityTimer();
+    });
+
+    // Tap to Pay skips the tip screen entirely and goes straight to
+    // Square -- Square's own device-level tip setting already
+    // prompts for a tip during that flow, so asking here too would
+    // mean tipping twice. No tip is included from this side; any tip
+    // the customer adds happens entirely within Square's own screen,
+    // on top of the base amount already sent.
+    document.getElementById('payTapDirectBtn').addEventListener('click', function(){
+      startReaderPayment(0);
+    });
+    document.getElementById('payScanBtn').addEventListener('click', function(){
+      startScanPayment(selectedTipAmount || 0);
+    });
+    document.getElementById('payCashBtn').addEventListener('click', function(){
+      submitCashOrder(this, document.getElementById('kioskCheckoutMsg'), null, selectedTipAmount || 0);
+    });
+
+    // ---- Detect a return trip from the Square POS app. Runs once ----
+    // ---- at page load, since that's a fresh navigation back to   ----
+    // ---- this exact URL, not a JS-level event we can listen for. ----
+    // ---- iOS sends back a single "data" query param containing   ----
+    // ---- JSON, unlike Android's several separate params.         ----
+    (function checkForReaderPaymentReturn(){
+      var readerOrderId = localStorage.getItem('pendingReaderOrderId');
+      if (!readerOrderId) return; // no reader payment in flight -- normal page load
+
+      var rawData = new URLSearchParams(window.location.search).get('data');
+      if (!rawData) return; // no return data yet -- e.g. this is just the initial page load before switching to Square
+
+      // Whatever happens next resolves this attempt one way or another,
+      // so clear the pending-order marker now -- a stale value could
+      // otherwise incorrectly attach to some unrelated future visit.
+      // The saved cart itself is only cleared once we know the actual
+      // outcome below, since a failure needs it restored first.
+      localStorage.removeItem('pendingReaderOrderId');
+      window.history.replaceState({}, '', window.location.pathname);
+
+      var savedCartRaw = localStorage.getItem('pendingReaderCart');
+      var savedCart = null;
+      try { savedCart = savedCartRaw ? JSON.parse(savedCartRaw) : null; } catch (e) { savedCart = null; }
+
+      function restoreCartAndShowCheckout(){
+        if (!savedCart) return false;
+        localStorage.removeItem('pendingReaderCart');
+        cart = savedCart.cart || [];
+        idleScreen.classList.add('hidden');
+        document.getElementById('kioskName').value = savedCart.name || '';
+        document.getElementById('kioskEmail').value = savedCart.email || '';
+        if (!cart.length) return false;
+        goToCheckoutScreen();
+        return true;
+      }
+
+      var transactionInfo;
+      try {
+        transactionInfo = JSON.parse(decodeURIComponent(rawData));
+      } catch (e) {
+        return; // not a shape we recognize -- ignore rather than guess
+      }
+
+      if (transactionInfo.error_code) {
+        var restored = restoreCartAndShowCheckout();
+        var msgEl = document.getElementById('kioskCheckoutMsg');
+        msgEl.textContent = transactionInfo.error_code === 'user_canceled'
+          ? 'Payment was canceled.' + (restored ? ' Your cart is still here.' : '')
+          : 'Payment did not complete (' + transactionInfo.error_code + '). Please try again.';
+        return;
+      }
+
+      var serverTransactionId = transactionInfo.transaction_id;
+      if (!serverTransactionId) return; // neither a known success nor error shape -- ignore
+
+      // Payment succeeded -- the saved cart backup is no longer needed.
+      localStorage.removeItem('pendingReaderCart');
+
+      restoreCartAndShowCheckout();
+      var msgEl = document.getElementById('kioskCheckoutMsg');
+      msgEl.textContent = 'Confirming your payment\u2026';
+
+      fetch(CONFIRM_READER_PAYMENT_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KIOSK_ANON_KEY },
+        body: JSON.stringify({ orderId: readerOrderId, serverTransactionId: serverTransactionId })
+      }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
+        .then(function(result){
+          if (!result.ok || !result.data.ok) {
+            msgEl.textContent = formatErrorMessage(result.data && result.data.error) || "Couldn't confirm this payment \u2014 please ask for help.";
+            return;
+          }
+          showOrderConfirmed(result.data.referenceCode, result.data.items, false);
+        })
+        .catch(function(){
+          msgEl.textContent = "Couldn't confirm this payment \u2014 please ask for help.";
+        });
+    })();
+
+    loadMenu();
   })();
 </script>
 
