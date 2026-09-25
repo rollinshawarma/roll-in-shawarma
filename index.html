@@ -602,7 +602,20 @@
   .cart-breakdown-row{ display:flex; justify-content:space-between; padding:3px 0; font-size:15px; color:var(--ink-2); }
   .cart-total-row{ display:flex; justify-content:space-between; margin:10px 0 16px; font-size:19px; font-weight:700; }
   #cartCheckoutBtn, #cartPayNowBtn{ width:100%; height:52px; }
-  .cart-back-link{ display:block; margin:12px auto 0; font-size:15px; font-weight:500; color:var(--accent); }
+  .cart-back-link{ display:block; margin:14px 24px 0; font-size:15px; font-weight:500; color:var(--accent); text-align:left; }
+  .cart-checkout-form .opt{ font-weight:400; color:var(--muted); }
+  .more-details{ margin:-2px 0 12px; }
+  .more-details summary{ cursor:pointer; list-style:none; color:var(--accent); font-size:15px; font-weight:500; padding:4px 0; }
+  .more-details summary::-webkit-details-marker{ display:none; }
+  .more-details summary::before{ content:"+ "; }
+  .more-details[open] summary::before{ content:"\2212 "; }
+  .more-details[open] summary{ margin-bottom:10px; }
+  .checkout-summary{ padding:14px 24px 24px; }
+  /* Compact pay bar: total, wallets, card */
+  .checkout-foot{ padding-top:12px; }
+  .checkout-foot .cart-total-row{ margin:0 0 10px; font-size:17px; }
+  .checkout-foot #cartPayNowBtn{ height:44px; font-size:15px; }
+  .wallet-pay:empty, .wallet-pay:not(:has(> :not(.hidden))){ display:none; }
   .cart-checkout-form{ padding:20px 24px 0; }
   #promoSection{ padding:0 24px; }
   .pickup-time{ padding:0 24px 18px; }
@@ -610,11 +623,12 @@
   .tip-choice{ display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; }
   .tip-opt{ height:44px; border:1.5px solid var(--line); border-radius:12px; font-weight:600; font-size:15px; }
   .tip-opt[aria-checked="true"]{ border-color:var(--ink); box-shadow:inset 0 0 0 1px var(--ink); }
-  .wallet-pay{ display:flex; flex-direction:column; gap:10px; }
-  .apple-pay-btn{ display:block; width:100%; height:52px; -webkit-appearance:-apple-pay-button; appearance:-apple-pay-button; -apple-pay-button-type:plain; -apple-pay-button-style:black; border-radius:999px; border:0; }
-  .google-pay-btn{ height:52px; border-radius:999px; overflow:hidden; }
+  /* Apple Pay and Google Pay side by side; each fills its half (or the row alone). */
+  .wallet-pay{ display:flex; gap:8px; }
+  .apple-pay-btn{ flex:1 1 0; min-width:0; display:block; height:44px; -webkit-appearance:-apple-pay-button; appearance:-apple-pay-button; -apple-pay-button-type:plain; -apple-pay-button-style:black; border-radius:12px; border:0; }
+  .google-pay-btn{ flex:1 1 0; min-width:0; height:44px; border-radius:12px; overflow:hidden; }
   .apple-pay-btn.is-busy, .google-pay-btn.is-busy{ opacity:.5; pointer-events:none; }
-  .pay-or{ display:flex; align-items:center; gap:12px; color:var(--muted); font-size:13px; margin:2px 0 10px; }
+  .pay-or{ display:flex; align-items:center; gap:12px; color:var(--muted); font-size:12px; margin:6px 0; }
   .pay-or::before, .pay-or::after{ content:""; flex:1; height:1px; background:var(--line); }
   .pay-or.hidden + #cartPayNowBtn{ margin-top:0; }
   .pickup-time-label{ font-size:13px; font-weight:600; color:var(--ink-2); margin-bottom:8px; }
@@ -631,6 +645,8 @@
   .promo-apply-btn{ height:48px; padding:0 20px; border-radius:12px; background:var(--panel); font-weight:600; }
   .cart-checkout-msg{ padding:0 24px; font-size:14px; }
   .cart-checkout-msg:empty{ padding:0; }
+  .checkout-foot .cart-checkout-msg{ padding:0; margin-bottom:8px; }
+  .checkout-foot .cart-checkout-msg:empty{ margin:0; }
 
   @media (prefers-reduced-motion: reduce){
     html{ scroll-behavior:auto; }
@@ -1367,12 +1383,16 @@
     </div>
 
     <div id="cartCheckoutView" class="hidden">
+      <button type="button" id="cartBackToItemsBtn" class="cart-back-link">&larr; Back to order</button>
       <div class="cform cart-checkout-form">
-        <label>Name*<input type="text" id="cartCustomerName" required autocomplete="name"></label>
-        <label>Email* (for your confirmation)<input type="email" id="cartCustomerEmail" required autocomplete="email"></label>
-        <label>Phone<input type="tel" id="cartCustomerPhone" autocomplete="tel"></label>
+        <label>Name for the order*<input type="text" id="cartCustomerName" required autocomplete="name"></label>
+        <label>Email for your receipt <span class="opt">(optional with Apple Pay / Google Pay)</span><input type="email" id="cartCustomerEmail" autocomplete="email"></label>
         <label id="cartPickupDateLabel" class="hidden">Pickup date (catering)<input type="date" id="cartPickupDate"></label>
-        <label>Notes<textarea id="cartCustomerNotes" rows="2" placeholder="Any special requests..."></textarea></label>
+        <details class="more-details">
+          <summary>Add phone or special requests</summary>
+          <label>Phone<input type="tel" id="cartCustomerPhone" autocomplete="tel"></label>
+          <label>Notes<textarea id="cartCustomerNotes" rows="2" placeholder="Any special requests..."></textarea></label>
+        </details>
       </div>
 
       <div id="pickupTimeSection" class="pickup-time hidden">
@@ -1406,8 +1426,8 @@
         </div>
       </div>
 
-      <div id="cartCheckoutMsg" class="square-pay-msg cart-checkout-msg"></div>
-      <div class="cart-drawer-footer">
+      <div class="checkout-summary">
+        <div class="pickup-time-label">Order summary</div>
         <div class="cart-breakdown">
           <div class="cart-breakdown-row">Subtotal <span id="cartCheckoutSubtotal">$0.00</span></div>
           <div class="cart-breakdown-row promo-discount-row hidden" id="promoDiscountRow">Discount <span id="cartCheckoutDiscount">&minus;$0.00</span></div>
@@ -1416,14 +1436,17 @@
           <div class="cart-breakdown-row">Online Processing Fee <span id="cartCheckoutFee">$0.00</span></div>
           <div class="cart-breakdown-row hidden" id="tipRow">Tip <span id="cartCheckoutTip">$0.00</span></div>
         </div>
+      </div>
+
+      <div class="cart-drawer-footer checkout-foot">
+        <div id="cartCheckoutMsg" class="square-pay-msg cart-checkout-msg"></div>
         <div class="cart-total-row">Total <span id="cartCheckoutTotal">$0.00</span></div>
         <div class="wallet-pay">
           <button type="button" id="applePayBtn" class="apple-pay-btn hidden" lang="en" aria-label="Pay with Apple Pay"></button>
           <div id="googlePayBtn" class="google-pay-btn hidden"></div>
-          <div class="pay-or hidden" id="payOr"><span>or</span></div>
         </div>
+        <div class="pay-or hidden" id="payOr"><span>or</span></div>
         <button type="button" id="cartPayNowBtn" class="btn btn-light">Pay Now</button>
-        <button type="button" id="cartBackToItemsBtn" class="cart-back-link">&larr; Back to order</button>
       </div>
     </div>
   </div>
@@ -2547,7 +2570,8 @@
       var name = document.getElementById('cartCustomerName').value.trim();
       var email = document.getElementById('cartCustomerEmail').value.trim();
       if (!cart.length && !giftCardCart.length) { checkoutMsg('Your cart is empty.'); return null; }
-      if (!name || !email) { checkoutMsg('Please fill in your name and email so we can send your confirmation.'); return null; }
+      if (!name) { checkoutMsg('Please add a name for the order.'); document.getElementById('cartCustomerName').focus(); return null; }
+      if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { checkoutMsg('That email doesn\u2019t look right. Fix it or leave it blank.'); return null; }
       var scheduledPickupAt = null;
       try { scheduledPickupAt = window.rollinPickup ? window.rollinPickup.value() : null; }
       catch (ptErr) { checkoutMsg(ptErr.message); return null; }
@@ -2558,7 +2582,7 @@
           items: cart.map(function(c){ return { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name }; }),
           giftCards: giftCardCart.map(function(g){ return { amount: g.amount, recipientName: g.recipientName, recipientEmail: g.recipientEmail, message: g.message }; }),
           customerName: name,
-          customerEmail: email,
+          customerEmail: email || undefined,
           customerPhone: document.getElementById('cartCustomerPhone').value.trim(),
           notes: document.getElementById('cartCustomerNotes').value.trim(),
           pickupDate: document.getElementById('cartPickupDate').value || undefined,
@@ -2641,7 +2665,9 @@
       if (SQUARE_APP_ID.indexOf('REPLACE') !== -1) return (walletLoading = Promise.resolve());
       walletLoading = loadSquareSdk().then(function(){
         var payments = window.Square.payments(SQUARE_APP_ID, SQUARE_LOCATION_ID);
-        sqRequest = payments.paymentRequest({ countryCode: 'US', currencyCode: 'USD', total: walletTotal(checkoutTotals()) });
+        // Billing contact lets Apple Pay / Google Pay share the buyer's
+        // email (when they allow it) so the receipt field can stay empty.
+        sqRequest = payments.paymentRequest({ countryCode: 'US', currencyCode: 'USD', total: walletTotal(checkoutTotals()), requestBillingContact: true });
         // Each wallet only appears where it works (Apple Pay: Safari on
         // Apple devices with a card in Wallet; Google Pay: Chrome/Android).
         var apple = payments.applePay(sqRequest).then(function(ap){
@@ -2664,6 +2690,12 @@
       return walletLoading;
     }
 
+    // Contact details the wallet shared, if any (billing or shipping).
+    function walletContact(res){
+      var d = (res && res.details) || {};
+      var b = d.billing || {}, sh = (d.shipping && d.shipping.contact) || {};
+      return { email: b.email || sh.email || '', phone: b.phone || sh.phone || '' };
+    }
     function payWithWallet(method){
       if (!method) return;
       var order = collectCheckout();
@@ -2678,7 +2710,11 @@
           if (res && res.status !== 'Cancel' && detail) checkoutMsg(detail);
           return;
         }
-        return submitOrder(order, { walletToken: res.token, expectedTotal: order.totals.total }).then(function(result){
+        var extra = { walletToken: res.token, expectedTotal: order.totals.total };
+        var contact = walletContact(res);
+        if (!order.payload.customerEmail && contact.email) extra.customerEmail = contact.email;
+        if (!order.payload.customerPhone && contact.phone) extra.customerPhone = contact.phone;
+        return submitOrder(order, extra).then(function(result){
           if (!result || !result.paid) return;
           closeCartDrawer();
           showItemsView();
