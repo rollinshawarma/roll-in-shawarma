@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex, nofollow">
+<title>Kiosk Tablet Setup | Roll-In Shawarma</title>
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Inter+Tight:wght@700&display=swap" rel="stylesheet">
+<style>
+  :root{ --bg:#f5f5f7; --card:#fff; --ink:#1d1d1f; --ink-2:#424245; --muted:#6e6e73; --line:#e3e3e8; --accent:#d62d20; --ok:#1f8a4c; color-scheme:light; }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  body{ font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; background:var(--bg); color:var(--ink); font-size:17px; line-height:1.45; -webkit-font-smoothing:antialiased; }
+  .wrap{ max-width:560px; margin:0 auto; padding:40px 20px 60px; }
+  .brand{ display:flex; align-items:center; gap:10px; font-weight:700; margin-bottom:28px; }
+  .brand img{ width:36px; height:36px; border-radius:50%; }
+  h1{ font-family:"Inter Tight","Inter",sans-serif; font-size:34px; letter-spacing:-0.03em; line-height:1.1; }
+  .lead{ color:var(--muted); margin:10px 0 26px; }
+  .card{ background:var(--card); border-radius:22px; padding:24px; margin-bottom:14px; }
+  .card h2{ font-size:19px; font-weight:700; margin-bottom:6px; }
+  .card p{ color:var(--ink-2); font-size:15px; }
+  label{ display:block; font-size:13px; font-weight:600; color:var(--ink-2); margin:14px 0 6px; }
+  input{ width:100%; height:48px; padding:0 14px; border:1.5px solid var(--line); border-radius:12px; font:inherit; font-size:16px; }
+  input:focus{ outline:none; border-color:var(--ink); }
+  .btn{ display:flex; align-items:center; justify-content:center; width:100%; height:50px; margin-top:14px; border:0; border-radius:999px; background:var(--ink); color:#fff; font:inherit; font-weight:600; font-size:16px; cursor:pointer; text-decoration:none; }
+  .btn:disabled{ background:#c7c7cc; cursor:not-allowed; }
+  .btn-soft{ background:#f0f0f2; color:var(--ink); }
+  .msg{ font-size:14px; margin-top:12px; min-height:0; }
+  .msg.error{ color:var(--accent); }
+  .msg.ok{ color:var(--ok); }
+  .pill{ display:inline-block; font-size:12px; font-weight:700; padding:3px 9px; border-radius:999px; background:#f0f0f2; color:var(--ink-2); }
+  .pill.ok{ background:#e3f4ea; color:var(--ok); }
+  .pill.off{ background:#fde7e5; color:var(--accent); }
+  .dev{ display:flex; align-items:center; gap:12px; padding:14px 0; border-top:1px solid var(--line); }
+  .dev:first-child{ border-top:0; }
+  .dev-info{ flex:1; min-width:0; }
+  .dev-name{ font-weight:600; }
+  .dev-meta{ font-size:13px; color:var(--muted); }
+  .revoke{ border:1.5px solid var(--line); background:#fff; border-radius:999px; height:36px; padding:0 14px; font:inherit; font-size:14px; font-weight:600; color:var(--accent); cursor:pointer; }
+  .warn{ background:#fff8e6; border-radius:14px; padding:12px 14px; font-size:14px; color:#6b4e00; margin-top:12px; }
+  .hidden{ display:none !important; }
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+<div class="wrap">
+  <div class="brand"><img src="logo.jpg" alt="">Roll-In Shawarma</div>
+  <h1>Kiosk tablet setup</h1>
+  <p class="lead">Register the truck's kiosk tablet so it can take cash orders. Do this once, on the tablet itself, in the same browser the kiosk runs in.</p>
+
+  <!-- 1. Manager sign-in -->
+  <section class="card" id="signInCard">
+    <h2>Manager sign in</h2>
+    <p>Only a manager or admin can register tablets.</p>
+    <div id="emailStep">
+      <label for="email">Email</label>
+      <input type="email" id="email" autocomplete="email" placeholder="you@example.com">
+      <button class="btn" id="sendCode" type="button">Send code</button>
+    </div>
+    <div id="codeStep" class="hidden">
+      <label for="code">Sign-in code from your email</label>
+      <input type="text" id="code" inputmode="numeric" maxlength="12" autocomplete="one-time-code">
+      <button class="btn" id="verifyCode" type="button">Sign in</button>
+    </div>
+    <div class="msg" id="signInMsg"></div>
+  </section>
+
+  <!-- 2. This tablet -->
+  <section class="card hidden" id="thisTabletCard">
+    <h2>This tablet <span class="pill" id="thisStatus">Not registered</span></h2>
+    <p id="thisText">Registering asks for this tablet's fingerprint, face or screen-lock PIN. That confirms it with the tablet's own security chip.</p>
+    <label for="deviceName">Name</label>
+    <input type="text" id="deviceName" value="Truck kiosk" maxlength="60">
+    <div class="warn hidden" id="noPasskeyWarn">This browser can't use the tablet's passkey. Set a screen lock (PIN, fingerprint or face) on the tablet and use Chrome or Safari for the kiosk. You can still register with manager approval only, but the passkey check is stronger.</div>
+    <button class="btn" id="registerBtn" type="button">Register this tablet</button>
+    <button class="btn btn-soft hidden" id="registerNoPasskeyBtn" type="button">Register with manager approval only</button>
+    <div class="msg" id="registerMsg"></div>
+    <a class="btn btn-soft hidden" id="openKiosk" href="kiosk.html">Open the kiosk</a>
+  </section>
+
+  <!-- 3. All tablets -->
+  <section class="card hidden" id="listCard">
+    <h2>Registered tablets</h2>
+    <p>Lost or replaced a tablet? Switch it off here and it can no longer place cash orders.</p>
+    <div id="deviceList" style="margin-top:10px;"></div>
+    <div class="msg" id="listMsg"></div>
+  </section>
+</div>
+
+<script>
+(function(){
+  var SUPABASE_URL = 'https://njcmcaoyzujijiyfardx.supabase.co';
+  var ANON_KEY = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
+  var DEVICE_URL = SUPABASE_URL + '/functions/v1/kiosk-device';
+  var sb = supabase.createClient(SUPABASE_URL, ANON_KEY);
+  var $ = function(id){ return document.getElementById(id); };
+  var pendingEmail = '', token = null, localDevice = null;
+
+  function msg(id, text, kind){ var el = $(id); el.textContent = text || ''; el.className = 'msg' + (kind ? ' ' + kind : ''); }
+  function b64urlToBytes(s){
+    var b64 = s.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((s.length + 3) % 4);
+    return Uint8Array.from(atob(b64), function(c){ return c.charCodeAt(0); });
+  }
+  function toB64url(buf){
+    var s = '', b = new Uint8Array(buf);
+    for (var i = 0; i < b.length; i++) s += String.fromCharCode(b[i]);
+    return btoa(s).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+  }
+  function fmt(t){ return t ? new Date(t).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : 'never'; }
+
+  // ---- this tablet's own key store (same one kiosk.html reads) ----
+  function db(){
+    return new Promise(function(resolve, reject){
+      var open = indexedDB.open('rollin-kiosk', 1);
+      open.onupgradeneeded = function(){ open.result.createObjectStore('device'); };
+      open.onsuccess = function(){ resolve(open.result); };
+      open.onerror = function(){ reject(open.error); };
+    });
+  }
+  function store(op, value){
+    return db().then(function(d){
+      return new Promise(function(resolve, reject){
+        var tx = d.transaction('device', op === 'get' ? 'readonly' : 'readwrite').objectStore('device');
+        var r = op === 'get' ? tx.get('current') : op === 'put' ? tx.put(value, 'current') : tx.delete('current');
+        r.onsuccess = function(){ resolve(r.result); };
+        r.onerror = function(){ reject(r.error); };
+      });
+    });
+  }
+
+  function call(action, extra){
+    return fetch(DEVICE_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + (token || ANON_KEY), 'apikey': ANON_KEY },
+      body: JSON.stringify(Object.assign({ action: action }, extra || {}))
+    }).then(function(r){ return r.json().then(function(d){ if (!r.ok) throw new Error(d.error || 'Request failed'); return d; }); });
+  }
+
+  // ---- sign in ----
+  $('sendCode').addEventListener('click', function(){
+    var email = $('email').value.trim();
+    if (!email) return msg('signInMsg', 'Enter your email.', 'error');
+    this.disabled = true;
+    var btn = this;
+    sb.auth.signInWithOtp({ email: email, options: { shouldCreateUser: false } }).then(function(res){
+      btn.disabled = false;
+      if (res.error) return msg('signInMsg', res.error.message, 'error');
+      pendingEmail = email;
+      $('emailStep').classList.add('hidden'); $('codeStep').classList.remove('hidden');
+      msg('signInMsg', 'Code sent to ' + email + '.', 'ok');
+    });
+  });
+  $('verifyCode').addEventListener('click', function(){
+    var code = $('code').value.replace(/\s+/g, '');
+    if (!code) return;
+    this.disabled = true;
+    var btn = this;
+    sb.auth.verifyOtp({ email: pendingEmail, token: code, type: 'email' }).then(function(res){
+      btn.disabled = false;
+      if (res.error) return msg('signInMsg', res.error.message, 'error');
+      signedIn(res.data.session);
+    });
+  });
+  sb.auth.getSession().then(function(res){ if (res.data && res.data.session) signedIn(res.data.session); });
+
+  function signedIn(session){
+    token = session.access_token;
+    call('list').then(function(d){
+      $('signInCard').classList.add('hidden');
+      $('thisTabletCard').classList.remove('hidden');
+      $('listCard').classList.remove('hidden');
+      renderList(d.devices);
+      checkPasskeySupport();
+    }).catch(function(e){ msg('signInMsg', e.message, 'error'); });
+  }
+
+  function checkPasskeySupport(){
+    var ok = window.PublicKeyCredential && PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable
+      ? PublicKeyCredential.isUserVerifyingPlatformAuthenticatorAvailable() : Promise.resolve(false);
+    ok.then(function(yes){
+      if (!yes) {
+        $('noPasskeyWarn').classList.remove('hidden');
+        $('registerBtn').classList.add('hidden');
+        $('registerNoPasskeyBtn').classList.remove('hidden');
+      }
+    }).catch(function(){});
+  }
+
+  function renderList(devices){
+    store('get').then(function(d){ localDevice = d || null; draw(); }, function(){ draw(); });
+    function draw(){
+      var mine = localDevice && devices.some(function(x){ return x.id === localDevice.id && !x.revoked_at; });
+      $('thisStatus').textContent = mine ? 'Registered' : 'Not registered';
+      $('thisStatus').className = 'pill' + (mine ? ' ok' : '');
+      $('openKiosk').classList.toggle('hidden', !mine);
+      $('registerBtn').textContent = mine ? 'Register again (replaces this one)' : 'Register this tablet';
+      $('deviceList').innerHTML = devices.length ? devices.map(function(x){
+        var off = !!x.revoked_at;
+        var here = localDevice && localDevice.id === x.id;
+        return '<div class="dev"><div class="dev-info"><div class="dev-name">' + x.name.replace(/[<>&"]/g, '') + (here ? ' <span class="pill">This tablet</span>' : '') + '</div>' +
+          '<div class="dev-meta">' + (x.passkey_verified ? 'Passkey confirmed' : 'Manager approval only') + ' &middot; added ' + fmt(x.created_at) + ' &middot; last cash order ' + fmt(x.last_used_at) + '</div></div>' +
+          (off ? '<span class="pill off">Switched off</span>' : '<button class="revoke" data-id="' + x.id + '" type="button">Switch off</button>') + '</div>';
+      }).join('') : '<p>No tablets registered yet.</p>';
+    }
+  }
+  $('deviceList').addEventListener('click', function(e){
+    var b = e.target.closest('.revoke');
+    if (!b || !confirm('Switch this tablet off? It will no longer be able to place cash orders.')) return;
+    b.disabled = true;
+    call('revoke', { deviceId: b.getAttribute('data-id') }).then(function(){
+      if (localDevice && localDevice.id === b.getAttribute('data-id')) return store('delete');
+    }).then(function(){ return call('list'); }).then(function(d){ renderList(d.devices); msg('listMsg', 'Tablet switched off.', 'ok'); })
+      .catch(function(err){ b.disabled = false; msg('listMsg', err.message, 'error'); });
+  });
+
+  // ---- register this tablet ----
+  function register(usePasskey){
+    var name = $('deviceName').value.trim() || 'Truck kiosk';
+    var btns = [$('registerBtn'), $('registerNoPasskeyBtn')];
+    btns.forEach(function(b){ b.disabled = true; });
+    msg('registerMsg', usePasskey ? 'Follow the tablet’s prompt…' : 'Registering…');
+    var keys, publicJwk, challenge, previousId = localDevice && localDevice.id;
+    // Signing key: the private half is created non-exportable, so the
+    // browser will never hand it out, not even to this page.
+    crypto.subtle.generateKey({ name: 'ECDSA', namedCurve: 'P-256' }, false, ['sign', 'verify']).then(function(k){
+      keys = k;
+      return crypto.subtle.exportKey('jwk', k.publicKey);
+    }).then(function(jwk){
+      publicJwk = jwk;
+      return call('challenge');
+    }).then(function(c){
+      challenge = c;
+      if (!usePasskey) return null;
+      return navigator.credentials.create({ publicKey: {
+        challenge: b64urlToBytes(c.challenge),
+        rp: { id: location.hostname, name: 'Roll-In Shawarma kiosk' },
+        user: { id: b64urlToBytes(c.userId), name: 'kiosk-' + Date.now(), displayName: name },
+        pubKeyCredParams: [{ type: 'public-key', alg: -7 }, { type: 'public-key', alg: -257 }],
+        authenticatorSelection: { authenticatorAttachment: 'platform', userVerification: 'required', residentKey: 'discouraged' },
+        attestation: 'none',
+        timeout: 120000
+      } });
+    }).then(function(cred){
+      var payload = { challengeId: challenge.challengeId, name: name, devicePublicJwk: publicJwk };
+      if (cred) payload.passkey = { id: cred.id, clientDataJSON: toB64url(cred.response.clientDataJSON), attestationObject: toB64url(cred.response.attestationObject) };
+      else payload.withoutPasskey = true;
+      return call('register', payload);
+    }).then(function(res){
+      return store('put', { id: res.deviceId, key: keys.privateKey, name: name, registeredAt: new Date().toISOString() }).then(function(){
+        // Replacing this tablet's old registration: switch the old one off.
+        if (previousId && previousId !== res.deviceId) return call('revoke', { deviceId: previousId }).catch(function(){});
+      });
+    }).then(function(){ return call('list'); }).then(function(d){
+      renderList(d.devices);
+      msg('registerMsg', 'Done. This tablet can now take cash orders.', 'ok');
+      btns.forEach(function(b){ b.disabled = false; });
+    }).catch(function(err){
+      btns.forEach(function(b){ b.disabled = false; });
+      msg('registerMsg', err && err.name === 'NotAllowedError' ? 'The tablet check was cancelled. Try again.' : (err.message || 'Registration failed.'), 'error');
+    });
+  }
+  $('registerBtn').addEventListener('click', function(){ register(true); });
+  $('registerNoPasskeyBtn').addEventListener('click', function(){
+    if (confirm('Register without the tablet passkey? Manager approval still applies.')) register(false);
+  });
+})();
+</script>
+</body>
+</html>
