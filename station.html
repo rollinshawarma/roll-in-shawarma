@@ -87,6 +87,22 @@
   .recall-item .recall-meta{ color:var(--muted); font-weight:600; font-size:14px; }
   .recall-go{ background:var(--gold); color:#1d1d1f; font-weight:800; font-size:15px; padding:8px 14px; border-radius:8px; }
   .recall-empty{ color:var(--muted); font-size:15px; }
+  /* Scheduled orders waiting to join the board */
+  #scheduledBtn{ font-size:14px; color:#7cc4ff; font-weight:700; padding:8px 14px; border:1px solid rgba(64,156,255,0.6); border-radius:100px; margin-right:10px; }
+  #scheduledBtn .sched-count{ display:inline-block; min-width:22px; padding:1px 7px; margin-left:6px; border-radius:100px; background:#3B9DFF; color:#021426; font-size:13px; font-weight:800; }
+  #scheduledBtn .sched-count.zero{ background:rgba(64,156,255,0.25); color:#7cc4ff; }
+  #scheduledPanel{ flex:none; background:var(--panel); border-bottom:1px solid rgba(64,156,255,0.6); padding:12px 24px; max-height:45vh; overflow-y:auto; }
+  #scheduledPanel .recall-panel-head{ color:#7cc4ff; }
+  #scheduledList{ display:flex; flex-direction:column; gap:8px; }
+  .sched-item{ display:flex; align-items:center; gap:14px; background:var(--black); border:1px solid var(--line); border-radius:10px; padding:10px 14px; }
+  .sched-main{ flex:1; min-width:0; }
+  .sched-top{ font-size:17px; font-weight:800; color:var(--white); }
+  .sched-top .recall-meta{ margin-left:6px; }
+  .sched-when{ font-size:15px; font-weight:700; color:#7cc4ff; margin-top:2px; }
+  .sched-items{ font-size:14px; color:var(--cream); margin-top:3px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .sched-go{ flex:none; background:#3B9DFF; color:#021426; font-weight:800; font-size:15px; padding:10px 16px; border-radius:8px; }
+  .sched-go:disabled{ opacity:.6; }
+  .src-tag{ display:inline-block; font-size:12px; font-weight:800; padding:2px 8px; border-radius:100px; background:rgba(255,255,255,0.12); color:var(--cream); vertical-align:2px; }
   .order-notes{ margin:0 0 10px; padding:8px 12px; border-radius:8px; font-size:17px; font-weight:700; background:rgba(255,255,255,0.08); color:var(--cream); border:1px solid var(--line); white-space:pre-wrap; word-break:break-word; }
   .order-notes.allergy{ background:rgba(216,52,46,0.22); color:#FFD9D6; border:2px solid var(--red); }
   .order-notes .allergy-tag{ display:block; color:var(--red); font-size:15px; font-weight:800; letter-spacing:0.04em; margin-bottom:2px; }
@@ -188,6 +204,9 @@
     margin-top:12px; width:100%; background:var(--green); color:#04220F; font-weight:800;
     font-size:19px; padding:12px; border-radius:10px;
   }
+  .complete-btn.delivered-btn{ background:#3B9DFF; color:#021426; }
+  #squareSyncBanner{ flex:none; background:rgba(216,52,46,0.16); border-bottom:2px solid var(--red); color:var(--white); font-size:16px; font-weight:700; padding:10px 24px; cursor:pointer; }
+  #squareSyncBanner .dismiss{ color:var(--muted); font-weight:600; margin-left:8px; }
   /* ---------- IDLE / MAIN MENU / EMPLOYEE CLOCK-IN ---------- */
   #idleScreen{
     height:100%; display:flex; flex-direction:column; align-items:center; justify-content:center;
@@ -361,12 +380,21 @@
     <h1>Kitchen Board</h1>
     <div id="boardLastUpdated" class="board-last-updated">&mdash;</div>
     <div id="boardClock">&mdash;</div>
+    <button type="button" id="scheduledBtn">&#9200; Scheduled<span class="sched-count zero" id="scheduledCount">0</span></button>
     <button type="button" id="recallBtn">&#8634; Recall</button>
     <button type="button" id="switchToFryerBtn">Switch to Sub Station</button>
     <button type="button" id="lockBtn">Lock Screen</button>
   </div>
   <div id="boardErrorBanner" class="hidden"></div>
+  <div id="squareSyncBanner" class="hidden" role="alert"></div>
   <div id="canceledOrdersBanner" class="hidden"></div>
+  <div id="scheduledPanel" class="hidden">
+    <div class="recall-panel-head">
+      <span>Scheduled orders <span class="recall-sub">(join the board 20 min before they're due)</span></span>
+      <button type="button" id="scheduledCloseBtn">&times;</button>
+    </div>
+    <div id="scheduledList"></div>
+  </div>
   <div id="recallPanel" class="hidden">
     <div class="recall-panel-head">
       <span>Recall a picked-up order <span class="recall-sub">(last 30 min)</span></span>
@@ -1088,6 +1116,7 @@
         renderItemPanel(res.data);
         renderQueuePanel(res.data);
         checkForCanceledOrders();
+        refreshScheduledCount();
         lastFetchAt = Date.now();
         updateLastUpdatedDisplay();
       }).catch(function(err){
@@ -1306,6 +1335,7 @@
 
     document.getElementById('recallBtn').addEventListener('click', function(){
       if (recallPanel.classList.contains('hidden')) {
+        document.getElementById('scheduledPanel').classList.add('hidden');
         recallPanel.classList.remove('hidden');
         loadRecallList();
       } else {
@@ -1316,6 +1346,123 @@
       recallPanel.classList.add('hidden');
     });
 
+    // ---- Scheduled: orders held until 20 min before they're due ----
+    var DELIVERY_APPS = { doordash: 'DoorDash', ubereats: 'Uber Eats', grubhub: 'Grubhub' };
+    var scheduledPanel = document.getElementById('scheduledPanel');
+    var scheduledList = document.getElementById('scheduledList');
+    var scheduledCountEl = document.getElementById('scheduledCount');
+    var lastScheduledCountAt = 0;
+    function fmtTime(ts){ return new Date(ts).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }); }
+    function fmtDay(ts){
+      var d = new Date(ts), opts = { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' };
+      var key = function(x){ return x.toLocaleDateString('en-US', opts); };
+      var today = new Date(), tomorrow = new Date(Date.now() + 864e5);
+      if (key(d) === key(today)) return '';
+      if (key(d) === key(tomorrow)) return 'Tomorrow ';
+      return d.toLocaleDateString('en-US', { timeZone: 'America/New_York', weekday: 'short', month: 'short', day: 'numeric' }) + ' ';
+    }
+    function setScheduledCount(n){
+      scheduledCountEl.textContent = n;
+      scheduledCountEl.classList.toggle('zero', !n);
+    }
+    function refreshScheduledCount(force){
+      if (!force && Date.now() - lastScheduledCountAt < 30000) return;
+      lastScheduledCountAt = Date.now();
+      sb.rpc('get_scheduled_orders').then(function(res){
+        if (res.error || !Array.isArray(res.data)) return;
+        setScheduledCount(res.data.length);
+        if (!scheduledPanel.classList.contains('hidden')) renderScheduledList(res.data);
+      }).catch(function(){});
+    }
+    function renderScheduledList(rows){
+      if (!rows.length) {
+        scheduledList.innerHTML = '<span class="recall-empty">No scheduled orders waiting.</span>';
+        return;
+      }
+      scheduledList.innerHTML = rows.map(function(o){
+        var app = DELIVERY_APPS[o.order_source];
+        return '<div class="sched-item">' +
+          '<div class="sched-main">' +
+            '<div class="sched-top">' + escHtml(o.reference_code || '') +
+              (app ? ' <span class="src-tag">' + escHtml(app) + '</span>' : '') +
+              ' <span class="recall-meta">' + escHtml(o.customer_name || '') + '</span></div>' +
+            '<div class="sched-when">' + (app ? 'Ready by ' : 'Pickup ') + escHtml(fmtDay(o.scheduled_pickup_at) + fmtTime(o.scheduled_pickup_at)) +
+              ' <span class="recall-meta">· joins the board at ' + escHtml(fmtTime(o.board_at)) + '</span></div>' +
+            (o.items ? '<div class="sched-items">' + escHtml(o.items) + '</div>' : '') +
+          '</div>' +
+          '<button type="button" class="sched-go" data-order-id="' + escHtml(o.order_id) + '">Send to board now</button>' +
+        '</div>';
+      }).join('');
+      scheduledList.querySelectorAll('.sched-go').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          btn.disabled = true;
+          btn.textContent = 'Sending…';
+          sb.rpc('kds_release_scheduled_order', { p_order_id: btn.getAttribute('data-order-id') }).then(function(r){
+            if (r.error) {
+              showBoardError('Could not send that order to the board — ' + (r.error.message || 'unknown error'));
+              btn.disabled = false;
+              btn.textContent = 'Send to board now';
+              return;
+            }
+            loadScheduledList();
+            fetchAndRender();
+          }).catch(function(){
+            showBoardError("Couldn't reach the server — check your connection.");
+            btn.disabled = false;
+            btn.textContent = 'Send to board now';
+          });
+        });
+      });
+    }
+    function loadScheduledList(){
+      scheduledList.innerHTML = '<span class="recall-empty">Loading…</span>';
+      sb.rpc('get_scheduled_orders').then(function(res){
+        if (res.error) {
+          scheduledList.innerHTML = '<span class="recall-empty">Could not load — ' + escHtml(res.error.message || 'unknown error') + '</span>';
+          return;
+        }
+        lastScheduledCountAt = Date.now();
+        setScheduledCount((res.data || []).length);
+        renderScheduledList(res.data || []);
+      }).catch(function(){
+        scheduledList.innerHTML = '<span class="recall-empty">Couldn’t reach the server — check your connection.</span>';
+      });
+    }
+    document.getElementById('scheduledBtn').addEventListener('click', function(){
+      if (scheduledPanel.classList.contains('hidden')) {
+        recallPanel.classList.add('hidden');
+        scheduledPanel.classList.remove('hidden');
+        loadScheduledList();
+      } else {
+        scheduledPanel.classList.add('hidden');
+      }
+    });
+    document.getElementById('squareSyncBanner').addEventListener('click', function(){ this.classList.add('hidden'); });
+    document.getElementById('scheduledCloseBtn').addEventListener('click', function(){
+      scheduledPanel.classList.add('hidden');
+    });
+
+    // ---- Delivered (3rd-party orders): tell Square it's COMPLETED ----
+    function pushCompletedToSquare(orderId, refCode){
+      sb.auth.getSession().then(function(r){
+        var token = r && r.data && r.data.session && r.data.session.access_token;
+        if (!token) throw new Error('Kitchen login expired');
+        return fetch(PUSH_FULFILLMENT_URL, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token, 'apikey': KDS_ANON_KEY },
+          body: JSON.stringify({ orderId: orderId, action: 'complete' })
+        });
+      }).then(function(res){
+        if (!res.ok) return res.json().catch(function(){ return {}; }).then(function(d){ throw new Error(d.error || ('error ' + res.status)); });
+      }).catch(function(err){
+        // Its own banner: the regular error banner clears on the next
+        // board refresh, and this one must stay until someone sees it.
+        var el = document.getElementById('squareSyncBanner');
+        el.innerHTML = '\u26A0\uFE0F ' + escHtml(refCode) + ' is marked delivered here, but Square wasn\u2019t updated (' + escHtml(err && err.message || 'unknown error') + '). Complete it on the POS. <span class="dismiss">Tap to dismiss</span>';
+        el.classList.remove('hidden');
+      });
+    }
+
     function renderQueuePanel(rows){
       var listEl = document.getElementById('queueList');
       var orderIds = [];
@@ -1323,7 +1470,7 @@
       rows.forEach(function(r){
         if (!byOrder[r.order_id]) {
           byOrder[r.order_id] = {
-            reference_code: r.reference_code, customer_name: r.customer_name, paymentMethod: r.payment_method,
+            reference_code: r.reference_code, customer_name: r.customer_name, paymentMethod: r.payment_method, source: r.order_source,
             createdAt: r.order_created_at, pickupMethod: r.pickup_method, carMake: r.car_make, carColor: r.car_color, parkingSpot: r.parking_spot, scheduledAt: r.scheduled_pickup_at,
             notes: r.order_notes,
             items: []
@@ -1380,35 +1527,41 @@
             '<span class="wait-time" data-created-at="' + escHtml(o.createdAt || '') + '">&mdash;</span>' +
           '</div>' +
           (isCash ? '<div class="cash-warning">Confirm Cash Payment</div>' : '') +
-          (o.scheduledAt ? '<div class="scheduled-badge">\u23F0 Scheduled pickup ' + escHtml(new Date(o.scheduledAt).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' })) + '</div>' : '') +
+          (o.scheduledAt ? '<div class="scheduled-badge">\u23F0 ' + (DELIVERY_APPS[o.source] ? 'Scheduled ' + escHtml(DELIVERY_APPS[o.source]) + ' \u2014 ready by ' : 'Scheduled pickup ') + escHtml(fmtTime(o.scheduledAt)) + '</div>' : '') +
           (isCurbside ? '<div class="curbside-badge">\uD83D\uDE97 ' +
             (o.parkingSpot ? 'Spot ' + escHtml(o.parkingSpot) : 'Curbside') +
             (function(){ var car = [o.carColor, o.carMake].filter(Boolean).join(' '); return car ? ' &mdash; ' + escHtml(car) : (o.parkingSpot ? '' : ' &mdash; no spot or car details'); })() +
           '</div>' : '') +
           notesHtml +
           '<div class="order-pills">' + pillsHtml + '</div>' +
-          (allReady ? '<button type="button" class="complete-btn" data-order-id="' + orderId + '">Mark Picked Up</button>' : '') +
+          (allReady ? (DELIVERY_APPS[o.source]
+            ? '<button type="button" class="complete-btn delivered-btn" data-order-id="' + orderId + '" data-ref="' + escHtml(o.reference_code || '') + '" data-delivery="1">Delivered</button>'
+            : '<button type="button" class="complete-btn" data-order-id="' + orderId + '">Mark Picked Up</button>') : '') +
         '</div>';
       }).join('');
 
       listEl.querySelectorAll('.complete-btn').forEach(function(btn){
         btn.addEventListener('click', function(){
+          var isDelivery = btn.getAttribute('data-delivery') === '1';
+          var idleLabel = isDelivery ? 'Delivered' : 'Mark Picked Up';
+          var orderId = btn.getAttribute('data-order-id');
           btn.disabled = true;
-          btn.textContent = 'Marking picked up\u2026';
-          sb.rpc('kds_complete_order', { p_order_id: btn.getAttribute('data-order-id') }).then(function(res){
+          btn.textContent = isDelivery ? 'Marking delivered\u2026' : 'Marking picked up\u2026';
+          sb.rpc('kds_complete_order', { p_order_id: orderId }).then(function(res){
             if (res.error) {
               console.error('kds_complete_order failed:', res.error);
-              showBoardError('Could not mark that order picked up \u2014 ' + (res.error.message || 'unknown error'));
+              showBoardError('Could not mark that order ' + (isDelivery ? 'delivered' : 'picked up') + ' \u2014 ' + (res.error.message || 'unknown error'));
               btn.disabled = false;
-              btn.textContent = 'Mark Picked Up';
+              btn.textContent = idleLabel;
               return;
             }
+            if (isDelivery) pushCompletedToSquare(orderId, btn.getAttribute('data-ref') || 'This order');
             fetchAndRender();
           }).catch(function(err){
             console.error('kds_complete_order threw:', err);
             showBoardError("Couldn't reach the server \u2014 check your connection.");
             btn.disabled = false;
-            btn.textContent = 'Mark Picked Up';
+            btn.textContent = idleLabel;
           });
         });
       });
