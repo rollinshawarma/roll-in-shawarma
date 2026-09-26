@@ -1394,11 +1394,27 @@
 
     stopBtn.addEventListener('click', stopScanner);
 
-    function handleScannedCode(scanCode){
+    // Member QR codes hold "MEMBER-12345678". Accept stray spaces,
+    // lower case, or just the 8 digits too.
+    function normalizeMemberCode(raw){
+      var v = String(raw || '').trim().toUpperCase().replace(/\s+/g, '');
+      var m = v.match(/(?:MEMBER-?)?(\d{3,8})$/);
+      return m ? 'MEMBER-' + m[1] : v;
+    }
+
+    function handleScannedCode(rawCode){
+      var scanCode = normalizeMemberCode(rawCode);
       resultBox.innerHTML = '<p class="hint">Checking...</p>';
       sb.rpc('lookup_free_roll_by_code', {scan_code: scanCode}).then(function(res){
-        if (res.error || !res.data) {
-          showScanResult(false, "Not a valid member code.");
+        if (res.error) {
+          showScanResult(false, /Not authorized/i.test(res.error.message)
+            ? 'Only a manager or admin can redeem free rolls.'
+            : 'Could not check the code: ' + res.error.message);
+          return;
+        }
+        // Not found comes back as an empty row, so check for a real member.
+        if (!res.data || !res.data.id) {
+          showScanResult(false, 'No member with code ' + scanCode + '. Member IDs changed to 8 digits \u2014 ask the customer to sign in on rollinshawarma.com and show the new QR (an older screenshot or Wallet pass has the old code).');
           return;
         }
         var row = res.data;
@@ -1421,6 +1437,10 @@
           var btn = this; btn.disabled = true;
           sb.rpc('redeem_free_roll_by_code', {scan_code: row.redeem_code}).then(function(res2){
             if (res2.error) { alert(res2.error.message); btn.disabled = false; return; }
+            if (!res2.data || !res2.data.id) {
+              resultBox.innerHTML = '<div class="scan-result-box stop"><div class="big-icon">&#10060;</div><div class="result-text">Not redeemed \u2014 this free roll was already used.</div></div>';
+              return;
+            }
             resultBox.innerHTML = '<div class="scan-result-box go"><div class="big-icon">&#9989;</div><div class="result-text">Redeemed! Enjoy.</div></div>';
           });
         });
