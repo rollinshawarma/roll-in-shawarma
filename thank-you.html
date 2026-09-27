@@ -249,6 +249,18 @@
       }, 8000);
     }
 
+    // Checks every 5 s; once the payment lands, reload to show the
+    // normal confirmation (tracking, stepper, cart cleared).
+    function waitForPayment(triesLeft){
+      if (triesLeft <= 0) return;
+      setTimeout(function(){
+        fetch(EDGE_FUNCTION_URL + '?ref=' + encodeURIComponent(ref) + tokenParam, { headers: { 'Authorization': 'Bearer ' + ANON_KEY } })
+          .then(function(res){ return res.json(); })
+          .then(function(o){ if (o && o.status === 'paid') window.location.reload(); else waitForPayment(triesLeft - 1); })
+          .catch(function(){ waitForPayment(triesLeft - 1); });
+      }, 5000);
+    }
+
     function attemptFetch(retriesLeft){
       fetch(EDGE_FUNCTION_URL + '?ref=' + encodeURIComponent(ref) + tokenParam, {
         headers: { 'Authorization': 'Bearer ' + ANON_KEY }
@@ -290,7 +302,10 @@
         }
 
         document.getElementById('refBadge').textContent = displayOrderNo(order.referenceCode);
-        if (order.trackingId) {
+        // Tracking only once the payment is confirmed (cash orders are
+        // placed at the window, so they count right away).
+        var confirmedPaid = order.status === 'paid' || isCashOrder;
+        if (order.trackingId && confirmedPaid) {
           var trackBtn = document.getElementById('trackBtn');
           trackBtn.href = 'track.html?order=' + encodeURIComponent(order.trackingId);
           trackBtn.classList.remove('hidden');
@@ -307,7 +322,7 @@
           document.getElementById('thankYouTitle').textContent = 'Thank you, ' + order.firstName + '!';
         }
 
-        if (order.displayStage) {
+        if (order.displayStage && confirmedPaid) {
           updateStatusStepper(order.displayStage);
           pollFulfillmentStatus(order.referenceCode);
         }
@@ -362,10 +377,14 @@
           pickupEl.textContent = 'Pickup date: ' + order.pickupDate;
         }
 
-        if (order.status !== 'paid') {
-          var statusEl = document.getElementById('statusNote');
-          statusEl.classList.remove('hidden');
-          statusEl.textContent = "We're finishing up your payment confirmation \u2014 you'll get an email shortly.";
+        if (!confirmedPaid) {
+          // Not paid (yet): no tracking, no "thank you". Keep checking
+          // for a few minutes in case the payment is still landing.
+          document.querySelector('.check-badge').classList.add('hidden');
+          document.getElementById('thankYouTitle').textContent = 'Payment not confirmed';
+          document.getElementById('thankYouSub').textContent = 'We haven\u2019t received payment for this order, so it hasn\u2019t gone to the kitchen. If you just paid, this page updates by itself.';
+          document.getElementById('statusStepper').classList.add('hidden');
+          waitForPayment(40);
         }
       }).catch(function(){
         if (retriesLeft > 0) {
