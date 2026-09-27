@@ -139,6 +139,13 @@
     <a href="order.html">Back to the menu</a>
   </div>
 
+  <!-- Order started but not paid: no tracking until payment is confirmed. -->
+  <div id="unpaid" class="empty hidden">
+    <h1>Payment not confirmed</h1>
+    <p>We haven&rsquo;t received payment for order <b id="unpaidRef"></b>, so it hasn&rsquo;t gone to the kitchen. If you just paid, this page updates on its own in a moment.</p>
+    <a href="order.html">Back to the menu</a>
+  </div>
+
   <div id="tracker" class="hidden">
     <section class="status" id="statusCard" aria-live="polite">
       <div class="order-label">Order</div>
@@ -384,6 +391,17 @@
 
     function render(t){
       $('loading').classList.add('hidden');
+      // Not paid yet: show no tracking. Polling continues, so this
+      // switches to the tracker as soon as the payment lands.
+      if (t.stage === 'awaiting_payment') {
+        $('tracker').classList.add('hidden');
+        $('live').classList.add('hidden');
+        $('unpaidRef').textContent = displayOrderNo(t.reference_code);
+        $('unpaid').classList.remove('hidden');
+        document.title = 'Payment not confirmed \u2014 Roll-In Shawarma';
+        return;
+      }
+      $('unpaid').classList.add('hidden');
       $('tracker').classList.remove('hidden');
       $('live').classList.remove('hidden');
       $('orderNo').textContent = displayOrderNo(t.reference_code);
