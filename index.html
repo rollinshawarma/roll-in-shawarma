@@ -786,6 +786,8 @@
   .rw-terms h3{ text-align:left; padding-right:40px; }
   .rw-terms-list{ list-style:none; margin:14px 0 18px; padding:0; display:flex; flex-direction:column; gap:10px; font-size:14px; line-height:1.5; color:var(--ink-2); }
   .rw-terms-list b{ color:var(--ink); }
+.cart-clear-btn{ min-height:40px; padding:8px 12px; margin:-8px 0; border-radius:999px; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
+.cart-clear-btn.armed{ background:#d93025; color:#fff; font-weight:600; }
 </style>
 <script type="application/ld+json">
 {
@@ -2868,7 +2870,14 @@
       document.getElementById('cartDrawerOverlay').addEventListener('click', closeCartDrawer);
       document.getElementById('cartClearBtn').addEventListener('click', function(){
         if (!cart.length && !giftCardCart.length) return;
-        if (!confirm('Clear your whole cart?')) return;
+        var cb = this;
+        if (!cb.classList.contains('armed')) {
+          cb.classList.add('armed'); cb.textContent = 'Tap to confirm';
+          clearTimeout(cb._t);
+          cb._t = setTimeout(function(){ cb.classList.remove('armed'); cb.textContent = 'Clear'; }, 3000);
+          return;
+        }
+        clearTimeout(cb._t); cb.classList.remove('armed'); cb.textContent = 'Clear';
         cart = [];
         giftCardCart = [];
         saveCart();
