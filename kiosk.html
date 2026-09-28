@@ -730,6 +730,7 @@
     }
 
     var memberVerified = false;
+    var memberCodeVerified = null; // earns points on this order
     var memberFirstName = '';
 
     function renderDealsSection(){
@@ -832,6 +833,7 @@
           return;
         }
         memberVerified = true;
+        memberCodeVerified = code;
         memberFirstName = row.first_name || '';
         renderDealsSection();
         openMemberDealsScreen();
@@ -1824,6 +1826,7 @@
         customerName: name || 'Kiosk Guest',
         customerEmail: email || undefined,
         orderSource: 'kiosk',
+        memberCode: memberCodeVerified || undefined,
         tipAmount: tipAmount || 0
       });
       signKioskRequest(cashBody).then(function(proof){
@@ -1882,6 +1885,7 @@
           customerName: name || 'Kiosk Guest',
           customerEmail: email || undefined,
           orderSource: 'kiosk',
+          memberCode: memberCodeVerified || undefined,
           tipAmount: tipAmount
         })
       }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
@@ -1939,6 +1943,7 @@
           customerEmail: email || undefined,
           orderSource: 'kiosk',
           paymentMethod: 'reader',
+          memberCode: memberCodeVerified || undefined,
           tipAmount: tipAmount
         })
       }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
@@ -1994,13 +1999,13 @@
 
     function renderTipOptions(baseTotal){
       var options = [
-        { label: 'No Tip', amount: 0 },
-        { label: 'Round Up', amount: roundUpTip(baseTotal) },
         { label: '10%', amount: Math.round(baseTotal * 0.10 * 100) / 100 },
         { label: '15%', amount: Math.round(baseTotal * 0.15 * 100) / 100 },
         { label: '25%', amount: Math.round(baseTotal * 0.25 * 100) / 100 },
         { label: '30%', amount: Math.round(baseTotal * 0.30 * 100) / 100 },
-        { label: 'Other', amount: null }
+        { label: 'Other', amount: null },
+        { label: 'Round Up', amount: roundUpTip(baseTotal) },
+        { label: 'No Tip', amount: 0 }
       ];
 
       var grid = document.getElementById('tipOptionsGrid');
@@ -2067,7 +2072,7 @@
       document.getElementById('tipCustomFieldWrap').style.display = 'none';
       renderTipOptions(tipScreenBaseTotal);
       // Round Up is chosen by default; the customer can change it.
-      var roundUpBtn = document.querySelectorAll('#tipOptionsGrid .tip-option-btn')[1];
+      var roundUpBtn = document.querySelectorAll('#tipOptionsGrid .tip-option-btn')[5];
       if (roundUpBtn) roundUpBtn.click();
       else { updateTipFinalTotal(); setPaymentButtonsDisabled(true); document.getElementById('tipChooseHint').style.display = 'block'; }
 
