@@ -762,6 +762,20 @@
   .rw-co-opt .s{ display:block; font-weight:400; font-size:13px; color:var(--muted); }
   .rw-co-opt .v{ font-weight:700; color:var(--accent); white-space:nowrap; }
   .rw-earn{ margin-top:10px; font-size:14px; font-weight:600; color:var(--accent); }
+
+  /* ---- Drive Up: phones/tablets only (QR drive-up ordering) ---- */
+  #floatDriveUp{ background:var(--accent); color:#fff; }
+  .mobile-nav a small{ font-size:.7em; font-weight:500; opacity:.7; }
+  @media (hover:hover) and (pointer:fine){ .drive-up-only{ display:none !important; } }
+  @media (max-width:520px){ #floatOrderGroup .float-btn{ font-size:14px; padding:0 8px; } }
+
+  /* ---- Taco Tuesday / Thursday ---- */
+  .taco-banner{ max-width:760px; margin:0 auto 22px; padding:14px 18px; border-radius:18px; background:#fff4e5; color:#7a3d00; font-size:15px; text-align:center; }
+  .taco-banner b{ color:#b3470b; }
+  .ws-was{ color:var(--muted); font-weight:500; margin-right:2px; }
+
+  /* ---- Rewards > Deals ---- */
+  .rw-item.is-auto .rw-go{ background:var(--panel); color:var(--ink-2); cursor:default; }
 </style>
 <script type="application/ld+json">
 {
@@ -791,6 +805,7 @@
 }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="deals.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
 </head>
 <body>
@@ -825,9 +840,9 @@
     <div class="navlinks">
       <a href="#menu">Menu</a>
       <a href="#deals" class="member-hide">Rewards</a>
-      <a href="#catering">Catering</a>
+      <a href="#catering" class="member-hide">Catering</a>
       <a href="#gift-cards">Gift Cards</a>
-      <a href="#find">Hours &amp; Location</a>
+      <a href="#find" class="member-hide">Hours &amp; Location</a>
     </div>
     <div class="nav-right">
       <a class="nav-signin" href="#deals" id="navSignIn">Sign In</a>
@@ -841,12 +856,13 @@
 </nav>
 <div class="mobile-nav">
   <a href="#menu">Order Pickup</a>
+  <a href="order.html" class="drive-up-only">Drive Up <small>(order from your car)</small></a>
   <a href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener" data-delivery-open>Order Delivery</a>
   <a href="#menu">Menu</a>
   <a href="#deals" class="member-hide">Rewards</a>
-  <a href="#catering">Catering</a>
+  <a href="#catering" class="member-hide">Catering</a>
   <a href="#gift-cards">Gift Cards</a>
-  <a href="#find">Hours &amp; Location</a>
+  <a href="#find" class="member-hide">Hours &amp; Location</a>
   <div class="mnav-small">
     <a href="#deals" id="mobileNavSignIn">Sign In</a>
     <a href="#" id="mobileNavSignOut" class="hidden">Sign Out</a>
@@ -872,6 +888,7 @@
     </div>
     <div class="hero-ctas">
       <a class="btn btn-white" href="#menu">Order Pickup</a>
+      <a class="btn btn-glass drive-up-only" href="order.html">Drive Up</a>
       <a class="btn btn-glass" href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener" data-delivery-open>Order Delivery</a>
     </div>
   </div>
@@ -883,6 +900,8 @@
       <h2 class="h2">Menu</h2>
       <p class="lead">Marinated chicken, falafel and paneer, rolled fresh at the window. Make any wrap, taco or fries order a combo with fries and a drink for $3.99.</p>
     </div>
+
+    <div class="taco-banner hidden" id="tacoBanner" role="status"></div>
 
     <div class="mn" id="wsMenu" data-view="index">
       <div class="mn-index" id="wsIndex" aria-label="Menu categories"></div>
@@ -1084,29 +1103,8 @@
         <ul class="rw-activity" id="rwActivity"></ul>
       </div>
       <div class="rw-panel hidden" data-rw-panel="deals" role="tabpanel">
-        <div class="deals-grid">
-          <div class="deal-card accent">
-            <div class="deal-tag">Sign-up bonus</div>
-            <h3>Free Roll</h3>
-            <p>One free roll, on us. Show your Member ID at the window.</p>
-          </div>
-          <div class="deal-card">
-            <div class="deal-tag">Members only</div>
-            <h3>Taco Tuesday &amp; Thursday</h3>
-            <p>Any taco, <b>$6.99</b>, every Tuesday and Thursday.</p>
-          </div>
-          <div class="deal-card">
-            <div class="deal-tag">Members only</div>
-            <h3>Lunch Combo</h3>
-            <p><b>$9.99 + tax</b>, weekdays only. Ask what&rsquo;s included that day.</p>
-          </div>
-          <div class="deal-card">
-            <div class="deal-tag">Members only</div>
-            <h3>Family Dinner Basket</h3>
-            <p>A Shawarma Roll and a Rice Bowl to share, <b>$29.99 + tax</b>.</p>
-          </div>
-        </div>
-        <p class="spin-fine">Deals are redeemed in person at pickup. The free roll is one-time per member.</p>
+        <div class="rw-grid" id="rwDeals"></div>
+        <p class="rw-fine">Same deals on the website, the QR drive-up page and the kiosk. Deals are for members; points still count.</p>
       </div>
     </div>
 
@@ -1211,7 +1209,7 @@
   </div>
 </section>
 
-<section id="catering" class="sec">
+<section id="catering" class="sec member-hide">
   <div class="wrap">
     <div class="sec-head">
       <div class="eyebrow">Catering</div>
@@ -1400,7 +1398,7 @@
   </div>
 </section>
 
-<section id="find" class="sec sec-gray">
+<section id="find" class="sec sec-gray member-hide">
   <div class="wrap">
     <div class="sec-head">
       <div class="eyebrow">Hours &amp; Location</div>
@@ -1526,6 +1524,7 @@
 
 <div id="floatOrderGroup">
   <a id="floatPickup" class="float-btn" href="#menu">Order Pickup</a>
+  <a id="floatDriveUp" class="float-btn drive-up-only" href="order.html">Drive Up</a>
   <a id="floatDelivery" class="float-btn" data-delivery-open href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener">Delivery</a>
 </div>
 
@@ -1989,7 +1988,7 @@
     }
 
     function findLine(itemId){
-      return cart.find(function(c){ return c.menu_item_id === itemId; });
+      return cart.find(function(c){ return c.menu_item_id === itemId && !c.deal && !c.dealOf; });
     }
 
     function addOne(itemId){
@@ -2050,7 +2049,7 @@
       return cart.reduce(function(sum, c){ return sum + c.unitPrice * c.quantity; }, 0);
     }
     function cartCount(){
-      return cart.reduce(function(sum, c){ return sum + c.quantity; }, 0);
+      return cart.reduce(function(sum, c){ return sum + (c.dealOf ? 0 : c.quantity); }, 0);
     }
     function giftCardCartTotal(){
       return giftCardCart.reduce(function(sum, g){ return sum + g.amount; }, 0);
@@ -2087,6 +2086,37 @@
       };
     }
 
+    // Member deals: listed in the Rewards > Deals tab; the picker adds the
+    // deal at its price plus a $0 line for every item in it.
+    var wsDealSeq = 0;
+    window.rollinDealsApi = {
+      list: function(){
+        if (!window.RollinDeals) return [];
+        return window.RollinDeals.order.map(function(n){ return wsDeals[n]; })
+          .filter(function(d){ return d && wsAvail(d); })
+          .map(function(d){ var sp = window.RollinDeals.specs[d.name] || {}; return { name: d.name, price: Number(d.price), blurb: sp.blurb || d.description || '' }; });
+      },
+      tacoDay: function(){ return wsTacoDay; },
+      add: function(name){
+        var deal = wsDeals[name];
+        if (!deal || !window.RollinDeals) return;
+        window.RollinDeals.openPicker({
+          deal: deal,
+          available: function(n){ var it = wsDealPicks[n]; return !!it && wsAvail(it); },
+          onAdd: function(d, picks){
+            var g = 'deal' + Date.now() + (++wsDealSeq);
+            cart.push({ menu_item_id: d.id, name: d.name, unitPrice: Number(d.price), quantity: 1, deal: g });
+            picks.forEach(function(p){
+              var it = wsDealPicks[p.name];
+              if (it) cart.push({ menu_item_id: it.id, name: it.name, unitPrice: 0, quantity: p.qty, dealOf: g });
+            });
+            saveCart(); renderCartUI();
+            if (typeof wsToast === 'function') wsToast('Added ' + d.name);
+          }
+        });
+      }
+    };
+
     function renderCartUI(){
       refreshTileActions();
       var fab = document.getElementById('cartFab');
@@ -2115,8 +2145,19 @@
       if (clearBtn) clearBtn.classList.toggle('hidden', count === 0);
 
       if (listEl) {
-        var foodRowsHtml = cart.map(function(c){
+        var foodRowsHtml = cart.filter(function(c){ return !c.dealOf; }).map(function(c){
           var lineItem = itemsById[c.menu_item_id];
+          if (c.deal) {
+            var picks = cart.filter(function(p){ return p.dealOf === c.deal; }).map(function(p){
+              return (p.quantity > 1 ? p.quantity + '\u00d7 ' : '') + (window.RollinDeals ? window.RollinDeals.shortName(p.name) : p.name);
+            });
+            return '<div class="cart-item-row">' +
+              '<div class="cart-item-info"><div class="cart-item-name">' + escHtml(c.name) + '</div>' +
+              '<div class="cart-item-price">' + escHtml(picks.join(', ')) + '</div></div>' +
+              '<div class="cart-item-qty"><span>$' + c.unitPrice.toFixed(2) + '</span>' +
+              '<button type="button" class="cart-qty-btn deal-remove-btn" data-deal="' + escHtml(c.deal) + '" title="Remove deal">&times;</button></div>' +
+            '</div>';
+          }
           var minQty = lineItem && lineItem.min_quantity;
           var atMin = minQty && c.quantity <= minQty;
           return '<div class="cart-item-row">' +
@@ -2140,7 +2181,14 @@
 
         listEl.innerHTML = (foodRowsHtml + giftRowsHtml) || '<p class="cart-empty-hint">Your cart is empty.</p>';
 
-        listEl.querySelectorAll('.cart-qty-btn:not(.gift-remove-btn)').forEach(function(btn){
+        listEl.querySelectorAll('.deal-remove-btn').forEach(function(btn){
+          btn.addEventListener('click', function(){
+            var g = btn.getAttribute('data-deal');
+            cart = cart.filter(function(c){ return c.deal !== g && c.dealOf !== g; });
+            saveCart(); renderCartUI();
+          });
+        });
+        listEl.querySelectorAll('.cart-qty-btn:not(.gift-remove-btn):not(.deal-remove-btn)').forEach(function(btn){
           btn.addEventListener('click', function(){
             var id = btn.getAttribute('data-id');
             if (btn.getAttribute('data-dir') === '1') addOne(id); else removeOne(id);
@@ -2243,8 +2291,20 @@
       else cart.push({ menu_item_id: itemId, name: wsLabel(item), unitPrice: Number(item.price), quantity: 1 });
     }
 
+    var wsTacoDay = null, wsDeals = {}, wsDealPicks = {};
     function renderMenu(items){
       wsSections = []; wsGroups = {}; wsComboAddons = {};
+      wsTacoDay = window.RollinDeals ? window.RollinDeals.applyTacoPricing(items) : null;
+      wsDeals = {}; wsDealPicks = {};
+      items.forEach(function(it){
+        if (it.category === 'Deals') wsDeals[it.name] = it;
+        if (it.category === 'Deal Selections') wsDealPicks[it.name] = it;
+      });
+      var tb = document.getElementById('tacoBanner');
+      if (tb) {
+        tb.classList.toggle('hidden', !wsTacoDay);
+        if (wsTacoDay) tb.innerHTML = '\uD83C\uDF2E <b>Taco ' + wsTacoDay + ':</b> every taco order is $' + window.RollinDeals.tacoPrice.toFixed(2) + ' today. Already applied, no code needed.';
+      }
       var byCat = {};
       items.forEach(function(item){
         // Unavailable catering items stay out entirely (as before).
@@ -2285,6 +2345,7 @@
       wsActiveChip = null;
       wsShowCat(wsCurCat, { silent: true });
       renderCartUI();
+      if (window.rollinDealsRender) window.rollinDealsRender();
       wsStartAvailability();
     }
 
@@ -2292,14 +2353,15 @@
       var pool = g.items.filter(wsAvail); if (!pool.length) pool = g.items;
       var prices = pool.map(function(i){ return Number(i.price); });
       var min = Math.min.apply(null, prices), max = Math.max.apply(null, prices);
-      return (g.items.length > 1 && min !== max ? 'From ' : '') + wsMoney(min);
+      var reg = g.items[0].taco_deal ? '<s class="ws-was">' + wsMoney(g.items[0].regular_price) + '</s> ' : '';
+      return reg + (g.items.length > 1 && min !== max ? 'From ' : '') + wsMoney(min);
     }
     function wsTileHtml(g){
       var soldOut = !g.items.some(wsAvail);
       var price = wsGroupPrice(g);
       return '<article class="ws-tile' + (soldOut ? ' is-soldout' : '') + '" data-ws-group="' + escHtml(g.key) + '">' +
         '<button type="button" class="ws-open" data-ws-open="' + escHtml(g.key) + '"' + (soldOut ? ' disabled' : '') +
-          ' aria-label="' + escHtml(g.name + ', ' + price + (soldOut ? ', sold out' : ', see details')) + '">' +
+          ' aria-label="' + escHtml(g.name + ', ' + price.replace(/<[^>]+>/g, '') + (soldOut ? ', sold out' : ', see details')) + '">' +
           '<span class="ws-photo">' + wsPhoto(g.items[0], g.cat, g.name) + '</span>' +
           '<span class="ws-body"><span class="ws-name">' + escHtml(g.name) + '</span>' +
           (g.items[0].description ? '<span class="ws-blurb">' + escHtml(g.items[0].description) + '</span>' : '') +
@@ -3573,6 +3635,7 @@
       lockedEl.classList.add('hidden');
       unlockedEl.classList.remove('hidden');
       document.body.classList.add('member-mode');
+      if (window.rollinDealsRender) window.rollinDealsRender();
       renderGreeting(profile.first_name);
       renderQr(profile.redeem_code);
       document.dispatchEvent(new CustomEvent('rollin:member-in', { detail: { first_name: profile.first_name } }));
@@ -4068,6 +4131,38 @@
         });
       });
     }
+
+    // ---------- Deals tab: one list for every platform (deals.js) ----------
+    function renderDeals(){
+      var box = $('rwDeals');
+      if (!box) return;
+      var api = window.rollinDealsApi, list = api ? api.list() : [];
+      var day = api && api.tacoDay();
+      var cards = [];
+      cards.push('<div class="rw-item is-auto"><img src="item-signature-chicken-tacos.jpg" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">' +
+        '<div class="rw-item-body"><div class="rw-item-title">Taco Tuesday &amp; Thursday</div>' +
+        '<div class="rw-item-sub">Every taco order is $6.99 on Tuesdays and Thursdays. Applied automatically.</div>' +
+        (day ? '<div class="rw-ready">&#10003; On today</div>' : '') + '</div>' +
+        '<button type="button" class="rw-go" disabled>Auto</button></div>');
+      list.forEach(function(d){
+        cards.push('<div class="rw-item"><img src="item-' + esc(d.name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '')) + '.jpg" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">' +
+          '<div class="rw-item-body"><div class="rw-item-title">' + esc(d.name) + '</div>' +
+          '<div class="rw-item-sub">' + esc(d.blurb) + '</div>' +
+          '<span class="rw-pts">$' + d.price.toFixed(2) + '</span></div>' +
+          '<button type="button" class="rw-go" data-rw-deal="' + esc(d.name) + '">Add</button></div>');
+      });
+      cards.push('<div class="rw-item is-auto"><img src="item-chicken-shawarma.jpg" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">' +
+        '<div class="rw-item-body"><div class="rw-item-title">Welcome free roll</div>' +
+        '<div class="rw-item-sub">One free roll for joining. Show your Member ID at the window.</div></div>' +
+        '<button type="button" class="rw-go" disabled>Window</button></div>');
+      box.innerHTML = cards.join('');
+    }
+    window.rollinDealsRender = renderDeals;
+    document.addEventListener('click', function(e){
+      var d = e.target.closest && e.target.closest('[data-rw-deal]');
+      if (d && window.rollinDealsApi) window.rollinDealsApi.add(d.getAttribute('data-rw-deal'));
+    });
+    document.querySelectorAll('.rw-tab[data-rw-tab="deals"]').forEach(function(t){ t.addEventListener('click', renderDeals); });
 
     document.addEventListener('rollin:member-in', function(){ load(); });
     // Sign-in can finish before this script runs (restored session).
