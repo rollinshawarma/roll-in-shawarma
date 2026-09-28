@@ -767,6 +767,7 @@
   #floatDriveUp{ background:var(--accent); color:#fff; }
   .mobile-nav a small{ font-size:.7em; font-weight:500; opacity:.7; }
   @media (hover:hover) and (pointer:fine){ .drive-up-only{ display:none !important; } }
+  body:not(.truck-open) .drive-up-only{ display:none !important; }
   @media (max-width:520px){ #floatOrderGroup .float-btn{ font-size:14px; padding:0 8px; } }
 
   /* ---- Taco Tuesday / Thursday ---- */
@@ -2790,6 +2791,13 @@
       if (window.rollinPickup) window.rollinPickup.setup(cart.length > 0 && !hasCatering);
       resetTip();
       showCoStep('details');
+      var mp = window.rollinMemberProfile;
+      if (mp) {
+        var nm = document.getElementById('cartCustomerName'), em = document.getElementById('cartCustomerEmail');
+        var full = [mp.first_name, mp.last_name].filter(Boolean).join(' ');
+        if (nm && !nm.value.trim() && full) nm.value = full;
+        if (em && !em.value.trim() && mp.email) em.value = mp.email;
+      }
 
       refreshCheckoutBreakdown();
       prepareWallets();
@@ -3638,6 +3646,7 @@
       if (window.rollinDealsRender) window.rollinDealsRender();
       renderGreeting(profile.first_name);
       renderQr(profile.redeem_code);
+      window.rollinMemberProfile = profile;
       document.dispatchEvent(new CustomEvent('rollin:member-in', { detail: { first_name: profile.first_name } }));
       try {
         localStorage.setItem('rollinMemberCode', profile.redeem_code);
@@ -3709,8 +3718,10 @@
       document.querySelectorAll('.hours-row[data-days]').forEach(function(r){
         r.classList.toggle('is-today', r.getAttribute('data-days').split(',').indexOf(String(n.day)) >= 0);
       });
-      if (!el || n.day < 0) return;
       var h = HOURS[n.day], open = h ? h[0] * 60 + h[1] : 0, close = h ? h[2] * 60 + h[3] : 0;
+      // Drive Up (QR ordering from the car) only shows while we're open.
+      document.body.classList.toggle('truck-open', !!(h && n.day >= 0 && n.mins >= open && n.mins < close));
+      if (!el || n.day < 0) return;
       el.classList.remove('is-open');
       if (h && n.mins >= open && n.mins < close) {
         el.classList.add('is-open');
