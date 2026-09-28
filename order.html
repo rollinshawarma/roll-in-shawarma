@@ -234,6 +234,18 @@
   #checkoutScreen[data-step="pay"] .co-sec:not(.co-summary),
   #checkoutScreen[data-step="pay"] .details-only{ display:none; }
   #checkoutScreen[data-step="details"] .co-body{ padding-bottom:120px; }
+  .member-in{ background:rgba(255,169,77,0.12); border:1px solid rgba(255,169,77,0.4); color:var(--white); border-radius:12px; padding:10px 12px; font-size:15px; margin-bottom:12px; }
+  .member-in b{ color:var(--gold); }
+  .qr-rewards{ display:flex; flex-direction:column; gap:8px; }
+  .qr-reward{ display:flex; align-items:center; gap:12px; width:100%; text-align:left; background:var(--panel); border:1.5px solid var(--line); border-radius:12px; padding:10px 12px; color:var(--white); }
+  .qr-reward[aria-checked="true"]{ border-color:var(--gold); }
+  .qr-reward .box{ width:22px; height:22px; border-radius:6px; border:1.5px solid var(--line); flex:none; display:flex; align-items:center; justify-content:center; color:var(--gold-ink); font-weight:800; }
+  .qr-reward[aria-checked="true"] .box{ background:var(--gold); border-color:var(--gold); }
+  .qr-reward .t{ flex:1; min-width:0; font-weight:700; }
+  .qr-reward small{ display:block; font-weight:500; color:var(--muted); font-size:13px; }
+  .qr-reward .v{ color:var(--green); font-weight:800; white-space:nowrap; }
+  .co-earn{ color:var(--gold); font-weight:700; font-size:14px; margin:-6px 0 12px; }
+  .co-earn a{ color:var(--gold); }
   .co-for{ color:var(--cream); font-weight:700; font-size:15px; margin:-4px 0 12px; }
   .more-details summary{ cursor:pointer; list-style:none; color:var(--gold); font-weight:700; font-size:15px; padding:6px 0; }
   .more-details summary::-webkit-details-marker{ display:none; }
@@ -427,8 +439,13 @@
 
     <div class="co-sec">
       <h3>Member ID &amp; promo code</h3>
-      <div class="field">
-        <label for="memberId">Member ID <small>(optional)</small></label>
+      <div class="member-in hidden" id="memberIn"></div>
+      <div class="field hidden" id="qrRewardsField">
+        <label>Your rewards</label>
+        <div class="qr-rewards" id="qrRewards"></div>
+      </div>
+      <div class="field" id="memberIdField">
+        <label for="memberId">Member ID <small>(optional, earns points)</small></label>
         <div class="apply-row">
           <input type="text" id="memberId" placeholder="MEMBER-48213907 or 48213907" autocomplete="off" autocapitalize="characters">
           <button type="button" class="apply-btn" id="memberApplyBtn">Apply</button>
@@ -448,6 +465,7 @@
     <div class="co-sec co-summary" style="border-bottom:none;">
       <h3>Review your order</h3>
       <div class="co-for" id="coForLine"></div>
+      <div class="co-earn hidden" id="coEarn"></div>
       <div id="coLines"></div>
       <div class="totals" id="coTotals"></div>
     </div>
@@ -502,7 +520,7 @@
       'Shawarma': 'menu-shawarma.jpg', 'Frankie Rolls': 'menu-frankie.jpg',
       'Bowls': 'menu-bowl.jpg', 'Tacos': 'menu-tacos.jpg',
       'Loaded Fries': 'menu-fries.jpg', 'Sides': 'menu-samosas.jpg',
-      'Kulfi Ice Cream': 'menu-kulfi.jpg', 'Drinks': 'menu-falooda.jpg'
+      'Kulfi Ice Cream': 'item-almond-kulfi.jpg', 'Drinks': 'menu-falooda.jpg'
     };
     // Same wording as the main website's menu.
     var CATEGORY_DESCRIPTIONS = {
@@ -810,14 +828,40 @@
     var appliedPromo = null;   // { code, discountAmount } once validated
     var appliedMember = null;  // 'MEMBER-1234' once verified
     // Same math as the server: tax on the discounted subtotal.
+    // ---- Points rewards (signed-in members) ----
+    // Same rule as the server: each chosen reward frees the priciest
+    // matching item left in the cart; promo first, then rewards.
+    var member = null, memberToken = null, rewardOff = {};
+    function qrRewardSummary(){
+      var all = member ? member.vouchers : [];
+      var pool = [];
+      cart.forEach(function(c){
+        var it = itemsById[c.menu_item_id] || {};
+        for (var k = 0; k < c.quantity; k++) pool.push({ price: Number(c.unitPrice), category: it.category, name: it.name, variant: it.variant_name || null, used: false });
+      });
+      pool.sort(function(a, b){ return b.price - a.price; });
+      var matched = all.filter(function(v){ return !rewardOff[v.id]; }).map(function(v){
+        var u = pool.find(function(x){ return !x.used && x.category === v.match_category && (!v.match_name || x.name === v.match_name) && (!v.match_variant || x.variant === v.match_variant); });
+        if (!u) return { voucher: v, cents: 0, ok: false };
+        u.used = true; return { voucher: v, cents: Math.round(u.price * 100), ok: true };
+      });
+      var cents = 0, ids = [];
+      matched.forEach(function(m){ if (m.ok) { cents += m.cents; ids.push(m.voucher.id); } });
+      return { all: all, matched: matched, cents: cents, ids: ids };
+    }
+    function rewardHint(v){ return v.match_name ? v.match_name + (v.match_variant ? ' (' + v.match_variant + ')' : '') : 'any ' + v.match_category.replace(/s$/, ''); }
+
     function computeTotals(tip){
       var subtotalCents = Math.round(cartSubtotal() * 100);
       var discountCents = appliedPromo ? Math.min(subtotalCents, Math.round(appliedPromo.discountAmount * 100)) : 0;
-      var taxedCents = subtotalCents - discountCents;
+      var rw = qrRewardSummary();
+      var rewardCents = Math.min(rw.cents, subtotalCents - discountCents);
+      var taxedCents = subtotalCents - discountCents - rewardCents;
       var taxCents = Math.round(taxedCents * TAX_RATE);
       var tipCents = Math.round((tip || 0) * 100);
       return { subtotal: subtotalCents / 100, discount: discountCents / 100, tax: taxCents / 100, tip: tipCents / 100,
-               total: (taxedCents + taxCents + tipCents) / 100, base: (taxedCents + taxCents) / 100 };
+               total: (taxedCents + taxCents + tipCents) / 100, base: (taxedCents + taxCents) / 100,
+               reward: rewardCents / 100, rewardIds: rewardCents > 0 ? rw.ids : [], points: Math.floor(taxedCents / 100) * 10 };
     }
 
     function afterCartChange(bump){
@@ -1099,7 +1143,7 @@
     var selectedCarColor = null;
     var tipOptions = [];
     var selectedTip = null;   // number, or null when not chosen / custom invalid
-    var tipChoiceIndex = 1;   // Round up is chosen by default
+    var tipChoiceIndex = 5;   // Round up (second to last) is chosen by default
 
     $('toCheckoutBtn').addEventListener('click', openCheckout);
     function setCoStep(step){
@@ -1135,13 +1179,13 @@
     function buildTipOptions(){
       var base = computeTotals(0).base;
       tipOptions = [
-        { label: 'No tip', amount: 0 },
-        { label: 'Round up', amount: roundUpTip(base) },
         { label: '10%', amount: Math.round(base * 0.10 * 100) / 100 },
         { label: '15%', amount: Math.round(base * 0.15 * 100) / 100 },
         { label: '25%', amount: Math.round(base * 0.25 * 100) / 100 },
         { label: '30%', amount: Math.round(base * 0.30 * 100) / 100 },
-        { label: 'Other', amount: null }
+        { label: 'Other', amount: null },
+        { label: 'Round up', amount: roundUpTip(base) },
+        { label: 'No tip', amount: 0 }
       ];
       if (tipChoiceIndex !== null && tipOptions[tipChoiceIndex] && tipOptions[tipChoiceIndex].amount !== null) {
         selectedTip = tipOptions[tipChoiceIndex].amount;
@@ -1269,6 +1313,7 @@
       $('coTotals').innerHTML =
         '<div><span>Subtotal</span><span>' + money(t.subtotal) + '</span></div>' +
         (t.discount > 0 ? '<div class="disc"><span>Promo (' + escHtml(appliedPromo.code) + ')</span><span>\u2212' + money(t.discount) + '</span></div>' : '') +
+        (t.reward > 0 ? '<div class="disc"><span>Rewards</span><span>\u2212' + money(t.reward) + '</span></div>' : '') +
         '<div><span>Tax (6.75%)</span><span>' + money(t.tax) + '</span></div>' +
         '<div><span>Tip</span><span>' + (selectedTip === null ? '&mdash;' : money(t.tip)) + '</span></div>' +
         '<div class="grand"><span>Total</span><span>' + money(t.total) + '</span></div>';
@@ -1282,7 +1327,18 @@
         if (carTxt) spotText += ' \u00b7 ' + carTxt;
       }
       $('coForLine').textContent = ($('custName').value.trim() ? 'For ' + $('custName').value.trim() + ' \u00b7 ' : '') + spotText;
-      $('placeOrderBtn').innerHTML = (walletShown ? 'Pay with card' : 'Continue to payment') + ' <span class="cta-amt">' + money(t.total) + '</span>';
+      var freeOrder = cart.length > 0 && t.total === 0;
+      $('placeOrderBtn').innerHTML = freeOrder ? 'Place free order' : (walletShown ? 'Pay with card' : 'Continue to payment') + ' <span class="cta-amt">' + money(t.total) + '</span>';
+      document.querySelector('.wallet-pay').classList.toggle('hidden', freeOrder);
+      if (freeOrder) $('payOr').classList.add('hidden');
+      var earn = $('coEarn');
+      if (earn) {
+        earn.classList.toggle('hidden', !(t.points > 0));
+        earn.innerHTML = member ? '\u2605 You\u2019ll earn ' + t.points + ' points with this order'
+          : appliedMember ? '\u2605 ' + t.points + ' points go to member ' + escHtml(appliedMember)
+          : '\u2605 Members earn ' + t.points + ' points: add your Member ID below, or <a href="index.html#deals">sign in</a>';
+      }
+      renderQrRewards();
       $('coSecure').textContent = walletShown ? 'Payments are processed securely by Square.' : 'You\u2019ll pay by card on Square\u2019s secure checkout page next.';
       if (window.__qrWalletUpdate) window.__qrWalletUpdate(t);
     }
@@ -1311,6 +1367,57 @@
       }
       return true;
     }
+    // Signed in on rollinshawarma.com on this phone? Then this page knows
+    // the member too (same site): points are earned automatically and
+    // redeemed rewards can be used. The server re-checks everything.
+    function orderHeaders(){
+      var h = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ANON_KEY };
+      if (memberToken) h['x-member-token'] = memberToken;
+      return h;
+    }
+    function loadMember(){
+      return sbShared.auth.getSession().then(function(r){
+        var session = r && r.data && r.data.session;
+        memberToken = session ? session.access_token : null;
+        if (!session) { member = null; return; }
+        return sbShared.rpc('get_my_points').then(function(res){
+          member = res.error ? null : res.data;
+          if (!member) return;
+          return sbShared.rpc('get_my_member_profile').then(function(p){ member.profile = p && p.data; });
+        });
+      }).then(function(){
+        var signed = !!member;
+        $('memberIn').classList.toggle('hidden', !signed);
+        $('memberIdField').classList.toggle('hidden', signed);
+        if (signed) {
+          var name = member.profile && member.profile.first_name;
+          $('memberIn').innerHTML = '\u2605 ' + (name ? escHtml(name) + ', you' : 'You') + '\u2019re signed in \u00b7 <b>' + Number(member.balance).toLocaleString('en-US') + ' points</b>';
+          if (!$('custName').value.trim() && name) $('custName').value = name;
+        }
+        if (!$('checkoutScreen').classList.contains('hidden')) renderCheckout();
+      }).catch(function(){});
+    }
+    function renderQrRewards(){
+      var rw = qrRewardSummary();
+      $('qrRewardsField').classList.toggle('hidden', !rw.all.length);
+      $('qrRewards').innerHTML = rw.all.map(function(v){
+        var m = rw.matched.find(function(x){ return x.voucher.id === v.id; });
+        var on = !rewardOff[v.id], ok = on && m && m.ok;
+        return '<button type="button" class="qr-reward" role="checkbox" aria-checked="' + on + '" data-reward="' + escHtml(v.id) + '">' +
+          '<span class="box">' + (on ? '\u2713' : '') + '</span>' +
+          '<span class="t">' + escHtml(v.title) + '<small>' + escHtml(!on ? 'Saved for later' : ok ? 'Free on this order' : 'Add ' + rewardHint(v) + ' to use it') + '</small></span>' +
+          (ok ? '<span class="v">\u2212' + money(m.cents / 100) + '</span>' : '') + '</button>';
+      }).join('');
+    }
+    $('qrRewards').addEventListener('click', function(e){
+      var b = e.target.closest('[data-reward]');
+      if (!b) return;
+      var id = b.getAttribute('data-reward');
+      rewardOff[id] = !rewardOff[id];
+      renderCheckout();
+    });
+    loadMember();
+
     function buildOrderBody(){
       var carMakeValue = null, carModelValue = null;
       if (pickupMethod === 'curbside') {
@@ -1331,7 +1438,8 @@
         carColor: pickupMethod === 'curbside' ? selectedCarColor : null,
         memberCode: appliedMember || undefined,
         promoCode: appliedPromo ? appliedPromo.code : undefined,
-        tipAmount: selectedTip || 0
+        tipAmount: selectedTip || 0,
+        rewardIds: (function(){ var ids = computeTotals(0).rewardIds; return ids.length ? ids : undefined; })()
       };
     }
 
@@ -1361,12 +1469,13 @@
 
       fetch(url, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ANON_KEY },
+        headers: orderHeaders(),
         body: JSON.stringify(body)
       }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
         .then(function(result){
           if (!result.ok) {
             btn.disabled = false; btn.innerHTML = prevHtml;
+            if (result.data && /^REWARD_/.test(result.data.code || '')) loadMember();
             msg.textContent = formatErrorMessage(result.data && result.data.error) || 'We couldn\u2019t start checkout. Please try again.';
             return;
           }
@@ -1467,12 +1576,13 @@
         if (!body.customerPhone && (bc.phone || sc.phone)) body.customerPhone = bc.phone || sc.phone;
         return fetch(CARD_CHECKOUT_URL, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + ANON_KEY },
+          headers: orderHeaders(),
           body: JSON.stringify(body)
         }).then(function(r){ return r.json().then(function(d){ return { ok: r.ok, data: d }; }); }).then(function(result){
           if (!result.ok || !result.data.paid) {
             setWalletBusy(false);
             if (result.data && result.data.code === 'TOTAL_CHANGED') loadMenu();
+            if (result.data && /^REWARD_/.test(result.data.code || '')) loadMember();
             msg.textContent = formatErrorMessage(result.data && result.data.error) || 'Your payment didn\u2019t go through. You haven\u2019t been charged.';
             return;
           }
