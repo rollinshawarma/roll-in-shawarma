@@ -10,6 +10,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="deals.js"></script>
 <style>
   :root{
     --black:#000000; --panel:#121110; --panel-2:#211C16; --line:rgba(243,234,201,0.13);
@@ -34,6 +35,34 @@
 
   /* ---------- Header ---------- */
   .top{ display:flex; align-items:center; gap:14px; padding:18px 16px 14px; max-width:1040px; margin:0 auto; }
+  .menu-btn{ margin-left:auto; width:46px; height:46px; border-radius:50%; background:var(--panel); border:1px solid var(--line); color:var(--white); display:flex; align-items:center; justify-content:center; flex:none; }
+  .menu-btn svg{ width:22px; height:22px; }
+  .member-chip{ display:inline-flex; align-items:center; gap:4px; font-size:12.5px; font-weight:800; color:var(--gold-ink); background:var(--gold); padding:3px 9px; border-radius:100px; }
+  .qr-menu{ position:fixed; top:0; right:0; bottom:0; z-index:70; width:min(360px, 88vw); background:var(--panel); border-left:1px solid var(--line); padding:18px 16px calc(18px + var(--safe-b)); overflow-y:auto; box-shadow:-20px 0 40px rgba(0,0,0,.5); }
+  .qr-menu-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+  .qr-menu-head h2{ font-family:var(--display); font-size:28px; font-weight:800; color:var(--white); }
+  .qr-menu-item{ display:flex; align-items:center; gap:12px; width:100%; text-align:left; padding:14px 12px; border-radius:14px; background:var(--black); border:1px solid var(--line); color:var(--white); text-decoration:none; margin-bottom:8px; }
+  .qr-menu-item b{ display:block; font-size:16px; }
+  .qr-menu-item small{ display:block; color:var(--muted); font-size:13px; margin-top:1px; }
+  .qm-ico{ width:34px; height:34px; border-radius:50%; background:rgba(255,169,77,0.14); color:var(--gold); display:flex; align-items:center; justify-content:center; font-weight:800; flex:none; }
+  .qm-arrow{ margin-left:auto; color:var(--muted); font-size:22px; }
+  .qr-checkin{ background:var(--black); border:1px solid var(--line); border-radius:14px; padding:12px; margin:-2px 0 10px; }
+  .qr-checkin label{ display:block; font-weight:700; color:var(--white); margin-bottom:6px; }
+  .qm-hint{ font-size:12.5px; color:var(--muted); margin-top:6px; }
+  .qr-checked{ display:flex; align-items:center; gap:12px; background:rgba(255,169,77,0.10); border:1px solid rgba(255,169,77,0.45); border-radius:14px; padding:12px; margin-bottom:8px; color:var(--white); }
+  .qr-checked small{ display:block; color:var(--muted); font-size:13px; }
+  .qr-checked-badge{ width:34px; height:34px; border-radius:50%; background:var(--gold); color:var(--gold-ink); display:flex; align-items:center; justify-content:center; font-weight:900; flex:none; }
+  .qm-link{ margin-left:auto; color:var(--gold); font-weight:700; font-size:13px; }
+  .taco-banner{ max-width:1040px; margin:12px 16px 0; padding:12px 14px; border-radius:14px; background:linear-gradient(135deg, rgba(255,169,77,0.22), rgba(255,169,77,0.08)); border:1px solid rgba(255,169,77,0.45); color:var(--white); font-weight:700; }
+  @media (min-width:1072px){ .taco-banner{ margin-left:auto; margin-right:auto; } }
+  .taco-banner small{ display:block; font-weight:500; color:var(--cream); margin-top:2px; }
+  .tile-price s{ color:var(--muted); font-weight:500; margin-right:6px; }
+  .qr-menu .icon-btn{ width:40px; height:40px; border-radius:50%; background:var(--black); border:1px solid var(--line); color:var(--white); font-size:24px; line-height:1; }
+  .deal-lock{ background:var(--panel); border:1px dashed var(--line); border-radius:16px; padding:16px; color:var(--cream); }
+  .deal-lock button{ margin-top:10px; }
+  .line-picks{ font-size:13px; color:var(--muted); margin-top:3px; }
+  .line-rm{ color:var(--gold); font-weight:700; font-size:14px; }
+  .dp-sheet{ --dp-bg:#121110; --dp-card:#000; --dp-ink:#FFFCF3; --dp-muted:rgba(243,234,201,0.64); --dp-line:rgba(243,234,201,0.16); --dp-accent:#FFA94D; --dp-accent-ink:#241902; }
   .top-logo{ width:52px; height:52px; border-radius:50%; object-fit:cover; flex:none; border:2px solid var(--panel-2); }
   .top h1{ font-family:var(--display); font-weight:800; font-size:30px; line-height:1; letter-spacing:0.01em; }
   .top h1 .w1{ color:var(--gold); } .top h1 .w2{ color:var(--red); }
@@ -280,9 +309,43 @@
     <div class="top-meta">
       <span class="halal-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>100% halal meat</span>
       <span id="kitchenPulse" class="pulse hidden" aria-live="polite"><span class="pulse-dot" aria-hidden="true"></span><span id="kitchenPulseText"></span></span>
+      <span id="memberChip" class="member-chip hidden">&#10003; Checked in</span>
     </div>
   </div>
+  <button type="button" class="menu-btn" id="qrMenuBtn" aria-label="Menu" aria-haspopup="dialog">
+    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" aria-hidden="true"><line x1="4" y1="7" x2="20" y2="7"/><line x1="4" y1="12" x2="20" y2="12"/><line x1="4" y1="17" x2="20" y2="17"/></svg>
+  </button>
 </header>
+
+<div class="scrim hidden" id="qrMenuScrim"></div>
+<aside class="qr-menu hidden" id="qrMenu" role="dialog" aria-modal="true" aria-labelledby="qrMenuTitle">
+  <div class="qr-menu-head">
+    <h2 id="qrMenuTitle">Menu</h2>
+    <button type="button" class="icon-btn" id="qrMenuClose" aria-label="Close">&times;</button>
+  </div>
+  <button type="button" class="qr-menu-item" id="qrCheckInOpen">
+    <span class="qm-ico">&#9733;</span>
+    <span><b id="qrCheckInTitle">Member check-in</b><small id="qrCheckInSub">Earn points and unlock member deals</small></span>
+    <span class="qm-arrow">&rsaquo;</span>
+  </button>
+  <div class="qr-checkin hidden" id="qrCheckIn">
+    <label for="qrMemberInput">Member ID</label>
+    <div class="apply-row">
+      <input type="text" id="qrMemberInput" inputmode="numeric" placeholder="48213907" autocomplete="off" autocapitalize="characters">
+      <button type="button" class="apply-btn" id="qrMemberGo">Check in</button>
+    </div>
+    <div class="apply-msg" id="qrMemberMsg" aria-live="polite"></div>
+    <p class="qm-hint">It&rsquo;s the 8 numbers on your member QR code (MEMBER-&hellip;).</p>
+  </div>
+  <div class="qr-checked hidden" id="qrChecked">
+    <div class="qr-checked-badge">&#10003;</div>
+    <div><b id="qrCheckedName">Checked in</b><small id="qrCheckedCode"></small></div>
+    <button type="button" class="qm-link" id="qrCheckOut">Not you?</button>
+  </div>
+  <a class="qr-menu-item" href="#" id="qrDealsLink"><span class="qm-ico">%</span><span><b>Member deals</b><small>Check in to unlock</small></span><span class="qm-arrow">&rsaquo;</span></a>
+  <a class="qr-menu-item" href="index.html#deals"><span class="qm-ico">&#9734;</span><span><b>Rewards &amp; points</b><small>Sign up, see your points, redeem</small></span><span class="qm-arrow">&rsaquo;</span></a>
+  <a class="qr-menu-item" href="tel:+13305875203"><span class="qm-ico">&#9742;</span><span><b>Call the truck</b><small>(330) 587-5203</small></span><span class="qm-arrow">&rsaquo;</span></a>
+</aside>
 
 <div class="track-banner hidden" id="trackBanner">
   <span>Order <b id="trackBannerRef"></b> is in the works.</span>
@@ -611,8 +674,15 @@
       });
     }
 
+    var tacoDay = null, dealsByName = {}, dealPicksByName = {};
     function buildMenu(rows){
       itemsById = {}; comboAddonsByName = {}; sections = []; groupsByKey = {};
+      tacoDay = window.RollinDeals ? window.RollinDeals.applyTacoPricing(rows) : null;
+      dealsByName = {}; dealPicksByName = {};
+      rows.forEach(function(it){
+        if (it.category === 'Deals') dealsByName[it.name] = it;
+        if (it.category === 'Deal Selections') dealPicksByName[it.name] = it;
+      });
       var byCat = {};
       rows.forEach(function(item){
         itemsById[item.id] = item;
@@ -634,20 +704,24 @@
       if (!pool.length) pool = g.items;
       var prices = pool.map(function(i){ return Number(i.price); });
       var min = Math.min.apply(null, prices), max = Math.max.apply(null, prices);
-      return (g.items.length > 1 && min !== max ? 'From ' : '') + money(min);
+      var reg = g.items[0].taco_deal ? '<s>' + money(g.items[0].regular_price) + '</s>' : '';
+      return reg + (g.items.length > 1 && min !== max ? 'From ' : '') + money(min);
     }
 
     function renderMenu(){
       $('menuState').classList.add('hidden');
       var menu = $('menu');
-      menu.querySelectorAll('.section, .menu-foot').forEach(function(n){ n.remove(); });
+      menu.querySelectorAll('.section, .menu-foot, .section-lite').forEach(function(n){ n.remove(); });
 
-      $('catRail').innerHTML = sections.map(function(s, i){
-        return '<button type="button" class="chip" data-jump="sec-' + i + '"' + (i === 0 ? ' aria-current="true"' : '') + '>' +
+      $('catRail').innerHTML = (isMember() && dealList().length ? '<button type="button" class="chip" data-jump="sec-deals"><img src="" alt="" onerror="this.remove()">Deals</button>' : '') +
+        sections.map(function(s, i){
+        return '<button type="button" class="chip" data-jump="sec-' + i + '"' + (i === 0 && !isMember() ? ' aria-current="true"' : '') + '>' +
           '<img src="' + escHtml(CATEGORY_IMAGES[s.cat] || '') + '" alt="" onerror="this.remove()">' + escHtml(s.cat) + '</button>';
       }).join('');
 
-      var html = sections.map(function(s, i){
+      var dealHtml = memberDealsHtml();
+      var html = dealHtml + (tacoDay ? '<div class="taco-banner section-lite">\uD83C\uDF2E Taco ' + tacoDay + ': every taco order is ' + money(window.RollinDeals.tacoPrice) + ' today<small>Already applied to the menu. No code needed.</small></div>' : '') +
+        sections.map(function(s, i){
         return '<section class="section" id="sec-' + i + '" aria-labelledby="sec-' + i + '-t">' +
           '<h2 class="section-title" id="sec-' + i + '-t">' + escHtml(s.cat) + '</h2>' +
           (CATEGORY_DESCRIPTIONS[s.cat] ? '<p class="section-desc">' + escHtml(CATEGORY_DESCRIPTIONS[s.cat]) + '</p>' : '') +
@@ -666,7 +740,7 @@
       var sub = g.items.length > 1 ? g.items.length + ' options' : '';
       return '<article class="tile' + (soldOut ? ' is-soldout' : '') + '" data-group="' + escHtml(g.key) + '">' +
         '<button type="button" class="tile-open" data-open="' + escHtml(g.key) + '"' + (soldOut ? ' disabled' : '') +
-          ' aria-label="' + escHtml(g.name + ', ' + priceText + (soldOut ? ', sold out' : ', see details')) + '">' +
+          ' aria-label="' + escHtml(g.name + ', ' + priceText.replace(/<[^>]+>/g, ' ') + (soldOut ? ', sold out' : ', see details')) + '">' +
           '<span class="tile-photo">' + photoImg(g.items[0], g.cat, g.name) + '</span>' +
           '<span class="tile-body">' +
             '<span class="tile-name">' + escHtml(g.name) + '</span>' +
@@ -772,7 +846,119 @@
     }
 
     // ---------- cart (same line + combo model the backend expects) ----------
-    function findLine(itemId){ return cart.find(function(c){ return c.menu_item_id === itemId; }); }
+    function findLine(itemId){ return cart.find(function(c){ return c.menu_item_id === itemId && !c.deal && !c.dealOf; }); }
+
+    // ---- Member check-in (hamburger menu) + member deals ----
+    function isMember(){ return !!(appliedMember || member); }
+    function dealList(){
+      if (!window.RollinDeals) return [];
+      return window.RollinDeals.order.map(function(n){ return dealsByName[n]; }).filter(function(d){ return d && isAvailable(d); });
+    }
+    function memberDealsHtml(){
+      var deals = dealList();
+      if (!deals.length) return '';
+      if (!isMember()) return '';
+      return '<section class="section" id="sec-deals" aria-labelledby="sec-deals-t">' +
+        '<h2 class="section-title" id="sec-deals-t">Member deals</h2>' +
+        '<p class="section-desc">Just for members. Pick what goes in each deal.</p>' +
+        '<div class="grid">' + deals.map(function(d){
+          var spec = window.RollinDeals.specs[d.name] || {};
+          return '<article class="tile deal-tile"><button type="button" class="tile-open" data-deal="' + escHtml(d.name) + '" aria-label="' + escHtml(d.name + ', ' + money(d.price)) + '">' +
+            '<span class="tile-photo">' + photoImg(d, 'Deals', d.name) + '</span>' +
+            '<span class="tile-body"><span class="tile-name">' + escHtml(d.name) + '</span>' +
+            '<span class="tile-sub">' + escHtml(spec.blurb || d.description || '') + '</span>' +
+            '<span class="tile-price">' + money(d.price) + '</span></span></button>' +
+            '<div class="tile-actions-anchor"><button type="button" class="add-btn" data-deal="' + escHtml(d.name) + '" aria-label="Choose ' + escHtml(d.name) + '">+</button></div></article>';
+        }).join('') + '</div></section>';
+    }
+    var dealSeq = 0;
+    function addDeal(deal, picks){
+      var group = 'deal' + Date.now() + (++dealSeq);
+      cart.push({ menu_item_id: deal.id, name: deal.name, unitPrice: Number(deal.price), quantity: 1, deal: group });
+      picks.forEach(function(p){
+        var it = dealPicksByName[p.name];
+        if (it) cart.push({ menu_item_id: it.id, name: it.name, unitPrice: 0, quantity: p.qty, dealOf: group });
+      });
+      afterCartChange(true);
+      toast('Added ' + deal.name);
+    }
+    document.addEventListener('click', function(e){
+      var b = e.target.closest && e.target.closest('[data-deal]');
+      if (!b || !window.RollinDeals) return;
+      var deal = dealsByName[b.getAttribute('data-deal')];
+      if (!deal) return;
+      window.RollinDeals.openPicker({ deal: deal, onAdd: addDeal,
+        available: function(n){ var it = dealPicksByName[n]; return !!it && isAvailable(it); } });
+    });
+    function removeDeal(group){
+      cart = cart.filter(function(c){ return c.deal !== group && c.dealOf !== group; });
+      afterCartChange(false);
+    }
+
+    var MEMBER_KEY = 'rollin_qr_member';
+    function setCheckedIn(code, name){
+      appliedMember = code;
+      try { sessionStorage.setItem(MEMBER_KEY, JSON.stringify({ code: code, name: name || '' })); } catch(e){}
+      if ($('memberId')) { $('memberId').value = code; $('memberMsg').className = 'apply-msg ok'; $('memberMsg').textContent = 'Checked in' + (name ? ' as ' + name : '') + '. This order earns points.'; }
+      if (name && !$('custName').value.trim()) $('custName').value = name;
+      refreshMemberUi(name);
+    }
+    function refreshMemberUi(name){
+      var saved = null; try { saved = JSON.parse(sessionStorage.getItem(MEMBER_KEY) || 'null'); } catch(e){}
+      var signedName = member && member.profile && member.profile.first_name;
+      var on = isMember();
+      $('memberChip').classList.toggle('hidden', !on);
+      $('qrChecked').classList.toggle('hidden', !on);
+      $('qrCheckInOpen').classList.toggle('hidden', on);
+      $('qrCheckIn').classList.add('hidden');
+      if (on) {
+        var nm = signedName || (saved && saved.name) || name || '';
+        $('qrCheckedName').textContent = 'Checked in' + (nm ? ' \u00b7 ' + nm : '');
+        $('qrCheckedCode').textContent = member ? 'Signed in \u00b7 points and rewards are on' : (appliedMember || '') + ' \u00b7 this order earns points';
+        $('qrCheckOut').classList.toggle('hidden', !!member);
+      }
+      var dl = $('qrDealsLink').querySelector('small');
+      dl.textContent = on ? dealList().length + ' deals unlocked' : 'Check in to unlock';
+      if (sections.length) { renderMenu(); refreshTileActions(); }
+    }
+    function openQrMenu(){ $('qrMenu').classList.remove('hidden'); $('qrMenuScrim').classList.remove('hidden'); document.documentElement.style.overflow = 'hidden'; }
+    function closeQrMenu(){ $('qrMenu').classList.add('hidden'); $('qrMenuScrim').classList.add('hidden'); document.documentElement.style.overflow = ''; }
+    $('qrMenuBtn').addEventListener('click', openQrMenu);
+    $('qrMenuClose').addEventListener('click', closeQrMenu);
+    $('qrMenuScrim').addEventListener('click', closeQrMenu);
+    $('qrCheckInOpen').addEventListener('click', function(){
+      $('qrCheckIn').classList.toggle('hidden');
+      if (!$('qrCheckIn').classList.contains('hidden')) setTimeout(function(){ $('qrMemberInput').focus(); }, 50);
+    });
+    function doCheckIn(){
+      var code = normalizeMember($('qrMemberInput').value);
+      var msg = $('qrMemberMsg');
+      if (!code) { msg.className = 'apply-msg bad'; msg.textContent = 'Type your Member ID first.'; return; }
+      var btn = $('qrMemberGo'); btn.disabled = true; msg.className = 'apply-msg'; msg.textContent = 'Checking\u2026';
+      sbShared.rpc('kiosk_verify_member', { p_code: code }).then(function(res){
+        btn.disabled = false;
+        var row = res && Array.isArray(res.data) ? res.data[0] : (res && res.data);
+        if (res.error || !row || !row.valid) { msg.className = 'apply-msg bad'; msg.textContent = 'We couldn\u2019t find that Member ID. Check the numbers and try again.'; return; }
+        msg.textContent = '';
+        setCheckedIn(code, row.first_name || '');
+      }).catch(function(){ btn.disabled = false; msg.className = 'apply-msg bad'; msg.textContent = 'We couldn\u2019t check that right now.'; });
+    }
+    $('qrMemberGo').addEventListener('click', doCheckIn);
+    $('qrMemberInput').addEventListener('keydown', function(e){ if (e.key === 'Enter') doCheckIn(); });
+    $('qrCheckOut').addEventListener('click', function(){
+      appliedMember = null;
+      try { sessionStorage.removeItem(MEMBER_KEY); } catch(e){}
+      cart = cart.filter(function(c){ return !c.deal && !c.dealOf; });
+      if ($('memberId')) { $('memberId').value = ''; $('memberMsg').textContent = ''; }
+      afterCartChange(false);
+      refreshMemberUi();
+    });
+    $('qrDealsLink').addEventListener('click', function(e){
+      e.preventDefault();
+      if (!isMember()) { $('qrCheckIn').classList.remove('hidden'); $('qrMemberInput').focus(); return; }
+      closeQrMenu();
+      var sec = $('sec-deals'); if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
     function addOneRaw(itemId){
       var item = itemsById[itemId];
       if (!item) return;
@@ -824,7 +1010,7 @@
       afterCartChange(false);
     }
     function cartSubtotal(){ return cart.reduce(function(s, c){ return s + c.unitPrice * c.quantity; }, 0); }
-    function cartCount(){ return cart.reduce(function(s, c){ return s + c.quantity; }, 0); }
+    function cartCount(){ return cart.reduce(function(s, c){ return s + (c.dealOf ? 0 : c.quantity); }, 0); }
     var appliedPromo = null;   // { code, discountAmount } once validated
     var appliedMember = null;  // 'MEMBER-1234' once verified
     // Same math as the server: tax on the discounted subtotal.
@@ -887,7 +1073,7 @@
       try {
         localStorage.setItem(STORE_KEY, JSON.stringify({
           savedAt: Date.now(),
-          lines: cart.map(function(c){ return { id: c.menu_item_id, qty: c.quantity }; })
+          lines: cart.filter(function(c){ return !c.deal && !c.dealOf; }).map(function(c){ return { id: c.menu_item_id, qty: c.quantity }; })
         }));
       } catch(e){}
     }
@@ -1068,8 +1254,20 @@
       }
       $('cartClearBtn').classList.remove('hidden');
       var t = computeTotals(0);
-      var html = cart.map(function(c){
+      var html = cart.filter(function(c){ return !c.dealOf; }).map(function(c){
         var item = itemsById[c.menu_item_id] || {};
+        if (c.deal) {
+          var picks = cart.filter(function(p){ return p.dealOf === c.deal; }).map(function(p){
+            return (p.quantity > 1 ? p.quantity + '\u00d7 ' : '') + (window.RollinDeals ? window.RollinDeals.shortName(p.name) : p.name);
+          });
+          return '<div class="line">' +
+            '<div class="line-photo">' + photoImg(item, 'Deals', c.name) + '</div>' +
+            '<div class="line-info"><div class="line-name">' + escHtml(c.name) + '</div>' +
+              '<div class="line-picks">' + escHtml(picks.join(', ')) + '</div>' +
+              '<button type="button" class="line-rm" data-deal-rm="' + escHtml(c.deal) + '">Remove</button></div>' +
+            '<div class="line-amt">' + money(c.unitPrice) + '</div>' +
+          '</div>';
+        }
         // Combo fries/drinks follow the combo-eligible items, so they
         // only get a remove button -- a "+" on them alone does nothing.
         var isComboPart = item.category === 'Combo Add-ons';
@@ -1121,6 +1319,8 @@
       $('toCheckoutAmt').textContent = money(t.total);
     }
     $('cartBody').addEventListener('click', function(e){
+      var rm = e.target.closest('[data-deal-rm]');
+      if (rm) { removeDeal(rm.getAttribute('data-deal-rm')); renderCart(); return; }
       var t = e.target.closest('[data-add],[data-inc],[data-dec]');
       if (!t) return;
       if (t.hasAttribute('data-add')) { addOne(t.getAttribute('data-add')); toast('Added ' + itemsById[t.getAttribute('data-add')].name); }
@@ -1252,15 +1452,14 @@
           msgEl.className = 'apply-msg bad'; msgEl.textContent = 'We couldn\u2019t find that member ID.';
           return false;
         }
-        appliedMember = code;
-        $('memberId').value = code;
+        setCheckedIn(code, row.first_name || '');
         msgEl.className = 'apply-msg ok';
         msgEl.textContent = 'Welcome back' + (row.first_name ? ', ' + row.first_name : '') + '! This order is linked to your membership.';
         return true;
       }).catch(function(){ msgEl.className = 'apply-msg bad'; msgEl.textContent = 'We couldn\u2019t check that right now.'; return false; });
     }
     $('memberApplyBtn').addEventListener('click', applyMember);
-    $('memberId').addEventListener('input', function(){ if (appliedMember) { appliedMember = null; $('memberMsg').textContent = ''; } });
+    $('memberId').addEventListener('input', function(){ if (appliedMember && normalizeMember(this.value) !== appliedMember) { appliedMember = null; $('memberMsg').textContent = ''; try { sessionStorage.removeItem(MEMBER_KEY); } catch(e){} refreshMemberUi(); } });
 
     // ---- Promo code (optional): previewed here, re-checked by checkout ----
     function applyPromo(){
@@ -1394,6 +1593,7 @@
           $('memberIn').innerHTML = '\u2605 ' + (name ? escHtml(name) + ', you' : 'You') + '\u2019re signed in \u00b7 <b>' + Number(member.balance).toLocaleString('en-US') + ' points</b>';
           if (!$('custName').value.trim() && name) $('custName').value = name;
         }
+        refreshMemberUi();
         if (!$('checkoutScreen').classList.contains('hidden')) renderCheckout();
       }).catch(function(){});
     }
@@ -1416,6 +1616,14 @@
       rewardOff[id] = !rewardOff[id];
       renderCheckout();
     });
+    // A check-in lasts while this tab is open (e.g. across the pay page).
+    (function(){
+      try {
+        var saved = JSON.parse(sessionStorage.getItem(MEMBER_KEY) || 'null');
+        if (saved && saved.code) { appliedMember = saved.code; if ($('memberId')) $('memberId').value = saved.code; }
+      } catch(e){}
+      refreshMemberUi();
+    })();
     loadMember();
 
     function buildOrderBody(){
