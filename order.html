@@ -302,6 +302,7 @@
   @media (prefers-reduced-motion: reduce){
     *{ animation:none !important; transition:none !important; scroll-behavior:auto !important; }
   }
+  .cart-clear.armed{ background:#e5484d !important; color:#fff !important; border-color:#e5484d !important; font-weight:600; }
 </style>
 </head>
 <body>
@@ -1341,7 +1342,16 @@
     });
     $('orderBarBtn').addEventListener('click', function(){ renderCart(); openSheet($('cartSheet')); });
     $('cartClearBtn').addEventListener('click', function(){
-      if (!cart.length || !confirm('Remove everything from your order?')) return;
+      if (!cart.length) return;
+      // No confirm(): in-app browsers (opened from a QR scan) can block it.
+      var cb = this;
+      if (!cb.classList.contains('armed')) {
+        cb.classList.add('armed'); cb.textContent = 'Tap to confirm';
+        clearTimeout(cb._t);
+        cb._t = setTimeout(function(){ cb.classList.remove('armed'); cb.textContent = 'Clear'; }, 3000);
+        return;
+      }
+      clearTimeout(cb._t); cb.classList.remove('armed'); cb.textContent = 'Clear';
       cart = [];
       afterCartChange(false);
       closeSheet();
