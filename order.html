@@ -38,7 +38,8 @@
   .menu-btn{ margin-left:auto; width:46px; height:46px; border-radius:50%; background:var(--panel); border:1px solid var(--line); color:var(--white); display:flex; align-items:center; justify-content:center; flex:none; }
   .menu-btn svg{ width:22px; height:22px; }
   .member-chip{ display:inline-flex; align-items:center; gap:4px; font-size:12.5px; font-weight:800; color:var(--gold-ink); background:var(--gold); padding:3px 9px; border-radius:100px; }
-  .qr-menu{ position:fixed; top:0; right:0; bottom:0; z-index:70; width:min(360px, 88vw); background:var(--panel); border-left:1px solid var(--line); padding:18px 16px calc(18px + var(--safe-b)); overflow-y:auto; box-shadow:-20px 0 40px rgba(0,0,0,.5); }
+  #qrMenuScrim{ z-index:199; }
+  .qr-menu{ position:fixed; top:0; right:0; bottom:0; z-index:200; width:min(360px, 88vw); background:var(--panel); border-left:1px solid var(--line); padding:18px 16px calc(18px + var(--safe-b)); overflow-y:auto; box-shadow:-20px 0 40px rgba(0,0,0,.5); }
   .qr-menu-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
   .qr-menu-head h2{ font-family:var(--display); font-size:28px; font-weight:800; color:var(--white); }
   .qr-menu-item{ display:flex; align-items:center; gap:12px; width:100%; text-align:left; padding:14px 12px; border-radius:14px; background:var(--black); border:1px solid var(--line); color:var(--white); text-decoration:none; margin-bottom:8px; }
@@ -277,7 +278,7 @@
   .qr-reward small{ display:block; font-weight:500; color:var(--muted); font-size:13px; }
   .qr-reward .v{ color:var(--green); font-weight:800; white-space:nowrap; }
   .co-earn{ color:var(--gold); font-weight:700; font-size:14px; margin:-6px 0 12px; }
-  .co-earn a{ color:var(--gold); }
+  .co-earn a, .co-earn-link{ color:var(--gold); text-decoration:underline; font-weight:800; font-size:inherit; padding:0; }
   .co-for{ color:var(--cream); font-weight:700; font-size:15px; margin:-4px 0 12px; }
   .more-details summary{ cursor:pointer; list-style:none; color:var(--gold); font-weight:700; font-size:15px; padding:6px 0; }
   .more-details summary::-webkit-details-marker{ display:none; }
@@ -904,6 +905,7 @@
       if ($('memberId')) { $('memberId').value = code; $('memberMsg').className = 'apply-msg ok'; $('memberMsg').textContent = 'Checked in' + (name ? ' as ' + name : '') + '. This order earns points.'; }
       if (name && !$('custName').value.trim()) $('custName').value = name;
       refreshMemberUi(name);
+      if (!$('checkoutScreen').classList.contains('hidden')) renderCheckout();
     }
     function refreshMemberUi(name){
       var saved = null; try { saved = JSON.parse(sessionStorage.getItem(MEMBER_KEY) || 'null'); } catch(e){}
@@ -926,6 +928,14 @@
     function openQrMenu(){ $('qrMenu').classList.remove('hidden'); $('qrMenuScrim').classList.remove('hidden'); document.documentElement.style.overflow = 'hidden'; }
     function closeQrMenu(){ $('qrMenu').classList.add('hidden'); $('qrMenuScrim').classList.add('hidden'); document.documentElement.style.overflow = ''; }
     $('qrMenuBtn').addEventListener('click', openQrMenu);
+    // "Check in to earn" (checkout): open the menu straight to check-in.
+    document.addEventListener('click', function(e){
+      if (!(e.target.closest && e.target.closest('[data-qr-checkin]'))) return;
+      e.preventDefault();
+      openQrMenu();
+      $('qrCheckIn').classList.remove('hidden');
+      setTimeout(function(){ $('qrMemberInput').focus(); }, 80);
+    });
     $('qrMenuClose').addEventListener('click', closeQrMenu);
     $('qrMenuScrim').addEventListener('click', closeQrMenu);
     $('qrCheckInOpen').addEventListener('click', function(){
@@ -1537,7 +1547,7 @@
         earn.classList.toggle('hidden', !(t.points > 0));
         earn.innerHTML = member ? '\u2605 You\u2019ll earn ' + t.points + ' points with this order'
           : appliedMember ? '\u2605 ' + t.points + ' points go to member ' + escHtml(appliedMember)
-          : '\u2605 Members earn ' + t.points + ' points: add your Member ID below, or <a href="index.html#deals">sign in</a>';
+          : '\u2605 Members earn ' + t.points + ' points on this order. <button type="button" class="co-earn-link" data-qr-checkin>Check in to earn</button>';
       }
       renderQrRewards();
       $('coSecure').textContent = walletShown ? 'Payments are processed securely by Square.' : 'You\u2019ll pay by card on Square\u2019s secure checkout page next.';
