@@ -47,6 +47,9 @@
   .qm-ico{ width:34px; height:34px; border-radius:50%; background:rgba(255,169,77,0.14); color:var(--gold); display:flex; align-items:center; justify-content:center; font-weight:800; flex:none; }
   .qm-arrow{ margin-left:auto; color:var(--muted); font-size:22px; }
   .qr-checkin{ background:var(--black); border:1px solid var(--line); border-radius:14px; padding:12px; margin:-2px 0 10px; }
+  .qr-checkin input{ flex:1; min-width:0; height:48px; padding:0 14px; border-radius:12px; border:1.5px solid var(--line); background:var(--panel-2); color:var(--white); -webkit-text-fill-color:var(--white); font:inherit; font-size:18px; font-weight:700; letter-spacing:.06em; caret-color:var(--gold); opacity:1; }
+  .qr-checkin input::placeholder{ color:var(--muted); -webkit-text-fill-color:var(--muted); font-weight:500; letter-spacing:0; }
+  .qr-checkin input:focus{ outline:none; border-color:var(--gold); }
   .qr-checkin label{ display:block; font-weight:700; color:var(--white); margin-bottom:6px; }
   .qm-hint{ font-size:12.5px; color:var(--muted); margin-top:6px; }
   .qr-checked{ display:flex; align-items:center; gap:12px; background:rgba(255,169,77,0.10); border:1px solid rgba(255,169,77,0.45); border-radius:14px; padding:12px; margin-bottom:8px; color:var(--white); }
@@ -343,7 +346,6 @@
     <button type="button" class="qm-link" id="qrCheckOut">Not you?</button>
   </div>
   <a class="qr-menu-item" href="#" id="qrDealsLink"><span class="qm-ico">%</span><span><b>Member deals</b><small>Check in to unlock</small></span><span class="qm-arrow">&rsaquo;</span></a>
-  <a class="qr-menu-item" href="index.html#deals"><span class="qm-ico">&#9734;</span><span><b>Rewards &amp; points</b><small>Sign up, see your points, redeem</small></span><span class="qm-arrow">&rsaquo;</span></a>
   <a class="qr-menu-item" href="tel:+13305875203"><span class="qm-ico">&#9742;</span><span><b>Call the truck</b><small>(330) 587-5203</small></span><span class="qm-arrow">&rsaquo;</span></a>
 </aside>
 
@@ -1592,6 +1594,8 @@
           var name = member.profile && member.profile.first_name;
           $('memberIn').innerHTML = '\u2605 ' + (name ? escHtml(name) + ', you' : 'You') + '\u2019re signed in \u00b7 <b>' + Number(member.balance).toLocaleString('en-US') + ' points</b>';
           if (!$('custName').value.trim() && name) $('custName').value = name;
+          var em = member.profile && member.profile.email;
+          if ($('custEmail') && !$('custEmail').value.trim() && em) $('custEmail').value = em;
         }
         refreshMemberUi();
         if (!$('checkoutScreen').classList.contains('hidden')) renderCheckout();
