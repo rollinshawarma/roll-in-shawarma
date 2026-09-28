@@ -8,6 +8,7 @@
 <meta name="robots" content="noindex">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="deals.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <style>
   :root{
@@ -284,6 +285,7 @@
   #tipScreen{ position:fixed; inset:0; display:flex; flex-direction:column; background:var(--black); }
   .tip-total-line{ color:var(--muted); font-size:16px; margin-bottom:24px; }
   .tip-options-grid{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .taco-tag{ margin-left:10px; font-size:14px; font-weight:800; color:#241902; background:var(--gold); padding:3px 10px; border-radius:100px; vertical-align:2px; }
   .tip-option-btn{
     background:var(--panel); border:2px solid var(--line); border-radius:14px;
     padding:18px 12px; text-align:center; color:var(--cream);
@@ -568,6 +570,7 @@
     var TAX_RATE = 0.0675; // matches the backend exactly -- this is for display only, the actual charge is always computed server-side
     var itemsById = {};
     var categoryOrder = [];
+    var kioskTacoDay = null;
 
     function escHtml(s){
       return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){
@@ -688,6 +691,9 @@
         dealSelectionsByName = {};
         categoryOrder = [];
         var byCategory = {};
+        // Taco Tuesday & Thursday: every taco order is $6.99 (deals.js,
+        // same rule as the website, QR page and checkout server).
+        kioskTacoDay = window.RollinDeals ? window.RollinDeals.applyTacoPricing(res.data) : null;
         res.data.forEach(function(item){
           itemsById[item.id] = item;
           if (item.category === 'Combo Add-ons') comboAddonsByName[item.name] = item;
@@ -759,7 +765,7 @@
     }
 
     // ---------------- Deal picker (multi-step) ----------------
-    var DEAL_SPECS = {
+    var DEAL_SPECS = (window.RollinDeals && window.RollinDeals.specs) || {
       'Treat Yourself': {
         fixed: [],
         steps: [
@@ -841,7 +847,8 @@
     });
 
     function openMemberDealsScreen(){
-      var deals = Object.keys(dealsByName).map(function(name){ return dealsByName[name]; })
+      var dealOrder = window.RollinDeals ? window.RollinDeals.order : Object.keys(dealsByName);
+      var deals = dealOrder.filter(function(name){ return dealsByName[name]; }).map(function(name){ return dealsByName[name]; })
         .sort(function(a, b){ return Number(a.price) - Number(b.price); });
 
       document.getElementById('memberDealsTitle').textContent =
@@ -1021,7 +1028,7 @@
       listEl.innerHTML = categoryOrder.map(function(cat){
         return '<div class="category-block" data-cat="' + escHtml(cat) + '">' +
           '<button type="button" class="category-row" data-cat="' + escHtml(cat) + '">' +
-            escHtml(cat) + '<span class="chev">\u25BC</span>' +
+            escHtml(cat) + (cat === 'Tacos' && kioskTacoDay ? ' <span class="taco-tag">\uD83C\uDF2E Taco ' + kioskTacoDay + ': $6.99 today</span>' : '') + '<span class="chev">\u25BC</span>' +
           '</button>' +
           '<div class="category-expanded" data-cat="' + escHtml(cat) + '"></div>' +
         '</div>';
