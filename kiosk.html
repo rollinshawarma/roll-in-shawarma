@@ -841,6 +841,9 @@
         memberVerified = true;
         memberCodeVerified = code;
         memberFirstName = row.first_name || '';
+        // Checked-in member: their name goes on the order automatically.
+        var kn = document.getElementById('kioskName');
+        if (kn && !kn.value.trim() && memberFirstName) kn.value = memberFirstName;
         renderDealsSection();
         openMemberDealsScreen();
       });
