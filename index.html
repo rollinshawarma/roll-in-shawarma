@@ -663,6 +663,105 @@
     html{ scroll-behavior:auto; }
     *, *::before, *::after{ transition:none !important; animation:none !important; }
   }
+
+  /* =========================================================
+     Roll-In Rewards (points) — signed-out join + signed-in home
+     ========================================================= */
+  .rw-sec{ background:var(--panel); }
+  .rw-ladder{ list-style:none; display:grid; grid-template-columns:repeat(5, 1fr); gap:10px; max-width:760px; margin:0 auto 28px; padding:0; }
+  .rw-ladder li{ background:#fff; border-radius:18px; padding:12px 8px 14px; text-align:center; display:flex; flex-direction:column; align-items:center; gap:2px; }
+  .rw-ladder img{ width:64px; height:64px; object-fit:cover; border-radius:14px; margin-bottom:6px; }
+  .rw-ladder b{ font-family:var(--display); font-size:20px; letter-spacing:-0.02em; }
+  .rw-ladder span{ font-size:12.5px; color:var(--muted); line-height:1.25; }
+  @media (max-width:560px){
+    .rw-ladder{ grid-template-columns:none; grid-auto-flow:column; grid-auto-columns:40%; overflow-x:auto; scroll-snap-type:x mandatory; padding:0 2px 6px; margin-left:-22px; margin-right:-22px; padding-left:22px; padding-right:22px; scrollbar-width:none; }
+    .rw-ladder::-webkit-scrollbar{ display:none; }
+    .rw-ladder li{ scroll-snap-align:start; }
+  }
+  .rw-auth{ max-width:460px; margin:0 auto; background:#fff; border-radius:24px; padding:26px 24px 20px; }
+  .rw-auth h3{ font-family:var(--display); font-size:24px; font-weight:700; letter-spacing:-0.02em; text-align:center; }
+  .rw-auth .member-signup-form{ padding:0; background:none; border-radius:0; }
+  .rw-auth .auth-hint{ margin:6px 0 18px; }
+  .rw-steps{ display:flex; justify-content:center; gap:6px; margin-bottom:16px; }
+  .rw-steps span{ width:26px; height:4px; border-radius:4px; background:var(--line); transition:background .2s ease; }
+  .rw-steps span.on{ background:var(--accent); }
+  .rw-wide{ width:100%; height:52px; }
+  .rw-code{ font-size:24px !important; letter-spacing:.3em; text-align:center; font-variant-numeric:tabular-nums; }
+  .rw-auth-links{ display:flex; justify-content:space-between; gap:10px; }
+  .rw-auth-links .auth-link{ margin:14px 0 0; }
+  .rw-auth-links .auth-link:disabled{ color:var(--muted); }
+  .rw-fine{ font-size:12.5px; color:var(--muted); text-align:center; margin-top:14px; }
+  .rw-how{ list-style:none; counter-reset:rw; display:grid; grid-template-columns:repeat(3, 1fr); gap:14px; max-width:760px; margin:28px auto 0; padding:0; }
+  .rw-how li{ counter-increment:rw; display:flex; flex-direction:column; gap:4px; font-size:14px; color:var(--muted); }
+  .rw-how li::before{ content:counter(rw); width:28px; height:28px; border-radius:50%; background:var(--ink); color:#fff; font-weight:700; font-size:14px; display:flex; align-items:center; justify-content:center; margin-bottom:4px; }
+  .rw-how b{ color:var(--ink); font-size:15px; }
+  @media (max-width:560px){ .rw-how{ grid-template-columns:1fr; } }
+
+  /* signed-in points card */
+  .rw-card{ max-width:620px; margin:0 auto; border-radius:26px; padding:22px 22px 20px; color:#fff; background:linear-gradient(135deg, #e4372a 0%, #b3231a 100%); box-shadow:0 18px 40px -18px rgba(179,35,26,.55); }
+  .rw-card-top{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; }
+  .rw-hi{ font-family:var(--display); font-size:24px; font-weight:700; letter-spacing:-0.02em; }
+  .rw-card-sub{ font-size:13px; opacity:.85; margin-top:2px; }
+  .rw-scan{ display:inline-flex; align-items:center; gap:8px; height:40px; padding:0 14px; border-radius:999px; background:#fff; color:var(--accent-dark); font-weight:700; font-size:14px; flex:none; }
+  .rw-scan svg{ width:18px; height:18px; }
+  .rw-points{ display:flex; align-items:baseline; gap:8px; margin-top:22px; }
+  .rw-points span{ font-family:var(--display); font-size:56px; font-weight:700; line-height:1; letter-spacing:-0.03em; font-variant-numeric:tabular-nums; }
+  .rw-points small{ font-size:16px; font-weight:600; opacity:.9; }
+  .rw-bar{ height:8px; border-radius:8px; background:rgba(255,255,255,.28); margin-top:16px; overflow:hidden; }
+  .rw-bar i{ display:block; height:100%; width:0; border-radius:8px; background:#fff; transition:width .6s ease; }
+  .rw-next{ font-size:14px; margin-top:10px; opacity:.95; }
+  #dealsUnlocked .member-quote{ display:none; }
+  #dealsUnlocked .member-nudge{ max-width:620px; margin:14px auto 0; font-size:15px; }
+  .rw-tabs{ display:flex; gap:6px; max-width:620px; margin:22px auto 16px; padding:4px; background:#fff; border-radius:999px; overflow-x:auto; scrollbar-width:none; }
+  .rw-tabs::-webkit-scrollbar{ display:none; }
+  .rw-tab{ flex:1 0 auto; height:40px; padding:0 14px; border-radius:999px; font-size:14.5px; font-weight:600; color:var(--ink-2); white-space:nowrap; }
+  .rw-tab[aria-selected="true"]{ background:var(--ink); color:#fff; }
+  .rw-count{ display:inline-block; min-width:20px; padding:0 6px; margin-left:4px; border-radius:999px; background:var(--accent); color:#fff; font-size:12px; line-height:20px; }
+  .rw-panel{ max-width:620px; margin:0 auto; }
+  .rw-grid{ display:grid; grid-template-columns:1fr; gap:10px; }
+  .rw-item{ display:flex; align-items:center; gap:14px; background:#fff; border-radius:20px; padding:12px 14px 12px 12px; }
+  .rw-item img{ width:72px; height:72px; object-fit:cover; border-radius:14px; flex:none; background:var(--panel); }
+  .rw-item-body{ flex:1; min-width:0; }
+  .rw-item-title{ font-weight:700; font-size:16.5px; }
+  .rw-item-sub{ font-size:13.5px; color:var(--muted); margin-top:2px; }
+  .rw-pts{ display:inline-block; margin-top:6px; font-size:12.5px; font-weight:700; color:var(--accent); background:rgba(214,45,32,.08); padding:2px 9px; border-radius:999px; }
+  .rw-go{ flex:none; height:40px; padding:0 16px; border-radius:999px; background:var(--accent); color:#fff; font-weight:700; font-size:14.5px; }
+  .rw-go:hover{ background:var(--accent-dark); }
+  .rw-go:disabled{ background:var(--panel); color:var(--muted); font-weight:600; font-size:13px; cursor:default; }
+  .rw-item.is-locked img{ filter:grayscale(.5); opacity:.8; }
+  .rw-empty{ background:#fff; border-radius:20px; padding:26px 20px; text-align:center; color:var(--muted); font-size:15px; }
+  .rw-empty b{ display:block; color:var(--ink); font-size:17px; margin-bottom:4px; }
+  .rw-ready{ font-size:12.5px; font-weight:700; color:var(--ok); margin-top:6px; }
+  .rw-activity{ list-style:none; background:#fff; border-radius:20px; padding:4px 16px; margin:0; }
+  .rw-activity li{ display:flex; justify-content:space-between; gap:12px; padding:13px 0; border-bottom:1px solid var(--line); font-size:15px; }
+  .rw-activity li:last-child{ border-bottom:0; }
+  .rw-activity .when{ display:block; font-size:12.5px; color:var(--muted); margin-top:1px; }
+  .rw-activity .amt{ font-weight:700; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .rw-activity .amt.plus{ color:var(--ok); }
+  #dealsUnlocked .deals-grid{ margin-top:0; }
+
+  /* sheets: Member ID + redeem confirmation */
+  .rw-scrim{ position:fixed; inset:0; z-index:300; background:rgba(0,0,0,.45); }
+  .rw-sheet{ position:fixed; z-index:301; left:50%; bottom:0; transform:translateX(-50%); width:min(460px, 100%); max-height:92vh; overflow-y:auto; background:#fff; border-radius:26px 26px 0 0; padding:26px 22px calc(22px + var(--safe-b)); text-align:center; }
+  @media (min-width:700px){ .rw-sheet{ bottom:auto; top:50%; transform:translate(-50%, -50%); border-radius:26px; } }
+  .rw-sheet h3{ font-family:var(--display); font-size:24px; font-weight:700; letter-spacing:-0.02em; }
+  .rw-sheet .auth-hint{ margin:8px 0 16px; }
+  .rw-sheet .member-qr-card{ margin:0 auto; padding:10px; }
+  .rw-sheet-close{ position:absolute; top:12px; right:12px; width:36px; height:36px; border-radius:50%; background:var(--panel); font-size:22px; line-height:1; color:var(--ink-2); }
+  .rw-confirm img{ width:96px; height:96px; object-fit:cover; border-radius:20px; margin:0 auto 12px; }
+  .rw-confirm .auth-link{ margin-top:12px; }
+
+  /* checkout: rewards to use + points you'll earn */
+  .rw-co{ padding:14px 24px 4px; }
+  .rw-co-list{ display:flex; flex-direction:column; gap:8px; margin-top:8px; }
+  .rw-co-opt{ display:flex; align-items:center; gap:12px; width:100%; text-align:left; border:1.5px solid var(--line); border-radius:14px; padding:10px 12px; background:#fff; }
+  .rw-co-opt[aria-checked="true"]{ border-color:var(--accent); background:rgba(214,45,32,.04); }
+  .rw-co-opt .box{ width:22px; height:22px; border-radius:6px; border:1.5px solid var(--line); flex:none; display:flex; align-items:center; justify-content:center; color:#fff; font-size:14px; }
+  .rw-co-opt[aria-checked="true"] .box{ background:var(--accent); border-color:var(--accent); }
+  .rw-co-opt .t{ flex:1; min-width:0; font-weight:600; font-size:15px; }
+  .rw-co-opt .s{ display:block; font-weight:400; font-size:13px; color:var(--muted); }
+  .rw-co-opt .v{ font-weight:700; color:var(--accent); white-space:nowrap; }
+  .rw-earn{ margin-top:10px; font-size:14px; font-weight:600; color:var(--accent); }
 </style>
 <script type="application/ld+json">
 {
@@ -865,116 +964,183 @@
   </div>
 </section>
 
-<section id="deals" class="sec sec-gray">
+<section id="deals" class="sec rw-sec">
   <div class="wrap">
 
-    <!-- LOCKED STATE: shown until signed up -->
+    <!-- ============ SIGNED OUT: join / sign in ============ -->
     <div id="dealsLocked">
       <div class="sec-head">
         <div class="eyebrow">Roll-In Rewards</div>
-        <h2 class="h2">Sign up. Get a free roll.</h2>
-        <p class="lead">Free to join and takes ten seconds. Plus three member-only deals.</p>
+        <h2 class="h2">Eat. Earn. Roll free.</h2>
+        <p class="lead">100 points for every $10 you spend. A free roll just for joining.</p>
       </div>
 
-      <div class="locked-row">
-        <div class="locked-card"><svg class="icon-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg><span>Taco Deal</span></div>
-        <div class="locked-card"><svg class="icon-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg><span>Lunch Combo</span></div>
-        <div class="locked-card"><svg class="icon-lock" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="10" width="16" height="10" rx="2"></rect><path d="M8 10V7a4 4 0 0 1 8 0v3"></path></svg><span>Family Basket</span></div>
-      </div>
+      <ol class="rw-ladder" aria-label="Rewards you can earn">
+        <li><img src="item-soda.jpg" alt="" loading="lazy" onerror="this.remove()"><b>200</b><span>Free soda</span></li>
+        <li><img src="item-peri-peri-fries.jpg" alt="" loading="lazy" onerror="this.remove()"><b>300</b><span>Peri Peri Fries</span></li>
+        <li><img src="item-signature-chicken-frankie.jpg" alt="" loading="lazy" onerror="this.remove()"><b>500</b><span>Frankie Roll</span></li>
+        <li><img src="item-chicken-shawarma.jpg" alt="" loading="lazy" onerror="this.remove()"><b>700</b><span>Shawarma</span></li>
+        <li><img src="item-chicken-over-rice-bowl.jpg" alt="" loading="lazy" onerror="this.remove()"><b>900</b><span>Rice Bowl</span></li>
+      </ol>
 
-      <div id="authStart">
-        <button type="button" class="btn btn-light" id="startAuthBtn">Get my free roll</button>
-        <p class="auth-hint">Already a member? Same button. We&rsquo;ll recognize your email.</p>
-      </div>
+      <div class="rw-auth">
+        <div class="rw-steps" aria-hidden="true"><span class="on"></span><span></span><span></span></div>
 
-      <form id="authEmailForm" class="cform member-signup-form hidden">
-        <label>Email<input type="email" id="authEmail" placeholder="you@example.com" required autocomplete="email"></label>
-        <button type="submit" id="sendCodeBtn">Send code</button>
-      </form>
-
-      <form id="authCodeForm" class="cform member-signup-form hidden">
-        <p class="auth-hint" id="codeSentHint"></p>
-        <label>Sign-in code from your email<input type="text" id="authCode" inputmode="numeric" maxlength="12" placeholder="Enter the code" required autocomplete="one-time-code"></label>
-        <button type="submit" id="verifyCodeBtn">Verify</button>
-        <button type="button" class="auth-link" id="useDifferentEmailBtn">Use a different email</button>
-      </form>
-
-      <form id="profileForm" class="cform member-signup-form hidden">
-        <p class="auth-hint">You&rsquo;re verified. Just a couple more details.</p>
-        <div class="row2">
-          <label>First name<input type="text" id="profileFirstName" required autocomplete="given-name"></label>
-          <label>Last name<input type="text" id="profileLastName" required autocomplete="family-name"></label>
+        <div id="authStart">
+          <h3>Join or sign in</h3>
+          <p class="auth-hint">No password to remember. We email you a one-time code.</p>
+          <button type="button" class="btn btn-accent rw-wide" id="startAuthBtn">Continue with email</button>
         </div>
-        <label>Birthday (for a birthday treat, no year needed)</label>
-        <div class="row2">
-          <select id="profileBirthMonth" required aria-label="Birth month">
-            <option value="">Month</option>
-            <option value="1">January</option><option value="2">February</option><option value="3">March</option>
-            <option value="4">April</option><option value="5">May</option><option value="6">June</option>
-            <option value="7">July</option><option value="8">August</option><option value="9">September</option>
-            <option value="10">October</option><option value="11">November</option><option value="12">December</option>
-          </select>
-          <select id="profileBirthDay" required aria-label="Birth day">
-            <option value="">Day</option>
-          </select>
-        </div>
-        <button type="submit" id="completeProfileBtn">Complete sign up</button>
-      </form>
 
-      <div id="dealsMsg" class="notify-msg"></div>
+        <form id="authEmailForm" class="cform member-signup-form hidden" novalidate>
+          <h3>What&rsquo;s your email?</h3>
+          <p class="auth-hint">New here? This creates your account. Already a member? Same email, same points.</p>
+          <label>Email<input type="email" id="authEmail" placeholder="you@example.com" required autocomplete="email" inputmode="email" autocapitalize="off" spellcheck="false"></label>
+          <button type="submit" id="sendCodeBtn" class="btn btn-accent rw-wide">Email me a code</button>
+        </form>
+
+        <form id="authCodeForm" class="cform member-signup-form hidden" novalidate>
+          <h3>Enter your code</h3>
+          <p class="auth-hint" id="codeSentHint"></p>
+          <label>Sign-in code<input type="text" id="authCode" class="rw-code" inputmode="numeric" pattern="[0-9 ]*" maxlength="12" placeholder="00000000" required autocomplete="one-time-code"></label>
+          <button type="submit" id="verifyCodeBtn" class="btn btn-accent rw-wide">Sign in</button>
+          <div class="rw-auth-links">
+            <button type="button" class="auth-link" id="resendCodeBtn">Resend code</button>
+            <button type="button" class="auth-link" id="useDifferentEmailBtn">Use a different email</button>
+          </div>
+        </form>
+
+        <form id="profileForm" class="cform member-signup-form hidden">
+          <h3>Welcome! Last step</h3>
+          <p class="auth-hint">Your name goes on your orders. Your birthday gets you a treat (no year needed).</p>
+          <div class="row2">
+            <label>First name<input type="text" id="profileFirstName" required autocomplete="given-name" maxlength="60"></label>
+            <label>Last name<input type="text" id="profileLastName" required autocomplete="family-name" maxlength="60"></label>
+          </div>
+          <label>Birthday</label>
+          <div class="row2">
+            <select id="profileBirthMonth" required aria-label="Birth month">
+              <option value="">Month</option>
+              <option value="1">January</option><option value="2">February</option><option value="3">March</option>
+              <option value="4">April</option><option value="5">May</option><option value="6">June</option>
+              <option value="7">July</option><option value="8">August</option><option value="9">September</option>
+              <option value="10">October</option><option value="11">November</option><option value="12">December</option>
+            </select>
+            <select id="profileBirthDay" required aria-label="Birth day">
+              <option value="">Day</option>
+            </select>
+          </div>
+          <button type="submit" id="completeProfileBtn" class="btn btn-accent rw-wide">Create my account</button>
+        </form>
+
+        <div id="dealsMsg" class="notify-msg" role="status"></div>
+        <p class="rw-fine">Points and rewards are kept on our secure server and can&rsquo;t be changed from this page.</p>
+      </div>
+
+      <ol class="rw-how">
+        <li><b>Join free</b><span>Email only, takes a minute.</span></li>
+        <li><b>Order &amp; earn</b><span>Online signed in, or with your Member ID on the QR page and kiosk.</span></li>
+        <li><b>Redeem</b><span>Pick a reward, add the item, and it&rsquo;s free at checkout.</span></li>
+      </ol>
     </div>
 
-    <!-- UNLOCKED STATE: shown after signup -->
+    <!-- ============ SIGNED IN: Chick-fil-A style rewards home ============ -->
     <div id="dealsUnlocked" class="hidden">
-      <div class="sec-head" style="margin-bottom:0;">
-        <div class="eyebrow">Roll-In Rewards</div>
-        <h2 class="h2" id="memberGreetingTitle">You&rsquo;re in.</h2>
-        <p class="member-quote" id="memberQuote"></p>
-        <p class="member-confirm" id="memberGreetingSub">&#10003; You&rsquo;re a member. Show this QR code at the window to redeem.</p>
-        <p class="member-nudge" id="memberNudge"></p>
+      <div class="rw-card">
+        <div class="rw-card-top">
+          <div>
+            <div class="rw-hi" id="memberGreetingTitle">Hi there</div>
+            <div class="rw-card-sub">Roll-In Rewards</div>
+          </div>
+          <button type="button" class="rw-scan" id="rwScanBtn" aria-haspopup="dialog">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1"/><rect x="14" y="3" width="7" height="7" rx="1"/><rect x="3" y="14" width="7" height="7" rx="1"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>
+            Member ID
+          </button>
+        </div>
+        <div class="rw-points"><span id="rwBalance">&mdash;</span><small>points</small></div>
+        <div class="rw-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" id="rwBarWrap"><i id="rwBar"></i></div>
+        <div class="rw-next" id="rwNext">Loading your points&hellip;</div>
       </div>
 
-      <div class="member-qr-card">
-        <div id="memberQrCanvas" class="member-qr"></div>
-        <div class="member-qr-code" id="memberQrCode">&mdash;</div>
-        <div class="member-qr-hint">Screenshot this, keep this page open, or add it to your Wallet</div>
+      <p class="member-quote" id="memberQuote"></p>
+      <p class="member-nudge" id="memberNudge"></p>
+      <p class="member-confirm hidden" id="memberGreetingSub"></p>
+
+      <div class="rw-tabs" role="tablist" aria-label="Rewards">
+        <button type="button" role="tab" class="rw-tab" data-rw-tab="redeem" aria-selected="true">Redeem</button>
+        <button type="button" role="tab" class="rw-tab" data-rw-tab="mine" aria-selected="false">My rewards <span class="rw-count hidden" id="rwMineCount">0</span></button>
+        <button type="button" role="tab" class="rw-tab" data-rw-tab="activity" aria-selected="false">Activity</button>
+        <button type="button" role="tab" class="rw-tab" data-rw-tab="deals" aria-selected="false">Deals</button>
       </div>
 
-      <div class="wallet-row hidden" id="walletRow">
-        <button type="button" class="wallet-btn" id="appleWalletBtn" aria-label="Add to Apple Wallet">
-          <img src="add-to-apple-wallet.svg" alt="" onload="this.parentNode.classList.add('has-badge')" onerror="this.remove()">
-          <span class="wallet-fallback">Add to Apple Wallet</span>
-        </button>
-        <div id="walletMsg" class="promo-msg"></div>
+      <div class="rw-panel" data-rw-panel="redeem" role="tabpanel">
+        <div class="rw-grid" id="rwCatalog"></div>
+        <p class="rw-fine">Redeeming moves the reward to My rewards right away. Points can&rsquo;t be returned once redeemed.</p>
       </div>
-
-      <div class="deals-grid">
-        <div class="deal-card accent">
-          <div class="deal-tag">Sign-up bonus</div>
-          <h3>Free Roll</h3>
-          <p>One free roll, on us. Redeemable once, at the window.</p>
-        </div>
-        <div class="deal-card">
-          <div class="deal-tag">Members only</div>
-          <h3>Taco Tuesday &amp; Thursday</h3>
-          <p>Any taco, <b>$6.99</b>, every Tuesday and Thursday.</p>
-        </div>
-        <div class="deal-card">
-          <div class="deal-tag">Members only</div>
-          <h3>Lunch Combo</h3>
-          <p><b>$9.99 + tax</b>, weekdays only. Ask what&rsquo;s included that day.</p>
-        </div>
-        <div class="deal-card">
-          <div class="deal-tag">Members only</div>
-          <h3>Family Dinner Basket</h3>
-          <p>A Shawarma Roll and a Rice Bowl to share, <b>$29.99 + tax</b>.</p>
-        </div>
+      <div class="rw-panel hidden" data-rw-panel="mine" role="tabpanel">
+        <div id="rwMine"></div>
       </div>
-
-      <p class="spin-fine">Deals are redeemed in person at pickup. The free roll is one-time per member.</p>
+      <div class="rw-panel hidden" data-rw-panel="activity" role="tabpanel">
+        <ul class="rw-activity" id="rwActivity"></ul>
+      </div>
+      <div class="rw-panel hidden" data-rw-panel="deals" role="tabpanel">
+        <div class="deals-grid">
+          <div class="deal-card accent">
+            <div class="deal-tag">Sign-up bonus</div>
+            <h3>Free Roll</h3>
+            <p>One free roll, on us. Show your Member ID at the window.</p>
+          </div>
+          <div class="deal-card">
+            <div class="deal-tag">Members only</div>
+            <h3>Taco Tuesday &amp; Thursday</h3>
+            <p>Any taco, <b>$6.99</b>, every Tuesday and Thursday.</p>
+          </div>
+          <div class="deal-card">
+            <div class="deal-tag">Members only</div>
+            <h3>Lunch Combo</h3>
+            <p><b>$9.99 + tax</b>, weekdays only. Ask what&rsquo;s included that day.</p>
+          </div>
+          <div class="deal-card">
+            <div class="deal-tag">Members only</div>
+            <h3>Family Dinner Basket</h3>
+            <p>A Shawarma Roll and a Rice Bowl to share, <b>$29.99 + tax</b>.</p>
+          </div>
+        </div>
+        <p class="spin-fine">Deals are redeemed in person at pickup. The free roll is one-time per member.</p>
+      </div>
     </div>
 
   </div>
+</section>
+
+<!-- Member ID sheet: scan at the window / kiosk -->
+<div class="rw-scrim" id="rwQrScrim" hidden></div>
+<section class="rw-sheet" id="rwQrSheet" role="dialog" aria-modal="true" aria-labelledby="rwQrTitle" hidden>
+  <button type="button" class="rw-sheet-close" id="rwQrClose" aria-label="Close">&times;</button>
+  <h3 id="rwQrTitle">Your Member ID</h3>
+  <p class="auth-hint">Show this at the window, or type the numbers on the QR page or kiosk, to earn points.</p>
+  <div class="member-qr-card">
+    <div id="memberQrCanvas" class="member-qr"></div>
+    <div class="member-qr-code" id="memberQrCode">&mdash;</div>
+  </div>
+  <div class="wallet-row hidden" id="walletRow">
+    <button type="button" class="wallet-btn" id="appleWalletBtn" aria-label="Add to Apple Wallet">
+      <img src="add-to-apple-wallet.svg" alt="" onload="this.parentNode.classList.add('has-badge')" onerror="this.remove()">
+      <span class="wallet-fallback">Add to Apple Wallet</span>
+    </button>
+    <div id="walletMsg" class="promo-msg"></div>
+  </div>
+</section>
+
+<!-- Redeem confirmation -->
+<div class="rw-scrim" id="rwConfirmScrim" hidden></div>
+<section class="rw-sheet rw-confirm" id="rwConfirm" role="alertdialog" aria-modal="true" aria-labelledby="rwConfirmTitle" hidden>
+  <img id="rwConfirmImg" alt="" onerror="this.style.display='none'">
+  <h3 id="rwConfirmTitle">Redeem?</h3>
+  <p id="rwConfirmText" class="auth-hint"></p>
+  <div id="rwConfirmMsg" class="promo-msg"></div>
+  <button type="button" class="btn btn-accent rw-wide" id="rwConfirmGo">Redeem</button>
+  <button type="button" class="auth-link" id="rwConfirmCancel">Not now</button>
 </section>
 
 <section id="story" class="sec member-hide">
@@ -1429,16 +1595,21 @@
         <div id="promoMsg" class="promo-msg"></div>
       </div>
 
+      <div id="rewardSection" class="rw-co hidden">
+        <div class="pickup-time-label">Your rewards</div>
+        <div id="rewardChoices" class="rw-co-list"></div>
+      </div>
+
       <div id="tipSection" class="tip-section hidden">
         <div class="pickup-time-label">Add a tip for the crew</div>
         <div class="tip-choice" role="radiogroup" aria-label="Tip">
-          <button type="button" class="tip-opt" data-tip="none" role="radio" aria-checked="false">No tip<span class="tip-amt">$0.00</span></button>
-          <button type="button" class="tip-opt" data-tip="round" role="radio" aria-checked="true">Round up<span class="tip-amt"></span></button>
           <button type="button" class="tip-opt" data-tip="0.10" role="radio" aria-checked="false">10%<span class="tip-amt"></span></button>
           <button type="button" class="tip-opt" data-tip="0.15" role="radio" aria-checked="false">15%<span class="tip-amt"></span></button>
           <button type="button" class="tip-opt" data-tip="0.25" role="radio" aria-checked="false">25%<span class="tip-amt"></span></button>
           <button type="button" class="tip-opt" data-tip="0.30" role="radio" aria-checked="false">30%<span class="tip-amt"></span></button>
           <button type="button" class="tip-opt" data-tip="other" role="radio" aria-checked="false">Other<span class="tip-amt">Custom</span></button>
+          <button type="button" class="tip-opt" data-tip="round" role="radio" aria-checked="true">Round up<span class="tip-amt"></span></button>
+          <button type="button" class="tip-opt" data-tip="none" role="radio" aria-checked="false">No tip<span class="tip-amt">$0.00</span></button>
         </div>
         <div class="tip-custom hidden" id="tipCustomWrap">
           <input type="number" id="tipCustomInput" min="0" step="0.01" inputmode="decimal" placeholder="Tip amount, e.g. 3.00" aria-label="Custom tip amount">
@@ -1457,9 +1628,11 @@
         <div class="checkout-summary">
           <div class="co-for" id="coForLine"></div>
           <div class="co-items" id="coItemsList"></div>
+          <div class="rw-earn hidden" id="coPointsLine"></div>
         <div class="cart-breakdown">
           <div class="cart-breakdown-row">Subtotal <span id="cartCheckoutSubtotal">$0.00</span></div>
           <div class="cart-breakdown-row promo-discount-row hidden" id="promoDiscountRow">Discount <span id="cartCheckoutDiscount">&minus;$0.00</span></div>
+          <div class="cart-breakdown-row promo-discount-row hidden" id="rewardDiscountRow">Rewards <span id="cartCheckoutReward">&minus;$0.00</span></div>
           <div class="cart-breakdown-row">Sales Tax (6.75%) <span id="cartCheckoutTax">$0.00</span></div>
           <div class="cart-breakdown-row hidden" id="giftCardTotalRow">Gift Cards <span id="cartCheckoutGiftCards">$0.00</span></div>
           <div class="cart-breakdown-row">Online Processing Fee <span id="cartCheckoutFee">$0.00</span></div>
@@ -1996,7 +2169,7 @@
       'Shawarma': 'menu-shawarma.jpg', 'Frankie Rolls': 'menu-frankie.jpg',
       'Bowls': 'menu-bowl.jpg', 'Tacos': 'menu-tacos.jpg',
       'Loaded Fries': 'menu-fries.jpg', 'Sides': 'menu-samosas.jpg',
-      'Kulfi Ice Cream': 'menu-kulfi.jpg', 'Drinks': 'menu-falooda.jpg'
+      'Kulfi Ice Cream': 'item-almond-kulfi.jpg', 'Drinks': 'menu-falooda.jpg'
     };
     // Transparent cut-out photos for the category list (Chick-fil-A style);
     // categories without one use their square photo instead.
@@ -2412,8 +2585,63 @@
       if (choice === 'other') return tipCustomCents;
       return Math.round(Math.round((t.subtotal - t.discount + t.tax) * 100) * (parseFloat(choice) || 0));
     }
+    // ---- Points rewards on this order ----
+    // Redeemed rewards come off automatically when a matching item is in
+    // the cart; the customer can switch one off to save it for later.
+    var rewardOff = {};
+    function rewardSummary(){
+      var R = window.rollinRewards;
+      var all = R && R.signedIn() ? R.vouchers() : [];
+      var units = [];
+      cart.forEach(function(c){
+        var it = itemsById[c.menu_item_id] || {};
+        for (var k = 0; k < c.quantity; k++) units.push({ price: Number(c.unitPrice), category: it.category, name: it.name, variant: it.variant_name || null });
+      });
+      var chosen = all.filter(function(v){ return !rewardOff[v.id]; });
+      var matched = R ? R.match(units, chosen) : [];
+      var cents = 0, ids = [];
+      matched.forEach(function(m){ if (m.ok) { cents += m.cents; ids.push(m.voucher.id); } });
+      return { all: all, matched: matched, cents: cents, ids: ids };
+    }
+    function baseTotalsWithRewards(){
+      var promo = appliedPromo ? appliedPromo.discountAmount : 0;
+      var rw = rewardSummary();
+      var t = computeOrderTotals(cartTotal(), promo + rw.cents / 100, giftCardCartTotal());
+      var promoPart = Math.min(Math.round(promo * 100), Math.round(t.subtotal * 100));
+      t.reward = Math.round(t.discount * 100 - promoPart) / 100;
+      t.promo = promoPart / 100;
+      t.rewardIds = t.reward > 0 ? rw.ids : [];
+      t.points = Math.floor(Math.max(0, t.subtotal - t.discount)) * 10;
+      return t;
+    }
+    function renderRewardChoices(){
+      var sec = document.getElementById('rewardSection');
+      if (!sec) return;
+      var rw = rewardSummary();
+      sec.classList.toggle('hidden', !rw.all.length || !cart.length);
+      var R = window.rollinRewards;
+      document.getElementById('rewardChoices').innerHTML = rw.all.map(function(v){
+        var m = rw.matched.find(function(x){ return x.voucher.id === v.id; });
+        var on = !rewardOff[v.id], ok = on && m && m.ok;
+        var sub = !on ? 'Saved for later' : ok ? 'Free on this order' : 'Add ' + R.itemHint(v) + ' to use it';
+        return '<button type="button" class="rw-co-opt" role="checkbox" aria-checked="' + on + '" data-reward="' + escHtml(v.id) + '">' +
+          '<span class="box">' + (on ? '\u2713' : '') + '</span>' +
+          '<span class="t">' + escHtml(v.title) + '<span class="s">' + escHtml(sub) + '</span></span>' +
+          (ok ? '<span class="v">\u2212$' + (m.cents / 100).toFixed(2) + '</span>' : '') +
+        '</button>';
+      }).join('');
+    }
+    document.addEventListener('click', function(e){
+      var b = e.target.closest && e.target.closest('[data-reward]');
+      if (!b) return;
+      var id = b.getAttribute('data-reward');
+      rewardOff[id] = !rewardOff[id];
+      refreshCheckoutBreakdown();
+    });
+    if (window.rollinRewards) window.rollinRewards.onChange(function(){ refreshCheckoutBreakdown(); });
+
     function checkoutTotals(){
-      var t = computeOrderTotals(cartTotal(), appliedPromo ? appliedPromo.discountAmount : 0, giftCardCartTotal());
+      var t = baseTotalsWithRewards();
       var tipCents = tipCentsFor(tipChoice, t);
       t.tip = tipCents / 100;
       t.totalCents = Math.round(t.total * 100) + tipCents;
@@ -2427,11 +2655,29 @@
       document.getElementById('cartCheckoutFee').textContent = '$' + totals.fee.toFixed(2);
       document.getElementById('cartCheckoutTotal').textContent = '$' + totals.total.toFixed(2);
       var discountRow = document.getElementById('promoDiscountRow');
-      if (appliedPromo && totals.discount > 0) {
+      if (appliedPromo && totals.promo > 0) {
         discountRow.classList.remove('hidden');
-        document.getElementById('cartCheckoutDiscount').textContent = '\u2212$' + totals.discount.toFixed(2);
+        document.getElementById('cartCheckoutDiscount').textContent = '\u2212$' + totals.promo.toFixed(2);
       } else {
         discountRow.classList.add('hidden');
+      }
+      document.getElementById('rewardDiscountRow').classList.toggle('hidden', !(totals.reward > 0));
+      document.getElementById('cartCheckoutReward').textContent = '\u2212$' + (totals.reward || 0).toFixed(2);
+      renderRewardChoices();
+      // Rewards cover everything: no wallet sheet for $0, just place it.
+      var freeOrder = cart.length > 0 && totals.total === 0;
+      window.__rollinFreeOrder = freeOrder;
+      var wp = document.querySelector('.wallet-pay');
+      if (wp) wp.classList.toggle('hidden', freeOrder);
+      if (freeOrder) document.getElementById('payOr').classList.add('hidden');
+      var payBtn = document.getElementById('cartPayNowBtn');
+      if (payBtn && !payBtn.disabled) payBtn.textContent = freeOrder ? 'Place free order' : (document.querySelector('#applePayBtn:not(.hidden), #googlePayBtn:not(.hidden)') ? 'Pay with card' : 'Pay Now');
+      var ptsLine = document.getElementById('coPointsLine');
+      if (ptsLine) {
+        var member = window.rollinRewards && window.rollinRewards.signedIn();
+        ptsLine.classList.toggle('hidden', !(cart.length && totals.points > 0));
+        ptsLine.innerHTML = member ? '\u2605 You\u2019ll earn ' + totals.points + ' points with this order'
+          : '\u2605 Members earn ' + totals.points + ' points on this order. <a href="#deals" class="link">Sign in</a>';
       }
       var giftRow = document.getElementById('giftCardTotalRow');
       if (totals.giftCards > 0) {
@@ -2440,7 +2686,7 @@
       } else {
         giftRow.classList.add('hidden');
       }
-      var baseTotals = computeOrderTotals(cartTotal(), appliedPromo ? appliedPromo.discountAmount : 0, giftCardCartTotal());
+      var baseTotals = baseTotalsWithRewards();
       document.querySelectorAll('.tip-opt').forEach(function(b){
         var c = b.getAttribute('data-tip'), amt = b.querySelector('.tip-amt');
         if (amt) amt.textContent = c === 'other' ? 'Custom' : '$' + (tipCentsFor(c, baseTotals) / 100).toFixed(2);
@@ -2636,7 +2882,7 @@
       btn.textContent = busy ? (label || 'Processing…') : payLabel();
       ['applePayBtn', 'googlePayBtn'].forEach(function(id){ document.getElementById(id).classList.toggle('is-busy', busy); });
     }
-    function payLabel(){ return walletShown ? 'Pay with card' : 'Pay Now'; }
+    function payLabel(){ return window.__rollinFreeOrder ? 'Place free order' : walletShown ? 'Pay with card' : 'Pay Now'; }
 
     // Checks the form synchronously (Apple Pay must open straight from the
     // tap, before anything waits on the network) and returns the order.
@@ -2663,7 +2909,8 @@
           pickupDate: document.getElementById('cartPickupDate').value || undefined,
           promoCode: appliedPromo ? appliedPromo.code : undefined,
           scheduledPickupAt: scheduledPickupAt || undefined,
-          tipAmount: totals.tip || undefined
+          tipAmount: totals.tip || undefined,
+          rewardIds: totals.rewardIds && totals.rewardIds.length ? totals.rewardIds : undefined
         }
       };
     }
@@ -2672,9 +2919,14 @@
     // null after showing the problem to the customer.
     function submitOrder(order, extra){
       var body = Object.assign({}, order.payload, extra || {});
+      // Signed-in members: their own sign-in token links the order (points)
+      // and lets the server check the rewards they're using.
+      var headers = { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + PAY_KEY };
+      var memberToken = window.rollinRewards && window.rollinRewards.token();
+      if (memberToken) headers['x-member-token'] = memberToken;
       return fetch(PAY_URL, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + PAY_KEY },
+        headers: headers,
         body: JSON.stringify(body)
       }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
         .then(function(result){
@@ -2682,6 +2934,7 @@
           var d = result.data || {};
           if (result.ok && (d.url || d.paid)) return d;
           if ((d.code === 'CLOSED' || d.code === 'BAD_PICKUP_TIME') && window.rollinPickup) { window.rollinPickup.forceSchedule(); showCoStep('details'); }
+          if (/^REWARD_/.test(d.code || '') && window.rollinRewards) { window.rollinRewards.reload(); showCoStep('details'); }
           if (d.code === 'TOTAL_CHANGED') {
             // A price changed since the menu loaded: reload today's prices
             // so the next tap shows (and Apple Pay approves) the real total.
@@ -2960,7 +3213,7 @@
       try { isMember = !!localStorage.getItem('rollinMemberCode'); } catch(e){}
       signInLinks.forEach(function(el){
         if (!el) return;
-        el.textContent = isMember ? 'My Deals ✓' : 'Sign In';
+        el.textContent = isMember ? 'Rewards ✓' : 'Sign In';
         el.classList.toggle('is-member', isMember);
       });
       signOutLinks.forEach(function(el){
@@ -3322,6 +3575,7 @@
       document.body.classList.add('member-mode');
       renderGreeting(profile.first_name);
       renderQr(profile.redeem_code);
+      document.dispatchEvent(new CustomEvent('rollin:member-in', { detail: { first_name: profile.first_name } }));
       try {
         localStorage.setItem('rollinMemberCode', profile.redeem_code);
         localStorage.setItem('rollinMemberFirstName', profile.first_name || '');
@@ -3603,6 +3857,222 @@
         return d && t ? d.text + ' at ' + t.text : '';
       }
     };
+  })();
+
+  // ---- Roll-In Rewards: points home, redeem, sign-in polish ----
+  // Everything here only DISPLAYS what the server says. Balances and
+  // rewards come from get_my_points(); spending goes through
+  // redeem_points_reward(), which re-checks the balance on the server.
+  (function(){
+    if (typeof sbShared === 'undefined') return;
+    var sb = sbShared;
+    var $ = function(id){ return document.getElementById(id); };
+    var data = null, token = null, listeners = [];
+    function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); }
+    function fmt(n){ return Number(n || 0).toLocaleString('en-US'); }
+
+    // ---------- shared with checkout ----------
+    // Which cart units the chosen rewards make free: each reward takes
+    // the priciest matching unit left (same rule the server uses).
+    function matchRewards(units, vouchers){
+      var pool = units.map(function(u){ return { price: u.price, category: u.category, name: u.name, variant: u.variant || null, used: false }; })
+        .sort(function(a, b){ return b.price - a.price; });
+      return vouchers.map(function(v){
+        var u = pool.find(function(x){
+          return !x.used && x.category === v.match_category &&
+            (!v.match_name || x.name === v.match_name) && (!v.match_variant || x.variant === v.match_variant);
+        });
+        if (!u) return { voucher: v, cents: 0, ok: false };
+        u.used = true;
+        return { voucher: v, cents: Math.round(u.price * 100), ok: true };
+      });
+    }
+    function itemHint(v){
+      return v.match_name ? (v.match_name + (v.match_variant ? ' (' + v.match_variant + ')' : '')) : ('any ' + v.match_category.replace(/s$/, ''));
+    }
+    window.rollinRewards = {
+      token: function(){ return token; },
+      signedIn: function(){ return !!(token && data); },
+      vouchers: function(){ return data ? data.vouchers : []; },
+      balance: function(){ return data ? data.balance : 0; },
+      match: matchRewards,
+      itemHint: itemHint,
+      reload: load,
+      onChange: function(fn){ listeners.push(fn); }
+    };
+
+    sb.auth.getSession().then(function(r){ token = r && r.data && r.data.session ? r.data.session.access_token : null; });
+    sb.auth.onAuthStateChange(function(ev, session){ token = session ? session.access_token : null; if (!session) { data = null; notify(); } });
+
+    function notify(){ listeners.forEach(function(fn){ try { fn(); } catch(e){} }); }
+
+    // ---------- sign-in steps: progress dots + resend with cooldown ----------
+    var steps = document.querySelectorAll('.rw-steps span');
+    function syncSteps(){
+      var idx = !$('profileForm').classList.contains('hidden') ? 2 : !$('authCodeForm').classList.contains('hidden') ? 1 : 0;
+      steps.forEach(function(s, i){ s.classList.toggle('on', i <= idx); });
+      if (idx === 1) setTimeout(function(){ var c = $('authCode'); if (c) c.focus(); }, 50);
+    }
+    if (steps.length && window.MutationObserver) {
+      var mo = new MutationObserver(syncSteps);
+      ['authStart', 'authEmailForm', 'authCodeForm', 'profileForm'].forEach(function(id){ if ($(id)) mo.observe($(id), { attributes: true, attributeFilter: ['class'] }); });
+    }
+    var resend = $('resendCodeBtn'), cool = null;
+    function startCooldown(){
+      var left = 30;
+      resend.disabled = true; resend.textContent = 'Resend code (' + left + 's)';
+      clearInterval(cool);
+      cool = setInterval(function(){
+        left -= 1;
+        if (left <= 0) { clearInterval(cool); resend.disabled = false; resend.textContent = 'Resend code'; }
+        else resend.textContent = 'Resend code (' + left + 's)';
+      }, 1000);
+    }
+    if (resend) {
+      $('authCodeForm') && new MutationObserver(function(){ if (!$('authCodeForm').classList.contains('hidden') && !cool) startCooldown(); })
+        .observe($('authCodeForm'), { attributes: true, attributeFilter: ['class'] });
+      resend.addEventListener('click', function(){
+        var email = ($('authEmail').value || '').trim();
+        if (!email) return;
+        startCooldown();
+        sb.auth.signInWithOtp({ email: email, options: { emailRedirectTo: location.origin + location.pathname } }).then(function(res){
+          var m = $('dealsMsg');
+          m.textContent = res.error ? res.error.message : 'New code sent. Check your inbox.';
+          m.className = 'notify-msg ' + (res.error ? 'error' : 'success');
+        });
+      });
+    }
+
+    // ---------- Member ID sheet ----------
+    function openSheet(sheet, scrim){ scrim.hidden = false; sheet.hidden = false; document.documentElement.style.overflow = 'hidden'; }
+    function closeSheet(sheet, scrim){ scrim.hidden = true; sheet.hidden = true; document.documentElement.style.overflow = ''; }
+    if ($('rwScanBtn')) {
+      $('rwScanBtn').addEventListener('click', function(){ openSheet($('rwQrSheet'), $('rwQrScrim')); });
+      $('rwQrClose').addEventListener('click', function(){ closeSheet($('rwQrSheet'), $('rwQrScrim')); });
+      $('rwQrScrim').addEventListener('click', function(){ closeSheet($('rwQrSheet'), $('rwQrScrim')); });
+    }
+    document.addEventListener('keydown', function(e){
+      if (e.key !== 'Escape') return;
+      if ($('rwQrSheet') && !$('rwQrSheet').hidden) closeSheet($('rwQrSheet'), $('rwQrScrim'));
+      if ($('rwConfirm') && !$('rwConfirm').hidden) closeSheet($('rwConfirm'), $('rwConfirmScrim'));
+    });
+
+    // ---------- tabs ----------
+    function showTab(name){
+      document.querySelectorAll('.rw-tab').forEach(function(t){ t.setAttribute('aria-selected', t.getAttribute('data-rw-tab') === name ? 'true' : 'false'); });
+      document.querySelectorAll('.rw-panel').forEach(function(p){ p.classList.toggle('hidden', p.getAttribute('data-rw-panel') !== name); });
+    }
+    document.querySelectorAll('.rw-tab').forEach(function(t){
+      t.addEventListener('click', function(){ showTab(t.getAttribute('data-rw-tab')); });
+    });
+
+    // ---------- load + render ----------
+    function load(){
+      return sb.rpc('get_my_points').then(function(res){
+        if (res.error) {
+          if ($('rwNext')) $('rwNext').textContent = /NO_MEMBER_PROFILE/.test(res.error.message) ? 'Finish signing up to start earning.' : 'Couldn’t load your points right now.';
+          return;
+        }
+        data = res.data;
+        render();
+        notify();
+      });
+    }
+    function render(){
+      if (!data || !$('rwBalance')) return;
+      var bal = data.balance, rewards = data.rewards || [];
+      $('rwBalance').textContent = fmt(bal);
+      var next = rewards.find(function(r){ return r.points > bal; });
+      var prevPts = 0;
+      rewards.forEach(function(r){ if (r.points <= bal) prevPts = r.points; });
+      var pct = next ? Math.max(4, Math.min(100, Math.round(bal / next.points * 100))) : 100;
+      $('rwBar').style.width = pct + '%';
+      $('rwBarWrap').setAttribute('aria-valuenow', String(pct));
+      $('rwNext').textContent = next
+        ? fmt(next.points - bal) + ' points to a ' + next.title.replace(/^Free /, 'free ')
+        : 'You can redeem any reward. Nice!';
+
+      $('rwCatalog').innerHTML = rewards.map(function(r){
+        var can = bal >= r.points;
+        return '<div class="rw-item' + (can ? '' : ' is-locked') + '">' +
+          '<img src="' + esc(r.image) + '" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">' +
+          '<div class="rw-item-body"><div class="rw-item-title">' + esc(r.title) + '</div>' +
+          '<div class="rw-item-sub">' + esc(r.subtitle || '') + '</div>' +
+          '<span class="rw-pts">' + fmt(r.points) + ' pts</span></div>' +
+          '<button type="button" class="rw-go" data-rw-redeem="' + esc(r.key) + '"' + (can ? '' : ' disabled') + '>' +
+            (can ? 'Redeem' : fmt(r.points - bal) + ' to go') + '</button>' +
+        '</div>';
+      }).join('');
+
+      var v = data.vouchers || [];
+      $('rwMineCount').textContent = v.length;
+      $('rwMineCount').classList.toggle('hidden', !v.length);
+      $('rwMine').innerHTML = v.length ? '<div class="rw-grid">' + v.map(function(x){
+        return '<div class="rw-item">' +
+          '<img src="' + esc(x.image) + '" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">' +
+          '<div class="rw-item-body"><div class="rw-item-title">' + esc(x.title) + '</div>' +
+          '<div class="rw-item-sub">Add ' + esc(itemHint(x)) + ' to your order. It’s free at checkout.</div>' +
+          '<div class="rw-ready">&#10003; Ready to use</div></div>' +
+          '<button type="button" class="rw-go" data-rw-order="1">Order</button>' +
+        '</div>';
+      }).join('') + '</div>' : '<div class="rw-empty"><b>No rewards yet</b>Redeem your points and the reward waits here until your next order.</div>';
+
+      var labels = { earn: 'Earned', redeem: 'Redeemed', reverse: 'Taken back', adjust: 'Adjustment' };
+      $('rwActivity').innerHTML = (data.activity || []).length ? data.activity.map(function(a){
+        var when = new Date(a.created_at).toLocaleDateString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', year: 'numeric' });
+        return '<li><span>' + esc(a.note || labels[a.kind] || 'Points') + '<span class="when">' + esc(labels[a.kind] || '') + ' · ' + esc(when) + '</span></span>' +
+          '<span class="amt' + (a.delta > 0 ? ' plus' : '') + '">' + (a.delta > 0 ? '+' : '−') + fmt(Math.abs(a.delta)) + '</span></li>';
+      }).join('') : '<li><span>No points yet. Order while signed in (or with your Member ID) and they show up here.</span></li>';
+    }
+
+    // ---------- redeem (with a clear, final confirmation) ----------
+    var pending = null;
+    document.addEventListener('click', function(e){
+      var go = e.target.closest && e.target.closest('[data-rw-redeem]');
+      if (go && !go.disabled && data) {
+        var r = (data.rewards || []).find(function(x){ return x.key === go.getAttribute('data-rw-redeem'); });
+        if (!r) return;
+        pending = r;
+        $('rwConfirmImg').src = r.image; $('rwConfirmImg').style.display = '';
+        $('rwConfirmTitle').textContent = 'Redeem ' + r.title + '?';
+        $('rwConfirmText').textContent = 'Uses ' + fmt(r.points) + ' of your ' + fmt(data.balance) + ' points. It goes to My rewards: add ' +
+          itemHint(r) + ' to an order and it’s free. Points can’t be returned once redeemed.';
+        $('rwConfirmMsg').textContent = ''; $('rwConfirmMsg').className = 'promo-msg';
+        $('rwConfirmGo').disabled = false; $('rwConfirmGo').textContent = 'Redeem ' + fmt(r.points) + ' points';
+        openSheet($('rwConfirm'), $('rwConfirmScrim'));
+        return;
+      }
+      if (e.target.closest && e.target.closest('[data-rw-order]')) {
+        var menu = document.getElementById('menu');
+        if (menu) menu.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
+    if ($('rwConfirm')) {
+      $('rwConfirmCancel').addEventListener('click', function(){ closeSheet($('rwConfirm'), $('rwConfirmScrim')); });
+      $('rwConfirmScrim').addEventListener('click', function(){ closeSheet($('rwConfirm'), $('rwConfirmScrim')); });
+      $('rwConfirmGo').addEventListener('click', function(){
+        if (!pending) return;
+        var btn = this; btn.disabled = true; btn.textContent = 'Redeeming…';
+        sb.rpc('redeem_points_reward', { p_reward_key: pending.key }).then(function(res){
+          if (res.error) {
+            var m = res.error.message || '';
+            $('rwConfirmMsg').textContent = /NOT_ENOUGH_POINTS/.test(m) ? 'You don’t have enough points for this yet.'
+              : /NOT_SIGNED_IN|JWT/.test(m) ? 'Please sign in again.' : 'Couldn’t redeem right now. Please try again.';
+            $('rwConfirmMsg').className = 'promo-msg error';
+            btn.disabled = false; btn.textContent = 'Try again';
+            load();
+            return;
+          }
+          closeSheet($('rwConfirm'), $('rwConfirmScrim'));
+          load().then(function(){ showTab('mine'); });
+        });
+      });
+    }
+
+    document.addEventListener('rollin:member-in', function(){ load(); });
+    // Sign-in can finish before this script runs (restored session).
+    if (document.body.classList.contains('member-mode')) load();
+    window.addEventListener('pageshow', function(e){ if (e.persisted && data) load(); });
   })();
 
   // ---- Gift card preview follows the chosen amount ----
