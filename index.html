@@ -777,6 +777,15 @@
 
   /* ---- Rewards > Deals ---- */
   .rw-item.is-auto .rw-go{ background:var(--panel); color:var(--ink-2); cursor:default; }
+
+  /* ---- rewards terms ---- */
+  .rw-agree{ display:flex !important; align-items:flex-start; gap:10px; font-size:14px !important; font-weight:500 !important; color:var(--ink-2); margin:4px 0 16px !important; text-align:left; }
+  .rw-agree input{ width:20px !important; height:20px !important; margin:1px 0 0 !important; flex:none; accent-color:var(--accent); }
+  .rw-terms-link{ color:var(--accent); font-weight:600; text-decoration:underline; font-size:inherit; padding:0; }
+  .rw-terms{ text-align:left; }
+  .rw-terms h3{ text-align:left; padding-right:40px; }
+  .rw-terms-list{ list-style:none; margin:14px 0 18px; padding:0; display:flex; flex-direction:column; gap:10px; font-size:14px; line-height:1.5; color:var(--ink-2); }
+  .rw-terms-list b{ color:var(--ink); }
 </style>
 <script type="application/ld+json">
 {
@@ -1050,16 +1059,17 @@
               <option value="">Day</option>
             </select>
           </div>
+          <label class="rw-agree"><input type="checkbox" id="profileAgree"> <span>I agree to the <button type="button" class="rw-terms-link" data-rw-terms>Roll-In Rewards terms</button>, including that points have no cash value and redeemed rewards are final.</span></label>
           <button type="submit" id="completeProfileBtn" class="btn btn-accent rw-wide">Create my account</button>
         </form>
 
         <div id="dealsMsg" class="notify-msg" role="status"></div>
-        <p class="rw-fine">Points and rewards are kept on our secure server and can&rsquo;t be changed from this page.</p>
+        <p class="rw-fine">Points and rewards are kept on our secure server and can&rsquo;t be changed from this page. <button type="button" class="rw-terms-link" data-rw-terms>Program terms</button></p>
       </div>
 
       <ol class="rw-how">
         <li><b>Join free</b><span>Email only, takes a minute.</span></li>
-        <li><b>Order &amp; earn</b><span>Online signed in, or with your Member ID on the QR page and kiosk.</span></li>
+        <li><b>Order &amp; earn</b><span>Online, kiosk or drive-up: sign in (or check in with your Member ID) and earn from anywhere.</span></li>
         <li><b>Redeem</b><span>Pick a reward, add the item, and it&rsquo;s free at checkout.</span></li>
       </ol>
     </div>
@@ -1095,7 +1105,7 @@
 
       <div class="rw-panel" data-rw-panel="redeem" role="tabpanel">
         <div class="rw-grid" id="rwCatalog"></div>
-        <p class="rw-fine">Redeeming moves the reward to My rewards right away. Points can&rsquo;t be returned once redeemed.</p>
+        <p class="rw-fine">Redeeming moves the reward to My rewards right away. Points can&rsquo;t be returned once redeemed. <button type="button" class="rw-terms-link" data-rw-terms>Program terms</button></p>
       </div>
       <div class="rw-panel hidden" data-rw-panel="mine" role="tabpanel">
         <div id="rwMine"></div>
@@ -1129,6 +1139,26 @@
     </button>
     <div id="walletMsg" class="promo-msg"></div>
   </div>
+</section>
+
+<!-- Program terms -->
+<div class="rw-scrim" id="rwTermsScrim" hidden></div>
+<section class="rw-sheet rw-terms" id="rwTerms" role="dialog" aria-modal="true" aria-labelledby="rwTermsTitle" hidden>
+  <button type="button" class="rw-sheet-close" id="rwTermsClose" aria-label="Close">&times;</button>
+  <h3 id="rwTermsTitle">Roll-In Rewards terms</h3>
+  <ul class="rw-terms-list">
+  <li><b>Joining.</b> Roll-In Rewards is free. One account per person, with your own email. You must be at least 13 years old.</li>
+  <li><b>Earning.</b> 10 points for every $1 spent on food (100 points per $10), after discounts and rewards. Tax, tips, fees and gift card purchases don&rsquo;t earn points. Points post once your order is paid (cash orders when picked up). To earn, sign in online or check in with your Member ID on the kiosk or drive-up page before you pay.</li>
+  <li><b>Redeeming.</b> Rewards are redeemed from your account and make one listed item free on a later order. Redeeming is final: points can&rsquo;t be returned or exchanged, and a reward can&rsquo;t be split, swapped for cash or combined with another reward on the same item.</li>
+  <li><b>Canceled or refunded orders.</b> Points earned on an order that is canceled or refunded are removed from your account (partly refunded orders lose the matching share).</li>
+  <li><b>No cash value.</b> Points and rewards have no cash value, can&rsquo;t be sold or transferred, and aren&rsquo;t property of the member.</li>
+  <li><b>Deals and offers.</b> Member deals, Taco Tuesday &amp; Thursday and the welcome free roll are subject to availability and may change. One welcome free roll per member.</li>
+  <li><b>Fair use.</b> We may suspend an account or remove points gained by mistake, fraud or misuse of the program.</li>
+  <li><b>Changes.</b> We may change or end the program, point values or rewards at any time. Changes are posted on this website; continuing to use your account means you accept them.</li>
+  <li><b>Your information.</b> We use your name, email and birthday only to run your account, send receipts and your birthday treat. We never sell your information. You can ask us to close your account at any time.</li>
+  <li><b>Questions?</b> Call (330) 587-5203 or ask at the window.</li>
+</ul>
+  <button type="button" class="btn btn-dark rw-wide" id="rwTermsOk">Got it</button>
 </section>
 
 <!-- Redeem confirmation -->
@@ -2740,7 +2770,7 @@
         var member = window.rollinRewards && window.rollinRewards.signedIn();
         ptsLine.classList.toggle('hidden', !(cart.length && totals.points > 0));
         ptsLine.innerHTML = member ? '\u2605 You\u2019ll earn ' + totals.points + ' points with this order'
-          : '\u2605 Members earn ' + totals.points + ' points on this order. <a href="#deals" class="link">Sign in</a>';
+          : '\u2605 Members earn ' + totals.points + ' points on this order. <a href="#deals" class="link" data-rw-signin>Sign in to earn</a>';
       }
       var giftRow = document.getElementById('giftCardTotalRow');
       if (totals.giftCards > 0) {
@@ -2810,6 +2840,23 @@
       cartDrawer.classList.remove('hidden');
       document.body.style.overflow = 'hidden';
     }
+    function openMemberSignIn(){
+      var deals = document.getElementById('deals');
+      if (!deals || document.body.classList.contains('member-mode')) return;
+      var start = document.getElementById('startAuthBtn');
+      if (start && !document.getElementById('authStart').classList.contains('hidden')) start.click();
+      deals.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      setTimeout(function(){ var em = document.getElementById('authEmail'); if (em) em.focus({ preventScroll: true }); }, 450);
+    }
+    document.addEventListener('click', function(e){
+      var a = e.target.closest && e.target.closest('[data-rw-signin]');
+      if (!a) return;
+      e.preventDefault();
+      if (typeof closeCartDrawer === 'function') closeCartDrawer();
+      if (typeof showItemsView === 'function') showItemsView();
+      setTimeout(openMemberSignIn, 60);
+    });
+    if (location.hash === '#signin') setTimeout(openMemberSignIn, 400);
     function closeCartDrawer(){
       cartDrawer.classList.add('hidden');
       document.body.style.overflow = '';
@@ -3564,6 +3611,12 @@
         showMsg('Please fill in all fields.', 'error');
         return;
       }
+      var agree = document.getElementById('profileAgree');
+      if (agree && !agree.checked) {
+        showMsg('Please agree to the Roll-In Rewards terms to create your account.', 'error');
+        agree.focus();
+        return;
+      }
       var btn = document.getElementById('completeProfileBtn');
       btn.disabled = true;
       clearMsg();
@@ -4174,6 +4227,14 @@
       if (d && window.rollinDealsApi) window.rollinDealsApi.add(d.getAttribute('data-rw-deal'));
     });
     document.querySelectorAll('.rw-tab[data-rw-tab="deals"]').forEach(function(t){ t.addEventListener('click', renderDeals); });
+
+    // ---------- program terms sheet ----------
+    document.addEventListener('click', function(e){
+      if (e.target.closest && e.target.closest('[data-rw-terms]')) { e.preventDefault(); openSheet($('rwTerms'), $('rwTermsScrim')); }
+    });
+    if ($('rwTerms')) {
+      ['rwTermsClose', 'rwTermsOk', 'rwTermsScrim'].forEach(function(id){ $(id).addEventListener('click', function(){ closeSheet($('rwTerms'), $('rwTermsScrim')); }); });
+    }
 
     document.addEventListener('rollin:member-in', function(){ load(); });
     // Sign-in can finish before this script runs (restored session).
