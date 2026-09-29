@@ -841,6 +841,10 @@ body:not(.has-cart):not(.ws-in-menu):has(#floatOrderGroup.show) .wp{ bottom:calc
 @media (hover:hover) and (pointer:fine){ .wp{ left:auto; right:16px; transform:translateY(12px); } .wp.show{ transform:none; } }
 /* the checkout drawer and sheets cover it anyway; keep it out of their way */
 body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, body:has(.dl-sheet:not([hidden])) .wp{ display:none; }
+/* Menu photos: show the top of the picture (the food), not the middle. */
+.ws-photo img, .ws-sheet-photo img{ object-position:50% 0; }
+/* The item sheet shows more of the photo. */
+.ws-sheet-photo{ aspect-ratio:4/3; max-height:46svh; }
 </style>
 <script type="application/ld+json">
 {
