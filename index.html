@@ -820,6 +820,27 @@
 .scan-pay-cancel{ align-self:flex-start; font-size:13px; color:var(--accent); padding:4px 0; background:none; border:0; cursor:pointer; }
 .scan-pay-spin{ width:28px; height:28px; border:3px solid var(--line); border-top-color:#1d1d1f; border-radius:50%; animation:scanSpin .8s linear infinite; }
 @keyframes scanSpin{ to{ transform:rotate(360deg) } }
+/* ---- WELCOME10: a small pill that floats in when the page rests.
+   It sits in the same bottom lane as the order buttons / cart bar
+   (just above them), slips away while you scroll so it never sits on
+   top of what you're reading, and is gone for good once used or closed. ---- */
+.wp{ position:fixed; z-index:145; left:50%; bottom:calc(16px + var(--safe-b)); display:flex; align-items:center; gap:2px; height:36px; padding:0 4px 0 2px; border-radius:999px; background:rgba(255,255,255,.94); -webkit-backdrop-filter:saturate(180%) blur(14px); backdrop-filter:saturate(180%) blur(14px); box-shadow:0 0 0 1px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.14); opacity:0; transform:translate(-50%, 12px); pointer-events:none; transition:opacity .25s ease, transform .25s ease; }
+.wp[hidden]{ display:none; }
+.wp.show{ opacity:1; transform:translate(-50%, 0); pointer-events:auto; }
+.wp-main{ display:flex; align-items:center; gap:8px; height:100%; padding:0 6px 0 14px; font-size:13px; font-weight:600; color:var(--ink); background:none; border:0; cursor:pointer; white-space:nowrap; }
+.wp-pct{ color:var(--accent); }
+.wp-sep{ width:1px; height:14px; background:rgba(0,0,0,.15); }
+.wp-code{ font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12.5px; letter-spacing:.06em; }
+.wp-x{ width:26px; height:26px; border-radius:50%; border:0; background:none; color:var(--muted); font-size:17px; line-height:1; cursor:pointer; }
+.wp-x:hover{ background:rgba(0,0,0,.06); }
+.wp.saved .wp-main{ color:#1e8e3e; }
+/* sit in the lowest free spot: above the cart bar or order buttons only when they're showing */
+body.has-cart .wp{ bottom:calc(84px + var(--safe-b)); }
+body:not(.has-cart):not(.ws-in-menu):has(#floatOrderGroup.show) .wp{ bottom:calc(76px + var(--safe-b)); }
+.wp{ transition:opacity .25s ease, transform .25s ease, bottom .25s ease; }
+@media (hover:hover) and (pointer:fine){ .wp{ left:auto; right:16px; transform:translateY(12px); } .wp.show{ transform:none; } }
+/* the checkout drawer and sheets cover it anyway; keep it out of their way */
+body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, body:has(.dl-sheet:not([hidden])) .wp{ display:none; }
 </style>
 <script type="application/ld+json">
 {
@@ -1587,6 +1608,12 @@
   </div>
 </div>
 
+<div id="welcomePromo" class="wp" hidden>
+  <button type="button" class="wp-main" id="welcomePromoBtn" aria-label="Get 10% off your order with code WELCOME10">
+    <span class="wp-pct">10% off</span><span class="wp-sep" aria-hidden="true"></span><span class="wp-code">WELCOME10</span>
+  </button>
+  <button type="button" class="wp-x" id="welcomePromoX" aria-label="No thanks">&times;</button>
+</div>
 <div id="floatOrderGroup">
   <a id="floatPickup" class="float-btn" href="#menu">Order Pickup</a>
   <a id="floatDriveUp" class="float-btn drive-up-only" href="order.html">Drive Up</a>
@@ -1829,6 +1856,45 @@
       a.addEventListener('click', function(){ menu.classList.remove('open'); });
     });
   }
+
+  // ---- WELCOME10 pill ----
+  (function(){
+    var CODE = 'WELCOME10', KEY = 'rollin_welcome10';
+    var el = document.getElementById('welcomePromo');
+    function get(){ try { return localStorage.getItem(KEY) || ''; } catch (e) { return ''; } }
+    function set(v){ try { localStorage.setItem(KEY, v); } catch (e) {} }
+    window.rollinWelcome = { CODE: CODE, saved: function(){ return get() === 'saved'; }, used: function(){ set('used'); } };
+    if (!el || get()) return;
+    el.hidden = false;
+    var hero = document.querySelector('.hero'), footer = document.querySelector('footer');
+    var lastY = window.scrollY, rest = null, done = false;
+    function eligible(){
+      if (done) return false;
+      var pastHero = hero && hero.offsetParent !== null ? hero.getBoundingClientRect().bottom < 0 : window.scrollY > 300;
+      var beforeFooter = !footer || footer.getBoundingClientRect().top > window.innerHeight - 40;
+      return pastHero && beforeFooter;
+    }
+    function show(on){ el.classList.toggle('show', on && eligible()); }
+    // Slip away while scrolling down (reading); come back when the page rests or on scroll up.
+    window.addEventListener('scroll', function(){
+      var y = window.scrollY, down = y > lastY + 2;
+      lastY = y;
+      if (down) show(false); else if (y < lastY - 2) show(true);
+      clearTimeout(rest);
+      rest = setTimeout(function(){ show(true); }, 900);
+    }, { passive: true });
+    document.getElementById('welcomePromoBtn').addEventListener('click', function(){
+      set('saved'); done = true;
+      el.classList.add('saved');
+      el.querySelector('.wp-main').innerHTML = '\u2713 <span class="wp-code">' + CODE + '</span>&nbsp;saved \u00b7 applied at checkout';
+      setTimeout(function(){ el.classList.remove('show'); setTimeout(function(){ el.hidden = true; }, 300); }, 2600);
+    });
+    document.getElementById('welcomePromoX').addEventListener('click', function(){
+      set('dismissed'); done = true; el.classList.remove('show');
+      setTimeout(function(){ el.hidden = true; }, 300);
+    });
+    setTimeout(function(){ show(true); }, 1200);
+  })();
 
   // ---- Floating Order buttons ----
   (function(){
@@ -2883,6 +2949,10 @@
 
       refreshCheckoutBreakdown();
       prepareWallets();
+      if (window.rollinWelcome && window.rollinWelcome.saved() && !hasCatering && cart.length) {
+        document.getElementById('promoCodeInput').value = window.rollinWelcome.CODE;
+        document.getElementById('promoApplyBtn').click();
+      }
     }
 
     // While the drawer is open, the page behind it must not scroll --
@@ -3179,7 +3249,10 @@
         .then(function(result){
           setPayBusy(false);
           var d = result.data || {};
-          if (result.ok && (d.url || d.paid)) return d;
+          if (result.ok && (d.url || d.paid)) {
+            if (body.promoCode && String(body.promoCode).toUpperCase() === 'WELCOME10' && window.rollinWelcome) window.rollinWelcome.used();
+            return d;
+          }
           if ((d.code === 'CLOSED' || d.code === 'BAD_PICKUP_TIME') && window.rollinPickup) { window.rollinPickup.forceSchedule(); showCoStep('details'); }
           if (/^REWARD_/.test(d.code || '') && window.rollinRewards) { window.rollinRewards.reload(); showCoStep('details'); }
           if (d.code === 'TOTAL_CHANGED') {
