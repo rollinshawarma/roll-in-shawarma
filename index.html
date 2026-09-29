@@ -788,6 +788,28 @@
   .rw-terms-list b{ color:var(--ink); }
 .cart-clear-btn{ min-height:40px; padding:8px 12px; margin:-8px 0; border-radius:999px; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
 .cart-clear-btn.armed{ background:#d93025; color:#fff; font-weight:600; }
+/* ---- Scan to pay (desktop: pay this order on your phone) ---- */
+.scan-pay-btn{ display:flex; align-items:center; justify-content:center; gap:8px; width:100%; margin-top:10px; padding:10px 12px; border:1px solid var(--line); border-radius:12px; background:transparent; color:var(--text, #1d1d1f); font-size:14px; font-weight:500; cursor:pointer; }
+.scan-pay-btn:hover{ border-color:#1d1d1f; }
+.scan-pay-ico{ width:20px; height:20px; flex:none; }
+.scan-pay-tag{ font-size:11px; font-weight:600; padding:3px 8px; border-radius:6px; background:#000; color:#fff; letter-spacing:.01em; }
+.scan-pay-btn.hidden, .scan-pay.hidden{ display:none !important; }
+@media (hover:none), (pointer:coarse){ .scan-pay-btn{ display:none !important; } }
+.scan-pay{ display:flex; gap:16px; align-items:center; margin-top:12px; padding:14px; border:1px solid var(--line); border-radius:16px; background:#fff; text-align:left; }
+.scan-pay-qr{ width:148px; height:148px; flex:none; display:flex; align-items:center; justify-content:center; border-radius:10px; background:#fff; }
+.scan-pay-qr svg{ width:100%; height:100%; display:block; }
+.scan-pay-qr.done{ background:#e8f5ec; color:#1e8e3e; }
+.scan-pay-qr.done svg{ width:56px; height:56px; }
+.scan-pay-text{ display:flex; flex-direction:column; gap:6px; font-size:13px; color:var(--muted); line-height:1.45; }
+.scan-pay-text b{ color:#1d1d1f; font-size:15px; }
+.scan-pay-status{ display:flex; align-items:center; gap:8px; font-weight:500; color:#1d1d1f; }
+.scan-pay-status .dot{ width:8px; height:8px; border-radius:50%; background:#f5a623; animation:scanPulse 1.4s infinite; }
+.scan-pay-status.ok .dot{ background:#1e8e3e; animation:none; }
+.scan-pay-status.bad .dot{ background:#d93025; animation:none; }
+@keyframes scanPulse{ 0%,100%{ opacity:1 } 50%{ opacity:.3 } }
+.scan-pay-cancel{ align-self:flex-start; font-size:13px; color:var(--accent); padding:4px 0; background:none; border:0; cursor:pointer; }
+.scan-pay-spin{ width:28px; height:28px; border:3px solid var(--line); border-top-color:#1d1d1f; border-radius:50%; animation:scanSpin .8s linear infinite; }
+@keyframes scanSpin{ to{ transform:rotate(360deg) } }
 </style>
 <script type="application/ld+json">
 {
@@ -1681,6 +1703,20 @@
           </div>
           <div class="pay-or hidden" id="payOr"><span>or</span></div>
           <button type="button" id="cartPayNowBtn" class="btn btn-light">Pay Now</button>
+          <button type="button" id="scanPayBtn" class="scan-pay-btn" aria-controls="scanPayPanel">
+            <svg class="scan-pay-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>
+            <span>Scan to pay on your phone</span>
+            <span class="scan-pay-tag">Apple Pay</span>
+          </button>
+          <div id="scanPayPanel" class="scan-pay hidden" aria-live="polite">
+            <div class="scan-pay-qr" id="scanPayQr"><span class="scan-pay-spin"></span></div>
+            <div class="scan-pay-text">
+              <b id="scanPayHead">Getting your pay code&hellip;</b>
+              <span id="scanPaySub">Point your phone camera at the code. Pay with Apple Pay, Google Pay or card &mdash; your receipt and live tracking open on your phone.</span>
+              <div class="scan-pay-status" id="scanPayStatus"><span class="dot"></span><span id="scanPayStatusText">Waiting for payment&hellip;</span></div>
+              <button type="button" class="scan-pay-cancel" id="scanPayCancel">Cancel</button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -2765,6 +2801,8 @@
       var wp = document.querySelector('.wallet-pay');
       if (wp) wp.classList.toggle('hidden', freeOrder);
       if (freeOrder) document.getElementById('payOr').classList.add('hidden');
+      var spb = document.getElementById('scanPayBtn');
+      if (spb && document.getElementById('scanPayPanel').classList.contains('hidden')) spb.classList.toggle('hidden', freeOrder);
       var payBtn = document.getElementById('cartPayNowBtn');
       if (payBtn && !payBtn.disabled) payBtn.textContent = freeOrder ? 'Place free order' : (document.querySelector('#applePayBtn:not(.hidden), #googlePayBtn:not(.hidden)') ? 'Pay with card' : 'Pay Now');
       var ptsLine = document.getElementById('coPointsLine');
@@ -2882,6 +2920,9 @@
         giftCardCart = [];
         saveCart();
         saveGiftCardCart();
+        if (window.rollinScanPay) window.rollinScanPay.stop(true);
+        if (typeof showCoStep === 'function') showCoStep('details');
+        showItemsView();
         renderCartUI();
         var giftMsgEl = document.getElementById('giftCardMsg');
         if (giftMsgEl) { giftMsgEl.textContent = ''; giftMsgEl.className = 'promo-msg'; }
@@ -2996,6 +3037,74 @@
       prepareWallets();
     });
     document.getElementById('coEditDetailsBtn').addEventListener('click', function(){ showCoStep('details'); });
+
+    // ---- Scan to pay on your phone ----
+    (function(){
+      var CONFIRM_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/get-order-confirmation';
+      var btn = document.getElementById('scanPayBtn'), panel = document.getElementById('scanPayPanel');
+      var qrEl = document.getElementById('scanPayQr'), head = document.getElementById('scanPayHead');
+      var sub = document.getElementById('scanPaySub'), statusEl = document.getElementById('scanPayStatus');
+      var statusText = document.getElementById('scanPayStatusText'), cancelBtn = document.getElementById('scanPayCancel');
+      var run = 0, timer = null, SUB = sub.textContent;
+      function status(text, cls){ statusText.textContent = text; statusEl.className = 'scan-pay-status' + (cls ? ' ' + cls : ''); }
+      function stop(hide){
+        run++; clearTimeout(timer); timer = null;
+        if (hide) { panel.classList.add('hidden'); btn.classList.remove('hidden'); }
+      }
+      function paid(ref, t){
+        stop(false);
+        qrEl.classList.add('done');
+        qrEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+        head.textContent = 'Paid on your phone';
+        sub.textContent = 'Follow your order on your phone for live tracking and ready alerts.';
+        status('Opening your confirmation\u2026', 'ok');
+        cart = []; giftCardCart = []; saveCart(); saveGiftCardCart(); renderCartUI();
+        setTimeout(function(){ window.location.href = 'thank-you.html?ref=' + encodeURIComponent(ref) + '&t=' + encodeURIComponent(t) + '&via=phone'; }, 1200);
+      }
+      function watch(my, ref, t, until){
+        if (my !== run) return;
+        if (Date.now() > until) {
+          qrEl.innerHTML = ''; head.textContent = 'This pay code expired';
+          sub.textContent = 'Nothing was charged. Make a new code to pay on your phone.';
+          status('Expired', 'bad'); btn.classList.remove('hidden');
+          return;
+        }
+        fetch(CONFIRM_URL + '?ref=' + encodeURIComponent(ref) + '&t=' + encodeURIComponent(t), { headers: { 'Authorization': 'Bearer ' + PAY_KEY } })
+          .then(function(r){ return r.ok ? r.json() : null; })
+          .then(function(o){
+            if (my !== run) return;
+            if (o && o.status === 'paid') return paid(ref, t);
+            timer = setTimeout(function(){ watch(my, ref, t, until); }, 3000);
+          }, function(){ if (my === run) timer = setTimeout(function(){ watch(my, ref, t, until); }, 5000); });
+      }
+      btn.addEventListener('click', function(){
+        if (window.__rollinFreeOrder) return;
+        var order = collectCheckout();
+        if (!order) return;
+        stop(false);
+        var my = run;
+        btn.classList.add('hidden'); panel.classList.remove('hidden');
+        qrEl.classList.remove('done'); qrEl.innerHTML = '<span class="scan-pay-spin"></span>';
+        head.textContent = 'Getting your pay code\u2026'; sub.textContent = SUB; status('Waiting for payment\u2026');
+        panel.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        submitOrder(order).then(function(d){
+          if (my !== run) return;
+          if (!d || !d.url) { stop(true); return; }
+          if (d.paid) return paid(d.referenceCode, d.orderId);
+          var qr = qrcode(0, 'M'); qr.addData(d.url); qr.make();
+          qrEl.innerHTML = qr.createSvgTag({ scalable: true, margin: 2 });
+          head.textContent = 'Scan with your phone camera';
+          watch(my, d.referenceCode, d.orderId, Date.now() + 20 * 60 * 1000);
+        });
+      });
+      cancelBtn.addEventListener('click', function(){ stop(true); });
+      // Changing the order makes the code stale: take it away.
+      document.getElementById('coEditDetailsBtn').addEventListener('click', function(){ stop(true); });
+      ['cartPayNowBtn', 'applePayBtn', 'googlePayBtn'].forEach(function(id){
+        var el = document.getElementById(id); if (el) el.addEventListener('click', function(){ stop(true); }, true);
+      });
+      window.rollinScanPay = { stop: stop };
+    })();
 
     function checkoutMsg(text, isError){
       var el = document.getElementById(coStep === 'pay' ? 'cartCheckoutMsg' : 'coDetailsMsg');
