@@ -845,9 +845,10 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
 .ws-photo img, .ws-sheet-photo img{ object-position:50% 0; }
 /* The item sheet shows more of the photo. */
 .ws-sheet-photo{ aspect-ratio:4/3; max-height:46svh; }
-/* Loaded fries, bowls, almond kulfi and drinks: the whole photo, as is. */
-.ws-photo img.fit-whole, .ws-sheet-photo img.fit-whole{ object-fit:contain; object-position:50% 50%; background:#fff; }
-.ws-photo:has(img.fit-whole), .ws-sheet-photo:has(img.fit-whole){ background:#fff; }
+/* Loaded fries, bowls, almond kulfi and drinks: the original look
+   (centered crop, original pop-up photo size). */
+.ws-photo img.fit-whole, .ws-sheet-photo img.fit-whole{ object-fit:cover; object-position:50% 50%; }
+.ws-sheet-photo:has(img.fit-whole){ aspect-ratio:16/10; max-height:none; }
 </style>
 <script type="application/ld+json">
 {
