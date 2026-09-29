@@ -845,6 +845,9 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
 .ws-photo img, .ws-sheet-photo img{ object-position:50% 0; }
 /* The item sheet shows more of the photo. */
 .ws-sheet-photo{ aspect-ratio:4/3; max-height:46svh; }
+/* Loaded fries, bowls, almond kulfi and drinks: the whole photo, as is. */
+.ws-photo img.fit-whole, .ws-sheet-photo img.fit-whole{ object-fit:contain; object-position:50% 50%; background:#fff; }
+.ws-photo:has(img.fit-whole), .ws-sheet-photo:has(img.fit-whole){ background:#fff; }
 </style>
 <script type="application/ld+json">
 {
@@ -2405,7 +2408,8 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
       var src = item.image_url || (cat === 'Combo Add-ons'
         ? (item.name === 'Combo Fries' ? 'item-fries.jpg' : item.name === 'Combo Water' ? 'item-water.jpg' : 'item-soda.jpg')
         : 'item-' + wsSlug(groupName || item.name) + '.jpg');
-      return '<img src="' + escHtml(src) + '" alt="" loading="lazy" decoding="async" data-fallback="' + escHtml(categoryImages[cat] || '') + '" onerror="wsImgFallback(this)">';
+      var whole = /^(Loaded Fries|Bowls|Drinks)$/.test(cat) || /almond kulfi/i.test(groupName || item.name || '');
+      return '<img' + (whole ? ' class="fit-whole"' : '') + ' src="' + escHtml(src) + '" alt="" loading="lazy" decoding="async" data-fallback="' + escHtml(categoryImages[cat] || '') + '" onerror="wsImgFallback(this)">';
     }
     var wsToastTimer = null;
     function wsToast(msg, ms){
