@@ -788,14 +788,24 @@
   .rw-terms-list b{ color:var(--ink); }
 .cart-clear-btn{ min-height:40px; padding:8px 12px; margin:-8px 0; border-radius:999px; -webkit-tap-highlight-color:transparent; touch-action:manipulation; }
 .cart-clear-btn.armed{ background:#d93025; color:#fff; font-weight:600; }
-/* ---- Scan to pay (desktop: pay this order on your phone) ---- */
-.scan-pay-btn{ display:flex; align-items:center; justify-content:center; gap:8px; width:100%; margin-top:10px; padding:10px 12px; border:1px solid var(--line); border-radius:12px; background:transparent; color:var(--text, #1d1d1f); font-size:14px; font-weight:500; cursor:pointer; }
-.scan-pay-btn:hover{ border-color:#1d1d1f; }
-.scan-pay-ico{ width:20px; height:20px; flex:none; }
-.scan-pay-tag{ font-size:11px; font-weight:600; padding:3px 8px; border-radius:6px; background:#000; color:#fff; letter-spacing:.01em; }
+/* ---- Pay buttons: Apple Pay / Google Pay on top, then Scan to pay + Pay with card side by side.
+   All the same: black, 48px tall, 12px corners. ---- */
+.checkout-foot .wallet-pay .apple-pay-btn, .checkout-foot .wallet-pay .google-pay-btn{ height:48px; border-radius:12px; }
+.pay-row{ display:flex; gap:8px; }
+.pay-row > .pay-btn{ flex:1 1 0; min-width:0; }
+.checkout-foot .pay-btn, .checkout-foot #cartPayNowBtn{ height:48px; margin:0; border-radius:12px; background:#000; color:#fff; border:0; font-size:15px; font-weight:600; display:flex; align-items:center; justify-content:center; gap:8px; padding:0 12px; white-space:nowrap; cursor:pointer; }
+.checkout-foot .pay-btn:hover{ background:#1d1d1f; }
+.checkout-foot #cartPayNowBtn:disabled{ opacity:.6; }
+.scan-pay-ico{ width:18px; height:18px; flex:none; }
+/* Apple Pay mark: Safari draws Apple's own mark; other browsers show the words */
+.ap-mark{ display:inline-flex; align-items:center; height:20px; padding:0 6px; border-radius:5px; border:1px solid rgba(255,255,255,.55); font-size:11px; font-weight:600; letter-spacing:.01em; }
+@supports (-webkit-appearance:-apple-pay-button){
+  .ap-mark{ -webkit-appearance:-apple-pay-button; -apple-pay-button-type:plain; -apple-pay-button-style:white-outline; width:46px; height:22px; padding:0; border:0; border-radius:5px; pointer-events:none; }
+  .ap-mark-text{ display:none; }
+}
 .scan-pay-btn.hidden, .scan-pay.hidden{ display:none !important; }
 @media (hover:none), (pointer:coarse){ .scan-pay-btn{ display:none !important; } }
-.scan-pay{ display:flex; gap:16px; align-items:center; margin-top:12px; padding:14px; border:1px solid var(--line); border-radius:16px; background:#fff; text-align:left; }
+.scan-pay{ display:flex; gap:16px; align-items:center; margin-top:10px; padding:14px; border:1px solid var(--line); border-radius:16px; background:#fff; text-align:left; }
 .scan-pay-qr{ width:148px; height:148px; flex:none; display:flex; align-items:center; justify-content:center; border-radius:10px; background:#fff; }
 .scan-pay-qr svg{ width:100%; height:100%; display:block; }
 .scan-pay-qr.done{ background:#e8f5ec; color:#1e8e3e; }
@@ -1702,12 +1712,14 @@
             <div id="googlePayBtn" class="google-pay-btn hidden"></div>
           </div>
           <div class="pay-or hidden" id="payOr"><span>or</span></div>
-          <button type="button" id="cartPayNowBtn" class="btn btn-light">Pay Now</button>
-          <button type="button" id="scanPayBtn" class="scan-pay-btn" aria-controls="scanPayPanel">
-            <svg class="scan-pay-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>
-            <span>Scan to pay on your phone</span>
-            <span class="scan-pay-tag">Apple Pay</span>
-          </button>
+          <div class="pay-row">
+            <button type="button" id="scanPayBtn" class="pay-btn scan-pay-btn" aria-controls="scanPayPanel" aria-label="Scan to pay on your phone with Apple Pay, Google Pay or card">
+              <svg class="scan-pay-ico" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3" y="3" width="7" height="7" rx="1.5"/><rect x="14" y="3" width="7" height="7" rx="1.5"/><rect x="3" y="14" width="7" height="7" rx="1.5"/><path d="M14 14h3v3h-3zM20 14v.01M14 20h.01M17 20h4v-3"/></svg>
+              <span>Scan to pay</span>
+              <span class="ap-mark" aria-hidden="true"><span class="ap-mark-text">Apple Pay</span></span>
+            </button>
+            <button type="button" id="cartPayNowBtn" class="btn btn-light pay-btn">Pay with card</button>
+          </div>
           <div id="scanPayPanel" class="scan-pay hidden" aria-live="polite">
             <div class="scan-pay-qr" id="scanPayQr"><span class="scan-pay-spin"></span></div>
             <div class="scan-pay-text">
@@ -2804,7 +2816,7 @@
       var spb = document.getElementById('scanPayBtn');
       if (spb && document.getElementById('scanPayPanel').classList.contains('hidden')) spb.classList.toggle('hidden', freeOrder);
       var payBtn = document.getElementById('cartPayNowBtn');
-      if (payBtn && !payBtn.disabled) payBtn.textContent = freeOrder ? 'Place free order' : (document.querySelector('#applePayBtn:not(.hidden), #googlePayBtn:not(.hidden)') ? 'Pay with card' : 'Pay Now');
+      if (payBtn && !payBtn.disabled) payBtn.textContent = freeOrder ? 'Place free order' : 'Pay with card';
       var ptsLine = document.getElementById('coPointsLine');
       if (ptsLine) {
         var member = window.rollinRewards && window.rollinRewards.signedIn();
@@ -3117,7 +3129,7 @@
       btn.textContent = busy ? (label || 'Processing…') : payLabel();
       ['applePayBtn', 'googlePayBtn'].forEach(function(id){ document.getElementById(id).classList.toggle('is-busy', busy); });
     }
-    function payLabel(){ return window.__rollinFreeOrder ? 'Place free order' : walletShown ? 'Pay with card' : 'Pay Now'; }
+    function payLabel(){ return window.__rollinFreeOrder ? 'Place free order' : 'Pay with card'; }
 
     // Checks the form synchronously (Apple Pay must open straight from the
     // tap, before anything waits on the network) and returns the order.
