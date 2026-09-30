@@ -12,6 +12,7 @@
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="deals.js"></script>
 <script src="ingredients.js"></script>
+<script src="spot-picker.js"></script>
 <style>
   :root{
     --black:#000000; --panel:#121110; --panel-2:#211C16; --line:rgba(243,234,201,0.13);
@@ -247,6 +248,7 @@
   .spot-btn{ min-height:60px; border-radius:14px; border:1px solid var(--line); background:var(--panel); font-family:var(--display); font-weight:800; font-size:30px; color:var(--white); }
   .spot-btn[aria-pressed="true"]{ background:var(--gold); border-color:var(--gold); color:var(--gold-ink); }
   .field.invalid .spots .spot-btn{ border-color:var(--red); }
+  .field.invalid #spotGrid .lot-btn:not(:disabled){ border-color:var(--red); }
   .co-subhead{ font-weight:700; color:var(--white); margin:18px 0 10px; }
   .co-subhead small{ color:var(--muted); font-weight:500; }
   .apply-row{ display:flex; gap:8px; }
@@ -447,13 +449,7 @@
         <p class="arrive-note hidden" id="arriveNote">&#128205; When you pull in, open your order and tap <b>I&rsquo;m here</b>. We&rsquo;ll check you&rsquo;re at the truck, you pick your spot, and we bring it out.</p>
         <div class="field" id="spotField">
           <label id="spotLabel">Which parking spot are you in?</label>
-          <div class="spots" role="group" aria-labelledby="spotLabel" id="spotGrid">
-            <button type="button" class="spot-btn" data-spot="1" aria-pressed="false">1</button>
-            <button type="button" class="spot-btn" data-spot="2" aria-pressed="false">2</button>
-            <button type="button" class="spot-btn" data-spot="3" aria-pressed="false">3</button>
-            <button type="button" class="spot-btn" data-spot="4" aria-pressed="false">4</button>
-            <button type="button" class="spot-btn" data-spot="5" aria-pressed="false">5</button>
-          </div>
+          <div id="spotGrid" aria-labelledby="spotLabel"></div>
         </div>
         <details class="more-details car-details" id="carDetails">
         <summary>Car details <small>(optional)</small></summary>
@@ -1432,6 +1428,7 @@
       if (appliedPromo) applyPromo();
       $('checkoutScreen').classList.remove('hidden');
       document.body.classList.add('locked');
+      watchTakenSpots(true);
       $('checkoutScreen').scrollTop = 0;
       $('coBackBtn').focus();
     }
@@ -1440,6 +1437,7 @@
       if ($('checkoutScreen').getAttribute('data-step') === 'pay') { setCoStep('details'); return; }
       $('checkoutScreen').classList.add('hidden');
       document.body.classList.remove('locked');
+      watchTakenSpots(false);
       renderCart();
       openSheet($('cartSheet'));
     }
@@ -1511,13 +1509,46 @@
       document.querySelectorAll('[data-arrive]').forEach(function(x){ x.setAttribute('aria-pressed', x.getAttribute('data-arrive') === 'on_the_way' ? 'true' : 'false'); });
       $('spotField').classList.add('hidden'); $('arriveNote').classList.remove('hidden');
     }
-    $('spotGrid').addEventListener('click', function(e){
-      var b = e.target.closest('[data-spot]');
-      if (!b) return;
-      parkingSpot = parseInt(b.getAttribute('data-spot'), 10);
-      $('spotGrid').querySelectorAll('[data-spot]').forEach(function(x){ x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); });
-      $('spotField').classList.remove('invalid');
-    });
+    // ---- Parking spot: tap it on the lot photo (spot-picker.js). ----
+    // Taken spots are greyed out (live from the database, every 10 s while
+    // checkout is open); the server also refuses a spot someone else holds.
+    var HOLD_KEY_NAME = 'rollin_qr_hold';
+    var holdKey = (function(){
+      try { var k = sessionStorage.getItem(HOLD_KEY_NAME); if (k) return k; } catch(e){}
+      var k2 = 'qr' + Date.now().toString(36) + Math.random().toString(36).slice(2, 12);
+      try { sessionStorage.setItem(HOLD_KEY_NAME, k2); } catch(e){}
+      return k2;
+    })();
+    var lot = window.RollinSpots ? window.RollinSpots.mount($('spotGrid'), {
+      onPick: function(n){ parkingSpot = n; $('spotField').classList.remove('invalid'); renderCheckout(); }
+    }) : null;
+    var takenTimer = null;
+    function refreshTakenSpots(){
+      if (!lot) return Promise.resolve();
+      return sbShared.rpc('get_taken_spots', { p_order_id: null, p_hold_key: holdKey }).then(function(res){
+        if (res.error || !Array.isArray(res.data)) return;
+        if (lot.setTaken(res.data)) {
+          parkingSpot = null;
+          $('spotField').classList.add('invalid');
+          $('coMsg').textContent = 'Someone just parked in that spot. Please pick another one.';
+          renderCheckout();
+        }
+      }, function(){});
+    }
+    function watchTakenSpots(on){
+      clearInterval(takenTimer); takenTimer = null;
+      if (on) { refreshTakenSpots(); takenTimer = setInterval(function(){ if (document.visibilityState === 'visible') refreshTakenSpots(); }, 10000); }
+    }
+    // The server said the spot is taken: back to the details step to pick again.
+    function onSpotTaken(message){
+      parkingSpot = null;
+      if (lot) lot.setSelected(null);
+      setCoStep('details');
+      $('spotField').classList.add('invalid');
+      refreshTakenSpots();
+      $('coMsg').textContent = message || 'That spot was just taken. Please pick another one.';
+      $('spotField').scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
 
     // ---- Member ID (optional): checked, then linked to the order ----
     function normalizeMember(v){
@@ -1729,6 +1760,7 @@
         orderSource: 'qr',
         pickupMethod: pickupMethod,
         parkingSpot: pickupMethod === 'curbside' && arriveMode !== 'on_the_way' ? parkingSpot : null,
+        holdKey: holdKey,
         arrivalMode: pickupMethod === 'curbside' && arriveMode === 'on_the_way' ? 'on_the_way' : undefined,
         carMake: carMakeValue,
         carModel: carModelValue,
@@ -1772,6 +1804,7 @@
         .then(function(result){
           if (!result.ok) {
             btn.disabled = false; btn.innerHTML = prevHtml;
+            if (result.data && result.data.code === 'SPOT_TAKEN') { onSpotTaken(result.data.error); return; }
             if (result.data && /^REWARD_/.test(result.data.code || '')) loadMember();
             msg.textContent = formatErrorMessage(result.data && result.data.error) || 'We couldn\u2019t start checkout. Please try again.';
             return;
@@ -1878,6 +1911,7 @@
         }).then(function(r){ return r.json().then(function(d){ return { ok: r.ok, data: d }; }); }).then(function(result){
           if (!result.ok || !result.data.paid) {
             setWalletBusy(false);
+            if (result.data && result.data.code === 'SPOT_TAKEN') { onSpotTaken(result.data.error); return; }
             if (result.data && result.data.code === 'TOTAL_CHANGED') loadMenu();
             if (result.data && /^REWARD_/.test(result.data.code || '')) loadMember();
             msg.textContent = formatErrorMessage(result.data && result.data.error) || 'Your payment didn\u2019t go through. You haven\u2019t been charged.';
