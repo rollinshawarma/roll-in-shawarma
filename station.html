@@ -77,6 +77,13 @@
   #fryerPanels{ flex:1; min-height:0; display:flex; }
   #fryerItemPanel{ flex:1; min-width:0; display:flex; flex-direction:column; }
   #fryerItemColumns{ flex:1; min-height:0; display:flex; }
+  #truckLocBtn{ font-size:14px; color:var(--muted); font-weight:700; padding:8px 14px; border:1px solid var(--line); border-radius:100px; margin-right:10px; white-space:nowrap; }
+  #truckLocBtn.needs{ color:var(--orange); border-color:var(--orange); }
+  #truckLocBtn.ok{ color:var(--green); border-color:rgba(11,175,76,0.5); }
+  .curbside-badge.otw{ background:rgba(255,140,26,0.14); color:var(--orange); border-color:var(--orange); }
+  .curbside-badge.arrived{ background:rgba(11,175,76,0.18); color:#39E07F; border-color:var(--green); animation:arrivedPulse 1.6s ease-in-out 4; }
+  .curbside-badge small{ display:block; font-size:13px; font-weight:700; opacity:.85; text-transform:none; }
+  @keyframes arrivedPulse{ 0%,100%{ box-shadow:0 0 0 0 rgba(11,175,76,0.0); } 50%{ box-shadow:0 0 0 6px rgba(11,175,76,0.35); } }
   #recallBtn{ font-size:14px; color:var(--gold); font-weight:700; padding:8px 14px; border:1px solid var(--gold); border-radius:100px; margin-right:10px; }
   #recallPanel{ flex:none; background:var(--panel); border-bottom:1px solid var(--gold); padding:12px 24px; }
   .recall-panel-head{ display:flex; justify-content:space-between; align-items:center; font-size:17px; font-weight:800; color:var(--gold); margin-bottom:10px; }
@@ -381,6 +388,7 @@
     <div id="boardLastUpdated" class="board-last-updated">&mdash;</div>
     <div id="boardClock">&mdash;</div>
     <button type="button" id="scheduledBtn">&#9200; Scheduled<span class="sched-count zero" id="scheduledCount">0</span></button>
+    <button type="button" id="truckLocBtn" title="Save where the truck is parked (for drive-up check-ins)">&#128205; Truck location</button>
     <button type="button" id="recallBtn">&#8634; Recall</button>
     <button type="button" id="switchToFryerBtn">Switch to Sub Station</button>
     <button type="button" id="lockBtn">Lock Screen</button>
@@ -590,6 +598,13 @@
     }
 
     var SOUNDS = {
+      // Drive-up customer checked in ("I'm here"): quick bright triple.
+      arrival: function(){
+        var t = audioCtx.currentTime;
+        ringBell(1047, t, 0.22);
+        ringBell(1319, t + 0.14, 0.22);
+        ringBell(1568, t + 0.28, 0.3);
+      },
       // Kiosk: a single clear bell strike -- the most common source, kept simple.
       kiosk: function(){
         ringBell(660, audioCtx.currentTime, 0.32);
@@ -973,6 +988,7 @@
       document.getElementById('stationChoiceScreen').classList.add('hidden');
       board.classList.remove('hidden');
       window.startKdsBoard();
+      if (window.refreshTruckLoc) window.refreshTruckLoc();
     });
     document.getElementById('chooseSubStationBtn').addEventListener('click', function(){
       window.initKdsAudio();
@@ -1002,6 +1018,7 @@
       document.getElementById('fryerBoard').classList.add('hidden');
       board.classList.remove('hidden');
       window.startKdsBoard();
+      if (window.refreshTruckLoc) window.refreshTruckLoc();
     });
 
     document.getElementById('lockBtn').addEventListener('click', function(){
@@ -1337,6 +1354,34 @@
       });
     }
 
+    // ---- Truck location (drive-up check-ins measure the distance to it) ----
+    var truckBtn = document.getElementById('truckLocBtn');
+    function showTruckLoc(info){
+      if (!info || !info.set) { truckBtn.className = 'needs'; truckBtn.innerHTML = '&#128205; Set truck location'; return; }
+      var at = new Date(info.updated_at), old = Date.now() - at.getTime() > 12 * 3600000;
+      truckBtn.className = old ? 'needs' : 'ok';
+      truckBtn.innerHTML = '&#128205; ' + (old ? 'Update truck location' : 'Truck set ' + at.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }));
+    }
+    window.refreshTruckLoc = function(){
+      sb.rpc('get_truck_location').then(function(res){ if (!res.error) showTruckLoc(res.data); }, function(){});
+    };
+    truckBtn.addEventListener('click', function(){
+      if (!navigator.geolocation) { alert('This tablet can\u2019t share its location.'); return; }
+      if (!confirm('Save this tablet\u2019s current spot as where the truck is parked? Do this once each time the truck moves.')) return;
+      truckBtn.disabled = true; truckBtn.innerHTML = '&#128205; Finding the truck\u2026';
+      navigator.geolocation.getCurrentPosition(function(p){
+        sb.rpc('set_truck_location', { p_lat: p.coords.latitude, p_lng: p.coords.longitude, p_accuracy: p.coords.accuracy }).then(function(res){
+          truckBtn.disabled = false;
+          if (res.error) { alert('Couldn\u2019t save: ' + (res.error.message || 'unknown error')); window.refreshTruckLoc(); return; }
+          showTruckLoc({ set: true, updated_at: new Date().toISOString() });
+          if (p.coords.accuracy > 100) alert('Saved, but the GPS was rough (\u00b1' + Math.round(p.coords.accuracy) + ' m). Try again outside the truck for a better fix.');
+        });
+      }, function(err){
+        truckBtn.disabled = false; window.refreshTruckLoc();
+        alert(err && err.code === 1 ? 'Location is blocked for this page. Allow location for rollinshawarma.com in the tablet\u2019s settings.' : 'Couldn\u2019t get a GPS fix. Try again near a window or outside.');
+      }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
+    });
+
     document.getElementById('recallBtn').addEventListener('click', function(){
       if (recallPanel.classList.contains('hidden')) {
         document.getElementById('scheduledPanel').classList.add('hidden');
@@ -1467,6 +1512,37 @@
       });
     }
 
+    // Drive-up badge: on the way (with distance while their page is open),
+    // arrived at a spot (checked in with "I'm here"), or picked at the truck.
+    var arrivalSeen = null;
+    function fmtMiles(m){ var mi = m / 1609.34; return mi < 0.1 ? Math.round(m * 3.281 / 10) * 10 + ' ft' : (mi < 10 ? mi.toFixed(1) : Math.round(mi)) + ' mi'; }
+    function driveUpBadgeHtml(o){
+      var car = [o.carColor, o.carMake].filter(Boolean).join(' ');
+      var carHtml = car ? ' &mdash; ' + escHtml(car) : '';
+      if (o.arrival === 'on_the_way') {
+        var fresh = o.driveDist != null && o.driveAt && (Date.now() - new Date(o.driveAt).getTime()) < 3 * 60000;
+        return '<div class="curbside-badge otw">\uD83D\uDE97 On the way' + (fresh ? ' &middot; ' + escHtml(fmtMiles(o.driveDist)) : '') + carHtml +
+          '<small>Not here yet \u2014 they\u2019ll check in with \u201cI\u2019m here\u201d</small></div>';
+      }
+      if (o.arrival === 'arrived') {
+        return '<div class="curbside-badge arrived">\uD83D\uDE97 Arrived \u2014 ' + (o.parkingSpot ? 'Spot ' + escHtml(o.parkingSpot) : 'no spot') + carHtml +
+          (o.arrivalVerified === false ? '<small>Location not checked</small>' : '') + '</div>';
+      }
+      return '<div class="curbside-badge">\uD83D\uDE97 ' + (o.parkingSpot ? 'Spot ' + escHtml(o.parkingSpot) : 'Curbside') +
+        (car ? carHtml : (o.parkingSpot ? '' : ' &mdash; no spot or car details')) + '</div>';
+    }
+    // Chime once when a drive-up order switches to "arrived".
+    function chimeOnArrivals(byOrder){
+      var now = {};
+      Object.keys(byOrder).forEach(function(id){ now[id] = byOrder[id].arrival; });
+      if (arrivalSeen) {
+        Object.keys(now).forEach(function(id){
+          if (now[id] === 'arrived' && arrivalSeen[id] === 'on_the_way') window.playOrderSound('arrival');
+        });
+      }
+      arrivalSeen = now;
+    }
+
     function renderQueuePanel(rows){
       var listEl = document.getElementById('queueList');
       var orderIds = [];
@@ -1477,6 +1553,7 @@
             reference_code: r.reference_code, customer_name: r.customer_name, paymentMethod: r.payment_method, source: r.order_source,
             createdAt: r.order_created_at, pickupMethod: r.pickup_method, carMake: r.car_make, carColor: r.car_color, parkingSpot: r.parking_spot, scheduledAt: r.scheduled_pickup_at,
             notes: r.order_notes,
+            arrival: r.arrival_status || null, arrivalVerified: r.arrival_verified, driveDist: r.drive_distance_m, driveAt: r.drive_updated_at,
             items: []
           };
           orderIds.push(r.order_id);
@@ -1484,6 +1561,7 @@
         byOrder[r.order_id].items.push({ name: r.item_note ? r.item_name + ' // ' + r.item_note : r.item_name, status: r.status });
       });
 
+      chimeOnArrivals(byOrder);
       if (!orderIds.length) {
         listEl.innerHTML = '<div class="queue-empty-hint">No active orders right now.</div>';
         return;
@@ -1532,10 +1610,7 @@
           '</div>' +
           (isCash ? '<div class="cash-warning">Confirm Cash Payment</div>' : '') +
           (o.scheduledAt ? '<div class="scheduled-badge">\u23F0 ' + (DELIVERY_APPS[o.source] ? 'Scheduled ' + escHtml(DELIVERY_APPS[o.source]) + ' \u2014 ready by ' : 'Scheduled pickup ') + escHtml(fmtTime(o.scheduledAt)) + '</div>' : '') +
-          (isCurbside ? '<div class="curbside-badge">\uD83D\uDE97 ' +
-            (o.parkingSpot ? 'Spot ' + escHtml(o.parkingSpot) : 'Curbside') +
-            (function(){ var car = [o.carColor, o.carMake].filter(Boolean).join(' '); return car ? ' &mdash; ' + escHtml(car) : (o.parkingSpot ? '' : ' &mdash; no spot or car details'); })() +
-          '</div>' : '') +
+          (isCurbside ? driveUpBadgeHtml(o) : '') +
           notesHtml +
           '<div class="order-pills">' + pillsHtml + '</div>' +
           (allReady ? (DELIVERY_APPS[o.source]
