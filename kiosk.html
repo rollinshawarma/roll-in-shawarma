@@ -9,6 +9,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="deals.js"></script>
+<script src="ingredients.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
 <style>
   :root{
@@ -268,6 +269,32 @@
   }
   .cart-view-info{ flex:1; min-width:0; }
   .cart-view-name{ font-size:15px; font-weight:700; color:var(--white); }
+  .cart-view-note, .checkout-item-note{ display:block; font-size:13.5px; font-weight:700; color:#FF6B5E; }
+  /* ---------- What's included (tap to remove) ---------- */
+  .ing-modal{ position:fixed; inset:0; z-index:900; background:rgba(0,0,0,.72); display:flex; align-items:center; justify-content:center; padding:24px; }
+  .ing-modal.hidden{ display:none; }
+  .ing-modal-card{ width:min(640px, 100%); max-height:92vh; overflow-y:auto; background:var(--panel); border:1px solid var(--line); border-radius:24px; padding:26px 26px 22px; box-shadow:0 30px 80px rgba(0,0,0,.6); }
+  .ing-modal-head{ display:flex; align-items:center; gap:16px; margin-bottom:6px; }
+  .ing-modal-head img{ width:84px; height:84px; border-radius:16px; object-fit:cover; flex:none; }
+  .ing-modal-head h2{ color:var(--white); font-size:26px; font-weight:800; line-height:1.15; }
+  .ing-modal-head .price{ color:var(--gold); font-size:18px; font-weight:700; margin-top:2px; }
+  .ing-block{ margin-top:18px; }
+  .ing-head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:16px; }
+  .ing-title{ color:var(--white); font-size:19px; font-weight:800; }
+  .ing-hint{ color:var(--muted); font-size:15px; }
+  .ing-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(100px, 1fr)); gap:18px 10px; }
+  .ing-chip{ position:relative; display:flex; flex-direction:column; align-items:center; gap:8px; background:none; border:0; cursor:pointer; color:inherit; font:inherit; }
+  .ing-pic{ width:86px; height:86px; border-radius:50%; background:#FFF8EC; display:flex; align-items:center; justify-content:center; overflow:hidden; box-shadow:0 0 0 3px var(--gold); transition:opacity .15s ease, filter .15s ease, box-shadow .15s ease; }
+  .ing-pic img{ width:120%; height:auto; max-width:none; }
+  .ing-badge{ position:absolute; top:-2px; right:calc(50% - 48px); width:28px; height:28px; border-radius:50%; background:var(--gold); color:#241902; font-size:16px; font-weight:800; line-height:28px; text-align:center; box-shadow:0 0 0 3px var(--panel); }
+  .ing-name{ color:var(--cream); font-size:15px; font-weight:700; text-align:center; line-height:1.2; }
+  .ing-chip.is-off .ing-pic{ opacity:.35; filter:grayscale(1); box-shadow:0 0 0 1px var(--line); }
+  .ing-chip.is-off .ing-badge{ background:#6d6a64; color:#fff; }
+  .ing-chip.is-off .ing-name{ color:#FF6B5E; }
+  .ing-modal-actions{ display:flex; gap:12px; margin-top:26px; }
+  .ing-modal-actions button{ flex:1; height:64px; border-radius:16px; font-size:20px; font-weight:800; border:0; cursor:pointer; }
+  #ingModalCancel{ background:transparent; color:var(--cream); border:1px solid var(--line); flex:0 0 34%; }
+  #ingModalAdd{ background:var(--gold); color:#241902; }
   .cart-view-linetotal{ font-size:13px; color:var(--muted); margin-top:3px; }
   .cart-view-stepper{ display:flex; align-items:center; gap:10px; flex:none; }
   .cart-qty-btn{ width:34px; height:34px; border-radius:50%; background:var(--black); border:1px solid var(--line); color:var(--cream); font-size:19px; display:flex; align-items:center; justify-content:center; }
@@ -470,6 +497,17 @@
         <button type="button" id="proceedToCheckoutBtn">Proceed to Checkout</button>
         <button type="button" id="clearCartBtn">Clear Cart</button>
       </div>
+    </div>
+  </div>
+</div>
+
+<div id="ingModal" class="ing-modal hidden" role="dialog" aria-modal="true" aria-labelledby="ingModalTitle">
+  <div class="ing-modal-card">
+    <div class="ing-modal-head"><img id="ingModalPhoto" alt="" onerror="this.style.visibility='hidden'"><div><h2 id="ingModalTitle"></h2><div class="price" id="ingModalPrice"></div></div></div>
+    <div id="ingModalChips"></div>
+    <div class="ing-modal-actions">
+      <button type="button" id="ingModalCancel">Cancel</button>
+      <button type="button" id="ingModalAdd">Add to Cart</button>
     </div>
   </div>
 </div>
@@ -1268,7 +1306,7 @@
       contentEl.querySelectorAll('.protein-choice-row[data-pick-id]').forEach(function(row){
         row.addEventListener('click', function(e){
           e.stopPropagation();
-          addOne(row.getAttribute('data-pick-id'));
+          addWithChoices(row.getAttribute('data-pick-id'));
           var key = row.closest('.select-tile-overlay').getAttribute('data-select-group');
           closeOverlay(key);
         });
@@ -1302,7 +1340,7 @@
 
       if (!line) {
         controlEl.innerHTML = '<button type="button" class="add-to-cart-btn" data-id="' + itemId + '">Add to Cart</button>';
-        controlEl.querySelector('.add-to-cart-btn').addEventListener('click', function(){ addOne(itemId); });
+        controlEl.querySelector('.add-to-cart-btn').addEventListener('click', function(){ addWithChoices(itemId); });
       } else {
         controlEl.innerHTML =
           '<div class="item-qty-stepper">' +
@@ -1324,8 +1362,7 @@
       var badgeEl = document.querySelector('.item-tile-badge-row[data-variant-group="' + cssEscape(group.name) + '"]');
       if (!badgeEl) return;
       var total = group.items.reduce(function(sum, item){
-        var line = findLine(item.id);
-        return sum + (line ? line.quantity : 0);
+        return sum + cart.reduce(function(s, c){ return s + (c.menu_item_id === item.id ? c.quantity : 0); }, 0);
       }, 0);
       badgeEl.innerHTML = total > 0 ? '<div class="qty-pill">' + total + '</div>' : '';
     }
@@ -1346,7 +1383,42 @@
       }
     }
 
-    function findLine(itemId){ return cart.find(function(c){ return c.menu_item_id === itemId; }); }
+    function rmKey(c){ return (c.remove || []).join(','); }
+    function findLine(itemId, rm){ rm = rm || ''; return cart.find(function(c){ return c.menu_item_id === itemId && rmKey(c) === rm; }); }
+    function ingNote(c){ return c.remove && c.remove.length && window.RollinIngredients ? window.RollinIngredients.note(c.remove) : ''; }
+
+    // ---- What's included: adding an item that has a list opens this ----
+    var ingPending = null; // { itemId, removed }
+    function hasIngredients(itemId){ return !!(window.RollinIngredients && window.RollinIngredients.included(itemsById[itemId]).length); }
+    function renderIngChips(){
+      document.getElementById('ingModalChips').innerHTML = window.RollinIngredients.chipsHtml(itemsById[ingPending.itemId], ingPending.removed);
+    }
+    function openIngredients(itemId){
+      var item = itemsById[itemId];
+      ingPending = { itemId: itemId, removed: [] };
+      document.getElementById('ingModalTitle').textContent = item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : '');
+      document.getElementById('ingModalPrice').textContent = '$' + Number(item.price).toFixed(2);
+      var ph = document.getElementById('ingModalPhoto');
+      ph.style.visibility = ''; ph.src = item.image_url || ('item-' + slugify(item.name) + '.jpg');
+      renderIngChips();
+      document.getElementById('ingModal').classList.remove('hidden');
+    }
+    function closeIngredients(){ ingPending = null; document.getElementById('ingModal').classList.add('hidden'); }
+    // Add to Cart / protein pick: items with a list ask first, others add right away.
+    function addWithChoices(itemId){ if (hasIngredients(itemId)) openIngredients(itemId); else addOne(itemId); }
+    document.getElementById('ingModalChips').addEventListener('click', function(e){
+      var chip = e.target.closest('[data-ing]'); if (!chip || !ingPending) return;
+      var RI = window.RollinIngredients;
+      ingPending.removed = RI.clean(itemsById[ingPending.itemId], RI.toggle(ingPending.removed, chip.getAttribute('data-ing')));
+      renderIngChips();
+    });
+    document.getElementById('ingModalCancel').addEventListener('click', closeIngredients);
+    document.getElementById('ingModal').addEventListener('click', function(e){ if (e.target === this) closeIngredients(); });
+    document.getElementById('ingModalAdd').addEventListener('click', function(){
+      if (!ingPending) return;
+      var p = ingPending; closeIngredients();
+      addOne(p.itemId, window.RollinIngredients.clean(itemsById[p.itemId], p.removed).join(','));
+    });
 
     // One combo allowed per qualifying entree in the cart -- not just
     // "any entree unlocks unlimited combos." Counts entrees by summing
@@ -1437,36 +1509,39 @@
       renderCartView();
     }
 
-    function addOneRaw(itemId){
+    function addOneRaw(itemId, rm){
       var item = itemsById[itemId];
       if (!item) return;
-      var line = findLine(itemId);
+      rm = rm || '';
+      var line = findLine(itemId, rm);
       if (line) {
         line.quantity += 1;
       } else {
         var label = item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : '');
-        cart.push({ menu_item_id: itemId, name: label, unitPrice: Number(item.price), quantity: 1 });
+        var nl = { menu_item_id: itemId, name: label, unitPrice: Number(item.price), quantity: 1 };
+        if (rm) nl.remove = rm.split(',');
+        cart.push(nl);
       }
     }
 
-    function addOne(itemId){
-      addOneRaw(itemId);
+    function addOne(itemId, rm){
+      addOneRaw(itemId, rm);
       syncCombos();
       refreshItemDisplay(itemId);
       refreshComboRowState();
       renderCartView();
     }
 
-    function removeOne(itemId){
+    function removeOne(itemId, rm){
       var item = itemsById[itemId];
-      var line = findLine(itemId);
+      var line = findLine(itemId, rm);
       if (!line) return;
       var minQty = item && item.min_quantity;
       if (minQty && line.quantity <= minQty) {
-        cart = cart.filter(function(c){ return c.menu_item_id !== itemId; });
+        cart = cart.filter(function(c){ return c !== line; });
       } else {
         line.quantity -= 1;
-        if (line.quantity <= 0) cart = cart.filter(function(c){ return c.menu_item_id !== itemId; });
+        if (line.quantity <= 0) cart = cart.filter(function(c){ return c !== line; });
       }
       syncCombos();
       refreshItemDisplay(itemId);
@@ -1499,21 +1574,21 @@
         listEl.innerHTML = cart.map(function(c){
           return '<div class="cart-view-row">' +
             '<div class="cart-view-info">' +
-              '<div class="cart-view-name">' + escHtml(c.name) + '</div>' +
+              '<div class="cart-view-name">' + escHtml(c.name) + (ingNote(c) ? '<span class="cart-view-note">' + escHtml(ingNote(c)) + '</span>' : '') + '</div>' +
               '<div class="cart-view-linetotal">$' + c.unitPrice.toFixed(2) + ' each &middot; $' + (c.unitPrice * c.quantity).toFixed(2) + '</div>' +
             '</div>' +
             '<div class="cart-view-stepper">' +
-              '<button type="button" class="cart-qty-btn" data-id="' + c.menu_item_id + '" data-dir="-1">\u2212</button>' +
+              '<button type="button" class="cart-qty-btn" data-id="' + c.menu_item_id + '" data-rm="' + escHtml(rmKey(c)) + '" data-dir="-1">\u2212</button>' +
               '<span class="cart-qty-value">' + c.quantity + '</span>' +
-              '<button type="button" class="cart-qty-btn" data-id="' + c.menu_item_id + '" data-dir="1">+</button>' +
+              '<button type="button" class="cart-qty-btn" data-id="' + c.menu_item_id + '" data-rm="' + escHtml(rmKey(c)) + '" data-dir="1">+</button>' +
             '</div>' +
           '</div>';
         }).join('');
 
         listEl.querySelectorAll('.cart-qty-btn').forEach(function(btn){
           btn.addEventListener('click', function(){
-            var id = btn.getAttribute('data-id');
-            if (btn.getAttribute('data-dir') === '1') addOne(id); else removeOne(id);
+            var id = btn.getAttribute('data-id'), rm = btn.getAttribute('data-rm') || '';
+            if (btn.getAttribute('data-dir') === '1') addOne(id, rm); else removeOne(id, rm);
           });
         });
       }
@@ -1534,7 +1609,7 @@
       orderScreen.classList.add('hidden');
       checkoutScreen.classList.remove('hidden');
       document.getElementById('checkoutItemsList').innerHTML = cart.map(function(c){
-        return '<div class="checkout-item-row"><span class="nm">' + escHtml(c.name) + ' &times; ' + c.quantity + '</span>' +
+        return '<div class="checkout-item-row"><span class="nm">' + escHtml(c.name) + ' &times; ' + c.quantity + (ingNote(c) ? '<span class="checkout-item-note">' + escHtml(ingNote(c)) + '</span>' : '') + '</span>' +
           '<span class="amt">$' + (c.unitPrice * c.quantity).toFixed(2) + '</span></div>';
       }).join('');
       var subtotalCents = Math.round(cartTotal() * 100);
@@ -1826,7 +1901,9 @@
       btn.textContent = 'One moment\u2026';
 
       var itemsPayload = cart.map(function(c){
-        return { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name };
+        var o = { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name };
+        if (c.remove && c.remove.length) o.remove = c.remove;
+        return o;
       });
       var name = document.getElementById('kioskName').value.trim();
       var email = document.getElementById('kioskEmail').value.trim();
@@ -1854,7 +1931,7 @@
             msgEl.textContent = formatErrorMessage(result.data && result.data.error) || "Couldn't place the order \u2014 please ask for help.";
             return;
           }
-          var confirmedItems = cart.map(function(c){ return { name: c.name, quantity: c.quantity }; });
+          var confirmedItems = cart.map(function(c){ return { name: c.name + (ingNote(c) ? ' (' + ingNote(c) + ')' : ''), quantity: c.quantity }; });
           showOrderConfirmed(result.data.referenceCode, confirmedItems, true);
         })
         .catch(function(err){
@@ -1884,7 +1961,9 @@
       msgEl.textContent = 'Preparing checkout\u2026';
 
       var itemsPayload = cart.map(function(c){
-        return { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name };
+        var o = { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name };
+        if (c.remove && c.remove.length) o.remove = c.remove;
+        return o;
       });
 
       fetch(KIOSK_EDGE_FUNCTION_URL, {
@@ -1941,7 +2020,9 @@
       msgEl.textContent = 'Preparing checkout\u2026';
 
       var itemsPayload = cart.map(function(c){
-        return { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name };
+        var o = { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name };
+        if (c.remove && c.remove.length) o.remove = c.remove;
+        return o;
       });
 
       fetch(KIOSK_EDGE_FUNCTION_URL, {
