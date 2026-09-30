@@ -77,6 +77,23 @@
   .btn svg{ width:20px; height:20px; }
   .link-btn{ margin-top:10px; font-size:13.5px; color:var(--muted); text-decoration:underline; }
   .note{ color:var(--muted); font-size:13.5px; margin-top:8px; }
+  /* ---- Drive-up check-in ---- */
+  .arrive h2{ margin-bottom:4px; }
+  .arrive p.lead{ color:var(--cream); font-size:15px; line-height:1.45; margin-bottom:14px; }
+  .arrive .btn .pin{ font-size:20px; }
+  .arrive .spots{ display:grid; grid-template-columns:repeat(5, 1fr); gap:8px; margin:6px 0 4px; }
+  .arrive .spot{ min-height:62px; border-radius:14px; border:1px solid var(--line); background:#fff; font-family:var(--display); font-weight:800; font-size:28px; color:var(--white); }
+  .arrive .spot:active{ transform:scale(.97); }
+  .arrive .spot[aria-pressed="true"]{ background:var(--gold); color:var(--gold-ink); border-color:var(--gold); }
+  .arrive .row-link{ display:block; margin-top:12px; font-size:14px; color:var(--muted); text-decoration:underline; }
+  .arrive .share{ display:flex; align-items:center; gap:10px; margin-top:14px; padding-top:14px; border-top:1px solid var(--line); font-size:14px; color:var(--cream); }
+  .arrive .share button{ margin-left:auto; font-weight:700; color:var(--white); border:1px solid var(--line); border-radius:999px; padding:8px 14px; background:#fff; white-space:nowrap; }
+  .arrive .dist{ font-weight:700; color:var(--white); }
+  .arrive .done{ display:flex; gap:12px; align-items:center; }
+  .arrive .done .big{ font-family:var(--display); font-size:34px; font-weight:800; color:var(--white); line-height:1; }
+  .arrive .spin{ width:22px; height:22px; border:3px solid var(--line); border-top-color:var(--white); border-radius:50%; animation:arrSpin .8s linear infinite; }
+  @keyframes arrSpin{ to{ transform:rotate(360deg); } }
+  .arrive .msg{ color:var(--red); font-size:13.5px; font-weight:600; margin-top:8px; min-height:1em; }
   .alert-on{ display:flex; gap:12px; align-items:flex-start; }
   .alert-on svg{ width:22px; height:22px; color:var(--green); flex:none; margin-top:1px; }
 
@@ -159,6 +176,48 @@
         <li data-step="ready"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"/><path d="M3 6h18"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></span>Ready</li>
         <li data-step="picked_up"><span class="ic"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><path d="M8 14s1.5 2 4 2 4-2 4-2"/><line x1="9" y1="9" x2="9.01" y2="9"/><line x1="15" y1="9" x2="15.01" y2="9"/></svg></span>Picked up</li>
       </ol>
+    </section>
+
+    <section class="card arrive hidden" id="arriveCard" aria-live="polite">
+      <div data-av="onway">
+        <h2>Drive-up</h2>
+        <p class="lead" id="avLead">When you pull in, tap <b>I&rsquo;m here</b>. We&rsquo;ll check you&rsquo;re at the truck, then you pick your spot.</p>
+        <button type="button" class="btn" id="imHereBtn"><span class="pin" aria-hidden="true">&#128205;</span>I&rsquo;m here</button>
+        <div class="share" id="shareRow">
+          <span id="shareText">Let the kitchen see how far away you are (only while this page is open).</span>
+          <button type="button" id="shareBtn">Share</button>
+        </div>
+      </div>
+      <div data-av="checking" class="hidden">
+        <div class="done"><span class="spin" aria-hidden="true"></span><div><h2 style="margin:0">Checking you&rsquo;re here&hellip;</h2><p class="note" style="margin-top:2px">Allow location if your phone asks.</p></div></div>
+      </div>
+      <div data-av="spots" class="hidden">
+        <h2 id="spotsTitle">You&rsquo;re here! Which spot are you in?</h2>
+        <p class="note" id="spotsNote" style="margin:2px 0 12px"></p>
+        <div class="spots" role="group" aria-label="Parking spot" id="arrSpots">
+          <button type="button" class="spot" data-spot="1">1</button><button type="button" class="spot" data-spot="2">2</button><button type="button" class="spot" data-spot="3">3</button><button type="button" class="spot" data-spot="4">4</button><button type="button" class="spot" data-spot="5">5</button>
+        </div>
+        <div class="msg" id="spotsMsg" role="alert"></div>
+      </div>
+      <div data-av="far" class="hidden">
+        <h2>Not quite there yet</h2>
+        <p class="lead" id="farText"></p>
+        <button type="button" class="btn" id="tryAgainBtn"><span class="pin" aria-hidden="true">&#128205;</span>I&rsquo;m here now</button>
+        <button type="button" class="row-link" id="hereAnywayBtn">I&rsquo;m at the truck &mdash; check me in anyway</button>
+      </div>
+      <div data-av="noloc" class="hidden">
+        <h2>We couldn&rsquo;t get your location</h2>
+        <p class="lead" id="nolocText">No problem &mdash; you can still check in.</p>
+        <button type="button" class="btn" id="manualBtn">Pick my spot</button>
+        <button type="button" class="row-link" id="retryLocBtn">Try location again</button>
+      </div>
+      <div data-av="arrived" class="hidden">
+        <div class="done">
+          <span class="big" id="arrivedSpot"></span>
+          <div><h2 style="margin:0" id="arrivedTitle">You&rsquo;re checked in</h2><p class="note" style="margin-top:2px" id="arrivedSub">We&rsquo;ll bring your food out to your car.</p></div>
+        </div>
+        <button type="button" class="row-link" id="changeSpotBtn">Wrong spot? Change it</button>
+      </div>
     </section>
 
     <section class="card" id="alertCard">
@@ -412,7 +471,7 @@
       var sub = copy[1];
       if (stage === 'ready') {
         sub = t.pickup_method === 'curbside'
-          ? (t.parking_spot ? 'We\u2019re bringing it out to spot ' + t.parking_spot + '.' : 'We\u2019re bringing it out to your car.')
+          ? (t.parking_spot ? 'We\u2019re bringing it out to spot ' + t.parking_spot + '.' : t.arrival_status === 'on_the_way' ? 'It\u2019s ready! Tap \u201cI\u2019m here\u201d when you pull in.' : 'We\u2019re bringing it out to your car.')
           : 'Come to the window and give us your name.';
         if (t.payment_method === 'cash') sub += ' Please have cash ready.';
       }
@@ -462,7 +521,153 @@
         if (wakeLock) { try { wakeLock.release(); } catch(e){} wakeLock = null; }
       }
       renderReward(t);
+      renderArrive(t, stage);
     }
+
+    // ---------- Drive-up: "I'm here" check-in (drive-up-arrival.sql) ----------
+    // The phone's location is only used to check the distance to the
+    // truck; it's never stored. Works while this page is open.
+    var arrView = null, arrOrder = null, lastFix = null, manualSpot = false, shareWatch = null, shareLastSent = 0, autoPrompted = false;
+    function showArr(v){
+      arrView = v;
+      document.querySelectorAll('#arriveCard [data-av]').forEach(function(el){ el.classList.toggle('hidden', el.getAttribute('data-av') !== v); });
+    }
+    function fmtDist(m){
+      if (m == null) return '';
+      var mi = m / 1609.34;
+      if (mi < 0.1) return Math.round(m * 3.281 / 10) * 10 + ' ft';
+      return (mi < 10 ? mi.toFixed(1) : Math.round(mi)) + ' mi';
+    }
+    function renderArrive(t, stage){
+      var card = $('arriveCard');
+      var show = t.pickup_method === 'curbside' && stage !== 'awaiting_payment' && stage !== 'picked_up' && stage !== 'canceled';
+      card.classList.toggle('hidden', !show);
+      if (!show) { stopShare(); return; }
+      arrOrder = t;
+      var parked = t.arrival_status === 'arrived' || (t.parking_spot && t.arrival_status !== 'on_the_way');
+      if (parked) {
+        stopShare();
+        if (arrView === 'spots') return; // changing spot right now
+        $('arrivedSpot').textContent = t.parking_spot ? '#' + t.parking_spot : '';
+        $('arrivedTitle').textContent = t.parking_spot ? 'You\u2019re in spot ' + t.parking_spot : 'You\u2019re checked in';
+        $('arrivedSub').textContent = stage === 'ready' ? 'Your food is on its way out to you.' : 'We\u2019ll bring your food out to your car.';
+        showArr('arrived');
+        return;
+      }
+      if (!arrView || arrView === 'arrived') showArr('onway');
+    }
+    function locate(){
+      return new Promise(function(resolve, reject){
+        if (!navigator.geolocation) return reject({ code: 'none' });
+        navigator.geolocation.getCurrentPosition(function(p){
+          lastFix = { lat: p.coords.latitude, lng: p.coords.longitude, acc: p.coords.accuracy, at: Date.now() };
+          resolve(lastFix);
+        }, function(err){ reject(err || {}); }, { enableHighAccuracy: true, timeout: 15000, maximumAge: 0 });
+      });
+    }
+    function checkIn(spot, fix){
+      return sb.rpc('drive_up_check_in', {
+        p_order_id: orderId, p_lat: fix ? fix.lat : null, p_lng: fix ? fix.lng : null,
+        p_accuracy: fix ? Math.round(fix.acc) : null, p_spot: spot == null ? null : spot
+      }).then(function(res){ if (res.error) throw res.error; return res.data || {}; });
+    }
+    function openSpots(manual, note){
+      manualSpot = !!manual;
+      $('spotsTitle').textContent = arrOrder && arrOrder.parking_spot ? 'Which spot are you in now?' : (manual ? 'Which spot are you in?' : 'You\u2019re here! Which spot are you in?');
+      $('spotsNote').textContent = note || '';
+      $('spotsMsg').textContent = '';
+      document.querySelectorAll('#arrSpots .spot').forEach(function(b){ b.setAttribute('aria-pressed', 'false'); b.disabled = false; });
+      showArr('spots');
+    }
+    function imHere(){
+      showArr('checking');
+      locate().then(function(fix){
+        return checkIn(null, fix).then(function(r){
+          if (!r.ok) throw { server: r.error };
+          if (r.near === false) {
+            $('farText').textContent = 'You look about ' + fmtDist(r.distance_m) + ' away. Tap again when you pull in at the truck.';
+            showArr('far');
+          } else {
+            openSpots(false, r.truck_set ? '' : '');
+            buzzOnce();
+          }
+        });
+      }).catch(function(err){
+        if (err && err.server) { $('nolocText').textContent = 'Something went wrong checking in. You can still pick your spot.'; showArr('noloc'); return; }
+        var denied = err && err.code === 1;
+        $('nolocText').textContent = denied
+          ? 'Location is turned off for this page. That\u2019s fine \u2014 you can still check in.'
+          : 'Your phone didn\u2019t give us a location in time. You can still check in.';
+        showArr('noloc');
+      });
+    }
+    function buzzOnce(){ if (canVibrate) { try { navigator.vibrate(120); } catch(e){} } }
+    $('imHereBtn').addEventListener('click', imHere);
+    $('tryAgainBtn').addEventListener('click', imHere);
+    $('retryLocBtn').addEventListener('click', imHere);
+    $('hereAnywayBtn').addEventListener('click', function(){ openSpots(true, 'We\u2019ll check you in without your location.'); });
+    $('manualBtn').addEventListener('click', function(){ openSpots(true, ''); });
+    $('changeSpotBtn').addEventListener('click', function(){ openSpots(true, ''); });
+    $('arrSpots').addEventListener('click', function(e){
+      var b = e.target.closest('[data-spot]'); if (!b) return;
+      var spot = parseInt(b.getAttribute('data-spot'), 10);
+      document.querySelectorAll('#arrSpots .spot').forEach(function(x){ x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); x.disabled = true; });
+      $('spotsMsg').textContent = '';
+      // A fresh fix (under 2 minutes old) proves they're here; a manual
+      // check-in or a spot change sends none.
+      var fix = !manualSpot && lastFix && Date.now() - lastFix.at < 120000 ? lastFix : null;
+      checkIn(spot, fix).then(function(r){
+        if (!r.ok) {
+          document.querySelectorAll('#arrSpots .spot').forEach(function(x){ x.disabled = false; x.setAttribute('aria-pressed', 'false'); });
+          if (r.error === 'too_far') { $('farText').textContent = 'You look about ' + fmtDist(r.distance_m) + ' away. Tap again when you pull in at the truck.'; showArr('far'); return; }
+          $('spotsMsg').textContent = r.error === 'done' ? 'This order is already finished.' : 'We couldn\u2019t check you in. Try again, or tell us at the window.';
+          return;
+        }
+        arrView = null;
+        arrOrder = Object.assign({}, arrOrder, { parking_spot: spot, arrival_status: 'arrived' });
+        renderArrive(arrOrder, lastStage);
+        buzzOnce();
+        poll();
+      }, function(){
+        document.querySelectorAll('#arrSpots .spot').forEach(function(x){ x.disabled = false; x.setAttribute('aria-pressed', 'false'); });
+        $('spotsMsg').textContent = 'We couldn\u2019t reach the truck. Check your connection and try again.';
+      });
+    });
+
+    // Optional: while this page is open on the drive over, the kitchen
+    // sees roughly how far away you are. Near the truck, the spot picker opens.
+    function stopShare(){
+      if (shareWatch != null && navigator.geolocation) navigator.geolocation.clearWatch(shareWatch);
+      shareWatch = null;
+    }
+    $('shareBtn').addEventListener('click', function(){
+      if (shareWatch != null) {
+        stopShare();
+        $('shareBtn').textContent = 'Share'; $('shareText').textContent = 'Stopped sharing. The kitchen will see you when you tap I\u2019m here.';
+        return;
+      }
+      if (!navigator.geolocation) { $('shareText').textContent = 'This phone can\u2019t share location from a web page.'; return; }
+      $('shareBtn').textContent = 'Stop'; $('shareText').textContent = 'Finding you\u2026';
+      shareWatch = navigator.geolocation.watchPosition(function(p){
+        lastFix = { lat: p.coords.latitude, lng: p.coords.longitude, acc: p.coords.accuracy, at: Date.now() };
+        if (Date.now() - shareLastSent < 20000) return;
+        shareLastSent = Date.now();
+        checkIn(null, lastFix).then(function(r){
+          if (!r.ok) return;
+          if (r.distance_m == null) { $('shareText').innerHTML = 'Sharing. <span class="dist">Tap I\u2019m here when you pull in.</span>'; return; }
+          $('shareText').innerHTML = 'Sharing \u00b7 about <span class="dist">' + escHtml(fmtDist(r.distance_m)) + '</span> away';
+          if (r.near && !autoPrompted && arrView === 'onway') { autoPrompted = true; stopShare(); $('shareBtn').textContent = 'Share'; openSpots(false, ''); buzzOnce(); }
+        }, function(){});
+      }, function(err){
+        // Denied: stop. A weak signal (tunnel, garage): keep watching.
+        if (err && err.code === 1) {
+          stopShare(); $('shareBtn').textContent = 'Share';
+          $('shareText').textContent = 'Location is off for this page. Just tap I\u2019m here when you arrive.';
+        } else {
+          $('shareText').textContent = 'Looking for a GPS signal\u2026 You can always tap I\u2019m here.';
+        }
+      }, { enableHighAccuracy: true, maximumAge: 15000 });
+    });
 
     // ---------- free roll on the next visit ----------
     var rewardView = null;       // current step of the claim flow
