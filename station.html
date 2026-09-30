@@ -77,6 +77,18 @@
   #fryerPanels{ flex:1; min-height:0; display:flex; }
   #fryerItemPanel{ flex:1; min-width:0; display:flex; flex-direction:column; }
   #fryerItemColumns{ flex:1; min-height:0; display:flex; }
+  #spotsBtn{ font-size:14px; color:#39E07F; font-weight:700; padding:8px 14px; border:1px solid rgba(11,175,76,0.55); border-radius:100px; margin-right:10px; white-space:nowrap; }
+  #spotsBtn .dots{ letter-spacing:2px; margin-left:4px; }
+  #spotsPanel{ flex:none; background:var(--panel); border-bottom:1px solid rgba(11,175,76,0.55); padding:12px 24px; }
+  #spotsPanel .recall-panel-head{ color:#39E07F; }
+  .spots-row{ display:grid; grid-template-columns:repeat(5, 1fr); gap:10px; }
+  .spot-card{ border:1px solid var(--line); border-radius:12px; padding:10px 12px; min-height:92px; display:flex; flex-direction:column; gap:4px; }
+  .spot-card .num{ font-size:26px; font-weight:800; color:var(--white); line-height:1; }
+  .spot-card .who{ font-size:14px; font-weight:700; color:var(--white); }
+  .spot-card .st{ font-size:12.5px; color:var(--muted); }
+  .spot-card.open .num{ color:#39E07F; }
+  .spot-card.taken{ border-color:rgba(255,140,26,0.6); background:rgba(255,140,26,0.08); }
+  .spot-card button{ margin-top:auto; align-self:flex-start; font-size:13px; font-weight:700; color:var(--orange); border:1px solid rgba(255,140,26,0.6); border-radius:100px; padding:5px 12px; }
   #truckLocBtn{ font-size:14px; color:var(--muted); font-weight:700; padding:8px 14px; border:1px solid var(--line); border-radius:100px; margin-right:10px; white-space:nowrap; }
   #truckLocBtn.needs{ color:var(--orange); border-color:var(--orange); }
   #truckLocBtn.ok{ color:var(--green); border-color:rgba(11,175,76,0.5); }
@@ -388,6 +400,7 @@
     <div id="boardLastUpdated" class="board-last-updated">&mdash;</div>
     <div id="boardClock">&mdash;</div>
     <button type="button" id="scheduledBtn">&#9200; Scheduled<span class="sched-count zero" id="scheduledCount">0</span></button>
+    <button type="button" id="spotsBtn" title="Parking spots in use">&#127359; Spots<span class="dots" id="spotsDots">&#9675;&#9675;&#9675;&#9675;&#9675;</span></button>
     <button type="button" id="truckLocBtn" title="Save where the truck is parked (for drive-up check-ins)">&#128205; Truck location</button>
     <button type="button" id="recallBtn">&#8634; Recall</button>
     <button type="button" id="switchToFryerBtn">Switch to Sub Station</button>
@@ -396,6 +409,13 @@
   <div id="boardErrorBanner" class="hidden"></div>
   <div id="squareSyncBanner" class="hidden" role="alert"></div>
   <div id="canceledOrdersBanner" class="hidden"></div>
+  <div id="spotsPanel" class="hidden">
+    <div class="recall-panel-head">
+      <span>Parking spots <span class="recall-sub">(a spot frees up when its order is marked picked up)</span></span>
+      <button type="button" id="spotsCloseBtn">&times;</button>
+    </div>
+    <div class="spots-row" id="spotsRow"></div>
+  </div>
   <div id="scheduledPanel" class="hidden">
     <div class="recall-panel-head">
       <span>Scheduled orders <span class="recall-sub">(join the board 20 min before they're due)</span></span>
@@ -1133,6 +1153,7 @@
         renderItemPanel(res.data);
         renderQueuePanel(res.data);
         checkForCanceledOrders();
+        if (window.refreshSpots) window.refreshSpots(false);
         refreshScheduledCount();
         lastFetchAt = Date.now();
         updateLastUpdatedDisplay();
@@ -1353,6 +1374,39 @@
         recallList.innerHTML = '<span class="recall-empty">Couldn\u2019t reach the server \u2014 check your connection.</span>';
       });
     }
+
+    // ---- Parking spots in use (one car per spot; drive-up-arrival.sql) ----
+    var spotsPanel = document.getElementById('spotsPanel'), spotHolds = [], spotsLoadedAt = 0;
+    function renderSpots(){
+      var bySpot = {}; spotHolds.forEach(function(h){ bySpot[h.spot] = h; });
+      document.getElementById('spotsDots').textContent = [1, 2, 3, 4, 5].map(function(n){ return bySpot[n] ? '\u25CF' : '\u25CB'; }).join('');
+      document.getElementById('spotsBtn').title = spotHolds.length + ' of 5 spots in use';
+      document.getElementById('spotsRow').innerHTML = [1, 2, 3, 4, 5].map(function(n){
+        var h = bySpot[n];
+        if (!h) return '<div class="spot-card open"><span class="num">' + n + '</span><span class="st">Open</span></div>';
+        var st = !h.paid ? 'Paying now' : h.arrival_status === 'arrived' ? 'Checked in' : 'Waiting';
+        return '<div class="spot-card taken"><span class="num">' + n + '</span><span class="who">' + escHtml(h.reference_code || '') + (h.customer_name ? ' \u00b7 ' + escHtml(h.customer_name) : '') + '</span>' +
+          '<span class="st">' + st + '</span><button type="button" data-free-spot="' + n + '">Free spot</button></div>';
+      }).join('');
+    }
+    window.refreshSpots = function(force){
+      if (!force && Date.now() - spotsLoadedAt < 8000) return;
+      spotsLoadedAt = Date.now();
+      sb.rpc('get_spot_holds').then(function(res){ if (!res.error && Array.isArray(res.data)) { spotHolds = res.data; renderSpots(); } }, function(){});
+    };
+    document.getElementById('spotsBtn').addEventListener('click', function(){
+      var open = spotsPanel.classList.contains('hidden');
+      spotsPanel.classList.toggle('hidden', !open);
+      if (open) window.refreshSpots(true);
+    });
+    document.getElementById('spotsCloseBtn').addEventListener('click', function(){ spotsPanel.classList.add('hidden'); });
+    document.getElementById('spotsRow').addEventListener('click', function(e){
+      var b = e.target.closest('[data-free-spot]'); if (!b) return;
+      var n = parseInt(b.getAttribute('data-free-spot'), 10);
+      if (!confirm('Free spot ' + n + '? Only do this if the car has left. The order stays on the board.')) return;
+      b.disabled = true;
+      sb.rpc('kds_free_spot', { p_spot: n }).then(function(){ window.refreshSpots(true); }, function(){ b.disabled = false; });
+    });
 
     // ---- Truck location (drive-up check-ins measure the distance to it) ----
     var truckBtn = document.getElementById('truckLocBtn');
@@ -1626,7 +1680,7 @@
           var orderId = btn.getAttribute('data-order-id');
           btn.disabled = true;
           btn.textContent = isDelivery ? 'Marking delivered\u2026' : 'Marking picked up\u2026';
-          sb.rpc('kds_complete_order', { p_order_id: orderId }).then(function(res){
+          sb.rpc('kds_complete_order', { p_order_id: orderId }).then(function(res){ if (window.refreshSpots) setTimeout(function(){ window.refreshSpots(true); }, 300);
             if (res.error) {
               console.error('kds_complete_order failed:', res.error);
               showBoardError('Could not mark that order ' + (isDelivery ? 'delivered' : 'picked up') + ' \u2014 ' + (res.error.message || 'unknown error'));
