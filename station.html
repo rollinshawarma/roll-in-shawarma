@@ -6,7 +6,7 @@
 <title>Kitchen Board | Roll-In Shawarma</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Inter+Tight:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
     --black:#000000;
@@ -298,6 +298,83 @@
   :focus-visible{ outline-color:#f5f5f7; }
   #proceedToCheckoutBtn, #exploreOtherPaymentsBtn{ border-radius:999px; }
   .w1, .w2{ color:#f5f5f7 !important; font-family:"Inter Tight","Inter",sans-serif; letter-spacing:-0.015em; }
+
+  /* =========================================================
+     Kitchen board pass: read from across the truck, mid-rush.
+     One job per color:
+       white/grey = not started   orange = cooking   green = ready
+       red = needs attention now (allergy, running late)
+       yellow = what to leave off ("No onions") and cash to collect
+       blue = drive-up info
+     Big condensed type for order numbers and item names; no blinking.
+     ========================================================= */
+  :root{ --kds-font:"Barlow Condensed","Arial Narrow","Inter",sans-serif; --cook:#FF9F0A; --ready:#30D158; --note:#FFD60A; --info:#64D2FF; --alert:#ff453a; }
+  #boardHeader h1, #fryerBoardHeader h1{ font-family:var(--kds-font); font-size:30px; letter-spacing:0; }
+  #boardClock, #fryerBoardClock{ font-family:var(--kds-font); font-size:26px; font-weight:700; color:var(--white); }
+  .board-last-updated{ font-size:14px; }
+  /* Header buttons: quiet by default; color only when something needs doing. */
+  #scheduledBtn, #spotsBtn, #recallBtn, #switchToFryerBtn, #switchToMainBtn, #lockBtn, #fryerLockBtn, #truckLocBtn{ color:var(--cream); border-color:var(--line); font-size:15px; padding:9px 15px; }
+  #truckLocBtn.ok{ color:var(--cream); border-color:var(--line); }
+  #truckLocBtn.needs{ color:var(--note); border-color:var(--note); }
+  #spotsBtn .dots{ color:var(--ready); }
+  #scheduledBtn .sched-count{ background:var(--info); color:#00202b; }
+  #scheduledBtn .sched-count.zero{ background:rgba(255,255,255,0.12); color:var(--muted); }
+  .panel-head{ text-transform:none; letter-spacing:0; font-size:18px; font-weight:700; color:var(--muted); }
+  .item-col-label{ text-transform:none; letter-spacing:0; font-size:18px; font-weight:700; }
+  #colPrepping .item-col-label, #fryerColPrepping .item-col-label{ color:var(--cook); }
+  #colReady .item-col-label, #fryerColReady .item-col-label{ color:var(--ready); }
+
+  /* Item prep boxes */
+  .item-box .nm{ font-family:var(--kds-font); font-size:28px; font-weight:700; line-height:1.05; }
+  .item-box .cnt{ font-family:var(--kds-font); font-size:36px; font-weight:800; }
+  .box-orange{ border:2px solid var(--cook); background:rgba(255,159,10,0.10); }
+  .box-orange .nm, .box-orange .cnt{ color:var(--cook); }
+  .box-green{ border-color:var(--ready); background:rgba(48,209,88,0.10); }
+  .box-green .nm, .box-green .cnt{ color:var(--ready); }
+  .item-variation{ font-family:"Inter",sans-serif; font-size:15px; font-weight:700; color:var(--cream); margin-top:2px; }
+  .item-modifier{ font-family:"Inter",sans-serif; font-size:15px; font-weight:800; color:var(--note); margin-top:2px; }
+
+  /* Order cards */
+  .order-card{ border-radius:12px; }
+  .order-card.order-curbside{ border-color:var(--line); }
+  .order-card.order-cash{ border-color:var(--note); }
+  .order-card.order-complete{ border:2px solid var(--ready); background:rgba(48,209,88,0.08); }
+  .order-ref{ font-family:var(--kds-font); font-size:32px; letter-spacing:0; line-height:1; }
+  .order-name{ font-size:19px; color:var(--cream); }
+  .wait-time{ font-family:var(--kds-font); font-size:28px; font-weight:800; color:var(--white); font-variant-numeric:tabular-nums; padding:2px 10px; border-radius:8px; }
+  .wait-time.caution{ color:#1a1200; background:var(--cook); animation:none; }
+  .wait-time.warn{ color:#fff; background:var(--alert); animation:none; }
+  .item-pill{ font-family:var(--kds-font); font-size:21px; font-weight:700; padding:6px 13px; border-radius:10px; background:#2c2c2e; color:var(--white); border:1px solid #48484a; }
+  .item-pill.pill-prepping{ background:rgba(255,159,10,0.14); color:var(--cook); border:2px solid var(--cook); }
+  .item-pill.pill-ready{ background:rgba(48,209,88,0.12); color:var(--ready); border-color:rgba(48,209,88,0.55); }
+  .item-pill .item-variation, .item-pill .item-modifier{ font-size:14px; }
+  .cash-warning{ background:var(--note); color:#1a1600; border:0; text-transform:none; letter-spacing:0; font-size:19px; }
+  .order-notes{ font-size:18px; color:var(--white); }
+  .order-notes .allergy-tag{ letter-spacing:0; font-size:17px; }
+  .curbside-badge{ background:rgba(100,210,255,0.12); color:var(--info); border-color:rgba(100,210,255,0.6); font-size:19px; }
+  .curbside-badge.otw{ background:rgba(100,210,255,0.08); color:var(--info); border:1px dashed rgba(100,210,255,0.7); }
+  .curbside-badge.arrived{ background:var(--ready); color:#032010; border-color:var(--ready); font-size:21px; }
+  .curbside-badge.arrived small{ color:#032010; }
+  .scheduled-badge{ color:var(--info); background:rgba(100,210,255,0.12); border-color:rgba(100,210,255,0.5); }
+  .complete-btn{ font-family:var(--kds-font); font-size:24px; background:var(--ready); color:#032010; padding:14px; }
+  .complete-btn.delivered-btn{ background:var(--info); color:#00202b; }
+  @media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } }
+  /* Header: title and clock on the left, controls on the right; wraps cleanly on smaller tablets. */
+  #boardHeader, #fryerBoardHeader{ flex-wrap:wrap; justify-content:flex-start; gap:10px 8px; padding:14px 20px; }
+  #boardHeader h1, #fryerBoardHeader h1{ white-space:nowrap; margin-right:10px; }
+  .board-last-updated{ white-space:nowrap; margin-right:6px; }
+  #boardClock, #fryerBoardClock{ white-space:nowrap; margin-right:auto; }
+  #boardHeader button, #fryerBoardHeader button{ white-space:nowrap; margin-right:0; }
+  .item-box .nm{ min-width:0; overflow-wrap:anywhere; }
+  .item-box .cnt{ flex:none; }
+  @media (max-width:1200px){
+    .item-box .nm{ font-size:24px; }
+    .item-box .cnt{ font-size:30px; }
+    .box-gray, .box-orange{ padding:14px; }
+    .order-ref{ font-size:28px; }
+    .curbside-badge{ font-size:17px; }
+    .curbside-badge.arrived{ font-size:19px; }
+  }
 </style>
 </head>
 <body>
@@ -1125,10 +1202,10 @@
         var m = Math.floor(elapsedSeconds / 60);
         var s = elapsedSeconds % 60;
         el.textContent = m + ':' + (s < 10 ? '0' : '') + s;
-        // 3+ minutes is a caution, 5+ is a real warning -- both now
-        // blink via CSS animation (see .wait-time.caution/.warn).
-        el.classList.toggle('caution', elapsedSeconds >= 180 && elapsedSeconds < 300);
-        el.classList.toggle('warn', elapsedSeconds >= 300);
+        // Orange from 8 minutes, red from 12 -- ahead of the 15-20 minutes
+        // customers are told, so red means "this one is about to be late".
+        el.classList.toggle('caution', elapsedSeconds >= 480 && elapsedSeconds < 720);
+        el.classList.toggle('warn', elapsedSeconds >= 720);
       });
     }
 
@@ -1662,7 +1739,7 @@
             '<span class="order-name">' + escHtml(o.customer_name || '') + '</span>' +
             '<span class="wait-time" data-created-at="' + escHtml(o.createdAt || '') + '">&mdash;</span>' +
           '</div>' +
-          (isCash ? '<div class="cash-warning">Confirm Cash Payment</div>' : '') +
+          (isCash ? '<div class="cash-warning">Cash order: collect payment at the window</div>' : '') +
           (o.scheduledAt ? '<div class="scheduled-badge">\u23F0 ' + (DELIVERY_APPS[o.source] ? 'Scheduled ' + escHtml(DELIVERY_APPS[o.source]) + ' \u2014 ready by ' : 'Scheduled pickup ') + escHtml(fmtTime(o.scheduledAt)) + '</div>' : '') +
           (isCurbside ? driveUpBadgeHtml(o) : '') +
           notesHtml +
