@@ -1,7 +1,7 @@
 /* Roll-In Shawarma: drive-up parking spot picker on the lot photo.
    Used by the QR drive-up page (order.html) and the tracking page
-   (track.html). Each numbered sign in drive-up-lot.webp gets a tappable
-   button, plus a row of big numbered buttons in the same left-to-right
+   (track.html). Each numbered sign in the lot photo gets an invisible
+   tap area, plus a row of big numbered buttons in the same left-to-right
    order (5 ... 1, spot 1 next to the truck). Taken spots are greyed out.
    Taken spots come from the get_taken_spots database function; the
    database also makes it impossible for two orders to hold one spot. */
@@ -20,14 +20,9 @@
     '.lot-pic img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:50% 100%; display:block; }',
     '.lot-hot{ position:absolute; top:0; bottom:0; padding:0; border:0; background:transparent; cursor:pointer; -webkit-tap-highlight-color:transparent; }',
     '.lot-hot:disabled{ cursor:not-allowed; }',
-    '.lot-badge{ position:absolute; left:50%; top:' + SIGN_Y + '%; transform:translate(-50%,-50%); width:clamp(26px, 7.2vw, 46px); height:clamp(26px, 7.2vw, 46px); border-radius:50%; background:#fff; color:#d62d20; font:800 clamp(14px, 3.8vw, 24px)/1 "Inter", system-ui, sans-serif; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 3px #d62d20, 0 4px 12px rgba(0,0,0,.45); transition:transform .15s ease, background .15s ease; }',
-    '.lot-hot:not(:disabled):hover .lot-badge{ transform:translate(-50%,-50%) scale(1.08); }',
-    '.lot-hot.is-sel .lot-badge{ background:var(--lot-accent); color:var(--lot-accent-ink); box-shadow:0 0 0 3px #fff, 0 0 0 7px var(--lot-accent), 0 6px 16px rgba(0,0,0,.5); }',
-    // No box around the tapped area: only the number badge shows the choice.
+    // Invisible tap areas over the photo's own numbered signs: nothing is
+    // drawn on the picture. The numbered buttons below show Open / Taken / Yours.
     '.lot-hot, .lot-hot:focus, .lot-hot:active{ outline:none; box-shadow:none; }',
-    '.lot-hot:focus-visible .lot-badge{ outline:3px solid #fff; outline-offset:3px; }',
-    '.lot-hot.is-taken .lot-badge{ background:#3a3a3c; color:#9a9a9f; box-shadow:0 0 0 3px #3a3a3c; }',
-    '.lot-hot.is-taken::before{ content:"TAKEN"; position:absolute; left:50%; top:78%; transform:translateX(-50%); font:800 clamp(8px, 2.2vw, 12px)/1 "Inter", system-ui, sans-serif; letter-spacing:.06em; color:#fff; background:rgba(0,0,0,.72); padding:3px 6px; border-radius:6px; }',
     '.lot-row{ display:grid; grid-template-columns:repeat(5, 1fr); gap:8px; margin-top:10px; }',
     '.lot-btn{ position:relative; min-height:58px; border-radius:14px; border:1px solid var(--lot-line); background:var(--lot-card); color:var(--lot-text); font:800 26px/1 "Inter", system-ui, sans-serif; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; cursor:pointer; }',
     '.lot-btn small{ font-size:10.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--lot-muted); }',
