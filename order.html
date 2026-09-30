@@ -11,6 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <script src="deals.js"></script>
+<script src="ingredients.js"></script>
 <style>
   :root{
     --black:#000000; --panel:#121110; --panel-2:#211C16; --line:rgba(243,234,201,0.13);
@@ -182,6 +183,21 @@
   .line-name{ font-weight:600; color:var(--white); }
   .line-each{ color:var(--muted); font-size:13px; }
   .line-var{ color:#FF8C1A; font-size:13.5px; font-weight:600; }
+  .line-note{ color:#FF6B5E; font-size:13.5px; font-weight:700; }
+  /* What's included (tap to remove) */
+  .ing-block{ margin-top:20px; }
+  .ing-head{ display:flex; align-items:baseline; justify-content:space-between; margin-bottom:12px; }
+  .ing-title{ color:var(--white); font-size:16px; font-weight:700; }
+  .ing-hint{ color:var(--muted); font-size:13px; }
+  .ing-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(76px, 1fr)); gap:14px 8px; }
+  .ing-chip{ position:relative; display:flex; flex-direction:column; align-items:center; gap:6px; -webkit-tap-highlight-color:transparent; }
+  .ing-pic{ width:66px; height:66px; border-radius:50%; background:#FFF8EC; display:flex; align-items:center; justify-content:center; overflow:hidden; box-shadow:0 0 0 2px var(--gold); transition:opacity .15s ease, filter .15s ease, box-shadow .15s ease; }
+  .ing-pic img{ width:120%; height:auto; max-width:none; }
+  .ing-badge{ position:absolute; top:-2px; right:calc(50% - 38px); width:22px; height:22px; border-radius:50%; background:var(--gold); color:var(--gold-ink); font-size:13px; font-weight:800; line-height:22px; text-align:center; box-shadow:0 0 0 2px var(--panel); }
+  .ing-name{ color:var(--cream); font-size:12.5px; font-weight:600; line-height:1.2; text-align:center; }
+  .ing-chip.is-off .ing-pic{ opacity:.35; filter:grayscale(1); box-shadow:0 0 0 1px var(--line); }
+  .ing-chip.is-off .ing-badge{ background:#6d6a64; color:#fff; }
+  .ing-chip.is-off .ing-name{ color:#FF6B5E; }
   .qty:has(> button:only-of-type){ padding-right:10px; }
   .line-amt{ font-family:var(--display); font-weight:700; font-size:19px; color:var(--cream); min-width:60px; text-align:right; }
   .line .qty button{ width:38px; height:40px; font-size:19px; }
@@ -759,7 +775,7 @@
     function actionHtml(g){
       if (!g.items.some(isAvailable)) return '<span class="soldout-tag">Sold out</span>';
       if (g.items.length > 1) {
-        var qty = g.items.reduce(function(s, i){ var l = findLine(i.id); return s + (l ? l.quantity : 0); }, 0);
+        var qty = g.items.reduce(function(s, i){ return s + qtyOfItem(i.id); }, 0);
         return '<button type="button" class="add-btn" data-open="' + escHtml(g.key) + '" aria-label="Choose options for ' + escHtml(g.name) + (qty ? ', ' + qty + ' in your order' : '') + '">' +
           (qty ? '<span class="add-count">' + qty + '</span>' : '+') + '</button>';
       }
@@ -850,7 +866,10 @@
     }
 
     // ---------- cart (same line + combo model the backend expects) ----------
-    function findLine(itemId){ return cart.find(function(c){ return c.menu_item_id === itemId && !c.deal && !c.dealOf; }); }
+    function rmKey(c){ return (c.remove || []).join(','); }
+    function findLine(itemId, rm){ rm = rm || ''; return cart.find(function(c){ return c.menu_item_id === itemId && !c.deal && !c.dealOf && rmKey(c) === rm; }); }
+    function qtyOfItem(itemId){ return cart.reduce(function(s, c){ return s + (c.menu_item_id === itemId && !c.deal && !c.dealOf ? c.quantity : 0); }, 0); }
+    function ingNote(c){ return c.remove && c.remove.length && window.RollinIngredients ? window.RollinIngredients.note(c.remove) : ''; }
 
     // ---- Member check-in (hamburger menu) + member deals ----
     function isMember(){ return !!(appliedMember || member); }
@@ -972,12 +991,17 @@
       closeQrMenu();
       var sec = $('sec-deals'); if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
-    function addOneRaw(itemId){
+    function addOneRaw(itemId, remove){
       var item = itemsById[itemId];
       if (!item) return;
-      var line = findLine(itemId);
+      remove = remove && remove.length ? remove.slice() : null;
+      var line = findLine(itemId, remove ? remove.join(',') : '');
       if (line) { if (line.quantity < MAX_QTY) line.quantity += 1; }
-      else cart.push({ menu_item_id: itemId, name: itemLabel(item), unitPrice: Number(item.price), quantity: 1 });
+      else {
+        var nl = { menu_item_id: itemId, name: itemLabel(item), unitPrice: Number(item.price), quantity: 1 };
+        if (remove) nl.remove = remove;
+        cart.push(nl);
+      }
     }
     // Combos are fries + a drink added as their own lines. There can't be
     // more combos than combo-eligible items; extras are trimmed.
@@ -1008,16 +1032,16 @@
         if (dl.quantity <= 0) { var rid = dl.menu_item_id; cart = cart.filter(function(c){ return c.menu_item_id !== rid; }); }
       }
     }
-    function addOne(itemId){ addOneRaw(itemId); syncCombos(); afterCartChange(true); }
-    function removeOne(itemId){
+    function addOne(itemId, rm){ addOneRaw(itemId, rm ? rm.split(',') : null); syncCombos(); afterCartChange(true); }
+    function removeOne(itemId, rm){
       var item = itemsById[itemId];
-      var line = findLine(itemId);
+      var line = findLine(itemId, rm);
       if (!line) return;
       var minQty = item && item.min_quantity;
-      if (minQty && line.quantity <= minQty) cart = cart.filter(function(c){ return c.menu_item_id !== itemId; });
+      if (minQty && line.quantity <= minQty) cart = cart.filter(function(c){ return c !== line; });
       else {
         line.quantity -= 1;
-        if (line.quantity <= 0) cart = cart.filter(function(c){ return c.menu_item_id !== itemId; });
+        if (line.quantity <= 0) cart = cart.filter(function(c){ return c !== line; });
       }
       syncCombos();
       afterCartChange(false);
@@ -1151,7 +1175,7 @@
       if (!g) return;
       var firstAvail = g.items.filter(isAvailable)[0];
       if (!firstAvail) return;
-      sheet = { group: g, itemId: firstAvail.id, qty: 1, combo: false, drink: null };
+      sheet = { group: g, itemId: firstAvail.id, qty: 1, combo: false, drink: null, removed: [] };
       renderItemSheet();
       openSheet($('itemSheet'));
     }
@@ -1178,6 +1202,10 @@
         '</fieldset>';
       }
 
+      if (window.RollinIngredients) {
+        sheet.removed = window.RollinIngredients.clean(item, sheet.removed);
+        html += '<div id="itemIng">' + window.RollinIngredients.chipsHtml(item, sheet.removed) + '</div>';
+      }
       if (comboAvailableFor(item)) {
         html += '<div class="combo">' +
           '<label class="combo-toggle"><input type="checkbox" id="comboToggle"' + (sheet.combo ? ' checked' : '') + '>' +
@@ -1228,6 +1256,14 @@
       }
     });
     $('itemBody').addEventListener('click', function(e){
+      var ing = e.target.closest('[data-ing]');
+      if (ing && window.RollinIngredients) {
+        var RI = window.RollinIngredients, k = ing.getAttribute('data-ing');
+        sheet.removed = RI.clean(itemsById[sheet.itemId], RI.toggle(sheet.removed, k));
+        $('itemIng').innerHTML = RI.chipsHtml(itemsById[sheet.itemId], sheet.removed);
+        var again = $('itemIng').querySelector('[data-ing="' + k + '"]'); if (again) again.focus();
+        return;
+      }
       var chip = e.target.closest('.drink-chip');
       if (!chip) return;
       sheet.drink = chip.getAttribute('data-drink');
@@ -1242,14 +1278,15 @@
       var item = itemsById[sheet.itemId];
       var fries = comboAddonsByName['Combo Fries'];
       var drink = sheet.drink ? comboAddonsByName['Combo ' + sheet.drink] : null;
+      var rmv = window.RollinIngredients ? window.RollinIngredients.clean(item, sheet.removed) : [];
       for (var k = 0; k < sheet.qty; k++) {
-        addOneRaw(item.id);
+        addOneRaw(item.id, rmv);
         if (sheet.combo && fries && drink) { addOneRaw(fries.id); addOneRaw(drink.id); }
       }
       syncCombos();
       afterCartChange(true);
       closeSheet();
-      toast('Added ' + (sheet.qty > 1 ? sheet.qty + ' \u00d7 ' : '') + item.name + (sheet.combo ? ' combo' : ''));
+      toast('Added ' + (sheet.qty > 1 ? sheet.qty + ' \u00d7 ' : '') + item.name + (sheet.combo ? ' combo' : '') + (rmv.length ? ' (' + window.RollinIngredients.note(rmv) + ')' : ''));
     });
 
     // Cart sheet
@@ -1288,11 +1325,12 @@
           '<div class="line-photo">' + lineGroupPhoto(item) + '</div>' +
           '<div class="line-info"><div class="line-name">' + escHtml(item.name || c.name) + '</div>' +
             (item.variant_name ? '<div class="line-var">' + escHtml(item.variant_name) + '</div>' : '') +
+            (ingNote(c) ? '<div class="line-note">' + escHtml(ingNote(c)) + '</div>' : '') +
             '<div class="line-each">' + money(c.unitPrice) + ' each</div></div>' +
           '<div class="qty" role="group" aria-label="' + escHtml(c.name) + ' quantity">' +
-            '<button type="button" data-dec="' + c.menu_item_id + '" aria-label="Remove one ' + escHtml(c.name) + '">&minus;</button>' +
+            '<button type="button" data-dec="' + c.menu_item_id + '" data-rm="' + escHtml(rmKey(c)) + '" aria-label="Remove one ' + escHtml(c.name) + '">&minus;</button>' +
             '<span>' + c.quantity + '</span>' +
-            (isComboPart ? '' : '<button type="button" data-inc="' + c.menu_item_id + '" aria-label="Add one more ' + escHtml(c.name) + '">+</button>') +
+            (isComboPart ? '' : '<button type="button" data-inc="' + c.menu_item_id + '" data-rm="' + escHtml(rmKey(c)) + '" aria-label="Add one more ' + escHtml(c.name) + '">+</button>') +
           '</div>' +
           '<div class="line-amt">' + money(c.unitPrice * c.quantity) + '</div>' +
         '</div>';
@@ -1337,8 +1375,8 @@
       var t = e.target.closest('[data-add],[data-inc],[data-dec]');
       if (!t) return;
       if (t.hasAttribute('data-add')) { addOne(t.getAttribute('data-add')); toast('Added ' + itemsById[t.getAttribute('data-add')].name); }
-      else if (t.hasAttribute('data-inc')) addOne(t.getAttribute('data-inc'));
-      else removeOne(t.getAttribute('data-dec'));
+      else if (t.hasAttribute('data-inc')) addOne(t.getAttribute('data-inc'), t.getAttribute('data-rm') || '');
+      else removeOne(t.getAttribute('data-dec'), t.getAttribute('data-rm') || '');
     });
     $('orderBarBtn').addEventListener('click', function(){ renderCart(); openSheet($('cartSheet')); });
     $('cartClearBtn').addEventListener('click', function(){
@@ -1529,6 +1567,7 @@
         var item = itemsById[c.menu_item_id] || {};
         return '<div class="sum-line"><span>' + c.quantity + ' \u00d7 ' + escHtml(item.name || c.name) +
           (item.variant_name ? '<br><span class="line-var">' + escHtml(item.variant_name) + '</span>' : '') +
+          (ingNote(c) ? '<br><span class="line-note">' + escHtml(ingNote(c)) + '</span>' : '') +
           '</span><span>' + money(c.unitPrice * c.quantity) + '</span></div>';
       }).join('');
       $('coTotals').innerHTML =
@@ -1657,7 +1696,7 @@
         carModelValue = $('carModel').value.trim() || null;
       }
       return {
-        items: cart.map(function(c){ return { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name }; }),
+        items: cart.map(function(c){ var o = { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name }; if (c.remove && c.remove.length) o.remove = c.remove; return o; }),
         customerName: $('custName').value.trim(),
         customerEmail: $('custEmail').value.trim() || undefined,
         customerPhone: $('custPhone').value.trim() || undefined,
@@ -1881,7 +1920,7 @@
       }
 
       if (!available) {
-        if (findLine(id)) {
+        if (qtyOfItem(id) > 0) {
           cart = cart.filter(function(c){ return c.menu_item_id !== id; });
           syncCombos();
           afterCartChange(false);
