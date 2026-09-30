@@ -33,10 +33,10 @@
     '.lot-hot.is-taken::before{ content:"TAKEN"; position:absolute; left:50%; top:70%; transform:translateX(-50%); font:800 clamp(7px, 1.1cqw, 12px)/1 "Inter", system-ui, sans-serif; letter-spacing:.06em; color:#fff; background:rgba(0,0,0,.72); padding:2px 5px; border-radius:5px; }',
     '.lot-row{ display:grid; grid-template-columns:repeat(5, 1fr); gap:8px; margin-top:10px; }',
     '.lot-btn{ position:relative; min-height:58px; border-radius:14px; border:1px solid var(--lot-line); background:var(--lot-card); color:var(--lot-text); font:800 26px/1 "Inter", system-ui, sans-serif; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; cursor:pointer; }',
-    '.lot-btn small{ font-size:10.5px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--lot-muted); }',
+    '.lot-btn small{ font-size:12px; font-weight:600; letter-spacing:0; color:var(--lot-muted); }',
     '.lot-btn.is-sel{ background:var(--lot-accent); border-color:var(--lot-accent); color:var(--lot-accent-ink); }',
     '.lot-btn.is-sel small{ color:var(--lot-accent-ink); opacity:.8; }',
-    '.lot-btn:disabled{ opacity:.45; cursor:not-allowed; text-decoration:line-through; }',
+    '.lot-btn:disabled{ opacity:.45; cursor:not-allowed; }',
     '.lot-hint{ display:flex; justify-content:space-between; gap:10px; margin-top:8px; font-size:12.5px; color:var(--lot-muted); }'
   ].join('\n');
   function injectCss(){
@@ -65,7 +65,7 @@
       '<div class="lot-row" role="group" aria-label="Parking spot">' +
         SPOTS.map(function(s){ return '<button type="button" class="lot-btn" data-lot-spot="' + s.n + '" aria-pressed="false">' + s.n + '<small>Open</small></button>'; }).join('') +
       '</div>' +
-      '<div class="lot-hint"><span>Tap your spot on the picture or below</span><span>Spot 1 is by the truck &rarr;</span></div>' +
+      '<div class="lot-hint"><span>Tap your spot on the picture or below. Spot 1 is next to the truck.</span></div>' +
     '</div>';
     function paint(){
       el.querySelectorAll('[data-lot-spot]').forEach(function(b){
