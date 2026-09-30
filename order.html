@@ -253,6 +253,7 @@
   .co-subhead small{ color:var(--muted); font-weight:500; }
   .apply-row{ display:flex; gap:8px; }
   .apply-row input{ flex:1; min-width:0; text-transform:uppercase; }
+  .apply-row input::placeholder{ text-transform:none; }
   .apply-btn{ flex:none; padding:0 18px; border-radius:12px; background:var(--panel-2); border:1px solid var(--line); color:var(--white); font-weight:700; min-height:48px; }
   .apply-msg{ font-size:13.5px; margin-top:6px; min-height:1em; }
   .apply-msg.ok{ color:var(--green); font-weight:600; }
@@ -533,7 +534,7 @@
       <div class="field" id="memberIdField">
         <label for="memberId">Member ID <small>(optional, earns points)</small></label>
         <div class="apply-row">
-          <input type="text" id="memberId" placeholder="MEMBER-48213907 or 48213907" autocomplete="off" autocapitalize="characters">
+          <input type="text" id="memberId" placeholder="Member ID, e.g. 48213907" autocomplete="off" autocapitalize="characters">
           <button type="button" class="apply-btn" id="memberApplyBtn">Apply</button>
         </div>
         <div class="apply-msg" id="memberMsg" aria-live="polite"></div>
@@ -940,8 +941,8 @@
       $('qrCheckIn').classList.add('hidden');
       if (on) {
         var nm = signedName || (saved && saved.name) || name || '';
-        $('qrCheckedName').textContent = 'Checked in' + (nm ? ' \u00b7 ' + nm : '');
-        $('qrCheckedCode').textContent = member ? 'Signed in \u00b7 points and rewards are on' : (appliedMember || '') + ' \u00b7 this order earns points';
+        $('qrCheckedName').textContent = nm ? 'Checked in as ' + nm : 'Checked in';
+        $('qrCheckedCode').textContent = member ? 'Signed in. Points and rewards are on.' : (appliedMember ? appliedMember + '. This order earns points.' : 'This order earns points.');
         $('qrCheckOut').classList.toggle('hidden', !!member);
       }
       var dl = $('qrDealsLink').querySelector('small');
@@ -1640,9 +1641,9 @@
         // Car only shows here if they chose to add it.
         var carMk = $('carMakeSelect').value === 'Other' ? $('carMakeOther').value.trim() : $('carMakeSelect').value;
         var carTxt = [selectedCarColor, carMk, $('carModel').value.trim()].filter(Boolean).join(' ');
-        if (carTxt) spotText += ' \u00b7 ' + carTxt;
+        if (carTxt) spotText += ', ' + carTxt;
       }
-      $('coForLine').textContent = ($('custName').value.trim() ? 'For ' + $('custName').value.trim() + ' \u00b7 ' : '') + spotText;
+      $('coForLine').textContent = ($('custName').value.trim() ? 'For ' + $('custName').value.trim() + ': ' : '') + spotText;
       var freeOrder = cart.length > 0 && t.total === 0;
       $('placeOrderBtn').innerHTML = freeOrder ? 'Place free order' : (walletShown ? 'Pay with card' : 'Continue to payment') + ' <span class="cta-amt">' + money(t.total) + '</span>';
       document.querySelector('.wallet-pay').classList.toggle('hidden', freeOrder);
@@ -1707,7 +1708,7 @@
         $('memberIdField').classList.toggle('hidden', signed);
         if (signed) {
           var name = member.profile && member.profile.first_name;
-          $('memberIn').innerHTML = '\u2605 ' + (name ? escHtml(name) + ', you' : 'You') + '\u2019re signed in \u00b7 <b>' + Number(member.balance).toLocaleString('en-US') + ' points</b>';
+          $('memberIn').innerHTML = '\u2605 ' + (name ? escHtml(name) + ', you' : 'You') + '\u2019re signed in with <b>' + Number(member.balance).toLocaleString('en-US') + ' points</b>';
           if (!$('custName').value.trim() && name) $('custName').value = name;
           var em = member.profile && member.profile.email;
           if ($('custEmail') && !$('custEmail').value.trim() && em) $('custEmail').value = em;
