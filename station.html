@@ -1197,8 +1197,10 @@
       var byItem = {};
       rows.forEach(function(r){
         if (r.is_drink) return; // drinks are order-panel-only -- see renderQueuePanel
-        if (!byItem[r.item_name]) byItem[r.item_name] = { queued: 0, prepping: 0, ready: 0 };
+        if (!byItem[r.item_name]) byItem[r.item_name] = { queued: 0, prepping: 0, ready: 0, notes: { queued: {}, prepping: {}, ready: {} } };
         byItem[r.item_name][r.status] += 1;
+        // "No onions" etc. from the customer, counted per stage
+        if (r.item_note) { var nb = byItem[r.item_name].notes[r.status]; nb[r.item_note] = (nb[r.item_note] || 0) + 1; }
       });
 
       var itemNames = Object.keys(byItem).sort();
@@ -1230,7 +1232,9 @@
         var shouldFlash = !isFirstItemRender && count !== priorCount;
         var box = document.createElement('div');
         box.className = 'item-box ' + boxClass + (shouldFlash ? ' flash' : '');
-        box.innerHTML = '<span class="nm">' + renderItemNameHtml(name) + '</span><span class="cnt">x' + count + '</span>';
+        var noteMap = (byItem[name].notes || {})[statusKey] || {};
+        var noteHtml = Object.keys(noteMap).map(function(n){ return '<span class="item-modifier">' + noteMap[n] + '\u00d7 ' + escHtml(n) + '</span>'; }).join('');
+        box.innerHTML = '<span class="nm">' + renderItemNameHtml(name) + noteHtml + '</span><span class="cnt">x' + count + '</span>';
         if (makeHandler) box.addEventListener('click', makeHandler(name));
         col.appendChild(box);
       });
@@ -1477,7 +1481,7 @@
           };
           orderIds.push(r.order_id);
         }
-        byOrder[r.order_id].items.push({ name: r.item_name, status: r.status });
+        byOrder[r.order_id].items.push({ name: r.item_note ? r.item_name + ' // ' + r.item_note : r.item_name, status: r.status });
       });
 
       if (!orderIds.length) {
@@ -1714,8 +1718,10 @@
       var byItem = {};
       rows.forEach(function(r){
         if (r.is_drink) return;
-        if (!byItem[r.item_name]) byItem[r.item_name] = { queued: 0, prepping: 0, ready: 0 };
+        if (!byItem[r.item_name]) byItem[r.item_name] = { queued: 0, prepping: 0, ready: 0, notes: { queued: {}, prepping: {}, ready: {} } };
         byItem[r.item_name][r.status] += 1;
+        // "No onions" etc. from the customer, counted per stage
+        if (r.item_note) { var nb = byItem[r.item_name].notes[r.status]; nb[r.item_note] = (nb[r.item_note] || 0) + 1; }
       });
 
       var itemNames = Object.keys(byItem).sort();
@@ -1747,7 +1753,9 @@
         var shouldFlash = !isFirstItemRender && count !== priorCount;
         var box = document.createElement('div');
         box.className = 'item-box ' + boxClass + (shouldFlash ? ' flash' : '');
-        box.innerHTML = '<span class="nm">' + renderItemNameHtml(name) + '</span><span class="cnt">x' + count + '</span>';
+        var noteMap = (byItem[name].notes || {})[statusKey] || {};
+        var noteHtml = Object.keys(noteMap).map(function(n){ return '<span class="item-modifier">' + noteMap[n] + '\u00d7 ' + escHtml(n) + '</span>'; }).join('');
+        box.innerHTML = '<span class="nm">' + renderItemNameHtml(name) + noteHtml + '</span><span class="cnt">x' + count + '</span>';
         if (makeHandler) box.addEventListener('click', makeHandler(name));
         col.appendChild(box);
       });
