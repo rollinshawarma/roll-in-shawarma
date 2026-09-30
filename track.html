@@ -443,7 +443,7 @@
       awaiting_payment: ['Waiting for your payment', 'Finish paying on the checkout page. This updates on its own.'],
       received: ['We\u2019ve got your order', 'We\u2019ll start cooking it shortly.'],
       preparing: ['Your food is cooking', 'It\u2019s on the grill now.'],
-      ready: ['Your order is on the way!', ''],
+      ready: ['Your order is ready!', ''],
       picked_up: ['Enjoy your meal!', 'Thanks for rolling with us.'],
       canceled: ['This order was canceled', 'Questions? Ask at the window.']
     };
@@ -472,7 +472,7 @@
       var sub = copy[1];
       if (stage === 'ready') {
         sub = t.pickup_method === 'curbside'
-          ? (t.parking_spot ? 'We\u2019re bringing it out to spot ' + t.parking_spot + '.' : t.arrival_status === 'on_the_way' ? 'It\u2019s ready! Tap \u201cI\u2019m here\u201d when you pull in.' : 'We\u2019re bringing it out to your car.')
+          ? (t.parking_spot ? 'Stay in your car at spot ' + t.parking_spot + '.' : t.arrival_status === 'on_the_way' ? 'It\u2019s ready! Tap \u201cI\u2019m here\u201d when you pull in.' : 'We\u2019re bringing it out to your car.')
           : 'Come to the window and give us your name.';
         if (t.payment_method === 'cash') sub += ' Please have cash ready.';
       }
@@ -484,9 +484,10 @@
             '. We\u2019ll start cooking about 20 minutes before.';
         }
       }
+      if (stage === 'ready' && t.pickup_method === 'curbside' && t.parking_spot) copy = ['Bringing it out to you', copy[1]];
       $('stageTitle').textContent = copy[0];
       $('stageSub').textContent = sub;
-      document.title = (stage === 'ready' ? '\u2705 On the way! ' : '') + 'Order ' + displayOrderNo(t.reference_code) + ' \u2014 Roll-In Shawarma';
+      document.title = (stage === 'ready' ? '\u2705 Ready! ' : '') + 'Order ' + displayOrderNo(t.reference_code) + ' \u2014 Roll-In Shawarma';
 
       var card = $('statusCard');
       card.classList.toggle('is-ready', stage === 'ready');
