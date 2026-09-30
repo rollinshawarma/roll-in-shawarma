@@ -23,8 +23,9 @@
     '.lot-badge{ position:absolute; left:50%; top:' + SIGN_Y + '%; transform:translate(-50%,-50%); width:clamp(26px, 7.2vw, 46px); height:clamp(26px, 7.2vw, 46px); border-radius:50%; background:#fff; color:#d62d20; font:800 clamp(14px, 3.8vw, 24px)/1 "Inter", system-ui, sans-serif; display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 3px #d62d20, 0 4px 12px rgba(0,0,0,.45); transition:transform .15s ease, background .15s ease; }',
     '.lot-hot:not(:disabled):hover .lot-badge{ transform:translate(-50%,-50%) scale(1.08); }',
     '.lot-hot.is-sel .lot-badge{ background:var(--lot-accent); color:var(--lot-accent-ink); box-shadow:0 0 0 3px #fff, 0 0 0 7px var(--lot-accent), 0 6px 16px rgba(0,0,0,.5); }',
-    '.lot-hot.is-sel::after{ content:""; position:absolute; left:6%; right:6%; top:70%; bottom:4%; border-radius:10px; background:rgba(255,169,77,.28); box-shadow:inset 0 0 0 2px var(--lot-accent); }',
-    '.lot-light .lot-hot.is-sel::after{ background:rgba(255,255,255,.28); box-shadow:inset 0 0 0 2px #fff; }',
+    // No box around the tapped area: only the number badge shows the choice.
+    '.lot-hot, .lot-hot:focus, .lot-hot:active{ outline:none; box-shadow:none; }',
+    '.lot-hot:focus-visible .lot-badge{ outline:3px solid #fff; outline-offset:3px; }',
     '.lot-hot.is-taken .lot-badge{ background:#3a3a3c; color:#9a9a9f; box-shadow:0 0 0 3px #3a3a3c; }',
     '.lot-hot.is-taken::before{ content:"TAKEN"; position:absolute; left:50%; top:78%; transform:translateX(-50%); font:800 clamp(8px, 2.2vw, 12px)/1 "Inter", system-ui, sans-serif; letter-spacing:.06em; color:#fff; background:rgba(0,0,0,.72); padding:3px 6px; border-radius:6px; }',
     '.lot-row{ display:grid; grid-template-columns:repeat(5, 1fr); gap:8px; margin-top:10px; }',
