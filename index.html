@@ -33,7 +33,7 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Inter+Tight:wght@600;700&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <style>
   /* =========================================================
      Roll-In Shawarma — 2026 redesign
@@ -866,6 +866,78 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
 .ing-chip:focus-visible .ing-pic{ outline:2px solid var(--ink); outline-offset:2px; }
 .cart-item-note{ font-size:13px; font-weight:600; color:var(--accent); margin-top:1px; }
 .co-item-note{ display:block; font-size:12.5px; font-weight:600; color:var(--accent); margin-top:1px; }
+
+/* =========================================================
+   Brand pass (frontend-design): a food truck's menu board, not a tech site.
+   - Headlines in Barlow Condensed (same as the QR drive-up page).
+   - Chili red stays the action color; saffron marks deals and points.
+   - No decorative labels over headings; readable hero; solid buttons.
+   ========================================================= */
+:root{
+  --display:"Barlow Condensed","Arial Narrow","Inter",sans-serif;
+  --ink:#1a1714;
+  --saffron:#f2a20c;
+  --saffron-ink:#3a2600;
+  --saffron-soft:#fff3dc;
+}
+/* Condensed type needs no negative tracking and a little more size. */
+.h2, .brand, .mobile-nav a, .hero h1, .mn-name, .ws-sec-title, .dl-head h3, .ws-title, .tile h3,
+.deal-card h3, .stat b, .menu-acc-title h4, .bundle-price, .gift-visual-top, .gift-visual-amt,
+.standard-loc-address, .cal-title, .cart-drawer-header h3, .rw-ladder b, .rw-auth h3, .rw-hi,
+.rw-points span, .rw-sheet h3{ letter-spacing:0; }
+.h2{ font-size:clamp(42px, 6.4vw, 72px); line-height:.96; font-weight:800; text-wrap:balance; }
+.hero h1{ font-size:clamp(60px, 10.5vw, 124px); line-height:.9; font-weight:800; text-wrap:balance; }
+.tile h3{ font-size:clamp(44px, 5.6vw, 66px); line-height:.95; font-weight:800; }
+.ws-sec-title{ font-size:clamp(38px, 5vw, 54px); line-height:1; font-weight:800; }
+.ws-title{ font-size:34px; line-height:1; font-weight:800; }
+.mn-name{ font-size:27px; font-weight:700; line-height:1.05; }
+.brand{ font-size:21px; font-weight:800; }
+.mobile-nav a{ font-size:34px; font-weight:700; }
+.dl-head h3, .cart-drawer-header h3, .rw-sheet h3, .rw-auth h3{ font-size:30px; font-weight:800; line-height:1.05; }
+.deal-card h3, .menu-acc-title h4{ font-size:26px; font-weight:700; }
+.stat b{ font-size:26px; font-weight:800; }
+.cal-title{ font-size:22px; font-weight:700; }
+.standard-loc-address{ font-weight:800; }
+/* Long quotes read better in the body face. */
+.review-slide p{ font-family:var(--body); font-weight:600; letter-spacing:-0.012em; font-size:clamp(20px, 2.4vw, 27px); line-height:1.4; text-wrap:pretty; }
+.lead, .tile p, .story-copy p{ text-wrap:pretty; }
+.story-copy p{ max-width:62ch; }
+
+/* Hero: the sketch is light, so the words get a real backdrop. */
+.hero::after{ background:
+  radial-gradient(ellipse 90% 58% at 50% 22%, rgba(26,23,20,.72) 0%, rgba(26,23,20,.38) 55%, rgba(26,23,20,0) 100%),
+  linear-gradient(180deg, rgba(26,23,20,.30) 0%, rgba(26,23,20,0) 45%, rgba(26,23,20,.62) 100%); }
+.hero-sub{ color:#fff; font-weight:600; text-shadow:0 1px 12px rgba(0,0,0,.55); }
+.hero h1{ text-shadow:0 2px 28px rgba(0,0,0,.45); }
+.open-status{ color:#fff; font-weight:600; background:rgba(26,23,20,.58); padding:6px 14px 6px 12px; border-radius:999px; }
+.hero-ctas .btn{ font-size:17px; font-weight:700; box-shadow:0 8px 24px rgba(0,0,0,.28); }
+.hero-ctas .btn-white{ color:var(--ink); }
+
+/* Menu-board section heads: left-aligned on wide screens, centered on phones stays calm. */
+.sec-head .lead{ color:var(--ink-2); }
+
+/* Signature dishes: photo-led, less "same card five times". */
+.tile{ border-radius:22px; }
+.tile-price{ font-weight:600; color:var(--ink) !important; }
+.tile.dark .tile-price{ color:#fff !important; }
+.link-more::after{ content:none; }
+
+/* Saffron = deals and points, nothing else. */
+.taco-banner{ background:var(--saffron-soft) !important; color:var(--saffron-ink) !important; border-color:rgba(242,162,12,.45) !important; }
+.deal-tag{ color:#9a5b00; letter-spacing:.02em; text-transform:none; font-size:13px; }
+.rw-earn, #coPointsLine{ color:#9a5b00; }
+.wp-pct{ color:#b86e00; }
+
+/* Catering steps: 1, 2, or call. */
+.cat-point .num{ font-size:28px; font-weight:800; color:var(--accent); letter-spacing:0; }
+
+/* Quieter labels (no tracked-out caps). */
+.business-hours-label{ text-transform:none; letter-spacing:0; font-size:14px; }
+
+/* Quality floor */
+@media (prefers-reduced-motion: reduce){
+  *, *::before, *::after{ animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important; }
+}
 </style>
 <script type="application/ld+json">
 {
@@ -978,9 +1050,9 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
       <p class="open-status" id="openStatus" aria-live="polite"></p>
     </div>
     <div class="hero-ctas">
-      <a class="btn btn-white" href="#menu">Order Pickup</a>
-      <a class="btn btn-glass drive-up-only" href="order.html?ahead=1">Drive Up</a>
-      <a class="btn btn-glass" href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener" data-delivery-open>Order Delivery</a>
+      <a class="btn btn-accent" href="#menu">Order Pickup</a>
+      <a class="btn btn-white drive-up-only" href="order.html?ahead=1">Drive Up</a>
+      <a class="btn btn-white" href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener" data-delivery-open>Order Delivery</a>
     </div>
   </div>
 </header>
@@ -1017,10 +1089,9 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
 <section id="signatures" class="member-hide" aria-label="Signature dishes">
   <div class="tiles">
     <article class="tile wide">
-      <div class="eyebrow">Signature</div>
       <h3>Chicken Shawarma</h3>
       <p>Carved fresh. Rolled with white sauce, fries and pickled cucumber.</p>
-      <p class="tile-price">Chicken or falafel &middot; $11.99</p>
+      <p class="tile-price">Chicken or falafel, $11.99</p>
       <div class="tile-ctas">
         <a class="btn btn-accent btn-sm" href="#menu" data-order-cat="Shawarma">Order now</a>
         <a class="link link-more" href="#menu" data-order-cat="Shawarma">See options</a>
@@ -1028,10 +1099,9 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
       <div class="tile-img"><img src="shawarma-wrap.webp" alt="Chicken shawarma wrap" loading="lazy"></div>
     </article>
     <article class="tile dark">
-      <div class="eyebrow">Fan favorite</div>
       <h3>Loaded Fries</h3>
       <p>Golden fries, marinated chicken, melted cheese and two sauces.</p>
-      <p class="tile-price">Four chicken flavors &middot; $11.99</p>
+      <p class="tile-price">Four chicken flavors, $11.99</p>
       <div class="tile-ctas">
         <a class="btn btn-white btn-sm" href="#menu" data-order-cat="Loaded Fries">Order now</a>
         <a class="link link-more" href="#menu" data-order-cat="Loaded Fries">See options</a>
@@ -1039,10 +1109,9 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
       <div class="tile-img"><img src="loaded-fries.webp" alt="Loaded fries with chicken and cheese" loading="lazy"></div>
     </article>
     <article class="tile">
-      <div class="eyebrow">Build a bowl</div>
       <h3>Chicken Over Rice</h3>
       <p>Flavored rice, marinated chicken, crisp veggies and house sauce.</p>
-      <p class="tile-price">Chicken or veggie &middot; $12.99</p>
+      <p class="tile-price">Chicken or veggie, $12.99</p>
       <div class="tile-ctas">
         <a class="btn btn-dark btn-sm" href="#menu" data-order-cat="Bowls">Order now</a>
         <a class="link link-more" href="#menu" data-order-cat="Bowls">See options</a>
@@ -1050,10 +1119,9 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
       <div class="tile-img"><img src="bowl.webp" alt="Chicken over rice bowl" loading="lazy"></div>
     </article>
     <article class="tile">
-      <div class="eyebrow">Three to a plate</div>
       <h3>Tacos</h3>
       <p>Soft tacos piled with chicken, fresh veggies, cilantro and lime.</p>
-      <p class="tile-price">Four chicken flavors &middot; $11.99</p>
+      <p class="tile-price">Four chicken flavors, $11.99</p>
       <div class="tile-ctas">
         <a class="btn btn-dark btn-sm" href="#menu" data-order-cat="Tacos">Order now</a>
         <a class="link link-more" href="#menu" data-order-cat="Tacos">See options</a>
@@ -1061,10 +1129,9 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
       <div class="tile-img"><img src="tacos.webp" alt="Three soft chicken tacos" loading="lazy"></div>
     </article>
     <article class="tile">
-      <div class="eyebrow">Rolled to order</div>
       <h3>Frankie Rolls</h3>
       <p>Chicken or paneer, wrapped tight with veggies, cilantro and lime.</p>
-      <p class="tile-price">Five flavors &middot; $9.99</p>
+      <p class="tile-price">Five flavors, $9.99</p>
       <div class="tile-ctas">
         <a class="btn btn-dark btn-sm" href="#menu" data-order-cat="Frankie Rolls">Order now</a>
         <a class="link link-more" href="#menu" data-order-cat="Frankie Rolls">See options</a>
@@ -1080,7 +1147,6 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
     <!-- ============ SIGNED OUT: join / sign in ============ -->
     <div id="dealsLocked">
       <div class="sec-head">
-        <div class="eyebrow">Roll-In Rewards</div>
         <h2 class="h2">Eat. Earn. Roll free.</h2>
         <p class="lead">100 points for every $10 you spend. A free roll just for joining.</p>
       </div>
@@ -1257,10 +1323,9 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
   <div class="wrap">
     <div class="story-layout">
       <div class="story-copy">
-        <div class="eyebrow">Our Story</div>
-        <h2 class="h2">Street food, made with heart.</h2>
-        <p>Every great food journey begins with a spark of passion, a hot grill, and an unforgettable aroma drifting through the air. For us at Roll-In Shawarma, it all started with a simple belief: the best moments in life are shared over bold, heartwarming food.</p>
-        <p>We grew up surrounded by the lively street markets of the Middle East and India, where food isn't just fuel &mdash; it's an art form, a celebration, and a way of life.</p>
+        <h2 class="h2">Middle Eastern and Indian street food, rolled at the window.</h2>
+        <p>We cook out of a rebuilt 2004 Freightliner: chicken shawarma with our signature white sauce, Frankie rolls, rice bowls, tacos and loaded fries. The meat is 100% halal, and every order is rolled when you order it.</p>
+        <p>Most evenings you&rsquo;ll find us at 3554 S Arlington Rd in Akron. Home base is Green, Ohio, and we bring the truck to events around Northeast Ohio.</p>
         <details>
           <summary>Read the full story</summary>
           <p>The sizzle of flame-cooked chicken shawarma, the buttery crunch of a freshly wrapped Frankie Roll, and the intoxicating scent of slow-roasted spices were memories etched into our hearts. We noticed something missing from our local food scene: a true, high-energy fusion that brought together the absolute best of both worlds under one roof.</p>
@@ -1285,7 +1350,6 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
 <section id="reviews" class="sec sec-gray member-hide">
   <div class="wrap">
     <div class="sec-head" style="margin-bottom:36px;">
-      <div class="eyebrow">Reviews</div>
       <h2 class="h2">What the window&rsquo;s been hearing.</h2>
     </div>
     <div class="review-carousel">
@@ -1324,15 +1388,14 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
 <section id="catering" class="sec member-hide">
   <div class="wrap">
     <div class="sec-head">
-      <div class="eyebrow">Catering</div>
       <h2 class="h2">Book the truck for your event.</h2>
       <p class="lead">Weddings, offices, birthdays, block parties. Tell us the details and we&rsquo;ll follow up with a plan and pricing.</p>
     </div>
 
     <div class="cat-points">
-      <div class="cat-point"><div class="num">01</div><p>Send your date, headcount and location with the form below.</p></div>
-      <div class="cat-point"><div class="num">02</div><p>We follow up by phone or email to settle the menu and quote.</p></div>
-      <div class="cat-point"><div class="num">03</div><p>Prefer to talk? Call or text <a href="tel:+13305875203">(330) 587-5203</a>.</p></div>
+      <div class="cat-point"><div class="num">1</div><p>Send your date, headcount and location with the form below.</p></div>
+      <div class="cat-point"><div class="num">2</div><p>We follow up by phone or email to settle the menu and quote.</p></div>
+      <div class="cat-point"><div class="num">Or</div><p>Prefer to talk? Call or text <a href="tel:+13305875203">(330) 587-5203</a>.</p></div>
     </div>
 
     <div class="cat-forms">
@@ -1484,7 +1547,6 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
       </div>
 
       <div class="gift-card-box">
-        <div class="eyebrow">Gift Cards</div>
         <h2 class="h2">Give the gift of shawarma.</h2>
         <p class="lead">Delivered by email. Perfect for birthdays, coworkers, or just because.</p>
 
@@ -1513,7 +1575,6 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
 <section id="find" class="sec sec-gray member-hide">
   <div class="wrap">
     <div class="sec-head">
-      <div class="eyebrow">Hours &amp; Location</div>
       <h2 class="h2">Come find the truck.</h2>
       <p class="lead">Dinner every day except Monday, at our standard spot in Akron, plus events around Northeast Ohio.</p>
     </div>
