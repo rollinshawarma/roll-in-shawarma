@@ -11,6 +11,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Inter+Tight:wght@600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="spot-picker.js"></script>
 <style>
   :root{
     --black:#ffffff; --panel:#f5f5f7; --panel-2:#e8e8ed; --line:#e3e3e8;
@@ -194,9 +195,7 @@
       <div data-av="spots" class="hidden">
         <h2 id="spotsTitle">You&rsquo;re here! Which spot are you in?</h2>
         <p class="note" id="spotsNote" style="margin:2px 0 12px"></p>
-        <div class="spots" role="group" aria-label="Parking spot" id="arrSpots">
-          <button type="button" class="spot" data-spot="1">1</button><button type="button" class="spot" data-spot="2">2</button><button type="button" class="spot" data-spot="3">3</button><button type="button" class="spot" data-spot="4">4</button><button type="button" class="spot" data-spot="5">5</button>
-        </div>
+        <div id="arrSpots"></div>
         <div class="msg" id="spotsMsg" role="alert"></div>
       </div>
       <div data-av="far" class="hidden">
@@ -576,8 +575,9 @@
       $('spotsTitle').textContent = arrOrder && arrOrder.parking_spot ? 'Which spot are you in now?' : (manual ? 'Which spot are you in?' : 'You\u2019re here! Which spot are you in?');
       $('spotsNote').textContent = note || '';
       $('spotsMsg').textContent = '';
-      document.querySelectorAll('#arrSpots .spot').forEach(function(b){ b.setAttribute('aria-pressed', 'false'); b.disabled = false; });
+      if (lot) { lot.setSelected(arrOrder && arrOrder.parking_spot && arrOrder.arrival_status !== 'on_the_way' ? arrOrder.parking_spot : null); lot.setDisabled(false); }
       showArr('spots');
+      refreshTaken();
     }
     function imHere(){
       showArr('checking');
@@ -608,31 +608,36 @@
     $('hereAnywayBtn').addEventListener('click', function(){ openSpots(true, 'We\u2019ll check you in without your location.'); });
     $('manualBtn').addEventListener('click', function(){ openSpots(true, ''); });
     $('changeSpotBtn').addEventListener('click', function(){ openSpots(true, ''); });
-    $('arrSpots').addEventListener('click', function(e){
-      var b = e.target.closest('[data-spot]'); if (!b) return;
-      var spot = parseInt(b.getAttribute('data-spot'), 10);
-      document.querySelectorAll('#arrSpots .spot').forEach(function(x){ x.setAttribute('aria-pressed', x === b ? 'true' : 'false'); x.disabled = true; });
+    // Spot picker on the lot photo (spot-picker.js). Taken spots are greyed
+    // out and refreshed every 10 s while it's open.
+    function lotFail(msg){ if (lot) { lot.setSelected(arrOrder && arrOrder.arrival_status !== 'on_the_way' ? arrOrder.parking_spot : null); lot.setDisabled(false); } $('spotsMsg').textContent = msg; }
+    function refreshTaken(){
+      if (!lot) return;
+      sb.rpc('get_taken_spots', { p_order_id: orderId, p_hold_key: null }).then(function(res){
+        if (!res.error && Array.isArray(res.data)) lot.setTaken(res.data);
+      }, function(){});
+    }
+    setInterval(function(){ if (arrView === 'spots' && document.visibilityState === 'visible') refreshTaken(); }, 10000);
+    var lot = window.RollinSpots ? window.RollinSpots.mount($('arrSpots'), { theme: 'light', onPick: function(spot){
+      lot.setDisabled(true);
       $('spotsMsg').textContent = '';
       // A fresh fix (under 2 minutes old) proves they're here; a manual
       // check-in or a spot change sends none.
       var fix = !manualSpot && lastFix && Date.now() - lastFix.at < 120000 ? lastFix : null;
       checkIn(spot, fix).then(function(r){
         if (!r.ok) {
-          document.querySelectorAll('#arrSpots .spot').forEach(function(x){ x.disabled = false; x.setAttribute('aria-pressed', 'false'); });
-          if (r.error === 'too_far') { $('farText').textContent = 'You look about ' + fmtDist(r.distance_m) + ' away. Tap again when you pull in at the truck.'; showArr('far'); return; }
-          $('spotsMsg').textContent = r.error === 'done' ? 'This order is already finished.' : 'We couldn\u2019t check you in. Try again, or tell us at the window.';
+          if (r.error === 'too_far') { lotFail(''); $('farText').textContent = 'You look about ' + fmtDist(r.distance_m) + ' away. Tap again when you pull in at the truck.'; showArr('far'); return; }
+          if (r.error === 'spot_taken') { lotFail('Spot ' + spot + ' was just taken. Please pick another one.'); if (Array.isArray(r.taken)) lot.setTaken(r.taken); else refreshTaken(); return; }
+          lotFail(r.error === 'done' ? 'This order is already finished.' : 'We couldn\u2019t check you in. Try again, or tell us at the window.');
           return;
         }
         arrView = null;
-        arrOrder = Object.assign({}, arrOrder, { parking_spot: spot, arrival_status: 'arrived' });
+        arrOrder = Object.assign({}, arrOrder, { parking_spot: spot, arrival_status: arrOrder && arrOrder.arrival_status === 'on_the_way' ? 'arrived' : (arrOrder && arrOrder.arrival_status) || 'arrived' });
         renderArrive(arrOrder, lastStage);
         buzzOnce();
         poll();
-      }, function(){
-        document.querySelectorAll('#arrSpots .spot').forEach(function(x){ x.disabled = false; x.setAttribute('aria-pressed', 'false'); });
-        $('spotsMsg').textContent = 'We couldn\u2019t reach the truck. Check your connection and try again.';
-      });
-    });
+      }, function(){ lotFail('We couldn\u2019t reach the truck. Check your connection and try again.'); });
+    } }) : null;
 
     // Optional: while this page is open on the drive over, the kitchen
     // sees roughly how far away you are. Near the truck, the spot picker opens.
