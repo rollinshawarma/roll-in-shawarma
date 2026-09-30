@@ -124,6 +124,7 @@
     <div class="sub" id="thankYouSub">Please allow a few minutes to roll &mdash; it's worth the wait.</div>
     <div class="ref-badge" id="refBadge"></div>
     <a id="trackBtn" class="track-btn hidden" href="#">Track your order &amp; get ready alerts</a>
+    <p id="driveNote" class="pickup-note hidden">&#128205; On your way? When you pull in at the truck, open your order and tap <b>I&rsquo;m here</b> &mdash; then pick your parking spot and we&rsquo;ll bring it out.</p>
     <div id="phoneNote" class="phone-note hidden">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></svg>
       <div><b>Paid on your phone</b>
@@ -322,6 +323,12 @@
           var trackBtn = document.getElementById('trackBtn');
           trackBtn.href = 'track.html?order=' + encodeURIComponent(order.trackingId);
           trackBtn.classList.remove('hidden');
+          // Drive-up ordered ahead ("on my way"): the tracking page is where they check in.
+          if (order.pickupMethod === 'curbside' && !order.parkingSpot) {
+            trackBtn.textContent = 'Open my order \u2014 tap \u201cI\u2019m here\u201d when you arrive';
+            var dn = document.getElementById('driveNote');
+            if (dn) dn.classList.remove('hidden');
+          }
           try {
             localStorage.setItem('rollin_last_order', JSON.stringify({ id: order.trackingId, ref: order.referenceCode, savedAt: Date.now() }));
           } catch(e){}
