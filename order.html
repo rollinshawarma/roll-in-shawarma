@@ -224,6 +224,8 @@
   .co-sec{ padding:20px 0; border-bottom:1px solid var(--line); }
   .co-sec h3{ font-family:var(--display); font-weight:800; font-size:23px; color:var(--white); margin-bottom:12px; }
   .seg{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .arrive-seg{ margin-bottom:14px; }
+  .arrive-note{ color:var(--cream); font-size:14px; line-height:1.5; background:rgba(255,169,77,0.08); border:1px solid rgba(255,169,77,0.35); border-radius:14px; padding:12px 14px; margin-bottom:14px; }
   .seg button, .pay-opt{ text-align:left; padding:14px; border-radius:14px; border:1px solid var(--line); background:var(--panel); min-height:64px; }
   .seg button strong, .pay-opt strong{ display:block; color:var(--white); font-size:15.5px; }
   .seg button span, .pay-opt span{ display:block; color:var(--muted); font-size:13px; margin-top:2px; }
@@ -438,6 +440,11 @@
         <button type="button" data-pickup="window" aria-pressed="false"><strong>At the window</strong><span>We&rsquo;ll call your name</span></button>
       </div>
       <div id="curbsideDetails" style="margin-top:16px;">
+        <div class="seg arrive-seg" role="group" aria-label="Where are you?">
+          <button type="button" data-arrive="here" aria-pressed="true"><strong>I&rsquo;m at the truck</strong><span>Pick your spot now</span></button>
+          <button type="button" data-arrive="on_the_way" aria-pressed="false"><strong>I&rsquo;m on my way</strong><span>Check in when you get here</span></button>
+        </div>
+        <p class="arrive-note hidden" id="arriveNote">&#128205; When you pull in, open your order and tap <b>I&rsquo;m here</b>. We&rsquo;ll check you&rsquo;re at the truck, you pick your spot, and we bring it out.</p>
         <div class="field" id="spotField">
           <label id="spotLabel">Which parking spot are you in?</label>
           <div class="spots" role="group" aria-labelledby="spotLabel" id="spotGrid">
@@ -1400,6 +1407,9 @@
     var pickupMethod = 'curbside';
     var paymentMethod = 'card';
     var parkingSpot = null;
+    // Drive-up: at the truck now (pick a spot) or on the way (check in later).
+    // The website's Drive Up button opens this page with ?ahead=1.
+    var arriveMode = /[?&]ahead=1\b/.test(location.search) ? 'on_the_way' : 'here';
     var selectedCarColor = null;
     var tipOptions = [];
     var selectedTip = null;   // number, or null when not chosen / custom invalid
@@ -1486,6 +1496,21 @@
         renderCheckout();
       });
     });
+    function setArriveMode(mode){
+      arriveMode = mode;
+      document.querySelectorAll('[data-arrive]').forEach(function(x){ x.setAttribute('aria-pressed', x.getAttribute('data-arrive') === mode ? 'true' : 'false'); });
+      $('spotField').classList.toggle('hidden', mode === 'on_the_way');
+      $('arriveNote').classList.toggle('hidden', mode !== 'on_the_way');
+      if (mode === 'on_the_way') $('spotField').classList.remove('invalid');
+      renderCheckout();
+    }
+    document.querySelectorAll('[data-arrive]').forEach(function(b){
+      b.addEventListener('click', function(){ setArriveMode(b.getAttribute('data-arrive')); });
+    });
+    if (arriveMode === 'on_the_way') {
+      document.querySelectorAll('[data-arrive]').forEach(function(x){ x.setAttribute('aria-pressed', x.getAttribute('data-arrive') === 'on_the_way' ? 'true' : 'false'); });
+      $('spotField').classList.add('hidden'); $('arriveNote').classList.remove('hidden');
+    }
     $('spotGrid').addEventListener('click', function(e){
       var b = e.target.closest('[data-spot]');
       if (!b) return;
@@ -1579,7 +1604,7 @@
         '<div class="grand"><span>Total</span><span>' + money(t.total) + '</span></div>';
 
       $('reviewOrderBtn').innerHTML = 'Review order <span class="cta-amt">' + money(t.total) + '</span>';
-      var spotText = pickupMethod === 'curbside' ? (parkingSpot ? 'Drive-up, spot ' + parkingSpot : 'Drive-up') : 'At the window';
+      var spotText = pickupMethod === 'curbside' ? (arriveMode === 'on_the_way' ? 'Drive-up, on the way' : parkingSpot ? 'Drive-up, spot ' + parkingSpot : 'Drive-up') : 'At the window';
       if (pickupMethod === 'curbside') {
         // Car only shows here if they chose to add it.
         var carMk = $('carMakeSelect').value === 'Other' ? $('carMakeOther').value.trim() : $('carMakeSelect').value;
@@ -1606,7 +1631,7 @@
     function validateCheckout(){
       var problems = [];
       if (!$('custName').value.trim()) { problems.push('your first name'); $('nameField').classList.add('invalid'); }
-      if (pickupMethod === 'curbside' && !parkingSpot) { problems.push('your parking spot'); $('spotField').classList.add('invalid'); }
+      if (pickupMethod === 'curbside' && arriveMode !== 'on_the_way' && !parkingSpot) { problems.push('your parking spot'); $('spotField').classList.add('invalid'); }
       if (tipChoiceIndex === null) problems.push('a tip option (No tip is fine)');
       else if (selectedTip === null) problems.push('a tip amount');
       return problems;
@@ -1703,7 +1728,8 @@
         notes: $('custNotes').value.trim() || undefined,
         orderSource: 'qr',
         pickupMethod: pickupMethod,
-        parkingSpot: pickupMethod === 'curbside' ? parkingSpot : null,
+        parkingSpot: pickupMethod === 'curbside' && arriveMode !== 'on_the_way' ? parkingSpot : null,
+        arrivalMode: pickupMethod === 'curbside' && arriveMode === 'on_the_way' ? 'on_the_way' : undefined,
         carMake: carMakeValue,
         carModel: carModelValue,
         carColor: pickupMethod === 'curbside' ? selectedCarColor : null,
