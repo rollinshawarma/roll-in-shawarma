@@ -2111,7 +2111,19 @@
 
     call.then(function(res){
       btn.disabled = false;
-      if (res.error) { showMsg('eventFormMsg', eventErrorText(res.error), 'error'); return; }
+      if (res.error) {
+        var err = res.error;
+        if (String(err.code) === '42501' || /permission denied/i.test(err.message || '')) {
+          // Signed out tabs call as a visitor, which looks the same as a missing permission.
+          sb.auth.getSession().then(function(r){
+            var signedIn = r && r.data && r.data.session;
+            showMsg('eventFormMsg', signedIn ? eventErrorText(err) : 'You\u2019ve been signed out. Refresh the page and sign in again.', 'error');
+          });
+          return;
+        }
+        showMsg('eventFormMsg', eventErrorText(err), 'error');
+        return;
+      }
       showMsg('eventFormMsg', 'Saved.', 'ok');
       clearEventForm();
       loadEvents();
@@ -2124,7 +2136,7 @@
     if (/not authorized/i.test(m)) return 'Your account can\u2019t add events. Only managers and admins can. Ask an admin to change your role under Staff.';
     if (/jwt|session|expired/i.test(m) || code === 'PGRST301') return 'You\u2019ve been signed out. Refresh the page and sign in again.';
     if (code === 'PGRST202' || /could not find the function/i.test(m)) return 'The events setup is missing in the database. Run supabase-fix-event-injection-and-null-bug.sql in Supabase, then try again. (' + m + ')';
-    if (code === '42501' || /permission denied/i.test(m)) return 'The database refused the save (permission denied). Run security-lockdown.sql again in Supabase, then try again. (' + m + ')';
+    if (code === '42501' || /permission denied/i.test(m)) return 'The database refused the save (permission denied). Run staff-permissions-fix.sql in Supabase, then try again. (' + m + ')';
     if (/end date/i.test(m)) return 'The end date is before the start date.';
     if (/status_check|violates check/i.test(m)) return 'That status isn\u2019t allowed. Pick Confirmed, Tentative or Cancelled.';
     if (/invalid input syntax for type (date|time)/i.test(m)) return 'A date or time isn\u2019t in a format the database understands. Pick it again from the calendar or clock. (' + m + ')';
