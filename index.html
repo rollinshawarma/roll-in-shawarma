@@ -938,6 +938,19 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
 @media (prefers-reduced-motion: reduce){
   *, *::before, *::after{ animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; scroll-behavior:auto !important; }
 }
+
+/* ---- Pay with card on our own page (Square Web Payments SDK) ---- */
+.card-pay{ margin-top:10px; padding:14px; border:1px solid var(--line); border-radius:16px; background:#fff; text-align:left; }
+.card-pay-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.card-pay-head b{ font-size:15px; font-weight:700; }
+.card-pay-x{ background:none; border:0; color:var(--muted, #6e6e73); font-size:14px; font-weight:600; cursor:pointer; padding:6px 4px; }
+.card-pay-field{ min-height:90px; }
+.card-pay-loading{ display:block; padding:14px 2px; color:var(--muted, #6e6e73); font-size:14px; }
+.checkout-foot .card-pay-submit{ width:100%; margin-top:4px; }
+.checkout-foot .card-pay-submit:disabled{ opacity:.55; cursor:default; }
+.card-pay-foot{ display:flex; gap:6px; align-items:flex-start; margin-top:10px; font-size:12px; line-height:1.4; color:var(--muted, #6e6e73); }
+.card-pay-foot svg{ width:14px; height:14px; flex:none; margin-top:1px; }
+.checkout-foot.card-open .pay-row{ display:none; }
 </style>
 <script type="application/ld+json">
 {
@@ -1833,6 +1846,18 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
               <span class="ap-mark" aria-hidden="true"><span class="ap-mark-text">Apple Pay</span></span>
             </button>
             <button type="button" id="cartPayNowBtn" class="btn btn-light pay-btn">Pay with card</button>
+          </div>
+          <div id="cardPanel" class="card-pay hidden" role="group" aria-labelledby="cardPayHead">
+            <div class="card-pay-head">
+              <b id="cardPayHead">Card details</b>
+              <button type="button" class="card-pay-x" id="cardPayCancel">Cancel</button>
+            </div>
+            <div id="cardContainer" class="card-pay-field"><span class="card-pay-loading">Loading secure card form&hellip;</span></div>
+            <button type="button" id="cardPaySubmit" class="pay-btn card-pay-submit" disabled>Pay</button>
+            <div class="card-pay-foot">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg>
+              <span>Secured by Square. Your card number goes straight to Square, never to us.</span>
+            </div>
           </div>
           <div id="scanPayPanel" class="scan-pay hidden" aria-live="polite">
             <div class="scan-pay-qr" id="scanPayQr"><span class="scan-pay-spin"></span></div>
@@ -3186,6 +3211,9 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
       document.getElementById('cartPayNowBtn').addEventListener('click', function(){
         var order = collectCheckout();
         if (!order) return;
+        // Card form right here. Free orders, and pages without the Square
+        // app ID, keep the old way (Square's page).
+        if (!window.__rollinFreeOrder && window.rollinCardPay && window.rollinCardPay.open()) return;
         setPayBusy(true, 'Preparing checkout…');
         submitOrder(order).then(function(result){
           if (!result) return;
@@ -3209,6 +3237,7 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
       coStep = step;
       document.getElementById('coStepDetails').classList.toggle('hidden', step !== 'details');
       document.getElementById('coStepPay').classList.toggle('hidden', step !== 'pay');
+      if (step !== 'pay' && window.rollinCardPay) window.rollinCardPay.close();
       drawerTitle.textContent = step === 'pay' ? 'Review & pay' : 'Checkout';
       checkoutMsg('');
       var panel = document.querySelector('.cart-drawer-panel');
@@ -3310,6 +3339,7 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
       var btn = document.getElementById('cartPayNowBtn');
       btn.disabled = busy;
       btn.textContent = busy ? (label || 'Processing…') : payLabel();
+      if (window.__rollinCardBusy) window.__rollinCardBusy(busy, label);
       ['applePayBtn', 'googlePayBtn'].forEach(function(id){ document.getElementById(id).classList.toggle('is-busy', busy); });
     }
     function payLabel(){ return window.__rollinFreeOrder ? 'Place free order' : 'Pay with card'; }
@@ -3423,6 +3453,8 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
     window.__rollinWalletUpdate = function(t){
       if (sqRequest) { try { sqRequest.update({ total: walletTotal(t) }); } catch (e) {} }
     };
+    var sqPaymentsObj = null;
+    function sqPayments(){ return sqPaymentsObj || (sqPaymentsObj = window.Square.payments(SQUARE_APP_ID, SQUARE_LOCATION_ID)); }
     function loadSquareSdk(){
       if (window.Square) return Promise.resolve();
       return new Promise(function(resolve, reject){
@@ -3436,7 +3468,7 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
       if (walletLoading) { window.__rollinWalletUpdate(checkoutTotals()); return walletLoading; }
       if (SQUARE_APP_ID.indexOf('REPLACE') !== -1) return (walletLoading = Promise.resolve());
       walletLoading = loadSquareSdk().then(function(){
-        var payments = window.Square.payments(SQUARE_APP_ID, SQUARE_LOCATION_ID);
+        var payments = sqPayments();
         // Billing contact lets Apple Pay / Google Pay share the buyer's
         // email (when they allow it) so the receipt field can stay empty.
         sqRequest = payments.paymentRequest({ countryCode: 'US', currencyCode: 'USD', total: walletTotal(checkoutTotals()), requestBillingContact: true });
@@ -3498,6 +3530,141 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
     }
     document.getElementById('applePayBtn').addEventListener('click', function(){ payWithWallet(sqApplePay); });
     document.getElementById('googlePayBtn').addEventListener('click', function(){ payWithWallet(sqGooglePay); });
+
+    // ---- Pay with card right here (Square's secure card box) ----
+    // The card number is typed into Square's own frame and never reaches
+    // this page or our servers. Square hands back a one-time token, which
+    // create-order-checkout charges for the server's own total.
+    (function(){
+      var panel = document.getElementById('cardPanel');
+      if (!panel) return;
+      var foot = panel.parentNode, box = document.getElementById('cardContainer');
+      var submitBtn = document.getElementById('cardPaySubmit');
+      var card = null, cardLoading = null, busy = false;
+      var CARD_STYLE = {
+        '.input-container': { borderColor: '#d2d2d7', borderRadius: '12px' },
+        '.input-container.is-focus': { borderColor: '#1d1d1f' },
+        '.input-container.is-error': { borderColor: '#d62d20' },
+        '.message-text.is-error': { color: '#d62d20' },
+        '.message-icon.is-error': { color: '#d62d20' },
+        input: { fontSize: '16px', color: '#1d1d1f' },
+        'input::placeholder': { color: '#8e8e93' }
+      };
+      function amountText(t){ return 'Pay $' + (t || checkoutTotals()).total.toFixed(2); }
+      function paint(){
+        submitBtn.disabled = busy || !card;
+        if (!busy) submitBtn.textContent = amountText();
+      }
+      function close(){
+        panel.classList.add('hidden');
+        foot.classList.remove('card-open');
+      }
+      // Square's own page, if the card form can't load here.
+      function hostedPay(){
+        var order = collectCheckout();
+        if (!order) return;
+        setPayBusy(true, 'Preparing checkout…');
+        submitOrder(order).then(function(result){
+          if (!result || !result.url) return;
+          closeCartDrawer();
+          showItemsView();
+          window.location.href = result.url;
+        });
+      }
+      function loadCard(){
+        if (cardLoading) return cardLoading;
+        cardLoading = loadSquareSdk().then(function(){
+          var payments = sqPayments();
+          return payments.card({ style: CARD_STYLE }).catch(function(){ return payments.card(); });
+        }).then(function(c){
+          return c.attach('#cardContainer').then(function(){
+            card = c;
+            var l = box.querySelector('.card-pay-loading'); if (l) l.remove();
+            paint();
+          });
+        }).catch(function(err){
+          console.error('Card form failed to load:', err);
+          cardLoading = null;
+          close();
+          hostedPay();
+        });
+        return cardLoading;
+      }
+      function open(){
+        if (SQUARE_APP_ID.indexOf('REPLACE') !== -1) return false;
+        panel.classList.remove('hidden');
+        foot.classList.add('card-open');
+        checkoutMsg('');
+        paint();
+        loadCard();
+        panel.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        return true;
+      }
+      function cardErrorText(e){
+        var f = e && e.field;
+        if (f === 'cardNumber') return 'Check the card number.';
+        if (f === 'expirationDate') return 'Check the expiration date.';
+        if (f === 'cvv') return 'Check the security code (CVV).';
+        if (f === 'postalCode') return 'Check the ZIP code.';
+        return (e && e.message) || 'Check your card details and try again.';
+      }
+      document.getElementById('cardPayCancel').addEventListener('click', function(){
+        if (busy) return;
+        close();
+        checkoutMsg('');
+      });
+      submitBtn.addEventListener('click', function(){
+        if (!card || busy) return;
+        var order = collectCheckout();
+        if (!order) return;
+        var t = order.totals, p = order.payload;
+        var parts = String(p.customerName || '').trim().split(/\s+/);
+        setPayBusy(true, 'Processing…');
+        card.tokenize({
+          amount: t.total.toFixed(2),
+          currencyCode: 'USD',
+          intent: 'CHARGE',
+          customerInitiated: true,
+          sellerKeyedIn: false,
+          billingContact: {
+            givenName: parts[0] || undefined,
+            familyName: parts.slice(1).join(' ') || undefined,
+            email: p.customerEmail || undefined,
+            phone: p.customerPhone || undefined
+          }
+        }).then(function(res){
+          if (!res || res.status !== 'OK' || !res.token) {
+            setPayBusy(false);
+            checkoutMsg(cardErrorText(res && res.errors && res.errors[0]));
+            return;
+          }
+          return submitOrder(order, { walletToken: res.token, expectedTotal: t.total }).then(function(result){
+            // Declined or changed: the message is shown and the card form
+            // stays open for another try. Nothing was charged.
+            if (!result || !result.paid) return;
+            closeCartDrawer();
+            showItemsView();
+            window.location.href = result.redirectUrl;
+          });
+        }).catch(function(err){
+          console.error('Card payment failed:', err);
+          setPayBusy(false);
+          checkoutMsg('We couldn\u2019t process the card. You haven\u2019t been charged. Please try again.');
+        });
+      });
+      window.__rollinCardBusy = function(b, label){
+        busy = b;
+        submitBtn.disabled = b || !card;
+        submitBtn.textContent = b ? (label || 'Processing…') : amountText();
+      };
+      // The Pay amount follows the tip and promo.
+      var walletUpdate = window.__rollinWalletUpdate;
+      window.__rollinWalletUpdate = function(t){
+        if (walletUpdate) walletUpdate(t);
+        if (!busy) submitBtn.textContent = amountText(t);
+      };
+      window.rollinCardPay = { open: open, close: close };
+    })();
 
     // ---- Catering section: validate + add to the SAME shared cart ----
     var addCateringBtn = document.getElementById('addCateringToCartBtn');
