@@ -32,6 +32,14 @@
   button:disabled{ cursor:not-allowed; }
   img{ display:block; max-width:100%; }
   .hidden{ display:none !important; }
+  .card-pay{ margin-top:2px; padding:12px; border:1px solid var(--line); border-radius:16px; background:var(--panel); }
+  .card-pay-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:8px; }
+  .card-pay-head b{ color:var(--white); font-size:15px; }
+  .card-pay-x{ background:none; border:0; color:var(--muted); font:inherit; font-size:14px; font-weight:700; padding:6px 4px; cursor:pointer; }
+  .card-pay-field{ min-height:90px; }
+  .card-pay-loading{ display:block; padding:14px 2px; color:var(--muted); font-size:14px; }
+  #cardPaySubmit:disabled{ opacity:.55; }
+  .co-foot.card-open #placeOrderBtn{ display:none; }
   :focus-visible{ outline:3px solid var(--gold); outline-offset:2px; border-radius:6px; }
   .sr-only{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
 
@@ -568,6 +576,11 @@
       </div>
       <div class="pay-or hidden" id="payOr"><span>or</span></div>
       <button type="button" class="cta" id="placeOrderBtn" style="width:100%;"></button>
+      <div id="cardPanel" class="card-pay hidden" role="group" aria-labelledby="cardPayHead">
+        <div class="card-pay-head"><b id="cardPayHead">Card details</b><button type="button" class="card-pay-x" id="cardPayCancel">Cancel</button></div>
+        <div id="cardContainer" class="card-pay-field"><span class="card-pay-loading">Loading secure card form&hellip;</span></div>
+        <button type="button" class="cta" id="cardPaySubmit" style="width:100%;" disabled>Pay</button>
+      </div>
       <div class="co-secure" id="coSecure"></div>
       </div>
     </div>
@@ -1416,6 +1429,7 @@
     function setCoStep(step){
       $('checkoutScreen').setAttribute('data-step', step);
       $('coTitle').textContent = step === 'pay' ? 'Review & pay' : 'Checkout';
+      if (step !== 'pay' && window.qrCardPay) window.qrCardPay.close();
       $('coMsg').textContent = '';
       $('checkoutScreen').scrollTop = 0;
     }
@@ -1645,7 +1659,7 @@
       }
       $('coForLine').textContent = ($('custName').value.trim() ? 'For ' + $('custName').value.trim() + ': ' : '') + spotText;
       var freeOrder = cart.length > 0 && t.total === 0;
-      $('placeOrderBtn').innerHTML = freeOrder ? 'Place free order' : (walletShown ? 'Pay with card' : 'Continue to payment') + ' <span class="cta-amt">' + money(t.total) + '</span>';
+      $('placeOrderBtn').innerHTML = freeOrder ? 'Place free order' : 'Pay with card' + ' <span class="cta-amt">' + money(t.total) + '</span>';
       document.querySelector('.wallet-pay').classList.toggle('hidden', freeOrder);
       if (freeOrder) $('payOr').classList.add('hidden');
       var earn = $('coEarn');
@@ -1656,7 +1670,8 @@
           : '\u2605 Members earn ' + t.points + ' points on this order. <button type="button" class="co-earn-link" data-qr-checkin>Check in to earn</button>';
       }
       renderQrRewards();
-      $('coSecure').textContent = walletShown ? 'Payments are processed securely by Square.' : 'You\u2019ll pay by card on Square\u2019s secure checkout page next.';
+      $('coSecure').textContent = 'Secured by Square. Your card number goes straight to Square, never to us.';
+      if (window.qrCardPay) window.qrCardPay.paint();
       if (window.__qrWalletUpdate) window.__qrWalletUpdate(t);
     }
 
@@ -1791,6 +1806,10 @@
         return;
       }
 
+      // Card form right here; free orders, and the fallback when the card
+      // form can't load, go the old way (Square's page).
+      if (!window.__qrHostedPay && computeTotals(selectedTip || 0).total > 0 && window.qrCardPay && window.qrCardPay.open()) return;
+      window.__qrHostedPay = false;
       var body = buildOrderBody();
       var url = CARD_CHECKOUT_URL;
       var prevHtml = btn.innerHTML;
@@ -1845,6 +1864,8 @@
     var walletShown = false, walletLoading = null, sqRequest = null, sqApplePay = null, sqGooglePay = null;
     function walletTotal(t){ return { amount: t.total.toFixed(2), label: 'Roll-In Shawarma' }; }
     window.__qrWalletUpdate = function(t){ if (sqRequest) { try { sqRequest.update({ total: walletTotal(t) }); } catch (e) {} } };
+    var sqPaymentsObj = null;
+    function sqPayments(){ return sqPaymentsObj || (sqPaymentsObj = window.Square.payments(SQUARE_APP_ID, SQUARE_LOCATION_ID)); }
     function prepareWallets(){
       if (walletLoading) return walletLoading;
       walletLoading = new Promise(function(resolve, reject){
@@ -1854,7 +1875,7 @@
         sc.onload = resolve; sc.onerror = reject;
         document.head.appendChild(sc);
       }).then(function(){
-        var payments = window.Square.payments(SQUARE_APP_ID, SQUARE_LOCATION_ID);
+        var payments = sqPayments();
         sqRequest = payments.paymentRequest({ countryCode: 'US', currencyCode: 'USD', total: walletTotal(computeTotals(selectedTip || 0)), requestBillingContact: true });
         var apple = payments.applePay(sqRequest).then(function(ap){
           sqApplePay = ap; walletShown = true; $('applePayBtn').classList.remove('hidden');
@@ -1877,6 +1898,7 @@
     }
     function setWalletBusy(busy){
       $('placeOrderBtn').disabled = busy;
+      if (window.qrCardPay) window.qrCardPay.busy(busy);
       ['applePayBtn', 'googlePayBtn'].forEach(function(id){ $(id).classList.toggle('is-busy', busy); });
     }
     function payWithWallet(method){
@@ -1926,6 +1948,120 @@
     $('applePayBtn').addEventListener('click', function(){ payWithWallet(sqApplePay); });
     $('googlePayBtn').addEventListener('click', function(){ payWithWallet(sqGooglePay); });
     prepareWallets();
+
+    // ---------- Pay with card right here (Square's secure card box) ----------
+    // The card number is typed into Square's own frame and never reaches
+    // this page or our servers. Square hands back a one-time token, which
+    // create-order-checkout charges for the server's own total.
+    (function(){
+      var panel = $('cardPanel'), foot = document.querySelector('.co-foot'), submitBtn = $('cardPaySubmit');
+      var card = null, cardLoading = null, busy = false;
+      var CARD_STYLE = {
+        '.input-container': { borderColor: 'rgba(243,234,201,0.22)', borderRadius: '12px' },
+        '.input-container.is-focus': { borderColor: '#FFA94D' },
+        '.input-container.is-error': { borderColor: '#ff6b5e' },
+        '.message-text': { color: 'rgba(243,234,201,0.64)' },
+        '.message-icon': { color: 'rgba(243,234,201,0.64)' },
+        '.message-text.is-error': { color: '#ff6b5e' },
+        '.message-icon.is-error': { color: '#ff6b5e' },
+        input: { backgroundColor: '#211C16', color: '#FFFCF3', fontSize: '16px' },
+        'input::placeholder': { color: 'rgba(243,234,201,0.5)' }
+      };
+      function amount(){ return computeTotals(selectedTip || 0).total; }
+      function paint(){
+        submitBtn.disabled = busy || !card;
+        if (!busy) submitBtn.innerHTML = 'Pay <span class="cta-amt">' + money(amount()) + '</span>';
+      }
+      function close(){ panel.classList.add('hidden'); foot.classList.remove('card-open'); }
+      function hostedPay(){ close(); window.__qrHostedPay = true; $('placeOrderBtn').click(); }
+      function loadCard(){
+        if (cardLoading) return cardLoading;
+        cardLoading = prepareWallets().then(function(){
+          if (!window.Square) throw new Error('Square SDK not loaded');
+          var payments = sqPayments();
+          return payments.card({ style: CARD_STYLE }).catch(function(){ return payments.card(); });
+        }).then(function(c){
+          return c.attach('#cardContainer').then(function(){
+            card = c;
+            var l = panel.querySelector('.card-pay-loading'); if (l) l.remove();
+            paint();
+          });
+        }).catch(function(err){
+          console.error('Card form failed to load:', err);
+          cardLoading = null;
+          hostedPay();
+        });
+        return cardLoading;
+      }
+      function open(){
+        if (SQUARE_APP_ID.indexOf('REPLACE') !== -1) return false;
+        panel.classList.remove('hidden'); foot.classList.add('card-open');
+        $('coMsg').textContent = '';
+        paint(); loadCard();
+        panel.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+        return true;
+      }
+      function cardErrorText(e){
+        var f = e && e.field;
+        if (f === 'cardNumber') return 'Check the card number.';
+        if (f === 'expirationDate') return 'Check the expiration date.';
+        if (f === 'cvv') return 'Check the security code (CVV).';
+        if (f === 'postalCode') return 'Check the ZIP code.';
+        return (e && e.message) || 'Check your card details and try again.';
+      }
+      $('cardPayCancel').addEventListener('click', function(){ if (!busy) { close(); $('coMsg').textContent = ''; } });
+      submitBtn.addEventListener('click', function(){
+        if (!card || busy || !checkoutReady()) return;
+        var msg = $('coMsg');
+        if (($('memberId').value.trim() && !appliedMember) || ($('promoCode').value.trim() && !appliedPromo)) {
+          msg.textContent = 'Tap Apply on your member ID or promo code first (or clear it).';
+          return;
+        }
+        var body = buildOrderBody();
+        var t = computeTotals(selectedTip || 0);
+        var parts = String(body.customerName || '').trim().split(/\s+/);
+        setWalletBusy(true);
+        submitBtn.textContent = 'Processing\u2026';
+        card.tokenize({
+          amount: t.total.toFixed(2), currencyCode: 'USD', intent: 'CHARGE',
+          customerInitiated: true, sellerKeyedIn: false,
+          billingContact: {
+            givenName: parts[0] || undefined, familyName: parts.slice(1).join(' ') || undefined,
+            email: body.customerEmail || undefined, phone: body.customerPhone || undefined
+          }
+        }).then(function(res){
+          if (!res || res.status !== 'OK' || !res.token) {
+            setWalletBusy(false);
+            msg.textContent = cardErrorText(res && res.errors && res.errors[0]);
+            return;
+          }
+          body.walletToken = res.token;
+          body.expectedTotal = t.total;
+          return fetch(CARD_CHECKOUT_URL, { method: 'POST', headers: orderHeaders(), body: JSON.stringify(body) })
+            .then(function(r){ return r.json().then(function(d){ return { ok: r.ok, data: d }; }); })
+            .then(function(result){
+              if (!result.ok || !result.data.paid) {
+                setWalletBusy(false);
+                if (result.data && result.data.code === 'SPOT_TAKEN') { close(); onSpotTaken(result.data.error); return; }
+                if (result.data && result.data.code === 'TOTAL_CHANGED') loadMenu();
+                if (result.data && /^REWARD_/.test(result.data.code || '')) loadMember();
+                msg.textContent = formatErrorMessage(result.data && result.data.error) || 'Your payment didn\u2019t go through. You haven\u2019t been charged.';
+                return;
+              }
+              rememberOrder(result.data);
+              window.location.href = result.data.redirectUrl;
+            });
+        }).catch(function(err){
+          console.error('Card payment failed:', err);
+          setWalletBusy(false);
+          msg.textContent = 'We couldn\u2019t process the card. You haven\u2019t been charged. Please try again.';
+        });
+      });
+      window.qrCardPay = {
+        open: open, close: close, paint: paint,
+        busy: function(b){ busy = b; paint(); }
+      };
+    })();
 
     // Remember the last order so a returning customer can jump to tracking.
     var LAST_ORDER_KEY = 'rollin_last_order';
