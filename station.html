@@ -1652,7 +1652,8 @@
       var carHtml = car ? ' &mdash; ' + escHtml(car) : '';
       if (o.arrival === 'on_the_way') {
         var fresh = o.driveDist != null && o.driveAt && (Date.now() - new Date(o.driveAt).getTime()) < 3 * 60000;
-        return '<div class="curbside-badge otw">\uD83D\uDE97 On the way' + (fresh ? ' &middot; ' + escHtml(fmtMiles(o.driveDist)) : '') + carHtml +
+        // "On the way" only while they're sharing their drive; otherwise just Drive-up.
+        return '<div class="curbside-badge otw">\uD83D\uDE97 ' + (fresh ? 'On the way &middot; ' + escHtml(fmtMiles(o.driveDist)) : 'Drive-up') + carHtml +
           '<small>Not here yet \u2014 they\u2019ll check in with \u201cI\u2019m here\u201d</small></div>';
       }
       if (o.arrival === 'arrived') {
