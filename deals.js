@@ -97,7 +97,14 @@
     '.dp-foot{display:flex;gap:10px;padding:12px 20px calc(16px + env(safe-area-inset-bottom,0px));border-top:1px solid var(--dp-line,#e3e3e8)}' +
     '.dp-back{height:50px;padding:0 18px;border-radius:999px;border:1.5px solid var(--dp-line,#e3e3e8);background:transparent;color:inherit;font:inherit;font-weight:700;cursor:pointer}' +
     '.dp-next{flex:1;height:50px;border-radius:999px;border:0;background:var(--dp-accent,#1d1d1f);color:var(--dp-accent-ink,#fff);font:inherit;font-weight:800;font-size:16px;cursor:pointer}' +
-    '.dp-next:disabled{opacity:.45;cursor:default}';
+    '.dp-next:disabled{opacity:.45;cursor:default}' +
+    '.dp-unit{border:1.5px solid var(--dp-line,#e3e3e8);border-radius:14px;background:var(--dp-card,#fff)}' +
+    '.dp-unit>summary{display:flex;align-items:center;gap:10px;min-height:52px;padding:8px 12px;cursor:pointer;list-style:none}' +
+    '.dp-unit>summary::-webkit-details-marker{display:none}' +
+    '.dp-unit>summary .n{flex:1;font-weight:600}.dp-unit>summary .s{font-size:13px;color:var(--dp-muted,#6e6e73);text-align:right;max-width:55%}' +
+    '.dp-unit>summary::after{content:"Edit";font-size:13px;font-weight:700;color:var(--dp-accent,#1d1d1f)}' +
+    '.dp-unit[open]>summary::after{content:"Done"}' +
+    '.dp-unit-body{padding:0 12px 12px}.dp-unit-body .ing-block{margin-top:6px}';
   var styled = false, root = null, state = null;
 
   function el(html){ var d = document.createElement('div'); d.innerHTML = html; return d.firstChild; }
@@ -109,11 +116,49 @@
     root.scrim.remove(); root.sheet.remove(); root = null; state = null;
     document.documentElement.style.overflow = '';
   }
+  // ---- last step: make each dish your way (What's included + a note) ----
+  var RI = function(){ return window.RollinIngredients; };
+  function pickItem(n){ return { category: 'Deal Selections', name: n }; }
+  function canCustomize(n){ return !!RI() && RI().included(pickItem(n)).length > 0; }
+  function allPicks(){
+    var out = [];
+    state.spec.fixed.forEach(function(n){ out.push(n); });
+    state.picks.forEach(function(p){ Object.keys(p).forEach(function(n){ for (var k = 0; k < p[n]; k++) out.push(n); }); });
+    return out;
+  }
+  function buildUnits(){
+    var prev = state.units || [];
+    state.units = allPicks().filter(canCustomize).map(function(n, i){
+      var old = prev[i] && prev[i].name === n ? prev[i] : null;
+      return old || { name: n, remove: [], note: '' };
+    });
+  }
+  function hasCustomStep(){ return !!RI() && allPicks().some(canCustomize); }
+  function stepCount(){ return state.spec.steps.length + (hasCustomStep() ? 1 : 0); }
+  function unitSummary(u){ return RI().summary({ remove: u.remove, note: u.note }) || 'As is'; }
+  function renderCustom(){
+    var s = root.sheet;
+    s.querySelector('.dp-step').textContent = 'Step ' + (state.i + 1) + ' of ' + stepCount() + ' \u00b7 Make it your way (optional)';
+    var counts = {};
+    s.querySelector('.dp-opts').innerHTML = state.units.map(function(u, i){
+      counts[u.name] = (counts[u.name] || 0) + 1;
+      var dup = state.units.filter(function(x){ return x.name === u.name; }).length > 1;
+      return '<details class="dp-unit" data-unit="' + i + '"' + (state.openUnit === i ? ' open' : '') + '>' +
+        '<summary><span class="n">' + esc(shortName(u.name)) + (dup ? ' ' + counts[u.name] : '') + '</span><span class="s">' + esc(unitSummary(u)) + '</span></summary>' +
+        '<div class="dp-unit-body"><div class="dp-unit-ing">' + RI().chipsHtml(pickItem(u.name), u.remove) + '</div>' + RI().noteHtml(u.note) + '</div>' +
+      '</details>';
+    }).join('');
+    s.querySelector('.dp-back').style.display = '';
+    var next = s.querySelector('.dp-next');
+    next.textContent = 'Add deal \u00b7 ' + money(state.deal.price);
+    next.disabled = false;
+  }
   function render(){
+    if (state.i >= state.spec.steps.length) return renderCustom();
     var spec = state.spec, step = spec.steps[state.i], picks = state.picks[state.i];
     var total = Object.keys(picks).reduce(function(s, k){ return s + picks[k]; }, 0);
     var s = root.sheet;
-    s.querySelector('.dp-step').textContent = 'Step ' + (state.i + 1) + ' of ' + spec.steps.length + ' · ' + step.label + ' (' + total + '/' + step.count + ')';
+    s.querySelector('.dp-step').textContent = 'Step ' + (state.i + 1) + ' of ' + stepCount() + ' · ' + step.label + ' (' + total + '/' + step.count + ')';
     s.querySelector('.dp-opts').innerHTML = step.options.filter(function(n){ return state.available(n); }).map(function(n){
       var c = picks[n] || 0;
       return '<button type="button" class="dp-opt' + (c ? ' on' : '') + '" data-dp="' + esc(n) + '">' +
@@ -123,7 +168,7 @@
     }).join('');
     s.querySelector('.dp-back').style.display = state.i ? '' : 'none';
     var next = s.querySelector('.dp-next');
-    var last = state.i === spec.steps.length - 1;
+    var last = state.i === spec.steps.length - 1 && !(total === step.count && hasCustomStep());
     next.textContent = last ? 'Add deal · ' + money(state.deal.price) : 'Next';
     next.disabled = total !== step.count;
   }
@@ -148,15 +193,50 @@
     sheet.querySelector('.dp-x').addEventListener('click', close);
     sheet.querySelector('.dp-back').addEventListener('click', function(){ if (state.i) { state.i -= 1; render(); } });
     sheet.querySelector('.dp-next').addEventListener('click', function(){
-      if (state.i < state.spec.steps.length - 1) { state.i += 1; render(); return; }
-      var picks = {};
-      state.spec.fixed.forEach(function(n){ picks[n] = (picks[n] || 0) + 1; });
-      state.picks.forEach(function(p){ Object.keys(p).forEach(function(n){ picks[n] = (picks[n] || 0) + p[n]; }); });
+      if (state.i < state.spec.steps.length - 1 || (state.i === state.spec.steps.length - 1 && hasCustomStep())) {
+        state.i += 1;
+        if (state.i === state.spec.steps.length) { buildUnits(); state.openUnit = null; }
+        render(); return;
+      }
+      // Same dish made the same way = one line with a quantity.
+      var lines = {}, order = [];
+      function put(n, remove, note){
+        var key = n + '|' + (remove || []).join(',') + '|' + (note || '');
+        if (!lines[key]) { lines[key] = { name: n, qty: 0 }; if (remove && remove.length) lines[key].remove = remove.slice(); if (note) lines[key].note = note; order.push(key); }
+        lines[key].qty += 1;
+      }
+      var units = state.i >= state.spec.steps.length ? (state.units || []) : [];
+      var used = {};
+      allPicks().forEach(function(n){
+        var u = null;
+        for (var k = 0; k < units.length; k++) if (!used[k] && units[k].name === n) { u = units[k]; used[k] = 1; break; }
+        put(n, u ? RI().clean(pickItem(n), u.remove) : null, u ? RI().cleanNote(u.note) : '');
+      });
       var onAdd = state.onAdd, deal = state.deal;
       close();
-      onAdd(deal, Object.keys(picks).map(function(n){ return { name: n, qty: picks[n] }; }));
+      onAdd(deal, order.map(function(k){ return lines[k]; }));
+    });
+    sheet.querySelector('.dp-opts').addEventListener('toggle', function(e){
+      var d = e.target.closest && e.target.closest('.dp-unit');
+      if (d && d.open) state.openUnit = +d.getAttribute('data-unit');
+    }, true);
+    sheet.querySelector('.dp-opts').addEventListener('input', function(e){
+      if (!e.target.matches('[data-ing-note]')) return;
+      var u = state.units[+e.target.closest('.dp-unit').getAttribute('data-unit')];
+      u.note = e.target.value;
+      e.target.closest('.dp-unit').querySelector('summary .s').textContent = unitSummary(u);
     });
     sheet.querySelector('.dp-opts').addEventListener('click', function(e){
+      if (state.i >= state.spec.steps.length) {
+        var chip = e.target.closest('[data-ing]');
+        if (!chip) return;
+        var box = chip.closest('.dp-unit'), u = state.units[+box.getAttribute('data-unit')];
+        u.remove = RI().clean(pickItem(u.name), RI().toggle(u.remove, chip.getAttribute('data-ing')));
+        box.querySelector('.dp-unit-ing').innerHTML = RI().chipsHtml(pickItem(u.name), u.remove);
+        box.querySelector('summary .s').textContent = unitSummary(u);
+        var again = box.querySelector('[data-ing="' + chip.getAttribute('data-ing') + '"]'); if (again) again.focus();
+        return;
+      }
       var minus = e.target.closest('[data-dp-minus]');
       var picks = state.picks[state.i], step = state.spec.steps[state.i];
       if (minus) {
