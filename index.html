@@ -961,6 +961,15 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
 :root{ --ing-ink:var(--ink); --ing-muted:var(--muted); --ing-line:#d2d2d7; --ing-card:#fff; --ing-accent:var(--accent); --ing-accent-ink:#fff; }
 .ing-note-block{ margin-top:22px; }
 .cart-item-note, .co-item-note{ white-space:normal; }
+
+/* Drive-up or window for website orders */
+.pm-note{ font-size:13.5px; color:var(--muted); margin-top:10px; line-height:1.45; }
+.pm-car{ display:block; margin-top:10px; font-size:13px; font-weight:600; color:var(--ink-2); }
+.pm-car small{ font-weight:400; color:var(--muted); }
+.pm-car input{ margin-top:6px; }
+.pt-time-label{ margin-top:18px; }
+.pm-car input{ display:block; width:100%; height:48px; padding:0 14px; border:1.5px solid var(--line); border-radius:12px; background:#fff; font:inherit; font-size:16px; font-weight:400; color:var(--ink); }
+.pm-car input:focus{ outline:none; border-color:var(--ink); }
 </style>
 <script type="application/ld+json">
 {
@@ -1776,7 +1785,14 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
       </div>
 
       <div id="pickupTimeSection" class="pickup-time hidden">
-        <div class="pickup-time-label">Pickup time</div>
+        <div class="pickup-time-label">How are you picking up?</div>
+        <div class="pt-choice pm-choice" role="radiogroup" aria-label="How are you picking up?">
+          <button type="button" class="pt-opt" id="pmCurb" data-pm="curbside" role="radio" aria-checked="true">Drive-up<span>Park, tap &ldquo;I&rsquo;m here&rdquo;, we bring it out</span></button>
+          <button type="button" class="pt-opt" id="pmWindow" data-pm="window" role="radio" aria-checked="false">At the window<span>Walk up when it&rsquo;s ready</span></button>
+        </div>
+        <p class="pm-note" id="pmNote">When you pull in, open your order and tap <b>I&rsquo;m here</b>. Pick your parking spot on the lot photo and we&rsquo;ll bring it out.</p>
+        <label class="pm-car" id="pmCarWrap">Your car <small>(optional)</small><input type="text" id="pmCar" maxlength="40" placeholder="e.g. Blue Honda Civic" autocomplete="off"></label>
+        <div class="pickup-time-label pt-time-label">Pickup time</div>
         <div class="pt-choice" role="radiogroup" aria-label="Pickup time">
           <button type="button" class="pt-opt" id="ptAsap" role="radio" aria-checked="true">ASAP<span>Ready in about 15&ndash;20 min</span></button>
           <button type="button" class="pt-opt" id="ptLater" role="radio" aria-checked="false">Schedule<span>Pick a day and time</span></button>
@@ -3295,7 +3311,8 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
       }));
       document.getElementById('coItemsList').innerHTML = lines.join('');
       var when = cart.length && window.rollinPickup ? window.rollinPickup.label() : '';
-      document.getElementById('coForLine').textContent = 'For ' + order.payload.customerName + (when ? ' \u00b7 Pickup ' + when : '');
+      var how = cart.length && window.rollinPickup && window.rollinPickup.method() === 'curbside' ? ' \u00b7 Drive-up' : (cart.length && window.rollinPickup && window.rollinPickup.method() ? ' \u00b7 At the window' : '');
+      document.getElementById('coForLine').textContent = 'For ' + order.payload.customerName + (when ? ' \u00b7 Pickup ' + when : '') + how;
       var od = document.getElementById('coOtherDay'), other = cart.length && window.rollinPickup && window.rollinPickup.otherDay();
       od.classList.toggle('hidden', !other);
       if (other) od.innerHTML = '<b>Heads up: this order is not for today.</b> Pickup is <b>' + escHtml(when) + '</b>. We\u2019ve stopped taking orders for today.';
@@ -3418,6 +3435,8 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
           scheduledPickupAt: scheduledPickupAt || undefined,
           tipAmount: totals.tip || undefined,
           rewardIds: totals.rewardIds && totals.rewardIds.length ? totals.rewardIds : undefined,
+          pickupMethod: (window.rollinPickup && window.rollinPickup.method()) || undefined,
+          carModel: (window.rollinPickup && window.rollinPickup.car()) || undefined,
           pickupOtherDay: scheduledPickupAt && window.rollinPickup && window.rollinPickup.otherDay() ? true : undefined
         }
       };
@@ -4459,6 +4478,17 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
     var daySel = document.getElementById('ptDay'), timeSel = document.getElementById('ptTime');
     var pickers = document.getElementById('ptPickers'), note = document.getElementById('ptClosedNote');
     var mode = 'asap', days = [], needed = false;
+    // Drive-up (default) or at the window. Drive-up orders check in on
+    // arrival and pick a parking spot on the tracking page.
+    var method = 'curbside';
+    var pmBtns = sec.querySelectorAll('[data-pm]');
+    function setMethod(m){
+      method = m === 'window' ? 'window' : 'curbside';
+      pmBtns.forEach(function(b){ b.setAttribute('aria-checked', b.getAttribute('data-pm') === method ? 'true' : 'false'); });
+      document.getElementById('pmNote').classList.toggle('hidden', method !== 'curbside');
+      document.getElementById('pmCarWrap').classList.toggle('hidden', method !== 'curbside');
+    }
+    pmBtns.forEach(function(b){ b.addEventListener('click', function(){ setMethod(b.getAttribute('data-pm')); }); });
     // After ordering stops for the day (15 min before close), nothing is
     // picked for the customer: they choose the day themselves, so nobody
     // pays for tomorrow by accident.
@@ -4528,6 +4558,8 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
         return timeSel.value;
       },
       // The server said we're closed or the time is gone: switch to scheduling.
+      method: function(){ return needed ? method : null; },
+      car: function(){ return needed && method === 'curbside' ? document.getElementById('pmCar').value.trim().slice(0, 40) : ''; },
       forceSchedule: function(){ refresh(false); setMode('later'); paintOtherDay(); },
       // e.g. "ASAP" or "Tomorrow at 5:30 PM"
       label: function(){
