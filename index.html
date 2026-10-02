@@ -951,6 +951,16 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
 .card-pay-foot{ display:flex; gap:6px; align-items:flex-start; margin-top:10px; font-size:12px; line-height:1.4; color:var(--muted, #6e6e73); }
 .card-pay-foot svg{ width:14px; height:14px; flex:none; margin-top:1px; }
 .checkout-foot.card-open .pay-row{ display:none; }
+
+/* Pickup on another day: impossible to miss */
+.pt-other-day{ margin-top:12px; padding:10px 12px; border-radius:12px; background:#fff4e0; border:1px solid #f2c46b; color:#6b3d00; font-size:14px; line-height:1.4; }
+.pt-other-day b{ font-weight:700; }
+#coOtherDay{ margin:4px 0 10px; }
+
+/* Add-ons and kitchen note (shared markup from ingredients.js) */
+:root{ --ing-ink:var(--ink); --ing-muted:var(--muted); --ing-line:#d2d2d7; --ing-card:#fff; --ing-accent:var(--accent); --ing-accent-ink:#fff; }
+.ing-note-block{ margin-top:22px; }
+.cart-item-note, .co-item-note{ white-space:normal; }
 </style>
 <script type="application/ld+json">
 {
@@ -1771,11 +1781,12 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
           <button type="button" class="pt-opt" id="ptAsap" role="radio" aria-checked="true">ASAP<span>Ready in about 15&ndash;20 min</span></button>
           <button type="button" class="pt-opt" id="ptLater" role="radio" aria-checked="false">Schedule<span>Pick a day and time</span></button>
         </div>
-        <p class="pt-closed-note hidden" id="ptClosedNote">We&rsquo;re closed right now, so your order will be scheduled. Pick a time during our open hours.</p>
+        <p class="pt-closed-note hidden" id="ptClosedNote">We&rsquo;ve stopped taking orders for today (we stop 15 minutes before closing). You can order ahead: choose a day and time.</p>
         <div class="row2 pt-pickers hidden" id="ptPickers">
           <label>Day<select id="ptDay"></select></label>
           <label>Time<select id="ptTime"></select></label>
         </div>
+        <p class="pt-other-day hidden" id="ptOtherDay" role="status"></p>
       </div>
 
       <div id="promoSection">
@@ -1818,6 +1829,7 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
         <button type="button" id="coEditDetailsBtn" class="cart-back-link">&larr; Edit details</button>
         <div class="checkout-summary">
           <div class="co-for" id="coForLine"></div>
+          <div class="pt-other-day hidden" id="coOtherDay" role="alert"></div>
           <div class="co-items" id="coItemsList"></div>
           <div class="rw-earn hidden" id="coPointsLine"></div>
         <div class="cart-breakdown">
@@ -2246,15 +2258,17 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
       try { localStorage.setItem(GIFT_CART_KEY, JSON.stringify(giftCardCart)); } catch(e){}
     }
 
-    function rmKey(c){ return (c.remove || []).join(','); }
+    function rmKey(c){ return window.RollinIngredients ? window.RollinIngredients.lineKey(c) : (c.remove || []).join(','); }
+    var PLAIN_KEY = window.RollinIngredients ? window.RollinIngredients.lineKey({}) : '';
     function findLine(itemId, rm){
-      rm = rm || '';
+      rm = rm || PLAIN_KEY;
       return cart.find(function(c){ return c.menu_item_id === itemId && !c.deal && !c.dealOf && rmKey(c) === rm; });
     }
     function qtyOfItem(itemId){
       return cart.reduce(function(s, c){ return s + (c.menu_item_id === itemId && !c.deal && !c.dealOf ? c.quantity : 0); }, 0);
     }
-    function ingNote(c){ return c.remove && c.remove.length && window.RollinIngredients ? window.RollinIngredients.note(c.remove) : ''; }
+    function ingNote(c){ return window.RollinIngredients ? window.RollinIngredients.summary(c) : ''; }
+    function addOnPrice(c){ return window.RollinIngredients && c.add && c.add.length ? window.RollinIngredients.addPrice(c.add) : 0; }
 
     function addOne(itemId, rm){
       var item = itemsById[itemId];
@@ -2373,7 +2387,11 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
             cart.push({ menu_item_id: d.id, name: d.name, unitPrice: Number(d.price), quantity: 1, deal: g });
             picks.forEach(function(p){
               var it = wsDealPicks[p.name];
-              if (it) cart.push({ menu_item_id: it.id, name: it.name, unitPrice: 0, quantity: p.qty, dealOf: g });
+              if (!it) return;
+              var pl = { menu_item_id: it.id, name: it.name, unitPrice: 0, quantity: p.qty, dealOf: g };
+              if (p.remove && p.remove.length) pl.remove = p.remove;
+              if (p.note) pl.note = p.note;
+              cart.push(pl);
             });
             saveCart(); renderCartUI();
             if (typeof wsToast === 'function') wsToast('Added ' + d.name);
@@ -2414,7 +2432,8 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
           var lineItem = itemsById[c.menu_item_id];
           if (c.deal) {
             var picks = cart.filter(function(p){ return p.dealOf === c.deal; }).map(function(p){
-              return (p.quantity > 1 ? p.quantity + '\u00d7 ' : '') + (window.RollinDeals ? window.RollinDeals.shortName(p.name) : p.name);
+              var how = ingNote(p);
+              return (p.quantity > 1 ? p.quantity + '\u00d7 ' : '') + (window.RollinDeals ? window.RollinDeals.shortName(p.name) : p.name) + (how ? ' (' + how + ')' : '');
             });
             return '<div class="cart-item-row">' +
               '<div class="cart-item-info"><div class="cart-item-name">' + escHtml(c.name) + '</div>' +
@@ -2550,15 +2569,20 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
         if (drinkLines[i].quantity <= 0) { var rid = drinkLines[i].menu_item_id; cart = cart.filter(function(c){ return c.menu_item_id !== rid; }); }
       }
     }
-    function wsAddRaw(itemId, remove){
+    // custom: { remove, add, note } from the item sheet (or nothing).
+    function wsAddRaw(itemId, custom){
       var item = itemsById[itemId];
       if (!item) return;
-      remove = remove && remove.length ? remove.slice() : null;
-      var line = findLine(itemId, remove ? remove.join(',') : '');
+      var RI = window.RollinIngredients;
+      var cu = RI && custom ? RI.custom(item, custom) : { remove: [], add: [], note: '' };
+      var line = findLine(itemId, RI ? RI.lineKey(cu) : '');
       if (line) { if (line.quantity < WS_MAX_QTY) line.quantity += 1; }
       else {
         var nl = { menu_item_id: itemId, name: wsLabel(item), unitPrice: Number(item.price), quantity: 1 };
-        if (remove) nl.remove = remove;
+        if (cu.remove.length) nl.remove = cu.remove;
+        if (cu.add.length) nl.add = cu.add;
+        if (cu.note) nl.note = cu.note;
+        nl.unitPrice = Math.round((Number(item.price) + addOnPrice(nl)) * 100) / 100;
         cart.push(nl);
       }
     }
@@ -2592,7 +2616,7 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
       // A saved cart: drop anything sold out or no longer on the menu,
       // and use today's prices.
       cart = cart.filter(function(c){ return wsAvail(itemsById[c.menu_item_id]); });
-      cart.forEach(function(c){ c.unitPrice = Number(itemsById[c.menu_item_id].price); });
+      cart.forEach(function(c){ c.unitPrice = Math.round((Number(itemsById[c.menu_item_id].price) + addOnPrice(c)) * 100) / 100; });
       wsSyncCombos();
       saveCart();
 
@@ -2741,7 +2765,7 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
     function wsOpenSheet(key){
       var g = wsGroups[key]; if (!g) return;
       var first = g.items.filter(wsAvail)[0]; if (!first) return;
-      wsSheet = { group: g, itemId: first.id, qty: 1, combo: false, drink: null, removed: [] };
+      wsSheet = { group: g, itemId: first.id, qty: 1, combo: false, drink: null, removed: [], added: [], note: '' };
       wsRenderSheet();
       wsLastFocus = document.activeElement;
       wsEl('wsScrim').hidden = false; wsEl('wsSheet').hidden = false;
@@ -2780,7 +2804,9 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
       }
       if (window.RollinIngredients) {
         wsSheet.removed = window.RollinIngredients.clean(item, wsSheet.removed);
-        html += '<div id="wsIng">' + window.RollinIngredients.chipsHtml(item, wsSheet.removed) + '</div>';
+        wsSheet.added = window.RollinIngredients.cleanAdd(item, wsSheet.added);
+        html += '<div id="wsIng">' + window.RollinIngredients.chipsHtml(item, wsSheet.removed, wsSheet.added) + '</div>';
+        html += '<div id="wsAddons">' + window.RollinIngredients.addonsHtml(item, wsSheet.added) + '</div>';
       }
       if (wsComboOk(item)) {
         html += '<div class="ws-combo"><label><input type="checkbox" id="wsComboToggle"' + (wsSheet.combo ? ' checked' : '') + '>' +
@@ -2789,12 +2815,16 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
           wsComboDrinks().map(function(d){ return '<button type="button" class="ws-drink" data-ws-drink="' + escHtml(d) + '" aria-pressed="' + (wsSheet.drink === d) + '">' + escHtml(d) + '</button>'; }).join('') +
           '</div></div>';
       }
+      if (window.RollinIngredients && wsNoteOk(item)) html += window.RollinIngredients.noteHtml(wsSheet.note);
       html += '<div class="ws-hint" id="wsHint"></div>';
       wsEl('wsSheetBody').innerHTML = html;
       wsUpdateCta();
     }
+    // Every dish gets a note for the kitchen (not catering or gift cards).
+    function wsNoteOk(item){ return item && ['Catering', 'Combo Add-ons', 'Deals', 'Deal Selections'].indexOf(item.category) === -1; }
     function wsUpdateCta(){
-      var unit = Number(itemsById[wsSheet.itemId].price) + (wsSheet.combo ? wsComboPrice() : 0);
+      var unit = Number(itemsById[wsSheet.itemId].price) + (wsSheet.combo ? wsComboPrice() : 0) +
+        (window.RollinIngredients ? window.RollinIngredients.addPrice(window.RollinIngredients.cleanAdd(itemsById[wsSheet.itemId], wsSheet.added)) : 0);
       wsEl('wsQty').textContent = wsSheet.qty;
       wsEl('wsAddAmt').textContent = wsMoney(unit * wsSheet.qty);
       var needDrink = wsSheet.combo && !wsSheet.drink;
@@ -2802,6 +2832,9 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
       wsEl('wsHint').textContent = needDrink ? 'Choose a drink for your combo.' : '';
       wsEl('wsQtyDec').disabled = wsSheet.qty <= 1;
     }
+    wsEl('wsSheetBody').addEventListener('input', function(e){
+      if (e.target.matches && e.target.matches('[data-ing-note]')) wsSheet.note = e.target.value;
+    });
     wsEl('wsSheetBody').addEventListener('change', function(e){
       if (e.target.name === 'wsOpt') {
         wsSheet.itemId = e.target.value;
@@ -2819,8 +2852,18 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
       if (chip && window.RollinIngredients) {
         var RI = window.RollinIngredients;
         wsSheet.removed = RI.clean(itemsById[wsSheet.itemId], RI.toggle(wsSheet.removed, chip.getAttribute('data-ing')));
-        wsEl('wsIng').innerHTML = RI.chipsHtml(itemsById[wsSheet.itemId], wsSheet.removed);
+        wsEl('wsIng').innerHTML = RI.chipsHtml(itemsById[wsSheet.itemId], wsSheet.removed, wsSheet.added);
         var again = wsEl('wsIng').querySelector('[data-ing="' + chip.getAttribute('data-ing') + '"]'); if (again) again.focus();
+        return;
+      }
+      var addBtn = e.target.closest('[data-addon]');
+      if (addBtn && window.RollinIngredients) {
+        var RA = window.RollinIngredients, key = addBtn.getAttribute('data-addon'), it = itemsById[wsSheet.itemId];
+        wsSheet.added = RA.cleanAdd(it, RA.toggle(wsSheet.added, key));
+        wsEl('wsIng').innerHTML = RA.chipsHtml(it, wsSheet.removed, wsSheet.added);
+        wsEl('wsAddons').innerHTML = RA.addonsHtml(it, wsSheet.added);
+        var back = wsEl('wsSheetBody').querySelector('[data-addon="' + key + '"]'); if (back) back.focus();
+        wsUpdateCta();
         return;
       }
       var b = e.target.closest('[data-ws-drink]'); if (!b) return;
@@ -2834,14 +2877,15 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
       if (this.disabled) return;
       var item = itemsById[wsSheet.itemId];
       var fries = wsComboAddons['Combo Fries'], drink = wsSheet.drink ? wsComboAddons['Combo ' + wsSheet.drink] : null;
-      var rmv = window.RollinIngredients ? window.RollinIngredients.clean(item, wsSheet.removed) : [];
+      var cust = window.RollinIngredients ? window.RollinIngredients.custom(item, { remove: wsSheet.removed, add: wsSheet.added, note: wsNoteOk(item) ? wsSheet.note : '' }) : null;
+      var rmv = cust ? cust.remove : [];
       for (var k = 0; k < wsSheet.qty; k++) {
-        wsAddRaw(item.id, rmv);
+        wsAddRaw(item.id, cust);
         if (wsSheet.combo && fries && drink) { wsAddRaw(fries.id); wsAddRaw(drink.id); }
       }
       wsSyncCombos(); saveCart(); renderCartUI();
       wsCloseSheet();
-      wsToast('Added ' + (wsSheet.qty > 1 ? wsSheet.qty + ' \u00d7 ' : '') + item.name + (wsSheet.combo ? ' combo' : '') + (rmv.length ? ' (' + window.RollinIngredients.note(rmv) + ')' : ''));
+      wsToast('Added ' + (wsSheet.qty > 1 ? wsSheet.qty + ' \u00d7 ' : '') + item.name + (wsSheet.combo ? ' combo' : '') + (cust && window.RollinIngredients.summary(cust) ? ' (' + window.RollinIngredients.summary(cust) + ')' : ''));
     });
 
     // ---- Live sold-out updates (same source as the QR page) ----
@@ -2942,7 +2986,7 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
       var units = [];
       cart.forEach(function(c){
         var it = itemsById[c.menu_item_id] || {};
-        for (var k = 0; k < c.quantity; k++) units.push({ price: Number(c.unitPrice), category: it.category, name: it.name, variant: it.variant_name || null });
+        for (var k = 0; k < c.quantity; k++) units.push({ price: Number(c.unitPrice) - addOnPrice(c), category: it.category, name: it.name, variant: it.variant_name || null });
       });
       var chosen = all.filter(function(v){ return !rewardOff[v.id]; });
       var matched = R ? R.match(units, chosen) : [];
@@ -3252,6 +3296,9 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
       document.getElementById('coItemsList').innerHTML = lines.join('');
       var when = cart.length && window.rollinPickup ? window.rollinPickup.label() : '';
       document.getElementById('coForLine').textContent = 'For ' + order.payload.customerName + (when ? ' \u00b7 Pickup ' + when : '');
+      var od = document.getElementById('coOtherDay'), other = cart.length && window.rollinPickup && window.rollinPickup.otherDay();
+      od.classList.toggle('hidden', !other);
+      if (other) od.innerHTML = '<b>Heads up: this order is not for today.</b> Pickup is <b>' + escHtml(when) + '</b>. We\u2019ve stopped taking orders for today.';
     }
     document.getElementById('coContinueBtn').addEventListener('click', function(){
       var order = collectCheckout();
@@ -3360,7 +3407,7 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
       return {
         totals: totals,
         payload: {
-          items: cart.map(function(c){ var o = { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name }; if (c.remove && c.remove.length) o.remove = c.remove; return o; }),
+          items: cart.map(function(c){ var o = { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name }; if (c.remove && c.remove.length) o.remove = c.remove; if (c.add && c.add.length) o.add = c.add; if (c.note) o.note = c.note; return o; }),
           giftCards: giftCardCart.map(function(g){ return { amount: g.amount, recipientName: g.recipientName, recipientEmail: g.recipientEmail, message: g.message }; }),
           customerName: name,
           customerEmail: email || undefined,
@@ -3370,7 +3417,8 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
           promoCode: appliedPromo ? appliedPromo.code : undefined,
           scheduledPickupAt: scheduledPickupAt || undefined,
           tipAmount: totals.tip || undefined,
-          rewardIds: totals.rewardIds && totals.rewardIds.length ? totals.rewardIds : undefined
+          rewardIds: totals.rewardIds && totals.rewardIds.length ? totals.rewardIds : undefined,
+          pickupOtherDay: scheduledPickupAt && window.rollinPickup && window.rollinPickup.otherDay() ? true : undefined
         }
       };
     }
@@ -3396,7 +3444,7 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
             if (body.promoCode && String(body.promoCode).toUpperCase() === 'WELCOME10' && window.rollinWelcome) window.rollinWelcome.used();
             return d;
           }
-          if ((d.code === 'CLOSED' || d.code === 'BAD_PICKUP_TIME') && window.rollinPickup) { window.rollinPickup.forceSchedule(); showCoStep('details'); }
+          if ((d.code === 'CLOSED' || d.code === 'BAD_PICKUP_TIME' || d.code === 'OTHER_DAY') && window.rollinPickup) { window.rollinPickup.forceSchedule(); showCoStep('details'); }
           if (/^REWARD_/.test(d.code || '') && window.rollinRewards) { window.rollinRewards.reload(); showCoStep('details'); }
           if (d.code === 'TOTAL_CHANGED') {
             // A price changed since the menu loaded: reload today's prices
@@ -4399,7 +4447,8 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
           var when = ohioToDate(y, m, d, t);
           if (when.getTime() >= earliest) slots.push({ iso: when.toISOString(), label: fmtMins(t) });
         }
-        if (slots.length) out.push({ label: k === 0 ? 'Today' : k === 1 ? 'Tomorrow' : WD[dow] + ', ' + MON[m - 1] + ' ' + d, slots: slots });
+        var dateTxt = WD[dow] + ', ' + MON[m - 1] + ' ' + d;
+        if (slots.length) out.push({ today: k === 0, date: dateTxt, label: k === 0 ? 'Today' : k === 1 ? 'Tomorrow (' + dateTxt + ')' : dateTxt, slots: slots });
       }
       return out;
     }
@@ -4410,26 +4459,45 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
     var daySel = document.getElementById('ptDay'), timeSel = document.getElementById('ptTime');
     var pickers = document.getElementById('ptPickers'), note = document.getElementById('ptClosedNote');
     var mode = 'asap', days = [], needed = false;
+    // After ordering stops for the day (15 min before close), nothing is
+    // picked for the customer: they choose the day themselves, so nobody
+    // pays for tomorrow by accident.
+    var mustChoose = false;
+    var otherDayEl = document.getElementById('ptOtherDay');
+    function selectedDay(){ var i = daySel.selectedIndex - (mustChoose ? 1 : 0); return i >= 0 ? days[i] : null; }
 
     function fillTimes(){
-      var day = days[daySel.selectedIndex];
-      timeSel.innerHTML = day ? day.slots.map(function(s){ return '<option value="' + s.iso + '">' + s.label + '</option>'; }).join('') : '';
+      var day = selectedDay();
+      timeSel.innerHTML = day ? day.slots.map(function(s){ return '<option value="' + s.iso + '">' + s.label + '</option>'; }).join('') : '<option value="">Choose a day first</option>';
+      timeSel.disabled = !day;
+      paintOtherDay();
+    }
+    function paintOtherDay(){
+      if (!otherDayEl) return;
+      var day = selectedDay(), t = timeSel.options[timeSel.selectedIndex];
+      var show = needed && mode === 'later' && day && !day.today && t && t.value;
+      otherDayEl.classList.toggle('hidden', !show);
+      if (show) otherDayEl.innerHTML = '<b>Not today:</b> this order is for pickup <b>' + day.date + ' at ' + t.text + '</b>.';
     }
     function setMode(m){
       mode = m;
       asapBtn.setAttribute('aria-checked', m === 'asap' ? 'true' : 'false');
       laterBtn.setAttribute('aria-checked', m === 'later' ? 'true' : 'false');
       pickers.classList.toggle('hidden', m !== 'later');
+      paintOtherDay();
     }
     function refresh(keepChoice){
       var prevIso = timeSel.value;
       days = buildDays();
-      daySel.innerHTML = days.map(function(d){ return '<option>' + d.label + '</option>'; }).join('');
+      var open = asapOpen();
+      if (!keepChoice) mustChoose = !open;
+      var off = mustChoose ? 1 : 0;
+      daySel.innerHTML = (mustChoose ? '<option value="">Choose a day</option>' : '') + days.map(function(d){ return '<option>' + d.label + '</option>'; }).join('');
       fillTimes();
       if (keepChoice && prevIso) {
-        days.forEach(function(d, i){ d.slots.forEach(function(s){ if (s.iso === prevIso) { daySel.selectedIndex = i; fillTimes(); timeSel.value = prevIso; } }); });
+        days.forEach(function(d, i){ d.slots.forEach(function(s){ if (s.iso === prevIso) { daySel.selectedIndex = i + off; fillTimes(); timeSel.value = prevIso; } }); });
       }
-      var open = asapOpen();
+      paintOtherDay();
       asapBtn.disabled = !open;
       note.classList.toggle('hidden', open);
       if (!open) setMode('later');
@@ -4437,6 +4505,7 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
     asapBtn.addEventListener('click', function(){ if (!asapBtn.disabled) setMode('asap'); });
     laterBtn.addEventListener('click', function(){ setMode('later'); });
     daySel.addEventListener('change', fillTimes);
+    timeSel.addEventListener('change', paintOtherDay);
 
     window.rollinPickup = {
       // Called each time checkout opens. needsTime is false for gift-card-only
@@ -4454,17 +4523,25 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
         if (!needed) return null;
         refresh(true);
         if (mode === 'asap') return null;
-        if (!timeSel.value) throw new Error('No pickup times are available right now. Please call us at (330) 587-5203.');
+        if (!days.length) throw new Error('No pickup times are available right now. Please call us at (330) 587-5203.');
+        if (!selectedDay() || !timeSel.value) { daySel.focus(); throw new Error('We\u2019ve stopped taking orders for today. Choose a day and time to order ahead.'); }
         return timeSel.value;
       },
       // The server said we're closed or the time is gone: switch to scheduling.
-      forceSchedule: function(){ refresh(false); setMode('later'); },
+      forceSchedule: function(){ refresh(false); setMode('later'); paintOtherDay(); },
       // e.g. "ASAP" or "Tomorrow at 5:30 PM"
       label: function(){
         if (!needed) return '';
         if (mode === 'asap') return 'ASAP';
-        var d = daySel.options[daySel.selectedIndex], t = timeSel.options[timeSel.selectedIndex];
-        return d && t ? d.text + ' at ' + t.text : '';
+        var d = selectedDay(), t = timeSel.options[timeSel.selectedIndex];
+        return d && t && t.value ? (d.today ? 'Today' : d.date) + ' at ' + t.text : '';
+      },
+      // True when the chosen pickup is not today (sent to the server, which
+      // refuses an other-day order the customer didn't see).
+      otherDay: function(){
+        if (!needed || mode !== 'later') return false;
+        var d = selectedDay();
+        return !!(d && !d.today);
       }
     };
   })();
