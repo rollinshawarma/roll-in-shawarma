@@ -4520,7 +4520,18 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
       var prevIso = timeSel.value;
       days = buildDays();
       var open = asapOpen();
-      if (!keepChoice) mustChoose = !open;
+      // Before opening, today's times are still there: start on Today.
+      // Only once today is over (or we're closed today) must the
+      // customer pick another day themselves.
+      var todayLeft = !!(days[0] && days[0].today);
+      if (!keepChoice) mustChoose = !open && !todayLeft;
+      var n = parts(new Date()), h = OPEN[n.dow];
+      note.innerHTML = todayLeft
+        ? 'We open at ' + fmtMins(h[0]) + ' today. Schedule your pickup: the first time today is ' + days[0].slots[0].label + '.'
+        : h && n.mins < h[0]
+          ? 'We\u2019re not taking orders for today. You can order ahead: choose a day and time.'
+          : h ? 'We\u2019ve stopped taking orders for today (we stop 15 minutes before closing). You can order ahead: choose a day and time.'
+              : 'We\u2019re closed today. You can order ahead: choose a day and time.';
       var off = mustChoose ? 1 : 0;
       daySel.innerHTML = (mustChoose ? '<option value="">Choose a day</option>' : '') + days.map(function(d){ return '<option>' + d.label + '</option>'; }).join('');
       fillTimes();
