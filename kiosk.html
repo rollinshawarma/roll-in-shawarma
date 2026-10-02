@@ -295,6 +295,19 @@
   .ing-modal-actions button{ flex:1; height:64px; border-radius:16px; font-size:20px; font-weight:800; border:0; cursor:pointer; }
   #ingModalCancel{ background:transparent; color:var(--cream); border:1px solid var(--line); flex:0 0 34%; }
   #ingModalAdd{ background:var(--gold); color:#241902; }
+  :root{ --ing-ink:var(--white); --ing-muted:var(--muted); --ing-line:rgba(243,234,201,0.22); --ing-card:var(--black); --ing-accent:var(--gold); --ing-accent-ink:#241902; }
+  .ing-add{ min-height:72px !important; font-size:18px !important; }
+  .ing-add-pic{ width:54px !important; height:54px !important; background:#FFF8EC !important; }
+  .ing-add-tick{ width:40px !important; height:40px !important; font-size:20px; }
+  .ing-note{ font-size:18px !important; }
+  .kd-unit{ border:1px solid var(--line); border-radius:16px; background:var(--black); margin-top:12px; }
+  .kd-unit > summary{ display:flex; align-items:center; gap:12px; min-height:68px; padding:10px 16px; cursor:pointer; list-style:none; }
+  .kd-unit > summary::-webkit-details-marker{ display:none; }
+  .kd-unit > summary .n{ flex:1; color:var(--white); font-size:19px; font-weight:800; }
+  .kd-unit > summary .s{ color:var(--muted); font-size:15px; text-align:right; max-width:50%; }
+  .kd-unit > summary::after{ content:"Edit"; color:var(--gold); font-weight:800; font-size:16px; }
+  .kd-unit[open] > summary::after{ content:"Done"; }
+  .kd-body{ padding:0 16px 16px; }
   .cart-view-linetotal{ font-size:13px; color:var(--muted); margin-top:3px; }
   .cart-view-stepper{ display:flex; align-items:center; gap:10px; flex:none; }
   .cart-qty-btn{ width:34px; height:34px; border-radius:50%; background:var(--black); border:1px solid var(--line); color:var(--cream); font-size:19px; display:flex; align-items:center; justify-content:center; }
@@ -1013,8 +1026,8 @@
         renderDealPickerStep();
         return;
       }
-      addDealToCart(st);
       closeDealPicker();
+      if (!openDealCustomize(st)) finishDeal(st, null);
       // Return to the main order screen so the customer immediately
       // sees their cart with the deal just added, rather than being
       // left on the Member Deals screen with no visible cart.
@@ -1027,30 +1040,58 @@
     // what makes the kitchen board show exactly what to prepare
     // without double-charging, since the deal's own price already
     // covers everything in it.
-    function addDealToCart(st){
+    function dealPickNames(st){
+      var out = st.spec.fixed.slice();
+      st.picks.forEach(function(stepPicks){ Object.keys(stepPicks).forEach(function(n){ for (var k = 0; k < stepPicks[n]; k++) out.push(n); }); });
+      return out;
+    }
+    // "Make it your way" for each dish in the deal (What's included + a note).
+    function openDealCustomize(st){
+      var RI = RIK();
+      if (!RI) return false;
+      var units = dealPickNames(st).filter(function(n){ return RI.included({ category: 'Deal Selections', name: n }).length; })
+        .map(function(n){ return { name: n, remove: [], note: '' }; });
+      if (!units.length) return false;
+      ingPending = { deal: st, units: units, open: null };
+      document.getElementById('ingModalTitle').textContent = 'Make it your way';
+      document.getElementById('ingModalPrice').textContent = st.deal.name + ' \u00b7 $' + Number(st.deal.price).toFixed(2) + ' \u00b7 optional';
+      var ph = document.getElementById('ingModalPhoto'); ph.style.visibility = 'hidden'; ph.removeAttribute('src');
+      document.getElementById('ingModalCancel').textContent = 'Add as is';
+      document.getElementById('ingModalAdd').textContent = 'Add to Cart';
+      renderIngChips();
+      document.getElementById('ingModal').classList.remove('hidden');
+      return true;
+    }
+    function finishDeal(st, units){
+      addDealToCart(st, units);
+      document.getElementById('memberDealsScreen').classList.add('hidden');
+      document.getElementById('orderScreen').classList.remove('hidden');
+    }
+    function addDealToCart(st, units){
       cart.push({ menu_item_id: st.deal.id, name: st.deal.name, unitPrice: Number(st.deal.price), quantity: 1 });
-
-      st.spec.fixed.forEach(function(name){
-        addDealSelectionToCart(name, 1);
+      var used = {};
+      dealPickNames(st).forEach(function(name){
+        var u = null;
+        (units || []).forEach(function(x, k){ if (!u && !used[k] && x.name === name) { u = x; used[k] = 1; } });
+        addDealSelectionToCart(name, 1, u);
       });
-      st.picks.forEach(function(stepPicks){
-        Object.keys(stepPicks).forEach(function(name){
-          addDealSelectionToCart(name, stepPicks[name]);
-        });
-      });
-
       syncCombos();
       renderCartView();
     }
 
-    function addDealSelectionToCart(name, qty){
+    function addDealSelectionToCart(name, qty, u){
       var item = dealSelectionsByName[name];
       if (!item) return;
-      var line = findLine(item.id);
+      var RI = RIK();
+      var cu = RI && u ? RI.custom(item, { remove: u.remove, note: u.note }) : { remove: [], add: [], note: '' };
+      var line = findLine(item.id, RI ? RI.lineKey(cu) : '');
       if (line) {
         line.quantity += qty;
       } else {
-        cart.push({ menu_item_id: item.id, name: item.name, unitPrice: 0, quantity: qty });
+        var nl = { menu_item_id: item.id, name: item.name, unitPrice: 0, quantity: qty };
+        if (cu.remove.length) nl.remove = cu.remove;
+        if (cu.note) nl.note = cu.note;
+        cart.push(nl);
       }
     }
 
@@ -1383,19 +1424,41 @@
       }
     }
 
-    function rmKey(c){ return (c.remove || []).join(','); }
-    function findLine(itemId, rm){ rm = rm || ''; return cart.find(function(c){ return c.menu_item_id === itemId && rmKey(c) === rm; }); }
-    function ingNote(c){ return c.remove && c.remove.length && window.RollinIngredients ? window.RollinIngredients.note(c.remove) : ''; }
+    // A line differs by what was taken off, paid add-ons and the note.
+    var RIK = function(){ return window.RollinIngredients; };
+    function rmKey(c){ return RIK() ? RIK().lineKey(c) : (c.remove || []).join(','); }
+    var PLAIN_KEY = window.RollinIngredients ? window.RollinIngredients.lineKey({}) : '';
+    function findLine(itemId, rm){ rm = rm || PLAIN_KEY; return cart.find(function(c){ return c.menu_item_id === itemId && rmKey(c) === rm; }); }
+    function ingNote(c){ return RIK() ? RIK().summary(c) : ''; }
+    function addOnPrice(c){ return RIK() && c.add && c.add.length ? RIK().addPrice(c.add) : 0; }
 
     // ---- What's included: adding an item that has a list opens this ----
-    var ingPending = null; // { itemId, removed }
-    function hasIngredients(itemId){ return !!(window.RollinIngredients && window.RollinIngredients.included(itemsById[itemId]).length); }
+    var ingPending = null; // { itemId, removed, added, note } or { deal: st, units }
+    // Every dish opens this (What's included, add-ons, a note); drinks add right away.
+    function hasIngredients(itemId){
+      var it = itemsById[itemId];
+      return !!(RIK() && it && (RIK().customizable(it) || ['Drinks', 'Catering', 'Combo Add-ons'].indexOf(it.category) === -1));
+    }
     function renderIngChips(){
-      document.getElementById('ingModalChips').innerHTML = window.RollinIngredients.chipsHtml(itemsById[ingPending.itemId], ingPending.removed);
+      var RI = RIK(), box = document.getElementById('ingModalChips');
+      if (ingPending.deal) {
+        box.innerHTML = ingPending.units.map(function(u, i){
+          var it = { category: 'Deal Selections', name: u.name };
+          return '<details class="kd-unit" data-unit="' + i + '"' + (ingPending.open === i ? ' open' : '') + '>' +
+            '<summary><span class="n">' + escHtml(window.RollinDeals ? window.RollinDeals.shortName(u.name) : u.name) + '</span><span class="s">' + escHtml(RI.summary(u) || 'As is') + '</span></summary>' +
+            '<div class="kd-body">' + RI.chipsHtml(it, u.remove) + RI.noteHtml(u.note) + '</div></details>';
+        }).join('');
+        return;
+      }
+      var item = itemsById[ingPending.itemId];
+      box.innerHTML = RI.chipsHtml(item, ingPending.removed, ingPending.added) + RI.addonsHtml(item, ingPending.added) + RI.noteHtml(ingPending.note);
+      document.getElementById('ingModalPrice').textContent = '$' + (Number(item.price) + RI.addPrice(ingPending.added)).toFixed(2);
     }
     function openIngredients(itemId){
       var item = itemsById[itemId];
-      ingPending = { itemId: itemId, removed: [] };
+      ingPending = { itemId: itemId, removed: [], added: [], note: '' };
+      document.getElementById('ingModalCancel').textContent = 'Cancel';
+      document.getElementById('ingModalAdd').textContent = 'Add to Cart';
       document.getElementById('ingModalTitle').textContent = item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : '');
       document.getElementById('ingModalPrice').textContent = '$' + Number(item.price).toFixed(2);
       var ph = document.getElementById('ingModalPhoto');
@@ -1407,17 +1470,43 @@
     // Add to Cart / protein pick: items with a list ask first, others add right away.
     function addWithChoices(itemId){ if (hasIngredients(itemId)) openIngredients(itemId); else addOne(itemId); }
     document.getElementById('ingModalChips').addEventListener('click', function(e){
-      var chip = e.target.closest('[data-ing]'); if (!chip || !ingPending) return;
-      var RI = window.RollinIngredients;
-      ingPending.removed = RI.clean(itemsById[ingPending.itemId], RI.toggle(ingPending.removed, chip.getAttribute('data-ing')));
+      if (!ingPending) return;
+      var RI = RIK(), chip = e.target.closest('[data-ing]'), ad = e.target.closest('[data-addon]');
+      if (ingPending.deal) {
+        if (!chip) return;
+        var box = chip.closest('.kd-unit'), u = ingPending.units[+box.getAttribute('data-unit')];
+        u.remove = RI.clean({ category: 'Deal Selections', name: u.name }, RI.toggle(u.remove, chip.getAttribute('data-ing')));
+        ingPending.open = +box.getAttribute('data-unit');
+        renderIngChips(); return;
+      }
+      var item = itemsById[ingPending.itemId];
+      if (chip) ingPending.removed = RI.clean(item, RI.toggle(ingPending.removed, chip.getAttribute('data-ing')));
+      else if (ad) ingPending.added = RI.cleanAdd(item, RI.toggle(ingPending.added, ad.getAttribute('data-addon')));
+      else return;
       renderIngChips();
     });
-    document.getElementById('ingModalCancel').addEventListener('click', closeIngredients);
+    document.getElementById('ingModalChips').addEventListener('input', function(e){
+      if (!ingPending || !e.target.matches('[data-ing-note]')) return;
+      if (ingPending.deal) {
+        var box = e.target.closest('.kd-unit'), u = ingPending.units[+box.getAttribute('data-unit')];
+        u.note = e.target.value;
+        box.querySelector('summary .s').textContent = RIK().summary(u) || 'As is';
+      } else ingPending.note = e.target.value;
+    });
+    document.getElementById('ingModalChips').addEventListener('toggle', function(e){
+      if (ingPending && ingPending.deal && e.target.open) ingPending.open = +e.target.getAttribute('data-unit');
+    }, true);
+    document.getElementById('ingModalCancel').addEventListener('click', function(){
+      // Deal: "Add as is" keeps the deal, without changes.
+      if (ingPending && ingPending.deal) { var st = ingPending.deal; closeIngredients(); finishDeal(st, null); return; }
+      closeIngredients();
+    });
     document.getElementById('ingModal').addEventListener('click', function(e){ if (e.target === this) closeIngredients(); });
     document.getElementById('ingModalAdd').addEventListener('click', function(){
       if (!ingPending) return;
       var p = ingPending; closeIngredients();
-      addOne(p.itemId, window.RollinIngredients.clean(itemsById[p.itemId], p.removed).join(','));
+      if (p.deal) { finishDeal(p.deal, p.units); return; }
+      addOne(p.itemId, RIK().custom(itemsById[p.itemId], { remove: p.removed, add: p.added, note: p.note }));
     });
 
     // One combo allowed per qualifying entree in the cart -- not just
@@ -1512,14 +1601,18 @@
     function addOneRaw(itemId, rm){
       var item = itemsById[itemId];
       if (!item) return;
-      rm = rm || '';
-      var line = findLine(itemId, rm);
+      var cu = rm && typeof rm === 'object' && RIK() ? RIK().custom(item, rm) : null;
+      var key = cu ? RIK().lineKey(cu) : (rm || PLAIN_KEY);
+      var line = findLine(itemId, key);
       if (line) {
         line.quantity += 1;
       } else {
         var label = item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : '');
         var nl = { menu_item_id: itemId, name: label, unitPrice: Number(item.price), quantity: 1 };
-        if (rm) nl.remove = rm.split(',');
+        if (cu && cu.remove.length) nl.remove = cu.remove;
+        if (cu && cu.add.length) nl.add = cu.add;
+        if (cu && cu.note) nl.note = cu.note;
+        nl.unitPrice = Math.round((Number(item.price) + addOnPrice(nl)) * 100) / 100;
         cart.push(nl);
       }
     }
@@ -1903,6 +1996,8 @@
       var itemsPayload = cart.map(function(c){
         var o = { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name };
         if (c.remove && c.remove.length) o.remove = c.remove;
+        if (c.add && c.add.length) o.add = c.add;
+        if (c.note) o.note = c.note;
         return o;
       });
       var name = document.getElementById('kioskName').value.trim();
@@ -1963,6 +2058,8 @@
       var itemsPayload = cart.map(function(c){
         var o = { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name };
         if (c.remove && c.remove.length) o.remove = c.remove;
+        if (c.add && c.add.length) o.add = c.add;
+        if (c.note) o.note = c.note;
         return o;
       });
 
@@ -2022,6 +2119,8 @@
       var itemsPayload = cart.map(function(c){
         var o = { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name };
         if (c.remove && c.remove.length) o.remove = c.remove;
+        if (c.add && c.add.length) o.add = c.add;
+        if (c.note) o.note = c.note;
         return o;
       });
 
