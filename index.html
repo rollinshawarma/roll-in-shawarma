@@ -970,6 +970,15 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
 .pt-time-label{ margin-top:18px; }
 .pm-car input{ display:block; width:100%; height:48px; padding:0 14px; border:1.5px solid var(--line); border-radius:12px; background:#fff; font:inherit; font-size:16px; font-weight:400; color:var(--ink); }
 .pm-car input:focus{ outline:none; border-color:var(--ink); }
+
+/* Member ID: copy button */
+.member-code-row{ display:flex; align-items:center; justify-content:center; gap:10px; margin-top:12px; }
+.member-code-row .member-qr-code{ margin-top:0; }
+.member-copy{ display:inline-flex; align-items:center; gap:6px; height:36px; padding:0 14px; border-radius:999px; border:1.5px solid var(--line); background:#fff; color:var(--ink); font:inherit; font-size:14px; font-weight:600; cursor:pointer; }
+.member-copy svg{ width:16px; height:16px; }
+.member-copy.is-done{ border-color:#1f8a4c; color:#1f8a4c; }
+.member-code-row{ flex-wrap:wrap; }
+.member-code-row .member-qr-code{ white-space:nowrap; }
 </style>
 <script type="application/ld+json">
 {
@@ -1309,7 +1318,13 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
   <p class="auth-hint">Show this at the window, or type the numbers on the QR page or kiosk, to earn points.</p>
   <div class="member-qr-card">
     <div id="memberQrCanvas" class="member-qr"></div>
-    <div class="member-qr-code" id="memberQrCode">&mdash;</div>
+    <div class="member-code-row">
+      <div class="member-qr-code" id="memberQrCode">&mdash;</div>
+      <button type="button" class="member-copy" id="memberCopyBtn" aria-label="Copy Member ID">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="9" y="9" width="12" height="12" rx="2"/><path d="M5 15H4a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1h10a1 1 0 0 1 1 1v1"/></svg>
+        <span>Copy</span>
+      </button>
+    </div>
   </div>
   <div class="wallet-row hidden" id="walletRow">
     <button type="button" class="wallet-btn" id="appleWalletBtn" aria-label="Add to Apple Wallet">
@@ -4845,6 +4860,34 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
     window.addEventListener('pageshow', function(e){ if (e.persisted && data) load(); });
   })();
 
+
+  // ---- Copy the Member ID (the 8 digits people type on the kiosk / QR page) ----
+  (function(){
+    var btn = document.getElementById('memberCopyBtn');
+    if (!btn) return;
+    var label = btn.querySelector('span'), timer = null;
+    function done(ok){
+      label.textContent = ok ? 'Copied' : 'Couldn\u2019t copy';
+      btn.classList.toggle('is-done', ok);
+      clearTimeout(timer);
+      timer = setTimeout(function(){ label.textContent = 'Copy'; btn.classList.remove('is-done'); }, 2000);
+    }
+    function fallback(text){
+      var ta = document.createElement('textarea');
+      ta.value = text; ta.setAttribute('readonly', ''); ta.style.position = 'fixed'; ta.style.opacity = '0';
+      document.body.appendChild(ta); ta.select();
+      var ok = false; try { ok = document.execCommand('copy'); } catch (e) {}
+      ta.remove(); return ok;
+    }
+    btn.addEventListener('click', function(){
+      var code = (document.getElementById('memberQrCode').textContent || '').trim();
+      var digits = (code.match(/\d{4,}/) || [''])[0];
+      if (!digits) return;
+      if (navigator.clipboard && window.isSecureContext) {
+        navigator.clipboard.writeText(digits).then(function(){ done(true); }, function(){ done(fallback(digits)); });
+      } else done(fallback(digits));
+    });
+  })();
   // ---- Gift card preview follows the chosen amount ----
   (function(){
     var amt = document.getElementById('giftVisualAmt');
