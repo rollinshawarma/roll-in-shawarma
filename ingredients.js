@@ -5,15 +5,15 @@
    this file only drives the screens. Keep the two in step. */
 (function(){
   var ING = {
-    fries:       { label: 'Fries',        img: 'ing-fries.webp' },
-    pickle:      { label: 'Pickles',      img: 'ing-pickle.svg' },
+    fries:       { label: 'Fries',        img: 'ing-fries.webp', hq: 'ing-fries-hq' },
+    pickle:      { label: 'Pickles',      img: 'ing-pickle.svg', hq: 'ing-pickle-hq' },
     white_sauce: { label: 'White sauce',  img: 'ing-white-sauce.svg' },
     cucumber:    { label: 'Cucumbers',    img: 'ing-cucumber.webp' },
     tomato:      { label: 'Tomatoes',     img: 'ing-tomato.webp' },
     onion:       { label: 'Onions',       img: 'ing-onion.webp' },
     bell_pepper: { label: 'Bell peppers', img: 'ing-peppers.webp' },
     cheese:      { label: 'Cheese',       img: 'ing-cheese.webp' },
-    cilantro:    { label: 'Cilantro',     img: 'ing-cilantro.svg' },
+    cilantro:    { label: 'Cilantro',     img: 'ing-cilantro.svg', hq: 'ing-cilantro-hq' },
     lettuce:     { label: 'Lettuce',      img: 'ing-lettuce.webp' }
   };
   var SETS = {
@@ -30,7 +30,7 @@
   var ADDONS = {
     extra_sauce:    { label: 'Extra sauce',    price: 1.00, img: 'ing-white-sauce.svg', where: 'included' },
     double_protein: { label: 'Double protein', price: 3.50, img: 'ing-chicken.webp' },
-    extra_falafel:  { label: 'Extra falafel',  price: 2.00, img: 'ing-falafel.svg' },
+    extra_falafel:  { label: 'Extra falafel',  price: 2.00, img: 'ing-falafel.svg', hq: 'ing-falafel-hq' },
     add_cucumber:   { label: 'Cucumbers',      price: 0.50, img: 'ing-cucumber.webp' },
     add_tomato:     { label: 'Tomatoes',       price: 0.50, img: 'ing-tomato.webp' }
   };
@@ -109,7 +109,7 @@
       list.map(function(k){
         var on = added.indexOf(k) !== -1, a = ADDONS[k];
         return '<button type="button" class="ing-add' + (on ? ' is-on' : '') + '" data-addon="' + k + '" aria-pressed="' + on + '" aria-label="' + esc(a.label) + ', add ' + money(a.price) + (on ? ', added' : '') + '">' +
-          '<span class="ing-add-pic"><img src="' + esc(a.img) + '" alt="" loading="lazy" decoding="async"></span>' +
+          '<span class="ing-add-pic">' + picHtml(a) + '</span>' +
           '<span class="ing-add-name">' + esc(a.label) + '</span>' +
           '<span class="ing-add-price">+' + money(a.price) + '</span>' +
           '<span class="ing-add-tick" aria-hidden="true">' + (on ? '\u2713' : '+') + '</span>' +
@@ -148,6 +148,13 @@
     (document.head || document.documentElement).appendChild(st);
   })();
   function note(keys){ return (keys || []).filter(function(k){ return ING[k]; }).map(noLabel).join(', '); }
+  // Real photos uploaded to GitHub win (ing-<name>-hq.png, then .jpg);
+  // until then the built-in picture shows.
+  function picHtml(g){
+    if (!g.hq) return '<img src="' + esc(g.img) + '" alt="" loading="lazy" decoding="async">';
+    return '<img src="' + esc(g.hq) + '.png" data-fb="' + esc(g.hq) + '.jpg|' + esc(g.img) + '" alt="" loading="lazy" decoding="async" ' +
+      'onerror="var l=(this.dataset.fb||\'\').split(\'|\'),n=l.shift();this.dataset.fb=l.join(\'|\');if(n)this.src=n;else this.onerror=null;">';
+  }
   function esc(s){ return String(s).replace(/[&<>"']/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   // "What's included" block: one small photo tile per ingredient, all on
   // by default. Tapping one takes it off (and back on). Each page styles
@@ -163,7 +170,7 @@
       list.map(function(k){
         var off = removed.indexOf(k) !== -1, g = ING[k];
         return '<button type="button" class="ing-chip' + (off ? ' is-off' : '') + '" data-ing="' + k + '" aria-pressed="' + (!off) + '" aria-label="' + esc(g.label) + (off ? ', removed' : ', included') + '">' +
-          '<span class="ing-pic"><img src="' + esc(g.img) + '" alt="" loading="lazy" decoding="async"></span>' +
+          '<span class="ing-pic">' + picHtml(g) + '</span>' +
           '<span class="ing-badge" aria-hidden="true">' + (off ? '−' : '✓') + '</span>' +
           '<span class="ing-name">' + (off ? esc(noLabel(k)) : esc(g.label)) + '</span>' +
         '</button>';
@@ -171,7 +178,7 @@
       extras.map(function(k){
         var on = added.indexOf(k) !== -1, a = ADDONS[k];
         return '<button type="button" class="ing-chip is-extra' + (on ? ' is-added' : '') + '" data-addon="' + k + '" aria-pressed="' + on + '" aria-label="' + esc(a.label) + ', add ' + money(a.price) + (on ? ', added' : '') + '">' +
-          '<span class="ing-pic"><img src="' + esc(a.img) + '" alt="" loading="lazy" decoding="async"></span>' +
+          '<span class="ing-pic">' + picHtml(a) + '</span>' +
           '<span class="ing-badge" aria-hidden="true">' + (on ? '\u2713' : '+' + money(a.price).replace('.00', '')) + '</span>' +
           '<span class="ing-name">' + esc(a.label) + '</span>' +
         '</button>';
