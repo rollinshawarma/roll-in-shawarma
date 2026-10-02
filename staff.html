@@ -776,6 +776,7 @@
     <div class="sold-summary hidden" id="soldSummary"></div>
     <div class="toolbar sold-toolbar">
       <input type="search" id="soldSearch" placeholder="Search the menu" aria-label="Search the menu">
+      <button type="button" class="btn-ghost btn-small" id="soldSyncBtn">Check Square now</button>
     </div>
     <div id="soldMsg"></div>
     <div id="soldList"><p class="hint">Loading the menu&hellip;</p></div>
@@ -1444,13 +1445,39 @@
     renderHomeTodo();
   }
   function loadSoldOut(){
-    sb.from('menu_items').select('id, category, name, variant_name, is_available, display_order').order('display_order').then(function(res){
+    sb.from('menu_items').select('id, category, name, variant_name, is_available, display_order, square_catalog_variation_id').order('display_order').then(function(res){
       if (res.error) { document.getElementById('soldList').innerHTML = '<p class="hint">Couldn\u2019t load the menu: ' + esc(res.error.message) + '</p>'; return; }
       soldItems = (res.data || []).slice().sort(function(a, b){ return (a.display_order || 0) - (b.display_order || 0); });
       renderSoldOut();
     });
   }
   document.getElementById('soldSearch').addEventListener('input', renderSoldOut);
+  // Runs the Square sold-out sync right now and says what it found.
+  document.getElementById('soldSyncBtn').addEventListener('click', function(){
+    var btn = this;
+    btn.disabled = true; btn.textContent = 'Checking Square\u2026';
+    clearMsg('soldMsg');
+    sb.functions.invoke('sync-sold-out', { body: {} }).then(function(res){
+      btn.disabled = false; btn.textContent = 'Check Square now';
+      var d = res && res.data;
+      if (res.error || !d || d.error) {
+        var why = (d && d.error) || (res.error && res.error.message) || 'no answer';
+        showMsg('soldMsg', 'Couldn\u2019t reach Square: ' + why + '. Make sure the sync-sold-out function is deployed.', 'error');
+        return;
+      }
+      var linked = soldItems.filter(function(it){ return it.square_catalog_variation_id; }).length;
+      var notLinked = soldItems.filter(function(it){ return !it.square_catalog_variation_id && it.category !== 'Deal Selections' && it.category !== 'Combo Add-ons'; });
+      var parts = ['Checked ' + (d.checked || 0) + ' items with Square'];
+      parts.push(d.changed && d.changed.length ? 'updated: ' + d.changed.map(function(c){ return c.item + ' (' + c.now + ')'; }).join(', ') : 'nothing new');
+      if (d.missing_in_square) parts.push(d.missing_in_square + ' linked to Square items that no longer exist');
+      if (notLinked.length) parts.push(notLinked.length + ' not linked to Square, so they won\u2019t follow Square\u2019s sold-out switch (' + notLinked.slice(0, 6).map(soldLabel).join(', ') + (notLinked.length > 6 ? '\u2026' : '') + ')');
+      showMsg('soldMsg', parts.join('. ') + '.', d.checked && !notLinked.length ? 'ok' : 'error');
+      loadSoldOut();
+    }, function(){
+      btn.disabled = false; btn.textContent = 'Check Square now';
+      showMsg('soldMsg', 'Couldn\u2019t reach Square. Check your connection and try again.', 'error');
+    });
+  });
   document.getElementById('soldList').addEventListener('click', function(e){
     var btn = e.target.closest('[data-sold-id]');
     if (!btn) return;
