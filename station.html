@@ -187,6 +187,12 @@
   .col-empty-hint{ text-align:center; color:var(--muted); font-size:13.5px; padding:20px 8px; }
 
   /* ---------- QUEUE PANEL ---------- */
+  .pull-prep-btn{ display:block; width:100%; margin-top:10px; padding:10px 12px; border-radius:12px; border:1.5px solid #FF9F0A; background:rgba(255,159,10,0.12); color:#FF9F0A; font-family:"Barlow Condensed","Inter",sans-serif; font-size:20px; font-weight:800; letter-spacing:.02em; cursor:pointer; }
+  .pull-prep-btn:disabled{ opacity:.5; }
+  .sq-sync{ margin-top:8px; font-size:13px; font-weight:600; color:rgba(255,255,255,0.6); }
+  .sq-sync.ok{ color:#30D158; }
+  .sq-sync.bad{ color:#ff453a; }
+  .sq-retry{ margin-left:6px; padding:3px 10px; border-radius:999px; border:1px solid #ff453a; background:none; color:#ff453a; font-weight:700; cursor:pointer; }
   #queueList{ flex:1; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:12px; display:flex; flex-direction:column; gap:10px; }
   .order-card{ background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px 16px; }
   .order-card.order-complete{ border-color:var(--green); background:rgba(31,138,76,0.1); }
@@ -1308,10 +1314,32 @@
     // ---- Left panel: one dedicated row per item, all three stages
     // shown together so a row's position never changes as its item
     // moves through gray -> orange -> green.
+    // Ready items show for 10 seconds, then leave the Ready column (the
+    // order card on the right still shows them green until picked up).
+    var READY_SHOW_MS = 10000, readySeen = {}, readyTimer = null, lastItemRows = null;
+    function freshReady(r){
+      if (r.status !== 'ready') return true;
+      var id = r.prep_unit_id || (r.order_id + '|' + r.item_name);
+      if (!readySeen[id]) readySeen[id] = Date.now();
+      return Date.now() - readySeen[id] < READY_SHOW_MS;
+    }
+    function scheduleReadyExpiry(){
+      clearTimeout(readyTimer);
+      var now = Date.now(), next = null;
+      Object.keys(readySeen).forEach(function(id){
+        var left = readySeen[id] + READY_SHOW_MS - now;
+        if (left > 0 && (next === null || left < next)) next = left;
+      });
+      if (next !== null) readyTimer = setTimeout(function(){
+        if (lastItemRows) renderItemPanel(lastItemRows);
+      }, next + 50);
+    }
     function renderItemPanel(rows){
+      lastItemRows = rows;
       var byItem = {};
       rows.forEach(function(r){
-        if (r.is_drink) return; // drinks are order-panel-only -- see renderQueuePanel
+        if (r.is_drink) return;
+        if (!freshReady(r)) return; // drinks are order-panel-only -- see renderQueuePanel
         if (!byItem[r.item_name]) byItem[r.item_name] = { queued: 0, prepping: 0, ready: 0, notes: { queued: {}, prepping: {}, ready: {} } };
         byItem[r.item_name][r.status] += 1;
         // "No onions" etc. from the customer, counted per stage
@@ -1327,6 +1355,7 @@
         return function(){ sb.rpc('kds_mark_one_ready', { p_item_name: name }).then(fetchAndRender); };
       });
       renderColumn('colReady', itemNames, byItem, 'ready', 'box-green', null);
+      scheduleReadyExpiry();
 
       previousCounts = byItem;
       isFirstItemRender = false;
@@ -1365,11 +1394,31 @@
     // ---- Right panel: group by order, FIFO (already ordered by the RPC) ----
     var PUSH_FULFILLMENT_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/push-fulfillment-status';
     var KDS_ANON_KEY = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
-    var pushedThisSession = {};
+    var pushedThisSession = {}, pushLastTry = {}, sqState = {};
+    // What happened when we told Square the order is ready, shown on the card.
+    function sqSyncHtml(orderId){
+      var st = sqState[orderId];
+      if (!st) return '<div class="sq-sync" data-sq="' + orderId + '">Telling Square it\u2019s ready\u2026</div>';
+      if (st.ok) return '<div class="sq-sync ok" data-sq="' + orderId + '">\u2713 ' + escHtml(st.msg) + '</div>';
+      return '<div class="sq-sync bad" data-sq="' + orderId + '">\u26A0 Square not updated: ' + escHtml(st.msg) +
+        ' <button type="button" class="sq-retry" data-sq-retry="' + orderId + '">Retry</button></div>';
+    }
+    function setSqState(orderId, st){
+      sqState[orderId] = st;
+      var el = document.querySelector('.sq-sync[data-sq="' + orderId + '"]');
+      if (el) {
+        el.outerHTML = sqSyncHtml(orderId);
+        var b = document.querySelector('[data-sq-retry="' + orderId + '"]');
+        if (b) b.addEventListener('click', function(){ sqState[orderId] = null; pushedThisSession[orderId] = false; pushLastTry[orderId] = 0; pushFulfillmentIfNewlyReady(orderId); });
+      }
+    }
 
     function pushFulfillmentIfNewlyReady(orderId){
       if (pushedThisSession[orderId]) return;
+      // After a failure, try again at most every 30 seconds.
+      if (pushLastTry[orderId] && Date.now() - pushLastTry[orderId] < 30000) return;
       pushedThisSession[orderId] = true;
+      pushLastTry[orderId] = Date.now();
       // Sends the logged-in employee's own session token -- the edge
       // function now verifies it's a real employee before touching
       // Square, instead of accepting anyone holding the public key.
@@ -1382,8 +1431,12 @@
           body: JSON.stringify({ orderId: orderId })
         });
       }).then(function(res){
-        if (res && !res.ok) throw new Error('push failed ' + res.status);
-      }).catch(function(){
+        return res.json().catch(function(){ return {}; }).then(function(d){
+          if (!res.ok) throw new Error(d.error ? (d.detail && d.detail[0] && d.detail[0].detail ? d.error + ' (' + d.detail[0].detail + ')' : d.error) : 'error ' + res.status);
+          setSqState(orderId, { ok: true, msg: d.skipped ? (d.skipped === 'no square_order_id' ? 'Not linked to a Square order' : 'Square: ' + d.skipped) : 'Marked ready in Square' });
+        });
+      }).catch(function(err){
+        setSqState(orderId, { ok: false, msg: (err && err.message) || 'no answer' });
         // Not surfaced to the kitchen screen -- the internal
         // fulfillment_status this board relies on is already correct
         // regardless of whether the push to Square succeeds; a
@@ -1690,7 +1743,7 @@
           };
           orderIds.push(r.order_id);
         }
-        byOrder[r.order_id].items.push({ name: r.item_note ? r.item_name + ' // ' + r.item_note : r.item_name, status: r.status });
+        byOrder[r.order_id].items.push({ name: r.item_note ? r.item_name + ' // ' + r.item_note : r.item_name, status: r.status, drink: !!r.is_drink });
       });
 
       chimeOnArrivals(byOrder);
@@ -1745,12 +1798,31 @@
           (isCurbside ? driveUpBadgeHtml(o) : '') +
           notesHtml +
           '<div class="order-pills">' + pillsHtml + '</div>' +
+          (o.items.some(function(i){ return i.status === 'queued' && !i.drink; })
+            ? '<button type="button" class="pull-prep-btn" data-pull="' + orderId + '">Pull to prep</button>' : '') +
+          (allReady ? sqSyncHtml(orderId) : '') +
           (allReady ? (DELIVERY_APPS[o.source]
             ? '<button type="button" class="complete-btn delivered-btn" data-order-id="' + orderId + '" data-ref="' + escHtml(o.reference_code || '') + '" data-delivery="1">Delivered</button>'
             : '<button type="button" class="complete-btn" data-order-id="' + orderId + '">Mark Picked Up</button>') : '') +
         '</div>';
       }).join('');
 
+      listEl.querySelectorAll('.pull-prep-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          btn.disabled = true; btn.textContent = 'Pulling\u2026';
+          sb.rpc('kds_start_order_prep', { p_order_id: btn.getAttribute('data-pull') }).then(function(res){
+            if (res.error) {
+              showBoardError('Could not pull that order to prep \u2014 ' + (res.error.message || 'unknown error'));
+              btn.disabled = false; btn.textContent = 'Pull to prep';
+              return;
+            }
+            fetchAndRender();
+          }, function(){ btn.disabled = false; btn.textContent = 'Pull to prep'; showBoardError("Couldn't reach the server \u2014 check your connection."); });
+        });
+      });
+      listEl.querySelectorAll('[data-sq-retry]').forEach(function(btn){
+        btn.addEventListener('click', function(){ var id = btn.getAttribute('data-sq-retry'); sqState[id] = null; pushedThisSession[id] = false; pushLastTry[id] = 0; pushFulfillmentIfNewlyReady(id); });
+      });
       listEl.querySelectorAll('.complete-btn').forEach(function(btn){
         btn.addEventListener('click', function(){
           var isDelivery = btn.getAttribute('data-delivery') === '1';
@@ -1921,10 +1993,29 @@
       });
     }
 
+    // Same 10-second Ready column as the main station.
+    var fReadySeen = {}, fReadyTimer = null, fLastRows = null;
+    function fFreshReady(r){
+      if (r.status !== 'ready') return true;
+      var id = r.prep_unit_id || (r.order_id + '|' + r.item_name);
+      if (!fReadySeen[id]) fReadySeen[id] = Date.now();
+      return Date.now() - fReadySeen[id] < 10000;
+    }
+    function fScheduleReadyExpiry(){
+      clearTimeout(fReadyTimer);
+      var now = Date.now(), next = null;
+      Object.keys(fReadySeen).forEach(function(id){
+        var left = fReadySeen[id] + 10000 - now;
+        if (left > 0 && (next === null || left < next)) next = left;
+      });
+      if (next !== null) fReadyTimer = setTimeout(function(){ if (fLastRows) renderFryerItemPanel(fLastRows); }, next + 50);
+    }
     function renderFryerItemPanel(rows){
+      fLastRows = rows;
       var byItem = {};
       rows.forEach(function(r){
         if (r.is_drink) return;
+        if (!fFreshReady(r)) return;
         if (!byItem[r.item_name]) byItem[r.item_name] = { queued: 0, prepping: 0, ready: 0, notes: { queued: {}, prepping: {}, ready: {} } };
         byItem[r.item_name][r.status] += 1;
         // "No onions" etc. from the customer, counted per stage
@@ -1940,6 +2031,7 @@
         return function(){ sb.rpc('kds_mark_one_ready', { p_item_name: name }).then(fetchAndRender); };
       });
       renderFryerColumn('fryerColReady', itemNames, byItem, 'ready', 'box-green', null);
+      fScheduleReadyExpiry();
 
       previousCounts = byItem;
       isFirstItemRender = false;
