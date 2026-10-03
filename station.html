@@ -189,6 +189,7 @@
   /* ---------- QUEUE PANEL ---------- */
   .pull-prep-btn{ display:block; width:100%; margin-top:10px; padding:10px 12px; border-radius:12px; border:1.5px solid #FF9F0A; background:rgba(255,159,10,0.12); color:#FF9F0A; font-family:"Barlow Condensed","Inter",sans-serif; font-size:20px; font-weight:800; letter-spacing:.02em; cursor:pointer; }
   .pull-prep-btn:disabled{ opacity:.5; }
+  .all-ready-btn{ border-color:#30D158; background:rgba(48,209,88,0.12); color:#30D158; }
   .sq-sync{ margin-top:8px; font-size:13px; font-weight:600; color:rgba(255,255,255,0.6); }
   .sq-sync.ok{ color:#30D158; }
   .sq-sync.bad{ color:#ff453a; }
@@ -1799,7 +1800,9 @@
           notesHtml +
           '<div class="order-pills">' + pillsHtml + '</div>' +
           (o.items.some(function(i){ return i.status === 'queued' && !i.drink; })
-            ? '<button type="button" class="pull-prep-btn" data-pull="' + orderId + '">Pull to prep</button>' : '') +
+            ? '<button type="button" class="pull-prep-btn" data-pull="' + orderId + '">Pull to prep</button>'
+            : (o.items.some(function(i){ return i.status === 'prepping' && !i.drink; })
+              ? '<button type="button" class="pull-prep-btn all-ready-btn" data-all-ready="' + orderId + '">Mark all ready</button>' : '')) +
           (allReady ? sqSyncHtml(orderId) : '') +
           (allReady ? (DELIVERY_APPS[o.source]
             ? '<button type="button" class="complete-btn delivered-btn" data-order-id="' + orderId + '" data-ref="' + escHtml(o.reference_code || '') + '" data-delivery="1">Delivered</button>'
@@ -1818,6 +1821,19 @@
             }
             fetchAndRender();
           }, function(){ btn.disabled = false; btn.textContent = 'Pull to prep'; showBoardError("Couldn't reach the server \u2014 check your connection."); });
+        });
+      });
+      listEl.querySelectorAll('.all-ready-btn').forEach(function(btn){
+        btn.addEventListener('click', function(){
+          btn.disabled = true; btn.textContent = 'Marking ready\u2026';
+          sb.rpc('kds_mark_order_ready', { p_order_id: btn.getAttribute('data-all-ready') }).then(function(res){
+            if (res.error) {
+              showBoardError('Could not mark that order ready \u2014 ' + (res.error.message || 'unknown error'));
+              btn.disabled = false; btn.textContent = 'Mark all ready';
+              return;
+            }
+            fetchAndRender();
+          }, function(){ btn.disabled = false; btn.textContent = 'Mark all ready'; showBoardError("Couldn't reach the server \u2014 check your connection."); });
         });
       });
       listEl.querySelectorAll('[data-sq-retry]').forEach(function(btn){
