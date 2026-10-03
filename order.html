@@ -334,7 +334,135 @@
   @media (prefers-reduced-motion: reduce){
     *{ animation:none !important; transition:none !important; scroll-behavior:auto !important; }
   }
-  .cart-clear.armed{ background:#e5484d !important; color:#fff !important; border-color:#e5484d !important; font-weight:600; }
+  /* ==== Website look, dark mode ==== */
+  :root{
+    --black:#000000; --panel:#1c1c1e; --panel-2:#2c2c2e; --line:rgba(255,255,255,0.12);
+    --cream:#e5e5ea; --white:#f5f5f7; --muted:rgba(235,235,245,0.6);
+    --gold:#f5f5f7; --gold-ink:#000000; --accent:#ff6b5e; --saffron:#f2a20c;
+  }
+  body{ background:#000; color:var(--cream); }
+  :focus-visible{ outline-color:#f5f5f7; }
+  /* header: like the website's top bar */
+  .top{ padding:12px 16px; gap:10px; }
+  .top-logo{ width:40px; height:40px; border:0; }
+  .top h1{ font-size:24px; font-weight:700; letter-spacing:0; }
+  .top h1 .w1, .top h1 .w2{ color:var(--white); }
+  .top-meta{ margin-top:3px; font-size:12.5px; }
+  .menu-btn{ width:42px; height:42px; background:var(--panel); border:0; }
+  .member-chip{ background:var(--saffron); color:#241902; }
+  /* category list */
+  .menu{ padding-top:0; }
+  .mn-head{ font-family:var(--display); font-size:40px; font-weight:800; line-height:1; color:var(--white); margin:18px 0 8px; }
+  .mn-index{ border-top:0; }
+  .mn-row{ display:flex; align-items:center; gap:16px; width:100%; min-height:92px; padding:12px 4px; border-bottom:1px solid var(--line); text-align:left; color:var(--white); }
+  .mn-row:active{ background:rgba(255,255,255,0.04); }
+  .mn-thumb{ width:96px; height:72px; flex:none; display:flex; align-items:center; justify-content:center; }
+  .mn-thumb img{ max-width:100%; max-height:100%; object-fit:contain; }
+  .mn-thumb.is-photo img{ width:72px; height:72px; object-fit:cover; border-radius:16px; }
+  .mn-name{ flex:1; min-width:0; font-family:var(--display); font-size:27px; font-weight:700; line-height:1.05; }
+  .mn-meta{ display:block; margin-top:3px; font-family:var(--body); font-size:14px; font-weight:400; color:var(--muted); }
+  .mn-chev{ width:24px; height:24px; flex:none; color:var(--accent); }
+  .menu[data-view="index"] .section, .menu[data-view="index"] .menu-foot{ display:none; }
+  .menu[data-view="detail"] .section:not(.is-active), .menu[data-view="detail"] .mn-index{ display:none; }
+  body.qr-index .cat-rail{ display:none; }
+  /* category view: back link + text tabs (sticky) */
+  .cat-rail{ background:rgba(0,0,0,0.88); -webkit-backdrop-filter:saturate(180%) blur(18px); backdrop-filter:saturate(180%) blur(18px); }
+  .cat-rail-top{ max-width:1040px; margin:0 auto; padding:6px 16px 0; }
+  .mn-back{ display:inline-flex; align-items:center; gap:2px; height:34px; color:var(--accent); font-size:16px; font-weight:500; }
+  .mn-back svg{ width:18px; height:18px; }
+  .cat-rail-inner{ gap:24px; padding:0 16px; }
+  .chip{ padding:10px 0 12px; min-height:0; border-radius:0; background:none; border:0; border-bottom:2px solid transparent; color:var(--muted); font-size:15px; font-weight:500; }
+  .chip[aria-current="true"]{ background:none; color:var(--white); border-bottom-color:var(--white); }
+  .section{ padding-top:6px; }
+  .section-title{ font-size:40px; font-weight:800; line-height:1; margin-top:22px; }
+  .section-desc{ font-size:15px; margin-top:6px; }
+  /* item rows: photo, name, description, price, + on the right */
+  .grid{ display:block; margin-top:8px; }
+  .tile{ background:none; border:0; border-bottom:1px solid var(--line); border-radius:0; overflow:visible; display:block; }
+  .tile-open{ flex-direction:row; align-items:center; gap:16px; padding:16px 60px 16px 0; }
+  .tile:has(.stepper) .tile-open{ padding-right:122px; }
+  .tile-photo{ width:104px; height:104px; aspect-ratio:auto; flex:none; border-radius:16px; background:var(--panel); }
+  .tile-photo img, .tile-photo img.is-fallback{ object-fit:cover; object-position:50% 0; opacity:1; }
+  .tile-body{ padding:0; gap:3px; min-width:0; }
+  .tile-name{ font-size:17px; font-weight:600; color:var(--white); }
+  .tile-desc{ font-size:14px; line-height:1.4; color:var(--muted); display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .tile-sub{ font-size:13px; }
+  .tile-price{ font-family:var(--body); font-size:15px; font-weight:500; color:var(--white); margin-top:2px; padding-top:0; }
+  .tile-actions-anchor{ position:absolute; left:auto; right:0; top:50%; bottom:auto; transform:translateY(-50%); aspect-ratio:auto; pointer-events:auto; }
+  .add-btn{ position:static; width:42px; height:42px; background:var(--panel); color:var(--accent); font-size:26px; font-weight:400; box-shadow:none; }
+  .add-btn:has(.add-count){ background:var(--white); color:#000; }
+  .add-btn .add-count{ font-family:var(--body); font-size:15px; font-weight:700; }
+  .stepper{ position:static; background:var(--white); color:#000; box-shadow:none; }
+  .stepper button{ width:38px; height:42px; font-size:20px; font-weight:500; color:#000; }
+  .stepper span{ min-width:24px; font-family:var(--body); font-size:15px; font-weight:700; }
+  .soldout-tag{ position:static; background:var(--panel); border:0; color:var(--muted); font-weight:600; }
+  .tile.is-soldout .tile-photo img{ opacity:.45; }
+  .tile.is-soldout .tile-price, .tile.is-soldout .tile-name{ color:var(--muted); }
+  @media (min-width:700px){
+    .grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(200px, 1fr)); gap:34px 20px; margin-top:22px; }
+    .tile{ border-bottom:0; }
+    .tile-open{ flex-direction:column; align-items:stretch; gap:14px; padding:0 !important; }
+    .tile-photo{ width:100%; height:auto; aspect-ratio:4/3; border-radius:20px; }
+    .tile-body{ padding-right:56px; }
+    .tile:has(.stepper) .tile-body{ padding-right:124px; }
+    .tile-actions-anchor{ top:auto; bottom:0; transform:none; }
+  }
+  .menu-foot{ border-top:0; text-align:center; }
+  /* banners */
+  .taco-banner{ margin:16px 0 4px; background:rgba(242,162,12,0.14); border:1px solid rgba(242,162,12,0.45); }
+  .track-banner{ background:rgba(48,209,88,0.12); }
+  /* order bar: light pill, like the website's dark one inverted */
+  .order-bar{ background:linear-gradient(to top, rgba(0,0,0,0.96) 70%, rgba(0,0,0,0)); }
+  .order-bar button{ font-weight:600; }
+  .ob-count{ font-family:var(--body); font-size:15px; font-weight:700; }
+  .ob-total{ font-family:var(--body); font-size:17px; font-weight:600; }
+  /* item sheet: full-width photo on top, floating close (website) */
+  .sheet{ background:#1c1c1e; border-radius:24px 24px 0 0; border-top:0; }
+  @media (min-width:700px){ .sheet{ border-radius:24px; border:0; } }
+  #itemSheet .sheet-head{ position:absolute; top:12px; right:12px; z-index:3; padding:0; }
+  #itemSheet .sheet-close{ width:38px; height:38px; background:rgba(28,28,30,0.85); color:#fff; box-shadow:0 2px 10px rgba(0,0,0,.4); }
+  #itemSheet .sheet-scroll{ padding:0 20px 18px; }
+  #itemSheet .sheet-photo{ margin:0 -20px 20px; border-radius:0; aspect-ratio:16/10; }
+  #itemSheet .sheet-photo img{ width:100%; height:100%; max-height:none; object-fit:cover; object-position:50% 0; }
+  .item-title{ font-size:30px; font-weight:800; margin-top:0; }
+  .item-price{ font-family:var(--body); font-size:17px; font-weight:500; color:var(--cream); margin-top:4px; }
+  .item-desc{ font-size:15px; margin-top:10px; }
+  .opt-group{ margin-top:24px; }
+  .opt-group legend{ display:flex; align-items:center; justify-content:space-between; width:100%; font-size:17px; font-weight:600; }
+  .opt-group legend small{ font-size:12px; font-weight:600; background:var(--panel-2); padding:3px 10px; border-radius:999px; }
+  .opt{ padding:14px 16px; border:1.5px solid var(--line); border-radius:14px; background:transparent; }
+  .opt input{ accent-color:#f5f5f7; }
+  .opt:has(input:checked){ border-color:var(--white); background:transparent; }
+  .combo{ border:0; border-radius:16px; background:var(--panel-2); }
+  .combo-toggle input{ accent-color:#f5f5f7; }
+  .drink-chip{ background:transparent; }
+  .sheet-foot{ background:#1c1c1e; }
+  .qty{ background:transparent; border:1.5px solid var(--line); }
+  .qty span{ font-family:var(--body); font-size:17px; font-weight:600; }
+  .cta{ font-weight:600; }
+  .cta .cta-amt{ font-family:var(--body); font-size:16px; font-weight:600; }
+  .cta:disabled{ background:var(--panel-2); color:var(--muted); }
+  /* cart + checkout: neutral highlights instead of orange */
+  .line-amt{ font-family:var(--body); font-size:15px; font-weight:600; }
+  .mini-price, .totals .grand span:last-child{ font-family:var(--body); color:var(--white); }
+  .totals .grand span:last-child{ font-size:20px; font-weight:700; }
+  .mini-price{ font-size:15px; font-weight:600; }
+  .co-head h2, .co-sec h3{ font-weight:800; }
+  .arrive-note, .member-in{ background:rgba(255,255,255,0.06); border-color:var(--line); }
+  .member-in b{ color:var(--saffron); }
+  .seg button[aria-pressed="true"], .pay-opt[aria-pressed="true"], .tip-btn[aria-pressed="true"]{ background:rgba(255,255,255,0.06); }
+  .field input:focus, .field select:focus, .field textarea:focus{ box-shadow:0 0 0 3px rgba(255,255,255,0.18); }
+  .co-earn, .co-earn a, .co-earn-link{ color:var(--saffron); }
+  .more-details summary{ color:var(--accent); font-weight:600; }
+  .qm-ico{ background:rgba(255,255,255,0.08); color:var(--white); }
+  .qr-checked{ background:rgba(255,255,255,0.06); border-color:var(--line); }
+  .qm-link, .line-rm{ color:var(--accent); }
+  .ing-pic, .ing-add-pic{ background:#f5f5f7 !important; }
+  .toast{ background:#f5f5f7; color:#000; }
+  .dp-sheet{ --dp-bg:#1c1c1e; --dp-card:#000; --dp-ink:#f5f5f7; --dp-muted:rgba(235,235,245,0.6); --dp-line:rgba(255,255,255,0.14); --dp-accent:#f5f5f7; --dp-accent-ink:#000; }
+  .lot{ --lot-accent:#f5f5f7; --lot-accent-ink:#000; --lot-card:#1c1c1e; --lot-line:rgba(255,255,255,0.14); --lot-text:#f5f5f7; --lot-muted:rgba(235,235,245,0.6); }
+  .mini{ background:var(--panel); border:0; }
+    .cart-clear.armed{ background:#e5484d !important; color:#fff !important; border-color:#e5484d !important; font-weight:600; }
 </style>
 </head>
 <body>
@@ -389,6 +517,7 @@
 </div>
 
 <nav class="cat-rail" aria-label="Menu categories">
+  <div class="cat-rail-top"><button type="button" class="mn-back" id="qrBack"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="15 18 9 12 15 6"></polyline></svg>All categories</button></div>
   <div class="cat-rail-inner" id="catRail"></div>
 </nav>
 
@@ -632,6 +761,11 @@
       'Bowls': 'Flavored rice, cucumber, peppers, lettuce, tomato & sauce',
       'Sides': 'Regular / Large where noted'
     };
+    // Cut-out photos for the category list (same as the website).
+    var CATEGORY_CUTOUTS = {
+      'Shawarma': 'shawarma-wrap.webp', 'Frankie Rolls': 'tikka-wrap.webp',
+      'Bowls': 'bowl.webp', 'Tacos': 'tacos.webp', 'Loaded Fries': 'loaded-fries.webp'
+    };
     var UPSELL_CATEGORIES = ['Sides', 'Kulfi Ice Cream', 'Drinks'];
     var COMBO_DRINK_NAMES = ['Coke', 'Diet Coke', 'Coke Zero', 'Sprite', 'Root Beer', 'Water'];
     var STORE_KEY = 'rollin_qr_cart_v1';
@@ -753,14 +887,30 @@
       var menu = $('menu');
       menu.querySelectorAll('.section, .menu-foot, .section-lite').forEach(function(n){ n.remove(); });
 
-      $('catRail').innerHTML = (isMember() && dealList().length ? '<button type="button" class="chip" data-jump="sec-deals"><img src="" alt="" onerror="this.remove()">Deals</button>' : '') +
+      var hasDeals = isMember() && dealList().length > 0;
+      $('catRail').innerHTML = (hasDeals ? '<button type="button" class="chip" data-jump="sec-deals">Member deals</button>' : '') +
         sections.map(function(s, i){
-        return '<button type="button" class="chip" data-jump="sec-' + i + '"' + (i === 0 && !isMember() ? ' aria-current="true"' : '') + '>' +
-          '<img src="' + escHtml(CATEGORY_IMAGES[s.cat] || '') + '" alt="" onerror="this.remove()">' + escHtml(s.cat) + '</button>';
+        return '<button type="button" class="chip" data-jump="sec-' + i + '">' + escHtml(s.cat) + '</button>';
       }).join('');
 
+      // Category list (website style): cut-out photo, name, item count.
+      var chev = '<svg class="mn-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"></polyline></svg>';
+      function rowHtml(id, name, n, img, cut){
+        return '<button type="button" class="mn-row" data-cat-open="' + id + '">' +
+          '<span class="mn-thumb' + (cut ? '' : ' is-photo') + '">' + (img ? '<img src="' + escHtml(img) + '" alt="" loading="lazy" onerror="this.remove()">' : '') + '</span>' +
+          '<span class="mn-name">' + escHtml(name) + '<span class="mn-meta">' + n + (n === 1 ? ' item' : ' items') + '</span></span>' + chev + '</button>';
+      }
+      var indexHtml = '<div class="mn-index section-lite" id="qrIndex">' +
+        (tacoDay ? '<div class="taco-banner">\uD83C\uDF2E Taco ' + tacoDay + ': every taco order is ' + money(window.RollinDeals.tacoPrice) + ' today<small>Already applied to the menu. No code needed.</small></div>' : '') +
+        '<h2 class="mn-head">Menu</h2>' +
+        (hasDeals ? rowHtml('sec-deals', 'Member deals', dealList().length, 'item-family-deal.jpg', false) : '') +
+        sections.map(function(s, i){
+          var cut = CATEGORY_CUTOUTS[s.cat];
+          return rowHtml('sec-' + i, s.cat, s.groups.length, cut || CATEGORY_IMAGES[s.cat] || '', !!cut);
+        }).join('') + '</div>';
+
       var dealHtml = memberDealsHtml();
-      var html = dealHtml + (tacoDay ? '<div class="taco-banner section-lite">\uD83C\uDF2E Taco ' + tacoDay + ': every taco order is ' + money(window.RollinDeals.tacoPrice) + ' today<small>Already applied to the menu. No code needed.</small></div>' : '') +
+      var html = indexHtml + dealHtml +
         sections.map(function(s, i){
         return '<section class="section" id="sec-' + i + '" aria-labelledby="sec-' + i + '-t">' +
           '<h2 class="section-title" id="sec-' + i + '-t">' + escHtml(s.cat) + '</h2>' +
@@ -771,8 +921,42 @@
       menu.insertAdjacentHTML('beforeend', html +
         '<p class="menu-foot">Prices are before 6.75% sales tax. Pay by card at checkout.</p>');
       activeChipId = null; // chips were just redrawn
-      setupScrollSpy();
+      // Keep the customer where they were (a re-draw after check-in or a
+      // sold-out update shouldn't throw them back to the list).
+      if (qrView === 'detail' && $(qrSection)) showSection(qrSection, true); else showIndex(true);
     }
+
+    // ---- Category list <-> one category (like the website on a phone) ----
+    var qrView = 'index', qrSection = null;
+    function showIndex(keepScroll){
+      qrView = 'index';
+      $('menu').setAttribute('data-view', 'index');
+      document.body.classList.add('qr-index');
+      document.querySelectorAll('#menu .section').forEach(function(sec){ sec.classList.remove('is-active'); });
+      if (!keepScroll) window.scrollTo(0, 0);
+    }
+    function showSection(id, keepScroll){
+      var sec = $(id);
+      if (!sec) return showIndex(keepScroll);
+      qrView = 'detail'; qrSection = id;
+      $('menu').setAttribute('data-view', 'detail');
+      document.body.classList.remove('qr-index');
+      document.querySelectorAll('#menu .section').forEach(function(x){ x.classList.toggle('is-active', x === sec); });
+      setActiveChip(id);
+      if (!keepScroll) {
+        var top = $('menu').getBoundingClientRect().top + window.pageYOffset - 8;
+        window.scrollTo(0, Math.max(0, Math.min(window.pageYOffset, top)));
+      }
+    }
+    window.qrOpenCategory = function(name){
+      var i = sections.findIndex(function(s){ return s.cat === name; });
+      showSection(name === 'Member deals' ? 'sec-deals' : 'sec-' + i);
+    };
+    $('qrBack').addEventListener('click', function(){ showIndex(); });
+    document.addEventListener('click', function(e){
+      var row = e.target.closest && e.target.closest('[data-cat-open]');
+      if (row) showSection(row.getAttribute('data-cat-open'));
+    });
 
     function tileHtml(g){
       var soldOut = !g.items.some(isAvailable);
@@ -784,6 +968,7 @@
           '<span class="tile-photo">' + photoImg(g.items[0], g.cat, g.name) + '</span>' +
           '<span class="tile-body">' +
             '<span class="tile-name">' + escHtml(g.name) + '</span>' +
+            (g.items[0].description ? '<span class="tile-desc">' + escHtml(g.items[0].description) + '</span>' : '') +
             (sub ? '<span class="tile-sub">' + sub + '</span>' : '') +
             '<span class="tile-price">' + priceText + '</span>' +
           '</span>' +
@@ -835,9 +1020,7 @@
       // The tapped chip stays highlighted while the page glides there
       // (and at the bottom of the menu, where a short section can't
       // reach the top); following the scroll resumes on the next touch.
-      spyPaused = true;
-      setActiveChip(chip.getAttribute('data-jump'));
-      if (sec && typeof sec.scrollIntoView === 'function') sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      showSection(chip.getAttribute('data-jump'));
     });
     var spyPaused = false;
     ['touchstart', 'wheel', 'keydown', 'mousedown'].forEach(function(ev){
@@ -1016,7 +1199,7 @@
       e.preventDefault();
       if (!isMember()) { $('qrCheckIn').classList.remove('hidden'); $('qrMemberInput').focus(); return; }
       closeQrMenu();
-      var sec = $('sec-deals'); if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      showSection('sec-deals');
     });
     // custom: { remove, add, note } from the item sheet (or nothing).
     function addOneRaw(itemId, custom){
