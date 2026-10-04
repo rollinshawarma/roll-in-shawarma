@@ -116,6 +116,11 @@
   #proceedToCheckoutBtn, #exploreOtherPaymentsBtn{ border-radius:999px; }
   .w1, .w2{ color:#1a1714 !important; font-family:"Barlow Condensed","Arial Narrow",sans-serif; letter-spacing:0; }
 </style>
+<!-- Meta Pixel -->
+<script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init','1433859782006722');fbq('track','PageView');
+</script>
+<!-- End Meta Pixel -->
 </head>
 <body>
 
@@ -333,6 +338,16 @@
         // Tracking only once the payment is confirmed (cash orders are
         // placed at the window, so they count right away).
         var confirmedPaid = order.status === 'paid' || isCashOrder;
+        // Meta Pixel: one "Purchase" per order (reloading this page doesn't count it again)
+        if (order.status === 'paid' && window.fbq) {
+          try {
+            var pxKey = 'rollinPx_' + order.referenceCode;
+            if (!localStorage.getItem(pxKey)) {
+              fbq('track', 'Purchase', { currency:'USD', value:Number(Number((order.breakdown && order.breakdown.total) || order.total || 0).toFixed(2)) }, { eventID: 'order-' + order.referenceCode });
+              localStorage.setItem(pxKey, '1');
+            }
+          } catch(e){}
+        }
         if (confirmedPaid && paidOnPhone) {
           document.getElementById('phoneNote').classList.remove('hidden');
         } else if (order.trackingId && confirmedPaid) {
