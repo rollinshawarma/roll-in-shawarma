@@ -1011,6 +1011,12 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
 <script src="deals.js"></script>
 <script src="ingredients.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js"></script>
+<!-- Meta Pixel -->
+<script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
+fbq('init','1433859782006722');fbq('track','PageView');
+document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closest&&e.target.closest('#cartCheckoutBtn')){window.__pxIC=1;try{fbq('track','InitiateCheckout',{currency:'USD',value:window.__rollinCartTotal?Number(window.__rollinCartTotal().toFixed(2)):undefined});}catch(x){}}},true);
+</script>
+<!-- End Meta Pixel -->
 </head>
 <body>
 
@@ -2282,7 +2288,14 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
         giftCardCart = savedGift ? JSON.parse(savedGift) : [];
       } catch(e){ giftCardCart = []; }
     }
+    window.__rollinCartTotal = function(){ return cartTotal(); };
     function saveCart(){
+      // Meta Pixel: count it as "Add to cart" when the number of items went up
+      try {
+        var before = JSON.parse(localStorage.getItem(CART_KEY) || '[]').reduce(function(a, c){ return a + (Number(c.quantity) || 1); }, 0);
+        var after = cart.reduce(function(a, c){ return a + (Number(c.quantity) || 1); }, 0);
+        if (after > before && window.fbq) fbq('track', 'AddToCart', { currency:'USD', value:Number(cartTotal().toFixed(2)) });
+      } catch(e){}
       try { localStorage.setItem(CART_KEY, JSON.stringify(cart)); } catch(e){}
     }
     function saveGiftCardCart(){
