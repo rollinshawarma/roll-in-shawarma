@@ -3282,6 +3282,13 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
           });
       });
 
+      // ---- Remember which Facebook/Instagram ad brought this visitor (?ad=ref), for 7 days ----
+      (function(){
+        try {
+          var r = new URLSearchParams(location.search).get('ad');
+          if (r && /^[A-Za-z0-9_-]{1,40}$/.test(r)) localStorage.setItem('rollinAdRef', JSON.stringify({ r: r, t: Date.now() }));
+        } catch (e) {}
+      })();
       // ---- Pay: Apple Pay / Google Pay right here, or card on Square's page ----
       document.getElementById('cartPayNowBtn').addEventListener('click', function(){
         var order = collectCheckout();
@@ -3452,7 +3459,8 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
           rewardIds: totals.rewardIds && totals.rewardIds.length ? totals.rewardIds : undefined,
           pickupMethod: (window.rollinPickup && window.rollinPickup.method()) || undefined,
           carModel: (window.rollinPickup && window.rollinPickup.car()) || undefined,
-          pickupOtherDay: scheduledPickupAt && window.rollinPickup && window.rollinPickup.otherDay() ? true : undefined
+          pickupOtherDay: scheduledPickupAt && window.rollinPickup && window.rollinPickup.otherDay() ? true : undefined,
+          adRef: (function(){ try { var a = JSON.parse(localStorage.getItem('rollinAdRef') || 'null'); return a && a.t > Date.now() - 7 * 864e5 ? a.r : undefined; } catch (e) { return undefined; } })()
         }
       };
     }
