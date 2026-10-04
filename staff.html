@@ -441,6 +441,64 @@
   @media (max-width:600px){ table.stack td[colspan]{ justify-content:center; text-align:center; } }
   @media (max-width:899px){ .page-head h2, .page-title{ display:none; } .page-head{ margin-top:18px; } }
   @media (prefers-reduced-motion:reduce){ *{ transition:none !important; } }
+
+  /* ---- Ads ---- */
+  .ad-conn{ display:flex; align-items:center; gap:10px; background:var(--card); border:1px solid #e6e6eb; border-radius:14px; padding:11px 14px; font-size:13.5px; margin-bottom:12px; }
+  .ad-dot{ width:10px; height:10px; border-radius:50%; background:#c7c7cc; flex:none; }
+  .ad-conn.ok .ad-dot{ background:#30b35a; box-shadow:0 0 0 4px rgba(48,179,90,0.16); }
+  .ad-conn.bad .ad-dot{ background:#e8a200; box-shadow:0 0 0 4px rgba(232,162,0,0.16); }
+  .ad-head-row{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin:18px 0 10px; }
+  .btn-primary.ad-new{ width:auto; }
+  .ad-card{ display:flex; gap:14px; background:var(--card); border:1px solid #e6e6eb; border-radius:16px; padding:14px; margin-bottom:10px; }
+  .ad-thumb{ width:72px; height:72px; border-radius:12px; background:#f2f2f5 center/cover no-repeat; flex:none; }
+  .ad-body{ flex:1; min-width:0; }
+  .ad-title{ font-weight:600; font-size:15px; color:var(--ink); }
+  .ad-meta{ font-size:12.5px; color:var(--muted); margin-top:3px; line-height:1.45; }
+  .ad-chip{ display:inline-block; padding:3px 10px; border-radius:999px; font-size:11.5px; font-weight:600; background:#ececf0; color:#3a3a3c; margin-right:6px; vertical-align:1px; }
+  .ad-chip.wait{ background:#fff4e0; color:#a15c00; }
+  .ad-chip.live{ background:rgba(48,179,90,0.15); color:#146c3a; }
+  .ad-chip.bad{ background:#ffe9e7; color:#c4271b; }
+  .ad-err{ font-size:12.5px; color:#c4271b; margin-top:6px; }
+  .ad-btns{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+  .ad-btns button{ width:auto; }
+  .ad-edit-grid{ display:grid; grid-template-columns:minmax(0,1fr) 300px; gap:22px; align-items:start; }
+  .ad-pair{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .ad-loc-row{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; margin:-4px 0 12px; }
+  .ad-loc-row button{ width:auto; }
+  .ad-loc-note{ font-size:12.5px; color:var(--muted); }
+  .ad-loc-note.ok{ color:#146c3a; }
+  .ad-loc-note a{ color:inherit; }
+  .ad-count{ font-weight:400; color:var(--muted); font-size:12px; }
+  .ad-budget-hint{ margin-top:-4px; }
+  .ad-actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; }
+  .ad-actions button{ width:auto; flex:1 1 160px; }
+  .ad-check{ display:flex; gap:10px; align-items:flex-start; font-weight:500; margin-top:8px; line-height:1.4; }
+  .ad-check input{ width:auto; margin-top:3px; }
+  .ad-preview-wrap{ position:sticky; top:80px; }
+  .ad-preview-label{ font-size:12.5px; font-weight:600; color:var(--muted); margin-bottom:6px; }
+  .ad-preview{ background:#fff; border:1px solid #dcdce1; border-radius:12px; overflow:hidden; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif; color:#050505; }
+  .adp-top{ display:flex; gap:9px; align-items:center; padding:10px 12px 6px; font-size:13.5px; }
+  .adp-top small{ display:block; color:#65676b; font-size:12px; }
+  .adp-logo{ width:36px; height:36px; border-radius:50%; background:#1d1d1f; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; }
+  .adp-text{ padding:0 12px 10px; font-size:13.5px; line-height:1.4; white-space:pre-wrap; word-break:break-word; }
+  .adp-img{ aspect-ratio:1/1; background:#f0f2f5 center/cover no-repeat; display:flex; align-items:center; justify-content:center; color:#8a8d91; font-size:13px; }
+  .adp-img.has span{ display:none; }
+  .adp-foot{ display:flex; align-items:center; justify-content:space-between; gap:10px; background:#f0f2f5; padding:10px 12px; }
+  .adp-foot small{ display:block; color:#65676b; font-size:11.5px; }
+  .adp-foot b{ display:block; font-size:14px; }
+  .adp-cta{ background:#e4e6eb; border-radius:6px; padding:8px 12px; font-weight:600; font-size:13px; white-space:nowrap; }
+  .ad-sum{ display:grid; grid-template-columns:repeat(4,1fr); background:var(--card); border:1px solid #e6e6eb; border-radius:16px; overflow:hidden; margin-bottom:12px; }
+  .ad-sum div{ padding:12px 14px; border-right:1px solid #eeeef2; }
+  .ad-sum div:last-child{ border-right:0; }
+  .ad-sum b{ display:block; font-family:var(--display); font-size:22px; color:var(--ink); }
+  .ad-sum small{ color:var(--muted); font-size:12px; }
+  @media (max-width:899px){
+    .ad-edit-grid{ grid-template-columns:1fr; }
+    .ad-preview-wrap{ position:static; max-width:360px; }
+    .ad-sum{ grid-template-columns:1fr 1fr; }
+    .ad-sum div:nth-child(2){ border-right:0; }
+    .ad-sum div:nth-child(-n+2){ border-bottom:1px solid #eeeef2; }
+  }
 </style>
 </head>
 <body>
@@ -512,6 +570,7 @@
       <button class="nav-link hidden" data-tab="banner" id="tabBannerBtn"><svg class="icon"><use href="#ic-megaphone"/></svg>Banner</button>
       <button class="nav-link hidden" data-tab="promotions" id="tabPromotionsBtn"><svg class="icon"><use href="#ic-tag"/></svg>Promo codes</button>
       <button class="nav-link hidden" data-tab="events" id="tabEventsBtn"><svg class="icon"><use href="#ic-calendar"/></svg>Events</button>
+      <button class="nav-link hidden" data-tab="ads" id="tabAdsBtn"><svg class="icon"><use href="#ic-target"/></svg>Ads<span class="nav-badge hidden" id="navAdsBadge"></span></button>
 
       <div class="nav-section-label">Team</div>
       <button class="nav-link hidden" data-tab="approve" id="tabApproveBtn"><svg class="icon"><use href="#ic-check"/></svg>Approvals<span class="nav-badge hidden" id="navApproveBadge"></span></button>
@@ -827,6 +886,118 @@
     </div>
   </div>
 
+<!-- ADS -->
+  <div class="tab-panel hidden" id="panelAds">
+    <div class="page-head">
+      <h2>Ads</h2>
+      <p class="hint">Facebook and Instagram ads for people near where the truck is parked. Each week's ad is drafted from Events; nothing is spent until an admin taps Approve &amp; launch, and Meta never spends more than the budget.</p>
+    </div>
+    <div class="ad-conn" id="adConn"><span class="ad-dot"></span><span id="adConnText">Checking the Meta connection&hellip;</span></div>
+    <div id="adsMsg"></div>
+
+    <div class="ad-head-row">
+      <div class="section-title" style="margin:0">This week and coming up</div>
+      <button class="btn-primary btn-small ad-new" id="adNewBtn" type="button">New ad</button>
+    </div>
+    <div id="adList"><p class="hint">Loading ads&hellip;</p></div>
+
+    <!-- editor -->
+    <div class="card hidden" id="adEditor">
+      <h2 id="adEditorTitle">New ad</h2>
+      <div id="adEditMsg"></div>
+      <div class="ad-edit-grid">
+        <div class="ad-form">
+          <label for="adEvent">Stop</label>
+          <select id="adEvent"><option value="">Somewhere not in Events</option></select>
+          <label for="adStopName">Stop name (shown in the ad)</label>
+          <input type="text" id="adStopName" maxlength="120" placeholder="e.g. Polaris Fashion Place">
+          <label for="adStopAddr">Address</label>
+          <input type="text" id="adStopAddr" maxlength="200" placeholder="Street, city — or paste a map pin like 40.14, -82.98">
+          <div class="ad-loc-row">
+            <button type="button" class="btn-export btn-small" id="adFindBtn">Find on map</button>
+            <button type="button" class="btn-export btn-small" id="adHereBtn">Use where I am</button>
+            <span class="ad-loc-note" id="adLocNote">No location yet</span>
+          </div>
+
+          <div class="ad-pair">
+            <div><label for="adStartDate">Ad starts</label><input type="date" id="adStartDate"></div>
+            <div><label for="adStartTime">&nbsp;</label><input type="time" id="adStartTime" aria-label="Start time"></div>
+          </div>
+          <div class="ad-pair">
+            <div><label for="adEndDate">Ad ends</label><input type="date" id="adEndDate"></div>
+            <div><label for="adEndTime">&nbsp;</label><input type="time" id="adEndTime" aria-label="End time"></div>
+          </div>
+          <div class="ad-pair">
+            <div><label for="adBudget">Budget ($ for the whole ad)</label><input type="number" id="adBudget" min="5" step="1" inputmode="numeric"></div>
+            <div><label for="adRadius">Reach people within</label>
+              <select id="adRadius"><option value="2">2 miles</option><option value="3">3 miles</option><option value="5">5 miles</option><option value="8">8 miles</option><option value="10">10 miles</option><option value="15">15 miles</option><option value="25">25 miles</option></select></div>
+          </div>
+          <p class="hint ad-budget-hint" id="adBudgetHint"></p>
+
+          <label for="adHeadline">Headline <span class="ad-count" id="adHeadCount"></span></label>
+          <input type="text" id="adHeadline" maxlength="40">
+          <label for="adText">Text <span class="ad-count" id="adTextCount"></span></label>
+          <textarea id="adText" rows="3" maxlength="500"></textarea>
+          <label for="adPromo">Offer (optional)</label>
+          <select id="adPromo"><option value="">No promo code</option></select>
+          <p class="hint">Make the code under Promo codes first. Orders using it while the ad runs count toward the ad's results.</p>
+
+          <label for="adFile">Flyer or photo</label>
+          <input type="file" id="adFile" accept="image/jpeg,image/png">
+          <p class="hint" id="adFileHint">JPG or PNG, up to 8 MB. Square (1080 × 1080) looks best on both Facebook and Instagram. Keep words on the picture short.</p>
+        </div>
+
+        <div class="ad-preview-wrap">
+          <div class="ad-preview-label">Preview</div>
+          <div class="ad-preview" id="adPreview">
+            <div class="adp-top"><span class="adp-logo">R</span><span><b>Roll-In Shawarma</b><small>Sponsored</small></span></div>
+            <div class="adp-text" id="adpText"></div>
+            <div class="adp-img" id="adpImg"><span>Your flyer shows here</span></div>
+            <div class="adp-foot"><span><small>ROLLINSHAWARMA.COM</small><b id="adpHead"></b><small id="adpDesc"></small></span><span class="adp-cta">Order now</span></div>
+          </div>
+          <p class="hint" id="adpWhere"></p>
+        </div>
+      </div>
+      <div class="ad-actions">
+        <button type="button" class="btn-primary" id="adSubmitBtn">Send for approval</button>
+        <button type="button" class="btn-export" id="adSaveBtn">Save draft</button>
+        <button type="button" class="btn-export" id="adCloseBtn">Close</button>
+      </div>
+    </div>
+
+    <div class="section-title">Results</div>
+    <div class="ad-sum" id="adSum"></div>
+    <div class="card">
+      <div style="overflow-x:auto;">
+        <table class="stack">
+          <thead><tr><th>Ad</th><th>Spent</th><th>Reached</th><th>Clicks</th><th>Orders</th><th>Sales</th><th>Back per $1</th></tr></thead>
+          <tbody id="adResultsBody"><tr class="empty-row"><td colspan="7">No results yet.</td></tr></tbody>
+        </table>
+      </div>
+      <p class="hint">Meta's numbers refresh every 3 hours. Orders count when someone came from the ad's link, or used its promo code while it ran.</p>
+    </div>
+
+    <div class="card hidden" id="adSettingsCard">
+      <h2>Ad settings</h2>
+      <div id="adSetMsg"></div>
+      <div class="ad-pair">
+        <div><label for="adSetBudget">Weekly budget ($)</label><input type="number" id="adSetBudget" min="5" step="1"></div>
+        <div><label for="adSetMax">Never more than ($ a week)</label><input type="number" id="adSetMax" min="5" step="1"></div>
+      </div>
+      <div class="ad-pair">
+        <div><label for="adSetRadius">Default distance (miles)</label><input type="number" id="adSetRadius" min="1" max="25" step="1"></div>
+        <div><label for="adSetLead">Start the ad (days before the stop)</label><input type="number" id="adSetLead" min="0" max="7" step="1"></div>
+      </div>
+      <label for="adSetHeadline">Default headline</label>
+      <input type="text" id="adSetHeadline" maxlength="40">
+      <label for="adSetText">Default text</label>
+      <textarea id="adSetText" rows="3" maxlength="500"></textarea>
+      <p class="hint">{stop} becomes the stop's name and {when} its day and hours.</p>
+      <label class="ad-check"><input type="checkbox" id="adSetAuto"> Every Sunday, draft next week's ad from Events and email me to approve it</label>
+      <button type="button" class="btn-primary" id="adSetSave" style="margin-top:10px">Save settings</button>
+    </div>
+  </div>
+
   <!-- PROMOTIONS -->
   <div class="tab-panel hidden" id="panelPromotions">
     <div class="card">
@@ -1100,6 +1271,7 @@
     <symbol id="ic-flame" viewBox="0 0 24 24"><path d="M12 22c4 0 7-2.8 7-7 0-3.5-2.3-5.6-3.7-7.6-.4 1.7-1.3 2.9-2.6 3.4C13 7.6 11.6 4.4 9 2c.3 3.4-1.6 5.5-3 7.4C4.9 10.8 5 12.6 5 15c0 4.2 3 7 7 7z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
     <symbol id="ic-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5.6 5.6l12.8 12.8" stroke="currentColor" stroke-width="2"/></symbol>
     <symbol id="ic-gift" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="4" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 12v9h14v-9M12 8v13M12 8c-1.5-3-5-4-5.5-2S9 8 12 8zm0 0c1.5-3 5-4 5.5-2S15 8 12 8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="ic-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/></symbol>
     <symbol id="ic-megaphone" viewBox="0 0 24 24"><path d="M3 10v4h3l8 5V5L6 10H3zM18 9a4 4 0 0 1 0 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></symbol>
     <symbol id="ic-tag" viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8L3 12z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="7.5" cy="8.5" r="1.5" fill="currentColor"/></symbol>
     <symbol id="ic-heart" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-9-9.2C2 7.5 4.2 5 7 5c2 0 3.4 1.2 5 3 1.6-1.8 3-3 5-3 2.8 0 5 2.5 4 5.8C19.5 15.4 12 20 12 20z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
@@ -1331,6 +1503,12 @@
         loadPromotions();
         loadSoldOut();
         setInterval(loadSoldOut, 60000);
+        document.getElementById('tabAdsBtn').classList.remove('hidden');
+        adsState.isAdmin = isAdmin;
+        if (isAdmin) document.getElementById('adSettingsCard').classList.remove('hidden');
+        loadAds();
+        setInterval(loadAds, 120000);
+        if (location.hash === '#ads') setTimeout(function(){ showTab('ads'); }, 0);
         loadTodayGlance();
         setInterval(loadTodayGlance, 60000);
       }
@@ -1385,10 +1563,15 @@
       if (h.missingOut) out.push(todoHtml(h.missingOut, 'Missing ' + (h.missingOut === 1 ? 'clock-out' : 'clock-outs'), 'From a past day. Add the hours by hand.', 'approve', true));
       if (h.certs) out.push(todoHtml(h.certs, 'Food handler ' + (h.certs === 1 ? 'cert' : 'certs') + ' expiring', 'Expired or due within 30 days.', 'documents', true));
       if (h.soldOut) out.push(todoHtml(h.soldOut, (h.soldOut === 1 ? 'Item' : 'Items') + ' marked sold out', 'Switch back on when you restock.', 'soldout'));
+      if (h.adsPending) out.push(todoHtml(h.adsPending, (h.adsPending === 1 ? 'Ad' : 'Ads') + ' waiting for approval', adsState.isAdmin ? 'Check it and tap Approve & launch.' : 'An admin needs to approve it.', 'ads'));
+      if (h.adsProblem) out.push(todoHtml(h.adsProblem, (h.adsProblem === 1 ? 'Ad needs' : 'Ads need') + ' a fix', 'It didn\u2019t start or Meta turned it down.', 'ads', true));
     }
     var badge = document.getElementById('navApproveBadge');
     var approveN = h.pendingHours + h.timeOff;
     badge.textContent = approveN; badge.classList.toggle('hidden', !approveN);
+    var adB = document.getElementById('navAdsBadge');
+    var adN = (h.adsPending || 0) + (h.adsProblem || 0);
+    adB.textContent = adN; adB.classList.toggle('hidden', !adN);
     var sb2 = document.getElementById('navSoldBadge');
     sb2.textContent = h.soldOut; sb2.classList.toggle('hidden', !h.soldOut);
     document.getElementById('homeTodoList').innerHTML = out.join('');
@@ -2751,6 +2934,455 @@
   }
 
   // ---------------- PROMOTIONS TAB ----------------
+  // ================= ADS (Facebook + Instagram) =================
+  var adsState = { isAdmin:false, settings:null, events:[], campaigns:[], report:{}, editing:null, file:null, fileUrl:null, lat:null, lng:null, eventsLoaded:false };
+  var AD_STATUS = {
+    draft:['Draft',''], pending_approval:['Waiting for approval','wait'], approved:['Approved','wait'], launching:['Starting…','wait'],
+    live:['Running','live'], paused:['Paused',''], ended:['Finished',''], failed:['Didn’t start','bad'], rejected:['Turned down by Meta','bad']
+  };
+  function adMoney(c){ return '$' + (Number(c || 0) / 100).toFixed(Number(c || 0) % 100 ? 2 : 0); }
+  function adPad(n){ return String(n).padStart(2, '0'); }
+  function adDateVal(d){ return d.getFullYear() + '-' + adPad(d.getMonth() + 1) + '-' + adPad(d.getDate()); }
+  function adTimeVal(d){ return adPad(d.getHours()) + ':' + adPad(d.getMinutes()); }
+  function adWhenRange(a, b){
+    if (!a || !b) return 'Dates not set';
+    var A = new Date(a), B = new Date(b);
+    var day = { weekday:'short', month:'short', day:'numeric' }, tm = { hour:'numeric', minute:'2-digit' };
+    return A.toLocaleDateString([], day) + ' ' + A.toLocaleTimeString([], tm) + ' – ' + B.toLocaleDateString([], day) + ' ' + B.toLocaleTimeString([], tm);
+  }
+  function adEventWhen(ev){
+    var d = new Date(ev.start_date + 'T12:00:00');
+    function t(x){ if (!x) return ''; var p = x.split(':'); var h = +p[0], m = +p[1]; return (h % 12 || 12) + (m ? ':' + adPad(m) : '') + (h < 12 ? ' AM' : ' PM'); }
+    var w = d.toLocaleDateString([], { weekday:'long' });
+    return ev.start_time ? w + ' ' + t(ev.start_time) + (ev.end_time ? '–' + t(ev.end_time) : '') : w;
+  }
+  function adsCall(body){
+    if (!sb.functions) return Promise.resolve({ error: 'Update the page' });
+    return sb.functions.invoke('meta-ads', { body: body }).then(function(res){
+      if (!res.error) return res.data || {};
+      var ctx = res.error.context;
+      if (ctx && typeof ctx.json === 'function') return ctx.json().then(function(j){ return j && j.error ? j : { error: res.error.message }; }, function(){ return { error: res.error.message }; });
+      return { error: res.error.message };
+    }, function(e){ return { error: (e && e.message) || 'No answer' }; });
+  }
+  function adThumbUrl(c){
+    if (!c.creative_path) return Promise.resolve(null);
+    if (adsState.thumbs && adsState.thumbs[c.creative_path]) return Promise.resolve(adsState.thumbs[c.creative_path]);
+    return sb.storage.from('ad-creatives').createSignedUrl(c.creative_path, 3600).then(function(r){
+      var u = r && r.data && r.data.signedUrl;
+      adsState.thumbs = adsState.thumbs || {};
+      if (u) adsState.thumbs[c.creative_path] = u;
+      return u || null;
+    }, function(){ return null; });
+  }
+
+  function loadAds(){
+    loadAdConnection();
+    sb.from('ad_settings').select('*').eq('id', 1).then(function(res){
+      var s = res.data && res.data[0];
+      if (!s) return;
+      adsState.settings = s;
+      if (adsState.isAdmin && !adsState.settingsShown) {
+        adsState.settingsShown = true;
+        document.getElementById('adSetBudget').value = Math.round(s.weekly_budget_cents / 100);
+        document.getElementById('adSetMax').value = Math.round(s.max_weekly_cents / 100);
+        document.getElementById('adSetRadius').value = Number(s.default_radius_miles);
+        document.getElementById('adSetLead').value = s.lead_days;
+        document.getElementById('adSetHeadline').value = s.default_headline || '';
+        document.getElementById('adSetText').value = s.default_text || '';
+        document.getElementById('adSetAuto').checked = !!s.auto_draft;
+      }
+    });
+    if (!adsState.eventsLoaded) {
+      sb.from('events').select('*').gte('end_date', adDateVal(new Date())).order('start_date', { ascending:true }).then(function(res){
+        adsState.events = (res.data || []).filter(function(e){ return e.status !== 'cancelled'; });
+        adsState.eventsLoaded = true;
+        var sel = document.getElementById('adEvent');
+        sel.innerHTML = '<option value="">Somewhere not in Events</option>' + adsState.events.map(function(e){
+          return '<option value="' + esc(e.id) + '">' + esc(e.title) + ' · ' + esc(new Date(e.start_date + 'T12:00:00').toLocaleDateString([], { weekday:'short', month:'short', day:'numeric' })) + '</option>';
+        }).join('');
+      });
+      sb.from('promo_codes').select('code, is_active, expires_at').order('created_at', { ascending:false }).then(function(res){
+        var now = new Date();
+        var list = (res.data || []).filter(function(p){ return p.is_active && (!p.expires_at || new Date(p.expires_at) > now); });
+        document.getElementById('adPromo').innerHTML = '<option value="">No promo code</option>' + list.map(function(p){ return '<option>' + esc(p.code) + '</option>'; }).join('');
+      });
+    }
+    Promise.all([
+      sb.from('ad_campaigns').select('*').order('created_at', { ascending:false }).limit(30),
+      sb.rpc('ads_report')
+    ]).then(function(r){
+      if (r[0].error) {
+        document.getElementById('adList').innerHTML = '<p class="hint">Couldn’t load ads: ' + esc(r[0].error.message) + '. Run meta-ads-setup.sql in Supabase first.</p>';
+        return;
+      }
+      adsState.campaigns = (r[0].data || []).filter(function(c){ return c.status !== 'canceled'; });
+      adsState.report = {};
+      (r[1].data || []).forEach(function(x){ adsState.report[x.campaign_id] = x; });
+      renderAdList();
+      renderAdResults(r[1].data || []);
+      homeState.adsPending = adsState.campaigns.filter(function(c){ return c.status === 'pending_approval'; }).length;
+      homeState.adsProblem = adsState.campaigns.filter(function(c){ return (c.status === 'failed' || c.status === 'rejected') && (!c.end_at || new Date(c.end_at) > new Date()); }).length;
+      renderHomeTodo();
+    });
+  }
+
+  function loadAdConnection(){
+    adsCall({ action:'status' }).then(function(d){
+      var box = document.getElementById('adConn'), t = document.getElementById('adConnText');
+      box.classList.remove('ok', 'bad');
+      if (d.connected) {
+        box.classList.add('ok');
+        t.textContent = 'Connected to Meta ad account “' + d.account.name + '”' + (d.instagram ? ' with Instagram' : ' (Facebook only — add META_IG_USER_ID to also show on Instagram as your account)') + (d.account.active ? '' : '. The ad account isn’t active: check billing in Meta.');
+        if (!d.account.active) { box.classList.remove('ok'); box.classList.add('bad'); }
+      } else {
+        box.classList.add('bad');
+        t.textContent = d.missing ? 'Meta isn’t connected yet. You can still make and approve drafts. Missing in Supabase secrets: ' + d.missing.join(', ') + '.'
+          : 'Couldn’t reach Meta: ' + (d.error || 'no answer') + (/Function not found|404/i.test(d.error || '') ? ' (deploy the meta-ads function)' : '');
+      }
+    });
+  }
+
+  function adButtons(c){
+    var b = [], A = adsState.isAdmin, id = esc(c.id);
+    var editable = ['draft', 'pending_approval', 'failed', 'rejected'].indexOf(c.status) >= 0;
+    if (c.status === 'pending_approval' && A) b.push('<button class="btn-approve btn-small" data-ad="approve" data-id="' + id + '">Approve &amp; launch</button>');
+    if (c.status === 'approved' && A) b.push('<button class="btn-approve btn-small" data-ad="launch" data-id="' + id + '">Launch now</button>');
+    if (['draft', 'failed', 'rejected'].indexOf(c.status) >= 0) b.push('<button class="btn-primary btn-small" data-ad="submit" data-id="' + id + '">Send for approval</button>');
+    if (editable) b.push('<button class="btn-export btn-small" data-ad="edit" data-id="' + id + '">Edit</button>');
+    if (c.status === 'live' && A) b.push('<button class="btn-export btn-small" data-ad="pause" data-id="' + id + '">Pause</button>');
+    if (c.status === 'paused' && A) b.push('<button class="btn-approve btn-small" data-ad="resume" data-id="' + id + '">Resume</button>');
+    if ((c.status === 'live' || c.status === 'paused') && A) b.push('<button class="btn-export btn-small" data-ad="end" data-id="' + id + '">Stop for good</button>');
+    if (['live', 'paused', 'ended'].indexOf(c.status) >= 0) b.push('<button class="btn-export btn-small" data-ad="copy" data-id="' + id + '">Copy for next stop</button>');
+    if (editable || c.status === 'approved') b.push('<button class="btn-export btn-small" data-ad="cancel" data-id="' + id + '">' + (c.status === 'draft' ? 'Delete' : 'Cancel') + '</button>');
+    return b.join('');
+  }
+  function renderAdList(){
+    var box = document.getElementById('adList');
+    var recent = adsState.campaigns.filter(function(c){ return c.status !== 'ended' || (c.end_at && new Date(c.end_at) > new Date(Date.now() - 7 * 86400000)); });
+    if (!recent.length) {
+      box.innerHTML = '<div class="ad-card"><div class="ad-body"><div class="ad-title">No ads yet</div><div class="ad-meta">Tap New ad, pick next week’s stop and add a flyer. ' +
+        (adsState.settings && adsState.settings.auto_draft ? 'From now on, each Sunday evening next week’s ad is drafted for you.' : '') + '</div></div></div>';
+      return;
+    }
+    box.innerHTML = recent.map(function(c){
+      var st = AD_STATUS[c.status] || [c.status, ''];
+      var label = st[0];
+      if (c.status === 'live' && /PENDING_REVIEW|IN_PROCESS/.test(c.meta_status || '')) label = 'In Meta review';
+      var rep = adsState.report[c.id] || {};
+      var res = (c.status === 'live' || c.status === 'paused' || c.status === 'ended') ?
+        '<br>Spent ' + adMoney(rep.spend_cents) + ' of ' + adMoney(c.budget_cents) + ' · ' + Number(rep.clicks || 0) + ' clicks · ' + Number(rep.orders || 0) + ' orders' : '';
+      return '<div class="ad-card" data-ad-card="' + esc(c.id) + '">' +
+        '<div class="ad-thumb" data-thumb="' + esc(c.creative_path || '') + '"></div>' +
+        '<div class="ad-body">' +
+          '<div class="ad-title"><span class="ad-chip ' + st[1] + '">' + esc(label) + '</span>' + esc(c.stop_name || 'No stop picked') + '</div>' +
+          '<div class="ad-meta">' + esc(adWhenRange(c.start_at, c.end_at)) + '<br>' + adMoney(c.budget_cents) + ' · within ' + Number(c.radius_miles) + ' miles' +
+            (c.promo_code ? ' · code ' + esc(c.promo_code) : '') + res + '</div>' +
+          (c.last_error && (c.status === 'failed' || c.status === 'rejected') ? '<div class="ad-err">' + esc(c.last_error) + '</div>' : '') +
+          '<div class="ad-btns">' + adButtons(c) + '</div>' +
+        '</div></div>';
+    }).join('');
+    box.querySelectorAll('[data-thumb]').forEach(function(el){
+      var c = { creative_path: el.getAttribute('data-thumb') };
+      adThumbUrl(c).then(function(u){ if (u) el.style.backgroundImage = 'url("' + u + '")'; });
+    });
+  }
+  function renderAdResults(rows){
+    var body = document.getElementById('adResultsBody');
+    rows = rows.filter(function(r){ return Number(r.spend_cents) > 0 || Number(r.orders) > 0; });
+    var tot = rows.reduce(function(a, r){ a.s += Number(r.spend_cents); a.o += Number(r.orders); a.v += Number(r.revenue); a.c += Number(r.clicks); return a; }, { s:0, o:0, v:0, c:0 });
+    document.getElementById('adSum').innerHTML =
+      '<div><b>' + adMoney(tot.s) + '</b><small>Spent</small></div><div><b>' + tot.c + '</b><small>Clicks</small></div>' +
+      '<div><b>' + tot.o + '</b><small>Orders from ads</small></div><div><b>' + (tot.s ? '$' + (tot.v / (tot.s / 100)).toFixed(2) : '—') + '</b><small>Sales per $1 spent</small></div>';
+    if (!rows.length) { body.innerHTML = '<tr class="empty-row"><td colspan="7">No results yet. They show up a few hours after an ad starts.</td></tr>'; return; }
+    body.innerHTML = rows.map(function(r){
+      var spend = Number(r.spend_cents) / 100;
+      return '<tr><td>' + esc(r.stop_name || r.ref) + '<br><small class="hint">' + esc(r.start_at ? new Date(r.start_at).toLocaleDateString([], { month:'short', day:'numeric' }) : '') + '</small></td>' +
+        '<td>$' + spend.toFixed(2) + '</td><td>' + Number(r.reach).toLocaleString() + '</td><td>' + Number(r.clicks) + '</td><td>' + Number(r.orders) + '</td>' +
+        '<td>$' + Number(r.revenue).toFixed(2) + '</td><td>' + (spend ? '$' + (Number(r.revenue) / spend).toFixed(2) : '—') + '</td></tr>';
+    }).join('');
+    if (typeof labelStackTables === 'function') labelStackTables();
+  }
+
+  // ---- editor ----
+  function adSetLoc(lat, lng, how){
+    adsState.lat = lat; adsState.lng = lng;
+    var n = document.getElementById('adLocNote');
+    if (lat == null) { n.className = 'ad-loc-note'; n.textContent = how || 'No location yet'; }
+    else {
+      n.className = 'ad-loc-note ok';
+      n.innerHTML = '✓ ' + esc(how || 'Location set') + ' · <a href="https://www.openstreetmap.org/?mlat=' + lat + '&mlon=' + lng + '#map=15/' + lat + '/' + lng + '" target="_blank" rel="noopener">check the map</a>';
+    }
+    adPreview();
+  }
+  function adFillDates(start, end){
+    document.getElementById('adStartDate').value = start ? adDateVal(start) : '';
+    document.getElementById('adStartTime').value = start ? adTimeVal(start) : '';
+    document.getElementById('adEndDate').value = end ? adDateVal(end) : '';
+    document.getElementById('adEndTime').value = end ? adTimeVal(end) : '';
+  }
+  function adReadDate(d, t){
+    var dv = document.getElementById(d).value, tv = document.getElementById(t).value || '00:00';
+    if (!dv) return null;
+    var x = new Date(dv + 'T' + tv);
+    return isNaN(x) ? null : x;
+  }
+  function openAdEditor(c, copy){
+    var s = adsState.settings || { weekly_budget_cents:7000, default_radius_miles:5, default_headline:'', default_text:'' };
+    adsState.editing = c && !copy ? c : null;
+    adsState.file = null;
+    if (adsState.fileUrl) { URL.revokeObjectURL(adsState.fileUrl); adsState.fileUrl = null; }
+    adsState.keepCreative = c ? { path:c.creative_path, type:c.creative_type } : null;
+    document.getElementById('adEditorTitle').textContent = adsState.editing ? 'Edit ad' : copy ? 'New ad (copied)' : 'New ad';
+    document.getElementById('adEvent').value = c && !copy && c.event_id ? c.event_id : '';
+    document.getElementById('adStopName').value = c ? (c.stop_name || '') : '';
+    document.getElementById('adStopAddr').value = c ? (c.stop_address || '') : '';
+    adFillDates(c && !copy && c.start_at ? new Date(c.start_at) : null, c && !copy && c.end_at ? new Date(c.end_at) : null);
+    document.getElementById('adBudget').value = Math.round((c ? c.budget_cents : s.weekly_budget_cents) / 100);
+    var rad = String(Number(c ? c.radius_miles : s.default_radius_miles));
+    var radSel = document.getElementById('adRadius');
+    if (!radSel.querySelector('option[value="' + rad + '"]')) radSel.insertAdjacentHTML('beforeend', '<option value="' + rad + '">' + rad + ' miles</option>');
+    radSel.value = rad;
+    document.getElementById('adHeadline').value = c ? (c.headline || '') : (s.default_headline || '');
+    document.getElementById('adText').value = c ? (c.primary_text || '') : (s.default_text || '');
+    var promo = document.getElementById('adPromo');
+    if (c && c.promo_code && !promo.querySelector('option[value="' + c.promo_code + '"]')) promo.insertAdjacentHTML('beforeend', '<option>' + esc(c.promo_code) + '</option>');
+    promo.value = c && c.promo_code ? c.promo_code : '';
+    document.getElementById('adFile').value = '';
+    clearMsg('adEditMsg');
+    adSetLoc(c && c.lat != null ? c.lat : null, c && c.lng != null ? c.lng : null, c && c.lat != null ? 'Location set' : null);
+    var img = document.getElementById('adpImg');
+    img.style.backgroundImage = ''; img.classList.remove('has');
+    if (c && c.creative_path) adThumbUrl(c).then(function(u){ if (u && !adsState.file) { img.style.backgroundImage = 'url("' + u + '")'; img.classList.add('has'); } });
+    var ed = document.getElementById('adEditor');
+    ed.classList.remove('hidden');
+    adPreview();
+    ed.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+  // {stop} / {when} left in the text are filled from the form
+  function adResolvedText(){
+    var t = document.getElementById('adText').value;
+    var ev = adsState.events.find(function(e){ return e.id === document.getElementById('adEvent').value; });
+    var stop = document.getElementById('adStopName').value.trim() || 'our next stop';
+    return t.replace(/\{stop\}/g, stop).replace(/\{when\}/g, ev ? adEventWhen(ev) : 'this week');
+  }
+  function adPreview(){
+    var h = document.getElementById('adHeadline').value, t = adResolvedText();
+    document.getElementById('adHeadCount').textContent = h.length + '/40';
+    document.getElementById('adTextCount').textContent = t.length + '/500';
+    document.getElementById('adpHead').textContent = h || 'Your headline';
+    document.getElementById('adpText').textContent = t || 'Your text';
+    var promo = document.getElementById('adPromo').value;
+    document.getElementById('adpDesc').textContent = promo ? 'Use code ' + promo + ' at checkout' : 'Order ahead, skip the line';
+    var budget = Number(document.getElementById('adBudget').value || 0);
+    var a = adReadDate('adStartDate', 'adStartTime'), b = adReadDate('adEndDate', 'adEndTime');
+    var days = a && b && b > a ? Math.max(1, Math.round((b - a) / 86400000)) : 0;
+    var max = adsState.settings ? adsState.settings.max_weekly_cents / 100 : null;
+    document.getElementById('adBudgetHint').textContent = budget ?
+      ('About $' + (days ? (budget / days).toFixed(0) : budget) + ' a day over ' + (days || '?') + ' day' + (days === 1 ? '' : 's') + '. Meta stops at $' + budget + '.' + (max && budget > max ? ' That’s above the $' + max + ' weekly limit.' : '')) : '';
+    document.getElementById('adpWhere').textContent = adsState.lat != null ?
+      'Shown on Facebook and Instagram to adults within ' + document.getElementById('adRadius').value + ' miles of the stop.' : 'Set the stop’s location so the ad reaches people nearby.';
+  }
+  ['adHeadline', 'adText', 'adStopName', 'adBudget', 'adRadius', 'adPromo', 'adStartDate', 'adStartTime', 'adEndDate', 'adEndTime'].forEach(function(id){
+    document.getElementById(id).addEventListener('input', adPreview);
+    document.getElementById(id).addEventListener('change', adPreview);
+  });
+  document.getElementById('adNewBtn').addEventListener('click', function(){ openAdEditor(null); });
+  document.getElementById('adCloseBtn').addEventListener('click', function(){ document.getElementById('adEditor').classList.add('hidden'); });
+  document.getElementById('adStopAddr').addEventListener('change', function(){ adSetLoc(null, null); });
+
+  document.getElementById('adEvent').addEventListener('change', function(){
+    var ev = adsState.events.find(function(e){ return e.id === this.value; }, this);
+    if (!ev) return;
+    var s = adsState.settings || { lead_days:2, default_text:'' };
+    document.getElementById('adStopName').value = ev.title;
+    document.getElementById('adStopAddr').value = ev.map_query || ev.location || '';
+    var start = new Date(ev.start_date + 'T' + (ev.start_time || '16:00').slice(0, 5));
+    var end = new Date((ev.end_date || ev.start_date) + 'T' + (ev.end_time || '21:00').slice(0, 5));
+    var adStart = new Date(start.getTime() - (s.lead_days || 0) * 86400000);
+    adStart.setHours(10, 0, 0, 0);
+    if (adStart < new Date()) { adStart = new Date(Date.now() + 3600000); adStart.setMinutes(0, 0, 0); }
+    adFillDates(adStart, end);
+    if (s.default_text) document.getElementById('adText').value = s.default_text.replace(/\{stop\}/g, ev.title).replace(/\{when\}/g, adEventWhen(ev));
+    adSetLoc(null, null);
+    adGeocode();
+  });
+  function adGeocode(){
+    var q = document.getElementById('adStopAddr').value.trim();
+    var pin = q.match(/^\s*(-?\d{1,2}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)\s*$/);
+    if (pin) { adSetLoc(+pin[1], +pin[2], 'Map pin'); return; }
+    if (!q) { adSetLoc(null, null, 'Type the address first'); return; }
+    adSetLoc(null, null, 'Looking it up…');
+    fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=us&q=' + encodeURIComponent(q))
+      .then(function(r){ return r.json(); })
+      .then(function(j){
+        if (j && j[0]) adSetLoc(Math.round(+j[0].lat * 1e5) / 1e5, Math.round(+j[0].lon * 1e5) / 1e5, 'Found: ' + String(j[0].display_name || '').split(',').slice(0, 3).join(','));
+        else adSetLoc(null, null, 'Couldn’t find that address. Try a street address, or tap “Use where I am” at the truck.');
+      }, function(){ adSetLoc(null, null, 'Map lookup didn’t answer. Try again, or paste a map pin.'); });
+  }
+  document.getElementById('adFindBtn').addEventListener('click', adGeocode);
+  document.getElementById('adHereBtn').addEventListener('click', function(){
+    if (!navigator.geolocation) { adSetLoc(null, null, 'This device can’t share its location.'); return; }
+    adSetLoc(null, null, 'Getting your location…');
+    navigator.geolocation.getCurrentPosition(function(p){
+      adSetLoc(Math.round(p.coords.latitude * 1e5) / 1e5, Math.round(p.coords.longitude * 1e5) / 1e5, 'Where you are now');
+    }, function(){ adSetLoc(null, null, 'Location blocked. Allow it in the browser, or type the address.'); }, { enableHighAccuracy:true, timeout:10000 });
+  });
+  document.getElementById('adFile').addEventListener('change', function(){
+    var f = this.files && this.files[0], hint = document.getElementById('adFileHint'), img = document.getElementById('adpImg');
+    adsState.file = null;
+    if (!f) return;
+    if (!/^image\/(jpeg|png)$/.test(f.type)) { showMsg('adEditMsg', 'Use a JPG or PNG picture.', 'error'); this.value = ''; return; }
+    if (f.size > 8 * 1024 * 1024) { showMsg('adEditMsg', 'That picture is over 8 MB. Export a smaller one (1080 × 1080 is plenty).', 'error'); this.value = ''; return; }
+    clearMsg('adEditMsg');
+    adsState.file = f;
+    if (adsState.fileUrl) URL.revokeObjectURL(adsState.fileUrl);
+    adsState.fileUrl = URL.createObjectURL(f);
+    img.style.backgroundImage = 'url("' + adsState.fileUrl + '")'; img.classList.add('has');
+    var probe = new Image();
+    probe.onload = function(){
+      var r = probe.width / probe.height;
+      hint.textContent = probe.width + ' × ' + probe.height + (probe.width < 600 ? ' — small; it may look blurry. 1080 × 1080 is best.' : r < 0.8 || r > 1.91 ? ' — Meta will crop this. Square (1080 × 1080) fits best.' : ' — good size.');
+    };
+    probe.src = adsState.fileUrl;
+  });
+
+  function adSave(){
+    var s = adsState.settings || {};
+    var a = adReadDate('adStartDate', 'adStartTime'), b = adReadDate('adEndDate', 'adEndTime');
+    var budget = Math.round(Number(document.getElementById('adBudget').value || 0) * 100);
+    if (a && b && b <= a) return Promise.reject(new Error('The ad has to end after it starts.'));
+    if (b && b <= new Date()) return Promise.reject(new Error('The end date has already passed.'));
+    if (budget < 500) return Promise.reject(new Error('Budget must be at least $5.'));
+    if (s.max_weekly_cents && budget > s.max_weekly_cents) return Promise.reject(new Error('Budget is above the $' + (s.max_weekly_cents / 100) + ' weekly limit set by the admin.'));
+    var upload = Promise.resolve(adsState.keepCreative || { path:null, type:null });
+    if (adsState.file) {
+      var ext = adsState.file.type === 'image/png' ? 'png' : 'jpg';
+      var path = 'flyers/' + adDateVal(new Date()) + '-' + Math.random().toString(36).slice(2, 10) + '.' + ext;
+      upload = sb.storage.from('ad-creatives').upload(path, adsState.file, { contentType: adsState.file.type, upsert:false }).then(function(r){
+        if (r.error) throw new Error('Couldn’t upload the flyer: ' + r.error.message);
+        return { path:path, type:'image' };
+      });
+    }
+    return upload.then(function(cr){
+      return sb.rpc('ads_save_draft', {
+        p_id: adsState.editing ? adsState.editing.id : null,
+        p_event_id: document.getElementById('adEvent').value || null,
+        p_stop_name: document.getElementById('adStopName').value.trim(),
+        p_stop_address: document.getElementById('adStopAddr').value.trim(),
+        p_lat: adsState.lat, p_lng: adsState.lng,
+        p_radius_miles: Number(document.getElementById('adRadius').value),
+        p_start_at: a ? a.toISOString() : null, p_end_at: b ? b.toISOString() : null,
+        p_budget_cents: budget,
+        p_headline: document.getElementById('adHeadline').value.trim(),
+        p_primary_text: adResolvedText().trim(),
+        p_promo_code: document.getElementById('adPromo').value || null,
+        p_creative_path: cr.path, p_creative_type: cr.type
+      }).then(function(r){
+        if (r.error) throw new Error(r.error.message);
+        var row = Array.isArray(r.data) ? r.data[0] : r.data;
+        adsState.editing = row; adsState.file = null;
+        adsState.keepCreative = { path: row.creative_path, type: row.creative_type };
+        return row;
+      });
+    });
+  }
+  function adBusy(btn, on, text){ btn.disabled = on; if (text) btn.textContent = text; }
+  document.getElementById('adSaveBtn').addEventListener('click', function(){
+    var btn = this; adBusy(btn, true, 'Saving…');
+    adSave().then(function(){
+      adBusy(btn, false, 'Save draft');
+      showMsg('adEditMsg', 'Saved. Send it for approval when it’s ready.', 'ok'); loadAds();
+    }, function(e){ adBusy(btn, false, 'Save draft'); showMsg('adEditMsg', e.message, 'error'); });
+  });
+  document.getElementById('adSubmitBtn').addEventListener('click', function(){
+    var btn = this; adBusy(btn, true, 'Sending…');
+    adSave().then(function(row){
+      if (row.status === 'pending_approval') return row;
+      return sb.rpc('ads_submit', { p_id: row.id }).then(function(r){ if (r.error) throw new Error(r.error.message); return r.data; });
+    }).then(function(){
+      adBusy(btn, false, 'Send for approval');
+      document.getElementById('adEditor').classList.add('hidden');
+      showMsg('adsMsg', adsState.isAdmin ? 'Ready. Tap Approve & launch on the ad below to start it.' : 'Sent. An admin will get it on their Today page.', 'ok');
+      loadAds();
+      document.getElementById('adsMsg').scrollIntoView({ behavior:'smooth', block:'center' });
+    }, function(e){ adBusy(btn, false, 'Send for approval'); showMsg('adEditMsg', e.message, 'error'); });
+  });
+
+  // ---- list buttons ----
+  function adLaunch(c, btn){
+    adBusy(btn, true, 'Starting on Meta…');
+    return adsCall({ action:'launch', id:c.id }).then(function(d){
+      if (d.error) showMsg('adsMsg', 'Approved, but it didn’t start: ' + d.error, 'error');
+      else showMsg('adsMsg', 'Launched. Meta checks every ad first (usually within a few hours); it starts showing after that.', 'ok');
+      loadAds();
+    });
+  }
+  document.getElementById('adList').addEventListener('click', function(e){
+    var btn = e.target.closest('[data-ad]');
+    if (!btn) return;
+    var c = adsState.campaigns.find(function(x){ return x.id === btn.getAttribute('data-id'); });
+    if (!c) return;
+    var act = btn.getAttribute('data-ad');
+    clearMsg('adsMsg');
+    if (act === 'edit') return openAdEditor(c);
+    if (act === 'copy') return openAdEditor(c, true);
+    if (act === 'submit') {
+      adBusy(btn, true, 'Sending…');
+      return sb.rpc('ads_submit', { p_id: c.id }).then(function(r){
+        if (r.error) { adBusy(btn, false, 'Send for approval'); showMsg('adsMsg', r.error.message, 'error'); return; }
+        showMsg('adsMsg', 'Sent for approval.', 'ok'); loadAds();
+      });
+    }
+    if (act === 'approve') {
+      var msg = 'Spend up to ' + adMoney(c.budget_cents) + ' on Facebook and Instagram ads?\n\n' +
+        (c.stop_name || 'Stop') + '\n' + adWhenRange(c.start_at, c.end_at) + '\nPeople within ' + Number(c.radius_miles) + ' miles' + (c.promo_code ? '\nOffer: code ' + c.promo_code : '') +
+        '\n\nMeta reviews the ad before it shows. You can pause it any time.';
+      if (!confirm(msg)) return;
+      adBusy(btn, true, 'Approving…');
+      return sb.rpc('ads_approve', { p_id: c.id }).then(function(r){
+        if (r.error) { adBusy(btn, false, 'Approve & launch'); showMsg('adsMsg', r.error.message, 'error'); return; }
+        return adLaunch(c, btn);
+      });
+    }
+    if (act === 'launch') return adLaunch(c, btn);
+    if (act === 'pause' || act === 'resume' || act === 'end') {
+      if (act === 'end' && !confirm('Stop this ad for good? It can’t be restarted (you can copy it into a new one).')) return;
+      adBusy(btn, true, '…');
+      return adsCall({ action: act, id: c.id }).then(function(d){
+        if (d.error) showMsg('adsMsg', d.error, 'error');
+        else showMsg('adsMsg', act === 'pause' ? 'Paused. Nothing more is spent until you resume.' : act === 'resume' ? 'Running again.' : 'Stopped.', 'ok');
+        loadAds();
+      });
+    }
+    if (act === 'cancel') {
+      if (!confirm(c.status === 'draft' ? 'Delete this draft?' : 'Cancel this ad? Nothing has been spent on it.')) return;
+      return sb.rpc('ads_cancel', { p_id: c.id }).then(function(r){
+        if (r.error) showMsg('adsMsg', r.error.message, 'error');
+        loadAds();
+      });
+    }
+  });
+
+  // ---- settings (admin) ----
+  document.getElementById('adSetSave').addEventListener('click', function(){
+    var btn = this; adBusy(btn, true, 'Saving…');
+    sb.rpc('ads_save_settings', {
+      p_weekly_budget_cents: Math.round(Number(document.getElementById('adSetBudget').value || 0) * 100),
+      p_max_weekly_cents: Math.round(Number(document.getElementById('adSetMax').value || 0) * 100),
+      p_default_radius_miles: Number(document.getElementById('adSetRadius').value || 0),
+      p_default_headline: document.getElementById('adSetHeadline').value,
+      p_default_text: document.getElementById('adSetText').value,
+      p_lead_days: Number(document.getElementById('adSetLead').value || 0),
+      p_auto_draft: document.getElementById('adSetAuto').checked
+    }).then(function(r){
+      adBusy(btn, false, 'Save settings');
+      if (r.error) { showMsg('adSetMsg', r.error.message, 'error'); return; }
+      adsState.settings = Array.isArray(r.data) ? r.data[0] : r.data;
+      showMsg('adSetMsg', 'Saved.', 'ok');
+    });
+  });
+
   function loadPromotions(){
     sb.from('promo_codes').select('*').order('created_at', {ascending:false}).then(function(res){
       var tbody = document.getElementById('promoCodesBody');
