@@ -4845,7 +4845,12 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       return new Date(t);
     }
     function fmtMins(mins){ var h = Math.floor(mins / 60), m = mins % 60; return (h % 12 || 12) + ':' + String(m).padStart(2, '0') + ' ' + (h >= 12 ? 'PM' : 'AM'); }
-    function asapOpen(){ var n = parts(new Date()), h = OPEN[n.dow]; return !!h && n.mins >= h[0] && n.mins < h[1] - BUFFER; }
+    // Paused online ordering (growth-pack.sql §6): the staff button stops
+    // all website orders; a corporate event blocks its own time window.
+    // Event-link visitors aren't affected (event_ui.js takes over pickup).
+    var blocks = [], manual = null;
+    function blockAt(ms){ for (var i = 0; i < blocks.length; i++) if (ms >= blocks[i][0] && ms < blocks[i][1]) return blocks[i]; return null; }
+    function asapOpen(){ var n = parts(new Date()), h = OPEN[n.dow]; return !manual && !blockAt(Date.now()) && !!h && n.mins >= h[0] && n.mins < h[1] - BUFFER; }
     function buildDays(){
       var now = new Date(), n = parts(now), earliest = now.getTime() + LEAD * 60000, out = [];
       for (var k = 0; k < DAYS_AHEAD; k++) {
@@ -4854,7 +4859,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         var y = cal.getUTCFullYear(), m = cal.getUTCMonth() + 1, d = cal.getUTCDate(), slots = [];
         for (var t = h[0] + FIRST_AFTER_OPEN; t <= h[1] - BUFFER; t += SLOT) {
           var when = ohioToDate(y, m, d, t);
-          if (when.getTime() >= earliest) slots.push({ iso: when.toISOString(), label: fmtMins(t) });
+          if (when.getTime() >= earliest && !blockAt(when.getTime())) slots.push({ iso: when.toISOString(), label: fmtMins(t) });
         }
         var dateTxt = WD[dow] + ', ' + MON[m - 1] + ' ' + d;
         if (slots.length) out.push({ today: k === 0, date: dateTxt, label: k === 0 ? 'Today' : k === 1 ? 'Tomorrow (' + dateTxt + ')' : dateTxt, slots: slots });
@@ -4915,8 +4920,12 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       // customer pick another day themselves.
       var todayLeft = !!(days[0] && days[0].today);
       if (!keepChoice) mustChoose = !open && !todayLeft;
-      var n = parts(new Date()), h = OPEN[n.dow];
-      note.innerHTML = todayLeft
+      var n = parts(new Date()), h = OPEN[n.dow], blk = blockAt(Date.now());
+      note.innerHTML = manual
+        ? 'Online ordering is paused right now' + (manual.until ? ' until ' + clockOf(manual.until) : '') + '. Please check back soon.'
+        : blk && h && n.mins >= h[0] && n.mins < h[1] - BUFFER
+        ? 'We\u2019re catering a private event right now, so online orders are paused until ' + clockOf(blk[1]) + '. Choose a later pickup time.'
+        : todayLeft
         ? 'We open at ' + fmtMins(h[0]) + ' today. Schedule your pickup: the first time today is ' + days[0].slots[0].label + '.'
         : h && n.mins < h[0]
           ? 'We\u2019re not taking orders for today. You can order ahead: choose a day and time.'
@@ -4938,6 +4947,36 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     daySel.addEventListener('change', fillTimes);
     timeSel.addEventListener('change', paintOtherDay);
 
+    function clockOf(ms){ var d = new Date(ms), p = parts(d), today = parts(new Date()); return (p.d !== today.d ? WD[p.dow] + ' ' : '') + fmtMins(p.mins); }
+    function paintPauseBar(){
+      var bar = document.getElementById('orderPauseBar'), blk = blockAt(Date.now());
+      var onEventLink = window.rollinEvent && window.rollinEvent.info && window.rollinEvent.info();
+      var show = !onEventLink && (manual || blk);
+      if (!show) { if (bar) bar.remove(); return; }
+      if (!bar) {
+        var menu = document.getElementById('menu'); if (!menu) return;
+        bar = document.createElement('div'); bar.id = 'orderPauseBar'; bar.className = 'drop-bar closed'; bar.setAttribute('role', 'status');
+        var wrap = menu.querySelector('.wrap') || menu; wrap.insertBefore(bar, wrap.firstChild);
+      }
+      bar.innerHTML = manual
+        ? '<b>Online ordering is paused right now.</b><span>' + (manual.until ? 'We\u2019ll be back at ' + clockOf(manual.until) + '. ' : 'Please check back soon. ') + 'You can still order at the truck.</span>'
+        : '<b>We\u2019re catering a private event right now.</b><span>Online orders are paused until ' + clockOf(blk[1]) + '. You can order ahead for a later pickup.</span>';
+    }
+    function loadPauseStatus(){
+      var c = window.sbShared; if (!c) return;
+      c.rpc('get_ordering_status').then(function(res){
+        var d = res && !res.error ? res.data : null;
+        if (!d) return;   // older database: nothing paused
+        blocks = (d.blocks || []).map(function(b){ return [Date.parse(b[0]), Date.parse(b[1])]; });
+        manual = d.manual ? { until: d.until ? Date.parse(d.until) : null } : null;
+        window.__rollinOrderingPaused = !!manual;
+        paintPauseBar();
+        if (needed) { refresh(true); if (!asapOpen()) setMode('later'); }
+      }, function(){});
+    }
+    loadPauseStatus();
+    setInterval(loadPauseStatus, 60000);
+
     window.rollinPickup = {
       // Called each time checkout opens. needsTime is false for gift-card-only
       // and catering carts (catering has its own pickup date).
@@ -4952,6 +4991,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       // message if a time is required but none is left.
       value: function(){
         if (!needed) return null;
+        if (manual) throw new Error('Online ordering is paused right now' + (manual.until ? ' until ' + clockOf(manual.until) : '') + '. Please check back soon.');
         refresh(true);
         if (mode === 'asap') return null;
         if (!days.length) throw new Error('No pickup times are available right now. Please call us at (330) 587-5203.');
@@ -5322,6 +5362,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         var wrap = menu.querySelector('.wrap') || menu; wrap.insertBefore(box, wrap.firstChild);
       }
       var s = state(), html = '';
+      var pb = document.getElementById('orderPauseBar'); if (pb && ev) pb.remove();   // a regular-orders pause doesn't apply to the event link
       if (s === 'none' || s === 'canceled') {
         box.className = 'drop-bar closed';
         html = '<b>This event link isn’t active.</b><span>You can still order for pickup at the truck.</span><a href="#" data-ev-leave>Order normally</a>';
