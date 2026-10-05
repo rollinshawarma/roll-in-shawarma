@@ -238,6 +238,12 @@
   #eventQueueBanner .eq b{ font-weight:800; }
   #eventQueueBanner .eq span{ color:var(--muted); font-weight:600; }
   #eventQueueBanner .eq span.on{ color:#39E07F; }
+  #orderPauseBanner{ flex:none; display:flex; flex-wrap:wrap; align-items:center; gap:8px 14px; background:rgba(216,52,46,0.18); border-bottom:2px solid var(--red); color:var(--white); font-size:15px; font-weight:700; padding:9px 24px; }
+  #orderPauseBanner.hidden{ display:none; }
+  #orderPauseBanner.resume{ background:rgba(255,140,26,0.16); border-bottom-color:var(--orange); }
+  #orderPauseBanner .op-apps{ display:flex; flex-wrap:wrap; gap:8px; }
+  #orderPauseBanner button{ font:inherit; font-size:14px; font-weight:700; border-radius:999px; padding:6px 14px; border:1.5px solid rgba(255,255,255,0.5); background:transparent; color:var(--white); cursor:pointer; }
+  #orderPauseBanner button.done{ border-color:var(--green); color:#39E07F; }
   #squareSyncBanner .dismiss{ color:var(--muted); font-weight:600; margin-left:8px; }
   /* ---------- IDLE / MAIN MENU / EMPLOYEE CLOCK-IN ---------- */
   #idleScreen{
@@ -500,6 +506,7 @@
   <div id="squareSyncBanner" class="hidden" role="alert"></div>
   <div id="canceledOrdersBanner" class="hidden"></div>
   <div id="eventQueueBanner" class="hidden" role="status"></div>
+  <div id="orderPauseBanner" class="hidden" role="alert"></div>
   <div id="spotsPanel" class="hidden">
     <div class="recall-panel-head">
       <span>Parking spots <span class="recall-sub">(a spot frees up when its order is marked picked up)</span></span>
@@ -1247,6 +1254,7 @@
         if (window.refreshSpots) window.refreshSpots(false);
         refreshScheduledCount();
         refreshEventQueue();
+        refreshOrderPause();
         lastFetchAt = Date.now();
         updateLastUpdatedDisplay();
       }).catch(function(err){
@@ -1629,6 +1637,41 @@
         }).join('');
       }).catch(function(){});
     }
+    // Online orders paused (staff button or a corporate event): remind the
+    // kitchen to pause the delivery apps on the tablet, and to turn them
+    // back on afterwards. Tapping an app marks it done for everyone.
+    var lastOrderPauseAt = 0, orderPause = null;
+    var OP_APPS = [['doordash', 'DoorDash'], ['ubereats', 'Uber Eats'], ['grubhub', 'Grubhub']];
+    function opName(id){ var a = OP_APPS.find(function(x){ return x[0] === id; }); return a ? a[1] : id; }
+    function refreshOrderPause(force){
+      if (!force && Date.now() - lastOrderPauseAt < 20000) return;
+      lastOrderPauseAt = Date.now();
+      sb.rpc('ordering_pause_admin').then(function(res){ orderPause = res && !res.error ? res.data : null; paintOrderPause(); }).catch(function(){});
+    }
+    function paintOrderPause(){
+      var el = document.getElementById('orderPauseBanner'), d = orderPause;
+      if (!el) return;
+      var resume = d && d.resume ? d.resume : [];
+      if (!d || (!d.paused && !resume.length)) { el.classList.add('hidden'); return; }
+      el.classList.remove('hidden');
+      el.classList.toggle('resume', !d.paused);
+      if (d.paused) {
+        var done = d.paused_partners || [];
+        var until = d.manual ? (d.manual.until ? ' until ' + fmtTime(d.manual.until) : '') : d.event ? ' for ' + d.event.name + ' until ' + fmtTime(d.event.to) : '';
+        el.innerHTML = '<span>PAUSED \u00b7 Website orders paused' + escHtml(until) + '. Pause the delivery apps on the tablet:</span><span class="op-apps">' +
+          OP_APPS.map(function(a){ var on = done.indexOf(a[0]) >= 0;
+            return '<button type="button" class="' + (on ? 'done' : '') + '" data-op="' + a[0] + '" data-op-act="paused"' + (on ? ' data-op-undo="1"' : '') + '>' + (on ? '\u2713 ' + a[1] + ' paused' : a[1]) + '</button>'; }).join('') + '</span>';
+      } else {
+        el.innerHTML = '<span>Website orders are back on. Turn the delivery apps back on:</span><span class="op-apps">' +
+          resume.map(function(r){ return '<button type="button" data-op="' + escHtml(r.partner) + '" data-op-act="resumed" data-op-key="' + escHtml(r.key) + '">' + escHtml(opName(r.partner)) + ' is back on</button>'; }).join('') + '</span>';
+      }
+    }
+    document.getElementById('orderPauseBanner').addEventListener('click', function(e){
+      var b = e.target.closest('[data-op]'); if (!b || !orderPause) return;
+      b.disabled = true;
+      sb.rpc('ordering_pause_ack', { p_key: b.getAttribute('data-op-key') || orderPause.key, p_partner: b.getAttribute('data-op'), p_action: b.getAttribute('data-op-act'), p_undo: !!b.getAttribute('data-op-undo') })
+        .then(function(res){ if (res && !res.error) { orderPause = res.data; paintOrderPause(); } else b.disabled = false; }).catch(function(){ b.disabled = false; });
+    });
     function refreshScheduledCount(force){
       if (!force && Date.now() - lastScheduledCountAt < 30000) return;
       lastScheduledCountAt = Date.now();
