@@ -244,6 +244,25 @@
   #orderPauseBanner .op-apps{ display:flex; flex-wrap:wrap; gap:8px; }
   #orderPauseBanner button{ font:inherit; font-size:14px; font-weight:700; border-radius:999px; padding:6px 14px; border:1.5px solid rgba(255,255,255,0.5); background:transparent; color:var(--white); cursor:pointer; }
   #orderPauseBanner button.done{ border-color:var(--green); color:#39E07F; }
+  /* ---------- Next Door board (same tickets as Corporate Lunch) ---------- */
+  #doorBoard{ height:100%; display:flex; flex-direction:column; }
+  #doorBoard.hidden{ display:none; }
+  #doorHeader{ display:flex; flex-wrap:wrap; align-items:center; gap:10px 8px; padding:14px 20px; border-bottom:1px solid var(--line); flex:none; }
+  #doorHeader h1{ font-family:var(--kds-font); font-size:30px; font-weight:800; color:var(--white); white-space:nowrap; margin-right:10px; }
+  #doorClock{ font-family:var(--kds-font); font-size:26px; font-weight:700; color:var(--white); white-space:nowrap; margin-right:auto; }
+  #doorHeader button{ white-space:nowrap; color:var(--cream); border:1px solid var(--line); border-radius:100px; font-size:15px; font-weight:700; padding:9px 15px; }
+  #doorError{ background:rgba(216,52,46,0.16); color:var(--red); font-size:14.5px; font-weight:700; padding:10px 24px; border-bottom:1px solid var(--red); flex:none; }
+  #doorError.hidden{ display:none; }
+  #doorEvents{ display:flex; flex-wrap:wrap; gap:8px 12px; padding:10px 20px; border-bottom:1px solid var(--line); flex:none; font-size:15px; color:var(--cream); }
+  #doorEvents:empty{ display:none; }
+  #doorCols{ flex:1; min-height:0; display:flex; gap:14px; padding:14px 16px; overflow:hidden; }
+  #doorCols.queue{ flex-direction:column; }
+  #doorCols.queue .lb-list{ flex-direction:row; flex-wrap:wrap; align-content:flex-start; }
+  #doorCols.queue .lt{ width:330px; }
+  .lb-run-done{ margin-left:6px; background:#0a84ff; color:#fff; border-radius:100px; padding:5px 12px; font-size:14px; font-weight:700; }
+  #nextDoorBtn{ color:#7fd3ff !important; border-color:rgba(100,210,255,.55) !important; }
+  .nd-count{ display:inline-block; min-width:22px; margin-left:8px; padding:1px 7px; border-radius:100px; background:#0a84ff; color:#fff; font-size:14px; text-align:center; }
+  .nd-count.zero{ background:#3a3a3c; color:var(--muted); }
   /* ---------- Corporate lunch board: whole-order label tickets ---------- */
   #lunchBoard{ height:100%; display:flex; flex-direction:column; }
   #lunchBoard.hidden{ display:none; }
@@ -288,6 +307,7 @@
   .lt-items li small{ display:block; color:#b3261e; font-size:13.5px; font-weight:600; margin-top:2px; }
   .lt-items li.done > span{ color:#8e8e93; text-decoration:line-through; }
   .lt-tag{ font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-size:12.5px; font-weight:600; color:#3a3a3c; border:1px solid #b9b8b0; border-radius:4px; padding:2px 6px; white-space:nowrap; background:#fff; }
+  .lt-notes.lt-late{ background:#ffe1de; color:#b3261e; }
   .lt-notes{ margin-top:8px; background:#fff6d6; border-radius:6px; padding:6px 8px; font-size:14px; font-weight:600; color:#6b4b00; }
   .lt-foot{ display:flex; align-items:center; gap:10px; margin-top:12px; padding-top:10px; border-top:1px solid #dcdbd4; }
   .lt-time{ font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-size:22px; font-weight:700; font-variant-numeric:tabular-nums; }
@@ -306,6 +326,34 @@
   .lt.compact .lt-time{ font-size:18px; } .lt.compact .lt-btn{ font-size:15px; padding:9px 16px; min-width:90px; }
   .lt.large .lt-ref{ font-size:27px; } .lt.large .lt-items li{ font-size:21px; } .lt.large .lt-time{ font-size:28px; } .lt.large .lt-btn{ font-size:22px; padding:15px 28px; }
   #switchToLunchBtn, #fryerToLunchBtn{ color:#ff8fc1 !important; border-color:rgba(224,96,154,.6) !important; }
+  /* ---------- Main board: Tickets view (whole orders, one tap each) ---------- */
+  #viewToggleBtn, #switchToLunchBtn, #nextDoorBtn{ font-size:15px; font-weight:700; padding:9px 15px; border:1px solid var(--line); border-radius:100px; white-space:nowrap; }
+  #fryerToLunchBtn{ font-size:14px; font-weight:700; padding:8px 14px; border:1px solid var(--line); border-radius:100px; }
+  #viewToggleBtn{ color:#ffd479 !important; border-color:rgba(255,212,121,.55) !important; }
+  body.tickets-mode #itemPanel{ display:none; }
+  body.tickets-mode #queuePanel > .panel-head{ display:none; }
+  body.tickets-mode #queueList{ flex-direction:row; gap:14px; padding:14px 16px; overflow:hidden; }
+  .tk-col{ flex:1; min-width:0; display:flex; flex-direction:column; gap:12px; overflow-y:auto; padding-bottom:20px; }
+  .tk-col-head{ font-family:var(--kds-font); font-size:24px; font-weight:800; color:var(--cream); padding:0 4px; display:flex; justify-content:space-between; }
+  .tk-col-head span{ color:var(--muted); }
+  .tk-col[data-col="cooking"] .tk-col-head{ color:var(--cook); }
+  .tk-col[data-col="ready"] .tk-col-head{ color:var(--ready); }
+  body.tickets-mode .order-card{ background:#f3f2ec; color:#1d1d1f; border:0; border-top:6px solid #1f8a4c; border-radius:6px; flex:none; }
+  body.tickets-mode .order-card.order-allergy{ border-top-color:#d62d20; }
+  body.tickets-mode .order-card .order-ref{ color:#1d1d1f; font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-size:21px; }
+  body.tickets-mode .order-card .order-name{ color:#6e6e73; }
+  body.tickets-mode .order-card .wait-time{ color:#1d1d1f; font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-size:20px; }
+  body.tickets-mode .order-card .scheduled-badge, body.tickets-mode .order-card .curbside-badge, body.tickets-mode .order-card .cash-warning,
+  body.tickets-mode .order-card .order-notes, body.tickets-mode .order-card .sq-sync{ background:#1d1d1f; border-radius:8px; padding:6px 10px; margin-top:8px; }
+  .tk-items{ list-style:none; margin:10px 0 0; padding:0; }
+  .tk-items li{ display:flex; align-items:flex-start; gap:10px; padding:6px 0; border-top:1px solid #dcdbd4; font-size:17px; color:#1d1d1f; }
+  .tk-items li:first-child{ border-top:0; }
+  .tk-items li > span{ flex:1; min-width:0; }
+  .tk-items li.done > span{ color:#8e8e93; text-decoration:line-through; }
+  .tk-items .item-modifier, .tk-items .mod{ color:#b3261e !important; }
+  body.tickets-mode .order-card .pull-prep-btn{ background:#1d1d1f; color:#fff; border:0; font-family:"Inter",sans-serif; font-size:18px; border-radius:10px; padding:12px; }
+  body.tickets-mode .order-card .pull-prep-btn.all-ready-btn{ background:#1f8a4c; }
+  body.tickets-mode .order-card .complete-btn{ background:#0a84ff; color:#fff; border-radius:10px; }
   #squareSyncBanner .dismiss{ color:var(--muted); font-weight:600; margin-left:8px; }
   /* ---------- IDLE / MAIN MENU / EMPLOYEE CLOCK-IN ---------- */
   #idleScreen{
@@ -563,6 +611,8 @@
     <button type="button" id="truckLocBtn" title="Save where the truck is parked (for drive-up check-ins)">&#128205; Truck location</button>
     <button type="button" id="recallBtn">&#8634; Recall</button>
     <button type="button" id="switchToFryerBtn">Switch to Sub Station</button>
+    <button type="button" id="viewToggleBtn" title="Switch between item prep and whole tickets">&#9638; Tickets view</button>
+    <button type="button" id="nextDoorBtn" title="Next Door delivery orders">&#127970; Next Door<span class="nd-count zero" id="nextDoorCount">0</span></button>
     <button type="button" id="switchToLunchBtn">Corporate Lunch</button>
     <button type="button" id="lockBtn">Lock Screen</button>
   </div>
@@ -632,6 +682,19 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<div id="doorBoard" class="hidden">
+  <div id="doorHeader">
+    <h1>Next Door</h1>
+    <div id="doorUpdated" class="board-last-updated">&mdash;</div>
+    <div id="doorClock">&mdash;</div>
+    <button type="button" id="doorToMainBtn">Main Station</button>
+    <button type="button" id="doorLockBtn">Lock Screen</button>
+  </div>
+  <div id="doorError" class="hidden"></div>
+  <div id="doorEvents"></div>
+  <div id="doorCols"></div>
+</div>
+
 <div id="lunchBoard" class="hidden">
   <div id="lunchHeader">
     <h1>Corporate Lunch</h1>
@@ -1182,6 +1245,7 @@
 
     document.getElementById('chooseMainStationBtn').addEventListener('click', function(){
       window.initKdsAudio();
+      if (window.__kdsLoadViewSettings) window.__kdsLoadViewSettings();
       document.getElementById('stationChoiceScreen').classList.add('hidden');
       board.classList.remove('hidden');
       window.startKdsBoard();
@@ -1225,6 +1289,48 @@
       entered = '';
       renderDots();
       if (window.stopKdsBoard) window.stopKdsBoard();
+    });
+
+    // ---- Main board: Items view <-> Tickets view ----
+    // Remembered on this screen; the staff portal sets the default.
+    var VIEW_KEY = 'kdsMainView';
+    function setView(v, save){
+      document.body.classList.toggle('tickets-mode', v === 'tickets');
+      document.getElementById('viewToggleBtn').innerHTML = v === 'tickets' ? '&#9776; Items view' : '&#9638; Tickets view';
+      if (save) { try { localStorage.setItem(VIEW_KEY, v); } catch(e){} }
+      if (window.__kdsMainRefresh && !board.classList.contains('hidden')) window.__kdsMainRefresh();
+    }
+    var savedView = null; try { savedView = localStorage.getItem(VIEW_KEY); } catch(e){}
+    setView(savedView || 'items', false);
+    document.getElementById('viewToggleBtn').addEventListener('click', function(){
+      setView(document.body.classList.contains('tickets-mode') ? 'items' : 'tickets', true);
+    });
+    window.__kdsLoadViewSettings = function(){
+      sb.rpc('kds_event_settings_get').then(function(res){
+        if (!res || res.error || !res.data) return;
+        window.__kdsTags = res.data;
+        var mine = null; try { mine = localStorage.getItem(VIEW_KEY); } catch(e){}
+        setView(mine || res.data.main_view || 'items', false);
+      }).catch(function(){});
+    };
+
+    // ---- Next Door board navigation ----
+    document.getElementById('nextDoorBtn').addEventListener('click', function(){
+      if (window.stopKdsBoard) window.stopKdsBoard();
+      board.classList.add('hidden');
+      document.getElementById('doorBoard').classList.remove('hidden');
+      window.startDoorBoard();
+    });
+    document.getElementById('doorToMainBtn').addEventListener('click', function(){
+      if (window.stopDoorBoard) window.stopDoorBoard();
+      document.getElementById('doorBoard').classList.add('hidden');
+      board.classList.remove('hidden'); window.startKdsBoard(); if (window.refreshTruckLoc) window.refreshTruckLoc();
+    });
+    document.getElementById('doorLockBtn').addEventListener('click', function(){
+      try { sessionStorage.removeItem('kdsUnlocked'); } catch(e){}
+      if (window.stopDoorBoard) window.stopDoorBoard();
+      document.getElementById('doorBoard').classList.add('hidden');
+      pinScreen.classList.remove('hidden'); entered = ''; renderDots();
     });
 
     // ---- Corporate Lunch board navigation ----
@@ -1340,6 +1446,7 @@
       });
     }
 
+    window.__kdsMainRefresh = function(){ fetchAndRender(); };
     function fetchAndRender(){
       sb.rpc('get_kds_board_state').then(function(res){
         if (res.error) {
@@ -1365,6 +1472,7 @@
         refreshScheduledCount();
         refreshEventQueue();
         refreshOrderPause();
+        refreshDoorCount();
         lastFetchAt = Date.now();
         updateLastUpdatedDisplay();
       }).catch(function(err){
@@ -1750,6 +1858,19 @@
     // Online orders paused (staff button or a corporate event): remind the
     // kitchen to pause the delivery apps on the tablet, and to turn them
     // back on afterwards. Tapping an app marks it done for everyone.
+    // The Next Door button shows today's open delivery orders (chimes when one comes in).
+    var lastDoorCountAt = 0, lastDoorCount = null;
+    function refreshDoorCount(){
+      if (Date.now() - lastDoorCountAt < 15000) return;
+      lastDoorCountAt = Date.now();
+      sb.rpc('kds_door_count').then(function(res){
+        var n = res && !res.error ? Number(res.data) || 0 : 0, el = document.getElementById('nextDoorCount');
+        if (!el) return;
+        el.textContent = n; el.classList.toggle('zero', !n);
+        if (lastDoorCount !== null && n > lastDoorCount && window.playOrderSound) window.playOrderSound('website');
+        lastDoorCount = n;
+      }).catch(function(){});
+    }
     var lastOrderPauseAt = 0, orderPause = null;
     var OP_APPS = [['doordash', 'DoorDash'], ['ubereats', 'Uber Eats'], ['grubhub', 'Grubhub']];
     function opName(id){ var a = OP_APPS.find(function(x){ return x[0] === id; }); return a ? a[1] : id; }
@@ -1936,11 +2057,25 @@
         return;
       }
 
+      var TK = document.body.classList.contains('tickets-mode');
+      // Tickets view rebuilds its columns each refresh: keep where each one was scrolled.
+      var tkScroll = {};
+      if (TK) Array.prototype.forEach.call(listEl.querySelectorAll('.tk-col'), function(c){ tkScroll[c.getAttribute('data-col')] = c.scrollTop; });
       listEl.innerHTML = orderIds.map(function(orderId){
         var o = byOrder[orderId];
         var allReady = o.items.every(function(i){ return i.status === 'ready'; });
         if (allReady) pushFulfillmentIfNewlyReady(orderId);
-        var pillsHtml = o.items.map(function(i){
+        var stage = allReady ? 'ready' : o.items.some(function(i){ return !i.drink && i.status !== 'queued'; }) ? 'cooking' : 'next';
+        // Tickets view: one line per item ("2x Falafel shawarma  [Fryer]"), like a printed label.
+        var ticketLines = !TK ? '' : (function(){
+          var g = {}, order = [];
+          o.items.forEach(function(i){ var k = i.name + '|' + i.drink; if (!g[k]) { g[k] = { name: i.name, drink: i.drink, n: 0, done: 0 }; order.push(k); } g[k].n++; if (i.status === 'ready') g[k].done++; });
+          return '<ul class="tk-items">' + order.map(function(k){
+            var T = window.__kdsTags || {}, it = g[k], tag = it.drink ? (T.tag_window || 'Window') : (isFryerItem({ item_name: it.name }) ? (T.tag_fryer || 'Fryer') : (T.tag_line || 'Line'));
+            return '<li class="' + (it.done === it.n && !allReady ? 'done' : '') + '"><span>' + it.n + 'x ' + renderItemNameHtml(it.name) + '</span><em class="lt-tag">' + escHtml(tag) + '</em></li>';
+          }).join('') + '</ul>';
+        })();
+        var pillsHtml = TK ? '' : o.items.map(function(i){
           // queued -> red (default), prepping -> orange, ready -> green --
           // previously prepping looked identical to queued (both just
           // "not ready"), which didn't actually show progress.
@@ -1971,7 +2106,7 @@
               escHtml(notesText) +
             '</div>';
         }
-        return '<div class="order-card' + (allReady ? ' order-complete' : '') + (isCash ? ' order-cash' : '') + (isCurbside ? ' order-curbside' : '') + (isAllergy ? ' order-allergy' : '') + '" data-order-id="' + orderId + '">' +
+        return '<div class="order-card' + (allReady ? ' order-complete' : '') + (isCash ? ' order-cash' : '') + (isCurbside ? ' order-curbside' : '') + (isAllergy ? ' order-allergy' : '') + '" data-order-id="' + orderId + '" data-stage="' + stage + '">' +
           '<div class="order-card-head">' +
             '<span class="order-ref">' + escHtml(o.reference_code || '') + '</span>' +
             '<span class="order-name">' + escHtml(o.customer_name || '') + '</span>' +
@@ -1981,17 +2116,30 @@
           (o.scheduledAt ? '<div class="scheduled-badge">\u23F0 ' + (DELIVERY_APPS[o.source] ? 'Scheduled ' + escHtml(DELIVERY_APPS[o.source]) + ' \u2014 ready by ' : 'Scheduled pickup ') + escHtml(fmtTime(o.scheduledAt)) + '</div>' : '') +
           (isCurbside ? driveUpBadgeHtml(o) : '') +
           notesHtml +
-          '<div class="order-pills">' + pillsHtml + '</div>' +
+          (TK ? ticketLines : '<div class="order-pills">' + pillsHtml + '</div>') +
           (o.items.some(function(i){ return i.status === 'queued' && !i.drink; })
-            ? '<button type="button" class="pull-prep-btn" data-pull="' + orderId + '">Pull to prep</button>'
+            ? '<button type="button" class="pull-prep-btn" data-pull="' + orderId + '">' + (TK ? 'Fire' : 'Pull to prep') + '</button>'
             : (o.items.some(function(i){ return i.status === 'prepping' && !i.drink; })
-              ? '<button type="button" class="pull-prep-btn all-ready-btn" data-all-ready="' + orderId + '">Mark all ready</button>' : '')) +
+              ? '<button type="button" class="pull-prep-btn all-ready-btn" data-all-ready="' + orderId + '">' + (TK ? 'Ready' : 'Mark all ready') + '</button>' : '')) +
           (allReady ? sqSyncHtml(orderId) : '') +
           (allReady ? (DELIVERY_APPS[o.source]
             ? '<button type="button" class="complete-btn delivered-btn" data-order-id="' + orderId + '" data-ref="' + escHtml(o.reference_code || '') + '" data-delivery="1">Delivered</button>'
-            : '<button type="button" class="complete-btn" data-order-id="' + orderId + '">Mark Picked Up</button>') : '') +
+            : '<button type="button" class="complete-btn" data-order-id="' + orderId + '">' + (TK ? 'Picked up' : 'Mark Picked Up') + '</button>') : '') +
         '</div>';
       }).join('');
+      // Tickets view: sort the cards into Up next / Cooking / Ready (FIFO in each).
+      if (TK) {
+        var cols = { next: 'Up next', cooking: 'Cooking', ready: 'Ready' }, cards = Array.prototype.slice.call(listEl.children);
+        var wrap = Object.keys(cols).map(function(k){
+          var c = document.createElement('div'); c.className = 'tk-col'; c.setAttribute('data-col', k);
+          var n = cards.filter(function(x){ return x.getAttribute('data-stage') === k; });
+          c.innerHTML = '<div class="tk-col-head">' + cols[k] + '<span>' + n.length + '</span></div>';
+          n.forEach(function(x){ c.appendChild(x); });
+          if (!n.length) c.insertAdjacentHTML('beforeend', '<div class="queue-empty-hint">Nothing here</div>');
+          return c;
+        });
+        listEl.innerHTML = ''; wrap.forEach(function(c){ listEl.appendChild(c); c.scrollTop = tkScroll[c.getAttribute('data-col')] || 0; });
+      }
 
       listEl.querySelectorAll('.pull-prep-btn').forEach(function(btn){
         btn.addEventListener('click', function(){
@@ -2271,17 +2419,18 @@
   // Event orders as whole label tickets. Up next -> Fire -> Cooking ->
   // Ready (prints the Square ticket) -> Picked up. Settings come from the
   // staff portal (Corporate events -> Kitchen board settings).
-  (function(){
+  // One ticket board, used twice: Corporate Lunch and Next Door (opt).
+  function makeTicketBoard(opt){
     var PUSH_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/push-fulfillment-status';
     var ANON = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
     var COLORS = ['#e0609a', '#3b82f6', '#f59e0b', '#10b981', '#8b5cf6', '#ef4444'];
     var timer = null, tick = null, data = null, seen = null, busy = {}, printState = {}, skew = 0, lastSig = '';
-    var colsEl = document.getElementById('lunchCols');
-    function err(t){ var e = document.getElementById('lunchError'); e.textContent = t || ''; e.classList.toggle('hidden', !t); }
+    var colsEl = document.getElementById(opt.prefix + 'Cols');
+    function err(t){ var e = document.getElementById(opt.prefix + 'Error'); e.textContent = t || ''; e.classList.toggle('hidden', !t); }
     function mmss(ms){ ms = Math.max(0, ms); var s = Math.floor(ms / 1000), m = Math.floor(s / 60); s %= 60; return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s; }
     function now(){ return Date.now() + skew; }
     function cfg(){ return (data && data.settings) || {}; }
-    function evColor(id){ var evs = (data && data.events) || [], i = evs.findIndex(function(e){ return e.id === id; }); return COLORS[(i < 0 ? 0 : i) % COLORS.length]; }
+    function evColor(id){ var evs = (data && (data.events || data.groups)) || [], i = evs.findIndex(function(e){ return e.id === id; }); return COLORS[(i < 0 ? 0 : i) % COLORS.length]; }
     function tagFor(it){
       var c = cfg();
       if (it.drink) return c.tag_window || 'Window';
@@ -2308,7 +2457,7 @@
         var cook = o.fired_at && o.ready_at ? Date.parse(o.ready_at) - Date.parse(o.fired_at) : null;
         t = mmss(now() - Date.parse(o.ready_at || o.created_at)); pct = 100;
         st = '<span class="lt-st">' + (cook != null ? 'Made in ' + mmss(cook) : 'Ready') + '</span>';
-        btn = '<button type="button" class="lt-btn done" data-lt="done" data-id="' + o.id + '">Picked up</button>';
+        btn = '<button type="button" class="lt-btn done" data-lt="done" data-id="' + o.id + '">' + (opt.doneLabel || 'Picked up') + '</button>';
       }
       var items = (o.items || []).filter(function(it){ return c.show_drinks !== false || !it.drink; }).map(function(it){
         return '<li class="' + (it.done && o.stage !== 'ready' ? 'done' : '') + '"><span>' + it.qty + 'x ' + escHtml(it.name) +
@@ -2324,23 +2473,24 @@
       return '<div class="' + cls + (seen && !seen[o.id] ? ' flash' : '') + '" style="--ev:' + evColor(o.event_id) + '" data-order="' + o.id + '">' +
         '<div class="lt-head"><span class="lt-sq"></span><span class="lt-ref">' + escHtml(o.ref || '') + '</span>' +
           (c.show_name !== false ? '<span class="lt-name">' + escHtml(shortName(o.name)) + '</span>' : '') + '</div>' +
-        (c.show_event !== false ? '<div class="lt-ev">' + escHtml(o.event || '') + (o.tab ? ' · Company tab' : ' · Paid') + '</div>' : '') +
+        (c.show_event !== false ? '<div class="lt-ev">' + (opt.evLine ? opt.evLine(o) : escHtml(o.event || '') + (o.tab ? ' · Company tab' : ' · Paid')) + '</div>' : '') +
         '<ul class="lt-items">' + items + '</ul>' +
         (c.show_notes !== false && o.notes ? '<div class="lt-notes">' + escHtml(o.notes) + '</div>' : '') +
+        (o.late ? '<div class="lt-notes lt-late">\u26A0 Paid after last orders \u2014 check it can still go on this run</div>' : '') +
         '<div class="lt-foot"><span class="lt-time">' + t + '</span>' + st + extra + btn + '</div>' +
         '<div class="lt-bar"><i style="width:' + pct.toFixed(1) + '%"></i></div>' + print + '</div>';
     }
     function render(){
       if (!data) return;
       var c = cfg(), orders = data.orders || [];
-      document.getElementById('lunchEvents').innerHTML = (data.events || []).map(function(e){
+      document.getElementById(opt.prefix + 'Events').innerHTML = opt.chips ? opt.chips(data, evColor) : (data.events || []).map(function(e){
         return '<div class="lb-ev" style="--ev:' + evColor(e.id) + '"><i></i><b>' + escHtml(e.name) + '</b><span>' + e.on_board + ' up · ' + e.waiting + ' in line · ' + e.cooking + ' cooking · ' + e.done + ' done</span></div>';
       }).join('');
       var waiting = (data.events || []).reduce(function(a, e){ return a + (e.waiting || 0); }, 0);
-      var more = waiting ? '<div class="lb-more">+' + waiting + ' more in line — the next one shows when you Fire</div>' : '';
+      var more = opt.more ? opt.more(data) : waiting ? '<div class="lb-more">+' + waiting + ' more in line — the next one shows when you Fire</div>' : '';
       colsEl.classList.toggle('queue', c.columns === 'queue');
       if (c.columns === 'queue') {
-        colsEl.innerHTML = '<div class="lb-col"><div class="lb-list">' + (orders.length ? orders.map(ticketHtml).join('') : '<div class="lb-empty">No event orders right now.</div>') + more + '</div></div>';
+        colsEl.innerHTML = '<div class="lb-col"><div class="lb-list">' + (orders.length ? orders.map(ticketHtml).join('') : '<div class="lb-empty">' + (opt.emptyText || 'No event orders right now.') + '</div>') + more + '</div></div>';
       } else {
         var col = function(key, label, list, tail){
           return '<div class="lb-col" data-col="' + key + '"><div class="lb-col-head">' + label + '<span>' + list.length + '</span></div><div class="lb-list">' +
@@ -2369,17 +2519,17 @@
       });
     }
     function fetchBoard(){
-      sb.rpc('get_kds_event_board').then(function(res){
+      sb.rpc(opt.rpc).then(function(res){
         if (res.error) {
           if (typeof isKitchenAuthError === 'function' && isKitchenAuthError(res.error)) { renewKitchenLogin(fetchBoard, function(){ err(KITCHEN_LOGIN_EXPIRED_MSG); }); return; }
           err('Could not load the lunch board — ' + (res.error.message || 'unknown error') + (/does not exist|could not find/i.test(res.error.message || '') ? ' (run growth-pack.sql)' : ''));
           return;
         }
         err(''); var d = res.data || {}; if (d.now) skew = Date.parse(d.now) - Date.now();
-        var sig = JSON.stringify([d.orders, d.events, d.settings]);
+        var sig = JSON.stringify([d.orders, d.events, d.groups, d.settings]);
         data = d;
         if (sig !== lastSig) { lastSig = sig; render(); } else updateTimes();   // redraw only when something changed
-        document.getElementById('lunchUpdated').textContent = 'Updated just now';
+        document.getElementById(opt.prefix + 'Updated').textContent = 'Updated just now';
       }, function(){ err("Couldn't reach the server — check your connection."); });
     }
     function authFetch(body){
@@ -2410,17 +2560,48 @@
         fetchBoard();
       }, function(){ busy[id] = false; b.disabled = false; err("Couldn't reach the server — check your connection."); });
     });
-    window.startLunchBoard = function(){
+    // Whole run delivered (Next Door): every Ready ticket of that run at once.
+    var chipsEl = document.getElementById(opt.prefix + 'Events');
+    chipsEl.addEventListener('click', function(e){
+      var b = e.target.closest('[data-run-done]'); if (!b || !data) return;
+      var key = b.getAttribute('data-run-done');
+      var ids = (data.orders || []).filter(function(o){ return o.event_id === key && o.stage === 'ready'; }).map(function(o){ return o.id; });
+      if (!ids.length) return;
+      b.disabled = true; b.textContent = 'Marking ' + ids.length + ' delivered\u2026';
+      var chain = Promise.resolve();
+      ids.forEach(function(id){ chain = chain.then(function(){ return sb.rpc('kds_complete_order', { p_order_id: id }).then(function(res){ if (!res.error) authFetch({ orderId: id, action: 'complete' }).catch(function(){}); }); }); });
+      chain.then(fetchBoard, function(){ err("Couldn't reach the server \u2014 check your connection."); fetchBoard(); });
+    });
+    window[opt.start] = function(){
       if (timer) return;
       seen = null; lastSig = ''; fetchBoard();
       timer = setInterval(fetchBoard, 4000);
       tick = setInterval(function(){
         updateTimes();
-        document.getElementById('lunchClock').textContent = new Date().toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' });
+        document.getElementById(opt.prefix + 'Clock').textContent = new Date().toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' });
       }, 1000);
     };
-    window.stopLunchBoard = function(){ clearInterval(timer); clearInterval(tick); timer = tick = null; };
-  })();
+    window[opt.stop] = function(){ clearInterval(timer); clearInterval(tick); timer = tick = null; };
+  }
+  makeTicketBoard({ prefix: 'lunch', rpc: 'get_kds_event_board', start: 'startLunchBoard', stop: 'stopLunchBoard' });
+  // Next Door delivery: tickets grouped by delivery run; each run shows
+  // in the kitchen shortly before it leaves.
+  function doorTime(iso){ return new Date(iso).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }); }
+  makeTicketBoard({
+    prefix: 'door', rpc: 'get_kds_door_board', start: 'startDoorBoard', stop: 'stopDoorBoard',
+    doneLabel: 'Delivered', emptyText: 'No Next Door orders to make right now.',
+    evLine: function(o){ return 'Delivery ' + escHtml(doorTime(o.run_at)) + ' \u00b7 ' + escHtml(o.event || ''); },
+    more: function(d){
+      var later = (d.groups || []).filter(function(g){ return g.total > g.up; });
+      return later.map(function(g){ return '<div class="lb-more">' + (g.total - g.up) + ' more for the ' + escHtml(doorTime(g.run_at)) + ' run \u2014 they show at ' + escHtml(doorTime(g.shows_at)) + '</div>'; }).join('');
+    },
+    chips: function(d, color){
+      return (d.groups || []).map(function(g){
+        return '<div class="lb-ev" style="--ev:' + color(g.id) + '"><i></i><b>' + escHtml(doorTime(g.run_at)) + ' run \u00b7 ' + escHtml(g.place) + '</b><span>' + g.total + ' order' + (g.total === 1 ? '' : 's') + ' \u00b7 ' + g.ready + ' ready</span>' +
+          (g.ready ? '<button type="button" class="lb-run-done" data-run-done="' + escHtml(g.id) + '">Mark ' + g.ready + ' delivered</button>' : '') + '</div>';
+      }).join('');
+    }
+  });
 </script>
 </body>
 </html>
