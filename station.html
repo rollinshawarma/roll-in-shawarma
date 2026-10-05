@@ -325,6 +325,7 @@
   .lt.compact{ padding:10px 12px 9px; } .lt.compact .lt-ref{ font-size:17px; } .lt.compact .lt-items li{ font-size:15px; padding:4px 0; }
   .lt.compact .lt-time{ font-size:18px; } .lt.compact .lt-btn{ font-size:15px; padding:9px 16px; min-width:90px; }
   .lt.large .lt-ref{ font-size:27px; } .lt.large .lt-items li{ font-size:21px; } .lt.large .lt-time{ font-size:28px; } .lt.large .lt-btn{ font-size:22px; padding:15px 28px; }
+  #switchToLunchBtn.hidden, #fryerToLunchBtn.hidden, #chooseLunchBtn.hidden{ display:none !important; }
   #switchToLunchBtn, #fryerToLunchBtn{ color:#ff8fc1 !important; border-color:rgba(224,96,154,.6) !important; }
   /* ---------- Main board: Tickets view (whole orders, one tap each) ---------- */
   #viewToggleBtn, #switchToLunchBtn, #nextDoorBtn{ font-size:15px; font-weight:700; padding:9px 15px; border:1px solid var(--line); border-radius:100px; white-space:nowrap; }
@@ -597,7 +598,7 @@
 <div id="stationChoiceScreen" class="hidden">
   <button type="button" class="menu-choice-btn" id="chooseMainStationBtn">Main Station</button>
   <button type="button" class="menu-choice-btn" id="chooseSubStationBtn">Sub Station</button>
-  <button type="button" class="menu-choice-btn" id="chooseLunchBtn">Corporate Lunch</button>
+  <button type="button" class="menu-choice-btn hidden" id="chooseLunchBtn">Corporate Lunch</button>
   <button type="button" id="stationChoiceBackBtn">&larr; Back to menu</button>
 </div>
 
@@ -613,7 +614,7 @@
     <button type="button" id="switchToFryerBtn">Switch to Sub Station</button>
     <button type="button" id="viewToggleBtn" title="Switch between item prep and whole tickets">&#9638; Tickets view</button>
     <button type="button" id="nextDoorBtn" title="Next Door delivery orders">&#127970; Next Door<span class="nd-count zero" id="nextDoorCount">0</span></button>
-    <button type="button" id="switchToLunchBtn">Corporate Lunch</button>
+    <button type="button" id="switchToLunchBtn" class="hidden">Corporate Lunch</button>
     <button type="button" id="lockBtn">Lock Screen</button>
   </div>
   <div id="boardErrorBanner" class="hidden"></div>
@@ -664,7 +665,7 @@
     <div id="fryerBoardLastUpdated" class="board-last-updated">&mdash;</div>
     <div id="fryerBoardClock">&mdash;</div>
     <button type="button" id="switchToMainBtn">Switch to Main Station</button>
-    <button type="button" id="fryerToLunchBtn">Corporate Lunch</button>
+    <button type="button" id="fryerToLunchBtn" class="hidden">Corporate Lunch</button>
     <button type="button" id="fryerLockBtn">Lock Screen</button>
   </div>
   <div id="fryerBoardErrorBanner" class="hidden"></div>
@@ -808,6 +809,19 @@
     if (modifierText) html += '<span class="item-modifier">' + escHtml(modifierText) + '</span>';
     return html;
   }
+
+  // ---------------- Corporate Lunch button: only when an event is on ----------------
+  // (today, from 3 h before it starts to 2 h after it ends, or event orders still open)
+  var lunchVisAt = 0;
+  window.refreshLunchVisibility = function(force){
+    if (!force && Date.now() - lunchVisAt < 30000) return;
+    lunchVisAt = Date.now();
+    if (typeof sb === 'undefined' || !sb) return;
+    sb.rpc('kds_has_events').then(function(res){
+      var on = !!(res && !res.error && res.data === true);
+      ['chooseLunchBtn', 'switchToLunchBtn', 'fryerToLunchBtn'].forEach(function(id){ var b = document.getElementById(id); if (b) b.classList.toggle('hidden', !on); });
+    }).catch(function(){});
+  };
 
   // ---------------- Sound system ----------------
   // Distinct per-source tones so staff can tell where a new order
@@ -957,6 +971,7 @@
       if (alreadyUnlocked) {
         pinScreen.classList.add('hidden');
         document.getElementById('stationChoiceScreen').classList.remove('hidden');
+        if (window.refreshLunchVisibility) window.refreshLunchVisibility(true);
       } else {
         showOnly(pinScreen);
       }
@@ -1239,6 +1254,7 @@
     });
 
     function unlockBoard(){
+      if (window.refreshLunchVisibility) window.refreshLunchVisibility(true);
       pinScreen.classList.add('hidden');
       document.getElementById('stationChoiceScreen').classList.remove('hidden');
     }
@@ -1471,6 +1487,7 @@
         if (window.refreshSpots) window.refreshSpots(false);
         refreshScheduledCount();
         refreshEventQueue();
+        if (window.refreshLunchVisibility) window.refreshLunchVisibility();
         refreshOrderPause();
         refreshDoorCount();
         lastFetchAt = Date.now();
@@ -2294,6 +2311,7 @@
         }
         clearFryerError();
         var fryerRows = res.data.filter(isFryerItem);
+        if (window.refreshLunchVisibility) window.refreshLunchVisibility();
         detectNewFryerOrdersAndPlaySounds(fryerRows);
         renderFryerItemPanel(fryerRows);
         checkForFryerCanceledOrders();
