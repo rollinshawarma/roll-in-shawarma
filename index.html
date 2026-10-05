@@ -1089,6 +1089,18 @@ body.ev-tab-mode #rewardSection, body.ev-tab-mode #coPointsLine{ display:none !i
 .drop-bar.closed a{ color:#6b3d00; }
 .drop-co-note{ background:#f5f5f7; border-radius:14px; padding:12px 14px; margin:4px 0 14px; font-size:14px; color:#3a3a3c; line-height:1.45; }
 .drop-co-note b{ display:block; color:#1d1d1f; }
+
+/* ---- Next Door delivery ---- */
+body.door-wait #menu .wrap > *:not(#doorBar){ visibility:hidden; }
+body.door-mode .delivery-strip{ display:none !important; }
+.door-bar .door-runs{ display:flex; flex-wrap:wrap; gap:8px; margin:6px 0 4px; }
+.door-run{ display:flex; flex-direction:column; align-items:flex-start; background:#2c2c2e; color:#fff; border:2px solid transparent; border-radius:14px; padding:10px 14px; font-size:16px; font-weight:700; cursor:pointer; min-width:132px; text-align:left; }
+.door-run small{ font-size:12px; font-weight:500; color:#d2d2d7; margin-top:2px; }
+.door-run.on{ background:#fff; color:#1d1d1f; border-color:#fff; }
+.door-run.on small{ color:#6e6e73; }
+.door-run:disabled{ opacity:.45; cursor:not-allowed; }
+.door-bar .door-lost{ color:#ffd479; font-weight:700; }
+.door-run:focus-visible{ outline:3px solid #ffd479; outline-offset:2px; }
 </style>
 <script type="application/ld+json">
 {
@@ -3249,6 +3261,9 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         menuContainer.innerHTML = '<p class="menu-loading-hint">Menu unavailable right now &mdash; please call us at (330) 587-5203.</p>';
         return;
       }
+      // Next Door links show a short menu (door_ui.js decides when and what).
+      window.__rollinMenuRows = res.data; window.__rollinRenderMenu = renderMenu;
+      if (window.rollinMenuGate && window.rollinMenuGate(res.data)) return;
       renderMenu(res.data);
     });
 
@@ -3616,7 +3631,9 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       document.getElementById('coItemsList').innerHTML = lines.join('');
       var when = cart.length && window.rollinPickup ? window.rollinPickup.label() : '';
       var how = cart.length && window.rollinPickup && window.rollinPickup.method() === 'curbside' ? ' \u00b7 Drive-up' : (cart.length && window.rollinPickup && window.rollinPickup.method() ? ' \u00b7 At the window' : '');
-      document.getElementById('coForLine').textContent = 'For ' + order.payload.customerName + (when ? ' \u00b7 Pickup ' + when : '') + how;
+      var doorInfo = window.rollinDoor && window.rollinDoor.info && window.rollinDoor.info();
+      if (doorInfo) { how = ''; }   // Next Door: delivered, so no pickup words
+      document.getElementById('coForLine').textContent = 'For ' + order.payload.customerName + (when ? ' \u00b7 ' + (doorInfo ? when + ' to ' + doorInfo.place : 'Pickup ' + when) : '') + how;
       var od = document.getElementById('coOtherDay'), other = cart.length && window.rollinPickup && window.rollinPickup.otherDay();
       od.classList.toggle('hidden', !other);
       if (other) od.innerHTML = '<b>Heads up: this order is not for today.</b> Pickup is <b>' + escHtml(when) + '</b>. We\u2019ve stopped taking orders for today.';
@@ -3744,6 +3761,8 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
           pickupOtherDay: scheduledPickupAt && window.rollinPickup && window.rollinPickup.otherDay() ? true : undefined,
           eventCode: window.rollinEvent ? window.rollinEvent.code() : undefined,
           eventToken: window.rollinEvent && window.rollinEvent.token ? window.rollinEvent.token() : undefined,
+          doorCode: window.rollinDoor ? window.rollinDoor.code() : undefined,
+          doorSlot: window.rollinDoor ? window.rollinDoor.slot() : undefined,
           adRef: (function(){ try { var a = JSON.parse(localStorage.getItem('rollinAdRef') || 'null'); return a && a.t > Date.now() - 7 * 864e5 ? a.r : undefined; } catch (e) { return undefined; } })()
         }
       };
@@ -3772,13 +3791,14 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
             return d;
           }
           if ((d.code === 'CLOSED' || d.code === 'BAD_PICKUP_TIME' || d.code === 'OTHER_DAY') && window.rollinPickup) { window.rollinPickup.forceSchedule(); showCoStep('details'); }
+          if (/^DOOR_(SLOT|OFF)$/.test(d.code || '') && window.rollinDoor) window.rollinDoor.reload();
           if (/^EVENT_VERIFY/.test(d.code || '') && window.rollinEvent && window.rollinEvent.resetVerify) window.rollinEvent.resetVerify();
           if (/^REWARD_/.test(d.code || '') && window.rollinRewards) { window.rollinRewards.reload(); showCoStep('details'); }
           if (d.code === 'TOTAL_CHANGED') {
             // A price changed since the menu loaded: reload today's prices
             // so the next tap shows (and Apple Pay approves) the real total.
             sbShared.rpc('get_public_menu').then(function(res){
-              if (res && !res.error && Array.isArray(res.data) && res.data.length) renderMenu(res.data);
+              if (res && !res.error && Array.isArray(res.data) && res.data.length) renderMenu(window.rollinMenuFilter ? window.rollinMenuFilter(res.data) : res.data);
               refreshCheckoutBreakdown();
             }, function(){ refreshCheckoutBreakdown(); });
           }
@@ -4950,7 +4970,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     function clockOf(ms){ var d = new Date(ms), p = parts(d), today = parts(new Date()); return (p.d !== today.d ? WD[p.dow] + ' ' : '') + fmtMins(p.mins); }
     function paintPauseBar(){
       var bar = document.getElementById('orderPauseBar'), blk = blockAt(Date.now());
-      var onEventLink = window.rollinEvent && window.rollinEvent.info && window.rollinEvent.info();
+      var onEventLink = (window.rollinEvent && window.rollinEvent.info && window.rollinEvent.info()) || (window.rollinDoor && window.rollinDoor.info && window.rollinDoor.info());
       var show = !onEventLink && (manual || blk);
       if (!show) { if (bar) bar.remove(); return; }
       if (!bar) {
@@ -5310,7 +5330,11 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
   (function(){
     var KEY = 'rollinEvent';
     var code = '';
-    try { code = (new URLSearchParams(location.search).get('event') || sessionStorage.getItem(KEY) || '').trim().toUpperCase(); } catch (e) {}
+    try {
+      var qs = new URLSearchParams(location.search);
+      if (qs.get('door') && !qs.get('event')) { sessionStorage.removeItem(KEY); return; }   // a delivery link wins over an earlier event link
+      code = (qs.get('event') || sessionStorage.getItem(KEY) || '').trim().toUpperCase();
+    } catch (e) {}
     if (!/^[A-Z0-9]{4,12}$/.test(code)) return;
     var ev = null, timer = null;
     var TZ = 'America/New_York';
@@ -5590,6 +5614,147 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       // keep the food-vs-allowance line current while the cart changes
       document.addEventListener('click', function(){ if (isTab()) setTimeout(paintCheckout, 50); });
     });
+  })();
+  // ---- Next Door delivery: rollinshawarma.com/?door=CODE ----
+  // A short menu for a neighboring building. Guests pick a delivery run
+  // (e.g. 6:30 PM; 8:30 PM on weekends) and pay as usual. The server
+  // checks the menu, the run and the on/off switch again.
+  (function(){
+    var KEY = 'rollinDoor';
+    var code = '';
+    try {
+      var qs = new URLSearchParams(location.search);
+      // An event link opened in the same tab wins over an earlier delivery link.
+      if (qs.get('event') && !qs.get('door')) { sessionStorage.removeItem(KEY); return; }
+      code = (qs.get('door') || sessionStorage.getItem(KEY) || '').trim().toUpperCase();
+    } catch (e) {}
+    if (!/^[A-Z0-9]{4,12}$/.test(code)) return;
+    var TZ = 'America/New_York', prog = null, loaded = false, run = null, picked = false, lost = '', rows = null, rendered = false;
+    function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); }
+    function clock(iso){ return new Date(iso).toLocaleTimeString('en-US', { timeZone: TZ, hour: 'numeric', minute: '2-digit' }); }
+    function dayKey(d){ return new Date(d).toLocaleDateString('en-CA', { timeZone: TZ }); }
+    function runLabel(r){
+      var today = dayKey(Date.now()), tomorrow = dayKey(Date.now() + 86400000), k = dayKey(r.at);
+      var day = k === today ? 'Today' : k === tomorrow ? 'Tomorrow' : new Date(r.at).toLocaleDateString('en-US', { timeZone: TZ, weekday: 'short' });
+      return day + ' ' + clock(r.at);
+    }
+    function openRuns(){ return prog && prog.active ? (prog.runs || []).filter(function(r){ return !r.blocked && Date.parse(r.cutoff) > Date.now(); }) : []; }
+    function canOrder(){ return !!prog && prog.active && !!run && openRuns().some(function(r){ return r.at === run && !r.full; }); }
+    function leave(e){
+      if (e) e.preventDefault();
+      try { sessionStorage.removeItem(KEY); } catch (x) {}
+      var u = new URL(location.href); u.searchParams.delete('door');
+      location.replace(u.pathname + u.search + '#menu');
+    }
+    window.rollinDoor = {
+      code: function(){ return prog ? prog.code : undefined; },
+      slot: function(){ return run || undefined; },
+      info: function(){ return prog; },
+      reload: function(){ load(); },
+      leave: leave
+    };
+    document.body.classList.add('door-mode', 'door-wait');   // menu hidden until the short menu is known
+
+    // Short menu: the menu waits for the program, then shows only its items
+    // (combo add-ons and deal picks stay, they belong to their main item).
+    function filterRows(all){
+      if (!prog) return all;
+      var ok = {}; (prog.menu_item_ids || []).forEach(function(id){ ok[id] = true; });
+      return all.filter(function(it){ return ok[it.id] || it.category === 'Combo Add-ons' || it.category === 'Deal Selections'; });
+    }
+    window.rollinMenuFilter = function(all){ return filterRows(all); };
+    window.rollinMenuGate = function(all){
+      rows = all;
+      if (!loaded) return true;          // render once the program is in
+      if (!prog) return false;           // not a working link: the full menu as usual
+      rendered = false; renderShortMenu();
+      return true;
+    };
+    function renderShortMenu(){
+      if (!rows && window.__rollinMenuRows) rows = window.__rollinMenuRows;   // the menu loaded before this script
+      if (rendered || !rows || !window.__rollinRenderMenu) return;
+      rendered = true;
+      window.__rollinRenderMenu(filterRows(rows));
+    }
+
+    function paint(){
+      var bar = document.getElementById('doorBar');
+      if (!bar) {
+        var menu = document.getElementById('menu'); if (!menu) return;
+        bar = document.createElement('div'); bar.id = 'doorBar'; bar.setAttribute('role', 'region'); bar.setAttribute('aria-label', 'Delivery time');
+        var wrap = menu.querySelector('.wrap') || menu; wrap.insertBefore(bar, wrap.firstChild);
+      }
+      var pb = document.getElementById('orderPauseBar'); if (pb) pb.remove();
+      if (!prog) {
+        bar.className = 'drop-bar closed';
+        bar.innerHTML = '<b>This delivery link isn’t active.</b><span>You can still order for pickup at the truck.</span><a href="#" data-door-leave>Order for pickup</a>';
+      } else if (!prog.active) {
+        bar.className = 'drop-bar closed';
+        bar.innerHTML = '<b>' + esc(prog.name) + ' delivery is off right now.</b><span>' + (prog.paused ? 'Online ordering is paused. Please check back soon.' : 'Check back on our next delivery day.') + '</span>';
+      } else {
+        var runs = openRuns();
+        // The guest's chosen time closed or filled while they were ordering:
+        // don't quietly swap in another one, ask them to pick again.
+        if (run && !runs.some(function(r){ return r.at === run && !r.full; })) { if (picked) lost = runLabel({ at: run }); run = null; picked = false; }
+        if (!run && !lost) { var first = runs.find(function(r){ return !r.full; }); if (first && dayKey(first.at) === dayKey(Date.now())) run = first.at; }
+        bar.className = 'drop-bar door-bar';
+        bar.innerHTML = '<div class="drop-kicker">' + esc(prog.name) + ' delivery</div><b>' + esc(prog.place) + '</b>' +
+          (lost ? '<span class="door-lost">Your ' + esc(lost) + ' delivery just closed. Please pick another time.</span>' : '') +
+          (runs.length
+            ? '<span>Pick your delivery time:</span><div class="door-runs">' + runs.slice(0, 4).map(function(r){
+                return '<button type="button" class="door-run' + (r.at === run ? ' on' : '') + '" data-run="' + esc(r.at) + '"' + (r.full ? ' disabled' : '') + ' aria-pressed="' + (r.at === run) + '">' +
+                  esc(runLabel(r)) + '<small>' + (r.full ? 'Full' : 'Order by ' + esc(clock(r.cutoff))) + '</small></button>';
+              }).join('') + '</div>'
+            : '<span>No more deliveries are open right now. Check back on our next delivery day.</span>') +
+          (prog.drop_note ? '<span>We bring it to: ' + esc(prog.drop_note) + '</span>' : '') +
+          '<a href="#" data-door-leave>Not in ' + esc(prog.place) + '? Order for pickup at the truck</a>';
+      }
+      Array.prototype.forEach.call(bar.querySelectorAll('[data-door-leave]'), function(a){ a.onclick = leave; });
+      Array.prototype.forEach.call(bar.querySelectorAll('[data-run]'), function(b){ b.onclick = function(){ run = b.getAttribute('data-run'); picked = true; lost = ''; paint(); }; });
+      paintCheckout();
+    }
+    function paintCheckout(){
+      var note = document.getElementById('doorCheckoutNote');
+      if (note) note.innerHTML = canOrder() ? '<b>Delivery ' + esc(runLabel({ at: run })) + '</b>to ' + esc(prog.place) + (prog.drop_note ? ' · ' + esc(prog.drop_note) : '') : '';
+    }
+    // Checkout: the delivery run replaces the pickup time.
+    function wrapPickup(){
+      var P = window.rollinPickup, sec = document.getElementById('pickupTimeSection');
+      if (!P || P.__door) return;
+      var orig = { setup: P.setup };
+      var note = document.getElementById('doorCheckoutNote');
+      if (!note && sec) { note = document.createElement('div'); note.id = 'doorCheckoutNote'; note.className = 'drop-co-note'; sec.parentNode.insertBefore(note, sec); }
+      P.__door = true;
+      P.setup = function(needs){ orig.setup(needs); if (sec) sec.classList.add('hidden'); paintCheckout(); };
+      P.value = function(){
+        if (!prog || !prog.active) throw new Error((prog ? prog.name + ' delivery is off right now.' : 'This delivery link isn’t active.'));
+        if (!canOrder()) { var b = document.getElementById('doorBar'); if (b) setTimeout(function(){ b.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 300); throw new Error('Pick a delivery time at the top of the menu.'); }
+        return run;
+      };
+      P.method = function(){ return 'window'; };
+      P.car = function(){ return ''; };
+      P.otherDay = function(){ return false; };
+      P.label = function(){ return run ? 'Delivery ' + runLabel({ at: run }) : ''; };
+      P.forceSchedule = function(){ load(); };
+    }
+
+    function load(){
+      var client = window.sbShared; if (!client) return;
+      client.rpc('get_door_program', { p_code: code }).then(function(res){
+        var d = res && !res.error ? res.data : null;
+        if (Array.isArray(d)) d = d[0];
+        prog = d && d.code ? d : null;
+        loaded = true;
+        try { if (prog) sessionStorage.setItem(KEY, code); else sessionStorage.removeItem(KEY); } catch (x) {}
+        document.body.classList.remove('door-wait');
+        if (!prog) { document.body.classList.remove('door-mode'); window.rollinMenuFilter = null; }
+        wrapPickup();
+        paint();
+        if (prog) renderShortMenu(); else if (rows && window.__rollinRenderMenu && !rendered) { rendered = true; window.__rollinRenderMenu(rows); }
+      }, function(){ loaded = true; document.body.classList.remove('door-wait'); if (rows && window.__rollinRenderMenu && !rendered) { rendered = true; window.__rollinRenderMenu(rows); } });
+    }
+    load();
+    setInterval(function(){ if (prog) load(); }, 60000);   // cutoffs pass, runs fill up
   })();
   // ---- Gift card preview follows the chosen amount ----
   (function(){
