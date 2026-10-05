@@ -802,10 +802,10 @@
           escHtml(doorLabel(r.at)) + '<small>' + (r.full ? 'Full' : 'Order by ' + escHtml(doorClock(r.cutoff))) + '</small></button>';
       }).join('');
       $('doorStrip').innerHTML = '<div class="door-kicker">' + escHtml(doorProg.name) + ' delivery</div><div class="door-place">' + escHtml(doorProg.place) + '</div>' +
-        (runs.length ? '<div class="door-runs">' + chips + '</div>' : '<div class="door-note warn">No more deliveries are open right now. Check back on our next delivery day.</div>') +
+        (runs.length ? '<div class="door-runs">' + chips + '</div>' : '<div class="door-note warn">No more deliveries today. We take same-day orders only, so check back tomorrow.</div>') +
         (doorLost ? '<div class="door-note warn">Your ' + escHtml(doorLost) + ' delivery just closed. Please pick another time.</div>' : '') +
         (doorProg.drop_note ? '<div class="door-note">We bring it to: ' + escHtml(doorProg.drop_note) + '</div>' : '');
-      $('doorRunsCo').innerHTML = runs.length ? chips : '<p class="door-where">No delivery times are open right now.</p>';
+      $('doorRunsCo').innerHTML = runs.length ? chips : '<p class="door-where">No more deliveries today.</p>';
       $('doorWhere').textContent = 'Delivered to ' + doorProg.place + (doorProg.drop_note ? ' \u00b7 ' + doorProg.drop_note : '') + '.';
       $('doorSec').classList.toggle('invalid', false);
     }
