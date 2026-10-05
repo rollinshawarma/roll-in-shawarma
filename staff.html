@@ -560,6 +560,26 @@
   .lt.large .lt-ref{ font-size:27px; } .lt.large .lt-items li{ font-size:21px; } .lt.large .lt-time{ font-size:28px; } .lt.large .lt-btn{ font-size:22px; padding:15px 28px; }
   @media (max-width:899px){ .lb-set{ grid-template-columns:1fr; } .lb-prev-wrap{ position:static; } }
 
+  /* ---- Next Door delivery ---- */
+  .nd-runs{ border:1px solid #e6e6eb; border-radius:14px; padding:8px 12px; margin-bottom:6px; }
+  .nd-runs-head, .nd-day{ display:grid; grid-template-columns:1fr 130px 130px; gap:10px; align-items:center; }
+  .nd-runs-head input{ margin:0; height:38px; }
+  .nd-day{ padding:6px 0; border-top:1px solid #f0f0f3; font-weight:600; font-size:14.5px; }
+  .nd-day label{ display:flex; justify-content:center; margin:0; }
+  .nd-day input{ width:22px; height:22px; margin:0; }
+  .nd-menu{ border:1px solid #e6e6eb; border-radius:14px; padding:6px 12px; max-height:420px; overflow:auto; margin-bottom:12px; }
+  .nd-cat{ display:flex; align-items:center; justify-content:space-between; font-size:12.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); margin:12px 0 4px; }
+  .nd-cat button{ text-transform:none; letter-spacing:0; font-size:12.5px; color:var(--ink); text-decoration:underline; background:none; border:0; padding:0 0 0 10px; cursor:pointer; }
+  .nd-item{ display:flex; align-items:center; gap:10px; padding:5px 0; font-size:14.5px; font-weight:500; margin:0; }
+  .nd-item input{ width:20px; height:20px; margin:0; }
+  .nd-item small{ color:#b3261e; font-weight:600; }
+  .nd-toggle{ display:inline-flex; align-items:center; gap:8px; border-radius:999px; padding:8px 16px; font-weight:700; border:0; cursor:pointer; font-size:14px; }
+  .nd-toggle.on{ background:#1f8a4c; color:#fff; } .nd-toggle.off{ background:#e6e6eb; color:#3a3a3c; }
+  .nd-run-row{ display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
+  .nd-run-chip{ background:#f5f5f7; border-radius:10px; padding:6px 10px; font-size:13.5px; }
+  .nd-run-chip b{ font-size:14.5px; }
+  @media (max-width:599px){ .nd-runs-head, .nd-day{ grid-template-columns:1fr 116px 116px; gap:6px; } .nd-runs-head input{ padding:0 6px; font-size:15px; } }
+
   /* ---- Stop scorecard ---- */
   #panelStops.soon > :not(.soon-card):not(.page-head){ display:none; }
   #panelStops.soon .page-head .hint{ display:none; }
@@ -718,6 +738,7 @@
       <button class="nav-link hidden" data-tab="events" id="tabEventsBtn"><svg class="icon"><use href="#ic-calendar"/></svg>Events</button>
       <button class="nav-link hidden" data-tab="catering" id="tabCateringBtn"><svg class="icon"><use href="#ic-gift"/></svg>Catering<span class="nav-badge hidden" id="navCaterBadge"></span></button>
       <button class="nav-link hidden" data-tab="corpevents" id="tabCorpBtn"><svg class="icon"><use href="#ic-building"/></svg>Corporate events<span class="nav-badge nav-badge-soft hidden" id="navCorpBadge"></span></button>
+      <button class="nav-link hidden" data-tab="nextdoor" id="tabDoorBtn"><svg class="icon"><use href="#ic-building"/></svg>Next Door delivery<span class="nav-badge nav-badge-soft hidden" id="navDoorBadge"></span></button>
       <button class="nav-link hidden" data-tab="offers" id="tabOffersBtn"><svg class="icon"><use href="#ic-mail"/></svg>Member offers</button>
       <button class="nav-link hidden" data-tab="stops" id="tabStopsBtn"><svg class="icon"><use href="#ic-trophy"/></svg>Stop scorecard<span class="nav-badge nav-badge-soft">Soon</span></button>
       <button class="nav-link hidden" data-tab="ads" id="tabAdsBtn"><svg class="icon"><use href="#ic-target"/></svg>Ads<span class="nav-badge hidden" id="navAdsBadge"></span></button>
@@ -1185,6 +1206,9 @@
       <p class="hint">How event orders show in the kitchen. Open it at the station: <b>Corporate Lunch</b>. Each order is one ticket: <b>Fire</b> starts it, <b>Ready</b> prints it on the Square printer, <b>Picked up</b> clears it.</p>
       <div class="lb-set">
         <div class="lb-form">
+          <label for="lbMainView">Main station opens in</label>
+          <select id="lbMainView"><option value="items">Items view (item prep columns)</option><option value="tickets">Tickets view (whole orders, one tap each)</option></select>
+          <p class="hint" style="margin-top:-4px">Each kitchen screen can still switch with its Tickets / Items button; that choice is remembered on the screen.</p>
           <label for="lbMain">Where event orders show</label>
           <select id="lbMain"><option value="0">Only on the Corporate Lunch board (recommended)</option><option value="1">Corporate Lunch board and the main / sub stations</option></select>
           <div class="ad-pair">
@@ -1217,6 +1241,43 @@
         <div class="lb-prev-wrap"><div class="lb-prev-label">Preview</div><div class="lb-prev" id="lbPreview"></div></div>
       </div>
     </div>
+  </div>
+
+<!-- NEXT DOOR DELIVERY -->
+  <div class="tab-panel hidden" id="panelNextdoor">
+    <div class="page-head">
+      <h2>Next Door delivery</h2>
+      <p class="hint">A QR menu for a neighboring building. Guests scan, pick a delivery time and pay as usual. Orders go to the kitchen&rsquo;s <b>Next Door</b> board before each run and print on the Square printer at Ready.</p>
+    </div>
+    <div class="ad-head-row"><div class="section-title" style="margin:0">Locations</div><button class="btn-primary btn-small ad-new" id="ndNewBtn" type="button">Add a location</button></div>
+    <div id="ndMsg"></div>
+    <div id="ndList"><p class="hint">Loading&hellip;</p></div>
+
+    <div class="card hidden" id="ndEditor">
+      <h2 id="ndEditorTitle">New location</h2>
+      <div id="ndEditMsg"></div>
+      <div class="ad-pair">
+        <div><label for="ndName">Name guests see</label><input type="text" id="ndName" maxlength="60" value="Next Door"></div>
+        <div><label for="ndPlace">Building / room</label><input type="text" id="ndPlace" maxlength="120" placeholder="e.g. Fun Zone, 2nd floor"></div>
+      </div>
+      <label for="ndDrop">Where we hand it over (optional)</label><input type="text" id="ndDrop" maxlength="200" placeholder="e.g. Front desk">
+      <label class="ad-check"><input type="checkbox" id="ndActive"> QR menu is on (guests can order)</label>
+      <label>Delivery runs</label>
+      <div class="nd-runs">
+        <div class="nd-runs-head"><span></span><span><input type="time" id="ndRun1" value="18:30" aria-label="First run time"></span><span><input type="time" id="ndRun2" value="20:30" aria-label="Second run time"></span></div>
+        <div id="ndDays"></div>
+      </div>
+      <p class="hint">Weekdays get the first run; weekends get both. Untick a day to skip it. (The truck is normally closed Mondays and closes at 8 PM on Sundays.)</p>
+      <div class="ce-trio">
+        <div><label for="ndCutoff">Last orders</label><select id="ndCutoff"><option value="30">30 min before</option><option value="45" selected>45 min before</option><option value="60">1 hour before</option><option value="90">90 min before</option><option value="120">2 hours before</option></select></div>
+        <div><label for="ndLead">Kitchen sees tickets</label><select id="ndLead"><option value="30">30 min before</option><option value="45" selected>45 min before</option><option value="60">1 hour before</option><option value="90">90 min before</option></select></div>
+        <div><label for="ndMax">Max orders per run</label><input type="number" id="ndMax" min="1" max="200" placeholder="No limit"></div>
+      </div>
+      <label>Menu for this location <span class="hint" id="ndMenuCount"></span></label>
+      <div id="ndMenu" class="nd-menu"><p class="hint">Loading the menu&hellip;</p></div>
+      <div class="ad-actions"><button type="button" class="btn-primary" id="ndSave">Save</button><button type="button" class="btn-export" id="ndClose">Close</button></div>
+    </div>
+    <div class="card hidden" id="ndShare"></div>
   </div>
 
   <!-- STOP SCORECARD -->
@@ -1884,6 +1945,9 @@
         document.getElementById('tabStopsBtn').classList.remove('hidden');
         document.getElementById('tabCateringBtn').classList.remove('hidden');
         document.getElementById('tabCorpBtn').classList.remove('hidden');
+        document.getElementById('tabDoorBtn').classList.remove('hidden');
+        document.querySelector('.nav-link[data-tab="nextdoor"]').addEventListener('click', loadDoor);
+        if (location.hash === '#nextdoor') setTimeout(function(){ showTab('nextdoor'); loadDoor(); }, 0);
         document.getElementById('tabOffersBtn').classList.remove('hidden');
         ofState.isAdmin = isAdmin;
         document.getElementById('ofSend').classList.toggle('hidden', !isAdmin);
@@ -4010,13 +4074,14 @@
   var LB_FIELDS = { lbName:'show_name', lbEvent:'show_event', lbTags:'show_tags', lbNotes:'show_notes', lbDrinks:'show_drinks', lbSound:'sound' };
   function lbRead(){
     var g = function(id){ return document.getElementById(id); };
-    var o = { also_main: g('lbMain').value === '1', columns: g('lbCols').value, ticket_size: g('lbSize').value, target_min: Math.round(Number(g('lbTarget').value) || 10),
+    var o = { main_view: g('lbMainView').value, also_main: g('lbMain').value === '1', columns: g('lbCols').value, ticket_size: g('lbSize').value, target_min: Math.round(Number(g('lbTarget').value) || 10),
               tag_fryer: g('lbTagFryer').value.trim(), tag_line: g('lbTagLine').value.trim(), tag_window: g('lbTagWindow').value.trim(), fryer_words: g('lbWords').value.trim() };
     Object.keys(LB_FIELDS).forEach(function(id){ o[LB_FIELDS[id]] = g(id).checked; });
     return o;
   }
   function lbFill(s){
     var g = function(id){ return document.getElementById(id); };
+    g('lbMainView').value = s.main_view === 'tickets' ? 'tickets' : 'items';
     g('lbMain').value = s.also_main ? '1' : '0'; g('lbCols').value = s.columns || 'three'; g('lbSize').value = s.ticket_size || 'regular';
     g('lbTarget').value = s.target_min || 10; g('lbTagFryer').value = s.tag_fryer || 'Fryer'; g('lbTagLine').value = s.tag_line || 'Line'; g('lbTagWindow').value = s.tag_window || 'Window';
     g('lbWords').value = s.fryer_words || '';
@@ -4056,6 +4121,150 @@
       lbState.s = res.data; lbFill(res.data);
       showMsg('lbMsg', 'Saved. The kitchen screens pick it up within a few seconds.', 'ok');
     });
+  });
+
+  // ================= NEXT DOOR DELIVERY =================
+  var ndState = { rows:[], menu:null, editing:null };
+  var ND_DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  function ndTime(iso){ return new Date(iso).toLocaleTimeString([], { timeZone:'America/New_York', hour:'numeric', minute:'2-digit' }); }
+  function ndHm(t){ var p = String(t).split(':'), h = +p[0]; return (h % 12 || 12) + ':' + p[1] + ' ' + (h >= 12 ? 'PM' : 'AM'); }
+  function ndLink(d){ return 'https://rollinshawarma.com/?door=' + encodeURIComponent(d.code) + '#menu'; }
+  function loadDoor(){
+    sb.rpc('door_programs_admin').then(function(res){
+      var box = document.getElementById('ndList');
+      if (res.error) { box.innerHTML = '<p class="hint">Couldn’t load: ' + esc(res.error.message) + '. Run growth-pack.sql in Supabase first.</p>'; return; }
+      ndState.rows = res.data || [];
+      var on = ndState.rows.filter(function(d){ return d.active; }).length;
+      var badge = document.getElementById('navDoorBadge'); badge.textContent = on ? 'On' : ''; badge.classList.toggle('hidden', !on);
+      if (!ndState.rows.length) { box.innerHTML = '<div class="ad-card"><div class="ad-body"><div class="ad-title">No locations yet</div><div class="ad-meta">Tap “Add a location”, pick the menu and delivery times, then print the QR sign for them.</div></div></div>'; return; }
+      box.innerHTML = ndState.rows.map(function(d){
+        var runs = (d.runs || []).filter(function(r){ return new Date(r.at) > new Date(Date.now() - 3 * 3600000); }).slice(0, 4);
+        var count = (d.menu_item_ids || []).length;
+        return '<div class="ad-card"><div class="ad-body">' +
+          '<div class="ad-title"><span class="ad-chip ' + (d.active ? 'live' : '') + '">' + (d.active ? 'QR menu on' : 'QR menu off') + '</span>' + esc(d.name) + ' <span class="hint">· ' + esc(d.place) + '</span></div>' +
+          '<div class="ad-meta">' + count + ' menu item' + (count === 1 ? '' : 's') + ' · last orders ' + d.cutoff_min + ' min before each run · ' + Number(d.orders_7d) + ' orders, ' + scMoney(d.sales_7d) + ' in the last 7 days</div>' +
+          (runs.length ? '<div class="nd-run-row">' + runs.map(function(r){ return '<span class="nd-run-chip"><b>' + esc(new Date(r.at).toLocaleDateString([], { timeZone:'America/New_York', weekday:'short' })) + ' ' + esc(ndTime(r.at)) + '</b> · ' + r.orders + ' order' + (r.orders == 1 ? '' : 's') + '</span>'; }).join('') + '</div>' : '') +
+          '<div class="ad-btns"><button type="button" class="nd-toggle ' + (d.active ? 'on' : 'off') + '" data-nd="toggle" data-id="' + esc(d.id) + '">' + (d.active ? '● On: tap to turn off' : '○ Off: tap to turn on') + '</button>' +
+            '<button type="button" class="btn-primary btn-small" data-nd="share" data-id="' + esc(d.id) + '">QR &amp; link</button>' +
+            '<button type="button" class="btn-export btn-small" data-nd="edit" data-id="' + esc(d.id) + '">Edit menu &amp; times</button></div>' +
+        '</div></div>';
+      }).join('');
+    });
+  }
+  function ndLoadMenu(){
+    if (ndState.menu) return Promise.resolve(ndState.menu);
+    return sb.from('menu_items').select('id, name, variant_name, category, is_available, display_order').order('display_order').then(function(res){
+      ndState.menu = (res.data || []).filter(function(m){ return ['Deal Selections', 'Combo Add-ons', 'Catering'].indexOf(m.category) < 0; });
+      return ndState.menu;
+    });
+  }
+  function ndPaintMenu(selected){
+    var box = document.getElementById('ndMenu'), cats = [], by = {};
+    (ndState.menu || []).forEach(function(m){ if (!by[m.category]) { by[m.category] = []; cats.push(m.category); } by[m.category].push(m); });
+    box.innerHTML = cats.map(function(c){
+      return '<div class="nd-cat">' + esc(c) + '<span><button type="button" data-nd-all="' + esc(c) + '">All</button><button type="button" data-nd-none="' + esc(c) + '">None</button></span></div>' +
+        by[c].map(function(m){ return '<label class="nd-item"><input type="checkbox" data-nd-item="' + esc(m.id) + '" data-cat="' + esc(c) + '"' + (selected[m.id] ? ' checked' : '') + '>' + esc(m.name) + (m.variant_name ? ' · ' + esc(m.variant_name) : '') + (m.is_available === false ? ' <small>sold out</small>' : '') + '</label>'; }).join('');
+    }).join('') || '<p class="hint">No menu items found.</p>';
+    ndCount();
+  }
+  function ndCount(){ var n = document.querySelectorAll('#ndMenu [data-nd-item]:checked').length; document.getElementById('ndMenuCount').textContent = '(' + n + ' on)'; }
+  document.getElementById('ndMenu').addEventListener('change', ndCount);
+  document.getElementById('ndMenu').addEventListener('click', function(e){
+    var a = e.target.closest('[data-nd-all],[data-nd-none]'); if (!a) return;
+    var c = a.getAttribute('data-nd-all') || a.getAttribute('data-nd-none'), on = a.hasAttribute('data-nd-all');
+    document.querySelectorAll('#ndMenu [data-nd-item]').forEach(function(x){ if (x.getAttribute('data-cat') === c) x.checked = on; });
+    ndCount();
+  });
+  function ndOpen(d){
+    ndState.editing = d || null;
+    var g = function(id){ return document.getElementById(id); };
+    g('ndEditorTitle').textContent = d ? 'Edit ' + d.place : 'New location';
+    g('ndName').value = d ? d.name : 'Next Door'; g('ndPlace').value = d ? d.place : ''; g('ndDrop').value = d && d.drop_note || '';
+    g('ndActive').checked = d ? !!d.active : false;
+    g('ndCutoff').value = String(d ? d.cutoff_min : 45); g('ndLead').value = String(d ? d.board_lead_min : 45); g('ndMax').value = d && d.max_per_slot || '';
+    var slots = d ? d.slots : { 0:['18:30','20:30'], 1:['18:30'], 2:['18:30'], 3:['18:30'], 4:['18:30'], 5:['18:30'], 6:['18:30','20:30'] };
+    var times = []; Object.keys(slots).forEach(function(k){ (slots[k] || []).forEach(function(t){ if (times.indexOf(t) < 0) times.push(t); }); }); times.sort();
+    g('ndRun1').value = times[0] || '18:30'; g('ndRun2').value = times[1] || '20:30';
+    g('ndDays').innerHTML = ND_DAYS.map(function(name, i){
+      var s = slots[i] || slots[String(i)] || [];
+      return '<div class="nd-day"><span>' + name + '</span><label><input type="checkbox" data-day="' + i + '" data-run="1"' + (s.indexOf(g('ndRun1').value) >= 0 ? ' checked' : '') + ' aria-label="' + name + ' first run"></label>' +
+        '<label><input type="checkbox" data-day="' + i + '" data-run="2"' + (s.indexOf(g('ndRun2').value) >= 0 ? ' checked' : '') + ' aria-label="' + name + ' second run"></label></div>';
+    }).join('');
+    clearMsg('ndEditMsg');
+    var ed = g('ndEditor'); ed.classList.remove('hidden'); ed.scrollIntoView({ behavior:'smooth', block:'start' });
+    var sel = {}; (d ? d.menu_item_ids : []).forEach(function(id){ sel[id] = true; });
+    ndLoadMenu().then(function(){ ndPaintMenu(sel); });
+  }
+  document.getElementById('ndNewBtn').addEventListener('click', function(){ ndOpen(null); });
+  document.getElementById('ndClose').addEventListener('click', function(){ document.getElementById('ndEditor').classList.add('hidden'); });
+  document.getElementById('ndSave').addEventListener('click', function(){
+    var g = function(id){ return document.getElementById(id); }, b = this;
+    var r1 = g('ndRun1').value, r2 = g('ndRun2').value;
+    if (!g('ndPlace').value.trim()) { showMsg('ndEditMsg', 'Add the building or room name.', 'error'); return; }
+    if (!/^\d\d:\d\d$/.test(r1) || !/^\d\d:\d\d$/.test(r2) || r1 === r2) { showMsg('ndEditMsg', 'Set two different delivery times.', 'error'); return; }
+    var slots = {}; for (var i = 0; i < 7; i++) slots[i] = [];
+    document.querySelectorAll('#ndDays [data-day]:checked').forEach(function(x){ slots[x.getAttribute('data-day')].push(x.getAttribute('data-run') === '1' ? r1 : r2); });
+    var ids = Array.prototype.map.call(document.querySelectorAll('#ndMenu [data-nd-item]:checked'), function(x){ return x.getAttribute('data-nd-item'); });
+    if (g('ndActive').checked && !ids.length) { showMsg('ndEditMsg', 'Pick at least one menu item before turning the QR menu on.', 'error'); return; }
+    var max = g('ndMax').value.trim();
+    b.disabled = true;
+    sb.rpc('door_program_save', { p_id: ndState.editing ? ndState.editing.id : null, p_name: g('ndName').value, p_place: g('ndPlace').value, p_drop_note: g('ndDrop').value,
+      p_active: g('ndActive').checked, p_slots: slots, p_cutoff_min: Number(g('ndCutoff').value), p_board_lead_min: Number(g('ndLead').value),
+      p_max_per_slot: max ? Math.round(Number(max)) : null, p_menu_item_ids: ids }).then(function(res){
+      b.disabled = false;
+      if (res.error) { showMsg('ndEditMsg', res.error.message, 'error'); return; }
+      var row = Array.isArray(res.data) ? res.data[0] : res.data;
+      g('ndEditor').classList.add('hidden');
+      if (!ndState.editing) ndShare(row);
+      showMsg('ndMsg', 'Saved.', 'ok');
+      loadDoor();
+    });
+  });
+  function ndShare(d){
+    var box = document.getElementById('ndShare'), L = ndLink(d);
+    var slots = d.slots || {}, wk = (slots[2] || slots['2'] || []).map(ndHm).join(' & '), we = (slots[6] || slots['6'] || []).map(ndHm).join(' & ');
+    ndState.sign = { name: d.name, place: d.place, link: L, times: (wk ? 'Weekdays ' + wk : '') + (we ? (wk ? ' · ' : '') + 'Weekends ' + we : '') };
+    box.innerHTML = '<h2>' + esc(d.place) + ' · QR &amp; link</h2>' +
+      '<div class="ce-link"><b>Order link</b><small>Put the QR code up in ' + esc(d.place) + '. Guests scan it, choose a delivery time and pay on their phone.</small><code>' + esc(L) + '</code>' +
+        '<div class="ad-btns"><button type="button" class="btn-export btn-small" data-nd-copy="' + esc(L) + '">Copy</button><a class="btn-export btn-small" href="' + esc(L) + '" target="_blank" rel="noopener">Open</a>' +
+        '<button type="button" class="btn-export btn-small" data-nd-qr>Download QR</button><button type="button" class="btn-primary btn-small" data-nd-sign>Print a sign</button></div></div>' +
+      '<div class="ce-qr" id="ndQr"></div>' +
+      '<div class="ad-btns"><button type="button" class="btn-export btn-small" data-close-nd>Close</button></div>';
+    box.classList.remove('hidden'); box.scrollIntoView({ behavior:'smooth', block:'start' });
+    var draw = function(){ var q = qrcode(0, 'M'); q.addData(L); q.make(); var el = document.getElementById('ndQr'); ndState.qr = q.createSvgTag({ scalable:true, margin:2 }); if (el) el.innerHTML = ndState.qr; };
+    if (window.qrcode) draw();
+    else { var sc = document.createElement('script'); sc.src = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js'; sc.onload = draw; document.head.appendChild(sc); }
+  }
+  document.getElementById('ndShare').addEventListener('click', function(e){
+    var c = e.target.closest('[data-nd-copy]');
+    if (c) { if (navigator.clipboard) navigator.clipboard.writeText(c.getAttribute('data-nd-copy')); c.textContent = 'Copied'; setTimeout(function(){ c.textContent = 'Copy'; }, 1500); return; }
+    if (e.target.closest('[data-close-nd]')) { document.getElementById('ndShare').classList.add('hidden'); return; }
+    if (e.target.closest('[data-nd-qr]') && ndState.qr) {
+      var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([ndState.qr], { type:'image/svg+xml' })); a.download = (ndState.sign.place || 'next-door').replace(/[^A-Za-z0-9]+/g, '-') + '-order-QR.svg';
+      document.body.appendChild(a); a.click(); a.remove(); return;
+    }
+    if (e.target.closest('[data-nd-sign]') && ndState.qr) {
+      var w = window.open('', '_blank'); if (!w) return; var S = ndState.sign;
+      w.document.write('<!doctype html><title>Order sign</title><style>body{font:18px Arial,sans-serif;text-align:center;margin:40px}h1{font-size:44px;margin:0 0 6px}h2{font-size:24px;font-weight:600;margin:0 0 24px;color:#444}.qr{width:340px;height:340px;margin:0 auto 18px}.qr svg{width:100%;height:100%}p{font-size:22px;margin:6px 0}</style>' +
+        '<h1>Hungry? We deliver.</h1><h2>Roll-In Shawarma · ' + esc(S.name) + ' delivery to ' + esc(S.place) + '</h2><div class="qr">' + ndState.qr + '</div><p><b>Scan to order</b>, pick a delivery time, pay on your phone.</p><p>' + esc(S.times) + '</p>');
+      w.document.close(); w.focus(); w.print();
+    }
+  });
+  document.getElementById('ndList').addEventListener('click', function(e){
+    var b = e.target.closest('[data-nd]'); if (!b) return;
+    var d = ndState.rows.find(function(x){ return x.id === b.getAttribute('data-id'); }); if (!d) return;
+    var act = b.getAttribute('data-nd');
+    if (act === 'edit') return ndOpen(d);
+    if (act === 'share') return ndShare(d);
+    if (act === 'toggle') {
+      if (!d.active && !(d.menu_item_ids || []).length) { showMsg('ndMsg', 'Pick the menu first (Edit menu & times).', 'error'); return; }
+      b.disabled = true;
+      sb.rpc('door_program_set_active', { p_id: d.id, p_active: !d.active }).then(function(res){
+        if (res.error) { b.disabled = false; showMsg('ndMsg', res.error.message, 'error'); return; }
+        showMsg('ndMsg', d.place + (d.active ? ': QR menu is off. Guests who scan see that delivery is off.' : ': QR menu is on.'), 'ok');
+        loadDoor();
+      });
+    }
   });
 
   // ================= STOP SCORECARD =================
