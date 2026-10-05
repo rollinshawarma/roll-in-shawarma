@@ -4128,7 +4128,7 @@
   var ND_DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
   function ndTime(iso){ return new Date(iso).toLocaleTimeString([], { timeZone:'America/New_York', hour:'numeric', minute:'2-digit' }); }
   function ndHm(t){ var p = String(t).split(':'), h = +p[0]; return (h % 12 || 12) + ':' + p[1] + ' ' + (h >= 12 ? 'PM' : 'AM'); }
-  function ndLink(d){ return 'https://rollinshawarma.com/?door=' + encodeURIComponent(d.code) + '#menu'; }
+  function ndLink(d){ return 'https://rollinshawarma.com/order.html?door=' + encodeURIComponent(d.code); }
   function loadDoor(){
     sb.rpc('door_programs_admin').then(function(res){
       var box = document.getElementById('ndList');
