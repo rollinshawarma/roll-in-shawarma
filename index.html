@@ -1051,6 +1051,30 @@ body.ev-tab-mode #rewardSection, body.ev-tab-mode #coPointsLine{ display:none !i
 .tab-code:focus{ outline:none; border-color:#146c3a; }
 .tab-pay-link{ display:block; margin:10px auto 0; background:none; border:0; color:#146c3a; font-weight:600; font-size:13.5px; text-decoration:underline; cursor:pointer; }
 
+/* ---- company-only events: verify panel ---- */
+.ev-gate{ background:#fff; border:1.5px solid #1d1d1f; border-radius:18px; padding:16px 18px; margin:-8px 0 20px; font-size:14.5px; line-height:1.45; color:#3a3a3c; }
+.ev-gate p{ margin:4px 0 12px; }
+.ev-gate-title{ display:block; font-size:17px; color:#1d1d1f; }
+.ev-gate form{ display:flex; gap:8px; flex-wrap:wrap; }
+.ev-gate-input{ flex:1 1 200px; min-width:0; height:48px; border:1.5px solid #d2d2d7; border-radius:14px; padding:0 14px; font-size:16px; background:#fff; color:#1d1d1f; box-sizing:border-box; }
+.ev-gate-input:focus{ outline:none; border-color:#1d1d1f; }
+.ev-gate-pin{ text-align:center; letter-spacing:.2em; font-weight:700; font-size:20px; text-transform:uppercase; }
+.ev-gate-pin::placeholder{ letter-spacing:normal; font-weight:400; font-size:16px; text-transform:none; }
+.ev-gate-btn{ flex:0 0 auto; height:48px; padding:0 22px; border-radius:999px; background:#1d1d1f; color:#fff; font-weight:600; font-size:15px; border:0; cursor:pointer; }
+.ev-gate-btn:disabled{ background:#8e8e93; }
+.ev-gate-msg{ font-size:13.5px; min-height:0; margin-top:6px; color:#146c3a; }
+.ev-gate-msg:empty{ display:none; }
+.ev-gate-msg.error{ color:#c4271b; font-weight:600; }
+.ev-gate-link{ display:block; margin-top:10px; background:none; border:0; padding:0; color:#1d1d1f; font-size:13.5px; text-decoration:underline; cursor:pointer; text-align:left; }
+.ev-gate.done{ border-color:#bfe5cb; background:#f0faf3; padding:12px 16px; }
+.ev-gate-ok{ display:flex; align-items:center; gap:12px; }
+.ev-gate-ok > span{ flex:0 0 28px; height:28px; border-radius:50%; background:#146c3a; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:700; }
+.ev-gate-ok > div{ flex:1; min-width:0; }
+.ev-gate-ok b{ display:block; color:#146c3a; overflow-wrap:anywhere; }
+.ev-gate-ok small{ font-size:13px; }
+.ev-gate-ok .ev-gate-link{ margin:0; flex:0 0 auto; }
+#cartCustomerEmail[readonly]{ background:#f5f5f7; color:#3a3a3c; }
+
 /* ---- lunch drop links ---- */
 .drop-bar{ display:flex; flex-direction:column; gap:3px; background:#1d1d1f; color:#fff; border-radius:18px; padding:16px 18px; margin:0 0 20px; font-size:14px; line-height:1.45; }
 .drop-bar .drop-kicker{ font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#ffb4ab; }
@@ -3555,12 +3579,11 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     }
 
     // ---- Company tab (corporate events): no payment, straight to the kitchen ----
-    window.__rollinTabPay = function(code){
+    window.__rollinTabPay = function(){
       var order = collectCheckout();
       if (!order) return Promise.resolve(null);
-      if (!order.payload.customerEmail) { checkoutMsg('Add your work email so the company knows the order is yours.'); return Promise.resolve(null); }
       setPayBusy(true, 'Placing your order\u2026');
-      return submitOrder(order, { paymentMethod: 'company_tab', tabCode: code, rewardIds: undefined, promoCode: undefined, tipAmount: undefined }).then(function(d){
+      return submitOrder(order, { paymentMethod: 'company_tab', rewardIds: undefined, promoCode: undefined, tipAmount: undefined }).then(function(d){
         if (!d) return null;
         closeCartDrawer();
         showItemsView();
@@ -3720,6 +3743,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
           carModel: (window.rollinPickup && window.rollinPickup.car()) || undefined,
           pickupOtherDay: scheduledPickupAt && window.rollinPickup && window.rollinPickup.otherDay() ? true : undefined,
           eventCode: window.rollinEvent ? window.rollinEvent.code() : undefined,
+          eventToken: window.rollinEvent && window.rollinEvent.token ? window.rollinEvent.token() : undefined,
           adRef: (function(){ try { var a = JSON.parse(localStorage.getItem('rollinAdRef') || 'null'); return a && a.t > Date.now() - 7 * 864e5 ? a.r : undefined; } catch (e) { return undefined; } })()
         }
       };
@@ -3748,6 +3772,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
             return d;
           }
           if ((d.code === 'CLOSED' || d.code === 'BAD_PICKUP_TIME' || d.code === 'OTHER_DAY') && window.rollinPickup) { window.rollinPickup.forceSchedule(); showCoStep('details'); }
+          if (/^EVENT_VERIFY/.test(d.code || '') && window.rollinEvent && window.rollinEvent.resetVerify) window.rollinEvent.resetVerify();
           if (/^REWARD_/.test(d.code || '') && window.rollinRewards) { window.rollinRewards.reload(); showCoStep('details'); }
           if (d.code === 'TOTAL_CHANGED') {
             // A price changed since the menu loaded: reload today's prices
@@ -5271,7 +5296,23 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       var u = new URL(location.href); u.searchParams.delete('event');
       location.replace(u.pathname + u.search + '#menu');
     }
-    window.rollinEvent = { code: function(){ return canOrder() ? ev.code : undefined; }, info: function(){ return ev; }, isTab: isTab, leave: leave };
+    // ---- Company-only events: guests verify before checkout ----
+    // A work email (6-digit code) or a contractor guest pass gives a sign-in
+    // token the checkout sends along; the server checks it again.
+    var VKEY = 'rollinEventPass', FN = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/corp-events';
+    var pass = null;     // { code, token, kind, email, label, exp }
+    try { pass = JSON.parse(sessionStorage.getItem(VKEY) || 'null'); } catch (e) {}
+    if (!pass || pass.code !== code || !(pass.exp > Date.now())) pass = null;
+    function needsVerify(){ return !!ev && !!ev.email_domain && canOrder(); }
+    function verified(){ return !needsVerify() || (!!pass && pass.exp > Date.now()); }
+    function savePass(p){ pass = p; try { if (p) sessionStorage.setItem(VKEY, JSON.stringify(p)); else sessionStorage.removeItem(VKEY); } catch (e) {} }
+    function resetVerify(){ savePass(null); gateStep = 'email'; paint(); }
+    window.rollinEvent = {
+      code: function(){ return canOrder() ? ev.code : undefined; },
+      token: function(){ return needsVerify() && pass ? pass.token : undefined; },
+      verified: verified, resetVerify: resetVerify,
+      info: function(){ return ev; }, isTab: isTab, leave: leave
+    };
 
     function paint(){
       var box = document.getElementById('eventBar');
@@ -5294,7 +5335,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
           : '<strong>' + esc(day(ev.starts_at)) + ', ' + esc(clock(ev.starts_at)) + '–' + esc(clock(ev.ends_at)) + '</strong> · order ahead and it’s ready when we arrive';
         var tab = ev.billing === 'company'
           ? '<span class="ev-tab">✓ ' + esc(ev.company) + ' is paying' + (ev.per_person_cents ? ' — up to ' + money(ev.per_person_cents) + ' of food each' : '') + '.' +
-            (ev.email_domain ? ' Use your @' + esc(ev.email_domain) + ' email.' : '') + (ev.one_per_person ? ' One order per person.' : '') + '</span>'
+            (ev.one_per_person ? ' One order per person.' : '') + '</span>'
           : '';
         html = '<div class="drop-kicker">' + esc(ev.company) + '</div><b>' + esc(ev.name) + '</b>' +
           '<span>' + when + '</span>' + (ev.location || ev.pickup_note ? '<span>' + esc([ev.location, ev.pickup_note].filter(Boolean).join(' · ')) + '</span>' : '') + tab +
@@ -5303,7 +5344,108 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       }
       box.innerHTML = html;
       Array.prototype.forEach.call(box.querySelectorAll('[data-ev-leave]'), function(a){ a.onclick = leave; });
+      paintGate(box);
       paintCheckout();
+    }
+
+    // ---- The verify panel under the event banner ----
+    var gateStep = 'email', gateEmail = '';
+    function gateMsg(t, ok){ var m = document.getElementById('evGateMsg'); if (m) { m.textContent = t || ''; m.className = 'ev-gate-msg' + (t && !ok ? ' error' : ''); } }
+    function post(body){
+      return fetch(FN, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body) })
+        .then(function(r){ return r.json().then(function(d){ return { ok: r.ok && !d.error, d: d }; }, function(){ return { ok: false, d: {} }; }); },
+              function(){ return { ok: false, d: { error: 'Couldn’t reach us. Check your connection and try again.' } }; });
+    }
+    function busy(btn, on, text){ if (!btn) return; if (on) { btn.setAttribute('data-label', btn.textContent); btn.textContent = text; } else btn.textContent = btn.getAttribute('data-label') || btn.textContent; btn.disabled = on; }
+    function paintGate(bar){
+      var g = document.getElementById('evGate');
+      if (!needsVerify()) { if (g) g.remove(); return; }
+      if (!g) { g = document.createElement('div'); g.id = 'evGate'; g.className = 'ev-gate'; bar.parentNode.insertBefore(g, bar.nextSibling); }
+      var dom = ev.email_domain, step = verified() ? 'done' : gateStep;
+      if (g.getAttribute('data-step') === step) return;     // keep what they typed
+      g.setAttribute('data-step', step);
+      g.classList.toggle('done', step === 'done');
+      if (step === 'done') {
+        g.innerHTML = '<div class="ev-gate-ok"><span aria-hidden="true">✓</span><div><b>' +
+          (pass.kind === 'email' ? 'Verified: ' + esc(pass.email) : 'Guest pass accepted' + (pass.label ? ' — ' + esc(pass.label) : '')) +
+          '</b><small>You’re all set to order for ' + esc(ev.name) + '.</small></div><button type="button" class="ev-gate-link" id="evGateSwitch">Not you?</button></div>';
+        document.getElementById('evGateSwitch').onclick = resetVerify;
+        return;
+      }
+      var head = '<b class="ev-gate-title">Verify to order</b>';
+      if (step === 'email') {
+        g.innerHTML = head + '<p>This ordering link is for <b>' + esc(ev.company) + '</b>. Enter your <b>@' + esc(dom) + '</b> email and we’ll send you a 6-digit code.</p>' +
+          '<form id="evGateForm" novalidate><input type="email" id="evGateEmail" class="ev-gate-input" autocomplete="email" placeholder="you@' + esc(dom) + '" aria-label="Work email" value="' + esc(gateEmail) + '">' +
+          '<button type="submit" class="ev-gate-btn">Email me a code</button></form>' +
+          '<div id="evGateMsg" class="ev-gate-msg" role="alert"></div>' +
+          '<button type="button" class="ev-gate-link" id="evGatePassLink">Contractor or visitor without an @' + esc(dom) + ' email? Use a guest pass</button>';
+        document.getElementById('evGatePassLink').onclick = function(){ gateStep = 'pass'; paint(); var i = document.getElementById('evGatePass'); if (i) i.focus(); };
+        document.getElementById('evGateForm').onsubmit = function(e){
+          e.preventDefault();
+          var em = document.getElementById('evGateEmail').value.trim().toLowerCase(), btn = this.querySelector('button');
+          if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(em)) { gateMsg('Enter your work email.'); return; }
+          var d = em.split('@')[1];
+          if (d !== dom && d.slice(-(dom.length + 1)) !== '.' + dom) { gateMsg('Use your @' + dom + ' email, or tap “Use a guest pass” below.'); return; }
+          busy(btn, true, 'Sending…'); gateMsg('');
+          post({ action: 'send_code', event: ev.code, email: em }).then(function(res){
+            busy(btn, false);
+            if (!res.ok) { gateMsg(res.d.error || 'Couldn’t send the code. Please try again.'); return; }
+            gateEmail = em; gateStep = 'code'; paint();
+            var i = document.getElementById('evGateCode'); if (i) i.focus();
+          });
+        };
+        return;
+      }
+      if (step === 'code') {
+        g.innerHTML = head + '<p>We emailed a code to <b>' + esc(gateEmail) + '</b>. It works for 15 minutes.</p>' +
+          '<form id="evGateForm" novalidate><input type="text" id="evGateCode" class="ev-gate-input ev-gate-pin" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="6-digit code" aria-label="6-digit code">' +
+          '<button type="submit" class="ev-gate-btn">Verify</button></form>' +
+          '<div id="evGateMsg" class="ev-gate-msg" role="alert"></div>' +
+          '<button type="button" class="ev-gate-link" id="evGateBack">Use a different email or send a new code</button>';
+        document.getElementById('evGateBack').onclick = function(){ gateStep = 'email'; paint(); };
+        document.getElementById('evGateCode').oninput = function(){ gateMsg(''); };
+        document.getElementById('evGateForm').onsubmit = function(e){
+          e.preventDefault();
+          var pin = document.getElementById('evGateCode').value.replace(/\D/g, ''), btn = this.querySelector('button');
+          if (pin.length !== 6) { gateMsg('Enter the 6-digit code from the email.'); return; }
+          busy(btn, true, 'Checking…');
+          post({ action: 'verify_code', event: ev.code, email: gateEmail, code: pin }).then(function(res){
+            busy(btn, false);
+            if (!res.ok || !res.d.token) {
+              gateMsg(res.d.error || 'Couldn’t check the code. Please try again.');
+              if (res.d.code === 'EXPIRED') { var b = document.getElementById('evGateBack'); if (b) b.textContent = 'Email me a new code'; }
+              return;
+            }
+            savePass({ code: ev.code, token: res.d.token, kind: 'email', email: res.d.email || gateEmail, exp: Date.now() + 11.5 * 36e5 });
+            paint();
+          });
+        };
+        return;
+      }
+      // guest pass
+      g.innerHTML = head + '<p>Enter the 8-character guest pass ' + esc(ev.company) + ' gave you. Each pass is good for one order.</p>' +
+        '<form id="evGateForm" novalidate><input type="text" id="evGatePass" class="ev-gate-input ev-gate-pin" autocapitalize="characters" autocomplete="off" spellcheck="false" maxlength="12" placeholder="ABCD-2345" aria-label="Guest pass">' +
+        '<button type="submit" class="ev-gate-btn">Continue</button></form>' +
+        '<div id="evGateMsg" class="ev-gate-msg" role="alert"></div>' +
+        '<button type="button" class="ev-gate-link" id="evGateBack">I have an @' + esc(dom) + ' email</button>';
+      document.getElementById('evGateBack').onclick = function(){ gateStep = 'email'; paint(); };
+      document.getElementById('evGatePass').oninput = function(){ gateMsg(''); };
+      document.getElementById('evGateForm').onsubmit = function(e){
+        e.preventDefault();
+        var p = document.getElementById('evGatePass').value.toUpperCase().replace(/[^A-Z0-9]/g, ''), btn = this.querySelector('button');
+        if (p.length !== 8) { gateMsg('Guest passes are 8 letters and numbers.'); return; }
+        busy(btn, true, 'Checking…');
+        post({ action: 'verify_pass', event: ev.code, pass: p }).then(function(res){
+          busy(btn, false);
+          if (!res.ok || !res.d.token) { gateMsg(res.d.error || 'Couldn’t check the pass. Please try again.'); return; }
+          savePass({ code: ev.code, token: res.d.token, kind: 'pass', label: res.d.label || '', exp: Date.now() + 11.5 * 36e5 });
+          paint();
+        });
+      };
+    }
+    function needVerifyError(){
+      var g = document.getElementById('evGate'); if (g) setTimeout(function(){ g.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 300);
+      return new Error('Verify your @' + ev.email_domain + ' email (or enter your guest pass) at the top of the menu first.');
     }
 
     // ---- Checkout: pickup comes from the event; company tab replaces payment ----
@@ -5313,18 +5455,31 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       var tab = isTab();
       document.body.classList.toggle('ev-tab-mode', tab);
       var email = document.getElementById('cartCustomerEmail');
+      var lockEmail = needsVerify() && verified() && pass && pass.kind === 'email';
       if (email) {
-        email.required = tab;
+        if (lockEmail) { email.value = pass.email; email.readOnly = true; email.setAttribute('data-ev-lock', '1'); }
+        else if (email.getAttribute('data-ev-lock')) { email.readOnly = false; email.removeAttribute('data-ev-lock'); }
+        email.required = tab && !(pass && pass.kind === 'pass');
         var lab = email.parentNode, hint = lab && lab.querySelector('.opt');
-        if (hint) { if (!hint.getAttribute('data-orig')) hint.setAttribute('data-orig', hint.textContent); hint.textContent = tab ? (ev.email_domain ? '(required: your @' + ev.email_domain + ' email)' : '(required: your work email)') : hint.getAttribute('data-orig'); }
+        if (hint) {
+          if (!hint.getAttribute('data-orig')) hint.setAttribute('data-orig', hint.textContent);
+          hint.textContent = lockEmail ? '(verified)' : tab && !(pass && pass.kind === 'pass') ? '(required: your work email)' : hint.getAttribute('data-orig');
+        }
       }
+      var name = document.getElementById('cartCustomerName');
+      if (name && pass && pass.kind === 'pass' && pass.label && !name.value.trim() && !name.getAttribute('data-ev-fill')) { name.value = pass.label; name.setAttribute('data-ev-fill', '1'); }
       var box = document.getElementById('tabPayBox');
       if (tab && !box) {
         var foot = document.querySelector('#coStepPay .checkout-foot');
         if (!foot) return;
         box = document.createElement('div'); box.id = 'tabPayBox'; box.className = 'tab-pay';
-        box.innerHTML = '<div class="tab-pay-head"><b></b><span>Nothing to pay at checkout.</span></div><div class="tab-pay-food"></div><div class="tab-pay-step"></div>';
+        box.innerHTML = '<div class="tab-pay-head"><b></b><span>Nothing to pay at checkout.</span></div><div class="tab-pay-food"></div>' +
+          '<button type="button" class="pay-btn tab-pay-btn" id="tabPayBtn">Place order</button>';
         foot.insertBefore(box, foot.querySelector('.wallet-pay'));
+        document.getElementById('tabPayBtn').onclick = function(){
+          if (!verified()) { tabMsg(needVerifyError().message); return; }
+          if (window.__rollinTabPay) window.__rollinTabPay();
+        };
       }
       if (box) box.classList.toggle('hidden', !tab);
       if (!tab) return;
@@ -5334,48 +5489,9 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       var fl = box.querySelector('.tab-pay-food');
       fl.className = 'tab-pay-food' + (over ? ' over' : '');
       fl.textContent = 'Food $' + food.toFixed(2) + (lim ? ' of your $' + lim.toFixed(2) : '') + (over ? ' — please remove something' : '');
-      var to = email ? email.value.trim().toLowerCase() : '';
-      var want = over ? 'over' : codeFor && codeFor === to ? 'code' : 'send';
-      var step = box.querySelector('.tab-pay-step');
-      if (step.getAttribute('data-step') === want && step.getAttribute('data-to') === to) return;   // keep what they typed
-      step.setAttribute('data-step', want); step.setAttribute('data-to', to);
-      if (want === 'over') { step.innerHTML = '<button type="button" class="pay-btn tab-pay-btn" disabled>Place order</button>'; return; }
-      if (want === 'send') {
-        step.innerHTML = '<p class="tab-pay-note">To keep the tab for ' + esc(ev.company) + ' staff, we’ll email a 6-digit code to <b>' + esc(to || 'your work email') + '</b>.</p>' +
-          '<button type="button" class="pay-btn tab-pay-btn" id="tabSendCode">Email me a code</button>';
-        document.getElementById('tabSendCode').onclick = sendCode;
-        return;
-      }
-      step.innerHTML = '<p class="tab-pay-note">We emailed a code to <b>' + esc(to) + '</b>. It works for 15 minutes.</p>' +
-        '<input type="text" id="tabCodeInput" class="tab-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="6-digit code" aria-label="6-digit code">' +
-        '<button type="button" class="pay-btn tab-pay-btn" id="tabPayBtn">Place order</button>' +
-        '<button type="button" class="tab-pay-link" id="tabResend">Email me a new code</button>';
-      document.getElementById('tabResend').onclick = sendCode;
-      document.getElementById('tabCodeInput').oninput = function(){ tabMsg(''); };
-      document.getElementById('tabPayBtn').onclick = function(){
-        var c = (document.getElementById('tabCodeInput').value || '').replace(/\D/g, '');
-        if (c.length !== 6) { tabMsg('Enter the 6-digit code from the email.'); return; }
-        if (!window.__rollinTabPay) return;
-        window.__rollinTabPay(c).then(function(d){
-          if (!d && /^TAB_CODE_EXPIRED$/.test(window.__rollinLastErr || '')) { codeFor = ''; paintCheckout(); }
-        });
-      };
+      document.getElementById('tabPayBtn').disabled = !!over;
     }
-    var codeFor = '';
     function tabMsg(t){ var m = document.getElementById('cartCheckoutMsg'); if (m) { m.textContent = t; m.classList.toggle('error', !!t); } }
-    function sendCode(){
-      var email = document.getElementById('cartCustomerEmail'), to = email ? email.value.trim().toLowerCase() : '';
-      var btn = this; btn.disabled = true; var label = btn.textContent; btn.textContent = 'Sending…';
-      fetch('https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/corp-events', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'tab_code', event: ev.code, email: to }) })
-        .then(function(r){ return r.json().then(function(d){ return { ok: r.ok, d: d }; }, function(){ return { ok: false, d: {} }; }); })
-        .then(function(res){
-          btn.disabled = false; btn.textContent = label;
-          if (!res.ok || res.d.error) { tabMsg(res.d.error || 'Couldn’t send the code. Please try again.'); return; }
-          tabMsg('');
-          codeFor = to; paintCheckout();
-          var inp = document.getElementById('tabCodeInput'); if (inp) inp.focus();
-        }, function(){ btn.disabled = false; btn.textContent = label; tabMsg('Couldn’t send the code. Check your connection.'); });
-    }
     function wrapPickup(){
       var P = window.rollinPickup, sec = document.getElementById('pickupTimeSection');
       if (!P || P.__event) return;
@@ -5395,6 +5511,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         if (s === 'closed') throw new Error('Ordering for ' + ev.name + ' has closed. Tap “Order normally” above the menu to order for the truck.');
         if (s === 'not_open') throw new Error('Ordering for ' + ev.name + ' opens ' + day(ev.opens_at) + ' at ' + clock(ev.opens_at) + '.');
         if (!canOrder()) return orig.value();
+        if (!verified()) throw needVerifyError();
         return s === 'preorder' ? new Date(ev.starts_at).toISOString() : null;
       };
       P.method = function(){ return canOrder() ? 'window' : orig.method(); };
@@ -5414,6 +5531,21 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       if (ev) wrapPickup();
       paint();
       if (ev) timer = setInterval(paint, 30000);
+      // Checkout before verifying: close the cart and point at the verify panel.
+      document.addEventListener('click', function(e){
+        var t = e.target && e.target.closest && e.target.closest('#cartCheckoutBtn, #coContinueBtn');
+        if (!t || verified()) return;
+        e.preventDefault(); e.stopImmediatePropagation();
+        var x = document.getElementById('cartDrawerClose'); if (x) x.click();
+        if (gateStep === 'done') gateStep = 'email';
+        paint();
+        var g = document.getElementById('evGate');
+        if (g) setTimeout(function(){
+          g.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          gateMsg('Verify first, then check out. Your cart is saved.');
+          var i = g.querySelector('input'); if (i) i.focus({ preventScroll: true });
+        }, 350);
+      }, true);
       // keep the food-vs-allowance line current while the cart changes
       document.addEventListener('click', function(){ if (isTab()) setTimeout(paintCheckout, 50); });
     });
