@@ -442,6 +442,90 @@
   @media (max-width:899px){ .page-head h2, .page-title{ display:none; } .page-head{ margin-top:18px; } }
   @media (prefers-reduced-motion:reduce){ *{ transition:none !important; } }
 
+  /* ---- Catering ---- */
+  .cf-card{ background:var(--card); border:1px solid #e6e6eb; border-radius:16px; margin-bottom:10px; overflow:hidden; }
+  .cf-head{ display:flex; gap:12px; align-items:flex-start; width:100%; background:none; border:0; padding:14px; text-align:left; color:var(--ink); border-radius:0; justify-content:flex-start; min-height:0; }
+  .cf-head:hover{ transform:none; background:#fafafc; }
+  .cf-main{ flex:1; min-width:0; }
+  .cf-title{ font-weight:600; font-size:15px; }
+  .cf-meta{ font-size:12.5px; color:var(--muted); margin-top:3px; line-height:1.45; font-weight:400; }
+  .cf-amt{ text-align:right; font-weight:700; font-size:15px; white-space:nowrap; }
+  .cf-amt small{ display:block; font-weight:500; font-size:11.5px; color:var(--muted); }
+  .cf-body{ border-top:1px solid #eeeef2; padding:14px; display:none; }
+  .cf-card.open .cf-body{ display:block; }
+  .cf-facts{ display:grid; grid-template-columns:110px 1fr; gap:6px 12px; font-size:13.5px; margin-bottom:14px; }
+  .cf-facts dt{ color:var(--muted); }
+  .cf-facts dd{ margin:0; word-break:break-word; white-space:pre-wrap; }
+  .cf-row{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+  .cf-row button, .cf-row a{ width:auto; }
+  .cf-paid{ background:rgba(48,179,90,0.12); color:#146c3a; border-radius:12px; padding:10px 12px; font-size:13.5px; font-weight:600; }
+  .cf-link{ background:#f5f5f7; border-radius:12px; padding:10px 12px; font-size:13px; word-break:break-all; }
+
+  /* ---- Member offers ---- */
+  .of-preview{ background:#f5f5f7; border-radius:14px; padding:12px; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif; }
+  .of-mail{ background:#fff; border-radius:14px; overflow:hidden; color:#1d1d1f; }
+  .of-mail img{ display:block; width:100%; height:auto; }
+  .of-mail .of-in{ padding:16px; }
+  .of-kick{ font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#d62d20; }
+  .of-head{ font-size:21px; font-weight:700; line-height:1.2; margin:4px 0 8px; }
+  .of-body{ font-size:13.5px; color:#3a3a3c; white-space:pre-wrap; margin-bottom:10px; }
+  .of-code{ border:2px dashed #1d1d1f; border-radius:12px; padding:10px; text-align:center; margin-bottom:10px; }
+  .of-code small{ display:block; color:#6e6e73; font-size:11px; }
+  .of-code b{ font-size:21px; letter-spacing:.08em; }
+  .of-until{ font-size:12.5px; color:#6e6e73; margin-bottom:10px; }
+  .of-btn{ display:inline-block; background:#1d1d1f; color:#fff; border-radius:999px; padding:10px 18px; font-weight:600; font-size:13.5px; }
+  .of-noimg{ aspect-ratio:16/9; background:#ececf0; display:flex; align-items:center; justify-content:center; color:#8e8e93; font-size:13px; }
+
+  /* ---- Corporate events ---- */
+  .ad-btns a.btn-export, .ad-btns a.btn-primary{ display:inline-flex; align-items:center; justify-content:center; border-radius:100px; font-weight:700; text-decoration:none; box-sizing:border-box; }
+  .ce-trio{ display:grid; grid-template-columns:1.3fr 1fr 1fr; gap:10px; }
+  .ce-bill{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px; }
+  .ce-bill label{ display:flex; gap:10px; align-items:flex-start; border:1.5px solid #e6e6eb; border-radius:14px; padding:12px; cursor:pointer; font-weight:500; margin:0; }
+  .ce-bill label:has(input:checked){ border-color:var(--ink); background:#fafafc; }
+  .ce-bill input{ width:auto; margin-top:3px; }
+  .ce-bill b{ display:block; font-size:14.5px; }
+  .ce-bill small{ display:block; color:var(--muted); font-size:12.5px; font-weight:400; margin-top:2px; }
+  .ce-company{ background:#f5f5f7; border-radius:14px; padding:12px 14px 4px; margin-bottom:8px; }
+  .ce-links{ display:grid; gap:10px; margin:10px 0 14px; }
+  .ce-link{ background:#f5f5f7; border-radius:14px; padding:12px; }
+  .ce-link b{ display:block; font-size:14px; margin-bottom:2px; }
+  .ce-link small{ display:block; color:var(--muted); font-size:12.5px; margin-bottom:6px; }
+  .ce-link code{ display:block; font-size:12.5px; word-break:break-all; background:#fff; border-radius:8px; padding:7px 9px; margin-bottom:8px; }
+  .ce-link .ad-btns{ margin-top:0; }
+  .ce-qr{ width:170px; height:170px; background:#fff; border-radius:12px; padding:8px; }
+  .ce-qr svg{ width:100%; height:100%; display:block; }
+  .ce-stage{ font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:#a15c00; }
+  .ce-stage.ready, .ce-stage.picked_up{ color:#146c3a; }
+  @media (max-width:899px){ .ce-trio{ grid-template-columns:1fr 1fr; } .ce-trio > div:first-child{ grid-column:1 / -1; } .ce-bill{ grid-template-columns:1fr; } }
+
+  /* ---- Stop scorecard ---- */
+  #panelStops.soon > :not(.soon-card):not(.page-head){ display:none; }
+  #panelStops.soon .page-head .hint{ display:none; }
+  .soon-card{ background:var(--card); border:1px dashed #c7c7cc; border-radius:16px; padding:18px; margin:18px 0; line-height:1.5; }
+  .soon-card b{ display:block; font-size:17px; margin-bottom:4px; }
+  .soon-card span{ color:var(--muted); font-size:14px; }
+  .sc-range{ display:inline-flex; background:#e9e9ee; border-radius:999px; padding:3px; margin-bottom:14px; }
+  .sc-range button{ width:auto; background:none; border:0; color:#3a3a3c; padding:7px 14px; border-radius:999px; font-size:13px; font-weight:600; min-height:0; }
+  .sc-range button.on{ background:#fff; color:var(--ink); box-shadow:0 1px 3px rgba(0,0,0,0.12); }
+  .sc-tiles{ display:grid; grid-template-columns:repeat(4,1fr); background:var(--card); border:1px solid #e6e6eb; border-radius:16px; overflow:hidden; }
+  .sc-tiles div{ padding:13px 15px; border-right:1px solid #eeeef2; min-width:0; }
+  .sc-tiles div:last-child{ border-right:0; }
+  .sc-tiles b{ display:block; font-family:var(--display); font-size:23px; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .sc-tiles small{ color:var(--muted); font-size:12px; }
+  .sc-verdict{ display:inline-block; padding:3px 10px; border-radius:999px; font-size:12px; font-weight:600; background:#ececf0; color:#3a3a3c; white-space:nowrap; }
+  .sc-verdict.good{ background:rgba(48,179,90,0.15); color:#146c3a; }
+  .sc-verdict.bad{ background:#ffe9e7; color:#c4271b; }
+  .sc-bars{ display:grid; gap:9px; }
+  .sc-bar{ display:grid; grid-template-columns:44px 1fr 92px; align-items:center; gap:10px; font-size:13px; }
+  .sc-bar i{ display:block; height:14px; border-radius:7px; background:#1d1d1f; min-width:3px; }
+  .sc-bar span:last-child{ text-align:right; color:var(--muted); white-space:nowrap; }
+  .sc-bar.none i{ background:#e2e2e7; }
+  @media (max-width:899px){
+    .sc-tiles{ grid-template-columns:1fr 1fr; }
+    .sc-tiles div:nth-child(2){ border-right:0; }
+    .sc-tiles div:nth-child(-n+2){ border-bottom:1px solid #eeeef2; }
+  }
+
   /* ---- Ads ---- */
   .ad-conn{ display:flex; align-items:center; gap:10px; background:var(--card); border:1px solid #e6e6eb; border-radius:14px; padding:11px 14px; font-size:13.5px; margin-bottom:12px; }
   .ad-dot{ width:10px; height:10px; border-radius:50%; background:#c7c7cc; flex:none; }
@@ -570,6 +654,10 @@
       <button class="nav-link hidden" data-tab="banner" id="tabBannerBtn"><svg class="icon"><use href="#ic-megaphone"/></svg>Banner</button>
       <button class="nav-link hidden" data-tab="promotions" id="tabPromotionsBtn"><svg class="icon"><use href="#ic-tag"/></svg>Promo codes</button>
       <button class="nav-link hidden" data-tab="events" id="tabEventsBtn"><svg class="icon"><use href="#ic-calendar"/></svg>Events</button>
+      <button class="nav-link hidden" data-tab="catering" id="tabCateringBtn"><svg class="icon"><use href="#ic-gift"/></svg>Catering<span class="nav-badge hidden" id="navCaterBadge"></span></button>
+      <button class="nav-link hidden" data-tab="corpevents" id="tabCorpBtn"><svg class="icon"><use href="#ic-building"/></svg>Corporate events<span class="nav-badge nav-badge-soft hidden" id="navCorpBadge"></span></button>
+      <button class="nav-link hidden" data-tab="offers" id="tabOffersBtn"><svg class="icon"><use href="#ic-mail"/></svg>Member offers</button>
+      <button class="nav-link hidden" data-tab="stops" id="tabStopsBtn"><svg class="icon"><use href="#ic-trophy"/></svg>Stop scorecard<span class="nav-badge nav-badge-soft">Soon</span></button>
       <button class="nav-link hidden" data-tab="ads" id="tabAdsBtn"><svg class="icon"><use href="#ic-target"/></svg>Ads<span class="nav-badge hidden" id="navAdsBadge"></span></button>
 
       <div class="nav-section-label">Team</div>
@@ -886,7 +974,171 @@
     </div>
   </div>
 
-<!-- ADS -->
+<!-- CATERING -->
+  <div class="tab-panel hidden" id="panelCatering">
+    <div class="page-head">
+      <h2>Catering</h2>
+      <p class="hint">Requests from the website&rsquo;s catering forms. Reply, set a quote, send a deposit link (paid through Square) and add booked events to Events.</p>
+    </div>
+    <div class="sc-range" id="cfFilter">
+      <button type="button" data-f="open" class="on">Open</button>
+      <button type="button" data-f="new">New</button>
+      <button type="button" data-f="booked">Booked</button>
+      <button type="button" data-f="closed">Done &amp; lost</button>
+    </div>
+    <div id="cfMsg"></div>
+    <div id="cfList"><p class="hint">Loading&hellip;</p></div>
+  </div>
+
+  <!-- MEMBER OFFERS -->
+  <div class="tab-panel hidden" id="panelOffers">
+    <div class="page-head">
+      <h2>Member offers</h2>
+      <p class="hint">Send a flyer with this week&rsquo;s offer to every Roll-In Rewards member, in one tap. Write it, add a flyer, send yourself a test, then send it to everyone. Every email has an unsubscribe link.</p>
+    </div>
+    <div class="ad-conn" id="ofAudience"><span class="ad-dot"></span><span id="ofAudienceText">Counting members&hellip;</span></div>
+    <div id="ofMsg"></div>
+    <div class="ad-head-row"><div class="section-title" style="margin:0">Offers</div><button class="btn-primary btn-small ad-new" id="ofNewBtn" type="button">New offer</button></div>
+    <div id="ofList"><p class="hint">Loading&hellip;</p></div>
+
+    <div class="card hidden" id="ofEditor">
+      <h2 id="ofEditorTitle">New offer</h2>
+      <div id="ofEditMsg"></div>
+      <div class="ad-edit-grid">
+        <div class="ad-form">
+          <label for="ofSubject">Email subject <span class="ad-count" id="ofSubjectCount"></span></label>
+          <input type="text" id="ofSubject" maxlength="120" placeholder="e.g. Members: free fries this week">
+          <label for="ofHeadline">Headline <span class="ad-count" id="ofHeadCount"></span></label>
+          <input type="text" id="ofHeadline" maxlength="80" placeholder="e.g. Free fries with any shawarma">
+          <label for="ofBody">Text</label>
+          <textarea id="ofBody" rows="4" maxlength="1500" placeholder="A line or two about the offer and where we&rsquo;ll be."></textarea>
+          <div class="ad-pair">
+            <div><label for="ofPromo">Promo code (optional)</label><select id="ofPromo"><option value="">No code</option></select></div>
+            <div><label for="ofUntil">Good through (optional)</label><input type="date" id="ofUntil"></div>
+          </div>
+          <label for="ofButton">Button text</label>
+          <input type="text" id="ofButton" maxlength="30" value="Order now">
+          <label for="ofFile">Flyer</label>
+          <input type="file" id="ofFile" accept="image/jpeg,image/png">
+          <p class="hint" id="ofFileHint">JPG or PNG, up to 5 MB. About 1080 pixels wide looks sharp on phones.</p>
+        </div>
+        <div class="ad-preview-wrap">
+          <div class="ad-preview-label">Email preview</div>
+          <div class="of-preview" id="ofPreview"></div>
+        </div>
+      </div>
+      <div class="ad-actions">
+        <button type="button" class="btn-export" id="ofSave">Save draft</button>
+        <button type="button" class="btn-export" id="ofTest">Send me a test</button>
+        <button type="button" class="btn-primary hidden" id="ofSend">Send to all members</button>
+        <button type="button" class="btn-export" id="ofClose">Close</button>
+      </div>
+      <p class="hint" id="ofSendHint"></p>
+    </div>
+  </div>
+
+  <!-- CORPORATE EVENTS -->
+  <div class="tab-panel hidden" id="panelCorpevents">
+    <div class="page-head">
+      <h2>Corporate events</h2>
+      <p class="hint">Each event gets its own order link and QR code, a live board for a TV at the venue, and (when the company pays) a host page with the running tab. Email it all to the company from here, and bill the tab in one tap after the event.</p>
+    </div>
+    <div class="ad-head-row"><div class="section-title" style="margin:0">Upcoming and recent</div><button class="btn-primary btn-small ad-new" id="ceNewBtn" type="button">New event</button></div>
+    <div id="ceMsg"></div>
+    <div id="ceList"><p class="hint">Loading&hellip;</p></div>
+
+    <div class="card hidden" id="ceEditor">
+      <h2 id="ceEditorTitle">New corporate event</h2>
+      <div id="ceEditMsg"></div>
+      <div class="ad-pair">
+        <div><label for="ceName">Event name</label><input type="text" id="ceName" maxlength="120" placeholder="e.g. Winter Team Lunch"></div>
+        <div><label for="ceCompany">Company</label><input type="text" id="ceCompany" maxlength="120" placeholder="e.g. Goodyear"></div>
+      </div>
+      <div class="ad-pair">
+        <div><label for="ceContact">Contact name</label><input type="text" id="ceContact" maxlength="100"></div>
+        <div><label for="ceEmail">Contact email</label><input type="email" id="ceEmail" maxlength="200"></div>
+      </div>
+      <label for="ceLocation">Where</label><input type="text" id="ceLocation" maxlength="200" placeholder="Address or building">
+      <label for="ceNote">Where people pick up (optional)</label><input type="text" id="ceNote" maxlength="200" placeholder="e.g. Main lobby doors">
+      <div class="ce-trio">
+        <div><label for="ceDate">Day</label><input type="date" id="ceDate"></div>
+        <div><label for="ceStart">Starts</label><input type="time" id="ceStart" value="11:30"></div>
+        <div><label for="ceEnd">Ends</label><input type="time" id="ceEnd" value="13:30"></div>
+      </div>
+      <div class="ad-pair">
+        <div><label for="ceLast">Last orders</label><select id="ceLast"><option value="0">Until the end</option><option value="10">10 min before the end</option><option value="15" selected>15 min before the end</option><option value="30">30 min before the end</option></select></div>
+        <div><label for="ceGuests">Expected guests (optional)</label><input type="number" id="ceGuests" min="1" max="5000"></div>
+      </div>
+      <label class="ad-check"><input type="checkbox" id="ceOpenNow" checked> Take orders as soon as I send the link (pre-orders are ready when the event starts)</label>
+      <div class="ad-pair hidden" id="ceOpensRow">
+        <div><label for="ceOpensDate">Ordering opens</label><input type="date" id="ceOpensDate"></div>
+        <div><label for="ceOpensTime">&nbsp;</label><input type="time" id="ceOpensTime" value="08:00"></div>
+      </div>
+      <label>Who pays?</label>
+      <div class="ce-bill">
+        <label><input type="radio" name="ceBilling" value="guest" checked><span><b>Each guest pays</b><small>On their phone, like a normal order</small></span></label>
+        <label><input type="radio" name="ceBilling" value="company"><span><b>The company pays</b><small>Orders go on their tab; you bill them once after</small></span></label>
+      </div>
+      <div class="ce-company hidden" id="ceCompanyBox">
+        <div class="ad-pair">
+          <div><label for="ceLimit">Food limit per person ($)</label><input type="number" id="ceLimit" min="1" step="0.5" placeholder="e.g. 15"></div>
+          <div><label for="ceBudget">Total budget ($)</label><input type="number" id="ceBudget" min="1" step="1"></div>
+        </div>
+        <label for="ceDomain">Their work email ends in</label><input type="text" id="ceDomain" maxlength="80" placeholder="e.g. goodyear.com">
+        <label class="ad-check"><input type="checkbox" id="ceOne" checked> One order per person</label>
+        <p class="hint">Guests confirm their work email with a 6-digit code we email them, so only real staff order on the tab and the company sees who ordered. Tips, promo codes, rewards, deals and catering trays can&rsquo;t go on the tab.</p>
+      </div>
+      <div class="ad-actions">
+        <button type="button" class="btn-primary" id="ceSave">Save and get the links</button>
+        <button type="button" class="btn-export" id="ceClose">Close</button>
+      </div>
+    </div>
+    <div class="card hidden" id="ceShare"></div>
+    <div class="card hidden" id="cePrep"></div>
+  </div>
+
+  <!-- STOP SCORECARD -->
+  <div class="tab-panel hidden soon" id="panelStops">
+    <div class="soon-card"><b>Coming soon</b><span>The stop scorecard ranks every Events stop by sales per hour, orders, average ticket and first-time customers. It&rsquo;s built and switched off for now; we&rsquo;ll turn it on when you&rsquo;re ready.</span></div>
+    <div class="page-head">
+      <h2>Stop scorecard</h2>
+      <p class="hint">How each Events stop actually did: sales per hour open, orders, average ticket and how many first-time customers it brought. Use it to decide where to go back and what to drop.</p>
+    </div>
+    <div class="sc-range" id="scRange">
+      <button type="button" data-days="30">30 days</button>
+      <button type="button" data-days="90" class="on">90 days</button>
+      <button type="button" data-days="365">12 months</button>
+    </div>
+    <div id="scMsg"></div>
+    <div class="sc-tiles" id="scTiles"></div>
+
+    <div class="section-title">By stop</div>
+    <div class="card">
+      <div style="overflow-x:auto;">
+        <table class="stack">
+          <thead><tr><th>Stop</th><th>Visits</th><th>Per hour</th><th>Orders / visit</th><th>Avg ticket</th><th>New customers</th><th>Verdict</th></tr></thead>
+          <tbody id="scPlaces"><tr class="empty-row"><td colspan="7">Loading&hellip;</td></tr></tbody>
+        </table>
+      </div>
+      <p class="hint">Verdicts compare stops with 2 or more visits: top quarter by sales per hour = Go back, bottom quarter = Rethink. One visit isn&rsquo;t enough to judge.</p>
+    </div>
+
+    <div class="section-title">By day of the week</div>
+    <div class="card"><div id="scDays" class="sc-bars"></div></div>
+
+    <div class="section-title">Every visit</div>
+    <div class="card">
+      <div style="overflow-x:auto;">
+        <table class="stack">
+          <thead><tr><th>Date</th><th>Stop</th><th>Hours</th><th>Orders</th><th>Sales</th><th>Per hour</th><th>Online</th></tr></thead>
+          <tbody id="scVisits"><tr class="empty-row"><td colspan="7">Loading&hellip;</td></tr></tbody>
+        </table>
+      </div>
+      <p class="hint">Sales include tax and tips, minus refunds. Window and Square sales count when they&rsquo;re synced into orders.</p>
+    </div>
+  </div>
+
+  <!-- ADS -->
   <div class="tab-panel hidden" id="panelAds">
     <div class="page-head">
       <h2>Ads</h2>
@@ -1272,6 +1524,9 @@
     <symbol id="ic-ban" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5.6 5.6l12.8 12.8" stroke="currentColor" stroke-width="2"/></symbol>
     <symbol id="ic-gift" viewBox="0 0 24 24"><rect x="3" y="8" width="18" height="4" rx="1" fill="none" stroke="currentColor" stroke-width="2"/><path d="M5 12v9h14v-9M12 8v13M12 8c-1.5-3-5-4-5.5-2S9 8 12 8zm0 0c1.5-3 5-4 5.5-2S15 8 12 8z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
     <symbol id="ic-target" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="5" fill="none" stroke="currentColor" stroke-width="2"/><circle cx="12" cy="12" r="1.6" fill="currentColor"/></symbol>
+    <symbol id="ic-trophy" viewBox="0 0 24 24"><path d="M8 21h8M12 17v4M7 4h10v5a5 5 0 0 1-10 0V4zM7 6H4v1a3 3 0 0 0 3 3M17 6h3v1a3 3 0 0 1-3 3" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
+    <symbol id="ic-mail" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="2" fill="none" stroke="currentColor" stroke-width="2"/><path d="M3 7l9 6 9-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
+    <symbol id="ic-building" viewBox="0 0 24 24"><path d="M4 21V5a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v16M16 9h2a2 2 0 0 1 2 2v10M2 21h20M8 7h4M8 11h4M8 15h4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></symbol>
     <symbol id="ic-megaphone" viewBox="0 0 24 24"><path d="M3 10v4h3l8 5V5L6 10H3zM18 9a4 4 0 0 1 0 6" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/></symbol>
     <symbol id="ic-tag" viewBox="0 0 24 24"><path d="M3 12V4h8l10 10-8 8L3 12z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/><circle cx="7.5" cy="8.5" r="1.5" fill="currentColor"/></symbol>
     <symbol id="ic-heart" viewBox="0 0 24 24"><path d="M12 20s-7.5-4.6-9-9.2C2 7.5 4.2 5 7 5c2 0 3.4 1.2 5 3 1.6-1.8 3-3 5-3 2.8 0 5 2.5 4 5.8C19.5 15.4 12 20 12 20z" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round"/></symbol>
@@ -1504,6 +1759,22 @@
         loadSoldOut();
         setInterval(loadSoldOut, 60000);
         document.getElementById('tabAdsBtn').classList.remove('hidden');
+        document.getElementById('tabStopsBtn').classList.remove('hidden');
+        document.getElementById('tabCateringBtn').classList.remove('hidden');
+        document.getElementById('tabCorpBtn').classList.remove('hidden');
+        document.getElementById('tabOffersBtn').classList.remove('hidden');
+        ofState.isAdmin = isAdmin;
+        document.getElementById('ofSend').classList.toggle('hidden', !isAdmin);
+        document.querySelector('.nav-link[data-tab="offers"]').addEventListener('click', loadOffers);
+        document.querySelector('.nav-link[data-tab="corpevents"]').addEventListener('click', function(){ loadCorp(true); });
+        loadCorp(false);
+        if (location.hash === '#offers') setTimeout(function(){ showTab('offers'); loadOffers(); }, 0);
+        if (location.hash === '#events') setTimeout(function(){ showTab('corpevents'); loadCorp(true); }, 0);
+        loadCatering(true);
+        setInterval(function(){ loadCatering(false); }, 120000);
+        document.querySelector('.nav-link[data-tab="catering"]').addEventListener('click', function(){ loadCatering(true); });
+        if (location.hash === '#catering') setTimeout(function(){ showTab('catering'); }, 0);
+
         adsState.isAdmin = isAdmin;
         if (isAdmin) document.getElementById('adSettingsCard').classList.remove('hidden');
         loadAds();
@@ -1563,12 +1834,15 @@
       if (h.missingOut) out.push(todoHtml(h.missingOut, 'Missing ' + (h.missingOut === 1 ? 'clock-out' : 'clock-outs'), 'From a past day. Add the hours by hand.', 'approve', true));
       if (h.certs) out.push(todoHtml(h.certs, 'Food handler ' + (h.certs === 1 ? 'cert' : 'certs') + ' expiring', 'Expired or due within 30 days.', 'documents', true));
       if (h.soldOut) out.push(todoHtml(h.soldOut, (h.soldOut === 1 ? 'Item' : 'Items') + ' marked sold out', 'Switch back on when you restock.', 'soldout'));
+      if (h.caterNew) out.push(todoHtml(h.caterNew, 'New catering ' + (h.caterNew === 1 ? 'request' : 'requests'), 'Reply within a day to win the booking.', 'catering'));
       if (h.adsPending) out.push(todoHtml(h.adsPending, (h.adsPending === 1 ? 'Ad' : 'Ads') + ' waiting for approval', adsState.isAdmin ? 'Check it and tap Approve & launch.' : 'An admin needs to approve it.', 'ads'));
       if (h.adsProblem) out.push(todoHtml(h.adsProblem, (h.adsProblem === 1 ? 'Ad needs' : 'Ads need') + ' a fix', 'It didn\u2019t start or Meta turned it down.', 'ads', true));
     }
     var badge = document.getElementById('navApproveBadge');
     var approveN = h.pendingHours + h.timeOff;
     badge.textContent = approveN; badge.classList.toggle('hidden', !approveN);
+    var cfB = document.getElementById('navCaterBadge');
+    cfB.textContent = h.caterNew || 0; cfB.classList.toggle('hidden', !h.caterNew);
     var adB = document.getElementById('navAdsBadge');
     var adN = (h.adsPending || 0) + (h.adsProblem || 0);
     adB.textContent = adN; adB.classList.toggle('hidden', !adN);
@@ -2934,6 +3208,552 @@
   }
 
   // ---------------- PROMOTIONS TAB ----------------
+  // ================= CATERING REQUESTS =================
+  var cfState = { rows:[], filter:'open', openId:null };
+  var CF_STATUS = { 'new':['New','wait'], quoted:['Quoted',''], booked:['Booked','live'], done:['Done',''], lost:['Lost','bad'] };
+  function cfMoney(c){ return c == null ? '' : '$' + (c / 100).toLocaleString('en-US', { minimumFractionDigits: c % 100 ? 2 : 0, maximumFractionDigits: 2 }); }
+  function cfCall(body){
+    return sb.functions.invoke('catering-request', { body: body }).then(function(res){
+      if (!res.error) return res.data || {};
+      var c = res.error.context;
+      return c && c.json ? c.json().then(function(j){ return j && j.error ? j : { error: res.error.message }; }, function(){ return { error: res.error.message }; }) : { error: res.error.message };
+    });
+  }
+  function loadCatering(checkPaid){
+    var go = function(){
+      sb.from('catering_requests').select('*').order('created_at', { ascending:false }).limit(200).then(function(res){
+        if (res.error) {
+          document.getElementById('cfList').innerHTML = '<p class="hint">Couldn’t load requests: ' + esc(res.error.message) + '. Run growth-pack.sql in Supabase first.</p>';
+          return;
+        }
+        cfState.rows = res.data || [];
+        homeState.caterNew = cfState.rows.filter(function(r){ return r.status === 'new'; }).length;
+        renderHomeTodo();
+        renderCatering();
+      });
+    };
+    // Ask Square about deposit links that haven't been paid yet, then load.
+    var waiting = cfState.rows.some(function(r){ return r.deposit_order_id && !r.deposit_paid_at; });
+    if (checkPaid && (waiting || !cfState.rows.length) && sb.functions) cfCall({ action:'refresh' }).then(go, go); else go();
+  }
+  function renderCatering(){
+    var f = cfState.filter;
+    var rows = cfState.rows.filter(function(r){
+      return f === 'open' ? ['new', 'quoted', 'booked'].indexOf(r.status) >= 0 : f === 'closed' ? (r.status === 'done' || r.status === 'lost') : r.status === f;
+    });
+    var box = document.getElementById('cfList');
+    if (!rows.length) { box.innerHTML = '<div class="ad-card"><div class="ad-body"><div class="ad-title">Nothing here</div><div class="ad-meta">New requests from the website’s catering forms show up here and on Today.</div></div></div>'; return; }
+    box.innerHTML = rows.map(function(r){
+      var st = CF_STATUS[r.status] || [r.status, ''];
+      var when = r.event_date ? new Date(r.event_date + 'T12:00:00').toLocaleDateString([], { weekday:'short', month:'short', day:'numeric' }) : (r.kind === 'corporate' ? (r.frequency || 'Corporate') : 'No date yet');
+      var amt = r.quote_cents != null ? [cfMoney(r.quote_cents), 'quote'] : r.estimate_cents != null ? [cfMoney(r.estimate_cents), 'estimate'] : ['', ''];
+      var dep = r.deposit_paid_at ? '<div class="cf-paid">✓ Deposit of ' + cfMoney(r.deposit_cents) + ' paid ' + esc(new Date(r.deposit_paid_at).toLocaleDateString([], { month:'short', day:'numeric' })) + '</div>'
+        : r.deposit_link ? '<div class="cf-link">Deposit link for ' + cfMoney(r.deposit_cents) + ' sent, not paid yet:<br><a href="' + esc(r.deposit_link) + '" target="_blank" rel="noopener">' + esc(r.deposit_link) + '</a></div>' : '';
+      var suggest = Math.max(50, Math.round(((r.quote_cents || r.estimate_cents || 0) * 0.25) / 100 / 5) * 5);
+      var fact = function(k, v){ return v ? '<dt>' + k + '</dt><dd>' + v + '</dd>' : ''; };
+      return '<div class="cf-card' + (cfState.openId === r.id ? ' open' : '') + '" data-cf="' + esc(r.id) + '">' +
+        '<button type="button" class="cf-head" data-cf-toggle="' + esc(r.id) + '"><div class="cf-main"><div class="cf-title"><span class="ad-chip ' + st[1] + '">' + st[0] + '</span>' + esc(r.company || r.name) + '</div>' +
+          '<div class="cf-meta">' + esc(when) + (r.guests ? ' · ' + r.guests + (r.kind === 'corporate' ? ' people' : ' guests') : '') + (r.location ? ' · ' + esc(r.location) : '') + '<br>' + esc(r.ref) + ' · asked ' + esc(new Date(r.created_at).toLocaleDateString([], { month:'short', day:'numeric' })) + (r.deposit_paid_at ? ' · deposit paid' : r.deposit_link ? ' · deposit sent' : '') + '</div></div>' +
+          '<div class="cf-amt">' + amt[0] + '<small>' + amt[1] + '</small></div></button>' +
+        '<div class="cf-body">' +
+          '<dl class="cf-facts">' + fact('Contact', esc(r.name) + (r.company ? ' (' + esc(r.company) + ')' : '')) +
+            fact('Email', '<a href="mailto:' + esc(r.email) + '?subject=' + encodeURIComponent('Your Roll-In Shawarma catering request ' + r.ref) + '">' + esc(r.email) + '</a>') +
+            fact('Phone', r.phone ? '<a href="tel:' + esc(r.phone.replace(/[^0-9+]/g, '')) + '">' + esc(r.phone) + '</a>' : '') +
+            fact('Start', r.start_time ? esc(r.start_time.slice(0, 5)) : '') + fact('Food', esc(r.package)) + fact('How often', esc(r.frequency)) +
+            fact('Estimate', cfMoney(r.estimate_cents)) + fact('Details', esc(r.details)) + '</dl>' +
+          '<div class="ad-pair"><div><label>Status</label><select data-cf-status>' + Object.keys(CF_STATUS).map(function(k){ return '<option value="' + k + '"' + (k === r.status ? ' selected' : '') + '>' + CF_STATUS[k][0] + '</option>'; }).join('') + '</select></div>' +
+            '<div><label>Quote ($)</label><input type="number" min="0" step="1" data-cf-quote value="' + (r.quote_cents != null ? r.quote_cents / 100 : '') + '"></div></div>' +
+          '<label>Notes (staff only)</label><textarea rows="2" data-cf-notes maxlength="2000">' + esc(r.staff_notes || '') + '</textarea>' +
+          '<div class="cf-row"><button type="button" class="btn-primary btn-small" data-cf-save>Save</button>' +
+            '<button type="button" class="btn-export btn-small" data-cf-event>Add to Events</button></div>' +
+          '<div style="margin-top:14px">' + dep + '</div>' +
+          (r.deposit_paid_at ? '' : '<div class="ad-pair" style="margin-top:10px"><div><label>Deposit ($)</label><input type="number" min="1" step="1" data-cf-dep value="' + (r.deposit_cents ? r.deposit_cents / 100 : suggest) + '"></div>' +
+            '<div><label>&nbsp;</label><button type="button" class="btn-approve" data-cf-send>' + (r.deposit_link ? 'Send a new link' : 'Email deposit link') + '</button></div></div>' +
+            '<p class="hint">Square makes a secure payment link and we email it to ' + esc(r.email) + '. Paid deposits show here on their own and move the request to Booked.</p>') +
+          '<div data-cf-msg></div>' +
+        '</div></div>';
+    }).join('');
+  }
+  document.getElementById('cfFilter').addEventListener('click', function(e){
+    var b = e.target.closest('button[data-f]'); if (!b) return;
+    this.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x === b); });
+    cfState.filter = b.getAttribute('data-f'); renderCatering();
+  });
+  document.getElementById('cfList').addEventListener('click', function(e){
+    var t = e.target.closest('[data-cf-toggle]');
+    if (t) { var id = t.getAttribute('data-cf-toggle'); cfState.openId = cfState.openId === id ? null : id; renderCatering(); return; }
+    var card = e.target.closest('[data-cf]'); if (!card) return;
+    var r = cfState.rows.find(function(x){ return x.id === card.getAttribute('data-cf'); }); if (!r) return;
+    var msg = card.querySelector('[data-cf-msg]');
+    var say = function(text, kind){ msg.innerHTML = '<div class="msg ' + (kind || 'ok') + '" style="margin-top:10px">' + esc(text) + '</div>'; };
+    if (e.target.closest('[data-cf-save]')) {
+      var q = card.querySelector('[data-cf-quote]').value;
+      sb.rpc('catering_update', { p_id: r.id, p_status: card.querySelector('[data-cf-status]').value, p_quote_cents: q === '' ? null : Math.round(Number(q) * 100), p_staff_notes: card.querySelector('[data-cf-notes]').value })
+        .then(function(res){ if (res.error) say(res.error.message, 'error'); else { var row = Array.isArray(res.data) ? res.data[0] : res.data; Object.assign(r, row); renderCatering(); loadCatering(false); } });
+      return;
+    }
+    if (e.target.closest('[data-cf-send]')) {
+      var dollars = Number(card.querySelector('[data-cf-dep]').value || 0);
+      if (!(dollars >= 1)) { say('Enter the deposit amount.', 'error'); return; }
+      if (!confirm('Email a ' + cfMoney(Math.round(dollars * 100)) + ' deposit link to ' + r.email + '?')) return;
+      var btn = e.target.closest('[data-cf-send]'); btn.disabled = true; btn.textContent = 'Making the link…';
+      cfCall({ action:'deposit_link', id: r.id, amount_cents: Math.round(dollars * 100) }).then(function(d){
+        btn.disabled = false;
+        if (d.error) { btn.textContent = 'Email deposit link'; say(d.error, 'error'); return; }
+        loadCatering(false);
+        setTimeout(function(){ var c2 = document.querySelector('[data-cf="' + r.id + '"] [data-cf-msg]'); if (c2) c2.innerHTML = '<div class="msg ok" style="margin-top:10px">' + (d.emailed ? 'Sent to ' + esc(r.email) + '.' : 'Link made, but the email didn’t send. Copy the link above and text it.') + '</div>'; }, 600);
+      });
+      return;
+    }
+    if (e.target.closest('[data-cf-event]')) {
+      showTab('events');
+      var set = function(id, v){ var el = document.getElementById(id); if (el && v != null) el.value = v; };
+      set('eventEditId', '');
+      set('eventTitle', 'Catering — ' + (r.company || r.name) + (r.guests ? ' (~' + r.guests + ' people)' : ''));
+      set('eventLocation', r.location || ''); set('eventMapQuery', r.location || '');
+      set('eventStartDate', r.event_date || ''); set('eventEndDate', r.event_date || '');
+      set('eventStartTime', r.start_time ? r.start_time.slice(0, 5) : '');
+      set('eventDescription', 'Private catering ' + r.ref + (r.package ? ' · ' + r.package : '') + (r.details ? '\n' + r.details : ''));
+      set('eventStatus', 'tentative');
+      var t = document.getElementById('eventTitle'); if (t) { t.scrollIntoView({ behavior:'smooth', block:'center' }); t.focus(); }
+      showMsg('eventFormMsg', 'Filled in from catering request ' + r.ref + '. It’s set to Tentative (staff only) so private events stay off the public schedule. Check it and save.', 'ok');
+    }
+  });
+
+  // ================= MEMBER OFFERS =================
+  var SB_PUBLIC = 'https://njcmcaoyzujijiyfardx.supabase.co/storage/v1/object/public/email-flyers/';
+  var ofState = { isAdmin:false, rows:[], editing:null, file:null, fileUrl:null, promosLoaded:false };
+  function fnCall(name, body){
+    return sb.functions.invoke(name, { body: body }).then(function(res){
+      if (!res.error) return res.data || {};
+      var c = res.error.context;
+      return c && c.json ? c.json().then(function(j){ return j && j.error ? j : { error: res.error.message }; }, function(){ return { error: res.error.message }; }) : { error: res.error.message };
+    }, function(e){ return { error: (e && e.message) || 'No answer' }; });
+  }
+  function ofFlyerSrc(path){ return path ? SB_PUBLIC + path.split('/').map(encodeURIComponent).join('/') : ''; }
+  function loadOffers(){
+    sb.rpc('offers_audience').then(function(res){
+      var t = document.getElementById('ofAudienceText'), box = document.getElementById('ofAudience');
+      if (res.error) { box.className = 'ad-conn bad'; t.textContent = 'Run growth-pack.sql in Supabase to turn on member offers.'; return; }
+      var d = res.data || {};
+      box.className = 'ad-conn ok';
+      t.textContent = (d.on || 0) + ' member' + (d.on === 1 ? '' : 's') + ' get offer emails (out of ' + (d.members || 0) + ').';
+      ofState.audience = d.on || 0;
+    });
+    if (!ofState.promosLoaded) {
+      ofState.promosLoaded = true;
+      sb.from('promo_codes').select('code, is_active, expires_at').order('created_at', { ascending:false }).then(function(res){
+        var now = new Date();
+        document.getElementById('ofPromo').innerHTML = '<option value="">No code</option>' + (res.data || []).filter(function(p){ return p.is_active && (!p.expires_at || new Date(p.expires_at) > now); })
+          .map(function(p){ return '<option>' + esc(p.code) + '</option>'; }).join('');
+      });
+    }
+    sb.from('member_offers').select('*').order('created_at', { ascending:false }).limit(30).then(function(res){
+      var box = document.getElementById('ofList');
+      if (res.error) { box.innerHTML = '<p class="hint">Couldn’t load offers: ' + esc(res.error.message) + '</p>'; return; }
+      ofState.rows = res.data || [];
+      if (!ofState.rows.length) { box.innerHTML = '<div class="ad-card"><div class="ad-body"><div class="ad-title">No offers yet</div><div class="ad-meta">Tap New offer, add this week’s flyer and send it to your members.</div></div></div>'; return; }
+      box.innerHTML = ofState.rows.map(function(o){
+        var chip = o.status === 'sent' ? ['Sent to ' + o.sent_count, 'live'] : o.status === 'sending' ? ['Partly sent (' + o.sent_count + ')', 'wait'] : ['Draft', ''];
+        var btns = (o.status === 'draft' ? '<button class="btn-export btn-small" data-of="edit" data-id="' + esc(o.id) + '">Edit</button>' : '') +
+          (o.status === 'sending' && ofState.isAdmin ? '<button class="btn-approve btn-small" data-of="resume" data-id="' + esc(o.id) + '">Finish sending</button>' : '') +
+          '<button class="btn-export btn-small" data-of="copy" data-id="' + esc(o.id) + '">' + (o.status === 'draft' ? 'Duplicate' : 'Send again as new') + '</button>';
+        return '<div class="ad-card"><div class="ad-thumb" style="' + (o.flyer_path ? 'background-image:url(&quot;' + esc(ofFlyerSrc(o.flyer_path)) + '&quot;)' : '') + '"></div><div class="ad-body">' +
+          '<div class="ad-title"><span class="ad-chip ' + chip[1] + '">' + esc(chip[0]) + '</span>' + esc(o.headline) + '</div>' +
+          '<div class="ad-meta">' + esc(o.subject) + (o.promo_code ? ' · code ' + esc(o.promo_code) : '') + (o.sent_at ? '<br>Sent ' + esc(new Date(o.sent_at).toLocaleString([], { weekday:'short', month:'short', day:'numeric', hour:'numeric', minute:'2-digit' })) : '') + '</div>' +
+          '<div class="ad-btns">' + btns + '</div></div></div>';
+      }).join('');
+    });
+  }
+  function ofOpen(o, copy){
+    ofState.editing = o && !copy ? o : null;
+    ofState.file = null; if (ofState.fileUrl) { URL.revokeObjectURL(ofState.fileUrl); ofState.fileUrl = null; }
+    ofState.keepFlyer = o ? o.flyer_path : null;
+    document.getElementById('ofEditorTitle').textContent = ofState.editing ? 'Edit offer' : copy ? 'New offer (copied)' : 'New offer';
+    var v = function(id, x){ document.getElementById(id).value = x == null ? '' : x; };
+    v('ofSubject', o && o.subject); v('ofHeadline', o && o.headline); v('ofBody', o && o.body); v('ofUntil', o && !copy ? o.valid_until : '');
+    v('ofButton', (o && o.button_text) || 'Order now'); document.getElementById('ofFile').value = '';
+    var pr = document.getElementById('ofPromo');
+    if (o && o.promo_code && !pr.querySelector('option[value="' + o.promo_code + '"]')) pr.insertAdjacentHTML('beforeend', '<option>' + esc(o.promo_code) + '</option>');
+    pr.value = (o && o.promo_code) || '';
+    clearMsg('ofEditMsg');
+    document.getElementById('ofSendHint').textContent = ofState.isAdmin ? '' : 'Only an admin can send to all members. Save it and send yourself a test; an admin sends it.';
+    var ed = document.getElementById('ofEditor'); ed.classList.remove('hidden');
+    ofPreview(); ed.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+  function ofPreview(){
+    var g = function(id){ return document.getElementById(id).value; };
+    document.getElementById('ofSubjectCount').textContent = g('ofSubject').length + '/120';
+    document.getElementById('ofHeadCount').textContent = g('ofHeadline').length + '/80';
+    var src = ofState.fileUrl || ofFlyerSrc(ofState.keepFlyer);
+    var until = g('ofUntil') ? new Date(g('ofUntil') + 'T12:00:00').toLocaleDateString([], { weekday:'long', month:'short', day:'numeric' }) : '';
+    document.getElementById('ofPreview').innerHTML = '<div class="of-mail">' + (src ? '<img src="' + esc(src) + '" alt="">' : '<div class="of-noimg">Your flyer shows here</div>') +
+      '<div class="of-in"><div class="of-kick">Members only</div><div class="of-head">' + esc(g('ofHeadline') || 'Your headline') + '</div>' +
+      '<div class="of-body">Hi Sam,\n' + esc(g('ofBody')) + '</div>' +
+      (g('ofPromo') ? '<div class="of-code"><small>Use code at checkout</small><b>' + esc(g('ofPromo')) + '</b></div>' : '') +
+      (until ? '<div class="of-until">Good through ' + esc(until) + '.</div>' : '') +
+      '<span class="of-btn">' + esc(g('ofButton') || 'Order now') + '</span></div></div>';
+  }
+  ['ofSubject', 'ofHeadline', 'ofBody', 'ofPromo', 'ofUntil', 'ofButton'].forEach(function(id){
+    document.getElementById(id).addEventListener('input', ofPreview); document.getElementById(id).addEventListener('change', ofPreview);
+  });
+  document.getElementById('ofFile').addEventListener('change', function(){
+    var f = this.files && this.files[0]; ofState.file = null;
+    if (!f) return;
+    if (!/^image\/(jpeg|png)$/.test(f.type)) { showMsg('ofEditMsg', 'Use a JPG or PNG picture.', 'error'); this.value = ''; return; }
+    if (f.size > 5 * 1024 * 1024) { showMsg('ofEditMsg', 'That picture is over 5 MB. Export a smaller one (about 1080 pixels wide).', 'error'); this.value = ''; return; }
+    clearMsg('ofEditMsg'); ofState.file = f;
+    if (ofState.fileUrl) URL.revokeObjectURL(ofState.fileUrl);
+    ofState.fileUrl = URL.createObjectURL(f); ofPreview();
+  });
+  function ofSave(){
+    var upload = Promise.resolve(ofState.keepFlyer || null);
+    if (ofState.file) {
+      var path = 'offers/' + new Date().toISOString().slice(0, 10) + '-' + Math.random().toString(36).slice(2, 10) + (ofState.file.type === 'image/png' ? '.png' : '.jpg');
+      upload = sb.storage.from('email-flyers').upload(path, ofState.file, { contentType: ofState.file.type, upsert:false }).then(function(r){
+        if (r.error) throw new Error('Couldn’t upload the flyer: ' + r.error.message);
+        return path;
+      });
+    }
+    return upload.then(function(path){
+      return sb.rpc('offers_save', { p_id: ofState.editing ? ofState.editing.id : null, p_subject: document.getElementById('ofSubject').value, p_headline: document.getElementById('ofHeadline').value,
+        p_body: document.getElementById('ofBody').value, p_promo_code: document.getElementById('ofPromo').value || null, p_valid_until: document.getElementById('ofUntil').value || null,
+        p_flyer_path: path, p_button_text: document.getElementById('ofButton').value }).then(function(r){
+        if (r.error) throw new Error(r.error.message);
+        var row = Array.isArray(r.data) ? r.data[0] : r.data;
+        ofState.editing = row; ofState.keepFlyer = row.flyer_path; ofState.file = null;
+        return row;
+      });
+    });
+  }
+  function ofBusy(btn, on, text){ btn.disabled = on; if (text) btn.textContent = text; }
+  document.getElementById('ofNewBtn').addEventListener('click', function(){ ofOpen(null); });
+  document.getElementById('ofClose').addEventListener('click', function(){ document.getElementById('ofEditor').classList.add('hidden'); });
+  document.getElementById('ofSave').addEventListener('click', function(){
+    var b = this; ofBusy(b, true, 'Saving…');
+    ofSave().then(function(){ ofBusy(b, false, 'Save draft'); showMsg('ofEditMsg', 'Saved.', 'ok'); loadOffers(); }, function(e){ ofBusy(b, false, 'Save draft'); showMsg('ofEditMsg', e.message, 'error'); });
+  });
+  document.getElementById('ofTest').addEventListener('click', function(){
+    var b = this; ofBusy(b, true, 'Sending…');
+    ofSave().then(function(row){ return fnCall('member-offers', { action:'test', id: row.id }); }).then(function(d){
+      ofBusy(b, false, 'Send me a test');
+      if (d.error) showMsg('ofEditMsg', 'Couldn’t send the test: ' + d.error + (/not found|404/i.test(d.error) ? ' (deploy the member-offers function)' : ''), 'error');
+      else { showMsg('ofEditMsg', 'Test sent to ' + d.sent_to + '. Check how it looks on your phone.', 'ok'); loadOffers(); }
+    }, function(e){ ofBusy(b, false, 'Send me a test'); showMsg('ofEditMsg', e.message, 'error'); });
+  });
+  function ofSendAll(id, btn, label){
+    var n = ofState.audience;
+    if (!confirm('Send this offer to ' + (n != null ? n + ' members' : 'all members') + ' now? This can’t be undone.')) return;
+    ofBusy(btn, true, 'Sending…');
+    fnCall('member-offers', { action:'send', id: id }).then(function(d){
+      ofBusy(btn, false, label);
+      if (d.error) showMsg('ofMsg', d.error, 'error');
+      else { showMsg('ofMsg', 'Sent to ' + d.sent + ' members.', 'ok'); document.getElementById('ofEditor').classList.add('hidden'); }
+      loadOffers(); document.getElementById('ofMsg').scrollIntoView({ behavior:'smooth', block:'center' });
+    });
+  }
+  document.getElementById('ofSend').addEventListener('click', function(){
+    var b = this;
+    if (!document.getElementById('ofSubject').value.trim() || !document.getElementById('ofHeadline').value.trim()) { showMsg('ofEditMsg', 'Add a subject and a headline first.', 'error'); return; }
+    ofBusy(b, true, 'Saving…');
+    ofSave().then(function(row){ ofBusy(b, false, 'Send to all members'); ofSendAll(row.id, b, 'Send to all members'); }, function(e){ ofBusy(b, false, 'Send to all members'); showMsg('ofEditMsg', e.message, 'error'); });
+  });
+  document.getElementById('ofList').addEventListener('click', function(e){
+    var b = e.target.closest('[data-of]'); if (!b) return;
+    var o = ofState.rows.find(function(x){ return x.id === b.getAttribute('data-id'); }); if (!o) return;
+    var a = b.getAttribute('data-of');
+    if (a === 'edit') ofOpen(o); else if (a === 'copy') ofOpen(o, true); else if (a === 'resume') ofSendAll(o.id, b, 'Finish sending');
+  });
+
+  // ================= CORPORATE EVENTS =================
+  var ceState = { rows:[], editing:null, checked:false };
+  function ceLinks(e){
+    return { order: 'https://rollinshawarma.com/?event=' + encodeURIComponent(e.code) + '#menu',
+             board: 'https://rollinshawarma.com/eventboard.html?e=' + encodeURIComponent(e.code),
+             host: 'https://rollinshawarma.com/eventboard.html?e=' + encodeURIComponent(e.code) + '&k=' + encodeURIComponent(e.host_key) };
+  }
+  function ceT(iso, o){ return new Date(iso).toLocaleString([], Object.assign({ timeZone:'America/New_York' }, o)); }
+  function ceDay(iso){ return ceT(iso, { weekday:'short', month:'short', day:'numeric' }); }
+  function ceClock(iso){ return ceT(iso, { hour:'numeric', minute:'2-digit' }); }
+  // Ohio wall-clock date + time -> ISO
+  function ceOhio(date, time){
+    if (!date || !time) return null;
+    var guess = new Date(date + 'T' + time + ':00Z');
+    var p = new Intl.DateTimeFormat('en-US', { timeZone:'America/New_York', year:'numeric', month:'2-digit', day:'2-digit', hour:'2-digit', minute:'2-digit', hourCycle:'h23' }).formatToParts(guess);
+    var o = {}; p.forEach(function(x){ o[x.type] = x.value; });
+    var asOhio = Date.UTC(+o.year, +o.month - 1, +o.day, +o.hour % 24, +o.minute);
+    return new Date(guess.getTime() + (guess.getTime() - asOhio)).toISOString();
+  }
+  function ceStatus(e){
+    var now = Date.now(), cut = new Date(e.ends_at).getTime() - (e.last_order_min || 0) * 60000;
+    if (e.status === 'canceled') return ['Canceled', 'bad'];
+    if (new Date(e.ends_at).getTime() < now) return ['Done', ''];
+    if (new Date(e.starts_at).getTime() <= now) return [e.status === 'closed' || now >= cut ? 'Live · orders closed' : 'Live now', 'live'];
+    if (e.status === 'closed') return ['Orders paused', 'wait'];
+    if (e.opens_at && new Date(e.opens_at).getTime() > now) return ['Link opens ' + ceDay(e.opens_at), 'wait'];
+    return ['Taking pre-orders', 'live'];
+  }
+  function loadCorp(checkBills){
+    var go = function(){
+      sb.rpc('corp_events_report', { p_days: 90 }).then(function(res){
+        var box = document.getElementById('ceList');
+        if (res.error) { box.innerHTML = '<p class="hint">Couldn’t load events: ' + esc(res.error.message) + '. Run growth-pack.sql in Supabase first.</p>'; return; }
+        ceState.rows = res.data || [];
+        var live = ceState.rows.filter(function(e){ return e.status !== 'canceled' && new Date(e.starts_at) <= new Date() && new Date(e.ends_at) > new Date(); }).length;
+        var badge = document.getElementById('navCorpBadge'); badge.textContent = live ? 'Live' : ''; badge.classList.toggle('hidden', !live);
+        if (!ceState.rows.length) { box.innerHTML = '<div class="ad-card"><div class="ad-body"><div class="ad-title">No corporate events yet</div><div class="ad-meta">Tap New event, fill in the company and time, then email them the links.</div></div></div>'; return; }
+        box.innerHTML = ceState.rows.map(function(e){
+          var st = ceStatus(e), tab = e.billing === 'company', n = Number(e.orders), id = esc(e.event_id), past = new Date(e.ends_at) < new Date();
+          var bill = !tab ? '' : e.bill_paid_at ? ' · <b style="color:#146c3a">bill paid ✓</b>' : e.bill_link ? ' · bill sent (' + scMoney(e.bill_cents / 100) + ')' : '';
+          var btns = '<button class="btn-primary btn-small" data-ce="share" data-id="' + id + '">Links &amp; email</button>' +
+            '<a class="btn-export btn-small" href="' + esc(ceLinks(e).board) + '" target="_blank" rel="noopener">Live board</a>' +
+            '<button class="btn-export btn-small" data-ce="prep" data-id="' + id + '">Orders</button>' +
+            (!past && e.status !== 'canceled' ? '<button class="btn-export btn-small" data-ce="edit" data-id="' + id + '">Edit</button>' : '') +
+            (!past && e.status === 'open' ? '<button class="btn-export btn-small" data-ce="pause" data-id="' + id + '">Stop orders</button>' : '') +
+            (!past && e.status === 'closed' ? '<button class="btn-export btn-small" data-ce="open" data-id="' + id + '">Take orders again</button>' : '') +
+            (tab && Number(e.tab_total) > 0 && !e.bill_paid_at ? '<button class="btn-approve btn-small" data-ce="bill" data-id="' + id + '">' + (e.bill_link ? 'Send a new bill' : 'Bill ' + esc(e.company)) + '</button>' : '') +
+            (!past && e.status !== 'canceled' ? '<button class="btn-export btn-small" data-ce="cancel" data-id="' + id + '">Cancel</button>' : '');
+          return '<div class="ad-card"><div class="ad-body">' +
+            '<div class="ad-title"><span class="ad-chip ' + st[1] + '">' + esc(st[0]) + '</span>' + esc(e.name) + ' <span class="hint">· ' + esc(e.company) + '</span></div>' +
+            '<div class="ad-meta">' + esc(ceDay(e.starts_at)) + ', ' + esc(ceClock(e.starts_at)) + '–' + esc(ceClock(e.ends_at)) + (e.location ? ' · ' + esc(e.location) : '') +
+              '<br>' + (tab ? 'Company pays' + (e.per_person_cents ? ' (up to ' + scMoney(e.per_person_cents / 100) + ' each)' : '') : 'Guests pay') +
+              ' · <b>' + n + ' order' + (n === 1 ? '' : 's') + '</b>' + (e.expected_guests ? ' of ~' + e.expected_guests : '') + ' · ' + scMoney(e.sales) +
+              (tab ? ' · tab ' + scMoney(e.tab_total) + (e.budget_cents ? ' of ' + scMoney(e.budget_cents / 100) : '') : '') + bill + '</div>' +
+            (e.expected_guests ? '<div class="dr-prog"><i style="width:' + Math.min(100, Math.round(100 * n / e.expected_guests)) + '%"></i></div>' : '') +
+            '<div class="ad-btns">' + btns + '</div></div></div>';
+        }).join('');
+      });
+    };
+    var waiting = ceState.rows.some(function(e){ return e.bill_link && !e.bill_paid_at; });
+    if (checkBills && (waiting || !ceState.checked) && sb.functions) { ceState.checked = true; fnCall('corp-events', { action:'refresh' }).then(go, go); } else go();
+  }
+  function ceFind(id){ return ceState.rows.find(function(e){ return e.event_id === id; }); }
+  function ceBilling(){ var r = document.querySelector('input[name="ceBilling"]:checked'); return r ? r.value : 'guest'; }
+  function ceToggle(){
+    document.getElementById('ceCompanyBox').classList.toggle('hidden', ceBilling() !== 'company');
+    document.getElementById('ceOpensRow').classList.toggle('hidden', document.getElementById('ceOpenNow').checked);
+  }
+  document.querySelectorAll('input[name="ceBilling"]').forEach(function(r){ r.addEventListener('change', ceToggle); });
+  document.getElementById('ceOpenNow').addEventListener('change', ceToggle);
+  function ceOpen(e){
+    ceState.editing = e || null;
+    document.getElementById('ceEditorTitle').textContent = e ? 'Edit ' + e.name : 'New corporate event';
+    var v = function(id, x){ document.getElementById(id).value = x == null ? '' : x; };
+    var ymd = function(iso){ return new Intl.DateTimeFormat('en-CA', { timeZone:'America/New_York' }).format(new Date(iso)); };
+    var hm = function(iso){ return new Date(iso).toLocaleTimeString('en-GB', { timeZone:'America/New_York', hour:'2-digit', minute:'2-digit' }); };
+    v('ceName', e && e.name); v('ceCompany', e && e.company); v('ceContact', e && e.contact_name); v('ceEmail', e && e.contact_email);
+    v('ceLocation', e && e.location); v('ceNote', e && e.pickup_note); v('ceGuests', e && e.expected_guests);
+    v('ceDate', e ? ymd(e.starts_at) : ''); v('ceStart', e ? hm(e.starts_at) : '11:30'); v('ceEnd', e ? hm(e.ends_at) : '13:30');
+    v('ceLast', e ? String(e.last_order_min) : '15');
+    document.getElementById('ceOpenNow').checked = !(e && e.opens_at);
+    v('ceOpensDate', e && e.opens_at ? ymd(e.opens_at) : ''); v('ceOpensTime', e && e.opens_at ? hm(e.opens_at) : '08:00');
+    document.querySelector('input[name="ceBilling"][value="' + (e ? e.billing : 'guest') + '"]').checked = true;
+    v('ceLimit', e && e.per_person_cents ? e.per_person_cents / 100 : ''); v('ceBudget', e && e.budget_cents ? e.budget_cents / 100 : '');
+    v('ceDomain', e && e.email_domain); document.getElementById('ceOne').checked = e ? !!e.one_per_person : true;
+    ceToggle(); clearMsg('ceEditMsg');
+    var ed = document.getElementById('ceEditor'); ed.classList.remove('hidden'); ed.scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+  function ceSaveRow(e, status){
+    return sb.rpc('corp_events_save', { p_id: e.event_id, p_name: e.name, p_company: e.company, p_contact_name: e.contact_name, p_contact_email: e.contact_email,
+      p_location: e.location, p_pickup_note: e.pickup_note, p_opens_at: e.opens_at, p_starts_at: e.starts_at, p_ends_at: e.ends_at, p_last_order_min: e.last_order_min,
+      p_billing: e.billing, p_per_person_cents: e.per_person_cents, p_email_domain: e.email_domain, p_one_per_person: e.one_per_person, p_budget_cents: e.budget_cents,
+      p_expected_guests: e.expected_guests, p_status: status });
+  }
+  document.getElementById('ceNewBtn').addEventListener('click', function(){ ceOpen(null); });
+  document.getElementById('ceClose').addEventListener('click', function(){ document.getElementById('ceEditor').classList.add('hidden'); });
+  document.getElementById('ceSave').addEventListener('click', function(){
+    var g = function(id){ return document.getElementById(id).value.trim(); };
+    var date = g('ceDate');
+    if (!date) { showMsg('ceEditMsg', 'Pick the day.', 'error'); return; }
+    var starts = ceOhio(date, g('ceStart')), ends = ceOhio(date, g('ceEnd'));
+    if (ends && starts && ends <= starts) ends = new Date(new Date(ends).getTime() + 86400000).toISOString();   // past midnight
+    var opens = document.getElementById('ceOpenNow').checked ? null : ceOhio(g('ceOpensDate'), g('ceOpensTime'));
+    if (!document.getElementById('ceOpenNow').checked && !opens) { showMsg('ceEditMsg', 'Pick when ordering opens, or tick “Take orders as soon as I send the link”.', 'error'); return; }
+    var company = ceBilling() === 'company';
+    if (company && (!(Number(g('ceLimit')) > 0) || !(Number(g('ceBudget')) > 0) || !g('ceDomain'))) { showMsg('ceEditMsg', 'When the company pays, fill in the food limit per person, the total budget and their work email domain.', 'error'); return; }
+    var cents = function(id){ var x = Number(g(id)); return x > 0 ? Math.round(x * 100) : null; };
+    var b = this; b.disabled = true;
+    sb.rpc('corp_events_save', { p_id: ceState.editing ? ceState.editing.event_id : null, p_name: g('ceName'), p_company: g('ceCompany'),
+      p_contact_name: g('ceContact') || null, p_contact_email: g('ceEmail') || null, p_location: g('ceLocation') || null, p_pickup_note: g('ceNote') || null,
+      p_opens_at: opens, p_starts_at: starts, p_ends_at: ends, p_last_order_min: Number(g('ceLast')), p_billing: ceBilling(),
+      p_per_person_cents: company ? cents('ceLimit') : null, p_email_domain: company ? (g('ceDomain') || null) : null,
+      p_one_per_person: company && document.getElementById('ceOne').checked, p_budget_cents: company ? cents('ceBudget') : null,
+      p_expected_guests: g('ceGuests') ? Number(g('ceGuests')) : null, p_status: ceState.editing ? ceState.editing.status : 'open' }).then(function(res){
+      b.disabled = false;
+      if (res.error) { showMsg('ceEditMsg', res.error.message, 'error'); return; }
+      var row = Array.isArray(res.data) ? res.data[0] : res.data;
+      document.getElementById('ceEditor').classList.add('hidden');
+      row.event_id = row.id;
+      ceShare(row);
+      loadCorp(false);
+    });
+  });
+  function ceShare(e){
+    var L = ceLinks(e), box = document.getElementById('ceShare'), tab = e.billing === 'company';
+    var link = function(title, sub, url, extra){
+      return '<div class="ce-link"><b>' + title + '</b><small>' + sub + '</small><code>' + esc(url) + '</code><div class="ad-btns">' +
+        '<button type="button" class="btn-export btn-small" data-copy="' + esc(url) + '">Copy</button><a class="btn-export btn-small" href="' + esc(url) + '" target="_blank" rel="noopener">Open</a>' + (extra || '') + '</div></div>';
+    };
+    box.innerHTML = '<h2>' + esc(e.name) + ' · links</h2>' +
+      '<div class="ce-links">' +
+        link('Order link', 'For everyone at the event. Post the QR code in the break room or send it to the team.', L.order, '<button type="button" class="btn-export btn-small" data-qr-dl>Download QR</button>') +
+        '<div class="ce-qr" id="ceQr"></div>' +
+        link('Live board', 'Put it on a TV at the venue: every order as it’s made and when it’s ready, with a QR to order.', L.board) +
+        (tab ? link('Host page', 'Only for the company contact: who ordered and the running tab. Don’t share it widely.', L.host) : '') +
+      '</div>' +
+      '<label for="ceTo">Email the links to</label><input type="email" id="ceTo" value="' + esc(e.contact_email || '') + '" placeholder="contact@company.com">' +
+      '<label for="ceNoteMsg">Add a note (optional)</label><textarea id="ceNoteMsg" rows="2" maxlength="1000" placeholder="e.g. We’ll park by the north entrance."></textarea>' +
+      '<div class="ad-btns"><button type="button" class="btn-primary btn-small" data-ce-email="' + esc(e.event_id) + '">Email the links</button><button type="button" class="btn-export btn-small" data-close-card="ceShare">Close</button></div>' +
+      '<div id="ceShareMsg"></div>';
+    box.classList.remove('hidden'); box.scrollIntoView({ behavior:'smooth', block:'start' });
+    var draw = function(){ var q = qrcode(0, 'M'); q.addData(L.order); q.make(); var el = document.getElementById('ceQr'); if (el) el.innerHTML = q.createSvgTag({ scalable:true, margin:2 }); ceState.qrSvg = el ? el.innerHTML : ''; ceState.qrName = (e.name || 'event').replace(/[^A-Za-z0-9]+/g, '-'); };
+    if (window.qrcode) draw();
+    else { var s = document.createElement('script'); s.src = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js'; s.onload = draw; document.head.appendChild(s); }
+  }
+  function cePrep(e){
+    var box = document.getElementById('cePrep');
+    box.innerHTML = '<p class="hint">Loading orders&hellip;</p>'; box.classList.remove('hidden');
+    sb.rpc('corp_event_orders', { p_id: e.event_id }).then(function(res){
+      if (res.error) { box.innerHTML = '<p class="hint">' + esc(res.error.message) + '</p>'; return; }
+      var orders = res.data || [], tally = {};
+      orders.forEach(function(o){ (o.items || []).forEach(function(i){ tally[i.name] = (tally[i.name] || 0) + Number(i.qty || 0); }); });
+      var names = Object.keys(tally).sort(function(a, b){ return tally[b] - tally[a]; });
+      var stageTxt = { scheduled:'Ordered ahead', received:'Received', preparing:'Preparing', ready:'Ready', picked_up:'Picked up' };
+      box.innerHTML = '<h2>' + esc(e.name) + ' · orders</h2><p class="hint">' + orders.length + ' order' + (orders.length === 1 ? '' : 's') + '. They’re also on the kitchen board.</p>' +
+        (names.length ? '<div class="section-title" style="margin-top:6px">Cook</div><div class="dr-items">' + names.map(function(n){ return '<b>' + tally[n] + '×</b><span>' + esc(n) + '</span>'; }).join('') + '</div>' : '') +
+        (orders.length ? '<div class="section-title">By person</div>' + orders.map(function(o){
+          return '<div class="dr-bag"><b>' + esc(o.name || 'No name') + '</b> <small>' + esc(o.ref || '') + (o.tab ? ' · company tab' : '') + '</small> <span class="ce-stage ' + esc(o.stage) + '">' + (stageTxt[o.stage] || '') + '</span><br>' +
+            (o.items || []).map(function(i){ return esc(i.qty + '× ' + i.name) + (i.note ? ' <small>(' + esc(i.note) + ')</small>' : ''); }).join('<br>') + '</div>';
+        }).join('') : '<p>No orders yet.</p>') +
+        '<div class="ad-btns" style="margin-top:12px"><button type="button" class="btn-primary btn-small" data-print-ce>Print</button><button type="button" class="btn-export btn-small" data-close-card="cePrep">Close</button></div>';
+      box.scrollIntoView({ behavior:'smooth', block:'start' });
+    });
+  }
+  document.getElementById('panelCorpevents').addEventListener('click', function(ev){
+    var cp = ev.target.closest('[data-copy]');
+    if (cp) { if (navigator.clipboard) navigator.clipboard.writeText(cp.getAttribute('data-copy')); cp.textContent = 'Copied'; setTimeout(function(){ cp.textContent = 'Copy'; }, 1500); return; }
+    if (ev.target.closest('[data-qr-dl]')) {
+      if (!ceState.qrSvg) return;
+      var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([ceState.qrSvg], { type:'image/svg+xml' })); a.download = ceState.qrName + '-order-QR.svg';
+      document.body.appendChild(a); a.click(); a.remove(); return;
+    }
+    var cl = ev.target.closest('[data-close-card]'); if (cl) { document.getElementById(cl.getAttribute('data-close-card')).classList.add('hidden'); return; }
+    if (ev.target.closest('[data-print-ce]')) {
+      var w = window.open('', '_blank'); if (!w) return;
+      w.document.write('<!doctype html><title>Orders</title><style>body{font:14px Arial,sans-serif;margin:24px}button,.ad-btns{display:none}.dr-items{display:grid;grid-template-columns:auto 1fr;gap:4px 12px}.dr-bag{border-top:1px solid #ccc;padding:8px 0;break-inside:avoid}</style>' + document.getElementById('cePrep').innerHTML);
+      w.document.close(); w.focus(); w.print(); return;
+    }
+    var em = ev.target.closest('[data-ce-email]');
+    if (em) {
+      var to = document.getElementById('ceTo').value.trim();
+      em.disabled = true; em.textContent = 'Sending…';
+      fnCall('corp-events', { action:'email_links', id: em.getAttribute('data-ce-email'), to: to, note: document.getElementById('ceNoteMsg').value }).then(function(d){
+        em.disabled = false; em.textContent = 'Email the links';
+        if (d.error) showMsg('ceShareMsg', d.error + (/not found|404/i.test(d.error) ? ' (deploy the corp-events function)' : ''), 'error');
+        else showMsg('ceShareMsg', 'Sent to ' + d.sent_to + '.', 'ok');
+      });
+      return;
+    }
+    var b = ev.target.closest('[data-ce]'); if (!b) return;
+    var e = ceFind(b.getAttribute('data-id')); if (!e) return;
+    var act = b.getAttribute('data-ce');
+    clearMsg('ceMsg');
+    if (act === 'share') return ceShare(e);
+    if (act === 'prep') return cePrep(e);
+    if (act === 'edit') return ceOpen(e);
+    if (act === 'bill') {
+      if (!e.contact_email) { showMsg('ceMsg', 'Add the contact’s email to the event first (Edit).', 'error'); return; }
+      if (!confirm('Email ' + e.contact_email + ' a bill for ' + scMoney(e.tab_total) + ' (' + e.orders + ' orders on the tab)?' + (e.bill_link ? '\n\nThe earlier bill link stops working.' : ''))) return;
+      b.disabled = true; b.textContent = 'Making the bill…';
+      fnCall('corp-events', { action:'bill', id: e.event_id }).then(function(d){
+        if (d.error) showMsg('ceMsg', d.error, 'error'); else showMsg('ceMsg', 'Bill for ' + scMoney(d.total_cents / 100) + ' sent to ' + e.contact_email + '. It shows as paid here once they pay.', 'ok');
+        loadCorp(false);
+      });
+      return;
+    }
+    var next = act === 'pause' ? 'closed' : act === 'open' ? 'open' : 'canceled';
+    if (act === 'cancel' && !confirm('Cancel ' + e.name + '? The links stop working.' + (Number(e.orders) ? ' ' + e.orders + ' order(s) were already placed; refund guest-paid ones in Square.' : ''))) return;
+    ceSaveRow(e, next).then(function(res){ if (res.error) showMsg('ceMsg', res.error.message, 'error'); else loadCorp(false); });
+  });
+
+  // ================= STOP SCORECARD =================
+  var scState = { days:90, loaded:false };
+  function scMoney(n){ n = Number(n || 0); return '$' + (n >= 1000 ? Math.round(n).toLocaleString() : n.toFixed(n % 1 ? 2 : 0)); }
+  function scQuantile(arr, q){ if (!arr.length) return 0; var a = arr.slice().sort(function(x, y){ return x - y; }); var i = (a.length - 1) * q, lo = Math.floor(i), hi = Math.ceil(i); return a[lo] + (a[hi] - a[lo]) * (i - lo); }
+  function loadScorecard(){
+    scState.loaded = true;
+    var to = new Date(), from = new Date(Date.now() - scState.days * 86400000);
+    var ds = function(d){ return d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); };
+    document.getElementById('scPlaces').innerHTML = '<tr class="empty-row"><td colspan="7">Loading&hellip;</td></tr>';
+    sb.rpc('stops_scorecard', { p_from: ds(from), p_to: ds(to) }).then(function(res){
+      if (res.error) {
+        showMsg('scMsg', 'Couldn’t load the scorecard: ' + res.error.message + (/function|schema/i.test(res.error.message) ? ' (run growth-pack.sql in Supabase)' : ''), 'error');
+        return;
+      }
+      clearMsg('scMsg');
+      renderScorecard(res.data || []);
+    });
+  }
+  function renderScorecard(rows){
+    var tiles = document.getElementById('scTiles');
+    if (!rows.length) {
+      tiles.innerHTML = '';
+      ['scPlaces', 'scVisits'].forEach(function(id){ document.getElementById(id).innerHTML = '<tr class="empty-row"><td colspan="7">No confirmed Events stops in this range yet.</td></tr>'; });
+      document.getElementById('scDays').innerHTML = '<p class="hint">Nothing to show yet.</p>';
+      return;
+    }
+    // ---- group visits by stop ----
+    var places = {}, order = [];
+    rows.forEach(function(r){
+      var k = (String(r.title || '') + '|' + String(r.location || '')).toLowerCase().trim();
+      if (!places[k]) { places[k] = { title:r.title, location:r.location, visits:0, hours:0, orders:0, sales:0, known:0, fresh:0 }; order.push(k); }
+      var p = places[k];
+      p.visits++; p.hours += Number(r.hours); p.orders += r.orders; p.sales += Number(r.sales); p.known += r.known_customers; p.fresh += r.new_customers;
+    });
+    var list = order.map(function(k){ var p = places[k]; p.perHour = p.hours ? p.sales / p.hours : 0; return p; });
+    var judged = list.filter(function(p){ return p.visits >= 2; }).map(function(p){ return p.perHour; });
+    var hi = scQuantile(judged, 0.75), lo = scQuantile(judged, 0.25);
+    list.sort(function(a, b){ return b.perHour - a.perHour; });
+    document.getElementById('scPlaces').innerHTML = list.map(function(p){
+      var v = p.visits < 2 ? ['Try again', ''] : judged.length < 3 ? ['Keep watching', ''] : p.perHour >= hi ? ['Go back', 'good'] : p.perHour <= lo ? ['Rethink', 'bad'] : ['Fine', ''];
+      return '<tr><td><b>' + esc(p.title) + '</b>' + (p.location ? ' <small class="hint">\u00b7 ' + esc(p.location) + '</small>' : '') + '</td><td>' + p.visits + '</td><td><b>' + scMoney(p.perHour) + '</b></td>' +
+        '<td>' + (p.orders / p.visits).toFixed(1) + '</td><td>' + (p.orders ? scMoney(p.sales / p.orders) : '—') + '</td>' +
+        '<td>' + (p.known ? Math.round(100 * p.fresh / p.known) + '%' : '—') + '</td><td><span class="sc-verdict ' + v[1] + '">' + v[0] + '</span></td></tr>';
+    }).join('');
+
+    // ---- tiles ----
+    var tot = rows.reduce(function(a, r){ a.h += Number(r.hours); a.s += Number(r.sales); a.o += r.orders; a.k += r.known_customers; a.n += r.new_customers; return a; }, { h:0, s:0, o:0, k:0, n:0 });
+    var best = list.filter(function(p){ return p.visits >= 2; })[0] || list[0];
+    tiles.innerHTML = '<div><b>' + scMoney(tot.s) + '</b><small>Sales at stops</small></div>' +
+      '<div><b>' + scMoney(tot.h ? tot.s / tot.h : 0) + '</b><small>Average per hour open</small></div>' +
+      '<div><b title="' + esc(best.title) + '">' + esc(best.title) + '</b><small>Best stop (' + scMoney(best.perHour) + '/hr)</small></div>' +
+      '<div><b>' + (tot.k ? Math.round(100 * tot.n / tot.k) + '%' : '—') + '</b><small>First-time customers</small></div>';
+
+    // ---- weekdays ----
+    var names = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday', 'Sunday'], wd = {};
+    rows.forEach(function(r){ var w = wd[r.weekday] = wd[r.weekday] || { h:0, s:0, n:0 }; w.h += Number(r.hours); w.s += Number(r.sales); w.n++; });
+    var max = Math.max.apply(null, names.map(function(n){ return wd[n] && wd[n].h ? wd[n].s / wd[n].h : 0; }).concat([1]));
+    document.getElementById('scDays').innerHTML = names.map(function(n){
+      var w = wd[n], ph = w && w.h ? w.s / w.h : 0;
+      return '<div class="sc-bar' + (w ? '' : ' none') + '"><span>' + n.slice(0, 3) + '</span><i style="width:' + Math.max(1, Math.round(100 * ph / max)) + '%"></i><span>' +
+        (w ? scMoney(ph) + '/hr · ' + w.n : 'no stops') + '</span></div>';
+    }).join('');
+
+    // ---- every visit ----
+    document.getElementById('scVisits').innerHTML = rows.map(function(r){
+      return '<tr><td>' + esc(new Date(r.visit_date + 'T12:00:00').toLocaleDateString([], { weekday:'short', month:'short', day:'numeric' })) + '</td><td>' + esc(r.title) + '</td>' +
+        '<td>' + Number(r.hours) + '</td><td>' + r.orders + '</td><td>' + scMoney(r.sales) + '</td><td>' + scMoney(r.per_hour) + '</td><td>' + r.online_orders + '</td></tr>';
+    }).join('');
+    if (typeof labelStackTables === 'function') labelStackTables();
+  }
+  document.getElementById('scRange').addEventListener('click', function(e){
+    var b = e.target.closest('button[data-days]');
+    if (!b) return;
+    this.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x === b); });
+    scState.days = Number(b.getAttribute('data-days'));
+    loadScorecard();
+  });
+
   // ================= ADS (Facebook + Instagram) =================
   var adsState = { isAdmin:false, settings:null, events:[], campaigns:[], report:{}, editing:null, file:null, fileUrl:null, lat:null, lng:null, eventsLoaded:false };
   var AD_STATUS = {
