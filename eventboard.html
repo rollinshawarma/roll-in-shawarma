@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Live Order Board · Roll-In Shawarma</title>
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0f0f10">
+<link rel="icon" href="favicon-32.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root{ --bg:#0f0f10; --panel:#1b1b1d; --line:#2c2c2f; --text:#f5f5f7; --muted:#a1a1a6; --ready:#30d158; --prep:#ffb340; --red:#ff6b5e; }
+  *{ box-sizing:border-box; }
+  html, body{ margin:0; background:var(--bg); color:var(--text); font-family:Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; -webkit-font-smoothing:antialiased; }
+  .wrap{ max-width:1500px; margin:0 auto; padding:clamp(16px, 3vw, 36px); }
+  header{ display:flex; gap:24px; align-items:center; justify-content:space-between; margin-bottom:clamp(16px, 3vw, 30px); }
+  .kicker{ color:var(--red); font-weight:700; letter-spacing:.08em; text-transform:uppercase; font-size:clamp(12px, 1.2vw, 16px); }
+  h1{ font-family:"Barlow Condensed", "Arial Narrow", sans-serif; font-weight:800; font-size:clamp(34px, 5vw, 72px); line-height:1; margin:6px 0 8px; }
+  .when{ color:var(--muted); font-size:clamp(14px, 1.5vw, 20px); }
+  .when b{ color:var(--text); }
+  .scan{ display:flex; align-items:center; gap:16px; background:#fff; color:#111; border-radius:20px; padding:14px 18px 14px 14px; flex:none; }
+  .scan .qr{ width:clamp(96px, 10vw, 150px); height:clamp(96px, 10vw, 150px); }
+  .scan .qr svg{ width:100%; height:100%; display:block; }
+  .scan b{ display:block; font-family:"Barlow Condensed", sans-serif; font-size:clamp(22px, 2.4vw, 34px); line-height:1; }
+  .scan span{ font-size:clamp(12px, 1.1vw, 15px); color:#555; }
+  .cols{ display:grid; grid-template-columns:1fr 1.15fr; gap:clamp(12px, 2vw, 24px); }
+  .col{ background:var(--panel); border:1px solid var(--line); border-radius:22px; padding:clamp(14px, 2vw, 24px); min-height:40vh; }
+  .col h2{ display:flex; align-items:center; gap:10px; margin:0 0 14px; font-size:clamp(18px, 2vw, 28px); font-weight:700; }
+  .col h2 i{ width:14px; height:14px; border-radius:50%; background:var(--prep); flex:none; }
+  .col.ready h2 i{ background:var(--ready); box-shadow:0 0 0 6px rgba(48,209,88,.18); }
+  .col h2 small{ margin-left:auto; color:var(--muted); font-weight:600; font-size:.7em; }
+  .list{ display:grid; grid-template-columns:repeat(auto-fill, minmax(clamp(150px, 15vw, 230px), 1fr)); gap:10px; }
+  .tile{ background:#242427; border-radius:16px; padding:12px 14px; min-width:0; }
+  .tile .nm{ font-size:clamp(18px, 1.9vw, 28px); font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .tile .no{ color:var(--muted); font-size:clamp(12px, 1.1vw, 15px); margin-top:2px; }
+  .tile .st{ font-size:12px; font-weight:700; color:var(--prep); text-transform:uppercase; letter-spacing:.05em; margin-top:6px; }
+  .tile.received .st{ color:var(--muted); }
+  .ready .tile{ background:rgba(48,209,88,.12); border:1px solid rgba(48,209,88,.35); }
+  .ready .tile .nm{ font-size:clamp(22px, 2.4vw, 36px); }
+  .ready .tile .st{ color:var(--ready); }
+  .tile.new{ animation:pop 1.6s ease; }
+  @keyframes pop{ 0%{ transform:scale(.85); background:rgba(48,209,88,.5); } 60%{ transform:scale(1.04); } 100%{ transform:none; } }
+  .empty{ color:var(--muted); font-size:clamp(14px, 1.4vw, 18px); padding:18px 4px; }
+  .foot{ display:flex; flex-wrap:wrap; gap:8px 22px; justify-content:space-between; color:var(--muted); font-size:clamp(12px, 1.2vw, 15px); margin-top:18px; }
+  .notice{ background:var(--panel); border:1px solid var(--line); border-radius:22px; padding:28px; text-align:center; font-size:20px; }
+  .notice b{ display:block; font-size:28px; margin-bottom:6px; }
+  /* host view */
+  .host{ margin-top:24px; background:#fff; color:#1d1d1f; border-radius:22px; padding:clamp(16px, 2vw, 26px); }
+  .host h2{ margin:0 0 4px; font-size:22px; }
+  .host .sub{ color:#6e6e73; font-size:14px; margin-bottom:14px; }
+  .host .tiles{ display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin-bottom:14px; }
+  .host .tiles div{ background:#f5f5f7; border-radius:14px; padding:12px 14px; }
+  .host .tiles b{ display:block; font-family:"Barlow Condensed", sans-serif; font-size:30px; }
+  .host .tiles small{ color:#6e6e73; }
+  .bar{ height:10px; border-radius:5px; background:#ececf0; overflow:hidden; margin:4px 0 16px; }
+  .bar i{ display:block; height:100%; background:#1d1d1f; }
+  table{ width:100%; border-collapse:collapse; font-size:14px; }
+  th, td{ text-align:left; padding:9px 6px; border-top:1px solid #eee; }
+  th{ color:#6e6e73; font-weight:600; border-top:0; }
+  td.r, th.r{ text-align:right; }
+  .host button{ background:#1d1d1f; color:#fff; border:0; border-radius:999px; padding:10px 18px; font:600 14px Inter, sans-serif; cursor:pointer; }
+  .paid{ background:#f0faf3; border:1px solid #bfe5cb; color:#146c3a; border-radius:14px; padding:12px 14px; margin-bottom:14px; font-weight:600; }
+  @media (max-width:820px){
+    header{ flex-direction:column; align-items:flex-start; }
+    .cols{ grid-template-columns:1fr; }
+    .col.ready{ order:-1; }
+    .col{ min-height:0; }
+    .host .tiles{ grid-template-columns:1fr 1fr; }
+    .scan{ align-self:stretch; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap" id="app"><div class="notice">Loading the board&hellip;</div></div>
+<script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js" integrity="sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k" crossorigin="anonymous"></script>
+<script>
+(function(){
+  var URL_ = 'https://njcmcaoyzujijiyfardx.supabase.co/rest/v1/rpc/get_corp_event_board';
+  var KEY = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
+  var TZ = 'America/New_York';
+  var p = new URLSearchParams(location.search);
+  var code = (p.get('e') || '').trim().toUpperCase(), hostKey = p.get('k') || null;
+  var app = document.getElementById('app'), seenReady = {}, first = true, last = null;
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); }
+  function clock(iso){ return new Date(iso).toLocaleTimeString('en-US', { timeZone: TZ, hour: 'numeric', minute: '2-digit' }); }
+  function day(iso){ return new Date(iso).toLocaleDateString('en-US', { timeZone: TZ, weekday: 'long', month: 'short', day: 'numeric' }); }
+  function money(n){ return '$' + Number(n || 0).toFixed(2); }
+  function orderLink(){ return 'https://rollinshawarma.com/?event=' + encodeURIComponent(code) + '#menu'; }
+  if (!/^[A-Z0-9]{4,12}$/.test(code)) { app.innerHTML = '<div class="notice"><b>This board link isn’t complete.</b>Check the link in your email.</div>'; return; }
+
+  function tile(o, cls){
+    var label = { scheduled: 'Ordered ahead', received: 'Order received', preparing: 'Preparing', ready: 'Ready — come get it' }[o.stage] || '';
+    return '<div class="tile ' + o.stage + (cls || '') + '"><div class="nm">' + esc(o.name || 'Guest') + '</div><div class="no">Order #' + esc(o.n) + '</div><div class="st">' + label + '</div></div>';
+  }
+  function render(d){
+    if (!d || !d.event) { app.innerHTML = '<div class="notice"><b>This event isn’t on the board.</b>The link may be old, or the event was canceled.</div>'; return; }
+    var e = d.event, orders = d.orders || [];
+    var ready = orders.filter(function(o){ return o.stage === 'ready'; });
+    var making = orders.filter(function(o){ return o.stage === 'preparing' || o.stage === 'received'; });
+    var ahead = orders.filter(function(o){ return o.stage === 'scheduled'; });
+    var done = orders.filter(function(o){ return o.stage === 'picked_up'; }).length;
+    var open = e.state === 'live' || e.state === 'preorder';
+    var when = e.state === 'live' ? '<b>Serving now</b> until ' + esc(clock(e.ends_at)) + ' · last orders ' + esc(clock(e.cutoff_at))
+      : e.state === 'preorder' || e.state === 'not_open' ? '<b>' + esc(day(e.starts_at)) + '</b> · ' + esc(clock(e.starts_at)) + '–' + esc(clock(e.ends_at))
+      : e.state === 'closed' ? '<b>Ordering has closed.</b> Thanks for coming!' : '';
+    var html = '<header><div><div class="kicker">' + esc(e.company) + ' · Roll-In Shawarma</div><h1>' + esc(e.name) + '</h1><div class="when">' + when +
+      (e.location || e.pickup_note ? ' · ' + esc([e.location, e.pickup_note].filter(Boolean).join(' · ')) : '') + '</div></div>' +
+      (open ? '<div class="scan"><div class="qr" id="qr"></div><div><b>Scan to order</b><span>' + (e.billing === 'company' ? esc(e.company) + ' is paying' : 'Order and pay on your phone') + '</span></div></div>' : '') + '</header>';
+    html += '<div class="cols"><section class="col"><h2><i></i>Being made<small>' + making.length + '</small></h2><div class="list">' +
+      (making.length ? making.map(function(o){ return tile(o); }).join('') : '<div class="empty">' + (open ? 'New orders show up here.' : 'Nothing cooking right now.') + '</div>') + '</div>' +
+      (ahead.length ? '<p class="empty">' + ahead.length + ' order' + (ahead.length === 1 ? '' : 's') + ' placed ahead — we start them before ' + esc(clock(e.starts_at)) + '.</p>' : '') + '</section>' +
+      '<section class="col ready"><h2><i></i>Ready to pick up<small>' + ready.length + '</small></h2><div class="list">' +
+      (ready.length ? ready.map(function(o){ var isNew = !first && !seenReady[o.n]; return tile(o, isNew ? ' new' : ''); }).join('') : '<div class="empty">Ready orders show up here with your name.</div>') + '</div></section></div>';
+    html += '<div class="foot"><span>' + orders.length + ' order' + (orders.length === 1 ? '' : 's') + ' so far' + (done ? ' · ' + done + ' picked up' : '') + '</span><span>Updates every few seconds · rollinshawarma.com</span></div>';
+    if (d.host) html += hostHtml(e, d.host);
+    app.innerHTML = html;
+    ready.forEach(function(o){ seenReady[o.n] = 1; });
+    first = false;
+    if (open && window.qrcode) { var q = qrcode(0, 'M'); q.addData(orderLink()); q.make(); var el = document.getElementById('qr'); if (el) el.innerHTML = q.createSvgTag({ scalable: true, margin: 0 }); }
+    var dl = document.getElementById('csvBtn'); if (dl) dl.onclick = function(){ csv(d.host.guests || [], e); };
+  }
+  function hostHtml(e, h){
+    var tab = e.billing === 'company', budget = h.budget_cents ? h.budget_cents / 100 : 0;
+    var used = budget ? Math.min(100, Math.round(100 * Number(h.tab_total) / budget)) : 0;
+    return '<section class="host"><h2>Host view</h2><div class="sub">Only people with this link see this part. ' + (tab ? 'Totals on ' + esc(e.company) + '’s tab.' : 'Guests pay for their own orders.') + '</div>' +
+      (h.bill_paid ? '<div class="paid">✓ Bill paid. Thank you!</div>' : '') +
+      '<div class="tiles"><div><b>' + h.orders + '</b><small>Orders</small></div><div><b>' + money(h.food) + '</b><small>Food</small></div>' +
+      '<div><b>' + money(tab ? h.tab_total : h.total) + '</b><small>' + (tab ? 'On the tab (with tax)' : 'Total spent by guests') + '</small></div>' +
+      '<div><b>' + (budget ? used + '%' : '—') + '</b><small>' + (budget ? 'of the ' + money(budget) + ' budget' : 'No budget cap') + '</small></div></div>' +
+      (budget ? '<div class="bar"><i style="width:' + used + '%"></i></div>' : '') +
+      '<div style="overflow-x:auto"><table><thead><tr><th>Name</th><th>Email</th><th>Order</th><th class="r">Total</th></tr></thead><tbody>' +
+      ((h.guests || []).map(function(g){ return '<tr><td>' + esc(g.name) + '</td><td>' + esc(g.email || '') + '</td><td>' + esc(g.ref) + '</td><td class="r">' + money(g.total) + '</td></tr>'; }).join('') || '<tr><td colspan="4">No orders yet.</td></tr>') +
+      '</tbody></table></div><p><button type="button" id="csvBtn">Download as a spreadsheet (CSV)</button></p></section>';
+  }
+  function csv(rows, e){
+    var q = function(v){ v = String(v == null ? '' : v); if (/^[=+\-@]/.test(v)) v = "'" + v; return '"' + v.replace(/"/g, '""') + '"'; };
+    var text = 'Name,Email,Order,Total\n' + rows.map(function(g){ return [q(g.name), q(g.email), q(g.ref), Number(g.total || 0).toFixed(2)].join(','); }).join('\n');
+    var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'text/csv' }));
+    a.download = (e.name || 'event').replace(/[^A-Za-z0-9]+/g, '-') + '-orders.csv'; document.body.appendChild(a); a.click(); a.remove();
+  }
+  function load(){
+    fetch(URL_, { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: KEY, Authorization: 'Bearer ' + KEY },
+      body: JSON.stringify({ p_code: code, p_host_key: hostKey }) })
+      .then(function(r){ return r.json(); })
+      .then(function(d){ var s = JSON.stringify(d); if (s !== last) { last = s; render(d); } }, function(){ /* keep the last board on a blip */ });
+  }
+  load();
+  setInterval(load, 5000);
+  // keep a TV awake-ish: reload once a night
+  setTimeout(function(){ location.reload(); }, 6 * 3600 * 1000);
+})();
+</script>
+</body>
+</html>
