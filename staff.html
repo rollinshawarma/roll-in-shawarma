@@ -494,6 +494,13 @@
   .ce-link .ad-btns{ margin-top:0; }
   .ce-qr{ width:170px; height:170px; background:#fff; border-radius:12px; padding:8px; }
   .ce-qr svg{ width:100%; height:100%; display:block; }
+  .ce-pass-make{ display:grid; grid-template-columns:110px 1fr auto; gap:10px; align-items:end; }
+  .ce-pass-make input{ margin-bottom:0; }
+  .ce-pass-list{ display:grid; gap:6px; max-height:420px; overflow:auto; }
+  .ce-pass{ display:grid; grid-template-columns:auto 1fr auto auto; gap:10px; align-items:center; background:#f5f5f7; border-radius:12px; padding:8px 10px; font-size:13.5px; }
+  .ce-pass code{ font-weight:700; font-size:15px; letter-spacing:.06em; }
+  .ce-pass span{ color:var(--muted); overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  @media (max-width:599px){ .ce-pass-make{ grid-template-columns:1fr 1fr; } .ce-pass-make > div:last-child{ grid-column:1 / -1; } }
   .ce-stage{ font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.04em; color:#a15c00; }
   .ce-stage.ready, .ce-stage.picked_up{ color:#146c3a; }
   @media (max-width:899px){ .ce-trio{ grid-template-columns:1fr 1fr; } .ce-trio > div:first-child{ grid-column:1 / -1; } .ce-bill{ grid-template-columns:1fr; } }
@@ -1084,10 +1091,16 @@
           <div><label for="ceLimit">Food limit per person ($)</label><input type="number" id="ceLimit" min="1" step="0.5" placeholder="e.g. 15"></div>
           <div><label for="ceBudget">Total budget ($)</label><input type="number" id="ceBudget" min="1" step="1"></div>
         </div>
-        <label for="ceDomain">Their work email ends in</label><input type="text" id="ceDomain" maxlength="80" placeholder="e.g. goodyear.com">
         <label class="ad-check"><input type="checkbox" id="ceOne" checked> One order per person</label>
-        <p class="hint">Guests confirm their work email with a 6-digit code we email them, so only real staff order on the tab and the company sees who ordered. Tips, promo codes, rewards, deals and catering trays can&rsquo;t go on the tab.</p>
+        <p class="hint">Tips, promo codes, rewards, deals and catering trays can&rsquo;t go on the tab.</p>
       </div>
+      <label for="ceDomain">Only this company can order: work emails end in <span class="hint" id="ceDomainOpt">(optional)</span></label>
+      <input type="text" id="ceDomain" maxlength="80" placeholder="e.g. goodyear.com" autocapitalize="off" spellcheck="false">
+      <p class="hint" id="ceDomainHint">Guests get a 6-digit code by email to that address before they can check out. Contractors without a company email use a one-time <b>guest pass</b> you make here. Leave blank to let anyone with the link order.</p>
+      <label for="cePace">Kitchen board</label>
+      <select id="cePace"><option value="1">Show 1 event order at a time (next one appears when it&rsquo;s started)</option><option value="2">Show 2 event orders at a time</option><option value="3">Show 3 event orders at a time</option><option value="4">Show 4 event orders at a time</option><option value="5">Show 5 event orders at a time</option></select>
+      <p class="hint">Event orders line up first come, first served. Each ticket prints on the Square printer when it&rsquo;s marked Ready.</p>
+      <div id="ceFromCater" class="hidden"></div>
       <div class="ad-actions">
         <button type="button" class="btn-primary" id="ceSave">Save and get the links</button>
         <button type="button" class="btn-export" id="ceClose">Close</button>
@@ -1095,6 +1108,7 @@
     </div>
     <div class="card hidden" id="ceShare"></div>
     <div class="card hidden" id="cePrep"></div>
+    <div class="card hidden" id="cePasses"></div>
   </div>
 
   <!-- STOP SCORECARD -->
@@ -3265,7 +3279,12 @@
             '<div><label>Quote ($)</label><input type="number" min="0" step="1" data-cf-quote value="' + (r.quote_cents != null ? r.quote_cents / 100 : '') + '"></div></div>' +
           '<label>Notes (staff only)</label><textarea rows="2" data-cf-notes maxlength="2000">' + esc(r.staff_notes || '') + '</textarea>' +
           '<div class="cf-row"><button type="button" class="btn-primary btn-small" data-cf-save>Save</button>' +
-            '<button type="button" class="btn-export btn-small" data-cf-event>Add to Events</button></div>' +
+            '<button type="button" class="btn-export btn-small" data-cf-event>Add to Events</button>' +
+            (function(){
+              var ce = typeof ceState !== 'undefined' && ceState.rows.find(function(x){ return x.catering_request_id === r.id && x.status !== 'canceled'; });
+              return ce ? '<button type="button" class="btn-approve btn-small" data-cf-ce="' + esc(ce.event_id) + '">✓ Ordering link set up · open</button>'
+                        : '<button type="button" class="btn-export btn-small" data-cf-corp>Set up ordering link</button>';
+            })() + '</div>' +
           '<div style="margin-top:14px">' + dep + '</div>' +
           (r.deposit_paid_at ? '' : '<div class="ad-pair" style="margin-top:10px"><div><label>Deposit ($)</label><input type="number" min="1" step="1" data-cf-dep value="' + (r.deposit_cents ? r.deposit_cents / 100 : suggest) + '"></div>' +
             '<div><label>&nbsp;</label><button type="button" class="btn-approve" data-cf-send>' + (r.deposit_link ? 'Send a new link' : 'Email deposit link') + '</button></div></div>' +
@@ -3303,6 +3322,25 @@
         loadCatering(false);
         setTimeout(function(){ var c2 = document.querySelector('[data-cf="' + r.id + '"] [data-cf-msg]'); if (c2) c2.innerHTML = '<div class="msg ok" style="margin-top:10px">' + (d.emailed ? 'Sent to ' + esc(r.email) + '.' : 'Link made, but the email didn’t send. Copy the link above and text it.') + '</div>'; }, 600);
       });
+      return;
+    }
+    var ceBtn = e.target.closest('[data-cf-ce]');
+    if (ceBtn && typeof ceFind === 'function') {
+      var ev0 = ceFind(ceBtn.getAttribute('data-cf-ce'));
+      showTab('corpevents'); if (ev0) setTimeout(function(){ ceShare(ev0); }, 0);
+      return;
+    }
+    if (e.target.closest('[data-cf-corp]') && typeof ceOpen === 'function') {
+      // A corporate event from this request: its own order link, QR, live
+      // board and (if the company pays) a tab. Staff check and save.
+      var FREE = /^(gmail|googlemail|yahoo|ymail|hotmail|outlook|live|msn|icloud|me|mac|aol|proton|protonmail|pm|comcast|att|sbcglobal|verizon|mail|gmx|zoho|yandex|frontier|windstream|charter|spectrum|roadrunner|rr)\./i;
+      var dom = String(r.email || '').toLowerCase().split('@')[1] || '';
+      var start = r.event_date ? ceOhio(r.event_date, r.start_time ? r.start_time.slice(0, 5) : '11:30') : null;
+      ceState.cater = { id: r.id, ref: r.ref };
+      showTab('corpevents');
+      ceOpen({ __fromCater: true, name: (r.company || r.name) + ' lunch', company: r.company || r.name, contact_name: r.name, contact_email: r.email,
+        location: r.location, expected_guests: r.guests, starts_at: start, ends_at: start ? new Date(new Date(start).getTime() + 2 * 3600000).toISOString() : null,
+        email_domain: dom && !FREE.test(dom) ? dom : null, kitchen_pace: 1 });
       return;
     }
     if (e.target.closest('[data-cf-event]')) {
@@ -3499,6 +3537,7 @@
         var box = document.getElementById('ceList');
         if (res.error) { box.innerHTML = '<p class="hint">Couldn’t load events: ' + esc(res.error.message) + '. Run growth-pack.sql in Supabase first.</p>'; return; }
         ceState.rows = res.data || [];
+        if (typeof renderCatering === 'function' && typeof cfState !== 'undefined' && cfState.rows.length) renderCatering();   // "ordering link set up" on requests
         var live = ceState.rows.filter(function(e){ return e.status !== 'canceled' && new Date(e.starts_at) <= new Date() && new Date(e.ends_at) > new Date(); }).length;
         var badge = document.getElementById('navCorpBadge'); badge.textContent = live ? 'Live' : ''; badge.classList.toggle('hidden', !live);
         if (!ceState.rows.length) { box.innerHTML = '<div class="ad-card"><div class="ad-body"><div class="ad-title">No corporate events yet</div><div class="ad-meta">Tap New event, fill in the company and time, then email them the links.</div></div></div>'; return; }
@@ -3508,6 +3547,7 @@
           var btns = '<button class="btn-primary btn-small" data-ce="share" data-id="' + id + '">Links &amp; email</button>' +
             '<a class="btn-export btn-small" href="' + esc(ceLinks(e).board) + '" target="_blank" rel="noopener">Live board</a>' +
             '<button class="btn-export btn-small" data-ce="prep" data-id="' + id + '">Orders</button>' +
+            (e.email_domain && e.status !== 'canceled' ? '<button class="btn-export btn-small" data-ce="passes" data-id="' + id + '">Guest passes' + (Number(e.passes_made) ? ' (' + Number(e.passes_used) + '/' + Number(e.passes_made) + ' used)' : '') + '</button>' : '') +
             (!past && e.status !== 'canceled' ? '<button class="btn-export btn-small" data-ce="edit" data-id="' + id + '">Edit</button>' : '') +
             (!past && e.status === 'open' ? '<button class="btn-export btn-small" data-ce="pause" data-id="' + id + '">Stop orders</button>' : '') +
             (!past && e.status === 'closed' ? '<button class="btn-export btn-small" data-ce="open" data-id="' + id + '">Take orders again</button>' : '') +
@@ -3517,6 +3557,7 @@
             '<div class="ad-title"><span class="ad-chip ' + st[1] + '">' + esc(st[0]) + '</span>' + esc(e.name) + ' <span class="hint">· ' + esc(e.company) + '</span></div>' +
             '<div class="ad-meta">' + esc(ceDay(e.starts_at)) + ', ' + esc(ceClock(e.starts_at)) + '–' + esc(ceClock(e.ends_at)) + (e.location ? ' · ' + esc(e.location) : '') +
               '<br>' + (tab ? 'Company pays' + (e.per_person_cents ? ' (up to ' + scMoney(e.per_person_cents / 100) + ' each)' : '') : 'Guests pay') +
+              (e.email_domain ? ' · only @' + esc(e.email_domain) : '') + ' · kitchen ' + (e.kitchen_pace || 1) + ' at a time' +
               ' · <b>' + n + ' order' + (n === 1 ? '' : 's') + '</b>' + (e.expected_guests ? ' of ~' + e.expected_guests : '') + ' · ' + scMoney(e.sales) +
               (tab ? ' · tab ' + scMoney(e.tab_total) + (e.budget_cents ? ' of ' + scMoney(e.budget_cents / 100) : '') : '') + bill + '</div>' +
             (e.expected_guests ? '<div class="dr-prog"><i style="width:' + Math.min(100, Math.round(100 * n / e.expected_guests)) + '%"></i></div>' : '') +
@@ -3531,25 +3572,31 @@
   function ceBilling(){ var r = document.querySelector('input[name="ceBilling"]:checked'); return r ? r.value : 'guest'; }
   function ceToggle(){
     document.getElementById('ceCompanyBox').classList.toggle('hidden', ceBilling() !== 'company');
+    document.getElementById('ceDomainOpt').textContent = ceBilling() === 'company' ? '(required when the company pays)' : '(optional)';
     document.getElementById('ceOpensRow').classList.toggle('hidden', document.getElementById('ceOpenNow').checked);
   }
   document.querySelectorAll('input[name="ceBilling"]').forEach(function(r){ r.addEventListener('change', ceToggle); });
   document.getElementById('ceOpenNow').addEventListener('change', ceToggle);
   function ceOpen(e){
-    ceState.editing = e || null;
-    document.getElementById('ceEditorTitle').textContent = e ? 'Edit ' + e.name : 'New corporate event';
+    ceState.editing = e && e.event_id ? e : null;
+    document.getElementById('ceEditorTitle').textContent = ceState.editing ? 'Edit ' + e.name : 'New corporate event';
     var v = function(id, x){ document.getElementById(id).value = x == null ? '' : x; };
     var ymd = function(iso){ return new Intl.DateTimeFormat('en-CA', { timeZone:'America/New_York' }).format(new Date(iso)); };
     var hm = function(iso){ return new Date(iso).toLocaleTimeString('en-GB', { timeZone:'America/New_York', hour:'2-digit', minute:'2-digit' }); };
     v('ceName', e && e.name); v('ceCompany', e && e.company); v('ceContact', e && e.contact_name); v('ceEmail', e && e.contact_email);
     v('ceLocation', e && e.location); v('ceNote', e && e.pickup_note); v('ceGuests', e && e.expected_guests);
-    v('ceDate', e ? ymd(e.starts_at) : ''); v('ceStart', e ? hm(e.starts_at) : '11:30'); v('ceEnd', e ? hm(e.ends_at) : '13:30');
-    v('ceLast', e ? String(e.last_order_min) : '15');
+    v('ceDate', e && e.starts_at ? ymd(e.starts_at) : ''); v('ceStart', e && e.starts_at ? hm(e.starts_at) : '11:30'); v('ceEnd', e && e.ends_at ? hm(e.ends_at) : '13:30');
+    v('ceLast', e && e.last_order_min != null ? String(e.last_order_min) : '15');
     document.getElementById('ceOpenNow').checked = !(e && e.opens_at);
     v('ceOpensDate', e && e.opens_at ? ymd(e.opens_at) : ''); v('ceOpensTime', e && e.opens_at ? hm(e.opens_at) : '08:00');
-    document.querySelector('input[name="ceBilling"][value="' + (e ? e.billing : 'guest') + '"]').checked = true;
+    document.querySelector('input[name="ceBilling"][value="' + (e && e.billing === 'company' ? 'company' : 'guest') + '"]').checked = true;
     v('ceLimit', e && e.per_person_cents ? e.per_person_cents / 100 : ''); v('ceBudget', e && e.budget_cents ? e.budget_cents / 100 : '');
     v('ceDomain', e && e.email_domain); document.getElementById('ceOne').checked = e ? !!e.one_per_person : true;
+    v('cePace', String(e && e.kitchen_pace || 1));
+    if (!e || !e.__fromCater) ceState.cater = null;
+    var fc = document.getElementById('ceFromCater');
+    fc.classList.toggle('hidden', !ceState.cater);
+    fc.innerHTML = ceState.cater ? '<p class="hint">From catering request <b>' + esc(ceState.cater.ref || '') + '</b>. Check the times and who pays, then save.</p>' : '';
     ceToggle(); clearMsg('ceEditMsg');
     var ed = document.getElementById('ceEditor'); ed.classList.remove('hidden'); ed.scrollIntoView({ behavior:'smooth', block:'start' });
   }
@@ -3557,7 +3604,7 @@
     return sb.rpc('corp_events_save', { p_id: e.event_id, p_name: e.name, p_company: e.company, p_contact_name: e.contact_name, p_contact_email: e.contact_email,
       p_location: e.location, p_pickup_note: e.pickup_note, p_opens_at: e.opens_at, p_starts_at: e.starts_at, p_ends_at: e.ends_at, p_last_order_min: e.last_order_min,
       p_billing: e.billing, p_per_person_cents: e.per_person_cents, p_email_domain: e.email_domain, p_one_per_person: e.one_per_person, p_budget_cents: e.budget_cents,
-      p_expected_guests: e.expected_guests, p_status: status });
+      p_expected_guests: e.expected_guests, p_status: status, p_kitchen_pace: e.kitchen_pace || 1, p_catering_request_id: e.catering_request_id || null });
   }
   document.getElementById('ceNewBtn').addEventListener('click', function(){ ceOpen(null); });
   document.getElementById('ceClose').addEventListener('click', function(){ document.getElementById('ceEditor').classList.add('hidden'); });
@@ -3571,19 +3618,23 @@
     if (!document.getElementById('ceOpenNow').checked && !opens) { showMsg('ceEditMsg', 'Pick when ordering opens, or tick “Take orders as soon as I send the link”.', 'error'); return; }
     var company = ceBilling() === 'company';
     if (company && (!(Number(g('ceLimit')) > 0) || !(Number(g('ceBudget')) > 0) || !g('ceDomain'))) { showMsg('ceEditMsg', 'When the company pays, fill in the food limit per person, the total budget and their work email domain.', 'error'); return; }
+    var dom = g('ceDomain').toLowerCase().replace(/^.*@/, '');
+    if (dom && !/^[a-z0-9.-]+\.[a-z]{2,}$/.test(dom)) { showMsg('ceEditMsg', 'The email domain looks wrong. Example: goodyear.com', 'error'); return; }
     var cents = function(id){ var x = Number(g(id)); return x > 0 ? Math.round(x * 100) : null; };
     var b = this; b.disabled = true;
     sb.rpc('corp_events_save', { p_id: ceState.editing ? ceState.editing.event_id : null, p_name: g('ceName'), p_company: g('ceCompany'),
       p_contact_name: g('ceContact') || null, p_contact_email: g('ceEmail') || null, p_location: g('ceLocation') || null, p_pickup_note: g('ceNote') || null,
       p_opens_at: opens, p_starts_at: starts, p_ends_at: ends, p_last_order_min: Number(g('ceLast')), p_billing: ceBilling(),
-      p_per_person_cents: company ? cents('ceLimit') : null, p_email_domain: company ? (g('ceDomain') || null) : null,
+      p_per_person_cents: company ? cents('ceLimit') : null, p_email_domain: dom || null,
       p_one_per_person: company && document.getElementById('ceOne').checked, p_budget_cents: company ? cents('ceBudget') : null,
-      p_expected_guests: g('ceGuests') ? Number(g('ceGuests')) : null, p_status: ceState.editing ? ceState.editing.status : 'open' }).then(function(res){
+      p_expected_guests: g('ceGuests') ? Number(g('ceGuests')) : null, p_status: ceState.editing ? ceState.editing.status : 'open',
+      p_kitchen_pace: Number(g('cePace')) || 1, p_catering_request_id: ceState.editing ? (ceState.editing.catering_request_id || null) : (ceState.cater ? ceState.cater.id : null) }).then(function(res){
       b.disabled = false;
       if (res.error) { showMsg('ceEditMsg', res.error.message, 'error'); return; }
       var row = Array.isArray(res.data) ? res.data[0] : res.data;
       document.getElementById('ceEditor').classList.add('hidden');
       row.event_id = row.id;
+      ceState.cater = null;
       ceShare(row);
       loadCorp(false);
     });
@@ -3629,6 +3680,78 @@
       box.scrollIntoView({ behavior:'smooth', block:'start' });
     });
   }
+  // ---- Guest passes: one-time codes for contractors without a company email ----
+  function cePasses(e, fresh){
+    var box = document.getElementById('cePasses');
+    ceState.passEvent = e;
+    if (!fresh) box.innerHTML = '<p class="hint">Loading passes&hellip;</p>';
+    box.classList.remove('hidden');
+    sb.from('corp_guest_passes').select('id, code, label, used_at, order_id, voided_at, created_at').eq('event_id', e.event_id).order('created_at', { ascending: false }).limit(1000).then(function(res){
+      if (res.error) { box.innerHTML = '<p class="hint">' + esc(res.error.message) + '</p>'; return; }
+      var rows = res.data || [], fmt = function(c){ return c.slice(0, 4) + '-' + c.slice(4); };
+      ceState.passes = rows;
+      var live = rows.filter(function(r){ return !r.voided_at && !r.used_at; });
+      var st = function(r){ return r.voided_at ? '<span class="ad-chip bad">Voided</span>' : r.used_at ? '<span class="ad-chip">Used</span>' : '<span class="ad-chip live">Unused</span>'; };
+      box.innerHTML = '<h2>' + esc(e.name) + ' · guest passes</h2>' +
+        '<p class="hint">For contractors and visitors without an @' + esc(e.email_domain) + ' email. Each pass works for <b>one order</b>' + (e.billing === 'company' ? ' on the company tab' : '') + '. They enter it under &ldquo;Use a guest pass&rdquo; on the order link.</p>' +
+        '<div class="ce-pass-make"><div><label for="cePassN">How many</label><input type="number" id="cePassN" min="1" max="200" value="5"></div>' +
+        '<div><label for="cePassLabel">For (optional)</label><input type="text" id="cePassLabel" maxlength="80" placeholder="e.g. ABC Electric crew"></div>' +
+        '<div><label>&nbsp;</label><button type="button" class="btn-primary btn-small" data-pass="make">Make passes</button></div></div>' +
+        '<div id="cePassMsg"></div>' +
+        (rows.length ? '<div class="section-title" style="margin-top:8px">' + live.length + ' unused · ' + rows.filter(function(r){ return r.used_at && !r.voided_at; }).length + ' used</div>' +
+          '<div class="ce-pass-list">' + rows.map(function(r){
+            return '<div class="ce-pass"><code>' + esc(fmt(r.code)) + '</code><span>' + esc(r.label || '') + '</span>' + st(r) +
+              (!r.used_at && !r.voided_at ? '<button type="button" class="btn-export btn-small" data-pass="void" data-id="' + esc(r.id) + '">Void</button>' : '<i></i>') + '</div>';
+          }).join('') + '</div>' : '<p>No passes yet.</p>') +
+        '<div class="ad-btns" style="margin-top:12px">' +
+          (live.length ? '<button type="button" class="btn-export btn-small" data-pass="copy">Copy unused</button><button type="button" class="btn-export btn-small" data-pass="print">Print unused</button>' +
+            (e.contact_email ? '<button type="button" class="btn-export btn-small" data-pass="email">Email unused to ' + esc(e.contact_email) + '</button>' : '') : '') +
+          '<button type="button" class="btn-export btn-small" data-close-card="cePasses">Close</button></div>';
+      if (!fresh) box.scrollIntoView({ behavior:'smooth', block:'start' });
+    });
+  }
+  document.getElementById('cePasses').addEventListener('click', function(ev){
+    var b = ev.target.closest('[data-pass]'); if (!b) return;
+    var e = ceState.passEvent, act = b.getAttribute('data-pass'), L = ceLinks(e), fmt = function(c){ return c.slice(0, 4) + '-' + c.slice(4); };
+    var unused = (ceState.passes || []).filter(function(r){ return !r.voided_at && !r.used_at; });
+    if (act === 'make') {
+      var n = Math.round(Number(document.getElementById('cePassN').value));
+      if (!(n >= 1 && n <= 200)) { showMsg('cePassMsg', 'Make between 1 and 200 passes at a time.', 'error'); return; }
+      b.disabled = true;
+      sb.rpc('corp_passes_create', { p_event_id: e.event_id, p_count: n, p_label: document.getElementById('cePassLabel').value.trim() || null }).then(function(res){
+        b.disabled = false;
+        if (res.error) { showMsg('cePassMsg', res.error.message, 'error'); return; }
+        cePasses(e, true); loadCorp(false);
+      });
+      return;
+    }
+    if (act === 'void') {
+      if (!confirm('Void this pass? It stops working right away.')) return;
+      sb.rpc('corp_passes_void', { p_id: b.getAttribute('data-id') }).then(function(res){ if (res.error) showMsg('cePassMsg', res.error.message, 'error'); else { cePasses(e, true); loadCorp(false); } });
+      return;
+    }
+    var lines = unused.map(function(r){ return fmt(r.code) + (r.label ? '  (' + r.label + ')' : ''); });
+    if (act === 'copy') {
+      var txt = e.name + ' guest passes (one order each)\nOrder here: ' + L.order + '\nTap "Use a guest pass" and enter:\n\n' + lines.join('\n');
+      if (navigator.clipboard) navigator.clipboard.writeText(txt);
+      b.textContent = 'Copied'; setTimeout(function(){ b.textContent = 'Copy unused'; }, 1500); return;
+    }
+    if (act === 'email') {
+      b.disabled = true;
+      fnCall('corp-events', { action:'email_passes', id: e.event_id }).then(function(d){
+        b.disabled = false;
+        if (d.error) showMsg('cePassMsg', d.error, 'error'); else showMsg('cePassMsg', d.count + ' pass' + (d.count === 1 ? '' : 'es') + ' sent to ' + d.sent_to + '.', 'ok');
+      });
+      return;
+    }
+    if (act === 'print') {
+      var w = window.open('', '_blank'); if (!w) return;
+      var esc2 = function(x){ return esc(x); };
+      w.document.write('<!doctype html><title>Guest passes</title><style>body{font:14px Arial,sans-serif;margin:16px}.g{display:grid;grid-template-columns:1fr 1fr;gap:10px}.p{border:1.5px dashed #555;border-radius:10px;padding:12px;break-inside:avoid}.p b{display:block;font-size:13px}.p code{display:block;font:700 26px monospace;letter-spacing:.08em;margin:6px 0}.p small{display:block;color:#444;font-size:11.5px;word-break:break-all}</style><div class="g">' +
+        unused.map(function(r){ return '<div class="p"><b>' + esc2(e.name) + ' · guest pass</b><code>' + esc2(fmt(r.code)) + '</code><small>' + (r.label ? esc2(r.label) + ' · ' : '') + 'One order. Go to ' + esc2(L.order) + ', tap &ldquo;Use a guest pass&rdquo; and enter the code.</small></div>'; }).join('') + '</div>');
+      w.document.close(); w.focus(); w.print();
+    }
+  });
   document.getElementById('panelCorpevents').addEventListener('click', function(ev){
     var cp = ev.target.closest('[data-copy]');
     if (cp) { if (navigator.clipboard) navigator.clipboard.writeText(cp.getAttribute('data-copy')); cp.textContent = 'Copied'; setTimeout(function(){ cp.textContent = 'Copy'; }, 1500); return; }
@@ -3660,6 +3783,7 @@
     clearMsg('ceMsg');
     if (act === 'share') return ceShare(e);
     if (act === 'prep') return cePrep(e);
+    if (act === 'passes') return cePasses(e);
     if (act === 'edit') return ceOpen(e);
     if (act === 'bill') {
       if (!e.contact_email) { showMsg('ceMsg', 'Add the contact’s email to the event first (Edit).', 'error'); return; }
