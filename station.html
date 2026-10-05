@@ -244,6 +244,68 @@
   #orderPauseBanner .op-apps{ display:flex; flex-wrap:wrap; gap:8px; }
   #orderPauseBanner button{ font:inherit; font-size:14px; font-weight:700; border-radius:999px; padding:6px 14px; border:1.5px solid rgba(255,255,255,0.5); background:transparent; color:var(--white); cursor:pointer; }
   #orderPauseBanner button.done{ border-color:var(--green); color:#39E07F; }
+  /* ---------- Corporate lunch board: whole-order label tickets ---------- */
+  #lunchBoard{ height:100%; display:flex; flex-direction:column; }
+  #lunchBoard.hidden{ display:none; }
+  #lunchHeader{ display:flex; flex-wrap:wrap; align-items:center; gap:10px 8px; padding:14px 20px; border-bottom:1px solid var(--line); flex:none; }
+  #lunchHeader h1{ font-family:var(--kds-font); font-size:30px; font-weight:800; color:var(--white); white-space:nowrap; margin-right:10px; }
+  #lunchClock{ font-family:var(--kds-font); font-size:26px; font-weight:700; color:var(--white); white-space:nowrap; margin-right:auto; }
+  #lunchHeader button{ white-space:nowrap; color:var(--cream); border:1px solid var(--line); border-radius:100px; font-size:15px; font-weight:700; padding:9px 15px; }
+  #lunchError{ background:rgba(216,52,46,0.16); color:var(--red); font-size:14.5px; font-weight:700; padding:10px 24px; border-bottom:1px solid var(--red); flex:none; }
+  #lunchError.hidden{ display:none; }
+  #lunchEvents{ display:flex; flex-wrap:wrap; gap:8px 12px; padding:10px 20px; border-bottom:1px solid var(--line); flex:none; font-size:15px; color:var(--cream); }
+  #lunchEvents:empty{ display:none; }
+  .lb-ev{ display:flex; align-items:center; gap:8px; background:#1c1c1e; border-radius:100px; padding:6px 14px; }
+  .lb-ev i{ width:12px; height:12px; border-radius:3px; background:var(--ev); }
+  .lb-ev b{ color:var(--white); }
+  .lb-ev span{ color:var(--muted); font-weight:600; }
+  #lunchCols{ flex:1; min-height:0; display:flex; gap:14px; padding:14px 16px; overflow:hidden; }
+  .lb-col{ flex:1; min-width:0; display:flex; flex-direction:column; }
+  .lb-col-head{ font-family:var(--kds-font); font-size:24px; font-weight:800; color:var(--cream); padding:0 4px 10px; display:flex; justify-content:space-between; }
+  .lb-col-head span{ color:var(--muted); }
+  .lb-col[data-col="cooking"] .lb-col-head{ color:var(--cook); }
+  .lb-col[data-col="ready"] .lb-col-head{ color:var(--ready); }
+  .lb-list{ flex:1; min-height:0; overflow-y:auto; display:flex; flex-direction:column; gap:12px; padding:2px 2px 20px; }
+  #lunchCols.queue{ flex-direction:column; }
+  #lunchCols.queue .lb-list{ flex-direction:row; flex-wrap:wrap; align-content:flex-start; }
+  #lunchCols.queue .lt{ width:330px; }
+  .lb-more{ border:2px dashed #3a3a3c; border-radius:14px; color:var(--muted); font-weight:700; text-align:center; padding:14px; font-size:16px; }
+  .lb-empty{ color:var(--muted); text-align:center; padding:30px 10px; font-size:15px; }
+  /* the label */
+  .lt{ --ev:#e0609a; background:#f3f2ec; color:#1d1d1f; border-radius:6px; border-top:6px solid #1f8a4c; padding:14px 16px 12px; box-shadow:0 2px 0 rgba(0,0,0,.4); font-family:"Inter",sans-serif; }
+  .lt.late{ border-top-color:#d62d20; } .lt.warn{ border-top-color:#e58a00; }
+  .lt.flash{ animation:ltIn 1.2s ease-out; }
+  @keyframes ltIn{ 0%{ transform:scale(1.04); box-shadow:0 0 0 6px rgba(48,209,88,.6); } 100%{ transform:none; } }
+  .lt-head{ display:flex; align-items:center; gap:10px; }
+  .lt-sq{ width:14px; height:14px; border-radius:3px; background:var(--ev); flex:none; }
+  .lt-ref{ font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-size:21px; font-weight:700; letter-spacing:.02em; }
+  .lt-name{ margin-left:auto; color:#6e6e73; font-size:15px; font-weight:600; text-align:right; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; max-width:50%; }
+  .lt-ev{ font-size:12.5px; color:#6e6e73; margin-top:3px; font-weight:600; }
+  .lt-items{ list-style:none; margin:10px 0 0; padding:0; }
+  .lt-items li{ display:flex; align-items:flex-start; gap:10px; padding:6px 0; border-top:1px solid #dcdbd4; font-size:17px; }
+  .lt-items li:first-child{ border-top:0; }
+  .lt-items li > span{ flex:1; min-width:0; }
+  .lt-items li small{ display:block; color:#b3261e; font-size:13.5px; font-weight:600; margin-top:2px; }
+  .lt-items li.done > span{ color:#8e8e93; text-decoration:line-through; }
+  .lt-tag{ font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-size:12.5px; font-weight:600; color:#3a3a3c; border:1px solid #b9b8b0; border-radius:4px; padding:2px 6px; white-space:nowrap; background:#fff; }
+  .lt-notes{ margin-top:8px; background:#fff6d6; border-radius:6px; padding:6px 8px; font-size:14px; font-weight:600; color:#6b4b00; }
+  .lt-foot{ display:flex; align-items:center; gap:10px; margin-top:12px; padding-top:10px; border-top:1px solid #dcdbd4; }
+  .lt-time{ font-family:ui-monospace,"SF Mono",Menlo,Consolas,monospace; font-size:22px; font-weight:700; font-variant-numeric:tabular-nums; }
+  .lt-st{ font-size:14px; font-weight:700; color:#1f8a4c; }
+  .lt.warn .lt-st{ color:#b86e00; } .lt.late .lt-st{ color:#d62d20; } .lt-st.wait{ color:#6e6e73; }
+  .lt-btn{ margin-left:auto; background:#1d1d1f; color:#fff; border-radius:10px; font-size:18px; font-weight:700; padding:12px 22px; min-width:110px; }
+  .lt-btn.ready{ background:#1f8a4c; } .lt-btn.done{ background:#0a84ff; }
+  .lt-btn:disabled{ opacity:.55; }
+  .lt-undo{ color:#6e6e73; font-size:13px; text-decoration:underline; padding:4px; }
+  .lt-bar{ height:6px; background:#dcdbd4; border-radius:6px; margin-top:10px; overflow:hidden; }
+  .lt-bar i{ display:block; height:100%; width:0; background:#1f8a4c; border-radius:6px; transition:width .5s linear; }
+  .lt.warn .lt-bar i{ background:#e58a00; } .lt.late .lt-bar i{ background:#d62d20; }
+  .lt-print{ font-size:12.5px; font-weight:600; color:#1f8a4c; margin-top:8px; }
+  .lt-print.bad{ color:#d62d20; } .lt-print button{ color:#0a84ff; text-decoration:underline; font-weight:700; margin-left:6px; }
+  .lt.compact{ padding:10px 12px 9px; } .lt.compact .lt-ref{ font-size:17px; } .lt.compact .lt-items li{ font-size:15px; padding:4px 0; }
+  .lt.compact .lt-time{ font-size:18px; } .lt.compact .lt-btn{ font-size:15px; padding:9px 16px; min-width:90px; }
+  .lt.large .lt-ref{ font-size:27px; } .lt.large .lt-items li{ font-size:21px; } .lt.large .lt-time{ font-size:28px; } .lt.large .lt-btn{ font-size:22px; padding:15px 28px; }
+  #switchToLunchBtn, #fryerToLunchBtn{ color:#ff8fc1 !important; border-color:rgba(224,96,154,.6) !important; }
   #squareSyncBanner .dismiss{ color:var(--muted); font-weight:600; margin-left:8px; }
   /* ---------- IDLE / MAIN MENU / EMPLOYEE CLOCK-IN ---------- */
   #idleScreen{
@@ -487,6 +549,7 @@
 <div id="stationChoiceScreen" class="hidden">
   <button type="button" class="menu-choice-btn" id="chooseMainStationBtn">Main Station</button>
   <button type="button" class="menu-choice-btn" id="chooseSubStationBtn">Sub Station</button>
+  <button type="button" class="menu-choice-btn" id="chooseLunchBtn">Corporate Lunch</button>
   <button type="button" id="stationChoiceBackBtn">&larr; Back to menu</button>
 </div>
 
@@ -500,6 +563,7 @@
     <button type="button" id="truckLocBtn" title="Save where the truck is parked (for drive-up check-ins)">&#128205; Truck location</button>
     <button type="button" id="recallBtn">&#8634; Recall</button>
     <button type="button" id="switchToFryerBtn">Switch to Sub Station</button>
+    <button type="button" id="switchToLunchBtn">Corporate Lunch</button>
     <button type="button" id="lockBtn">Lock Screen</button>
   </div>
   <div id="boardErrorBanner" class="hidden"></div>
@@ -550,6 +614,7 @@
     <div id="fryerBoardLastUpdated" class="board-last-updated">&mdash;</div>
     <div id="fryerBoardClock">&mdash;</div>
     <button type="button" id="switchToMainBtn">Switch to Main Station</button>
+    <button type="button" id="fryerToLunchBtn">Corporate Lunch</button>
     <button type="button" id="fryerLockBtn">Lock Screen</button>
   </div>
   <div id="fryerBoardErrorBanner" class="hidden"></div>
@@ -567,6 +632,20 @@
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<div id="lunchBoard" class="hidden">
+  <div id="lunchHeader">
+    <h1>Corporate Lunch</h1>
+    <div id="lunchUpdated" class="board-last-updated">&mdash;</div>
+    <div id="lunchClock">&mdash;</div>
+    <button type="button" id="lunchToMainBtn">Main Station</button>
+    <button type="button" id="lunchToFryerBtn">Sub Station</button>
+    <button type="button" id="lunchLockBtn">Lock Screen</button>
+  </div>
+  <div id="lunchError" class="hidden"></div>
+  <div id="lunchEvents"></div>
+  <div id="lunchCols"></div>
+</div>
+
 <script>
   var sb = supabase.createClient(
     'https://njcmcaoyzujijiyfardx.supabase.co',
@@ -1148,6 +1227,37 @@
       if (window.stopKdsBoard) window.stopKdsBoard();
     });
 
+    // ---- Corporate Lunch board navigation ----
+    function showLunch(){
+      if (window.stopKdsBoard) window.stopKdsBoard();
+      if (window.stopFryerBoard) window.stopFryerBoard();
+      board.classList.add('hidden');
+      document.getElementById('fryerBoard').classList.add('hidden');
+      document.getElementById('lunchBoard').classList.remove('hidden');
+      window.startLunchBoard();
+    }
+    function leaveLunch(){ if (window.stopLunchBoard) window.stopLunchBoard(); document.getElementById('lunchBoard').classList.add('hidden'); }
+    document.getElementById('chooseLunchBtn').addEventListener('click', function(){
+      window.initKdsAudio();
+      document.getElementById('stationChoiceScreen').classList.add('hidden');
+      showLunch();
+    });
+    document.getElementById('switchToLunchBtn').addEventListener('click', showLunch);
+    document.getElementById('fryerToLunchBtn').addEventListener('click', showLunch);
+    document.getElementById('lunchToMainBtn').addEventListener('click', function(){
+      leaveLunch(); board.classList.remove('hidden'); window.startKdsBoard(); if (window.refreshTruckLoc) window.refreshTruckLoc();
+    });
+    document.getElementById('lunchToFryerBtn').addEventListener('click', function(){
+      leaveLunch(); document.getElementById('fryerBoard').classList.remove('hidden'); window.startFryerBoard();
+    });
+    document.getElementById('lunchLockBtn').addEventListener('click', function(){
+      try { sessionStorage.removeItem('kdsUnlocked'); } catch(e){}
+      leaveLunch();
+      pinScreen.classList.remove('hidden');
+      entered = '';
+      renderDots();
+    });
+
     document.getElementById('fryerLockBtn').addEventListener('click', function(){
       try { sessionStorage.removeItem('kdsUnlocked'); } catch(e){}
       document.getElementById('fryerBoard').classList.add('hidden');
@@ -1629,11 +1739,11 @@
         el.classList.toggle('hidden', !rows.length);
         el.innerHTML = rows.map(function(r){
           return '<div class="eq"><b>\u{1F3E2} ' + escHtml(r.name) + '</b>' +
-            '<span class="on">' + r.on_board + ' on the board</span>' +
+            '<span class="on">' + r.on_board + ' up next</span>' +
             '<span>' + r.waiting + ' waiting in line</span>' +
             '<span>' + r.cooking + ' cooking</span>' +
             '<span>' + r.done + ' done</span>' +
-            '<span>shows ' + r.kitchen_pace + ' at a time \u00b7 tickets print at Ready</span></div>';
+            '<span>on the Corporate Lunch board \u00b7 tickets print at Ready</span></div>';
         }).join('');
       }).catch(function(){});
     }
@@ -2155,6 +2265,161 @@
         col.appendChild(hint);
       }
     }
+  })();
+
+  // ---------------- Corporate lunch board ----------------
+  // Event orders as whole label tickets. Up next -> Fire -> Cooking ->
+  // Ready (prints the Square ticket) -> Picked up. Settings come from the
+  // staff portal (Corporate events -> Kitchen board settings).
+  (function(){
+    var PUSH_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/push-fulfillment-status';
+    var ANON = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
+    var COLORS = ['#e0609a', '#3b82f6', '#f59e0b', '#10b981', '#8b5cf6', '#ef4444'];
+    var timer = null, tick = null, data = null, seen = null, busy = {}, printState = {}, skew = 0, lastSig = '';
+    var colsEl = document.getElementById('lunchCols');
+    function err(t){ var e = document.getElementById('lunchError'); e.textContent = t || ''; e.classList.toggle('hidden', !t); }
+    function mmss(ms){ ms = Math.max(0, ms); var s = Math.floor(ms / 1000), m = Math.floor(s / 60); s %= 60; return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s; }
+    function now(){ return Date.now() + skew; }
+    function cfg(){ return (data && data.settings) || {}; }
+    function evColor(id){ var evs = (data && data.events) || [], i = evs.findIndex(function(e){ return e.id === id; }); return COLORS[(i < 0 ? 0 : i) % COLORS.length]; }
+    function tagFor(it){
+      var c = cfg();
+      if (it.drink) return c.tag_window || 'Window';
+      var words = String(c.fryer_words || '').split(',').map(function(w){ return w.trim().toLowerCase(); }).filter(Boolean);
+      var n = String(it.name || '').toLowerCase();
+      return words.some(function(w){ return n.indexOf(w) !== -1; }) ? (c.tag_fryer || 'Fryer') : (c.tag_line || 'Line');
+    }
+    function shortName(n){ var p = String(n || '').trim().split(/\s+/); return p.length > 1 ? p[0] + ' ' + p[p.length - 1].charAt(0) + '.' : (p[0] || ''); }
+
+    function ticketHtml(o){
+      var c = cfg(), target = Math.max(2, Number(c.target_min) || 10) * 60000, cls = 'lt ' + (c.ticket_size || 'regular');
+      var t = '', st = '', btn = '', pct = 0, extra = '';
+      if (o.stage === 'next') {
+        t = mmss(now() - Date.parse(o.board_at || o.created_at)); st = '<span class="lt-st wait">Up next</span>';
+        btn = '<button type="button" class="lt-btn" data-lt="fire" data-id="' + o.id + '">Fire</button>';
+      } else if (o.stage === 'cooking') {
+        var el = now() - Date.parse(o.fired_at); pct = Math.min(100, 100 * el / target);
+        var late = el > target, warn = !late && el > target * 0.75;
+        cls += late ? ' late' : warn ? ' warn' : '';
+        t = mmss(el); st = '<span class="lt-st">' + (late ? '⚠ Late' : warn ? 'Almost due' : '✓ On time') + '</span>';
+        btn = '<button type="button" class="lt-btn ready" data-lt="ready" data-id="' + o.id + '">Ready</button>';
+        extra = '<button type="button" class="lt-undo" data-lt="unfire" data-id="' + o.id + '">Undo</button>';
+      } else {
+        var cook = o.fired_at && o.ready_at ? Date.parse(o.ready_at) - Date.parse(o.fired_at) : null;
+        t = mmss(now() - Date.parse(o.ready_at || o.created_at)); pct = 100;
+        st = '<span class="lt-st">' + (cook != null ? 'Made in ' + mmss(cook) : 'Ready') + '</span>';
+        btn = '<button type="button" class="lt-btn done" data-lt="done" data-id="' + o.id + '">Picked up</button>';
+      }
+      var items = (o.items || []).filter(function(it){ return c.show_drinks !== false || !it.drink; }).map(function(it){
+        return '<li class="' + (it.done && o.stage !== 'ready' ? 'done' : '') + '"><span>' + it.qty + 'x ' + escHtml(it.name) +
+          (c.show_notes !== false && it.note ? '<small>' + escHtml(it.note) + '</small>' : '') + '</span>' +
+          (c.show_tags !== false ? '<em class="lt-tag">' + escHtml(tagFor(it)) + '</em>' : '') + '</li>';
+      }).join('');
+      var ps = printState[o.id], print = '';
+      if (o.stage === 'ready') {
+        if (ps && ps.bad) print = '<div class="lt-print bad">⚠ Ticket didn’t print: ' + escHtml(ps.msg) + '<button type="button" data-lt="print" data-id="' + o.id + '">Retry</button></div>';
+        else if (o.ticket || (ps && ps.ok)) print = '<div class="lt-print">🖨 Ticket sent to the Square printer</div>';
+        else print = '<div class="lt-print">Printing…</div>';
+      }
+      return '<div class="' + cls + (seen && !seen[o.id] ? ' flash' : '') + '" style="--ev:' + evColor(o.event_id) + '" data-order="' + o.id + '">' +
+        '<div class="lt-head"><span class="lt-sq"></span><span class="lt-ref">' + escHtml(o.ref || '') + '</span>' +
+          (c.show_name !== false ? '<span class="lt-name">' + escHtml(shortName(o.name)) + '</span>' : '') + '</div>' +
+        (c.show_event !== false ? '<div class="lt-ev">' + escHtml(o.event || '') + (o.tab ? ' · Company tab' : ' · Paid') + '</div>' : '') +
+        '<ul class="lt-items">' + items + '</ul>' +
+        (c.show_notes !== false && o.notes ? '<div class="lt-notes">' + escHtml(o.notes) + '</div>' : '') +
+        '<div class="lt-foot"><span class="lt-time">' + t + '</span>' + st + extra + btn + '</div>' +
+        '<div class="lt-bar"><i style="width:' + pct.toFixed(1) + '%"></i></div>' + print + '</div>';
+    }
+    function render(){
+      if (!data) return;
+      var c = cfg(), orders = data.orders || [];
+      document.getElementById('lunchEvents').innerHTML = (data.events || []).map(function(e){
+        return '<div class="lb-ev" style="--ev:' + evColor(e.id) + '"><i></i><b>' + escHtml(e.name) + '</b><span>' + e.on_board + ' up · ' + e.waiting + ' in line · ' + e.cooking + ' cooking · ' + e.done + ' done</span></div>';
+      }).join('');
+      var waiting = (data.events || []).reduce(function(a, e){ return a + (e.waiting || 0); }, 0);
+      var more = waiting ? '<div class="lb-more">+' + waiting + ' more in line — the next one shows when you Fire</div>' : '';
+      colsEl.classList.toggle('queue', c.columns === 'queue');
+      if (c.columns === 'queue') {
+        colsEl.innerHTML = '<div class="lb-col"><div class="lb-list">' + (orders.length ? orders.map(ticketHtml).join('') : '<div class="lb-empty">No event orders right now.</div>') + more + '</div></div>';
+      } else {
+        var col = function(key, label, list, tail){
+          return '<div class="lb-col" data-col="' + key + '"><div class="lb-col-head">' + label + '<span>' + list.length + '</span></div><div class="lb-list">' +
+            (list.length ? list.map(ticketHtml).join('') : '<div class="lb-empty">Nothing here</div>') + (tail || '') + '</div></div>';
+        };
+        colsEl.innerHTML = col('next', 'Up next', orders.filter(function(o){ return o.stage === 'next'; }), more) +
+          col('cooking', 'Cooking', orders.filter(function(o){ return o.stage === 'cooking'; })) +
+          col('ready', 'Ready', orders.filter(function(o){ return o.stage === 'ready'; }));
+      }
+      var ids = {}; orders.forEach(function(o){ ids[o.id] = true; });
+      if (seen && c.sound !== false && orders.some(function(o){ return !seen[o.id]; }) && window.playOrderSound) window.playOrderSound('website');
+      seen = ids;
+      orders.forEach(function(o){ if (o.stage === 'ready' && !o.ticket && !printState[o.id]) pushPrint(o.id); });
+    }
+    // Every second: only the clocks, bars and on-time labels change.
+    function updateTimes(){
+      if (!data) return;
+      (data.orders || []).forEach(function(o){
+        var el = colsEl.querySelector('[data-order="' + o.id + '"]'); if (!el) return;
+        var tmp = document.createElement('div'); tmp.innerHTML = ticketHtml(o);
+        var fresh = tmp.firstChild;
+        el.className = fresh.className.replace(' flash', '');
+        el.querySelector('.lt-time').textContent = fresh.querySelector('.lt-time').textContent;
+        el.querySelector('.lt-st').outerHTML = fresh.querySelector('.lt-st').outerHTML;
+        el.querySelector('.lt-bar i').style.width = fresh.querySelector('.lt-bar i').style.width;
+      });
+    }
+    function fetchBoard(){
+      sb.rpc('get_kds_event_board').then(function(res){
+        if (res.error) {
+          if (typeof isKitchenAuthError === 'function' && isKitchenAuthError(res.error)) { renewKitchenLogin(fetchBoard, function(){ err(KITCHEN_LOGIN_EXPIRED_MSG); }); return; }
+          err('Could not load the lunch board — ' + (res.error.message || 'unknown error') + (/does not exist|could not find/i.test(res.error.message || '') ? ' (run growth-pack.sql)' : ''));
+          return;
+        }
+        err(''); var d = res.data || {}; if (d.now) skew = Date.parse(d.now) - Date.now();
+        var sig = JSON.stringify([d.orders, d.events, d.settings]);
+        data = d;
+        if (sig !== lastSig) { lastSig = sig; render(); } else updateTimes();   // redraw only when something changed
+        document.getElementById('lunchUpdated').textContent = 'Updated just now';
+      }, function(){ err("Couldn't reach the server — check your connection."); });
+    }
+    function authFetch(body){
+      return sb.auth.getSession().then(function(r){
+        var token = r && r.data && r.data.session && r.data.session.access_token;
+        if (!token) throw new Error('no session');
+        return fetch(PUSH_URL, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + token, 'apikey': ANON }, body: JSON.stringify(body) });
+      }).then(function(res){ return res.json().catch(function(){ return {}; }).then(function(d){ if (!res.ok) throw new Error(d.error || 'error ' + res.status); return d; }); });
+    }
+    // Ready -> print the Square ticket (once; the server also guards it).
+    function pushPrint(id){
+      printState[id] = { pending: true };
+      authFetch({ orderId: id }).then(function(){ printState[id] = { ok: true }; render(); },
+        function(e){ printState[id] = { bad: true, msg: (e && e.message) || 'no answer' }; render(); });
+    }
+    colsEl.addEventListener('click', function(e){
+      var b = e.target.closest('[data-lt]'); if (!b) return;
+      var id = b.getAttribute('data-id'), act = b.getAttribute('data-lt');
+      if (busy[id]) return;
+      if (act === 'print') { printState[id] = null; pushPrint(id); render(); return; }
+      busy[id] = true; b.disabled = true;
+      var rpc = act === 'fire' ? 'kds_event_fire' : act === 'unfire' ? 'kds_event_unfire' : act === 'ready' ? 'kds_event_ready' : 'kds_complete_order';
+      sb.rpc(rpc, { p_order_id: id }).then(function(res){
+        busy[id] = false;
+        if (res.error) { b.disabled = false; err('Couldn’t update that ticket — ' + (res.error.message || 'unknown error')); return; }
+        if (act === 'ready') pushPrint(id);
+        if (act === 'done') authFetch({ orderId: id, action: 'complete' }).catch(function(){});
+        fetchBoard();
+      }, function(){ busy[id] = false; b.disabled = false; err("Couldn't reach the server — check your connection."); });
+    });
+    window.startLunchBoard = function(){
+      if (timer) return;
+      seen = null; lastSig = ''; fetchBoard();
+      timer = setInterval(fetchBoard, 4000);
+      tick = setInterval(function(){
+        updateTimes();
+        document.getElementById('lunchClock').textContent = new Date().toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' });
+      }, 1000);
+    };
+    window.stopLunchBoard = function(){ clearInterval(timer); clearInterval(tick); timer = tick = null; };
   })();
 </script>
 </body>
