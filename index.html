@@ -979,6 +979,92 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
 .member-copy.is-done{ border-color:#1f8a4c; color:#1f8a4c; }
 .member-code-row{ flex-wrap:wrap; }
 .member-code-row .member-qr-code{ white-space:nowrap; }
+
+/* ---- cart suggestions ---- */
+.cart-upsell{ position:relative; margin:4px 24px 12px; padding:13px 40px 13px 14px; border-radius:14px; background:#f5f5f7; border:1px solid #e6e6eb; font-size:13.5px; line-height:1.4; color:#3a3a3c; }
+.cart-upsell[hidden]{ display:none; }
+.cart-upsell b{ display:block; font-size:15px; color:#1d1d1f; margin-bottom:2px; }
+.cart-upsell.ups-meal{ background:#fff7ec; border-color:#f6dcb4; }
+.ups-x{ position:absolute; top:6px; right:6px; width:30px; height:30px; border:0; background:none; font-size:20px; line-height:1; color:#8e8e93; cursor:pointer; border-radius:50%; padding:0; }
+.ups-x:hover{ background:rgba(0,0,0,0.06); }
+.ups-chips{ display:flex; flex-wrap:wrap; gap:7px; margin-top:9px; }
+.ups-chip{ border:1px solid #d2d2d7; background:#fff; color:#1d1d1f; border-radius:999px; padding:7px 13px; font:600 13px/1.1 inherit; cursor:pointer; min-height:34px; }
+.ups-chip:hover{ border-color:#1d1d1f; }
+.ups-chip.ups-go{ background:#1d1d1f; color:#fff; border-color:#1d1d1f; }
+.cart-item-save{ font-size:12.5px; color:#146c3a; font-weight:600; margin-top:2px; }
+
+/* ---- member alerts ---- */
+.member-signup-form .opt{ font-weight:400; color:var(--muted); }
+.member-signup-form .zip-hint{ margin:-6px 0 14px; text-align:left; font-size:13px; }
+.rw-alerts{ max-width:620px; margin:22px auto 0; background:#fff; border:1px solid #e6e6eb; border-radius:18px; padding:16px; text-align:left; }
+.rw-alerts-t b{ display:block; font-size:16px; color:#1d1d1f; }
+.rw-alerts-t span{ display:block; font-size:13.5px; color:var(--muted); margin-top:2px; line-height:1.45; }
+.rw-alerts-row{ display:flex; gap:8px; margin:12px 0 10px; }
+.rw-alerts-row input{ flex:1; min-width:0; margin:0; height:46px; padding:0 14px; border:1px solid #d2d2d7; border-radius:12px; font-size:16px; background:#fff; color:#1d1d1f; box-sizing:border-box; }
+.rw-alerts-row input:focus{ outline:none; border-color:#1d1d1f; }
+.rw-alerts-row .btn{ width:auto; height:46px; padding:0 22px; margin:0; border-radius:999px; }
+.rw-alerts-on{ display:flex; gap:9px; align-items:center; font-size:13.5px; color:#3a3a3c; cursor:pointer; }
+.rw-alerts-on input{ width:18px; height:18px; margin:0; }
+.rw-alerts-msg{ font-size:13px; color:var(--muted); margin-top:8px; min-height:1px; }
+.rw-alerts-msg.ok{ color:#146c3a; }
+.rw-alerts-msg.err{ color:#c4271b; }
+
+.unsub-box{ background:#fff; border:1px solid #e6e6eb; border-radius:18px; padding:18px; margin:0 auto 22px; max-width:620px; line-height:1.45; box-shadow:0 6px 24px rgba(0,0,0,0.06); }
+.unsub-box b{ display:block; font-size:17px; color:#1d1d1f; }
+.unsub-box span{ display:block; color:var(--muted); font-size:14px; margin-top:4px; }
+.unsub-btns{ display:flex; gap:10px; flex-wrap:wrap; margin-top:12px; }
+.unsub-btns .btn{ width:auto; padding:0 20px; height:44px; border-radius:999px; }
+.unsub-btns .btn-outline{ background:#fff; color:#1d1d1f; border:1px solid #d2d2d7; }
+
+/* ---- catering requests ---- */
+.cat-hp{ position:absolute !important; left:-9999px !important; width:1px !important; height:1px !important; opacity:0; }
+.cform .cat-check{ display:flex; align-items:flex-start; gap:10px; font-weight:500; line-height:1.4; }
+.cform .cat-check input{ width:20px; height:20px; margin:0; flex:none; }
+.cat-estimate{ display:none; background:#f5f5f7; border-radius:14px; padding:12px 14px; margin:0 0 14px; font-size:13px; color:var(--muted); line-height:1.45; }
+.cat-estimate.on{ display:block; }
+.cat-estimate b{ display:block; font-size:20px; color:var(--ink); margin-bottom:2px; }
+.cat-msg{ color:#c4271b; font-size:14px; font-weight:500; min-height:0; margin:0 0 8px; }
+.cat-msg:empty{ display:none; }
+.cat-done{ background:#f0faf3; border:1px solid #bfe5cb; border-radius:16px; padding:18px; color:#146c3a; line-height:1.45; }
+.cat-done b{ display:block; font-size:17px; margin-bottom:4px; }
+.cat-done span{ color:#3a3a3c; font-size:14.5px; }
+.cat-paid{ background:#f0faf3; border:1px solid #bfe5cb; border-radius:16px; padding:14px 16px; margin:0 0 18px; color:#3a3a3c; line-height:1.45; }
+.cat-paid b{ color:#146c3a; }
+
+/* ---- company tab checkout ---- */
+.drop-bar .ev-tab{ color:#b8f5c9; font-weight:600; }
+.drop-bar a + a{ margin-top:2px; }
+body.ev-tab-mode #coStepPay .wallet-pay, body.ev-tab-mode #payOr, body.ev-tab-mode #coStepPay .pay-row,
+body.ev-tab-mode #cardPanel, body.ev-tab-mode #scanPayPanel, body.ev-tab-mode #coStepPay .cart-breakdown,
+body.ev-tab-mode #coStepPay .cart-total-row, body.ev-tab-mode #tipSection, body.ev-tab-mode #promoSection,
+body.ev-tab-mode #rewardSection, body.ev-tab-mode #coPointsLine{ display:none !important; }
+.tab-pay{ background:#f0faf3; border:1px solid #bfe5cb; border-radius:16px; padding:14px; margin-bottom:10px; }
+.tab-pay.hidden{ display:none; }
+.tab-pay-head b{ display:block; font-size:16px; color:#146c3a; }
+.tab-pay-head span{ font-size:13.5px; color:#3a3a3c; }
+.tab-pay-food{ margin:10px 0; font-weight:600; font-size:14.5px; }
+.tab-pay-food.over{ color:#c4271b; }
+.tab-pay-btn{ width:100%; height:52px; border-radius:999px; background:#1d1d1f; color:#fff; font-weight:600; font-size:16px; border:0; }
+.tab-pay-btn:disabled{ background:#c7c7cc; }
+.tab-pay-note{ font-size:13.5px; color:#3a3a3c; margin:0 0 10px; line-height:1.45; }
+.tab-code{ display:block; width:100%; height:52px; border:1.5px solid #bfe5cb; border-radius:14px; text-align:center; font-size:24px; letter-spacing:.3em; font-weight:700; margin-bottom:10px; background:#fff; color:#1d1d1f; box-sizing:border-box; }
+.tab-code:focus{ outline:none; border-color:#146c3a; }
+.tab-pay-link{ display:block; margin:10px auto 0; background:none; border:0; color:#146c3a; font-weight:600; font-size:13.5px; text-decoration:underline; cursor:pointer; }
+
+/* ---- lunch drop links ---- */
+.drop-bar{ display:flex; flex-direction:column; gap:3px; background:#1d1d1f; color:#fff; border-radius:18px; padding:16px 18px; margin:0 0 20px; font-size:14px; line-height:1.45; }
+.drop-bar .drop-kicker{ font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#ffb4ab; }
+.drop-bar b{ font-size:20px; line-height:1.2; }
+.drop-bar span{ color:#d2d2d7; }
+.drop-bar strong{ color:#fff; }
+.drop-bar em{ font-style:normal; color:#ffd479; font-weight:600; }
+.drop-bar a{ color:#fff; opacity:.75; font-size:13px; margin-top:6px; text-decoration:underline; }
+.drop-bar.closed{ background:#fff4e0; color:#6b3d00; border:1px solid #f6d79b; }
+.drop-bar.closed b{ font-size:16px; }
+.drop-bar.closed span{ color:#6b3d00; }
+.drop-bar.closed a{ color:#6b3d00; }
+.drop-co-note{ background:#f5f5f7; border-radius:14px; padding:12px 14px; margin:4px 0 14px; font-size:14px; color:#3a3a3c; line-height:1.45; }
+.drop-co-note b{ display:block; color:#1d1d1f; }
 </style>
 <script type="application/ld+json">
 {
@@ -1311,6 +1397,12 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         <div class="rw-grid" id="rwDeals"></div>
         <p class="rw-fine">Same deals on the website, the QR drive-up page and the kiosk. Deals are for members; points still count.</p>
       </div>
+
+      <div class="rw-alerts" id="rwAlerts">
+        <div class="rw-alerts-t"><b>Member offers by email</b><span>Weekly deals and flyers just for members. Turn them off any time.</span></div>
+        <label class="rw-alerts-on"><input type="checkbox" id="rwAlertOn" checked> Email me member offers</label>
+        <div class="rw-alerts-msg" id="rwAlertMsg" role="status"></div>
+      </div>
     </div>
 
   </div>
@@ -1451,6 +1543,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       <div class="cat-point"><div class="num">Or</div><p>Prefer to talk? Call or text <a href="tel:+13305875203">(330) 587-5203</a>.</p></div>
     </div>
 
+    <div class="cat-paid hidden" id="catPaid" role="status"><b>Deposit received. You&rsquo;re booked!</b> We&rsquo;ll be in touch with final details. Questions? Call or text (330) 587-5203.</div>
     <div class="cat-forms">
       <div class="menu-acc-item" id="cateringBookItem">
         <button class="menu-acc-head cform-head" type="button">
@@ -1458,25 +1551,37 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
           <svg class="menu-acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
         </button>
         <div class="menu-acc-body cform-body"><div class="menu-acc-inner cform-inner">
-          <form class="cform" action="https://formsubmit.co/rollinshawarma.foodtruck@gmail.com" method="POST">
-            <input type="hidden" name="_subject" value="New catering request &mdash; Roll-In Shawarma">
-            <input type="hidden" name="_template" value="table">
-            <input type="hidden" name="_captcha" value="true">
+          <form class="cform cat-form" data-kind="event" novalidate>
+            <input type="text" name="website" class="cat-hp" tabindex="-1" autocomplete="off" aria-hidden="true">
             <div class="row2">
-              <label>Name*<input type="text" name="Name" required autocomplete="name"></label>
-              <label>Phone<input type="tel" name="Phone" autocomplete="tel"></label>
+              <label>Name*<input type="text" name="name" required autocomplete="name" maxlength="100"></label>
+              <label>Phone<input type="tel" name="phone" autocomplete="tel" maxlength="40"></label>
             </div>
             <div class="row2">
-              <label>Email*<input type="email" name="Email" required autocomplete="email"></label>
-              <label>Event date<input type="date" name="Event Date" id="cateringEventDate"></label>
+              <label>Email*<input type="email" name="email" required autocomplete="email" maxlength="200"></label>
+              <label>Event date<input type="date" name="event_date" id="cateringEventDate"></label>
             </div>
             <div class="row2">
-              <label>Estimated headcount<input type="number" name="Headcount" min="1"></label>
-              <label>Location / city<input type="text" name="Location"></label>
+              <label>Guests<input type="number" name="guests" min="1" max="5000" inputmode="numeric" placeholder="e.g. 50"></label>
+              <label>Start time<input type="time" name="start_time"></label>
             </div>
-            <label>Event details<textarea name="Details" rows="3" placeholder="Type of event, timing, any menu requests..."></textarea></label>
-            <button type="submit">Send catering request</button>
-            <div class="fine">This goes straight to our inbox. We&rsquo;ll get back to you within a day or two.</div>
+            <label>Where<input type="text" name="location" maxlength="200" placeholder="Address or city"></label>
+            <label>Food
+              <select name="package">
+                <option value="shawarma">Shawarma &mdash; $10 per person</option>
+                <option value="frankie">Frankie rolls &mdash; $8 per person</option>
+                <option value="bowls">Rice bowls &mdash; $11 per person</option>
+                <option value="tacos">Tacos &mdash; $7 per person</option>
+                <option value="mix">A mix of everything &mdash; about $10 per person</option>
+                <option value="unsure">Not sure yet</option>
+              </select>
+            </label>
+            <label class="cat-check"><input type="checkbox" name="fries" checked> Add fries trays (one half tray per 15 guests, $29.99 each)</label>
+            <div class="cat-estimate" aria-live="polite"></div>
+            <label>Anything else?<textarea name="details" rows="3" maxlength="2000" placeholder="Type of event, dietary needs, timing..."></textarea></label>
+            <div class="cat-msg" role="alert"></div>
+            <button type="submit">Get my quote</button>
+            <div class="fine">We reply within a day with a menu and quote. Nothing is charged now.</div>
           </form>
         </div></div>
       </div>
@@ -1488,31 +1593,28 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         </button>
         <div class="menu-acc-body cform-body"><div class="menu-acc-inner cform-inner">
           <p class="hint" style="margin-bottom:18px;">Set up a standing lunch day for your office, or book us for a recurring company event. Tell us about your team and we&rsquo;ll put together a plan.</p>
-          <form class="cform" action="https://formsubmit.co/rollinshawarma.foodtruck@gmail.com" method="POST">
-            <input type="hidden" name="_subject" value="New CORPORATE catering inquiry &mdash; Roll-In Shawarma">
-            <input type="hidden" name="_template" value="table">
-            <input type="hidden" name="_captcha" value="true">
+          <form class="cform cat-form" data-kind="corporate" novalidate>
+            <input type="text" name="website" class="cat-hp" tabindex="-1" autocomplete="off" aria-hidden="true">
             <div class="row2">
-              <label>Company name*<input type="text" name="Company" required autocomplete="organization"></label>
-              <label>Contact name*<input type="text" name="Contact Name" required autocomplete="name"></label>
+              <label>Company name*<input type="text" name="company" required autocomplete="organization" maxlength="120"></label>
+              <label>Contact name*<input type="text" name="name" required autocomplete="name" maxlength="100"></label>
             </div>
             <div class="row2">
-              <label>Work email*<input type="email" name="Work Email" required autocomplete="email"></label>
-              <label>Phone<input type="tel" name="Phone" autocomplete="tel"></label>
+              <label>Work email*<input type="email" name="email" required autocomplete="email" maxlength="200"></label>
+              <label>Phone<input type="tel" name="phone" autocomplete="tel" maxlength="40"></label>
             </div>
             <div class="row2">
-              <label>Approx. team size<input type="number" name="Team Size" min="1"></label>
+              <label>Team size<input type="number" name="guests" min="1" max="5000" inputmode="numeric"></label>
               <label>How often?
-                <select name="Frequency">
-                  <option>Weekly</option>
-                  <option>Biweekly</option>
-                  <option>Monthly</option>
-                  <option>One-time corporate event</option>
-                  <option>Not sure yet</option>
+                <select name="frequency">
+                  <option>Weekly</option><option>Every other week</option><option>Monthly</option>
+                  <option>One-time company event</option><option>Not sure yet</option>
                 </select>
               </label>
             </div>
-            <label>Anything else?<textarea name="Details" rows="3" placeholder="Office location, budget range, preferred days..."></textarea></label>
+            <label>Office address<input type="text" name="location" maxlength="200"></label>
+            <label>Anything else?<textarea name="details" rows="3" maxlength="2000" placeholder="Preferred days, budget, how people would like to order..."></textarea></label>
+            <div class="cat-msg" role="alert"></div>
             <button type="submit">Request corporate catering</button>
             <div class="fine">We&rsquo;ll reach out with a plan, pricing and next steps.</div>
           </form>
@@ -1779,6 +1881,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
 
     <div id="cartItemsView">
       <div id="cartItemsList" class="cart-items-list"></div>
+      <div id="cartUpsell" class="cart-upsell" hidden aria-live="polite"></div>
       <div class="cart-drawer-footer">
         <div class="cart-breakdown">
           <div class="cart-breakdown-row">Subtotal <span id="cartDrawerSubtotal">$0.00</span></div>
@@ -2444,8 +2547,135 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       }
     };
 
+    // ================= CART SUGGESTIONS (one at a time, can be dismissed) =================
+    //   group  : 3+ entrées and no deal yet -> group deals (members) / join free (everyone else)
+    //   meal   : an entrée without a combo  -> add fries + a drink for the combo price
+    //   sweet  : no dessert yet             -> a kulfi
+    var UPS_ENTREE_CATS = { 'Shawarma': 1, 'Frankie Rolls': 1, 'Bowls': 1, 'Tacos': 1, 'Loaded Fries': 1 };
+    var upsDismissed = {};
+    try { upsDismissed = JSON.parse(sessionStorage.getItem('rollinUpsellOff') || '{}') || {}; } catch (e) {}
+    function upsEntrees(){
+      return cart.filter(function(l){ var it = itemsById[l.menu_item_id]; return !l.dealOf && it && UPS_ENTREE_CATS[it.category]; });
+    }
+    function upsPick(){
+      var entrees = upsEntrees();
+      var nEntrees = entrees.reduce(function(s, l){ return s + l.quantity; }, 0);
+      var hasDeal = cart.some(function(l){ return l.deal; });
+      if (!upsDismissed.group && !hasDeal && nEntrees >= 3) return { kind: 'group' };
+      var fries = wsComboAddons['Combo Fries'];
+      if (!upsDismissed.meal && fries && wsAvail(fries)) {
+        var comboable = entrees.filter(function(l){ return itemsById[l.menu_item_id].combo_upcharge; });
+        var need = comboable.reduce(function(s, l){ return s + l.quantity; }, 0);
+        var fl = findLine(fries.id), have = fl ? fl.quantity : 0;
+        var drinks = WS_DRINKS.map(function(n){ var d = wsComboAddons['Combo ' + n]; return d && wsAvail(d) ? { label: n, item: d } : null; }).filter(Boolean);
+        if (need > have && drinks.length) {
+          var first = itemsById[comboable[0].menu_item_id];
+          return { kind: 'meal', item: first, price: Number(first.combo_upcharge), drinks: drinks, fries: fries };
+        }
+      }
+      var hasSweet = cart.some(function(l){ var it = itemsById[l.menu_item_id]; return it && it.category === 'Kulfi Ice Cream'; });
+      if (!upsDismissed.sweet && !hasSweet && cartTotal() >= 8) {
+        var kulfi = Object.keys(itemsById).map(function(k){ return itemsById[k]; })
+          .filter(function(it){ return it.category === 'Kulfi Ice Cream' && wsAvail(it); })
+          .sort(function(a, b){ return (a.display_order || 0) - (b.display_order || 0); });
+        if (kulfi.length) return { kind: 'sweet', items: kulfi };
+      }
+      return null;
+    }
+    function upsRender(){
+      var box = document.getElementById('cartUpsell');
+      if (!box) return;
+      var p = cart.length ? upsPick() : null;
+      if (!p) { box.innerHTML = ''; box.hidden = true; return; }
+      var x = '<button type="button" class="ups-x" data-ups-off="' + p.kind + '" aria-label="No thanks">&times;</button>';
+      var html = '';
+      if (p.kind === 'meal') {
+        html = '<b>Make it a meal</b><span>Fries and a drink with your ' + escHtml(p.item.name) + ' for +$' + p.price.toFixed(2) + '. Pick a drink:</span>' +
+          '<div class="ups-chips">' + p.drinks.map(function(d){ return '<button type="button" class="ups-chip" data-ups-meal="' + escHtml(String(d.item.id)) + '">' + escHtml(d.label) + '</button>'; }).join('') + '</div>';
+      } else if (p.kind === 'sweet') {
+        html = '<b>Something sweet?</b><span>Our kulfi is the best way to finish.</span>' +
+          '<div class="ups-chips">' + p.items.map(function(it){ return '<button type="button" class="ups-chip" data-ups-add="' + escHtml(String(it.id)) + '">' + escHtml(it.name.replace(/\s*Kulfi$/i, '')) + ' $' + Number(it.price).toFixed(2) + '</button>'; }).join('') + '</div>';
+      } else {
+        var member = document.body.classList.contains('member-mode');
+        html = '<b>Feeding a group?</b><span>' + (member ? 'Our group deals bundle 4 or more items for less.' : 'Members get group deals like the Family Deal. Joining is free and takes a minute.') + '</span>' +
+          '<div class="ups-chips"><button type="button" class="ups-chip ups-go" data-ups-group="' + (member ? 'deals' : 'join') + '">' + (member ? 'See group deals' : 'Join free & see deals') + '</button></div>';
+      }
+      box.hidden = false;
+      box.className = 'cart-upsell ups-' + p.kind;
+      box.innerHTML = x + html;
+    }
+    document.addEventListener('click', function(e){
+      var t = e.target.closest && e.target.closest('#cartUpsell [data-ups-off], #cartUpsell [data-ups-meal], #cartUpsell [data-ups-add], #cartUpsell [data-ups-group]');
+      if (!t) return;
+      if (t.hasAttribute('data-ups-off')) {
+        upsDismissed[t.getAttribute('data-ups-off')] = 1;
+        try { sessionStorage.setItem('rollinUpsellOff', JSON.stringify(upsDismissed)); } catch (er) {}
+        upsRender();
+        return;
+      }
+      if (t.hasAttribute('data-ups-meal')) {
+        var fries = wsComboAddons['Combo Fries'], drink = itemsById[t.getAttribute('data-ups-meal')];
+        if (!fries || !drink) return;
+        wsAddRaw(fries.id); wsAddRaw(drink.id);
+        wsSyncCombos(); saveCart(); renderCartUI();
+        if (typeof wsToast === 'function') wsToast('Made it a meal');
+        return;
+      }
+      if (t.hasAttribute('data-ups-add')) {
+        var it = itemsById[t.getAttribute('data-ups-add')];
+        if (!it) return;
+        wsAddRaw(it.id); saveCart(); renderCartUI();
+        if (typeof wsToast === 'function') wsToast('Added ' + it.name);
+        return;
+      }
+      if (t.hasAttribute('data-ups-group')) {
+        var close = document.getElementById('cartDrawerClose');
+        if (close) close.click();
+        var sec = document.getElementById('deals');
+        if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (t.getAttribute('data-ups-group') === 'deals') {
+          var tab = document.querySelector('.rw-tab[data-rw-tab="deals"]');
+          if (tab) tab.click();
+        }
+      }
+    });
+
+    // ---- What a deal saves vs. ordering the same things on their own ----
+    function upsRegularPrice(pickName){
+      var all = Object.keys(itemsById).map(function(k){ return itemsById[k]; })
+        .filter(function(it){ return it.category !== 'Deal Selections' && it.category !== 'Combo Add-ons' && it.category !== 'Catering' && it.category !== 'Deals'; });
+      var n = String(pickName || '').trim(), m, hit;
+      var by = function(name, variant){
+        return all.filter(function(it){
+          return it.name.toLowerCase() === name.toLowerCase() && (variant === undefined || String(it.variant_name || '').toLowerCase() === variant.toLowerCase());
+        });
+      };
+      if ((m = n.match(/^(.+?)\s+-\s+(.+)$/))) {               // "Soda - Coke", "Loaded Fries - Butter Chicken"
+        hit = by(m[1], m[2])[0] || (m[2].toLowerCase() === 'water' ? by('Water')[0] : null);
+      } else if ((m = n.match(/^(.+?)\s+Bowl$/i)) && !/^veggie$/i.test(m[1])) {  // "Butter Chicken Bowl"
+        hit = by('Chicken Over Rice Bowl', m[1])[0];
+      } else {
+        var same = by(n);
+        hit = same.filter(function(it){ return !it.variant_name || /^regular$/i.test(it.variant_name); })[0] || same[0];
+        if (!hit) hit = all.filter(function(it){ return !it.variant_name && it.name.toLowerCase().indexOf(n.toLowerCase() + ' (') === 0; })[0]; // "Paneer Frankie" -> "Paneer Frankie (Veg)"
+      }
+      return hit ? Number(hit.price) : null;
+    }
+    function upsDealSavings(dealLine){
+      var total = 0, ok = true;
+      cart.forEach(function(p){
+        if (p.dealOf !== dealLine.deal) return;
+        var r = upsRegularPrice(p.name);
+        if (r == null) ok = false; else total += r * p.quantity;
+      });
+      var save = Math.round((total - dealLine.unitPrice) * 100) / 100;
+      return ok && save >= 1 ? save : 0;
+    }
+    window.rollinUpsell = { pick: upsPick, regularPrice: upsRegularPrice, dealSavings: upsDealSavings };
+
     function renderCartUI(){
       refreshTileActions();
+      setTimeout(upsRender, 0);
       var fab = document.getElementById('cartFab');
       var countEl = document.getElementById('cartFabCount');
       var totalEl = document.getElementById('cartFabTotal');
@@ -2475,13 +2705,15 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         var foodRowsHtml = cart.filter(function(c){ return !c.dealOf; }).map(function(c){
           var lineItem = itemsById[c.menu_item_id];
           if (c.deal) {
+            var dealSave = upsDealSavings(c);
             var picks = cart.filter(function(p){ return p.dealOf === c.deal; }).map(function(p){
               var how = ingNote(p);
               return (p.quantity > 1 ? p.quantity + '\u00d7 ' : '') + (window.RollinDeals ? window.RollinDeals.shortName(p.name) : p.name) + (how ? ' (' + how + ')' : '');
             });
             return '<div class="cart-item-row">' +
               '<div class="cart-item-info"><div class="cart-item-name">' + escHtml(c.name) + '</div>' +
-              '<div class="cart-item-price">' + escHtml(picks.join(', ')) + '</div></div>' +
+              '<div class="cart-item-price">' + escHtml(picks.join(', ')) + '</div>' +
+              (dealSave ? '<div class="cart-item-save">You save $' + dealSave.toFixed(2) + ' vs. ordering these separately</div>' : '') + '</div>' +
               '<div class="cart-item-qty"><span>$' + c.unitPrice.toFixed(2) + '</span>' +
               '<button type="button" class="cart-qty-btn deal-remove-btn" data-deal="' + escHtml(c.deal) + '" title="Remove deal">&times;</button></div>' +
             '</div>';
@@ -3322,6 +3554,20 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       });
     }
 
+    // ---- Company tab (corporate events): no payment, straight to the kitchen ----
+    window.__rollinTabPay = function(code){
+      var order = collectCheckout();
+      if (!order) return Promise.resolve(null);
+      if (!order.payload.customerEmail) { checkoutMsg('Add your work email so the company knows the order is yours.'); return Promise.resolve(null); }
+      setPayBusy(true, 'Placing your order\u2026');
+      return submitOrder(order, { paymentMethod: 'company_tab', tabCode: code, rewardIds: undefined, promoCode: undefined, tipAmount: undefined }).then(function(d){
+        if (!d) return null;
+        closeCartDrawer();
+        showItemsView();
+        window.location.href = (d.url || d.redirectUrl) + '&tab=1';
+      });
+    };
+
     // ---- Checkout helpers shared by every way to pay ----
     var PAY_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/create-order-checkout';
     var PAY_KEY = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
@@ -3473,6 +3719,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
           pickupMethod: (window.rollinPickup && window.rollinPickup.method()) || undefined,
           carModel: (window.rollinPickup && window.rollinPickup.car()) || undefined,
           pickupOtherDay: scheduledPickupAt && window.rollinPickup && window.rollinPickup.otherDay() ? true : undefined,
+          eventCode: window.rollinEvent ? window.rollinEvent.code() : undefined,
           adRef: (function(){ try { var a = JSON.parse(localStorage.getItem('rollinAdRef') || 'null'); return a && a.t > Date.now() - 7 * 864e5 ? a.r : undefined; } catch (e) { return undefined; } })()
         }
       };
@@ -3495,6 +3742,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         .then(function(result){
           setPayBusy(false);
           var d = result.data || {};
+          window.__rollinLastErr = result.ok ? null : (d.code || 'ERROR');
           if (result.ok && (d.url || d.paid)) {
             if (body.promoCode && String(body.promoCode).toUpperCase() === 'WELCOME10' && window.rollinWelcome) window.rollinWelcome.used();
             return d;
@@ -4278,7 +4526,88 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       document.getElementById('memberNudge').textContent = nudge;
     }
 
+    // ---- Email unsubscribe confirm (link in member offer emails) ----
+    (function(){
+      var token = '';
+      try { token = new URLSearchParams(location.search).get('unsub') || ''; } catch (e) {}
+      if (!/^[0-9a-f-]{36}\.[A-Za-z0-9_-]{10,40}$/i.test(token)) return;
+      var sec = document.getElementById('deals'); if (!sec) return;
+      var box = document.createElement('div'); box.className = 'unsub-box'; box.setAttribute('role', 'dialog'); box.setAttribute('aria-live', 'polite');
+      box.innerHTML = '<b>Stop member offer emails?</b><span>You won’t get our offer emails anymore. Your rewards and points stay the same.</span>' +
+        '<div class="unsub-btns"><button type="button" class="btn btn-dark" id="unsubYes">Yes, stop them</button><button type="button" class="btn btn-outline" id="unsubNo">Keep them</button></div>';
+      var wrap = sec.querySelector('.wrap') || sec; wrap.insertBefore(box, wrap.firstChild);
+      setTimeout(function(){ sec.scrollIntoView({ block: 'start' }); }, 300);
+      function done(msg){ box.innerHTML = '<b>' + msg + '</b>'; try { history.replaceState(null, '', location.pathname + '#deals'); } catch (e) {} }
+      document.getElementById('unsubNo').onclick = function(){ done('Got it, you’ll keep getting them.'); };
+      document.getElementById('unsubYes').onclick = function(){
+        this.disabled = true;
+        fetch('https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/member-offers', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'unsubscribe', token: token }) })
+          .then(function(r){ return r.json().catch(function(){ return {}; }); })
+          .then(function(d){ done(d && d.ok ? 'You’re unsubscribed. You can turn emails back on in your Roll-In Rewards account.' : 'That link didn’t work. Sign in and switch off “Email me member offers”.'); },
+                function(){ document.getElementById('unsubYes').disabled = false; });
+      };
+    })();
+  // ---- Catering requests: saved for the team + emailed to both sides ----
+  (function(){
+    var URL_ = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/catering-request';
+    var PRICES = { shawarma: 1000, frankie: 800, bowls: 1100, tacos: 700, mix: 1000 };
+    var opened = Date.now();
+    function money(c){ return '$' + (c / 100).toLocaleString('en-US', { minimumFractionDigits: c % 100 ? 2 : 0, maximumFractionDigits: 2 }); }
+    function estimate(f){
+      var est = f.querySelector('.cat-estimate'); if (!est) return;
+      var g = Math.round(Number(f.guests.value)), p = PRICES[f.package.value];
+      if (!g || g < 1 || !p) { est.innerHTML = ''; est.classList.remove('on'); return; }
+      var trays = f.fries.checked ? Math.ceil(g / 15) : 0, total = p * g + trays * 2999;
+      est.classList.add('on');
+      est.innerHTML = '<b>About ' + money(total) + '</b><span>' + g + ' guests × ' + money(p) + (trays ? ' + ' + trays + ' fries tray' + (trays > 1 ? 's' : '') : '') + '. Your quote may differ with the menu, service and travel.</span>';
+    }
+    document.querySelectorAll('.cat-form').forEach(function(f){
+      if (f.guests && f.package) ['input', 'change'].forEach(function(ev){ f.addEventListener(ev, function(){ estimate(f); }); });
+      f.addEventListener('input', function(){ var m = f.querySelector('.cat-msg'); if (m.textContent) m.textContent = ''; });
+      f.addEventListener('submit', function(e){
+        e.preventDefault();
+        var msg = f.querySelector('.cat-msg'), btn = f.querySelector('button[type=submit]');
+        msg.textContent = '';
+        var need = Array.prototype.filter.call(f.querySelectorAll('[required]'), function(i){ return !i.value.trim(); });
+        if (need.length) { msg.textContent = 'Please fill in ' + need.map(function(i){ return i.parentNode.firstChild.textContent.replace('*', '').trim().toLowerCase(); }).join(' and ') + '.'; need[0].focus(); return; }
+        if (!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(f.email.value.trim())) { msg.textContent = 'Please check your email address.'; f.email.focus(); return; }
+        var data = { action: 'submit', kind: f.getAttribute('data-kind'), elapsed_ms: Date.now() - opened };
+        Array.prototype.forEach.call(f.elements, function(el){ if (el.name) data[el.name] = el.type === 'checkbox' ? el.checked : el.value; });
+        btn.disabled = true; var label = btn.textContent; btn.textContent = 'Sending…';
+        fetch(URL_, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
+          .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(d){ return { ok: r.ok, d: d }; }); })
+          .then(function(res){
+            btn.disabled = false; btn.textContent = label;
+            if (!res.ok || res.d.error) { msg.textContent = res.d.error || 'Couldn’t send. Please call or text (330) 587-5203.'; return; }
+            f.outerHTML = '<div class="cat-done"><b>Thanks! Request ' + String(res.d.ref).replace(/[^A-Z0-9]/gi, '') + ' is in.</b><span>We’ll reply within a day with a menu and quote. A copy is in your inbox.</span></div>';
+            try { if (window.fbq) fbq('track', 'Lead', { content_category: data.kind === 'corporate' ? 'corporate catering' : 'catering', value: res.d.estimate_cents ? res.d.estimate_cents / 100 : undefined, currency: 'USD' }); } catch (x) {}
+          }, function(){ btn.disabled = false; btn.textContent = label; msg.textContent = 'Couldn’t send. Check your connection, or call or text (330) 587-5203.'; });
+      });
+      estimate(f);
+    });
+    if (/[?&]catering=/.test(location.search)) { var p = document.getElementById('catPaid'); if (p) p.classList.remove('hidden'); }
+  })();
+    // ---- Member offers: on/off ----
+    function loadMemberAlerts(){
+      sb.rpc('member_get_alerts').then(function(res){
+        var row = res && !res.error && res.data && (Array.isArray(res.data) ? res.data[0] : res.data);
+        var box = document.getElementById('rwAlerts');
+        if (res.error) { if (box) box.classList.add('hidden'); return; }   // growth-pack.sql not run yet
+        if (row) document.getElementById('rwAlertOn').checked = row.alerts_on !== false;
+      });
+    }
+    document.getElementById('rwAlertOn').addEventListener('change', function(){
+      var on = this.checked, msg = document.getElementById('rwAlertMsg');
+      msg.textContent = 'Saving…'; msg.className = 'rw-alerts-msg';
+      sb.rpc('member_set_alerts', { p_zip: null, p_on: on }).then(function(res){
+        if (res.error) { msg.textContent = res.error.message; msg.className = 'rw-alerts-msg err'; return; }
+        msg.className = 'rw-alerts-msg ok';
+        msg.textContent = on ? 'You’ll get member offers by email.' : 'Offers are off. You can turn them back on any time.';
+      });
+    });
+
     function finishLogin(profile){
+      loadMemberAlerts();
       lockedEl.classList.add('hidden');
       unlockedEl.classList.remove('hidden');
       document.body.classList.add('member-mode');
@@ -4907,6 +5236,186 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       if (navigator.clipboard && window.isSecureContext) {
         navigator.clipboard.writeText(digits).then(function(){ done(true); }, function(){ done(fallback(digits)); });
       } else done(fallback(digits));
+    });
+  })();
+  // ---- Corporate / private event links: rollinshawarma.com/?event=CODE#menu ----
+  // Before the event, orders are scheduled for its start; during it they go
+  // straight to the kitchen. "Company pays" events skip payment: the order
+  // goes on the company's tab (the server checks every rule again).
+  (function(){
+    var KEY = 'rollinEvent';
+    var code = '';
+    try { code = (new URLSearchParams(location.search).get('event') || sessionStorage.getItem(KEY) || '').trim().toUpperCase(); } catch (e) {}
+    if (!/^[A-Z0-9]{4,12}$/.test(code)) return;
+    var ev = null, timer = null;
+    var TZ = 'America/New_York';
+    function fmt(iso, o){ return new Date(iso).toLocaleString('en-US', Object.assign({ timeZone: TZ }, o)); }
+    function clock(iso){ return fmt(iso, { hour: 'numeric', minute: '2-digit' }); }
+    function day(iso){ return fmt(iso, { weekday: 'long', month: 'short', day: 'numeric' }); }
+    function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); }
+    function money(c){ return '$' + (c / 100).toFixed(2); }
+    // Work out the state on this device too, so the page updates without a reload.
+    function state(){
+      if (!ev) return 'none';
+      if (ev.state === 'canceled') return 'canceled';
+      var now = Date.now();
+      if (ev.state === 'closed' || now >= new Date(ev.cutoff_at).getTime()) return 'closed';
+      if (ev.opens_at && now < new Date(ev.opens_at).getTime()) return 'not_open';
+      return now < new Date(ev.starts_at).getTime() ? 'preorder' : 'live';
+    }
+    function canOrder(){ var s = state(); return s === 'preorder' || s === 'live'; }
+    function isTab(){ return !!ev && ev.billing === 'company' && canOrder(); }
+    function leave(e){
+      if (e) e.preventDefault();
+      try { sessionStorage.removeItem(KEY); } catch (x) {}
+      var u = new URL(location.href); u.searchParams.delete('event');
+      location.replace(u.pathname + u.search + '#menu');
+    }
+    window.rollinEvent = { code: function(){ return canOrder() ? ev.code : undefined; }, info: function(){ return ev; }, isTab: isTab, leave: leave };
+
+    function paint(){
+      var box = document.getElementById('eventBar');
+      if (!box) {
+        var menu = document.getElementById('menu'); if (!menu) return;
+        box = document.createElement('div'); box.id = 'eventBar'; box.setAttribute('role', 'status');
+        var wrap = menu.querySelector('.wrap') || menu; wrap.insertBefore(box, wrap.firstChild);
+      }
+      var s = state(), html = '';
+      if (s === 'none' || s === 'canceled') {
+        box.className = 'drop-bar closed';
+        html = '<b>This event link isn’t active.</b><span>You can still order for pickup at the truck.</span><a href="#" data-ev-leave>Order normally</a>';
+      } else if (s === 'closed') {
+        box.className = 'drop-bar closed';
+        html = '<b>Ordering for ' + esc(ev.name) + ' has closed.</b><span>Thanks for coming! You can still order for pickup at the truck.</span><a href="#" data-ev-leave>Order normally</a>';
+      } else {
+        box.className = 'drop-bar';
+        var when = s === 'live' ? '<strong>Happening now</strong> until ' + esc(clock(ev.ends_at)) + ' · last orders ' + esc(clock(ev.cutoff_at))
+          : s === 'not_open' ? 'Ordering opens <strong>' + esc(day(ev.opens_at)) + ' at ' + esc(clock(ev.opens_at)) + '</strong>'
+          : '<strong>' + esc(day(ev.starts_at)) + ', ' + esc(clock(ev.starts_at)) + '–' + esc(clock(ev.ends_at)) + '</strong> · order ahead and it’s ready when we arrive';
+        var tab = ev.billing === 'company'
+          ? '<span class="ev-tab">✓ ' + esc(ev.company) + ' is paying' + (ev.per_person_cents ? ' — up to ' + money(ev.per_person_cents) + ' of food each' : '') + '.' +
+            (ev.email_domain ? ' Use your @' + esc(ev.email_domain) + ' email.' : '') + (ev.one_per_person ? ' One order per person.' : '') + '</span>'
+          : '';
+        html = '<div class="drop-kicker">' + esc(ev.company) + '</div><b>' + esc(ev.name) + '</b>' +
+          '<span>' + when + '</span>' + (ev.location || ev.pickup_note ? '<span>' + esc([ev.location, ev.pickup_note].filter(Boolean).join(' · ')) + '</span>' : '') + tab +
+          '<a href="https://rollinshawarma.com/eventboard.html?e=' + encodeURIComponent(ev.code) + '" target="_blank" rel="noopener">See the live order board</a>' +
+          '<a href="#" data-ev-leave>Not at this event? Order for the truck instead</a>';
+      }
+      box.innerHTML = html;
+      Array.prototype.forEach.call(box.querySelectorAll('[data-ev-leave]'), function(a){ a.onclick = leave; });
+      paintCheckout();
+    }
+
+    // ---- Checkout: pickup comes from the event; company tab replaces payment ----
+    function paintCheckout(){
+      var note = document.getElementById('dropCheckoutNote');
+      if (note) note.innerHTML = canOrder() ? '<b>' + esc(ev.name) + '</b>' + (state() === 'live' ? 'Made now at the event' : 'Ready at ' + esc(clock(ev.starts_at)) + ' on ' + esc(day(ev.starts_at))) + (ev.pickup_note ? ' · ' + esc(ev.pickup_note) : '') : '';
+      var tab = isTab();
+      document.body.classList.toggle('ev-tab-mode', tab);
+      var email = document.getElementById('cartCustomerEmail');
+      if (email) {
+        email.required = tab;
+        var lab = email.parentNode, hint = lab && lab.querySelector('.opt');
+        if (hint) { if (!hint.getAttribute('data-orig')) hint.setAttribute('data-orig', hint.textContent); hint.textContent = tab ? (ev.email_domain ? '(required: your @' + ev.email_domain + ' email)' : '(required: your work email)') : hint.getAttribute('data-orig'); }
+      }
+      var box = document.getElementById('tabPayBox');
+      if (tab && !box) {
+        var foot = document.querySelector('#coStepPay .checkout-foot');
+        if (!foot) return;
+        box = document.createElement('div'); box.id = 'tabPayBox'; box.className = 'tab-pay';
+        box.innerHTML = '<div class="tab-pay-head"><b></b><span>Nothing to pay at checkout.</span></div><div class="tab-pay-food"></div><div class="tab-pay-step"></div>';
+        foot.insertBefore(box, foot.querySelector('.wallet-pay'));
+      }
+      if (box) box.classList.toggle('hidden', !tab);
+      if (!tab) return;
+      var food = window.__rollinCartTotal ? window.__rollinCartTotal() : 0, lim = ev.per_person_cents ? ev.per_person_cents / 100 : 0;
+      var over = lim && food > lim + 0.004;
+      box.querySelector('.tab-pay-head b').textContent = ev.company + ' is paying';
+      var fl = box.querySelector('.tab-pay-food');
+      fl.className = 'tab-pay-food' + (over ? ' over' : '');
+      fl.textContent = 'Food $' + food.toFixed(2) + (lim ? ' of your $' + lim.toFixed(2) : '') + (over ? ' — please remove something' : '');
+      var to = email ? email.value.trim().toLowerCase() : '';
+      var want = over ? 'over' : codeFor && codeFor === to ? 'code' : 'send';
+      var step = box.querySelector('.tab-pay-step');
+      if (step.getAttribute('data-step') === want && step.getAttribute('data-to') === to) return;   // keep what they typed
+      step.setAttribute('data-step', want); step.setAttribute('data-to', to);
+      if (want === 'over') { step.innerHTML = '<button type="button" class="pay-btn tab-pay-btn" disabled>Place order</button>'; return; }
+      if (want === 'send') {
+        step.innerHTML = '<p class="tab-pay-note">To keep the tab for ' + esc(ev.company) + ' staff, we’ll email a 6-digit code to <b>' + esc(to || 'your work email') + '</b>.</p>' +
+          '<button type="button" class="pay-btn tab-pay-btn" id="tabSendCode">Email me a code</button>';
+        document.getElementById('tabSendCode').onclick = sendCode;
+        return;
+      }
+      step.innerHTML = '<p class="tab-pay-note">We emailed a code to <b>' + esc(to) + '</b>. It works for 15 minutes.</p>' +
+        '<input type="text" id="tabCodeInput" class="tab-code" inputmode="numeric" autocomplete="one-time-code" maxlength="6" placeholder="6-digit code" aria-label="6-digit code">' +
+        '<button type="button" class="pay-btn tab-pay-btn" id="tabPayBtn">Place order</button>' +
+        '<button type="button" class="tab-pay-link" id="tabResend">Email me a new code</button>';
+      document.getElementById('tabResend').onclick = sendCode;
+      document.getElementById('tabCodeInput').oninput = function(){ tabMsg(''); };
+      document.getElementById('tabPayBtn').onclick = function(){
+        var c = (document.getElementById('tabCodeInput').value || '').replace(/\D/g, '');
+        if (c.length !== 6) { tabMsg('Enter the 6-digit code from the email.'); return; }
+        if (!window.__rollinTabPay) return;
+        window.__rollinTabPay(c).then(function(d){
+          if (!d && /^TAB_CODE_EXPIRED$/.test(window.__rollinLastErr || '')) { codeFor = ''; paintCheckout(); }
+        });
+      };
+    }
+    var codeFor = '';
+    function tabMsg(t){ var m = document.getElementById('cartCheckoutMsg'); if (m) { m.textContent = t; m.classList.toggle('error', !!t); } }
+    function sendCode(){
+      var email = document.getElementById('cartCustomerEmail'), to = email ? email.value.trim().toLowerCase() : '';
+      var btn = this; btn.disabled = true; var label = btn.textContent; btn.textContent = 'Sending…';
+      fetch('https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/corp-events', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ action: 'tab_code', event: ev.code, email: to }) })
+        .then(function(r){ return r.json().then(function(d){ return { ok: r.ok, d: d }; }, function(){ return { ok: false, d: {} }; }); })
+        .then(function(res){
+          btn.disabled = false; btn.textContent = label;
+          if (!res.ok || res.d.error) { tabMsg(res.d.error || 'Couldn’t send the code. Please try again.'); return; }
+          tabMsg('');
+          codeFor = to; paintCheckout();
+          var inp = document.getElementById('tabCodeInput'); if (inp) inp.focus();
+        }, function(){ btn.disabled = false; btn.textContent = label; tabMsg('Couldn’t send the code. Check your connection.'); });
+    }
+    function wrapPickup(){
+      var P = window.rollinPickup, sec = document.getElementById('pickupTimeSection');
+      if (!P || P.__event) return;
+      var orig = { setup: P.setup, value: P.value, method: P.method, car: P.car, label: P.label, otherDay: P.otherDay, forceSchedule: P.forceSchedule };
+      var note = document.getElementById('dropCheckoutNote');
+      if (!note && sec) { note = document.createElement('div'); note.id = 'dropCheckoutNote'; note.className = 'drop-co-note hidden'; sec.parentNode.insertBefore(note, sec); }
+      P.__event = true;
+      P.setup = function(needs){
+        orig.setup(needs);
+        var on = canOrder() && needs;
+        if (on && sec) sec.classList.add('hidden');
+        if (note) note.classList.toggle('hidden', !on);
+        paintCheckout();
+      };
+      P.value = function(){
+        var s = state();
+        if (s === 'closed') throw new Error('Ordering for ' + ev.name + ' has closed. Tap “Order normally” above the menu to order for the truck.');
+        if (s === 'not_open') throw new Error('Ordering for ' + ev.name + ' opens ' + day(ev.opens_at) + ' at ' + clock(ev.opens_at) + '.');
+        if (!canOrder()) return orig.value();
+        return s === 'preorder' ? new Date(ev.starts_at).toISOString() : null;
+      };
+      P.method = function(){ return canOrder() ? 'window' : orig.method(); };
+      P.car = function(){ return canOrder() ? '' : orig.car(); };
+      P.otherDay = function(){ return canOrder() ? false : orig.otherDay(); };
+      P.label = function(){ return canOrder() ? (state() === 'live' ? 'now (' + ev.name + ')' : day(ev.starts_at) + ' at ' + clock(ev.starts_at) + ' (' + ev.name + ')') : orig.label(); };
+      P.forceSchedule = function(){ if (!canOrder()) orig.forceSchedule(); };
+    }
+
+    var client = window.sbShared;
+    if (!client) return;
+    client.rpc('get_corp_event', { p_code: code }).then(function(res){
+      var d = res && !res.error ? res.data : null;
+      if (Array.isArray(d)) d = d[0];
+      ev = d && d.code ? d : null;
+      try { if (ev) sessionStorage.setItem(KEY, code); else sessionStorage.removeItem(KEY); } catch (x) {}
+      if (ev) wrapPickup();
+      paint();
+      if (ev) timer = setInterval(paint, 30000);
+      // keep the food-vs-allowance line current while the cart changes
+      document.addEventListener('click', function(){ if (isTab()) setTimeout(paintCheckout, 50); });
     });
   })();
   // ---- Gift card preview follows the chosen amount ----
