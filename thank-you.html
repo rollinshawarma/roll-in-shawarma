@@ -335,6 +335,17 @@ fbq('init','1433859782006722');fbq('track','PageView');
         }
 
         document.getElementById('refBadge').textContent = displayOrderNo(order.referenceCode);
+        // Corporate event on the company's tab: nothing for the guest to pay.
+        var companyTab = params.get('tab') === '1';
+        if (companyTab) {
+          var tr = document.querySelector('.total-row');
+          if (tr && !document.getElementById('tabNote')) {
+            var n = document.createElement('div'); n.id = 'tabNote';
+            n.style.cssText = 'background:#f0faf3;border:1px solid #bfe5cb;color:#146c3a;border-radius:14px;padding:12px 14px;margin:12px 0;font-weight:600;text-align:left';
+            n.textContent = 'Paid by your company. Nothing for you to pay.';
+            tr.parentNode.insertBefore(n, tr.nextSibling);
+          }
+        }
         // Tracking only once the payment is confirmed (cash orders are
         // placed at the window, so they count right away).
         var confirmedPaid = order.status === 'paid' || isCashOrder;
