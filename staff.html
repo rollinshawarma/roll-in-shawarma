@@ -530,6 +530,36 @@
   .ord-warn{ background:#fff4e0; border:1px solid #f6d79b; border-radius:12px; padding:8px 10px; font-size:13px; color:#6b3d00; margin-top:6px; }
   .ord-hint{ font-size:12.5px; color:var(--muted); margin:6px 0 0; }
 
+  /* ---- Corporate lunch board settings ---- */
+  .lb-set{ display:grid; grid-template-columns:1.2fr 1fr; gap:22px; align-items:start; }
+  .lb-checks{ display:grid; grid-template-columns:1fr 1fr; gap:2px 12px; margin-bottom:12px; }
+  .lb-checks .ad-check{ margin:4px 0; }
+  .lb-prev-wrap{ position:sticky; top:12px; }
+  .lb-prev-label{ font-size:12.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); margin-bottom:6px; }
+  .lb-prev{ background:#000; border-radius:16px; padding:16px; }
+  .lt{ background:#f3f2ec; color:#1d1d1f; border-radius:6px; border-top:6px solid #1f8a4c; padding:14px 16px 12px; font-family:Inter,-apple-system,sans-serif; }
+  .lt-head{ display:flex; align-items:center; gap:10px; }
+  .lt-sq{ width:14px; height:14px; border-radius:3px; background:#e0609a; flex:none; }
+  .lt-ref{ font-family:ui-monospace,Menlo,Consolas,monospace; font-size:21px; font-weight:700; }
+  .lt-name{ margin-left:auto; color:#6e6e73; font-size:15px; font-weight:600; }
+  .lt-ev{ font-size:12.5px; color:#6e6e73; margin-top:3px; font-weight:600; }
+  .lt-items{ list-style:none; margin:10px 0 0; padding:0; }
+  .lt-items li{ display:flex; gap:10px; align-items:flex-start; padding:6px 0; border-top:1px solid #dcdbd4; font-size:17px; }
+  .lt-items li:first-child{ border-top:0; }
+  .lt-items li > span{ flex:1; }
+  .lt-items li small{ display:block; color:#b3261e; font-size:13.5px; font-weight:600; }
+  .lt-tag{ font-family:ui-monospace,Menlo,Consolas,monospace; font-style:normal; font-size:12.5px; font-weight:600; border:1px solid #b9b8b0; border-radius:4px; padding:2px 6px; background:#fff; }
+  .lt-notes{ margin-top:8px; background:#fff6d6; border-radius:6px; padding:6px 8px; font-size:14px; font-weight:600; color:#6b4b00; }
+  .lt-foot{ display:flex; align-items:center; gap:10px; margin-top:12px; padding-top:10px; border-top:1px solid #dcdbd4; }
+  .lt-time{ font-family:ui-monospace,Menlo,Consolas,monospace; font-size:22px; font-weight:700; }
+  .lt-st{ font-size:14px; font-weight:700; color:#1f8a4c; }
+  .lt-btn{ margin-left:auto; background:#1d1d1f; color:#fff; border-radius:10px; font-size:18px; font-weight:700; padding:12px 22px; }
+  .lt-bar{ height:6px; background:#dcdbd4; border-radius:6px; margin-top:10px; overflow:hidden; }
+  .lt-bar i{ display:block; height:100%; width:35%; background:#1f8a4c; }
+  .lt.compact{ padding:10px 12px 9px; } .lt.compact .lt-ref{ font-size:17px; } .lt.compact .lt-items li{ font-size:15px; padding:4px 0; } .lt.compact .lt-time{ font-size:18px; } .lt.compact .lt-btn{ font-size:15px; padding:9px 16px; }
+  .lt.large .lt-ref{ font-size:27px; } .lt.large .lt-items li{ font-size:21px; } .lt.large .lt-time{ font-size:28px; } .lt.large .lt-btn{ font-size:22px; padding:15px 28px; }
+  @media (max-width:899px){ .lb-set{ grid-template-columns:1fr; } .lb-prev-wrap{ position:static; } }
+
   /* ---- Stop scorecard ---- */
   #panelStops.soon > :not(.soon-card):not(.page-head){ display:none; }
   #panelStops.soon .page-head .hint{ display:none; }
@@ -1087,7 +1117,7 @@
       <h2>Corporate events</h2>
       <p class="hint">Each event gets its own order link and QR code, a live board for a TV at the venue, and (when the company pays) a host page with the running tab. Email it all to the company from here, and bill the tab in one tap after the event.</p>
     </div>
-    <div class="ad-head-row"><div class="section-title" style="margin:0">Upcoming and recent</div><button class="btn-primary btn-small ad-new" id="ceNewBtn" type="button">New event</button></div>
+    <div class="ad-head-row"><div class="section-title" style="margin:0">Upcoming and recent</div><div class="ad-btns" style="margin:0"><button class="btn-export btn-small" id="lbSetBtn" type="button">Kitchen board settings</button><button class="btn-primary btn-small ad-new" id="ceNewBtn" type="button">New event</button></div></div>
     <div id="ceMsg"></div>
     <div id="ceList"><p class="hint">Loading&hellip;</p></div>
 
@@ -1150,6 +1180,43 @@
     <div class="card hidden" id="ceShare"></div>
     <div class="card hidden" id="cePrep"></div>
     <div class="card hidden" id="cePasses"></div>
+    <div class="card hidden" id="lbSettings">
+      <h2>Corporate lunch board</h2>
+      <p class="hint">How event orders show in the kitchen. Open it at the station: <b>Corporate Lunch</b>. Each order is one ticket: <b>Fire</b> starts it, <b>Ready</b> prints it on the Square printer, <b>Picked up</b> clears it.</p>
+      <div class="lb-set">
+        <div class="lb-form">
+          <label for="lbMain">Where event orders show</label>
+          <select id="lbMain"><option value="0">Only on the Corporate Lunch board (recommended)</option><option value="1">Corporate Lunch board and the main / sub stations</option></select>
+          <div class="ad-pair">
+            <div><label for="lbCols">Layout</label><select id="lbCols"><option value="three">3 columns</option><option value="queue">One row</option></select></div>
+            <div><label for="lbSize">Ticket size</label><select id="lbSize"><option value="compact">Compact</option><option value="regular">Regular</option><option value="large">Large (far away screens)</option></select></div>
+          </div>
+          <label for="lbTarget">On-time target, from Fire to Ready (minutes)</label>
+          <input type="number" id="lbTarget" min="2" max="60" step="1">
+          <label>Show on each ticket</label>
+          <div class="lb-checks">
+            <label class="ad-check"><input type="checkbox" id="lbName"> Guest name</label>
+            <label class="ad-check"><input type="checkbox" id="lbEvent"> Event name and who pays</label>
+            <label class="ad-check"><input type="checkbox" id="lbTags"> Station tag on each item</label>
+            <label class="ad-check"><input type="checkbox" id="lbNotes"> Item and order notes</label>
+            <label class="ad-check"><input type="checkbox" id="lbDrinks"> Drinks</label>
+            <label class="ad-check"><input type="checkbox" id="lbSound"> Sound when a new ticket comes up</label>
+          </div>
+          <label>Station tag names</label>
+          <div class="ce-trio">
+            <div><input type="text" id="lbTagFryer" maxlength="14" aria-label="Fryer tag"></div>
+            <div><input type="text" id="lbTagLine" maxlength="14" aria-label="Line tag"></div>
+            <div><input type="text" id="lbTagWindow" maxlength="14" aria-label="Drinks tag"></div>
+          </div>
+          <p class="hint" style="margin-top:-4px">Fryer items · everything else · drinks</p>
+          <label for="lbWords">Items that get the fryer tag (words in the name, comma separated)</label>
+          <input type="text" id="lbWords" maxlength="300">
+          <div id="lbMsg"></div>
+          <div class="ad-actions"><button type="button" class="btn-primary" id="lbSave">Save settings</button><button type="button" class="btn-export" data-close-card="lbSettings">Close</button></div>
+        </div>
+        <div class="lb-prev-wrap"><div class="lb-prev-label">Preview</div><div class="lb-prev" id="lbPreview"></div></div>
+      </div>
+    </div>
   </div>
 
   <!-- STOP SCORECARD -->
@@ -3936,6 +4003,59 @@
         ordState.d = res.data; renderOrdering();
       });
     }
+  });
+
+  // ================= CORPORATE LUNCH BOARD SETTINGS =================
+  var lbState = { s:null };
+  var LB_FIELDS = { lbName:'show_name', lbEvent:'show_event', lbTags:'show_tags', lbNotes:'show_notes', lbDrinks:'show_drinks', lbSound:'sound' };
+  function lbRead(){
+    var g = function(id){ return document.getElementById(id); };
+    var o = { also_main: g('lbMain').value === '1', columns: g('lbCols').value, ticket_size: g('lbSize').value, target_min: Math.round(Number(g('lbTarget').value) || 10),
+              tag_fryer: g('lbTagFryer').value.trim(), tag_line: g('lbTagLine').value.trim(), tag_window: g('lbTagWindow').value.trim(), fryer_words: g('lbWords').value.trim() };
+    Object.keys(LB_FIELDS).forEach(function(id){ o[LB_FIELDS[id]] = g(id).checked; });
+    return o;
+  }
+  function lbFill(s){
+    var g = function(id){ return document.getElementById(id); };
+    g('lbMain').value = s.also_main ? '1' : '0'; g('lbCols').value = s.columns || 'three'; g('lbSize').value = s.ticket_size || 'regular';
+    g('lbTarget').value = s.target_min || 10; g('lbTagFryer').value = s.tag_fryer || 'Fryer'; g('lbTagLine').value = s.tag_line || 'Line'; g('lbTagWindow').value = s.tag_window || 'Window';
+    g('lbWords').value = s.fryer_words || '';
+    Object.keys(LB_FIELDS).forEach(function(id){ g(id).checked = s[LB_FIELDS[id]] !== false; });
+    lbPreview();
+  }
+  function lbPreview(){
+    var s = lbRead(), words = s.fryer_words.toLowerCase().split(',').map(function(w){ return w.trim(); }).filter(Boolean);
+    var tag = function(n, drink){ return drink ? (s.tag_window || 'Window') : words.some(function(w){ return n.toLowerCase().indexOf(w) !== -1; }) ? (s.tag_fryer || 'Fryer') : (s.tag_line || 'Line'); };
+    var items = [['Falafel shawarma', false, 'No onions'], ['Chicken Bowl', false, ''], ['Mango lassi', true, '']].filter(function(i){ return s.show_drinks || !i[1]; });
+    document.getElementById('lbPreview').innerHTML = '<div class="lt ' + esc(s.ticket_size) + '"><div class="lt-head"><span class="lt-sq"></span><span class="lt-ref">Online065</span>' +
+      (s.show_name ? '<span class="lt-name">Priya S.</span>' : '') + '</div>' + (s.show_event ? '<div class="lt-ev">Winter Lunch · Company tab</div>' : '') +
+      '<ul class="lt-items">' + items.map(function(i){ return '<li><span>1x ' + esc(i[0]) + (s.show_notes && i[2] ? '<small>' + esc(i[2]) + '</small>' : '') + '</span>' + (s.show_tags ? '<em class="lt-tag">' + esc(tag(i[0], i[1])) + '</em>' : '') + '</li>'; }).join('') + '</ul>' +
+      (s.show_notes ? '<div class="lt-notes">Allergic to nuts</div>' : '') +
+      '<div class="lt-foot"><span class="lt-time">00:30</span><span class="lt-st">✓ On time</span><span class="lt-btn">Ready</span></div><div class="lt-bar"><i></i></div></div>' +
+      '<p style="color:#98989d;font-size:12.5px;margin:10px 0 0">Late after ' + s.target_min + ' min · ' + (s.columns === 'queue' ? 'one row, oldest first' : 'Up next · Cooking · Ready') + '</p>';
+  }
+  document.getElementById('lbSettings').addEventListener('input', lbPreview);
+  document.getElementById('lbSettings').addEventListener('change', lbPreview);
+  document.getElementById('lbSettings').addEventListener('click', function(e){ var c = e.target.closest('[data-close-card]'); if (c) document.getElementById('lbSettings').classList.add('hidden'); });
+  document.getElementById('lbSetBtn').addEventListener('click', function(){
+    var box = document.getElementById('lbSettings'); box.classList.remove('hidden'); clearMsg('lbMsg');
+    sb.rpc('kds_event_settings_get').then(function(res){
+      if (res.error) { showMsg('lbMsg', res.error.message + ' (run growth-pack.sql)', 'error'); return; }
+      lbState.s = res.data; lbFill(res.data);
+      box.scrollIntoView({ behavior:'smooth', block:'start' });
+    });
+  });
+  document.getElementById('lbSave').addEventListener('click', function(){
+    var b = this, o = lbRead();
+    if (!(o.target_min >= 2 && o.target_min <= 60)) { showMsg('lbMsg', 'The on-time target is 2 to 60 minutes.', 'error'); return; }
+    if (!o.tag_fryer || !o.tag_line || !o.tag_window) { showMsg('lbMsg', 'Give each station tag a name.', 'error'); return; }
+    b.disabled = true;
+    sb.rpc('kds_event_settings_save', { p: o }).then(function(res){
+      b.disabled = false;
+      if (res.error) { showMsg('lbMsg', res.error.message, 'error'); return; }
+      lbState.s = res.data; lbFill(res.data);
+      showMsg('lbMsg', 'Saved. The kitchen screens pick it up within a few seconds.', 'ok');
+    });
   });
 
   // ================= STOP SCORECARD =================
