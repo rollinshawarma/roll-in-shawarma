@@ -505,6 +505,31 @@
   .ce-stage.ready, .ce-stage.picked_up{ color:#146c3a; }
   @media (max-width:899px){ .ce-trio{ grid-template-columns:1fr 1fr; } .ce-trio > div:first-child{ grid-column:1 / -1; } .ce-bill{ grid-template-columns:1fr; } }
 
+  /* ---- Online orders pause ---- */
+  .ord-card{ background:#fff; border:1.5px solid #e6e6eb; border-radius:18px; padding:16px 18px; margin:0 0 14px; }
+  .ord-card.paused{ border-color:#d62d20; background:#fff6f5; }
+  .ord-head{ display:flex; gap:12px; align-items:flex-start; }
+  .ord-dot{ flex:0 0 12px; height:12px; border-radius:50%; background:#1f8a4c; margin-top:5px; box-shadow:0 0 0 4px rgba(31,138,76,.15); }
+  .ord-card.paused .ord-dot{ background:#d62d20; box-shadow:0 0 0 4px rgba(214,45,32,.15); }
+  .ord-main b{ display:block; font-size:16.5px; }
+  .ord-main small{ display:block; color:var(--muted); font-size:13.5px; margin-top:2px; line-height:1.4; }
+  .ord-actions{ display:flex; flex-wrap:wrap; gap:8px; margin-top:12px; align-items:center; }
+  .ord-actions select{ width:auto; margin:0; height:40px; }
+  .ord-actions .btn-pause{ background:#d62d20; color:#fff; border:0; border-radius:999px; height:40px; padding:0 18px; font-weight:700; cursor:pointer; }
+  .ord-actions .btn-resume{ background:#1f8a4c; color:#fff; border:0; border-radius:999px; height:40px; padding:0 18px; font-weight:700; cursor:pointer; }
+  .ord-actions button:disabled{ opacity:.6; }
+  .ord-sec{ margin-top:14px; }
+  .ord-sec h3{ font-size:12.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); margin:0 0 6px; }
+  .ord-row{ display:flex; align-items:center; gap:10px; padding:8px 0; border-top:1px solid #eee; font-size:14px; }
+  .ord-row:first-of-type{ border-top:0; }
+  .ord-row > span{ flex:1; min-width:0; }
+  .ord-row a{ font-size:13px; font-weight:600; color:var(--ink); white-space:nowrap; }
+  .ord-row button{ border:1.5px solid #d2d2d7; background:#fff; border-radius:999px; height:34px; padding:0 12px; font-weight:600; font-size:13px; cursor:pointer; white-space:nowrap; }
+  .ord-row button.done{ border-color:#1f8a4c; background:#effaf2; color:#146c3a; }
+  .ord-row.todo span{ color:#b3261e; font-weight:600; }
+  .ord-warn{ background:#fff4e0; border:1px solid #f6d79b; border-radius:12px; padding:8px 10px; font-size:13px; color:#6b3d00; margin-top:6px; }
+  .ord-hint{ font-size:12.5px; color:var(--muted); margin:6px 0 0; }
+
   /* ---- Stop scorecard ---- */
   #panelStops.soon > :not(.soon-card):not(.page-head){ display:none; }
   #panelStops.soon .page-head .hint{ display:none; }
@@ -691,6 +716,18 @@
       <button type="button" class="btn-approve btn-small" id="pinLockResetBtn">Reset clock-in</button>
       <div class="pin-lock-msg" id="pinLockMsg"></div>
     </div>
+
+<section class="ord-card hidden" id="ordCard" aria-live="polite">
+      <div class="ord-head">
+        <span class="ord-dot" aria-hidden="true"></span>
+        <div class="ord-main"><b id="ordTitle">Online orders</b><small id="ordSub"></small></div>
+      </div>
+      <div class="ord-actions" id="ordActions"></div>
+      <div id="ordChecklist"></div>
+      <div id="ordResume"></div>
+      <div id="ordUpcoming"></div>
+      <div id="ordMsg"></div>
+    </section>
 
     <section class="clock-card" id="clockCard" data-state="off">
       <span class="clock-dot" aria-hidden="true"></span>
@@ -1097,6 +1134,10 @@
       <label for="ceDomain">Only this company can order: work emails end in <span class="hint" id="ceDomainOpt">(optional)</span></label>
       <input type="text" id="ceDomain" maxlength="80" placeholder="e.g. goodyear.com" autocapitalize="off" spellcheck="false">
       <p class="hint" id="ceDomainHint">Guests get a 6-digit code by email to that address before they can check out. Contractors without a company email use a one-time <b>guest pass</b> you make here. Leave blank to let anyone with the link order.</p>
+      <label class="ad-check"><input type="checkbox" id="cePauseReg" checked> Pause regular website orders during this event</label>
+      <div id="cePauseLeadRow"><label for="cePauseLead">Starting</label>
+      <select id="cePauseLead"><option value="0">When the event starts</option><option value="15">15 min before it starts</option><option value="30" selected>30 min before it starts</option><option value="45">45 min before it starts</option><option value="60">1 hour before it starts</option><option value="90">90 min before it starts</option><option value="120">2 hours before it starts</option></select>
+      <p class="hint">Until the event ends. Pickup times in that window disappear from the website. The event&rsquo;s own link, the kiosk and the truck QR keep working. Staff get a reminder to pause DoorDash, Uber Eats and Grubhub.</p></div>
       <label for="cePace">Kitchen board</label>
       <select id="cePace"><option value="1">Show 1 event order at a time (next one appears when it&rsquo;s started)</option><option value="2">Show 2 event orders at a time</option><option value="3">Show 3 event orders at a time</option><option value="4">Show 4 event orders at a time</option><option value="5">Show 5 event orders at a time</option></select>
       <p class="hint">Event orders line up first come, first served. Each ticket prints on the Square printer when it&rsquo;s marked Ready.</p>
@@ -1782,6 +1823,7 @@
         document.querySelector('.nav-link[data-tab="offers"]').addEventListener('click', loadOffers);
         document.querySelector('.nav-link[data-tab="corpevents"]').addEventListener('click', function(){ loadCorp(true); });
         loadCorp(false);
+        loadOrdering(); setInterval(loadOrdering, 30000);
         if (location.hash === '#offers') setTimeout(function(){ showTab('offers'); loadOffers(); }, 0);
         if (location.hash === '#events') setTimeout(function(){ showTab('corpevents'); loadCorp(true); }, 0);
         loadCatering(true);
@@ -3558,6 +3600,7 @@
             '<div class="ad-meta">' + esc(ceDay(e.starts_at)) + ', ' + esc(ceClock(e.starts_at)) + '–' + esc(ceClock(e.ends_at)) + (e.location ? ' · ' + esc(e.location) : '') +
               '<br>' + (tab ? 'Company pays' + (e.per_person_cents ? ' (up to ' + scMoney(e.per_person_cents / 100) + ' each)' : '') : 'Guests pay') +
               (e.email_domain ? ' · only @' + esc(e.email_domain) : '') + ' · kitchen ' + (e.kitchen_pace || 1) + ' at a time' +
+              (e.pause_regular === false ? ' · website orders stay on' : ' · website orders pause ' + (e.pause_lead_min ? e.pause_lead_min + ' min before' : 'at the start')) +
               ' · <b>' + n + ' order' + (n === 1 ? '' : 's') + '</b>' + (e.expected_guests ? ' of ~' + e.expected_guests : '') + ' · ' + scMoney(e.sales) +
               (tab ? ' · tab ' + scMoney(e.tab_total) + (e.budget_cents ? ' of ' + scMoney(e.budget_cents / 100) : '') : '') + bill + '</div>' +
             (e.expected_guests ? '<div class="dr-prog"><i style="width:' + Math.min(100, Math.round(100 * n / e.expected_guests)) + '%"></i></div>' : '') +
@@ -3577,6 +3620,7 @@
   }
   document.querySelectorAll('input[name="ceBilling"]').forEach(function(r){ r.addEventListener('change', ceToggle); });
   document.getElementById('ceOpenNow').addEventListener('change', ceToggle);
+  document.getElementById('cePauseReg').addEventListener('change', function(){ document.getElementById('cePauseLeadRow').classList.toggle('hidden', !this.checked); });
   function ceOpen(e){
     ceState.editing = e && e.event_id ? e : null;
     document.getElementById('ceEditorTitle').textContent = ceState.editing ? 'Edit ' + e.name : 'New corporate event';
@@ -3593,6 +3637,9 @@
     v('ceLimit', e && e.per_person_cents ? e.per_person_cents / 100 : ''); v('ceBudget', e && e.budget_cents ? e.budget_cents / 100 : '');
     v('ceDomain', e && e.email_domain); document.getElementById('ceOne').checked = e ? !!e.one_per_person : true;
     v('cePace', String(e && e.kitchen_pace || 1));
+    document.getElementById('cePauseReg').checked = !(e && e.pause_regular === false);
+    v('cePauseLead', String(e && e.pause_lead_min != null ? e.pause_lead_min : 30));
+    document.getElementById('cePauseLeadRow').classList.toggle('hidden', !document.getElementById('cePauseReg').checked);
     if (!e || !e.__fromCater) ceState.cater = null;
     var fc = document.getElementById('ceFromCater');
     fc.classList.toggle('hidden', !ceState.cater);
@@ -3632,6 +3679,8 @@
       b.disabled = false;
       if (res.error) { showMsg('ceEditMsg', res.error.message, 'error'); return; }
       var row = Array.isArray(res.data) ? res.data[0] : res.data;
+      sb.rpc('corp_event_pause_set', { p_id: row.id, p_pause: document.getElementById('cePauseReg').checked, p_lead_min: Number(document.getElementById('cePauseLead').value) })
+        .then(function(r2){ if (r2 && r2.error) showMsg('ceMsg', 'Event saved, but the order pause setting didn’t: ' + r2.error.message, 'error'); if (typeof loadOrdering === 'function') loadOrdering(); });
       document.getElementById('ceEditor').classList.add('hidden');
       row.event_id = row.id;
       ceState.cater = null;
@@ -3798,6 +3847,95 @@
     var next = act === 'pause' ? 'closed' : act === 'open' ? 'open' : 'canceled';
     if (act === 'cancel' && !confirm('Cancel ' + e.name + '? The links stop working.' + (Number(e.orders) ? ' ' + e.orders + ' order(s) were already placed; refund guest-paid ones in Square.' : ''))) return;
     ceSaveRow(e, next).then(function(res){ if (res.error) showMsg('ceMsg', res.error.message, 'error'); else loadCorp(false); });
+  });
+
+  // ================= ONLINE ORDERS PAUSE =================
+  // One button pauses regular website orders; corporate events pause them
+  // on their own (growth-pack.sql §6). DoorDash / Uber Eats / Grubhub can't
+  // be paused from here (Square has no way to), so this is a checklist.
+  var ORD_APPS = [
+    { id:'doordash', name:'DoorDash', url:'https://merchant-portal.doordash.com/' },
+    { id:'ubereats', name:'Uber Eats', url:'https://merchants.ubereats.com/manager/' },
+    { id:'grubhub', name:'Grubhub', url:'https://restaurant.grubhub.com/' }
+  ];
+  var ordState = { d:null };
+  function ordClock(iso){ var d = new Date(iso), same = d.toDateString() === new Date().toDateString(); return d.toLocaleString([], Object.assign({ timeZone:'America/New_York', hour:'numeric', minute:'2-digit' }, same ? {} : { weekday:'short', month:'short', day:'numeric' })); }
+  function ordAppName(id){ var a = ORD_APPS.find(function(x){ return x.id === id; }); return a ? a.name : id; }
+  function loadOrdering(){
+    sb.rpc('ordering_pause_admin').then(function(res){
+      if (res.error) { document.getElementById('ordCard').classList.add('hidden'); return; }   // SQL not run yet
+      ordState.d = res.data; renderOrdering();
+    });
+  }
+  function renderOrdering(){
+    var d = ordState.d, card = document.getElementById('ordCard'); if (!d) return;
+    card.classList.remove('hidden');
+    card.classList.toggle('paused', !!d.paused);
+    var title = 'Online orders are on', sub = 'Website orders are open.';
+    if (d.manual) {
+      title = 'Online orders are paused';
+      sub = 'Paused' + (d.manual.by ? ' by ' + d.manual.by : '') + (d.manual.until ? ' until ' + ordClock(d.manual.until) : ' until someone turns them back on') + (d.manual.reason ? ' · ' + d.manual.reason : '') + '.' +
+        (d.event ? ' ' + d.event.name + ' also pauses them until ' + ordClock(d.event.to) + '.' : '');
+    } else if (d.event) {
+      title = 'Online orders are paused for ' + d.event.name;
+      sub = 'Automatic, from ' + ordClock(d.event.from) + '. Website orders come back on by themselves at ' + ordClock(d.event.to) + '.';
+    }
+    document.getElementById('ordTitle').textContent = title;
+    document.getElementById('ordSub').textContent = sub;
+    var mgr = homeState.isManager;
+    document.getElementById('ordActions').innerHTML = !mgr ? '' : d.manual
+      ? '<button type="button" class="btn-resume" data-ord="resume">Turn online orders back on</button>'
+      : '<select id="ordFor" aria-label="How long"><option value="">Until I turn them back on</option><option value="30">For 30 minutes</option><option value="60">For 1 hour</option><option value="120">For 2 hours</option><option value="eod">For the rest of today</option></select>' +
+        '<button type="button" class="btn-pause" data-ord="pause">' + (d.event ? 'Pause anyway (past the event)' : 'Pause online orders') + '</button>';
+    var done = d.paused_partners || [];
+    document.getElementById('ordChecklist').innerHTML = !d.paused ? '' :
+      '<div class="ord-sec"><h3>Pause the delivery apps too</h3>' + ORD_APPS.map(function(a){
+        var on = done.indexOf(a.id) >= 0;
+        return '<div class="ord-row' + (on ? '' : ' todo') + '"><span>' + (on ? a.name + ' paused' : 'Pause ' + a.name) + '</span><a href="' + a.url + '" target="_blank" rel="noopener">Open ' + a.name + '</a>' +
+          '<button type="button" class="' + (on ? 'done' : '') + '" data-ord-ack="' + a.id + '" data-ord-act="paused"' + (on ? ' data-ord-undo="1"' : '') + '>' + (on ? '✓ Paused' : 'I paused it') + '</button></div>';
+      }).join('') + '<p class="ord-hint">Square can’t pause these for you. Use each app on the truck tablet, or its website, then tap “I paused it”.</p></div>';
+    var resume = d.resume || [];
+    document.getElementById('ordResume').innerHTML = !resume.length ? '' :
+      '<div class="ord-sec"><h3>Turn back on</h3>' + resume.map(function(r){
+        var a = ORD_APPS.find(function(x){ return x.id === r.partner; }) || { name:r.partner, url:'#' };
+        return '<div class="ord-row todo"><span>Turn ' + esc(a.name) + ' back on</span><a href="' + a.url + '" target="_blank" rel="noopener">Open ' + esc(a.name) + '</a>' +
+          '<button type="button" data-ord-ack="' + esc(r.partner) + '" data-ord-act="resumed" data-ord-key="' + esc(r.key) + '">It’s back on</button></div>';
+      }).join('') + '</div>';
+    var up = (d.upcoming || []).filter(function(u){ return !d.event || u.id !== d.event.id; });
+    document.getElementById('ordUpcoming').innerHTML = !up.length ? '' :
+      '<div class="ord-sec"><h3>Coming up: automatic pauses</h3>' + up.map(function(u){
+        var c = u.conflicts || [];
+        return '<div class="ord-row"><span><b>' + esc(u.name) + '</b> · ' + esc(ordClock(u.from)) + '–' + esc(new Date(u.to).toLocaleTimeString([], { timeZone:'America/New_York', hour:'numeric', minute:'2-digit' })) + '</span></div>' +
+          (c.length ? '<div class="ord-warn">⚠ ' + c.length + ' website order' + (c.length === 1 ? ' was' : 's were') + ' already booked for pickup then: ' +
+            c.map(function(o){ return esc(o.ref) + ' (' + esc(o.name || '') + ', ' + esc(ordClock(o.at)) + ')'; }).join(', ') + '. Make them at the event, or call to move them.</div>' : '');
+      }).join('') + '</div>';
+  }
+  document.getElementById('ordCard').addEventListener('click', function(e){
+    var b = e.target.closest('[data-ord]'), ack = e.target.closest('[data-ord-ack]');
+    if (b) {
+      var pause = b.getAttribute('data-ord') === 'pause', mins = null, sel = document.getElementById('ordFor');
+      if (pause && sel && sel.value === 'eod') {
+        var p = new Intl.DateTimeFormat('en-US', { timeZone:'America/New_York', hour:'numeric', minute:'numeric', hourCycle:'h23' }).formatToParts(new Date()), o = {};
+        p.forEach(function(x){ o[x.type] = x.value; });
+        mins = Math.max(5, 24 * 60 - ((+o.hour % 24) * 60 + (+o.minute)));
+      } else if (pause && sel && sel.value) mins = Number(sel.value);
+      if (pause && !confirm('Pause website orders' + (mins ? '' : ' until you turn them back on') + '? Customers will see “Online ordering is paused”. The kiosk and the truck QR keep working.')) return;
+      b.disabled = true;
+      sb.rpc('ordering_pause_set', { p_paused: pause, p_minutes: pause ? mins : null, p_reason: null }).then(function(res){
+        b.disabled = false;
+        if (res.error) { showMsg('ordMsg', res.error.message, 'error'); return; }
+        clearMsg('ordMsg'); ordState.d = res.data; renderOrdering();
+      });
+      return;
+    }
+    if (ack) {
+      ack.disabled = true;
+      var key = ack.getAttribute('data-ord-key') || (ordState.d && ordState.d.key);
+      sb.rpc('ordering_pause_ack', { p_key: key, p_partner: ack.getAttribute('data-ord-ack'), p_action: ack.getAttribute('data-ord-act'), p_undo: !!ack.getAttribute('data-ord-undo') }).then(function(res){
+        if (res.error) { ack.disabled = false; showMsg('ordMsg', res.error.message, 'error'); return; }
+        ordState.d = res.data; renderOrdering();
+      });
+    }
   });
 
   // ================= STOP SCORECARD =================
