@@ -232,6 +232,12 @@
   }
   .complete-btn.delivered-btn{ background:#3B9DFF; color:#021426; }
   #squareSyncBanner{ flex:none; background:rgba(216,52,46,0.16); border-bottom:2px solid var(--red); color:var(--white); font-size:16px; font-weight:700; padding:10px 24px; cursor:pointer; }
+  #eventQueueBanner{ flex:none; display:flex; flex-wrap:wrap; gap:6px 18px; background:rgba(31,138,76,0.16); border-bottom:1px solid var(--green); color:var(--white); font-size:15px; padding:9px 24px; }
+  #eventQueueBanner.hidden{ display:none; }
+  #eventQueueBanner .eq{ display:flex; flex-wrap:wrap; align-items:baseline; gap:4px 12px; }
+  #eventQueueBanner .eq b{ font-weight:800; }
+  #eventQueueBanner .eq span{ color:var(--muted); font-weight:600; }
+  #eventQueueBanner .eq span.on{ color:#39E07F; }
   #squareSyncBanner .dismiss{ color:var(--muted); font-weight:600; margin-left:8px; }
   /* ---------- IDLE / MAIN MENU / EMPLOYEE CLOCK-IN ---------- */
   #idleScreen{
@@ -493,6 +499,7 @@
   <div id="boardErrorBanner" class="hidden"></div>
   <div id="squareSyncBanner" class="hidden" role="alert"></div>
   <div id="canceledOrdersBanner" class="hidden"></div>
+  <div id="eventQueueBanner" class="hidden" role="status"></div>
   <div id="spotsPanel" class="hidden">
     <div class="recall-panel-head">
       <span>Parking spots <span class="recall-sub">(a spot frees up when its order is marked picked up)</span></span>
@@ -1239,6 +1246,7 @@
         checkForCanceledOrders();
         if (window.refreshSpots) window.refreshSpots(false);
         refreshScheduledCount();
+        refreshEventQueue();
         lastFetchAt = Date.now();
         updateLastUpdatedDisplay();
       }).catch(function(err){
@@ -1434,6 +1442,7 @@
       }).then(function(res){
         return res.json().catch(function(){ return {}; }).then(function(d){
           if (!res.ok) throw new Error(d.error ? (d.detail && d.detail[0] && d.detail[0].detail ? d.error + ' (' + d.detail[0].detail + ')' : d.error) : 'error ' + res.status);
+          if (d.ticket) { setSqState(orderId, { ok: true, msg: d.message || 'Ticket sent to the Square printer' }); return; }
           setSqState(orderId, { ok: true, msg: d.skipped ? (d.skipped === 'no square_order_id' ? 'Not linked to a Square order' : 'Square: ' + d.skipped) : 'Marked ready in Square' });
         });
       }).catch(function(err){
@@ -1598,6 +1607,27 @@
     function setScheduledCount(n){
       scheduledCountEl.textContent = n;
       scheduledCountEl.classList.toggle('zero', !n);
+    }
+    // Corporate events: their orders come to the board one (or a few) at a
+    // time, first come first served. This line shows the rest of the line.
+    var lastEventQueueAt = 0;
+    function refreshEventQueue(){
+      if (Date.now() - lastEventQueueAt < 10000) return;
+      lastEventQueueAt = Date.now();
+      var el = document.getElementById('eventQueueBanner');
+      if (!el) return;
+      sb.rpc('get_kds_event_queue').then(function(res){
+        var rows = res && !res.error && Array.isArray(res.data) ? res.data.filter(function(r){ return r.on_board + r.waiting + r.cooking > 0; }) : [];
+        el.classList.toggle('hidden', !rows.length);
+        el.innerHTML = rows.map(function(r){
+          return '<div class="eq"><b>\u{1F3E2} ' + escHtml(r.name) + '</b>' +
+            '<span class="on">' + r.on_board + ' on the board</span>' +
+            '<span>' + r.waiting + ' waiting in line</span>' +
+            '<span>' + r.cooking + ' cooking</span>' +
+            '<span>' + r.done + ' done</span>' +
+            '<span>shows ' + r.kitchen_pace + ' at a time \u00b7 tickets print at Ready</span></div>';
+        }).join('');
+      }).catch(function(){});
     }
     function refreshScheduledCount(force){
       if (!force && Date.now() - lastScheduledCountAt < 30000) return;
