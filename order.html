@@ -463,6 +463,22 @@
   .lot{ --lot-accent:#f5f5f7; --lot-accent-ink:#000; --lot-card:#1c1c1e; --lot-line:rgba(255,255,255,0.14); --lot-text:#f5f5f7; --lot-muted:rgba(235,235,245,0.6); }
   .mini{ background:var(--panel); border:0; }
     .cart-clear.armed{ background:#e5484d !important; color:#fff !important; border-color:#e5484d !important; font-weight:600; }
+  /* ---- Next Door delivery (order.html?door=CODE): menu + delivery time only ---- */
+  body.door-mode #qrMenuBtn, body.door-mode #pickupSec, body.door-mode #memberChip{ display:none !important; }
+  .door-strip{ background:#1d1d1f; color:#fff; padding:14px 16px 12px; }
+  .door-strip.hidden{ display:none; }
+  .door-kicker{ font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#ffb4ab; }
+  .door-place{ font-size:19px; font-weight:800; margin:2px 0 8px; }
+  .door-runs{ display:flex; gap:8px; overflow-x:auto; -webkit-overflow-scrolling:touch; padding-bottom:2px; }
+  .door-run{ flex:none; display:flex; flex-direction:column; align-items:flex-start; background:#2c2c2e; color:#fff; border:2px solid transparent; border-radius:14px; padding:9px 14px; font:inherit; font-size:16px; font-weight:700; cursor:pointer; text-align:left; }
+  .door-run small{ font-size:12px; font-weight:500; color:#c7c7cc; margin-top:1px; }
+  .door-run.on{ background:#fff; color:#1d1d1f; border-color:#fff; } .door-run.on small{ color:#6e6e73; }
+  .door-run:disabled{ opacity:.45; cursor:not-allowed; }
+  .door-run:focus-visible{ outline:3px solid #ffd479; outline-offset:2px; }
+  #doorSec.invalid .door-runs{ outline:2px solid #d62d20; outline-offset:4px; border-radius:14px; }
+  .door-note{ font-size:13.5px; color:#d2d2d7; margin-top:8px; }
+  .door-note.warn{ color:#ffd479; font-weight:700; }
+  .door-where{ font-size:14px; color:#98989d; margin:10px 0 0; }
 </style>
 </head>
 <body>
@@ -510,6 +526,8 @@
   <a class="qr-menu-item" href="#" id="qrDealsLink"><span class="qm-ico">%</span><span><b>Member deals</b><small>Check in to unlock</small></span><span class="qm-arrow">&rsaquo;</span></a>
   <a class="qr-menu-item" href="tel:+13305875203"><span class="qm-ico">&#9742;</span><span><b>Call the truck</b><small>(330) 587-5203</small></span><span class="qm-arrow">&rsaquo;</span></a>
 </aside>
+
+<div class="door-strip hidden" id="doorStrip" role="region" aria-label="Delivery time"></div>
 
 <div class="track-banner hidden" id="trackBanner">
   <span>Order <b id="trackBannerRef"></b> is in the works.</span>
@@ -576,7 +594,13 @@
   </div>
   <div class="co-body">
 
-    <div class="co-sec">
+    <div class="co-sec hidden" id="doorSec">
+      <h3>Delivery time</h3>
+      <div class="door-runs" id="doorRunsCo"></div>
+      <p class="door-where" id="doorWhere"></p>
+    </div>
+
+    <div class="co-sec" id="pickupSec">
       <h3>Pickup</h3>
       <div class="seg" role="group" aria-label="Pickup method">
         <button type="button" data-pickup="curbside" aria-pressed="true"><strong>Drive-up</strong><span>We bring it to your car</span></button>
@@ -748,6 +772,70 @@
     var ANON_KEY = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
     var TAX_RATE = 0.0675;
     var HIDDEN_CATEGORIES = { 'Catering': 1, 'Combo Add-ons': 1, 'Deals': 1, 'Deal Selections': 1 };
+
+    // ---------- Next Door delivery (order.html?door=CODE) ----------
+    // Same page as the drive-up link, but only the building's short menu
+    // and a delivery time. The server checks the menu, the time and the
+    // on/off switch again.
+    var DOOR_CODE = (function(){ try { var c = new URLSearchParams(location.search).get('door'); return c && /^[A-Za-z0-9]{4,12}$/.test(c) ? c.toUpperCase() : null; } catch (e) { return null; } })();
+    var doorProg = null, doorRun = null, doorPicked = false, doorLost = '';
+    var DOOR_TZ = 'America/New_York';
+    function doorClock(iso){ return new Date(iso).toLocaleTimeString('en-US', { timeZone: DOOR_TZ, hour: 'numeric', minute: '2-digit' }); }
+    function doorDay(t){ return new Date(t).toLocaleDateString('en-CA', { timeZone: DOOR_TZ }); }
+    function doorLabel(iso){
+      var k = doorDay(iso), d = k === doorDay(Date.now()) ? 'Today' : k === doorDay(Date.now() + 86400000) ? 'Tomorrow' : new Date(iso).toLocaleDateString('en-US', { timeZone: DOOR_TZ, weekday: 'short' });
+      return d + ' ' + doorClock(iso);
+    }
+    function doorOpenRuns(){ return doorProg && doorProg.active ? (doorProg.runs || []).filter(function(r){ return !r.blocked && Date.parse(r.cutoff) > Date.now(); }) : []; }
+    function doorRunOk(){ return !!doorRun && doorOpenRuns().some(function(r){ return r.at === doorRun && !r.full; }); }
+    function doorFilter(rows){
+      var ok = {}; (doorProg.menu_item_ids || []).forEach(function(id){ ok[id] = true; });
+      return rows.filter(function(it){ return ok[it.id] || it.category === 'Combo Add-ons' || it.category === 'Deal Selections'; });
+    }
+    function doorPaint(){
+      var runs = doorOpenRuns();
+      // A chosen time that closed or filled while ordering: ask again, never swap quietly.
+      if (doorRun && !doorRunOk()) { if (doorPicked) doorLost = doorLabel(doorRun); doorRun = null; doorPicked = false; }
+      if (!doorRun && !doorLost) { var f = runs.find(function(r){ return !r.full; }); if (f && doorDay(f.at) === doorDay(Date.now())) doorRun = f.at; }
+      var chips = runs.slice(0, 4).map(function(r){
+        return '<button type="button" class="door-run' + (r.at === doorRun ? ' on' : '') + '" data-door-run="' + escHtml(r.at) + '"' + (r.full ? ' disabled' : '') + ' aria-pressed="' + (r.at === doorRun) + '">' +
+          escHtml(doorLabel(r.at)) + '<small>' + (r.full ? 'Full' : 'Order by ' + escHtml(doorClock(r.cutoff))) + '</small></button>';
+      }).join('');
+      $('doorStrip').innerHTML = '<div class="door-kicker">' + escHtml(doorProg.name) + ' delivery</div><div class="door-place">' + escHtml(doorProg.place) + '</div>' +
+        (runs.length ? '<div class="door-runs">' + chips + '</div>' : '<div class="door-note warn">No more deliveries are open right now. Check back on our next delivery day.</div>') +
+        (doorLost ? '<div class="door-note warn">Your ' + escHtml(doorLost) + ' delivery just closed. Please pick another time.</div>' : '') +
+        (doorProg.drop_note ? '<div class="door-note">We bring it to: ' + escHtml(doorProg.drop_note) + '</div>' : '');
+      $('doorRunsCo').innerHTML = runs.length ? chips : '<p class="door-where">No delivery times are open right now.</p>';
+      $('doorWhere').textContent = 'Delivered to ' + doorProg.place + (doorProg.drop_note ? ' \u00b7 ' + doorProg.drop_note : '') + '.';
+      $('doorSec').classList.toggle('invalid', false);
+    }
+    document.addEventListener('click', function(e){
+      var b = e.target.closest && e.target.closest('[data-door-run]'); if (!b || b.disabled) return;
+      doorRun = b.getAttribute('data-door-run'); doorPicked = true; doorLost = ''; doorPaint();
+      if (typeof renderCheckout === 'function' && !$('checkoutScreen').classList.contains('hidden')) renderCheckout();
+    });
+    // Resolves true when the menu should load (a working delivery link).
+    function loadDoor(){
+      return sbShared.rpc('get_door_program', { p_code: DOOR_CODE }).then(function(res){
+        var d = res && !res.error ? res.data : null;
+        if (Array.isArray(d)) d = d[0];
+        doorProg = d && d.code ? d : null;
+        if (!doorProg || !doorProg.active) {
+          document.body.classList.add('door-mode');
+          $('menuState').classList.remove('hidden');
+          $('menuState').innerHTML = !doorProg ? 'This delivery link isn&rsquo;t active.<br><a href="order.html">Order for pickup at the truck</a>'
+            : '<b>' + escHtml(doorProg.name) + ' delivery is off right now.</b><br>' + (doorProg.paused ? 'Online ordering is paused. Please check back soon.' : 'Check back on our next delivery day.');
+          $('doorStrip').classList.add('hidden'); $('orderBar').classList.add('hidden');
+          return false;
+        }
+        document.body.classList.add('door-mode');
+        $('doorStrip').classList.remove('hidden'); $('doorSec').classList.remove('hidden');
+        pickupMethod = 'window';
+        doorPaint();
+        return true;
+      }, function(){ $('menuState').innerHTML = 'We couldn&rsquo;t load the menu. Check your connection and try again.'; return false; });
+    }
+    if (DOOR_CODE) setInterval(function(){ if (doorProg) loadDoor(); }, 60000);   // cutoffs pass, runs fill up
     var CATEGORY_IMAGES = {
       'Shawarma': 'menu-shawarma.jpg', 'Frankie Rolls': 'menu-frankie.jpg',
       'Bowls': 'menu-bowl.jpg', 'Tacos': 'menu-tacos.jpg',
@@ -837,7 +925,7 @@
           $('menuRetryBtn').addEventListener('click', loadMenu);
           return;
         }
-        buildMenu(res.data);
+        buildMenu(DOOR_CODE && doorProg ? doorFilter(res.data) : res.data);
         restoreCart();
         renderMenu();
         afterCartChange(false);
@@ -1873,7 +1961,8 @@
         '<div class="grand"><span>Total</span><span>' + money(t.total) + '</span></div>';
 
       $('reviewOrderBtn').innerHTML = 'Review order <span class="cta-amt">' + money(t.total) + '</span>';
-      var spotText = pickupMethod === 'curbside' ? (arriveMode === 'on_the_way' ? 'Drive-up, on the way' : parkingSpot ? 'Drive-up, spot ' + parkingSpot : 'Drive-up') : 'At the window';
+      var spotText = doorProg ? (doorRunOk() ? 'Delivery ' + doorLabel(doorRun) + ' to ' + doorProg.place : 'Pick a delivery time')
+        : pickupMethod === 'curbside' ? (arriveMode === 'on_the_way' ? 'Drive-up, on the way' : parkingSpot ? 'Drive-up, spot ' + parkingSpot : 'Drive-up') : 'At the window';
       if (pickupMethod === 'curbside') {
         // Car only shows here if they chose to add it.
         var carMk = $('carMakeSelect').value === 'Other' ? $('carMakeOther').value.trim() : $('carMakeSelect').value;
@@ -1901,7 +1990,8 @@
     function validateCheckout(){
       var problems = [];
       if (!$('custName').value.trim()) { problems.push('your first name'); $('nameField').classList.add('invalid'); }
-      if (pickupMethod === 'curbside' && arriveMode !== 'on_the_way' && !parkingSpot) { problems.push('your parking spot'); $('spotField').classList.add('invalid'); }
+      if (doorProg) { if (!doorRunOk()) { problems.push('a delivery time'); $('doorSec').classList.add('invalid'); } }
+      else if (pickupMethod === 'curbside' && arriveMode !== 'on_the_way' && !parkingSpot) { problems.push('your parking spot'); $('spotField').classList.add('invalid'); }
       if (tipChoiceIndex === null) problems.push('a tip option (No tip is fine)');
       else if (selectedTip === null) problems.push('a tip amount');
       return problems;
@@ -1985,6 +2075,15 @@
     loadMember();
 
     function buildOrderBody(){
+      var b = buildOrderBodyBase();
+      if (doorProg) {   // Next Door: delivered, no drive-up details
+        b.pickupMethod = 'window'; b.parkingSpot = null; b.arrivalMode = undefined;
+        b.carMake = null; b.carModel = null; b.carColor = null;
+        b.doorCode = doorProg.code; b.doorSlot = doorRun;
+      }
+      return b;
+    }
+    function buildOrderBodyBase(){
       var carMakeValue = null, carModelValue = null;
       if (pickupMethod === 'curbside') {
         carMakeValue = ($('carMakeSelect').value === 'Other' ? $('carMakeOther').value.trim() : $('carMakeSelect').value) || null;
@@ -2049,6 +2148,7 @@
             btn.disabled = false; btn.innerHTML = prevHtml;
             if (result.data && result.data.code === 'SPOT_TAKEN') { onSpotTaken(result.data.error); return; }
             if (result.data && /^REWARD_/.test(result.data.code || '')) loadMember();
+            if (result.data && /^DOOR_/.test(result.data.code || '') && doorProg) loadDoor();
             msg.textContent = formatErrorMessage(result.data && result.data.error) || 'We couldn\u2019t start checkout. Please try again.';
             return;
           }
@@ -2160,6 +2260,7 @@
             if (result.data && result.data.code === 'SPOT_TAKEN') { onSpotTaken(result.data.error); return; }
             if (result.data && result.data.code === 'TOTAL_CHANGED') loadMenu();
             if (result.data && /^REWARD_/.test(result.data.code || '')) loadMember();
+            if (result.data && /^DOOR_/.test(result.data.code || '') && doorProg) loadDoor();
             msg.textContent = formatErrorMessage(result.data && result.data.error) || 'Your payment didn\u2019t go through. You haven\u2019t been charged.';
             return;
           }
@@ -2268,6 +2369,7 @@
                 if (result.data && result.data.code === 'SPOT_TAKEN') { close(); onSpotTaken(result.data.error); return; }
                 if (result.data && result.data.code === 'TOTAL_CHANGED') loadMenu();
                 if (result.data && /^REWARD_/.test(result.data.code || '')) loadMember();
+            if (result.data && /^DOOR_/.test(result.data.code || '') && doorProg) loadDoor();
                 msg.textContent = formatErrorMessage(result.data && result.data.error) || 'Your payment didn\u2019t go through. You haven\u2019t been charged.';
                 return;
               }
@@ -2403,7 +2505,7 @@
       }).catch(function(){ $('kitchenPulse').classList.add('hidden'); });
     }
 
-    loadMenu();
+    if (DOOR_CODE) loadDoor().then(function(ok){ if (ok) loadMenu(); }); else loadMenu();
     loadKitchenPulse();
     setInterval(loadKitchenPulse, 60000);
   })();
