@@ -682,7 +682,7 @@
   </div>
 </div>
 
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
 <div id="doorBoard" class="hidden">
   <div id="doorHeader">
     <h1>Next Door</h1>
@@ -711,10 +711,25 @@
 </div>
 
 <script>
+  // The kitchen tablet keeps its own sign-in, separate from the staff portal
+  // on the same browser: opening staff.html on this tablet does NOT come
+  // signed in as whoever set up the kitchen board.
   var sb = supabase.createClient(
     'https://njcmcaoyzujijiyfardx.supabase.co',
-    'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_'
+    'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_',
+    { auth: { storageKey: 'rollin-kitchen-auth' } }
   );
+
+  // Tell the server the kitchen board is open (once a minute). QR and kiosk
+  // orders outside posted hours are only taken while it is (security-pack.sql).
+  function kdsHeartbeat(){
+    var unlocked = false;
+    try { unlocked = sessionStorage.getItem('kdsUnlocked') === '1'; } catch(e){}
+    if (!unlocked || document.visibilityState !== 'visible') return;
+    sb.rpc('kds_heartbeat').then(function(){}, function(){});
+  }
+  setInterval(kdsHeartbeat, 60000);
+  setTimeout(kdsHeartbeat, 5000);
 
   // ---------------- Keep the tablet awake while a board is active ----------------
   // Uses the Screen Wake Lock API, supported on modern Chrome/Android and
