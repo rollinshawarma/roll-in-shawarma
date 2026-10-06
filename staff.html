@@ -474,6 +474,12 @@
   .of-code b{ font-size:21px; letter-spacing:.08em; }
   .of-until{ font-size:12.5px; color:#6e6e73; margin-bottom:10px; }
   .of-btn{ display:inline-block; background:#1d1d1f; color:#fff; border-radius:999px; padding:10px 18px; font-weight:600; font-size:13.5px; }
+  .of-test-row{ margin:14px 0 4px; }
+  .of-test-pair{ display:flex; gap:8px; }
+  .of-test-pair input{ flex:1; min-width:0; margin:0; }
+  .of-test-pair button{ flex:none; }
+  .btn-danger-link{ background:none; border:0; color:#c4271b; font-weight:700; text-decoration:underline; cursor:pointer; padding:8px 4px; margin-left:auto; }
+  .ad-btns .of-del{ color:#c4271b; border-color:#f1c5c0; }
   .of-noimg{ aspect-ratio:16/9; background:#ececf0; display:flex; align-items:center; justify-content:center; color:#8e8e93; font-size:13px; }
 
   /* ---- Corporate events ---- */
@@ -1122,11 +1128,15 @@
           <div class="of-preview" id="ofPreview"></div>
         </div>
       </div>
+      <div class="of-test-row">
+        <label for="ofTestTo">Send a test to</label>
+        <div class="of-test-pair"><input type="email" id="ofTestTo" maxlength="200" placeholder="you@example.com" autocomplete="email"><button type="button" class="btn-export" id="ofTest">Send test</button></div>
+      </div>
       <div class="ad-actions">
         <button type="button" class="btn-export" id="ofSave">Save draft</button>
-        <button type="button" class="btn-export" id="ofTest">Send me a test</button>
         <button type="button" class="btn-primary hidden" id="ofSend">Send to all members</button>
         <button type="button" class="btn-export" id="ofClose">Close</button>
+        <button type="button" class="btn-danger-link hidden" id="ofDelete">Delete draft</button>
       </div>
       <p class="hint" id="ofSendHint"></p>
     </div>
@@ -3567,6 +3577,7 @@
       box.innerHTML = ofState.rows.map(function(o){
         var chip = o.status === 'sent' ? ['Sent to ' + o.sent_count, 'live'] : o.status === 'sending' ? ['Partly sent (' + o.sent_count + ')', 'wait'] : ['Draft', ''];
         var btns = (o.status === 'draft' ? '<button class="btn-export btn-small" data-of="edit" data-id="' + esc(o.id) + '">Edit</button>' : '') +
+          (o.status === 'draft' ? '<button class="btn-export btn-small of-del" data-of="delete" data-id="' + esc(o.id) + '">Delete</button>' : '') +
           (o.status === 'sending' && ofState.isAdmin ? '<button class="btn-approve btn-small" data-of="resume" data-id="' + esc(o.id) + '">Finish sending</button>' : '') +
           '<button class="btn-export btn-small" data-of="copy" data-id="' + esc(o.id) + '">' + (o.status === 'draft' ? 'Duplicate' : 'Send again as new') + '</button>';
         return '<div class="ad-card"><div class="ad-thumb" style="' + (o.flyer_path ? 'background-image:url(&quot;' + esc(ofFlyerSrc(o.flyer_path)) + '&quot;)' : '') + '"></div><div class="ad-body">' +
@@ -3588,6 +3599,10 @@
     if (o && o.promo_code && !pr.querySelector('option[value="' + o.promo_code + '"]')) pr.insertAdjacentHTML('beforeend', '<option>' + esc(o.promo_code) + '</option>');
     pr.value = (o && o.promo_code) || '';
     clearMsg('ofEditMsg');
+    document.getElementById('ofDelete').classList.toggle('hidden', !(ofState.editing && ofState.editing.status === 'draft'));
+    var tt = document.getElementById('ofTestTo');
+    if (!tt.value) { try { tt.value = localStorage.getItem('ofTestTo') || ''; } catch (e) {} }
+    if (!tt.value && sb.auth && sb.auth.getSession) sb.auth.getSession().then(function(r){ var em = r && r.data && r.data.session && r.data.session.user && r.data.session.user.email; if (em && !tt.value) tt.value = em; });
     document.getElementById('ofSendHint').textContent = ofState.isAdmin ? '' : 'Only an admin can send to all members. Save it and send yourself a test; an admin sends it.';
     var ed = document.getElementById('ofEditor'); ed.classList.remove('hidden');
     ofPreview(); ed.scrollIntoView({ behavior:'smooth', block:'start' });
@@ -3638,6 +3653,22 @@
     });
   }
   function ofBusy(btn, on, text){ btn.disabled = on; if (text) btn.textContent = text; }
+  // Delete a draft (sent offers stay as a record). Its flyer picture goes too
+  // unless another offer uses it.
+  function ofDelete(o, btn){
+    if (!o || o.status !== 'draft') return;
+    if (!confirm('Delete the draft “' + (o.headline || o.subject) + '”? This can’t be undone.')) return;
+    if (btn) btn.disabled = true;
+    sb.rpc('offers_delete', { p_id: o.id }).then(function(res){
+      if (btn) btn.disabled = false;
+      if (res.error) { showMsg('ofMsg', res.error.message, 'error'); return; }
+      if (res.data) { try { sb.storage.from('email-flyers').remove([res.data]).then(function(){}, function(){}); } catch (e) {} }
+      if (ofState.editing && ofState.editing.id === o.id) { ofState.editing = null; document.getElementById('ofEditor').classList.add('hidden'); }
+      showMsg('ofMsg', 'Draft deleted.', 'ok');
+      loadOffers();
+    });
+  }
+  document.getElementById('ofDelete').addEventListener('click', function(){ ofDelete(ofState.editing, this); });
   document.getElementById('ofNewBtn').addEventListener('click', function(){ ofOpen(null); });
   document.getElementById('ofClose').addEventListener('click', function(){ document.getElementById('ofEditor').classList.add('hidden'); });
   document.getElementById('ofSave').addEventListener('click', function(){
@@ -3645,12 +3676,15 @@
     ofSave().then(function(){ ofBusy(b, false, 'Save draft'); showMsg('ofEditMsg', 'Saved.', 'ok'); loadOffers(); }, function(e){ ofBusy(b, false, 'Save draft'); showMsg('ofEditMsg', e.message, 'error'); });
   });
   document.getElementById('ofTest').addEventListener('click', function(){
-    var b = this; ofBusy(b, true, 'Sending…');
-    ofSave().then(function(row){ return fnCall('member-offers', { action:'test', id: row.id }); }).then(function(d){
-      ofBusy(b, false, 'Send me a test');
-      if (d.error) showMsg('ofEditMsg', 'Couldn’t send the test: ' + d.error + (/not found|404/i.test(d.error) ? ' (deploy the member-offers function)' : ''), 'error');
-      else { showMsg('ofEditMsg', 'Test sent to ' + d.sent_to + '. Check how it looks on your phone.', 'ok'); loadOffers(); }
-    }, function(e){ ofBusy(b, false, 'Send me a test'); showMsg('ofEditMsg', e.message, 'error'); });
+    var b = this, to = document.getElementById('ofTestTo').value.trim();
+    if (to && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(to)) { showMsg('ofEditMsg', 'That test email address doesn’t look right.', 'error'); return; }
+    try { if (to) localStorage.setItem('ofTestTo', to); } catch (e) {}
+    ofBusy(b, true, 'Sending…');
+    ofSave().then(function(row){ document.getElementById('ofDelete').classList.remove('hidden'); return fnCall('member-offers', { action:'test', id: row.id, to: to || undefined }); }).then(function(d){
+      ofBusy(b, false, 'Send test');
+      if (d.error) showMsg('ofEditMsg', 'Test not sent. ' + d.error + (/not found|404|Failed to send a request/i.test(d.error) ? ' (Is the member-offers function deployed, with Verify JWT off?)' : ''), 'error');
+      else { showMsg('ofEditMsg', 'Resend accepted the test for ' + d.sent_to + (d.id ? ' (id ' + String(d.id).slice(0, 8) + ')' : '') + '. If it isn’t in your inbox in a minute or two, check Spam or Promotions.', 'ok'); loadOffers(); }
+    }, function(e){ ofBusy(b, false, 'Send test'); showMsg('ofEditMsg', e.message, 'error'); });
   });
   function ofSendAll(id, btn, label){
     var n = ofState.audience;
@@ -3674,6 +3708,7 @@
     var o = ofState.rows.find(function(x){ return x.id === b.getAttribute('data-id'); }); if (!o) return;
     var a = b.getAttribute('data-of');
     if (a === 'edit') ofOpen(o); else if (a === 'copy') ofOpen(o, true); else if (a === 'resume') ofSendAll(o.id, b, 'Finish sending');
+    else if (a === 'delete') ofDelete(o, b);
   });
 
   // ================= CORPORATE EVENTS =================
