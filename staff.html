@@ -8,8 +8,8 @@
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Inter+Tight:wght@600;700;800&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js" integrity="sha384-b5Ya4Bq3qCyz39m2ISh+4DxjAIljdeFwK/BsXLuj9gugaNwAcj/ia15fxNZL9Nlx" crossorigin="anonymous"></script>
 <style>
   :root{
     --black:#1d1d1f; --panel:#f5f5f7; --panel-2:#ffffff;
@@ -1737,7 +1737,12 @@
   var allEmployeesCache = [];
 
   function showMsg(elId, text, type){
-    document.getElementById(elId).innerHTML = '<div class="msg ' + type + '">' + text + '</div>';
+    var box = document.createElement('div');
+    box.className = 'msg ' + (type || '');
+    box.textContent = text == null ? '' : String(text);
+    var el = document.getElementById(elId);
+    el.innerHTML = '';
+    el.appendChild(box);
   }
   function clearMsg(elId){ document.getElementById(elId).innerHTML = ''; }
   function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
@@ -1878,7 +1883,7 @@
       pendingEmail = email;
       document.getElementById('emailStep').classList.add('hidden');
       document.getElementById('codeStep').classList.remove('hidden');
-      showMsg('loginMsg', 'Code sent to ' + esc(email) + '. Check your inbox.', 'ok');
+      showMsg('loginMsg', 'Code sent to ' + email + '. Check your inbox.', 'ok');
     });
   });
 
@@ -2887,7 +2892,7 @@
       var btn = this; btn.disabled = true;
       sb.rpc('redeem_free_roll', {signup_email: row.email}).then(function(res){
         if (res.error) { showMsg('redeemMsg', res.error.message, 'error'); btn.disabled = false; return; }
-        showMsg('redeemMsg', 'Redeemed! Free roll marked as used for ' + esc(row.email) + '.', 'ok');
+        showMsg('redeemMsg', 'Redeemed! Free roll marked as used for ' + row.email + '.', 'ok');
         document.getElementById('redeemResult').innerHTML = '';
         document.getElementById('redeemEmail').value = '';
       });
@@ -3065,7 +3070,7 @@
   });
 
   function loadApprovals(){
-    sb.from('employees').select('*').then(function(empRes){
+    sb.from('employees').select('id, auth_user_id, name, email, phone, hourly_rate, role, active, created_at').then(function(empRes){
       approvalsEmpMap = {};
       (empRes.data || []).forEach(function(e){ approvalsEmpMap[e.id] = e; });
       allEmployeesCache = empRes.data || [];
@@ -3596,7 +3601,7 @@
     v('ofSubject', o && o.subject); v('ofHeadline', o && o.headline); v('ofBody', o && o.body); v('ofUntil', o && !copy ? o.valid_until : '');
     v('ofButton', (o && o.button_text) || 'Order now'); document.getElementById('ofFile').value = '';
     var pr = document.getElementById('ofPromo');
-    if (o && o.promo_code && !pr.querySelector('option[value="' + o.promo_code + '"]')) pr.insertAdjacentHTML('beforeend', '<option>' + esc(o.promo_code) + '</option>');
+    if (o && o.promo_code && !Array.prototype.some.call(pr.options, function(op){ return op.value === o.promo_code; })) pr.insertAdjacentHTML('beforeend', '<option>' + esc(o.promo_code) + '</option>');
     pr.value = (o && o.promo_code) || '';
     clearMsg('ofEditMsg');
     document.getElementById('ofDelete').classList.toggle('hidden', !(ofState.editing && ofState.editing.status === 'draft'));
@@ -4592,7 +4597,7 @@
     document.getElementById('adHeadline').value = c ? (c.headline || '') : (s.default_headline || '');
     document.getElementById('adText').value = c ? (c.primary_text || '') : (s.default_text || '');
     var promo = document.getElementById('adPromo');
-    if (c && c.promo_code && !promo.querySelector('option[value="' + c.promo_code + '"]')) promo.insertAdjacentHTML('beforeend', '<option>' + esc(c.promo_code) + '</option>');
+    if (c && c.promo_code && !Array.prototype.some.call(promo.options, function(op){ return op.value === c.promo_code; })) promo.insertAdjacentHTML('beforeend', '<option>' + esc(c.promo_code) + '</option>');
     promo.value = c && c.promo_code ? c.promo_code : '';
     document.getElementById('adFile').value = '';
     clearMsg('adEditMsg');
@@ -5104,11 +5109,17 @@
   document.getElementById('adminSearch').addEventListener('input', renderAdminList);
 
   function loadAdmin(){
-    sb.from('employees').select('*').order('name').then(function(res){
+    sb.from('employees').select('id, auth_user_id, name, email, phone, hourly_rate, role, active, created_at').order('name').then(function(res){
       if (res.error) return;
       allEmployeesCache = res.data;
-      renderAdminList();
-      populateUploadOwnerSelect();
+      var finish = function(){ renderAdminList(); populateUploadOwnerSelect(); };
+      if (!currentEmployee || currentEmployee.role !== 'admin') return finish();
+      sb.rpc('admin_employee_pins').then(function(pr){
+        var pins = {};
+        (pr.data || []).forEach(function(p){ pins[p.id] = p.pin; });
+        allEmployeesCache.forEach(function(e){ e.pin = pins[e.id] || null; });
+        finish();
+      }, finish);
     });
     loadSignups();
   }
@@ -5158,7 +5169,7 @@
     sb.rpc('admin_add_employee', {emp_name:name, emp_email:email, emp_rate:rate, emp_role:role, emp_pin:pin}).then(function(res){
       btn.disabled = false;
       if (res.error) { showMsg('addEmpMsg', res.error.message, 'error'); return; }
-      showMsg('addEmpMsg', name + ' added. They can sign in with ' + esc(email) + ', and clock in at the station with PIN ' + esc(pin) + '.', 'ok');
+      showMsg('addEmpMsg', name + ' added. They can sign in with ' + email + ', and clock in at the station with PIN ' + pin + '.', 'ok');
       document.getElementById('newEmpName').value = '';
       document.getElementById('newEmpEmail').value = '';
       document.getElementById('newEmpRate').value = '';
@@ -5231,7 +5242,7 @@
   function viewDocument(path){
     sb.storage.from('employee-docs').createSignedUrl(path, 120).then(function(res){
       if (res.error || !res.data) { alert('Could not open this file.'); return; }
-      window.open(res.data.signedUrl, '_blank');
+      window.open(res.data.signedUrl, '_blank', 'noopener');
     });
   }
 
