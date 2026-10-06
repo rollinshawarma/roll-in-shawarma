@@ -7,10 +7,10 @@
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <meta name="robots" content="noindex">
 <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
 <script src="deals.js"></script>
 <script src="ingredients.js"></script>
-<script src="https://cdn.jsdelivr.net/npm/qrcode/build/qrcode.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js" integrity="sha384-0RsG1yo/crf/1Qc14sho26SXXOTngNCjgJw7fuvXBt9W/OChF/Ijx+aUuBDqQwEk" crossorigin="anonymous"></script>
 <style>
   :root{
     --black:#000000;
@@ -881,7 +881,9 @@
         btn.disabled = false; btn.textContent = 'Check In';
         if (res.error) {
           console.error('kiosk_verify_member error:', res.error);
-          errorEl.textContent = 'Something went wrong checking that -- please tell a staff member (' + res.error.message + ').';
+          errorEl.textContent = /TOO_MANY_TRIES/.test(res.error.message || '')
+            ? 'Too many tries. Please wait a few minutes, or ask a staff member.'
+            : 'Something went wrong checking that -- please tell a staff member.';
           return;
         }
         var row = res.data && res.data[0];
@@ -2063,17 +2065,21 @@
         return o;
       });
 
-      fetch(KIOSK_EDGE_FUNCTION_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KIOSK_ANON_KEY },
-        body: JSON.stringify({
-          items: itemsPayload,
-          customerName: name || 'Kiosk Guest',
-          customerEmail: email || undefined,
-          orderSource: 'kiosk',
-          memberCode: memberCodeVerified || undefined,
-          tipAmount: tipAmount
-        })
+      var scanBody = JSON.stringify({
+        items: itemsPayload,
+        customerName: name || 'Kiosk Guest',
+        customerEmail: email || undefined,
+        orderSource: 'kiosk',
+        memberCode: memberCodeVerified || undefined,
+        tipAmount: tipAmount
+      });
+      // A registered tablet signs the order (lets it order outside posted hours).
+      (kioskDevice ? signKioskRequest(scanBody).catch(function(){ return {}; }) : Promise.resolve({})).then(function(proof){
+        return fetch(KIOSK_EDGE_FUNCTION_URL, {
+          method: 'POST',
+          headers: Object.assign({ 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KIOSK_ANON_KEY }, proof),
+          body: scanBody
+        });
       }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
         .then(function(result){
           setPaymentButtonsDisabled(false);
@@ -2124,18 +2130,22 @@
         return o;
       });
 
-      fetch(KIOSK_EDGE_FUNCTION_URL, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KIOSK_ANON_KEY },
-        body: JSON.stringify({
-          items: itemsPayload,
-          customerName: name || 'Kiosk Guest',
-          customerEmail: email || undefined,
-          orderSource: 'kiosk',
-          paymentMethod: 'reader',
-          memberCode: memberCodeVerified || undefined,
-          tipAmount: tipAmount
-        })
+      var readerBody = JSON.stringify({
+        items: itemsPayload,
+        customerName: name || 'Kiosk Guest',
+        customerEmail: email || undefined,
+        orderSource: 'kiosk',
+        paymentMethod: 'reader',
+        memberCode: memberCodeVerified || undefined,
+        tipAmount: tipAmount
+      });
+      // Card reader orders must come from the registered tablet (signed).
+      signKioskRequest(readerBody).then(function(proof){
+        return fetch(KIOSK_EDGE_FUNCTION_URL, {
+          method: 'POST',
+          headers: Object.assign({ 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KIOSK_ANON_KEY }, proof),
+          body: readerBody
+        });
       }).then(function(res){ return res.json().then(function(data){ return { ok: res.ok, data: data }; }); })
         .then(function(result){
           if (!result.ok || !result.data.orderId) {
