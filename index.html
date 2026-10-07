@@ -984,23 +984,27 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
 .cart-upsell{ position:relative; margin:4px 24px 12px; padding:13px 40px 13px 14px; border-radius:14px; background:#f5f5f7; border:1px solid #e6e6eb; font-size:13.5px; line-height:1.4; color:#3a3a3c; }
 .cart-upsell[hidden]{ display:none; }
 .cart-upsell b{ display:block; font-size:15px; color:#1d1d1f; margin-bottom:2px; }
-/* "Make it a meal": the fries + drink photo fills the card; a dark fade on the
-   left keeps the text readable (and stands in if the photo isn't uploaded yet). */
-.cart-upsell.ups-meal{ background:#2a1708 url(make-it-a-meal.jpg) right center / cover no-repeat; border:0; color:#fff; padding:16px 46px 16px 18px; min-height:184px; overflow:hidden; box-shadow:0 8px 24px rgba(42,23,8,0.22); }
-.cart-upsell.ups-meal::before{ content:''; position:absolute; inset:0; border-radius:inherit; background:linear-gradient(100deg, rgba(20,11,4,0.94) 0%, rgba(20,11,4,0.80) 46%, rgba(20,11,4,0.30) 78%, rgba(20,11,4,0.10) 100%); }
-.cart-upsell.ups-meal > *:not(.ups-x){ position:relative; }
-.cart-upsell.ups-meal .ups-x{ z-index:1; }
-.ups-meal .ups-x{ color:rgba(255,255,255,0.85); }
-.ups-meal .ups-x:hover{ background:rgba(255,255,255,0.15); }
+/* Photo suggestions ("Make it a meal", "Something sweet?"): the photo fills the
+   card; a dark fade on the left keeps the text readable (and stands in if the
+   photo isn't uploaded yet). Photos: make-it-a-meal.jpg, something-sweet.jpg. */
+.cart-upsell.ups-photo{ background:#2a1708 right center / cover no-repeat; border:0; color:#fff; padding:16px 46px 16px 18px; min-height:184px; overflow:hidden; box-shadow:0 8px 24px rgba(42,23,8,0.22); }
+.cart-upsell.ups-meal{ background-image:url(make-it-a-meal.jpg); }
+.cart-upsell.ups-sweet{ background-color:#241326; background-image:url(something-sweet.jpg); }
+.cart-upsell.ups-photo::before{ content:''; position:absolute; inset:0; border-radius:inherit; background:linear-gradient(100deg, rgba(20,11,4,0.94) 0%, rgba(20,11,4,0.80) 46%, rgba(20,11,4,0.30) 78%, rgba(20,11,4,0.10) 100%); }
+.cart-upsell.ups-sweet::before{ background:linear-gradient(100deg, rgba(28,12,30,0.94) 0%, rgba(28,12,30,0.80) 46%, rgba(28,12,30,0.30) 78%, rgba(28,12,30,0.10) 100%); }
+.cart-upsell.ups-photo > *:not(.ups-x){ position:relative; }
+.cart-upsell.ups-photo .ups-x{ z-index:1; color:rgba(255,255,255,0.85); }
+.cart-upsell.ups-photo .ups-x:hover{ background:rgba(255,255,255,0.15); }
 .ups-meal-tag{ display:inline-block; font:700 11px/1 inherit; letter-spacing:.12em; text-transform:uppercase; color:#ffc76b; margin-bottom:6px; }
+.ups-sweet .ups-meal-tag{ color:#f5b8e8; }
 .ups-meal-head{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
-.cart-upsell.ups-meal .ups-meal-head b{ display:inline; margin:0; font-family:"Barlow Condensed","Arial Narrow",sans-serif; font-weight:800; font-size:28px; line-height:1; text-transform:uppercase; letter-spacing:.01em; color:#fff; }
+.cart-upsell.ups-photo .ups-meal-head b{ display:inline; margin:0; font-family:"Barlow Condensed","Arial Narrow",sans-serif; font-weight:800; font-size:28px; line-height:1; text-transform:uppercase; letter-spacing:.01em; color:#fff; }
 .ups-meal-price{ background:#d62d20; color:#fff; font:800 14px/1 inherit; padding:6px 10px; border-radius:999px; }
 .ups-meal-sub{ display:block; margin-top:7px; max-width:250px; font-size:14px; line-height:1.4; color:rgba(255,255,255,0.88); }
 .ups-meal-pick{ display:block; margin-top:12px; font:700 11px/1 inherit; letter-spacing:.1em; text-transform:uppercase; color:rgba(255,255,255,0.7); }
-.ups-meal .ups-chips{ margin-top:8px; max-width:300px; }
-.ups-meal .ups-chip{ background:rgba(255,255,255,0.14); border-color:rgba(255,255,255,0.38); color:#fff; -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); }
-.ups-meal .ups-chip:hover, .ups-meal .ups-chip:focus-visible{ background:#fff; color:#1d1d1f; border-color:#fff; }
+.ups-photo .ups-chips{ margin-top:8px; max-width:300px; }
+.ups-photo .ups-chip{ background:rgba(255,255,255,0.14); border-color:rgba(255,255,255,0.38); color:#fff; -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); }
+.ups-photo .ups-chip:hover, .ups-photo .ups-chip:focus-visible{ background:#fff; color:#1d1d1f; border-color:#fff; }
 .ups-x{ position:absolute; top:6px; right:6px; width:30px; height:30px; border:0; background:none; font-size:20px; line-height:1; color:#8e8e93; cursor:pointer; border-radius:50%; padding:0; }
 .ups-x:hover{ background:rgba(0,0,0,0.06); }
 .ups-chips{ display:flex; flex-wrap:wrap; gap:7px; margin-top:9px; }
@@ -2638,15 +2642,20 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
           '<span class="ups-meal-pick">Pick your drink</span>' +
           '<div class="ups-chips">' + p.drinks.map(function(d){ return '<button type="button" class="ups-chip" data-ups-meal="' + escHtml(String(d.item.id)) + '">' + escHtml(d.label) + '</button>'; }).join('') + '</div>';
       } else if (p.kind === 'sweet') {
-        html = '<b>Something sweet?</b><span>Our kulfi is the best way to finish.</span>' +
-          '<div class="ups-chips">' + p.items.map(function(it){ return '<button type="button" class="ups-chip" data-ups-add="' + escHtml(String(it.id)) + '">' + escHtml(it.name.replace(/\s*Kulfi$/i, '')) + ' $' + Number(it.price).toFixed(2) + '</button>'; }).join('') + '</div>';
+        // Background photo: upload something-sweet.jpg (kulfi) next to index.html.
+        var from = Math.min.apply(null, p.items.map(function(it){ return Number(it.price); }));
+        html = '<span class="ups-meal-tag">Dessert</span>' +
+          '<div class="ups-meal-head"><b>Something sweet?</b><span class="ups-meal-price">$' + from.toFixed(2) + '</span></div>' +
+          '<span class="ups-meal-sub">Creamy kulfi, the best way to finish.</span>' +
+          '<span class="ups-meal-pick">Pick a flavor</span>' +
+          '<div class="ups-chips">' + p.items.map(function(it){ return '<button type="button" class="ups-chip" data-ups-add="' + escHtml(String(it.id)) + '">' + escHtml(it.name.replace(/\s*Kulfi$/i, '')) + '</button>'; }).join('') + '</div>';
       } else {
         var member = document.body.classList.contains('member-mode');
         html = '<b>Feeding a group?</b><span>' + (member ? 'Our group deals bundle 4 or more items for less.' : 'Members get group deals like the Family Deal. Joining is free and takes a minute.') + '</span>' +
           '<div class="ups-chips"><button type="button" class="ups-chip ups-go" data-ups-group="' + (member ? 'deals' : 'join') + '">' + (member ? 'See group deals' : 'Join free & see deals') + '</button></div>';
       }
       box.hidden = false;
-      box.className = 'cart-upsell ups-' + p.kind;
+      box.className = 'cart-upsell ups-' + p.kind + (p.kind === 'meal' || p.kind === 'sweet' ? ' ups-photo' : '');
       box.innerHTML = x + html;
     }
     document.addEventListener('click', function(e){
