@@ -1005,6 +1005,15 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
 .ups-photo .ups-chips{ margin-top:8px; max-width:300px; }
 .ups-photo .ups-chip{ background:rgba(255,255,255,0.14); border-color:rgba(255,255,255,0.38); color:#fff; -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px); }
 .ups-photo .ups-chip:hover, .ups-photo .ups-chip:focus-visible{ background:#fff; color:#1d1d1f; border-color:#fff; }
+.ups-cans{ display:flex; flex-wrap:wrap; gap:6px; margin:9px -32px 0 0; }
+.ups-can{ padding:0; border:0; background:none; cursor:pointer; color:#fff; font:600 13px/1.1 inherit; }
+.ups-can span{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+.ups-can img{ display:block; width:42px; height:56px; object-fit:cover; border-radius:11px; border:2px solid rgba(255,255,255,0.28); background:#111; transition:transform .15s ease, border-color .15s ease, box-shadow .15s ease; }
+.ups-can:hover img, .ups-can:focus-visible img{ transform:translateY(-3px); border-color:#fff; box-shadow:0 6px 16px rgba(0,0,0,0.45); }
+.ups-can:focus-visible{ outline:none; }
+.ups-can:active img{ transform:scale(0.96); }
+.ups-can.noimg span{ position:static; width:auto; height:auto; clip:auto; }
+.ups-can.noimg{ width:auto; padding:7px 12px; border:1px solid rgba(255,255,255,0.38); border-radius:999px; background:rgba(255,255,255,0.14); font-size:13px; }
 .ups-x{ position:absolute; top:6px; right:6px; width:30px; height:30px; border:0; background:none; font-size:20px; line-height:1; color:#8e8e93; cursor:pointer; border-radius:50%; padding:0; }
 .ups-x:hover{ background:rgba(0,0,0,0.06); }
 .ups-chips{ display:flex; flex-wrap:wrap; gap:7px; margin-top:9px; }
@@ -2640,7 +2649,13 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
           '<div class="ups-meal-head"><b>Make it a meal</b><span class="ups-meal-price">+$' + p.price.toFixed(2) + '</span></div>' +
           '<span class="ups-meal-sub">Crispy fries + a cold drink with your ' + escHtml(p.item.name) + '.</span>' +
           '<span class="ups-meal-pick">Pick your drink</span>' +
-          '<div class="ups-chips">' + p.drinks.map(function(d){ return '<button type="button" class="ups-chip" data-ups-meal="' + escHtml(String(d.item.id)) + '">' + escHtml(d.label) + '</button>'; }).join('') + '</div>';
+          // Drink cans as buttons (item-combo-drink-coke.jpg, ...-diet-coke.jpg, ...);
+          // a missing photo falls back to the drink's name.
+          '<div class="ups-cans">' + p.drinks.map(function(d){
+            var img = 'item-combo-drink-' + d.label.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '.jpg';
+            return '<button type="button" class="ups-can" data-ups-meal="' + escHtml(String(d.item.id)) + '" aria-label="' + escHtml(d.label) + '" title="' + escHtml(d.label) + '">' +
+              '<img src="' + img + '" alt="" loading="lazy" onerror="this.parentNode.classList.add(\'noimg\');this.remove()"><span>' + escHtml(d.label) + '</span></button>';
+          }).join('') + '</div>';
       } else if (p.kind === 'sweet') {
         // Background photo: upload something-sweet.jpg (kulfi) next to index.html.
         var from = Math.min.apply(null, p.items.map(function(it){ return Number(it.price); }));
