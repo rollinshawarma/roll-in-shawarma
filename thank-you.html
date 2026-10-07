@@ -116,6 +116,24 @@
   #proceedToCheckoutBtn, #exploreOtherPaymentsBtn{ border-radius:999px; }
   .w1, .w2{ color:#1a1714 !important; font-family:"Barlow Condensed","Arial Narrow",sans-serif; letter-spacing:0; }
 </style>
+<script>
+  // The secret order key (?t=) unlocks this customer's order details. Take
+  // it out of the address bar before the Meta Pixel loads, so it's never
+  // sent to Facebook (or kept in browser history / shared screenshots).
+  (function(){
+    try {
+      var u = new URL(window.location.href), t = u.searchParams.get('t');
+      if (t) {
+        window.__rollinOrderKey = t;
+        try { sessionStorage.setItem('rollinOrderKey:' + (u.searchParams.get('ref') || ''), t); } catch(e){}
+        u.searchParams.delete('t');
+        history.replaceState(null, '', u.pathname + u.search + u.hash);
+      } else {
+        try { window.__rollinOrderKey = sessionStorage.getItem('rollinOrderKey:' + (u.searchParams.get('ref') || '')) || ''; } catch(e){}
+      }
+    } catch(e){}
+  })();
+</script>
 <!-- Meta Pixel -->
 <script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
 fbq('init','1433859782006722');fbq('track','PageView');
@@ -206,7 +224,7 @@ fbq('init','1433859782006722');fbq('track','PageView');
       });
     }
 
-    // "QRScan007" -> "#007": customers only need the number.
+    // "DriveUp007" -> "#007": customers only need the number.
     function displayOrderNo(ref){ var m = /^[A-Za-z]+-?(\d+)$/.exec(ref || ''); return m ? '#' + m[1] : (ref || ''); }
     var params = new URLSearchParams(window.location.search);
     var ref = params.get('ref');
@@ -215,7 +233,7 @@ fbq('init','1433859782006722');fbq('track','PageView');
     var paidOnPhone = params.get('via') === 'phone';
     // Secret per-order ID from checkout: unlocks full order details and
     // the live tracking page. Without it, only non-personal status shows.
-    var trackingToken = params.get('t') || '';
+    var trackingToken = params.get('t') || window.__rollinOrderKey || '';
     var tokenParam = /^[0-9a-f-]{36}$/i.test(trackingToken) ? '&t=' + encodeURIComponent(trackingToken) : '';
 
     var loadingEl = document.getElementById('loadingState');
