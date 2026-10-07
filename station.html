@@ -2012,7 +2012,7 @@
       scheduledPanel.classList.add('hidden');
     });
 
-    // ---- Delivered (3rd-party orders): tell Square it's COMPLETED ----
+    // ---- Picked up / Delivered: tell Square it's COMPLETED ----
     function pushCompletedToSquare(orderId, refCode){
       sb.auth.getSession().then(function(r){
         var token = r && r.data && r.data.session && r.data.session.access_token;
@@ -2156,7 +2156,7 @@
           (allReady ? sqSyncHtml(orderId) : '') +
           (allReady ? (DELIVERY_APPS[o.source]
             ? '<button type="button" class="complete-btn delivered-btn" data-order-id="' + orderId + '" data-ref="' + escHtml(o.reference_code || '') + '" data-delivery="1">Delivered</button>'
-            : '<button type="button" class="complete-btn" data-order-id="' + orderId + '">' + (TK ? 'Picked up' : 'Mark Picked Up') + '</button>') : '') +
+            : '<button type="button" class="complete-btn" data-order-id="' + orderId + '" data-ref="' + escHtml(o.reference_code || '') + '">' + (TK ? 'Picked up' : 'Mark Picked Up') + '</button>') : '') +
         '</div>';
       }).join('');
       // Tickets view: sort the cards into Up next / Cooking / Ready (FIFO in each).
@@ -2217,7 +2217,10 @@
               btn.textContent = idleLabel;
               return;
             }
-            if (isDelivery) pushCompletedToSquare(orderId, btn.getAttribute('data-ref') || 'This order');
+            // Every order closes on Square too (website, drive-up, kiosk and
+            // delivery apps), so it leaves the POS open-orders list. Orders
+            // with no Square order (company tab) are skipped by the server.
+            pushCompletedToSquare(orderId, btn.getAttribute('data-ref') || 'This order');
             fetchAndRender();
           }).catch(function(err){
             console.error('kds_complete_order threw:', err);
