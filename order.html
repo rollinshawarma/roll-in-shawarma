@@ -443,6 +443,20 @@
   .combo{ border:0; border-radius:16px; background:var(--panel-2); }
   .combo-toggle input{ accent-color:#f5f5f7; }
   .drink-chip{ background:transparent; }
+  /* combo drinks: can photos as buttons */
+  .combo-drinks{ display:grid; grid-template-columns:repeat(3, 1fr); gap:12px 8px; }
+  @media (min-width:520px){ .combo-drinks{ grid-template-columns:repeat(6, 1fr); } }
+  .combo-drinks.hidden{ display:none; }
+  .drink-chip{ position:relative; display:flex; flex-direction:column; align-items:center; gap:5px; padding:0; min-height:0; border:0; border-radius:0; background:none; font-size:12px; font-weight:500; color:var(--muted); line-height:1.15; text-align:center; cursor:pointer; }
+  .drink-chip img{ display:block; width:52px; height:70px; object-fit:cover; border-radius:12px; border:2px solid transparent; box-shadow:0 0 0 1.5px var(--line); background:#111; transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
+  .drink-chip:hover img{ transform:translateY(-2px); }
+  .drink-chip:active img{ transform:scale(0.96); }
+  .drink-chip[aria-pressed="true"]{ background:none; color:var(--white); font-weight:600; border:0; }
+  .drink-chip[aria-pressed="true"] img{ border-color:#1c1c1e; box-shadow:0 0 0 2.5px var(--gold), 0 6px 14px rgba(0,0,0,0.4); }
+  .drink-chip[aria-pressed="true"]::after{ content:'\2713'; position:absolute; top:-5px; left:50%; margin-left:16px; width:20px; height:20px; border-radius:50%; background:var(--gold); color:var(--gold-ink); font-size:12px; font-weight:700; line-height:20px; text-align:center; }
+  .drink-chip.noimg{ padding:10px 14px; min-height:44px; border:1px solid var(--line); border-radius:100px; color:var(--white); }
+  .drink-chip.noimg[aria-pressed="true"]{ background:var(--gold); color:var(--gold-ink); border-color:var(--gold); }
+  .drink-chip.noimg::after{ display:none; }
   .sheet-foot{ background:#1c1c1e; }
   .qty{ background:transparent; border:1.5px solid var(--line); }
   .qty span{ font-family:var(--body); font-size:17px; font-weight:600; }
@@ -1571,7 +1585,9 @@
             '<span><strong>Make it a combo</strong><span class="combo-sub">Adds fries and a drink for ' + money(item.combo_upcharge) + ' more</span></span></label>' +
           '<div class="combo-drinks' + (sheet.combo ? '' : ' hidden') + '" id="comboDrinks" role="group" aria-label="Choose your drink">' +
             comboDrinks().map(function(d){
-              return '<button type="button" class="drink-chip" data-drink="' + escHtml(d) + '" aria-pressed="' + (sheet.drink === d) + '">' + escHtml(d) + '</button>';
+              return '<button type="button" class="drink-chip" data-drink="' + escHtml(d) + '" aria-pressed="' + (sheet.drink === d) + '" title="' + escHtml(d) + '">' +
+                '<img src="item-combo-drink-' + slugify(d) + '.jpg" alt="" loading="lazy" onerror="this.parentNode.classList.add(\'noimg\');this.remove()">' +
+                '<span>' + escHtml(d) + '</span></button>';
             }).join('') +
           '</div>' +
         '</div>';
