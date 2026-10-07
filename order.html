@@ -83,6 +83,13 @@
   .top-meta{ display:flex; flex-wrap:wrap; align-items:center; gap:6px 12px; margin-top:6px; font-size:13px; color:var(--muted); }
   .halal-pill{ display:inline-flex; align-items:center; gap:5px; color:var(--cream); font-weight:600; }
   .halal-pill svg{ width:15px; height:15px; color:var(--green); }
+  .top-tag{ display:inline-flex; align-items:center; gap:6px; font-weight:600; color:var(--cream); }
+  .top-tag #topMode{ color:var(--gold); text-transform:uppercase; letter-spacing:.08em; font-size:12px; font-weight:800; }
+  .top-tag .tag-dot{ opacity:.6; }
+  .top-tag .tag-line{ font-style:italic; }
+  .halal-foot{ max-width:1040px; margin:8px auto 0; padding:22px 16px 110px; display:flex; flex-direction:column; align-items:center; gap:6px; text-align:center; border-top:1px solid rgba(255,255,255,0.08); }
+  .halal-foot .foot-sub{ font-size:12.5px; opacity:.6; }
+  body.driveup-closed .halal-foot{ border-top:0; }
   .pulse{ display:inline-flex; align-items:center; gap:6px; }
   .pulse-dot{ width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 0 0 rgba(11,175,76,0.6); animation:pulse 2s infinite; }
   .pulse.busy .pulse-dot{ background:var(--gold); box-shadow:0 0 0 0 rgba(255,169,77,0.6); }
@@ -493,7 +500,7 @@
   <div>
     <h1><span class="w1">Roll-In</span> <span class="w2">Shawarma</span></h1>
     <div class="top-meta">
-      <span class="halal-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>100% halal meat</span>
+      <span class="top-tag"><span id="topMode">Drive-up</span> <span class="tag-dot" aria-hidden="true">&middot;</span> <span class="tag-line">We roll it. You love it.</span></span>
       <span id="kitchenPulse" class="pulse hidden" aria-live="polite"><span class="pulse-dot" aria-hidden="true"></span><span id="kitchenPulseText"></span></span>
       <span id="memberChip" class="member-chip hidden">&#10003; Checked in</span>
     </div>
@@ -547,6 +554,10 @@
 <main class="menu" id="menu">
   <div class="menu-state" id="menuState">Loading the menu&hellip;</div>
 </main>
+<footer class="halal-foot">
+  <span class="halal-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 6 9 17l-5-5"/></svg>100% halal meat</span>
+  <span class="foot-sub">Made fresh to order &middot; Roll-In Shawarma</span>
+</footer>
 
 <div class="order-bar hidden" id="orderBar">
   <button type="button" id="orderBarBtn">
@@ -834,6 +845,7 @@
           return false;
         }
         document.body.classList.add('door-mode');
+        if ($('topMode')) $('topMode').textContent = 'Delivery';
         $('doorStrip').classList.remove('hidden'); $('doorSec').classList.remove('hidden');
         pickupMethod = 'window';
         doorPaint();
