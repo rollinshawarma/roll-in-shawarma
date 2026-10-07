@@ -467,6 +467,9 @@
   body.door-mode #qrMenuBtn, body.door-mode #pickupSec, body.door-mode #memberChip{ display:none !important; }
   body.driveup-closed #qrMenuBtn, body.driveup-closed #memberChip, body.driveup-closed .cat-rail-top, body.driveup-closed #kitchenPulse{ display:none !important; }
   #menuState a{ color:inherit; font-weight:700; }
+  .du-hours{ margin:14px auto 12px; border-collapse:collapse; font-size:14px; }
+  .du-hours td{ padding:3px 10px; text-align:left; }
+  .du-hours td:first-child{ font-weight:700; }
   .door-strip{ background:#1d1d1f; color:#fff; padding:14px 16px 12px; }
   .door-strip.hidden{ display:none; }
   .door-kicker{ font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#ffb4ab; }
@@ -841,16 +844,19 @@
     // driveup-gate.sql decides (calendar event now = away; else standard
     // hours or kitchen board open). The checkout asks the same question.
     function driveupMessage(du){
-      var ev = du.event || du.next_event, map = ev && ev.map ? 'https://maps.google.com/?q=' + encodeURIComponent(ev.map) : '';
+      var ev = du.event, map = ev && ev.map ? 'https://maps.google.com/?q=' + encodeURIComponent(ev.map) : '';
       if (du.reason === 'away' && ev) {
-        return '<b>We&rsquo;re at ' + escHtml(ev.title) + ' today</b><br>' + escHtml(ev.location || '') +
-          (ev.until ? ', until ' + escHtml(ev.until) : '') + '.<br>Drive-up ordering is closed while we&rsquo;re away. Come see us there!' +
+        var when = ev.from && ev.until ? ev.from + ' \u2013 ' + ev.until : ev.until ? 'until ' + ev.until : ev.from ? 'from ' + ev.from : '';
+        return '<b>Today we&rsquo;re at ' + escHtml(ev.title) + '</b><br>' + escHtml(ev.location || '') + (when ? ' &middot; ' + escHtml(when) : '') +
+          '<br>Drive-up ordering is off today while we&rsquo;re there. Come see us!' +
           (map ? '<br><a href="' + escHtml(map) + '" target="_blank" rel="noopener">Directions</a>' : '');
       }
+      var rows = (du.hours || []).map(function(h){
+        return '<tr><td>' + escHtml(h.day) + '</td><td>' + escHtml(h.hours) + '</td></tr>';
+      }).join('');
       return '<b>Drive-up ordering is closed right now.</b>' + (du.opens ? '<br>It opens ' + escHtml(du.opens) + '.' : '') +
-        (ev ? '<br>Next, we&rsquo;ll be at <b>' + escHtml(ev.title) + '</b>' + (ev.location ? ', ' + escHtml(ev.location) : '') + ' ' + escHtml(ev.when || '') + '.' +
-          (map ? ' <a href="' + escHtml(map) + '" target="_blank" rel="noopener">Directions</a>' : '') : '') +
-        '<br><a href="index.html#menu">Order ahead on our website</a>';
+        (rows ? '<table class="du-hours" aria-label="Drive-up hours">' + rows + '</table>' : '') +
+        '<a href="index.html#menu">Order ahead on our website</a>';
     }
     // Resolves true when the drive-up menu should load.
     function loadDriveup(){
