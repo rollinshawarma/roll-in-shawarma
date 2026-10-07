@@ -327,7 +327,7 @@
         return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c];
       });
     }
-    // "QRScan007" -> "#007": customers only need the number.
+    // "DriveUp007" -> "#007": customers only need the number.
     function displayOrderNo(ref){
       var m = /^[A-Za-z]+-?(\d+)$/.exec(ref || '');
       return m ? '#' + m[1] : (ref || '');
