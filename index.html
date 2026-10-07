@@ -985,6 +985,9 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
 .cart-upsell[hidden]{ display:none; }
 .cart-upsell b{ display:block; font-size:15px; color:#1d1d1f; margin-bottom:2px; }
 .cart-upsell.ups-meal{ background:#fff7ec; border-color:#f6dcb4; }
+.ups-meal-pics{ display:flex; gap:8px; margin:0 0 9px; }
+.ups-meal-pics:empty{ display:none; }
+.ups-meal-pics img{ width:64px; height:64px; object-fit:cover; border-radius:12px; background:#fff; border:1px solid #f6dcb4; }
 .ups-x{ position:absolute; top:6px; right:6px; width:30px; height:30px; border:0; background:none; font-size:20px; line-height:1; color:#8e8e93; cursor:pointer; border-radius:50%; padding:0; }
 .ups-x:hover{ background:rgba(0,0,0,0.06); }
 .ups-chips{ display:flex; flex-wrap:wrap; gap:7px; margin-top:9px; }
@@ -2615,7 +2618,9 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       var x = '<button type="button" class="ups-x" data-ups-off="' + p.kind + '" aria-label="No thanks">&times;</button>';
       var html = '';
       if (p.kind === 'meal') {
-        html = '<b>Make it a meal</b><span>Fries and a drink with your ' + escHtml(p.item.name) + ' for +$' + p.price.toFixed(2) + '. Pick a drink:</span>' +
+        // Photos: upload meal-fries.jpg and meal-drink.jpg to the site (they hide until then).
+        html = '<div class="ups-meal-pics" aria-hidden="true"><img src="meal-fries.jpg" alt="" loading="lazy" onerror="this.remove()"><img src="meal-drink.jpg" alt="" loading="lazy" onerror="this.remove()"></div>' +
+          '<b>Make it a meal</b><span>Fries and a drink with your ' + escHtml(p.item.name) + ' for +$' + p.price.toFixed(2) + '. Pick a drink:</span>' +
           '<div class="ups-chips">' + p.drinks.map(function(d){ return '<button type="button" class="ups-chip" data-ups-meal="' + escHtml(String(d.item.id)) + '">' + escHtml(d.label) + '</button>'; }).join('') + '</div>';
       } else if (p.kind === 'sweet') {
         html = '<b>Something sweet?</b><span>Our kulfi is the best way to finish.</span>' +
