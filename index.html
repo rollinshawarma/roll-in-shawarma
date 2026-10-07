@@ -1022,6 +1022,21 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
 .ups-chip.ups-go{ background:#1d1d1f; color:#fff; border-color:#1d1d1f; }
 .cart-item-save{ font-size:12.5px; color:#146c3a; font-weight:600; margin-top:2px; }
 
+/* ---- item sheet combo drinks: can photos as buttons ---- */
+.ws-drinks{ display:grid; grid-template-columns:repeat(3, 1fr); gap:12px 8px; }
+.ws-drinks[hidden]{ display:none; }
+@media (min-width:520px){ .ws-drinks{ grid-template-columns:repeat(6, 1fr); } }
+.ws-drink{ position:relative; display:flex; flex-direction:column; align-items:center; gap:5px; padding:0; border:0; border-radius:0; background:none; font-size:12px; font-weight:500; color:var(--muted); line-height:1.15; text-align:center; cursor:pointer; }
+.ws-drink img{ display:block; width:52px; height:70px; object-fit:cover; border-radius:12px; border:2px solid transparent; box-shadow:0 0 0 1.5px var(--line); background:#f5f5f7; transition:transform .15s ease, box-shadow .15s ease, border-color .15s ease; }
+.ws-drink:hover img{ transform:translateY(-2px); }
+.ws-drink:active img{ transform:scale(0.96); }
+.ws-drink[aria-pressed="true"]{ background:none; color:var(--ink); font-weight:600; }
+.ws-drink[aria-pressed="true"] img{ border-color:#fff; box-shadow:0 0 0 2.5px var(--ink), 0 6px 14px rgba(0,0,0,0.18); }
+.ws-drink[aria-pressed="true"]::after{ content:'\2713'; position:absolute; top:-5px; left:50%; margin-left:16px; width:20px; height:20px; border-radius:50%; background:var(--ink); color:#fff; font-size:12px; font-weight:700; line-height:20px; text-align:center; }
+.ws-drink.noimg{ padding:9px 12px; border-radius:999px; background:#fff; border:1.5px solid var(--line); color:var(--ink); }
+.ws-drink.noimg[aria-pressed="true"]{ background:var(--ink); border-color:var(--ink); color:#fff; }
+.ws-drink.noimg::after{ display:none; }
+
 /* ---- member alerts ---- */
 .member-signup-form .opt{ font-weight:400; color:var(--muted); }
 .member-signup-form .zip-hint{ margin:-6px 0 14px; text-align:left; font-size:13px; }
@@ -3157,7 +3172,9 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         html += '<div class="ws-combo"><label><input type="checkbox" id="wsComboToggle"' + (wsSheet.combo ? ' checked' : '') + '>' +
           '<span><strong>Make it a combo</strong><span class="sub">Adds fries and a drink for ' + wsMoney(item.combo_upcharge) + ' more</span></span></label>' +
           '<div class="ws-drinks" id="wsDrinks"' + (wsSheet.combo ? '' : ' hidden') + ' role="group" aria-label="Choose your drink">' +
-          wsComboDrinks().map(function(d){ return '<button type="button" class="ws-drink" data-ws-drink="' + escHtml(d) + '" aria-pressed="' + (wsSheet.drink === d) + '">' + escHtml(d) + '</button>'; }).join('') +
+          wsComboDrinks().map(function(d){ return '<button type="button" class="ws-drink" data-ws-drink="' + escHtml(d) + '" aria-pressed="' + (wsSheet.drink === d) + '" title="' + escHtml(d) + '">' +
+            '<img src="item-combo-drink-' + d.toLowerCase().replace(/[^a-z0-9]+/g, '-') + '.jpg" alt="" loading="lazy" onerror="this.parentNode.classList.add(\'noimg\');this.remove()">' +
+            '<span>' + escHtml(d) + '</span></button>'; }).join('') +
           '</div></div>';
       }
       if (window.RollinIngredients && wsNoteOk(item)) html += window.RollinIngredients.noteHtml(wsSheet.note);
