@@ -6,7 +6,7 @@
 <title>Order Here — Roll-In Shawarma</title>
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <meta name="robots" content="noindex">
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
 <script src="deals.js"></script>
 <script src="ingredients.js"></script>
@@ -445,6 +445,282 @@
     #idleScreen p{ font-size:17px; }
     #startOrderBtn{ font-size:22px; padding:22px 48px; }
   }
+
+  /* =====================================================================
+     KIOSK v2 -- industry-standard self-order layout
+     Light theme (readable in daylight at the truck window), big photos,
+     60px+ touch targets, category rail + one category at a time, an order
+     bar that is always visible, step indicator, accessibility (reach) mode.
+     Colours: white base, neutral grey surfaces, charcoal ink, saffron
+     (from the logo) for actions and selection, chili red for deals.
+     ===================================================================== */
+  :root{
+    --black:#FFFFFF;          /* page background */
+    --panel:#F3F3F1;          /* surfaces */
+    --panel-2:#E8E7E3;
+    --white:#17130F;          /* strong text */
+    --cream:#2B2620;          /* body text */
+    --muted:#6B655D;
+    --gold:#F5A623;           /* saffron: actions, selection */
+    --gold-ink:#2A1700;
+    --red:#C8281C;            /* chili: deals, errors */
+    --green:#1F8A4C;
+    --line:#E2E0DB;
+    --display:"Barlow Condensed","Arial Narrow","Inter",sans-serif;
+    --ing-line:#D9D6CF; --ing-card:#FFFFFF; --ing-ink:#17130F; --ing-muted:#6B655D;
+  }
+  body{ background:#fff; color:var(--cream); font-size:18px; }
+  :focus-visible{ outline:4px solid #0A6CFF; outline-offset:3px; }
+
+  /* ---------- attract screen ---------- */
+  #idleScreen{ background:#120c06; justify-content:flex-end; align-items:stretch; text-align:left; padding:0; overflow:hidden; cursor:pointer; }
+  #idleScreen .at-photo{ position:absolute; inset:0; background:url(menu-shawarma.jpg) center 35% / cover no-repeat, #2b1708; }
+  #idleScreen .at-photo::after{ content:''; position:absolute; inset:0; background:linear-gradient(180deg, rgba(18,12,6,.15) 0%, rgba(18,12,6,.25) 40%, rgba(18,12,6,.92) 78%, #120c06 100%); }
+  .at-top{ position:absolute; top:28px; left:32px; display:flex; align-items:center; gap:14px; color:#fff; font-family:var(--display); font-size:30px; font-weight:800; z-index:2; }
+  #idleScreen .at-top img.logo{ width:72px; height:72px; margin:0; box-shadow:0 6px 20px rgba(0,0,0,.35); border-radius:50%; }
+  .at-main{ position:relative; z-index:2; padding:0 56px 64px; max-width:900px; }
+  .at-promo{ display:inline-block; background:var(--red); color:#fff; font-size:22px; font-weight:800; padding:10px 20px; border-radius:999px; margin-bottom:22px; }
+  #idleScreen h1{ font-family:var(--display); font-size:104px; line-height:.92; font-weight:800; color:#fff; margin:0 0 20px; letter-spacing:-.5px; }
+  #idleScreen p{ font-size:26px; line-height:1.35; color:rgba(255,255,255,.85); margin:0 0 40px; max-width:640px; }
+  #startOrderBtn{ background:var(--gold); color:var(--gold-ink); font-size:34px; font-weight:800; padding:30px 72px; border-radius:22px; box-shadow:0 18px 40px rgba(0,0,0,.35); animation:none; }
+  .at-reach{ position:absolute; z-index:2; right:28px; top:36px; }
+  @media (prefers-reduced-motion: no-preference){
+    #idleScreen .at-photo{ animation:atZoom 18s ease-in-out infinite alternate; }
+    @keyframes atZoom{ from{ transform:scale(1); } to{ transform:scale(1.07); } }
+  }
+
+  /* ---------- header + steps ---------- */
+  .kiosk-header{ background:#fff; padding:14px 24px; gap:16px; border-bottom:1px solid var(--line); }
+  .kh-brand{ display:flex; align-items:center; gap:12px; min-width:0; }
+  .kh-brand img{ width:48px; height:48px; border-radius:50%; flex:none; }
+  .kiosk-header h2{ font-family:var(--display); font-size:32px; font-weight:800; color:var(--white); white-space:nowrap; }
+  .kh-actions{ display:flex; align-items:center; gap:10px; }
+  #startOverBtn{ color:var(--cream); border:2px solid var(--line); font-size:18px; font-weight:700; padding:12px 22px; border-radius:999px; min-height:56px; }
+  .reach-btn{ background:#fff; color:#0A4FC2; border:2px solid #BFD3F5; font-size:18px; font-weight:700; padding:12px 20px; border-radius:999px; min-height:56px; white-space:nowrap; }
+  .reach-btn[aria-pressed="true"]{ background:#0A4FC2; color:#fff; border-color:#0A4FC2; }
+  .ksteps{ list-style:none; display:flex; align-items:center; gap:8px; margin:0 auto; padding:0; counter-reset:ks; }
+  .ksteps li{ counter-increment:ks; display:flex; align-items:center; gap:8px; font-size:16px; font-weight:700; color:var(--muted); white-space:nowrap; }
+  .ksteps li::before{ content:counter(ks); width:30px; height:30px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center; background:var(--panel-2); color:var(--muted); font-size:15px; font-weight:800; }
+  .ksteps li + li::after{ content:none; }
+  .ksteps li + li{ padding-left:22px; position:relative; }
+  .ksteps li + li::marker{ content:''; }
+  .ksteps li + li > *{ }
+  .ksteps li.on{ color:var(--white); }
+  .ksteps li.on::before{ background:var(--gold); color:var(--gold-ink); }
+  .ksteps li.done::before{ content:'\2713'; background:var(--green); color:#fff; }
+  .ksteps li + li:not(:first-child)::after{ content:''; position:absolute; left:4px; top:50%; width:12px; height:2px; background:var(--line); }
+  .ksteps-center{ justify-content:center; margin:0 auto 22px; }
+
+  /* ---------- order screen layout ---------- */
+  #orderScreen{ background:#fff; }
+  .order-split{ display:grid; grid-template-columns:216px minmax(0,1fr) 380px; grid-template-rows:minmax(0,1fr); }
+  .cat-rail{ overflow-y:auto; background:var(--panel); border-right:1px solid var(--line); padding:12px 10px 120px; display:flex; flex-direction:column; gap:6px; }
+  .cat-rail .category-row{ display:flex; flex-direction:column; align-items:center; justify-content:center; gap:6px; width:100%; min-height:128px; padding:12px 8px; border-radius:18px; background:transparent; color:var(--cream); font-size:18px; font-weight:700; text-align:center; position:relative; border:3px solid transparent; }
+  .cat-rail .category-row .cr-img{ width:88px; height:72px; display:flex; align-items:center; justify-content:center; }
+  .cat-rail .category-row .cr-img img{ max-width:100%; max-height:100%; object-fit:contain; border-radius:12px; }
+  .cat-rail .category-row .cr-name{ line-height:1.15; }
+  .cat-rail .category-row.active{ background:#fff; border-color:var(--gold); color:var(--white); box-shadow:0 4px 14px rgba(0,0,0,.06); }
+  .cat-rail .category-row .taco-tag{ margin:0; font-size:13px; background:var(--red); color:#fff; }
+  .menu-wrap{ padding:22px 26px 140px; background:#fff; }
+  #categoryList .category-block{ display:none; border:0; background:none; margin:0; border-radius:0; overflow:visible; }
+  #categoryList .category-block.expanded{ display:block; }
+  #categoryList .category-expanded{ max-height:none; overflow:visible; background:none; transition:none; }
+  .cat-title{ font-family:var(--display); font-size:46px; line-height:1; font-weight:800; color:var(--white); margin:2px 0 4px; }
+  .cat-title .taco-tag{ font-family:"Inter",sans-serif; font-size:16px; background:var(--red); color:#fff; vertical-align:10px; }
+  #dealsSection{ margin-top:28px; background:#FFF6E6; border:2px solid #F5C77A; }
+  #dealsSection .deals-heading{ color:var(--white); font-size:24px; }
+  .deal-checkin-text{ color:var(--cream); font-size:18px; }
+  .deal-checkin-btn, .deal-card-btn{ min-height:56px; font-size:18px; padding:14px 26px; color:var(--gold-ink); }
+
+  /* ---------- item cards ---------- */
+  .items-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(232px, 1fr)); gap:18px; padding:18px 0 0; }
+  .item-tile, .select-tile{ max-width:none; background:#fff; border:1px solid var(--line); border-radius:22px; box-shadow:0 2px 10px rgba(23,19,15,.05); }
+  .item-tile-photo, .item-tile-photo-placeholder{ aspect-ratio:4/3; object-fit:cover; background:var(--panel); }
+  .item-tile-body{ padding:14px 16px 16px; }
+  .item-tile-name{ font-size:21px; font-weight:800; color:var(--white); min-height:2.5em; }
+  .item-tile-desc{ font-size:15px; color:var(--muted); line-height:1.35; margin-top:4px; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .item-tile-price{ font-size:22px; font-weight:800; color:var(--white); margin-top:8px; }
+  .add-to-cart-btn, .select-tile-plus{ min-height:60px; font-size:20px; border-radius:16px; padding:14px 16px; background:var(--gold); color:var(--gold-ink); }
+  .add-to-cart-btn:active, .select-tile-plus:active{ background:#E0921A; }
+  .item-tile-control{ padding-top:12px; }
+  .item-qty-stepper{ gap:14px; }
+  .item-qty-btn{ width:60px; height:60px; font-size:28px; font-weight:700; background:#fff; border:2px solid var(--line); color:var(--white); }
+  .item-qty-btn:active{ background:var(--gold); border-color:var(--gold); }
+  .item-qty-value{ min-width:30px; font-size:24px; color:var(--white); }
+  .item-tile-badge-row{ top:12px; right:12px; }
+  .qty-pill{ min-width:40px; height:40px; font-size:18px; color:var(--gold-ink); box-shadow:0 2px 8px rgba(0,0,0,.18); }
+  .combo-tile{ border:2px solid var(--gold); background:#FFFBF2; }
+  .combo-tile .item-tile-name{ color:var(--white); }
+  .combo-tile-disabled{ background:var(--panel); border-color:var(--line); }
+  /* options slide-over inside a card */
+  .select-tile-overlay{ background:#fff; width:100%; }
+  .select-tile-overlay-close{ width:48px; height:48px; font-size:24px; margin:8px 8px 4px 0; background:var(--panel); color:var(--white); }
+  .select-tile-overlay-scroll{ padding:0 12px 12px; }
+  .protein-choice-row{ min-height:64px; padding:12px 14px; border-radius:14px; background:var(--panel); border:2px solid transparent; }
+  .protein-choice-row:active{ border-color:var(--gold); background:#FFF6E6; }
+  .protein-choice-name{ font-size:19px; color:var(--white); }
+  .protein-choice-row .item-qty-btn{ width:40px; height:40px; font-size:22px; }
+  .protein-choice-row .item-qty-value{ font-size:18px; min-width:22px; }
+  .combo-drink-thumb{ width:64px; height:86px; border-color:var(--line); }
+  .combo-drink-name{ font-size:15px; color:var(--white); }
+
+  /* ---------- order panel (landscape: right side) ---------- */
+  .cart-panel{ width:auto; background:var(--panel); border-left:1px solid var(--line); min-height:0; }
+  .cart-panel-header{ display:flex; align-items:baseline; gap:10px; width:100%; text-align:left; background:none; border:0; padding:22px 24px 14px; border-bottom:1px solid var(--line); cursor:default; color:var(--white); }
+  .cph-title{ font-family:var(--display); font-size:32px; font-weight:800; color:var(--white); }
+  .cph-count{ font-size:17px; font-weight:700; color:var(--muted); margin-right:auto; }
+  .cph-total, .cph-chev{ display:none; }
+  .cart-panel .cart-view-list{ padding:4px 20px; }
+  .cart-view-row{ padding:16px 0; }
+  .cart-view-name{ font-size:19px; color:var(--white); }
+  .cart-view-note, .checkout-item-note{ color:var(--red); font-size:15px; }
+  .cart-view-linetotal{ font-size:16px; color:var(--muted); }
+  .cart-qty-btn{ width:52px; height:52px; font-size:26px; background:#fff; border:2px solid var(--line); color:var(--white); }
+  .cart-qty-value{ font-size:20px; color:var(--white); }
+  .cart-panel-footer{ padding:18px 24px 24px; background:#fff; }
+  .cart-view-total-row{ font-size:24px; color:var(--white); }
+  .cart-view-total-row span{ color:var(--white); }
+  #proceedToCheckoutBtn{ min-height:72px; font-size:24px; border-radius:18px; background:var(--gold); color:var(--gold-ink); }
+  .cart-panel:not(.has-items) #proceedToCheckoutBtn{ background:var(--panel-2); color:var(--muted); }
+  #clearCartBtn{ font-size:17px; min-height:48px; color:var(--red); }
+  .empty-hint{ color:var(--muted); font-size:18px; }
+  .cart-panel.bump{ animation:kBump .45s ease-out; }
+  @keyframes kBump{ 0%{ box-shadow:inset 0 0 0 0 rgba(245,166,35,0); } 30%{ box-shadow:inset 0 0 0 6px rgba(245,166,35,.55); } 100%{ box-shadow:inset 0 0 0 0 rgba(245,166,35,0); } }
+
+  /* ---------- portrait: order bar along the bottom, opens as a sheet ---------- */
+  @media (orientation: portrait){
+    .order-split{ grid-template-columns:184px minmax(0,1fr); }
+    .cart-panel{ position:fixed; left:0; right:0; bottom:0; z-index:60; display:grid; grid-template-columns:minmax(0,1fr) 340px; grid-template-rows:auto; align-items:center;
+      border-left:0; border-top:1px solid var(--line); background:#fff; box-shadow:0 -10px 30px rgba(23,19,15,.10); padding:12px 20px calc(12px + env(safe-area-inset-bottom)); }
+    .cart-panel-header{ border:0; padding:6px 4px; cursor:pointer; align-items:center; }
+    .cart-panel.has-items .cph-total{ display:inline; font-size:26px; font-weight:800; color:var(--white); }
+    .cart-panel.has-items .cph-chev{ display:inline-block; width:14px; height:14px; border-right:3px solid var(--muted); border-bottom:3px solid var(--muted); transform:rotate(-135deg) translateY(-3px); margin-left:12px; }
+    .cart-panel.open .cph-chev{ transform:rotate(45deg) translateY(-3px); }
+    .cart-panel .cart-view-list{ display:none; }
+    .cart-panel-footer{ padding:0; background:none; border:0; }
+    .cart-panel .cart-view-total-row, .cart-panel #clearCartBtn{ display:none; }
+    #proceedToCheckoutBtn{ min-height:76px; }
+    .cart-panel.open{ grid-template-columns:1fr; grid-template-rows:auto minmax(0,1fr) auto; max-height:72vh; border-radius:26px 26px 0 0; }
+    .cart-panel.open .cart-view-list{ display:block; overflow-y:auto; padding:0 6px; border-top:1px solid var(--line); }
+    .cart-panel.open .cart-panel-footer{ padding-top:12px; }
+    .cart-panel.open #clearCartBtn{ display:block; }
+    .menu-wrap{ padding-bottom:160px; }
+    .cat-rail{ padding-bottom:140px; }
+  }
+
+  /* ---------- checkout + tip ---------- */
+  #checkoutScreen, #tipScreen{ background:#fff; }
+  .checkout-body{ max-width:720px; padding:36px 32px; }
+  .checkout-body h2{ font-family:var(--display); font-size:52px; line-height:1; color:var(--white); }
+  .checkout-items-list{ background:var(--panel); border:0; border-radius:20px; padding:18px 22px; }
+  .checkout-item-row{ font-size:19px; padding:10px 0; }
+  .checkout-item-row .nm{ color:var(--white); }
+  .checkout-item-row .amt{ color:var(--cream); }
+  .checkout-breakdown-row{ font-size:17px; }
+  .checkout-total-row{ font-size:28px; color:var(--white); }
+  .checkout-total-row span, .tip-final-total-row span{ color:var(--white); }
+  .kiosk-field label{ font-size:17px; color:var(--cream); text-transform:none; letter-spacing:0; }
+  .kiosk-field input{ background:#fff; border:2px solid var(--line); color:var(--white); font-size:26px; padding:20px 20px; border-radius:16px; min-height:76px; }
+  .kiosk-field input:focus{ border-color:var(--gold); box-shadow:0 0 0 4px rgba(245,166,35,.25); }
+  .skip-email-btn{ font-size:17px; min-height:48px; color:var(--muted); }
+  .checkout-footer{ max-width:720px; padding:20px 32px 28px; background:#fff; }
+  #exploreOtherPaymentsBtn{ min-height:76px; font-size:24px; border-radius:18px; color:var(--gold-ink); }
+  #kioskBackBtn, #tipBackBtn{ font-size:19px; min-height:56px; padding:12px 24px; color:var(--cream); border:2px solid var(--line); border-radius:999px; }
+  #kioskCheckoutMsg{ font-size:17px; }
+  .tip-total-line{ font-size:19px; color:var(--cream); text-align:center; }
+  .tip-options-grid{ grid-template-columns:repeat(3, 1fr); gap:14px; }
+  .tip-option-btn{ min-height:104px; background:#fff; border:2px solid var(--line); border-radius:18px; color:var(--white); }
+  .tip-option-btn .tip-option-label{ font-size:24px; font-weight:800; }
+  .tip-option-btn .tip-option-amount{ font-size:18px; color:var(--muted); }
+  .tip-option-btn.selected{ border-color:var(--gold); background:#FFF6E6; box-shadow:0 0 0 3px rgba(245,166,35,.35); }
+  .tip-option-btn.selected .tip-option-amount{ color:var(--white); }
+  .tip-final-total-row{ font-size:28px; color:var(--white); }
+  .tip-choose-hint{ font-size:17px; }
+  .payment-methods-row{ gap:14px; }
+  .payment-method-btn{ min-height:110px; font-size:21px; gap:10px; border-radius:20px; background:#fff; color:var(--white); border:2px solid var(--line); }
+  .payment-method-btn svg{ width:34px; height:34px; }
+  .payment-method-btn-highlighted:not(:disabled){ background:var(--gold); color:var(--gold-ink); border-color:var(--gold); box-shadow:0 10px 24px rgba(245,166,35,.35); }
+  .payment-method-btn.payment-method-btn-large{ min-height:96px; font-size:24px; color:var(--gold-ink); }
+  .reader-btn-text small{ font-size:16px; }
+
+  /* ---------- modals and other screens on the light theme ---------- */
+  .ing-modal{ background:rgba(23,19,15,.55); }
+  .ing-modal-card{ background:#fff; border:0; box-shadow:0 30px 80px rgba(0,0,0,.35); width:min(760px, 100%); }
+  .ing-modal-head h2{ font-family:var(--display); font-size:40px; color:var(--white); }
+  .ing-modal-head .price{ color:var(--white); font-size:22px; }
+  .ing-badge{ box-shadow:0 0 0 3px #fff; color:var(--gold-ink); }
+  .ing-chip.is-off .ing-name{ color:var(--red); }
+  #ingModalCancel{ color:var(--cream); border:2px solid var(--line); }
+  #ingModalAdd{ color:var(--gold-ink); }
+  .ing-modal-actions button{ height:76px; font-size:22px; }
+  #dealPickerOverlay{ background:rgba(23,19,15,.55); }
+  .deal-picker-panel{ background:#fff; border:0; max-width:680px; box-shadow:0 30px 80px rgba(0,0,0,.35); }
+  .deal-picker-title{ font-family:var(--display); font-size:36px; }
+  .deal-picker-step-label{ font-size:18px; color:var(--cream); }
+  .deal-picker-option{ background:#fff; color:var(--white); font-size:20px; min-height:68px; border-radius:16px; }
+  .deal-picker-option.selected{ background:#FFF6E6; }
+  .deal-picker-minus{ width:44px; height:44px; font-size:24px; background:#fff; color:var(--white); }
+  .deal-picker-option-count{ min-width:32px; height:32px; font-size:16px; color:var(--gold-ink); }
+  .deal-picker-next, .deal-picker-back{ min-height:64px; font-size:20px; }
+  .deal-picker-next{ color:var(--gold-ink); }
+  .deal-picker-close{ font-size:36px; }
+  #memberCheckInScreen, #memberDealsScreen{ background:#fff; }
+  .member-screen-title{ font-family:var(--display); font-size:46px; }
+  .member-checkin-hint{ font-size:18px; color:var(--cream); }
+  .member-id-input{ background:#fff; color:var(--white); font-size:30px; min-height:80px; }
+  .member-screen-back{ font-size:19px; color:var(--cream); min-height:56px; }
+  .deal-card{ background:#fff; }
+  .deal-card-info .deal-name{ font-size:21px; }
+  .deal-card-info .deal-desc{ font-size:16px; }
+  .deal-card-price{ color:var(--white); font-size:22px; }
+  #scanToPayScreen{ background:#fff; }
+  #scanToPayScreen h2{ font-family:var(--display); font-size:56px; }
+  #scanToPayScreen p{ font-size:21px; color:var(--cream); max-width:560px; }
+  #qrCodeCanvas{ background:#fff !important; box-shadow:0 0 0 2px var(--line), 0 18px 40px rgba(0,0,0,.08); }
+  .scan-total{ font-size:30px; color:var(--white); }
+  .scan-waiting{ font-size:18px; }
+  #scanCheckNowBtn{ min-height:64px; font-size:20px; background:#fff; color:var(--white); border:2px solid var(--line); }
+  #scanCancelBtn{ font-size:19px; min-height:56px; color:var(--cream); }
+  #orderConfirmedScreen{ background:radial-gradient(circle at 50% 22%, rgba(31,138,76,.12), #fff 62%); }
+  #orderConfirmedScreen h2{ font-family:var(--display); font-size:64px; color:var(--white); }
+  .confirm-badge{ width:120px; height:120px; background:rgba(31,138,76,.12); }
+  .confirm-badge svg{ width:60px; height:60px; }
+  .confirm-order-number-box{ background:#fff; border:3px solid var(--gold); padding:26px 44px; }
+  .confirm-order-number-label{ font-size:16px; color:var(--cream); text-transform:none; letter-spacing:0; }
+  .confirm-order-number-value{ font-family:var(--display); font-size:88px; line-height:1; color:var(--white); }
+  #orderConfirmedScreen p{ font-size:22px; color:var(--cream); }
+  .confirm-items{ font-size:18px; color:var(--cream); }
+  .confirm-countdown{ font-size:17px; }
+  .inactivity-ring-number{ color:var(--white); }
+  .inactivity-ring-bg{ stroke:rgba(23,19,15,.12); }
+  #inactivityTimer{ background:#fff; border-radius:50%; box-shadow:0 6px 20px rgba(0,0,0,.15); width:76px; height:76px; bottom:120px; }
+
+  /* ---------- accessibility (reach) mode ----------
+     Everything moves into the lower part of the screen so it can be
+     reached from a wheelchair, and text gets bigger. */
+  body.reach #orderScreen, body.reach #checkoutScreen, body.reach #tipScreen, body.reach #scanToPayScreen,
+  body.reach #memberCheckInScreen, body.reach #memberDealsScreen{ top:34vh; border-top:6px solid #0A4FC2; border-radius:28px 28px 0 0; overflow:hidden; }
+  body.reach{ background:#E9EEF8; }
+  .reach-note{ display:none; }
+  body.reach .reach-note{ display:flex; position:fixed; top:0; left:0; right:0; height:34vh; align-items:center; justify-content:center; padding:0 40px; text-align:center;
+    font-size:26px; font-weight:700; color:#0A4FC2; }
+  body.reach .cat-title{ font-size:40px; }
+  body.reach .item-tile-name{ font-size:23px; }
+  body.reach .kiosk-header h2, body.reach .ksteps{ display:none; }
+  body.reach #dealPickerOverlay, body.reach .ing-modal{ align-items:flex-end; }
+  body.reach .ing-modal-card, body.reach .deal-picker-panel{ max-height:64vh; }
+
+  /* small screens (testing on a phone) */
+  @media (max-width:820px){
+    .ksteps{ display:none; }
+    #idleScreen h1{ font-size:64px; }
+    .at-main{ padding:0 28px 48px; }
+    .order-split{ grid-template-columns:132px minmax(0,1fr); }
+    .cat-rail .category-row{ min-height:104px; font-size:15px; }
+    .cat-rail .category-row .cr-img{ width:64px; height:52px; }
+    .cart-panel{ grid-template-columns:minmax(0,1fr) 200px; }
+    .tip-options-grid{ grid-template-columns:1fr 1fr; }
+  }
 </style>
 </head>
 <body>
@@ -457,11 +733,17 @@
   <span class="inactivity-ring-number" id="inactivityRingNumber">15</span>
 </div>
 
+<div class="reach-note" aria-hidden="true">Accessibility mode is on: everything is in reach below.</div>
 <div id="idleScreen">
-  <img class="logo" src="logo.jpg" alt="Roll-In Shawarma">
-  <h1>Roll-In Shawarma</h1>
-  <p>Middle Eastern &amp; Indian fusion, made fresh to order.</p>
-  <button type="button" id="startOrderBtn">Tap to Start Your Order</button>
+  <div class="at-photo" aria-hidden="true"></div>
+  <div class="at-top"><img class="logo" src="logo.jpg" alt=""><span>Roll-In Shawarma</span></div>
+  <div class="at-main">
+    <div class="at-promo hidden" id="attractPromo"></div>
+    <h1>Hot off the grill.<br>Rolled to order.</h1>
+    <p>Shawarma, frankie rolls, bowls and tacos. Order here and we&rsquo;ll call your name.</p>
+    <button type="button" id="startOrderBtn">Touch to order</button>
+  </div>
+  <button type="button" class="reach-btn at-reach" id="attractReachBtn" aria-pressed="false">&#9855; Accessibility</button>
 </div>
 
 <div id="memberCheckInScreen" class="hidden">
@@ -500,21 +782,28 @@
 
 <div id="orderScreen" class="hidden">
   <div class="kiosk-header">
-    <h2>Build Your Order</h2>
-    <button type="button" id="startOverBtn">Start Over</button>
+    <div class="kh-brand"><img src="logo.jpg" alt=""><h2>Build Your Order</h2></div>
+    <ol class="ksteps" aria-label="Steps"><li class="on">Order</li><li>Your name</li><li>Pay</li></ol>
+    <div class="kh-actions">
+      <button type="button" class="reach-btn" id="reachBtn" aria-pressed="false">&#9855; Accessibility</button>
+      <button type="button" id="startOverBtn">Start over</button>
+    </div>
   </div>
   <div class="order-split">
+    <nav class="cat-rail" id="categoryRail" aria-label="Menu categories"></nav>
     <div class="menu-wrap">
       <div id="categoryList"></div>
       <div id="dealsSection" class="hidden"></div>
     </div>
-    <div class="cart-panel">
-      <div class="cart-panel-header">Your Order</div>
+    <div class="cart-panel" id="cartPanel">
+      <button type="button" class="cart-panel-header" id="cartPanelHead" aria-expanded="false">
+        <span class="cph-title">Your order</span><span class="cph-count" id="cartCount">0 items</span><span class="cph-total" id="cartBarTotal">$0.00</span><span class="cph-chev" aria-hidden="true"></span>
+      </button>
       <div class="cart-view-list" id="cartViewList"></div>
       <div class="cart-panel-footer">
         <div class="cart-view-total-row">Total <span id="cartViewTotal">$0.00</span></div>
-        <button type="button" id="proceedToCheckoutBtn">Proceed to Checkout</button>
-        <button type="button" id="clearCartBtn">Clear Cart</button>
+        <button type="button" id="proceedToCheckoutBtn">Review &amp; pay</button>
+        <button type="button" id="clearCartBtn">Clear order</button>
       </div>
     </div>
   </div>
@@ -526,13 +815,14 @@
     <div id="ingModalChips"></div>
     <div class="ing-modal-actions">
       <button type="button" id="ingModalCancel">Cancel</button>
-      <button type="button" id="ingModalAdd">Add to Cart</button>
+      <button type="button" id="ingModalAdd">Add to order</button>
     </div>
   </div>
 </div>
 
 <div id="checkoutScreen" class="hidden">
   <div class="checkout-body">
+    <ol class="ksteps ksteps-center" aria-label="Steps"><li class="done">Order</li><li class="on">Your name</li><li>Pay</li></ol>
     <h2>Almost there!</h2>
     <div class="checkout-items-list" id="checkoutItemsList"></div>
     <div class="checkout-breakdown-row">Subtotal <span id="checkoutSubtotalDisplay">$0.00</span></div>
@@ -561,7 +851,8 @@
 
 <div id="tipScreen" class="hidden">
   <div class="checkout-body">
-    <h2>Add a Tip?</h2>
+    <ol class="ksteps ksteps-center" aria-label="Steps"><li class="done">Order</li><li class="done">Your name</li><li class="on">Pay</li></ol>
+    <h2>Add a tip?</h2>
     <p class="tip-total-line">Order total: <span id="tipBaseTotalDisplay">$0.00</span></p>
     <div class="tip-options-grid" id="tipOptionsGrid"></div>
     <div class="kiosk-field" id="tipCustomFieldWrap" style="display:none;">
@@ -775,7 +1066,7 @@
     // offers that may not apply to wherever the event actually is.
     function refreshDealsSection(){
       var section = document.getElementById('dealsSection');
-      var todayStr = new Date().toISOString().slice(0, 10);
+      var todayStr = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit' }).format(new Date());
 
       sbShared.from('events').select('id')
         .eq('status', 'confirmed')
@@ -922,7 +1213,7 @@
             itemPhotoHtml(deal) +
             '<div class="item-tile-body">' +
               '<div class="item-tile-name">' + escHtml(deal.name) + '</div>' +
-              '<div class="item-tile-control"><button type="button" class="add-to-cart-btn deal-card-btn" data-deal-id="' + deal.id + '">Add to Cart</button></div>' +
+              '<div class="item-tile-control"><button type="button" class="add-to-cart-btn deal-card-btn" data-deal-id="' + deal.id + '">Add to order</button></div>' +
             '</div>' +
           '</div>';
         }).join('') +
@@ -1015,7 +1306,7 @@
 
       var nextBtn = document.getElementById('dealPickerNextBtn');
       var isLastStep = st.stepIndex === st.spec.steps.length - 1;
-      nextBtn.textContent = isLastStep ? 'Add to Cart' : 'Next';
+      nextBtn.textContent = isLastStep ? 'Add to order' : 'Next';
       nextBtn.disabled = currentStepTotal() !== step.count;
     }
 
@@ -1065,7 +1356,7 @@
       document.getElementById('ingModalPrice').textContent = st.deal.name + ' \u00b7 $' + Number(st.deal.price).toFixed(2) + ' \u00b7 optional';
       var ph = document.getElementById('ingModalPhoto'); ph.style.visibility = 'hidden'; ph.removeAttribute('src');
       document.getElementById('ingModalCancel').textContent = 'Add as is';
-      document.getElementById('ingModalAdd').textContent = 'Add to Cart';
+      document.getElementById('ingModalAdd').textContent = 'Add to order';
       renderIngChips();
       document.getElementById('ingModal').classList.remove('hidden');
       return true;
@@ -1115,39 +1406,52 @@
         return;
       }
 
+      // Left rail: one button per category (photo + name). The menu panel
+      // shows one category at a time, like the big chains' kiosks.
+      var railEl = document.getElementById('categoryRail');
+      railEl.innerHTML = categoryOrder.map(function(cat){
+        var img = KIOSK_CAT_IMG[cat];
+        return '<button type="button" class="category-row" data-cat="' + escHtml(cat) + '">' +
+          '<span class="cr-img">' + (img ? '<img src="' + escHtml(img) + '" alt="" loading="lazy" onerror="this.remove()">' : '') + '</span>' +
+          '<span class="cr-name">' + escHtml(cat) + '</span>' +
+          (cat === 'Tacos' && kioskTacoDay ? '<span class="taco-tag">$6.99 today</span>' : '') +
+        '</button>';
+      }).join('');
       listEl.innerHTML = categoryOrder.map(function(cat){
         return '<div class="category-block" data-cat="' + escHtml(cat) + '">' +
-          '<button type="button" class="category-row" data-cat="' + escHtml(cat) + '">' +
-            escHtml(cat) + (cat === 'Tacos' && kioskTacoDay ? ' <span class="taco-tag">\uD83C\uDF2E Taco ' + kioskTacoDay + ': $6.99 today</span>' : '') + '<span class="chev">\u25BC</span>' +
-          '</button>' +
+          '<h3 class="cat-title">' + escHtml(cat) + (cat === 'Tacos' && kioskTacoDay ? ' <span class="taco-tag">\uD83C\uDF2E Taco ' + kioskTacoDay + ': every taco order $6.99</span>' : '') + '</h3>' +
           '<div class="category-expanded" data-cat="' + escHtml(cat) + '"></div>' +
         '</div>';
       }).join('');
 
-      listEl.querySelectorAll('.category-row').forEach(function(btn){
+      railEl.querySelectorAll('.category-row').forEach(function(btn){
         btn.addEventListener('click', function(){ toggleCategory(btn.getAttribute('data-cat')); });
       });
+      // Keep the open category across menu refreshes; start on the first.
+      var keep = expandedCategory && categoryOrder.indexOf(expandedCategory) !== -1 ? expandedCategory : categoryOrder[0];
+      expandedCategory = null;
+      if (keep) toggleCategory(keep);
     }
+    var KIOSK_CAT_IMG = {
+      'Shawarma': 'shawarma-wrap.webp', 'Frankie Rolls': 'tikka-wrap.webp', 'Bowls': 'bowl.webp', 'Tacos': 'tacos.webp',
+      'Loaded Fries': 'loaded-fries.webp', 'Sides': 'item-fries.jpg', 'Kulfi Ice Cream': 'menu-kulfi.jpg', 'Drinks': 'item-soda.jpg'
+    };
 
     // Only one category open at a time -- opening a new one collapses
     // whatever was previously open, back to the plain category list.
     function toggleCategory(cat){
-      var wasExpanded = expandedCategory === cat;
-
-      document.querySelectorAll('.category-block').forEach(function(block){
-        block.classList.remove('expanded');
+      // A category stays open until another one is chosen (no collapsing).
+      if (expandedCategory === cat) return;
+      document.querySelectorAll('.category-block').forEach(function(block){ block.classList.remove('expanded'); });
+      document.querySelectorAll('#categoryRail .category-row').forEach(function(b){
+        var on = b.getAttribute('data-cat') === cat;
+        b.classList.toggle('active', on); b.setAttribute('aria-current', on ? 'true' : 'false');
       });
-
-      if (wasExpanded) {
-        expandedCategory = null;
-        return;
-      }
-
       expandedCategory = cat;
       var block = document.querySelector('.category-block[data-cat="' + cssEscape(cat) + '"]');
       if (block) block.classList.add('expanded');
-
       renderCategoryContent(cat);
+      var wrap = document.querySelector('.menu-wrap'); if (wrap) wrap.scrollTop = 0;
     }
 
     function cssEscape(s){ return String(s).replace(/"/g, '\\"'); }
@@ -1217,7 +1521,7 @@
       // from the left covering 90% of the tile, with the tile's own
       // photo fading to 10% opacity behind it.
       function selectTilePlusHtml(key, disabled){
-        return '<button type="button" class="select-tile-plus"' + (disabled ? ' disabled' : '') + ' data-select-group="' + key + '">Add to Cart</button>';
+        return '<button type="button" class="select-tile-plus"' + (disabled ? ' disabled' : '') + ' data-select-group="' + key + '">Add to order</button>';
       }
       function selectTileOverlayHtml(key, optionsHtml){
         return '<div class="select-tile-overlay" data-select-group="' + key + '">' +
@@ -1389,7 +1693,7 @@
       var line = findLine(itemId);
 
       if (!line) {
-        controlEl.innerHTML = '<button type="button" class="add-to-cart-btn" data-id="' + itemId + '">Add to Cart</button>';
+        controlEl.innerHTML = '<button type="button" class="add-to-cart-btn" data-id="' + itemId + '">Add to order</button>';
         controlEl.querySelector('.add-to-cart-btn').addEventListener('click', function(){ addWithChoices(itemId); });
       } else {
         controlEl.innerHTML =
@@ -1467,7 +1771,7 @@
       var item = itemsById[itemId];
       ingPending = { itemId: itemId, removed: [], added: [], note: '' };
       document.getElementById('ingModalCancel').textContent = 'Cancel';
-      document.getElementById('ingModalAdd').textContent = 'Add to Cart';
+      document.getElementById('ingModalAdd').textContent = 'Add to order';
       document.getElementById('ingModalTitle').textContent = item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : '');
       document.getElementById('ingModalPrice').textContent = '$' + Number(item.price).toFixed(2);
       var ph = document.getElementById('ingModalPhoto');
@@ -1696,6 +2000,15 @@
       }
 
       document.getElementById('cartViewTotal').textContent = '$' + cartTotal().toFixed(2);
+      var n = cart.reduce(function(a, c){ return a + c.quantity; }, 0);
+      document.getElementById('cartCount').textContent = n + (n === 1 ? ' item' : ' items');
+      document.getElementById('cartBarTotal').textContent = '$' + cartTotal().toFixed(2);
+      var panel = document.getElementById('cartPanel');
+      panel.classList.toggle('has-items', n > 0);
+      if (!n) { panel.classList.remove('open'); document.getElementById('cartPanelHead').setAttribute('aria-expanded', 'false'); }
+      // a small bump so the change is noticed from arm's length
+      if (window.__kLastCount != null && n > window.__kLastCount) { panel.classList.remove('bump'); void panel.offsetWidth; panel.classList.add('bump'); }
+      window.__kLastCount = n;
     }
 
     // ---- Screen navigation ----
@@ -1738,6 +2051,33 @@
     }
 
     document.getElementById('startOrderBtn').addEventListener('click', goToOrderScreen);
+    // Touch anywhere on the attract screen to start (except Accessibility).
+    idleScreen.addEventListener('click', function(e){
+      if (e.target.closest('#startOrderBtn, .reach-btn')) return;
+      document.getElementById('startOrderBtn').click();
+    });
+    document.getElementById('cartPanelHead').addEventListener('click', function(){
+      var panel = document.getElementById('cartPanel');
+      if (!panel.classList.contains('has-items')) return;
+      var open = !panel.classList.contains('open');
+      panel.classList.toggle('open', open);
+      this.setAttribute('aria-expanded', open ? 'true' : 'false');
+    });
+    // Accessibility mode (ADA reach range): moves everything into the lower
+    // part of the screen and enlarges text. Ends with the order.
+    function setReach(on){
+      document.body.classList.toggle('reach', on);
+      document.querySelectorAll('.reach-btn').forEach(function(b){ b.setAttribute('aria-pressed', on ? 'true' : 'false'); });
+    }
+    document.querySelectorAll('.reach-btn').forEach(function(b){
+      b.addEventListener('click', function(e){ e.stopPropagation(); setReach(!document.body.classList.contains('reach')); });
+    });
+    // Today's promo on the attract screen (Taco Tuesday / Thursday).
+    (function(){
+      var el = document.getElementById('attractPromo');
+      var day = window.RollinDeals && window.RollinDeals.tacoDay ? window.RollinDeals.tacoDay() : null;
+      if (el && day) { el.textContent = '\uD83C\uDF2E Taco ' + day + ': every taco order $' + Number(window.RollinDeals.tacoPrice || 6.99).toFixed(2); el.classList.remove('hidden'); }
+    })();
     document.getElementById('startOverBtn').addEventListener('click', function(){ window.location.reload(); });
     document.getElementById('proceedToCheckoutBtn').addEventListener('click', goToCheckoutScreen);
     document.getElementById('kioskBackBtn').addEventListener('click', function(){
