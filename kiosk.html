@@ -714,6 +714,43 @@
     .cart-panel{ grid-template-columns:minmax(0,1fr) 200px; }
     .tip-options-grid{ grid-template-columns:1fr 1fr; }
   }
+
+  /* ---------- Member deals: a category in the menu (v3) ---------- */
+  .cat-rail .deals-row{ background:#FFF6E6; border-color:#F5C77A; }
+  .cat-rail .deals-row.active{ background:#fff; border-color:var(--gold); }
+  .cat-rail .deals-row .dr-photo{ max-width:100%; max-height:100%; object-fit:cover; border-radius:12px; }
+  .cat-rail .deals-row .dr-tag{ background:var(--gold); color:var(--gold-ink); }
+  .md-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+  .md-head-text{ min-width:0; flex:1 1 320px; }
+  .md-sub{ margin:8px 0 0; font-size:19px; color:var(--cream); line-height:1.35; }
+  .md-back, .md-checkin{ min-height:60px; padding:14px 26px; border-radius:999px; font-size:19px; font-weight:800; white-space:nowrap; }
+  .md-back{ background:#fff; color:var(--white); border:2px solid var(--line); }
+  .md-checkin{ background:var(--gold); color:var(--gold-ink); border:0; }
+  .md-group{ margin-top:26px; }
+  .md-group-title{ font-family:var(--display); font-size:28px; font-weight:800; text-transform:uppercase; letter-spacing:.03em; color:var(--muted); margin:0 0 12px; }
+  .md-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(300px, 1fr)); gap:18px; }
+  .md-card{ display:flex; flex-direction:column; background:#fff; border:1px solid var(--line); border-radius:22px; overflow:hidden; box-shadow:0 2px 10px rgba(23,19,15,.05); }
+  .md-card.in-order{ border:3px solid var(--green); }
+  .md-photo-wrap{ position:relative; background:var(--panel); aspect-ratio:4/3; }
+  .md-photo{ width:100%; height:100%; object-fit:cover; display:block; }
+  .md-in{ position:absolute; left:12px; top:12px; background:var(--green); color:#fff; font-size:16px; font-weight:800; padding:8px 14px; border-radius:999px; }
+  .md-body{ display:flex; flex-direction:column; gap:10px; padding:16px 18px 18px; flex:1; }
+  .md-top{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .md-name{ margin:0; font-family:var(--display); font-size:32px; line-height:1; font-weight:800; color:var(--white); }
+  .md-serves{ flex:none; font-size:14px; font-weight:800; color:var(--cream); background:var(--panel); border-radius:999px; padding:6px 12px; white-space:nowrap; }
+  .md-blurb{ margin:0; font-size:16px; color:var(--muted); line-height:1.35; }
+  .md-inc{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px; font-size:17px; color:var(--cream); }
+  .md-inc li{ display:flex; align-items:baseline; gap:8px; }
+  .md-inc li b{ min-width:24px; height:24px; border-radius:12px; background:var(--panel); color:var(--white); font-size:14px; display:inline-flex; align-items:center; justify-content:center; flex:none; }
+  .md-inc li.pick b{ background:#FFF0D4; color:var(--gold-ink); }
+  .md-inc li em{ font-style:normal; font-size:13px; font-weight:800; color:#B87100; text-transform:uppercase; letter-spacing:.03em; }
+  .md-foot{ margin-top:auto; padding-top:8px; display:flex; align-items:center; gap:14px; }
+  .md-price{ font-family:var(--display); font-size:36px; font-weight:800; color:var(--white); }
+  .md-foot .deal-card-btn{ flex:1; margin:0; min-height:64px; font-size:20px; border-radius:16px; }
+  .md-foot .deal-card-btn.locked{ background:var(--panel-2); color:var(--white); }
+  /* check-in screen: an obvious way back */
+  #memberCheckInScreen .member-screen-back{ position:fixed; top:24px; left:24px; width:auto; margin:0; background:#fff; border:2px solid var(--line); border-radius:999px; padding:14px 26px; font-size:20px; font-weight:800; color:var(--white); min-height:60px; }
+  #memberCheckInSubmitBtn{ width:100%; min-height:72px; font-size:22px; border-radius:18px; flex:none; }
 </style>
 </head>
 <body>
@@ -738,7 +775,7 @@
 
 <div id="memberCheckInScreen" class="hidden">
   <div class="member-screen-panel">
-    <button type="button" class="member-screen-back" id="memberCheckInBackBtn">&larr; Back to Menu</button>
+    <button type="button" class="member-screen-back" id="memberCheckInBackBtn">&larr; Back to menu</button>
     <div class="member-screen-title">Member Check-In</div>
     <div class="member-checkin-hint">Enter the numbers from your Member ID (e.g. just 48213907 from MEMBER-48213907).</div>
     <input type="text" id="memberIdInput" class="member-id-input" placeholder="48213907" autocapitalize="characters" inputmode="numeric">
@@ -1068,6 +1105,7 @@
             section.classList.add('hidden');
             section.innerHTML = '';
             document.getElementById('memberBtn').classList.add('hidden');
+            paintDealsRail(false);
             return;
           }
           renderDealsSection();
@@ -1085,6 +1123,7 @@
       mb.classList.toggle('in', !!memberVerified);
       mb.textContent = memberVerified ? (memberFirstName ? 'Hi ' + memberFirstName + ' \u00b7 Your deals' : 'Your member deals') : 'Member check-in';
       section.classList.add('hidden'); section.innerHTML = '';
+      paintDealsRail(true);
       return;
 
       if (!memberVerified) {
@@ -1197,6 +1236,9 @@
     });
 
     function openMemberDealsScreen(){
+      showDealsInMenu();
+    }
+    function oldMemberDealsScreen(){
       var dealOrder = window.RollinDeals ? window.RollinDeals.order : Object.keys(dealsByName);
       var deals = dealOrder.filter(function(name){ return dealsByName[name]; }).map(function(name){ return dealsByName[name]; })
         .sort(function(a, b){ return Number(a.price) - Number(b.price); });
@@ -1226,6 +1268,116 @@
       document.getElementById('orderScreen').classList.add('hidden');
       document.getElementById('memberDealsScreen').classList.remove('hidden');
     }
+
+    // ---------------- Member deals category ----------------
+    var dealsAvailable = false, dealsWanted = false;
+    var DEAL_META = {
+      'Treat Yourself':    { group: 'solo',  serves: 'Serves 1' },
+      'Flavor Fiesta':     { group: 'solo',  serves: 'Serves 1\u20132' },
+      'Family Deal':       { group: 'group', serves: 'Serves 3\u20134' },
+      'Dinner Party Deal': { group: 'group', serves: 'Serves 4\u20136' }
+    };
+    var DEAL_GROUPS = [['solo', 'Just for you'], ['group', 'To share'], ['other', 'More deals']];
+    function dealList(){
+      var order = window.RollinDeals ? window.RollinDeals.order : Object.keys(dealsByName);
+      var named = order.filter(function(n){ return dealsByName[n]; });
+      Object.keys(dealsByName).forEach(function(n){ if (named.indexOf(n) === -1) named.push(n); });
+      return named.map(function(n){ return dealsByName[n]; }).filter(function(d){ return DEAL_SPECS[d.name]; })
+        .sort(function(a, b){ return Number(a.price) - Number(b.price); });
+    }
+    function paintDealsRail(show){
+      dealsAvailable = !!show;
+      var rail = document.getElementById('categoryRail'), list = document.getElementById('categoryList');
+      var rb = rail.querySelector('[data-cat="__deals"]'), blk = list.querySelector('.category-block[data-cat="__deals"]');
+      if (!show || !dealList().length) {
+        dealsAvailable = false;
+        if (rb) rb.remove(); if (blk) blk.remove();
+        if (expandedCategory === '__deals') { expandedCategory = null; if (categoryOrder[0]) toggleCategory(categoryOrder[0]); }
+        dealsWanted = false;
+        return;
+      }
+      if (!rb) {
+        rb = document.createElement('button'); rb.type = 'button'; rb.className = 'category-row deals-row'; rb.setAttribute('data-cat', '__deals');
+        rb.addEventListener('click', function(){ toggleCategory('__deals'); });
+        rail.insertBefore(rb, rail.firstChild);
+      }
+      var first = dealList()[0];
+      rb.innerHTML = '<span class="cr-img">' + (first ? itemPhotoHtml(first).replace('item-tile-photo', 'dr-photo') : '') + '</span>' +
+        '<span class="cr-name">Member deals</span><span class="taco-tag dr-tag">' + (memberVerified ? '\u2713 Checked in' : 'Members') + '</span>';
+      rb.classList.toggle('active', expandedCategory === '__deals');
+      if (!blk) {
+        blk = document.createElement('div'); blk.className = 'category-block'; blk.setAttribute('data-cat', '__deals');
+        blk.innerHTML = '<div class="category-expanded md-panel" data-cat="__deals"></div>';
+        list.insertBefore(blk, list.firstChild);
+      }
+      if (expandedCategory === '__deals') { blk.classList.add('expanded'); renderDealsPanel(); }
+      if (dealsWanted) { dealsWanted = false; showDealsInMenu(); }
+    }
+    function showDealsInMenu(){
+      document.getElementById('memberCheckInScreen').classList.add('hidden');
+      document.getElementById('memberDealsScreen').classList.add('hidden');
+      document.getElementById('orderScreen').classList.remove('hidden');
+      if (!dealsAvailable) return;
+      expandedCategory = null;
+      toggleCategory('__deals');
+    }
+    function dealIncludesHtml(spec){
+      var cnt = {}, order = [];
+      spec.fixed.forEach(function(n){ if (!cnt[n]) { cnt[n] = 0; order.push(n); } cnt[n]++; });
+      var li = order.map(function(n){ return '<li><b>' + cnt[n] + '</b> ' + escHtml(n) + '</li>'; });
+      spec.steps.forEach(function(st){
+        var t = String(st.label).replace(/^Choose\s+(your\s+)?/i, '');
+        if (!/^\d/.test(t)) t = st.count + ' ' + t;
+        var m = t.match(/^(\d+)\s+(.*)$/);
+        li.push('<li class="pick"><b>' + m[1] + '</b> ' + escHtml(m[2].charAt(0).toUpperCase() + m[2].slice(1)) + ' <em>your pick</em></li>');
+      });
+      return '<ul class="md-inc">' + li.join('') + '</ul>';
+    }
+    function renderDealsPanel(){
+      var el = document.querySelector('.category-expanded[data-cat="__deals"]');
+      if (!el) return;
+      var inCart = {};
+      cart.forEach(function(c){ if (dealsByName[c.name] && dealsByName[c.name].id === c.menu_item_id) inCart[c.name] = (inCart[c.name] || 0) + c.quantity; });
+      var deals = dealList();
+      var head = '<div class="md-head">' +
+        '<div class="md-head-text"><h3 class="cat-title">Member deals</h3>' +
+          '<p class="md-sub">' + (memberVerified
+            ? (memberFirstName ? 'Hi ' + escHtml(memberFirstName) + '! ' : '') + 'You\u2019re checked in. Pick a deal, then choose what goes in it.'
+            : 'For Roll-In members. Check in with your Member ID to order these.') + '</p></div>' +
+        (memberVerified
+          ? '<button type="button" class="md-back" data-md="back">\u2190 Back to menu</button>'
+          : '<button type="button" class="md-checkin" data-md="checkin">Member check-in</button>') +
+      '</div>';
+      var body = DEAL_GROUPS.map(function(g){
+        var list = deals.filter(function(d){ return ((DEAL_META[d.name] || {}).group || 'other') === g[0]; });
+        if (!list.length) return '';
+        return '<section class="md-group"><h4 class="md-group-title">' + g[1] + '</h4><div class="md-grid">' + list.map(function(d){
+          var meta = DEAL_META[d.name] || {}, spec = DEAL_SPECS[d.name], n = inCart[d.name] || 0;
+          var blurb = window.RollinDeals && window.RollinDeals.specs && window.RollinDeals.specs[d.name] && window.RollinDeals.specs[d.name].blurb;
+          return '<article class="md-card' + (n ? ' in-order' : '') + '">' +
+            '<div class="md-photo-wrap">' + itemPhotoHtml(d).replace('item-tile-photo', 'md-photo') + (n ? '<span class="md-in">\u2713 ' + n + ' in your order</span>' : '') + '</div>' +
+            '<div class="md-body">' +
+              '<div class="md-top"><h5 class="md-name">' + escHtml(d.name) + '</h5>' + (meta.serves ? '<span class="md-serves">' + meta.serves + '</span>' : '') + '</div>' +
+              (blurb ? '<p class="md-blurb">' + escHtml(blurb) + '</p>' : '') +
+              dealIncludesHtml(spec) +
+              '<div class="md-foot"><span class="md-price">$' + Number(d.price).toFixed(2) + '</span>' +
+                '<button type="button" class="add-to-cart-btn deal-card-btn' + (memberVerified ? '' : ' locked') + '" data-deal-id="' + d.id + '">' +
+                  (memberVerified ? (n ? 'Add another' : 'Choose items') : 'Check in to order') + '</button></div>' +
+            '</div></article>';
+        }).join('') + '</div></section>';
+      }).join('');
+      el.innerHTML = head + body;
+      var rb = document.querySelector('#categoryRail [data-cat="__deals"] .dr-tag');
+      if (rb) rb.textContent = memberVerified ? '\u2713 Checked in' : 'Members';
+    }
+    document.getElementById('categoryList').addEventListener('click', function(e){
+      var t = e.target.closest('[data-md], .md-panel .deal-card-btn');
+      if (!t) return;
+      if (t.getAttribute('data-md') === 'back') { if (categoryOrder[0]) toggleCategory(categoryOrder[0]); return; }
+      if (t.getAttribute('data-md') === 'checkin' || !memberVerified) { openMemberCheckIn(); return; }
+      var deal = itemsById[t.getAttribute('data-deal-id')];
+      if (deal) openDealPicker(deal);
+    });
 
     var dealPickerState = null; // { deal, spec, stepIndex, picks: [{}, {}, ...] per step }
 
@@ -1425,6 +1577,7 @@
         btn.addEventListener('click', function(){ toggleCategory(btn.getAttribute('data-cat')); });
       });
       // Keep the open category across menu refreshes; start on the first.
+      if (expandedCategory === '__deals') dealsWanted = true;
       var keep = expandedCategory && categoryOrder.indexOf(expandedCategory) !== -1 ? expandedCategory : categoryOrder[0];
       expandedCategory = null;
       if (keep) toggleCategory(keep);
@@ -1447,7 +1600,7 @@
       expandedCategory = cat;
       var block = document.querySelector('.category-block[data-cat="' + cssEscape(cat) + '"]');
       if (block) block.classList.add('expanded');
-      renderCategoryContent(cat);
+      if (cat === '__deals') renderDealsPanel(); else renderCategoryContent(cat);
       var wrap = document.querySelector('.menu-wrap'); if (wrap) wrap.scrollTop = 0;
     }
 
@@ -2006,6 +2159,7 @@
       // a small bump so the change is noticed from arm's length
       if (window.__kLastCount != null && n > window.__kLastCount) { panel.classList.remove('bump'); void panel.offsetWidth; panel.classList.add('bump'); }
       window.__kLastCount = n;
+      if (expandedCategory === '__deals') renderDealsPanel();
     }
 
     // ---- Screen navigation ----
