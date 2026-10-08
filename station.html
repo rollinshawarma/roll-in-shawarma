@@ -326,6 +326,35 @@
   .lt.compact .lt-time{ font-size:18px; } .lt.compact .lt-btn{ font-size:15px; padding:9px 16px; min-width:90px; }
   .lt.large .lt-ref{ font-size:27px; } .lt.large .lt-items li{ font-size:21px; } .lt.large .lt-time{ font-size:28px; } .lt.large .lt-btn{ font-size:22px; padding:15px 28px; }
   #switchToLunchBtn.hidden, #fryerToLunchBtn.hidden, #chooseLunchBtn.hidden{ display:none !important; }
+  /* ---------- Event board (calendar events): one order at a time ---------- */
+  .cal-btn.hidden{ display:none !important; }
+  #switchToCalBtn, #fryerToCalBtn{ color:#ffd479 !important; border:1px solid rgba(255,190,60,.6) !important; border-radius:100px; font-size:15px; font-weight:700; padding:9px 15px; white-space:nowrap; }
+  #chooseCalBtn{ color:#ffd479; border-color:rgba(255,190,60,.6); }
+  .cal-btn .cal-n{ display:inline-block; min-width:22px; margin-left:8px; padding:1px 7px; border-radius:100px; background:#ff9f0a; color:#241902; font-size:14px; text-align:center; }
+  .cal-btn .cal-n.zero{ background:#3a3a3c; color:var(--muted); }
+  #calBoard{ height:100%; display:flex; flex-direction:column; }
+  #calBoard.hidden{ display:none; }
+  #calHeader{ display:flex; flex-wrap:wrap; align-items:center; gap:10px 8px; padding:14px 20px; border-bottom:1px solid var(--line); flex:none; }
+  #calHeader h1{ font-family:var(--kds-font); font-size:30px; font-weight:800; color:#ffd479; white-space:nowrap; }
+  #calEventName{ font-size:20px; font-weight:700; color:var(--white); margin-right:12px; }
+  #calClock{ font-family:var(--kds-font); font-size:26px; font-weight:700; color:var(--white); white-space:nowrap; margin-right:auto; }
+  #calHeader button{ white-space:nowrap; color:var(--cream); border:1px solid var(--line); border-radius:100px; font-size:15px; font-weight:700; padding:9px 15px; }
+  #calError{ background:rgba(216,52,46,0.16); color:var(--red); font-size:14.5px; font-weight:700; padding:10px 24px; border-bottom:1px solid var(--red); flex:none; }
+  #calError.hidden{ display:none; }
+  #calTop{ display:flex; align-items:center; gap:18px; padding:14px 20px; border-bottom:1px solid var(--line); flex:none; }
+  .cal-q{ display:flex; align-items:baseline; gap:10px; }
+  .cal-q b{ font-family:var(--kds-font); font-size:56px; line-height:1; font-weight:800; color:#ffd479; font-variant-numeric:tabular-nums; }
+  .cal-q span{ font-size:20px; font-weight:700; color:var(--cream); }
+  #calEvents{ flex:1; min-width:0; color:var(--muted); font-size:16px; font-weight:600; }
+  #calEvents b{ color:var(--white); }
+  #calPullBtn{ background:#ff9f0a; color:#241902; border-radius:14px; font-size:22px; font-weight:800; padding:18px 30px; white-space:nowrap; }
+  #calPullBtn:disabled{ background:#2c2c2e; color:var(--muted); }
+  #calCols{ flex:1; min-height:0; display:flex; flex-direction:column; padding:18px 20px; overflow:auto; }
+  #calCols .lb-col{ flex:none; }
+  #calCols .lb-list{ flex-direction:row; flex-wrap:wrap; align-items:flex-start; align-content:flex-start; gap:16px; }
+  #calCols .lt{ width:330px; }
+  #calCols .lt[data-stage="cooking"]{ width:min(560px, 100%); }
+  #calCols .lb-empty{ font-size:20px; padding:60px 10px; width:100%; }
   #switchToLunchBtn, #fryerToLunchBtn{ color:#ff8fc1 !important; border-color:rgba(224,96,154,.6) !important; }
   /* ---------- Main board: Tickets view (whole orders, one tap each) ---------- */
   #viewToggleBtn, #switchToLunchBtn, #nextDoorBtn{ font-size:15px; font-weight:700; padding:9px 15px; border:1px solid var(--line); border-radius:100px; white-space:nowrap; }
@@ -599,6 +628,7 @@
   <button type="button" class="menu-choice-btn" id="chooseMainStationBtn">Main Station</button>
   <button type="button" class="menu-choice-btn" id="chooseSubStationBtn">Sub Station</button>
   <button type="button" class="menu-choice-btn hidden" id="chooseLunchBtn">Corporate Lunch</button>
+  <button type="button" class="menu-choice-btn cal-btn hidden" id="chooseCalBtn">Event board</button>
   <button type="button" id="stationChoiceBackBtn">&larr; Back to menu</button>
 </div>
 
@@ -615,6 +645,7 @@
     <button type="button" id="viewToggleBtn" title="Switch between item prep and whole tickets">&#9638; Tickets view</button>
     <button type="button" id="nextDoorBtn" title="Next Door delivery orders">&#127970; Next Door<span class="nd-count zero" id="nextDoorCount">0</span></button>
     <button type="button" id="switchToLunchBtn" class="hidden">Corporate Lunch</button>
+    <button type="button" id="switchToCalBtn" class="cal-btn hidden">Event board</button>
     <button type="button" id="lockBtn">Lock Screen</button>
   </div>
   <div id="boardErrorBanner" class="hidden"></div>
@@ -666,6 +697,7 @@
     <div id="fryerBoardClock">&mdash;</div>
     <button type="button" id="switchToMainBtn">Switch to Main Station</button>
     <button type="button" id="fryerToLunchBtn" class="hidden">Corporate Lunch</button>
+    <button type="button" id="fryerToCalBtn" class="cal-btn hidden">Event board</button>
     <button type="button" id="fryerLockBtn">Lock Screen</button>
   </div>
   <div id="fryerBoardErrorBanner" class="hidden"></div>
@@ -694,6 +726,27 @@
   <div id="doorError" class="hidden"></div>
   <div id="doorEvents"></div>
   <div id="doorCols"></div>
+</div>
+
+<!-- Event board: calendar events (event-day-printing.sql). One order at a
+     time: Pull next order -> make it -> Ready (prints) -> Picked up. -->
+<div id="calBoard" class="hidden">
+  <div id="calHeader">
+    <h1>Event board</h1>
+    <div id="calEventName"></div>
+    <div id="calClock">&mdash;</div>
+    <div id="calUpdated" class="board-last-updated">&mdash;</div>
+    <button type="button" id="calToFryerBtn">Sub Station</button>
+    <button type="button" id="calToMainBtn">Main Station</button>
+    <button type="button" id="calLockBtn">Lock Screen</button>
+  </div>
+  <div id="calError" class="hidden"></div>
+  <div id="calTop">
+    <div class="cal-q"><b id="calQueueNum">0</b><span>in queue</span></div>
+    <div id="calEvents"></div>
+    <button type="button" id="calPullBtn" disabled>Pull next order</button>
+  </div>
+  <div id="calCols"></div>
 </div>
 
 <div id="lunchBoard" class="hidden">
@@ -835,6 +888,19 @@
     sb.rpc('kds_has_events').then(function(res){
       var on = !!(res && !res.error && res.data === true);
       ['chooseLunchBtn', 'switchToLunchBtn', 'fryerToLunchBtn'].forEach(function(id){ var b = document.getElementById(id); if (b) b.classList.toggle('hidden', !on); });
+    }).catch(function(){});
+    // Event board (calendar events): shown during event hours or while event orders are open.
+    sb.rpc('kds_cal_event_today').then(function(res){
+      var ev = res && !res.error && res.data;
+      ['chooseCalBtn', 'switchToCalBtn', 'fryerToCalBtn'].forEach(function(id){
+        var b = document.getElementById(id); if (!b) return;
+        b.classList.toggle('hidden', !ev);
+        if (ev) {
+          var n = Number(ev.waiting) || 0;
+          b.innerHTML = '&#128197; ' + escHtml(ev.title || 'Event') + '<span class="cal-n' + (n ? '' : ' zero') + '">' + n + '</span>';
+          b.title = n + ' event order' + (n === 1 ? '' : 's') + ' waiting on the Event board';
+        }
+      });
     }).catch(function(){});
   };
 
@@ -1362,6 +1428,39 @@
       if (window.stopDoorBoard) window.stopDoorBoard();
       document.getElementById('doorBoard').classList.add('hidden');
       pinScreen.classList.remove('hidden'); entered = ''; renderDots();
+    });
+
+    // ---- Event board navigation ----
+    function showCal(){
+      if (window.stopKdsBoard) window.stopKdsBoard();
+      if (window.stopFryerBoard) window.stopFryerBoard();
+      if (window.stopLunchBoard) window.stopLunchBoard();
+      board.classList.add('hidden');
+      document.getElementById('fryerBoard').classList.add('hidden');
+      document.getElementById('lunchBoard').classList.add('hidden');
+      document.getElementById('calBoard').classList.remove('hidden');
+      window.startCalBoard();
+    }
+    function leaveCal(){ if (window.stopCalBoard) window.stopCalBoard(); document.getElementById('calBoard').classList.add('hidden'); }
+    document.getElementById('chooseCalBtn').addEventListener('click', function(){
+      window.initKdsAudio();
+      document.getElementById('stationChoiceScreen').classList.add('hidden');
+      showCal();
+    });
+    document.getElementById('switchToCalBtn').addEventListener('click', showCal);
+    document.getElementById('fryerToCalBtn').addEventListener('click', showCal);
+    document.getElementById('calToMainBtn').addEventListener('click', function(){
+      leaveCal(); board.classList.remove('hidden'); window.startKdsBoard(); if (window.refreshTruckLoc) window.refreshTruckLoc();
+    });
+    document.getElementById('calToFryerBtn').addEventListener('click', function(){
+      leaveCal(); document.getElementById('fryerBoard').classList.remove('hidden'); window.startFryerBoard();
+    });
+    document.getElementById('calLockBtn').addEventListener('click', function(){
+      try { sessionStorage.removeItem('kdsUnlocked'); } catch(e){}
+      leaveCal();
+      pinScreen.classList.remove('hidden');
+      entered = '';
+      renderDots();
     });
 
     // ---- Corporate Lunch board navigation ----
@@ -2465,7 +2564,7 @@
     function err(t){ var e = document.getElementById(opt.prefix + 'Error'); e.textContent = t || ''; e.classList.toggle('hidden', !t); }
     function mmss(ms){ ms = Math.max(0, ms); var s = Math.floor(ms / 1000), m = Math.floor(s / 60); s %= 60; return (m < 10 ? '0' : '') + m + ':' + (s < 10 ? '0' : '') + s; }
     function now(){ return Date.now() + skew; }
-    function cfg(){ return (data && data.settings) || {}; }
+    function cfg(){ var c = (data && data.settings) || {}; return opt.cfg ? Object.assign({}, c, opt.cfg) : c; }
     function evColor(id){ var evs = (data && (data.events || data.groups)) || [], i = evs.findIndex(function(e){ return e.id === id; }); return COLORS[(i < 0 ? 0 : i) % COLORS.length]; }
     function tagFor(it){
       var c = cfg();
@@ -2506,7 +2605,7 @@
         else if (o.ticket || (ps && ps.ok)) print = '<div class="lt-print">🖨 Ticket sent to the Square printer</div>';
         else print = '<div class="lt-print">Printing…</div>';
       }
-      return '<div class="' + cls + (seen && !seen[o.id] ? ' flash' : '') + '" style="--ev:' + evColor(o.event_id) + '" data-order="' + o.id + '">' +
+      return '<div class="' + cls + (seen && !seen[o.id] ? ' flash' : '') + '" style="--ev:' + evColor(o.event_id) + '" data-order="' + o.id + '" data-stage="' + o.stage + '">' +
         '<div class="lt-head"><span class="lt-sq"></span><span class="lt-ref">' + escHtml(o.ref || '') + '</span>' +
           (c.show_name !== false ? '<span class="lt-name">' + escHtml(shortName(o.name)) + '</span>' : '') + '</div>' +
         (c.show_event !== false ? '<div class="lt-ev">' + (opt.evLine ? opt.evLine(o) : escHtml(o.event || '') + (o.tab ? ' · Company tab' : ' · Paid')) + '</div>' : '') +
@@ -2558,13 +2657,14 @@
       sb.rpc(opt.rpc).then(function(res){
         if (res.error) {
           if (typeof isKitchenAuthError === 'function' && isKitchenAuthError(res.error)) { renewKitchenLogin(fetchBoard, function(){ err(KITCHEN_LOGIN_EXPIRED_MSG); }); return; }
-          err('Could not load the lunch board — ' + (res.error.message || 'unknown error') + (/does not exist|could not find/i.test(res.error.message || '') ? ' (run growth-pack.sql)' : ''));
+          err('Could not load the ' + (opt.label || 'lunch board') + ' — ' + (res.error.message || 'unknown error') + (/does not exist|could not find/i.test(res.error.message || '') ? ' (run ' + (opt.sqlFile || 'growth-pack.sql') + ')' : ''));
           return;
         }
         err(''); var d = res.data || {}; if (d.now) skew = Date.parse(d.now) - Date.now();
         var sig = JSON.stringify([d.orders, d.events, d.groups, d.settings]);
         data = d;
         if (sig !== lastSig) { lastSig = sig; render(); } else updateTimes();   // redraw only when something changed
+        if (opt.onData) opt.onData(d);
         document.getElementById(opt.prefix + 'Updated').textContent = 'Updated just now';
       }, function(){ err("Couldn't reach the server — check your connection."); });
     }
@@ -2587,7 +2687,8 @@
       if (busy[id]) return;
       if (act === 'print') { printState[id] = null; pushPrint(id); render(); return; }
       busy[id] = true; b.disabled = true;
-      var rpc = act === 'fire' ? 'kds_event_fire' : act === 'unfire' ? 'kds_event_unfire' : act === 'ready' ? 'kds_event_ready' : 'kds_complete_order';
+      var R = opt.rpcs || {};
+      var rpc = act === 'fire' ? (R.fire || 'kds_event_fire') : act === 'unfire' ? (R.unfire || 'kds_event_unfire') : act === 'ready' ? (R.ready || 'kds_event_ready') : 'kds_complete_order';
       sb.rpc(rpc, { p_order_id: id }).then(function(res){
         busy[id] = false;
         if (res.error) { b.disabled = false; err('Couldn’t update that ticket — ' + (res.error.message || 'unknown error')); return; }
@@ -2618,8 +2719,54 @@
       }, 1000);
     };
     window[opt.stop] = function(){ clearInterval(timer); clearInterval(tick); timer = tick = null; };
+    if (opt.refresh) window[opt.refresh] = fetchBoard;
+    if (opt.setError) window[opt.setError] = err;
   }
   makeTicketBoard({ prefix: 'lunch', rpc: 'get_kds_event_board', start: 'startLunchBoard', stop: 'stopLunchBoard' });
+  // Event board (calendar events): one order at a time. The queue count is
+  // on top; "Pull next order" starts the oldest waiting one (its food shows
+  // on the Sub Station too); Ready prints the Square ticket; Picked up closes it.
+  (function(){
+    var lastWaiting = null;
+    function money(n){ return '$' + (Number(n) || 0).toFixed(2); }
+    makeTicketBoard({
+      prefix: 'cal', rpc: 'get_kds_cal_board', start: 'startCalBoard', stop: 'stopCalBoard', refresh: 'refreshCalBoard', setError: 'calBoardError',
+      label: 'Event board', sqlFile: 'event-day-printing.sql',
+      rpcs: { unfire: 'kds_cal_unpull', ready: 'kds_cal_ready' },
+      cfg: { columns: 'queue', ticket_size: 'large', show_event: true, show_tags: false },
+      emptyText: 'Nothing on the line. Tap “Pull next order”.',
+      evLine: function(o){ return o.cash ? '<b style="color:#b3261e">⚠ COLLECT ' + escHtml(money(o.total)) + ' CASH</b>' : (o.source === 'kiosk' ? 'Paid at kiosk' : 'Paid online'); },
+      more: function(){ return ''; },
+      chips: function(d){
+        var next = (d.next || []).map(function(n){ return '<b>' + escHtml(n.ref || '') + '</b> ' + escHtml(n.name || ''); });
+        return next.length ? 'Next up: ' + next.join(' · ') + ((d.waiting || 0) > next.length ? ' · +' + ((d.waiting || 0) - next.length) + ' more' : '') : 'No orders waiting';
+      },
+      onData: function(d){
+        var waiting = Number(d.waiting) || 0;
+        var cooking = (d.orders || []).some(function(o){ return o.stage === 'cooking'; });
+        document.getElementById('calQueueNum').textContent = waiting;
+        document.getElementById('calEventName').textContent = d.event && d.event.title ? d.event.title + (d.event.from ? ' · ' + d.event.from + (d.event.until ? '–' + d.event.until : '') : '') : '';
+        var b = document.getElementById('calPullBtn');
+        if (!b.dataset.busy) {
+          b.disabled = cooking || !waiting;
+          b.textContent = cooking ? 'Tap Ready to pull the next' : waiting ? 'Pull next order' : 'No orders waiting';
+        }
+        if (lastWaiting !== null && waiting > lastWaiting && window.playOrderSound) window.playOrderSound('website');
+        lastWaiting = waiting;
+      }
+    });
+    document.getElementById('calPullBtn').addEventListener('click', function(){
+      var b = this; if (b.dataset.busy) return;
+      b.dataset.busy = '1'; b.disabled = true; b.textContent = 'Pulling…';
+      sb.rpc('kds_cal_pull_next').then(function(res){
+        delete b.dataset.busy;
+        if (res.error) window.calBoardError('Couldn’t pull the next order — ' + (res.error.message || 'unknown error'));
+        else window.calBoardError('');
+        window.refreshCalBoard();
+      }, function(){ delete b.dataset.busy; window.calBoardError("Couldn't reach the server — check your connection."); window.refreshCalBoard(); });
+    });
+  })();
+
   // Next Door delivery: tickets grouped by delivery run; each run shows
   // in the kitchen shortly before it leaves.
   function doorTime(iso){ return new Date(iso).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }); }
