@@ -728,7 +728,6 @@
   <div class="at-photo" aria-hidden="true"></div>
   <div class="at-top"><img class="logo" src="logo.jpg" alt=""><span>Roll-In Shawarma</span></div>
   <div class="at-main">
-    <div class="at-promo hidden" id="attractPromo"></div>
     <h1>Hot off the grill.<br>Rolled to order.</h1>
     <p>Shawarma, frankie rolls, bowls and tacos. Order here and we&rsquo;ll call your name.</p>
     <button type="button" id="startOrderBtn">Touch to order</button>
@@ -2051,12 +2050,7 @@
       panel.classList.toggle('open', open);
       this.setAttribute('aria-expanded', open ? 'true' : 'false');
     });
-    // Today's promo on the attract screen (Taco Tuesday / Thursday).
-    (function(){
-      var el = document.getElementById('attractPromo');
-      var day = window.RollinDeals && window.RollinDeals.tacoDay ? window.RollinDeals.tacoDay() : null;
-      if (el && day) { el.textContent = '\uD83C\uDF2E Taco ' + day + ': every taco order $' + Number(window.RollinDeals.tacoPrice || 6.99).toFixed(2); el.classList.remove('hidden'); }
-    })();
+
     document.getElementById('startOverBtn').addEventListener('click', function(){ window.location.reload(); });
     document.getElementById('proceedToCheckoutBtn').addEventListener('click', goToCheckoutScreen);
     document.getElementById('kioskBackBtn').addEventListener('click', function(){
