@@ -1299,7 +1299,7 @@
       if (!rb) {
         rb = document.createElement('button'); rb.type = 'button'; rb.className = 'category-row deals-row'; rb.setAttribute('data-cat', '__deals');
         rb.addEventListener('click', function(){ toggleCategory('__deals'); });
-        rail.insertBefore(rb, rail.firstChild);
+        rail.appendChild(rb);
       }
       var first = dealList()[0];
       rb.innerHTML = '<span class="cr-img">' + (first ? itemPhotoHtml(first).replace('item-tile-photo', 'dr-photo') : '') + '</span>' +
@@ -1308,7 +1308,7 @@
       if (!blk) {
         blk = document.createElement('div'); blk.className = 'category-block'; blk.setAttribute('data-cat', '__deals');
         blk.innerHTML = '<div class="category-expanded md-panel" data-cat="__deals"></div>';
-        list.insertBefore(blk, list.firstChild);
+        list.appendChild(blk);
       }
       if (expandedCategory === '__deals') { blk.classList.add('expanded'); renderDealsPanel(); }
       if (dealsWanted) { dealsWanted = false; showDealsInMenu(); }
