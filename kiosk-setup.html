@@ -40,6 +40,8 @@
   .dev-meta{ font-size:13px; color:var(--muted); }
   .revoke{ border:1.5px solid var(--line); background:#fff; border-radius:999px; height:36px; padding:0 14px; font:inherit; font-size:14px; font-weight:600; color:var(--accent); cursor:pointer; }
   .warn{ background:#fff8e6; border-radius:14px; padding:12px 14px; font-size:14px; color:#6b4e00; margin-top:12px; }
+  .check{ display:flex; align-items:center; gap:10px; font-size:15px; font-weight:600; margin:14px 0 4px; cursor:pointer; }
+  .check input{ width:22px; height:22px; accent-color:#1d1d1f; }
   .hidden{ display:none !important; }
 </style>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
@@ -78,6 +80,18 @@
     <button class="btn btn-soft hidden" id="registerNoPasskeyBtn" type="button">Register with manager approval only</button>
     <div class="msg" id="registerMsg"></div>
     <a class="btn btn-soft hidden" id="openKiosk" href="kiosk.html">Open the kiosk</a>
+  </section>
+
+  <!-- 2b. Card reader on this tablet (testing) -->
+  <section class="card hidden" id="readerCard">
+    <h2>Card reader <span class="pill" id="readerStatus">Off</span></h2>
+    <p>Adds a "Pay with card reader" button to this tablet's checkout. It opens the Square POS app, which runs your paired Square Reader. Scan to Pay and cash stay as they are. Other tablets are not affected.</p>
+    <label class="check"><input type="checkbox" id="readerToggle"> Show the card reader button on this tablet</label>
+    <div class="warn hidden" id="readerStandaloneWarn">This page is open from a Home Screen icon. The card reader only works when the kiosk runs in Safari itself, so open rollinshawarma.com/kiosk.html in Safari (or use a bookmark that opens in Safari).</div>
+    <div class="warn">Needs: the Square POS app installed and signed in, the reader paired in that app, and Guided Access <b>off</b> (it blocks switching to the Square app). See KIOSK-READER-SETUP for locking the iPad another way.</div>
+    <p style="margin-top:12px;">Square Developer Console &rarr; your app &rarr; Point of Sale API &rarr; Web callback URL must be exactly:</p>
+    <code id="readerCallback" style="display:block; margin-top:6px; padding:10px 12px; background:#fff; border:1px solid #e3e3e8; border-radius:10px; font-size:13px; word-break:break-all;"></code>
+    <div class="msg" id="readerMsg"></div>
   </section>
 
   <!-- 3. All tablets -->
@@ -195,6 +209,8 @@
       $('thisStatus').textContent = mine ? 'Registered' : 'Not registered';
       $('thisStatus').className = 'pill' + (mine ? ' ok' : '');
       $('openKiosk').classList.toggle('hidden', !mine);
+      $('readerCard').classList.toggle('hidden', !mine);
+      drawReader();
       $('registerBtn').textContent = mine ? 'Register again (replaces this one)' : 'Register this tablet';
       $('deviceList').innerHTML = devices.length ? devices.map(function(x){
         var off = !!x.revoked_at;
@@ -205,6 +221,26 @@
       }).join('') : '<p>No tablets registered yet.</p>';
     }
   }
+  // ---- card reader switch: stored on this tablet only (kiosk.html reads it) ----
+  function readerOn(){ try { return localStorage.getItem('rollinKioskReader') === '1'; } catch (e) { return false; } }
+  function drawReader(){
+    var on = readerOn();
+    $('readerToggle').checked = on;
+    $('readerStatus').textContent = on ? 'On' : 'Off';
+    $('readerStatus').className = 'pill' + (on ? ' ok' : '');
+    var standalone = window.navigator.standalone === true || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+    $('readerStandaloneWarn').classList.toggle('hidden', !standalone);
+    $('readerCallback').textContent = location.origin + location.pathname.replace(/kiosk-setup\.html$/, 'kiosk.html');
+  }
+  $('readerToggle').addEventListener('change', function(){
+    try {
+      if (this.checked) localStorage.setItem('rollinKioskReader', '1');
+      else localStorage.removeItem('rollinKioskReader');
+      msg('readerMsg', this.checked ? 'Card reader button is on for this tablet.' : 'Card reader button is off.', 'ok');
+    } catch (e) { msg('readerMsg', 'This browser blocked saving the setting.', 'error'); }
+    drawReader();
+  });
+
   $('deviceList').addEventListener('click', function(e){
     var b = e.target.closest('.revoke');
     if (!b || !confirm('Switch this tablet off? It will no longer be able to place cash orders.')) return;
