@@ -2671,7 +2671,7 @@
           // payment fails or is canceled, the customer needs to see
           // their cart exactly as it was, not an empty one. Cleared
           // once the return is actually handled, whichever way it goes.
-          localStorage.setItem('pendingReaderCart', JSON.stringify({ cart: cart, name: name, email: email }));
+          localStorage.setItem('pendingReaderCart', JSON.stringify({ cart: cart, name: name, email: email, member: memberCodeVerified, memberName: memberFirstName, tip: tipAmount || 0 }));
 
           var totalCents = Math.round(Number(result.data.total) * 100);
           var thisPageUrl = window.location.origin + window.location.pathname;
@@ -2855,7 +2855,9 @@
         idleScreen.classList.add('hidden');
         document.getElementById('kioskName').value = savedCart.name || '';
         document.getElementById('kioskEmail').value = savedCart.email || '';
+        if (savedCart.member) { memberVerified = true; memberCodeVerified = savedCart.member; memberFirstName = savedCart.memberName || ''; }
         if (!cart.length) return false;
+        renderCartView();
         goToCheckoutScreen();
         return true;
       }
