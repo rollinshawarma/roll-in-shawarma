@@ -434,6 +434,8 @@
     background:var(--gold); color:#241902; border-color:var(--gold);
   }
   .payment-method-btn-large svg{ width:26px; height:26px; }
+  .reader-btn-text{ display:flex; flex-direction:column; align-items:flex-start; line-height:1.2; text-align:left; }
+  .reader-btn-text small{ font-size:13px; font-weight:600; opacity:.75; margin-top:3px; }
   #exploreOtherPaymentsBtn{ display:block; width:100%; margin-top:12px; background:var(--gold); color:#241902; font-size:18px; font-weight:800; padding:18px; border-radius:14px; border:none; }
   #kioskBackBtn{ display:block; margin:16px auto 0; background:none; color:var(--muted); font-size:15px; }
   #kioskCheckoutMsg{ text-align:center; font-size:14px; color:var(--red); min-height:20px; margin-top:12px; }
@@ -549,7 +551,7 @@
   <div class="checkout-footer">
     <button type="button" id="payTapDirectBtn" class="payment-method-btn payment-method-btn-large hidden">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8.32a7.43 7.43 0 0 1 0 7.36"></path><path d="M9.46 6.21a11.76 11.76 0 0 1 0 11.58"></path><path d="M12.91 4.1a15.91 15.91 0 0 1 .01 15.8"></path><path d="M16.37 2a20.16 20.16 0 0 1 0 20"></path></svg>
-      Tap to Pay
+      <span class="reader-btn-text">Pay with card reader<small>Tap your phone or card on the reader</small></span>
     </button>
     <button type="button" id="exploreOtherPaymentsBtn">Continue to Payment</button>
     <div id="kioskCheckoutMsg"></div>
@@ -1704,8 +1706,23 @@
       loadMenu();
       resetInactivityTimer();
     }
+    // Card reader (Square POS app) is switched on per tablet in
+    // kiosk-setup.html, only for a registered tablet, and only when the
+    // kiosk runs in Safari itself: Square returns to this page in Safari,
+    // which can't see a Home Screen web app's saved order.
+    function readerEnabled(){
+      var on = false;
+      try { on = localStorage.getItem('rollinKioskReader') === '1'; } catch (e) {}
+      var standalone = window.navigator.standalone === true || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
+      return on && !!kioskDevice && !standalone;
+    }
+    function updateReaderButton(){
+      var b = document.getElementById('payTapDirectBtn');
+      if (b) b.classList.toggle('hidden', !readerEnabled());
+    }
     function goToCheckoutScreen(){
       if (!cart.length) return;
+      updateReaderButton();
       orderScreen.classList.add('hidden');
       checkoutScreen.classList.remove('hidden');
       document.getElementById('checkoutItemsList').innerHTML = cart.map(function(c){
@@ -1805,6 +1822,7 @@
           if (res && res.active) {
             kioskDevice = dev;
             if (cashBtnEl) cashBtnEl.style.display = '';
+            updateReaderButton();
           }
         });
       }).catch(function(){});
@@ -2110,7 +2128,7 @@
     // ---- HTML, since each contains an SVG icon that a textContent ----
     // ---- change would silently wipe out.                          ----
     function setPaymentButtonsDisabled(disabled){
-      ['payScanBtn', 'payCashBtn'].forEach(function(id){
+      ['payScanBtn', 'payCashBtn', 'payTapDirectBtn'].forEach(function(id){
         document.getElementById(id).disabled = disabled;
       });
     }
@@ -2186,10 +2204,26 @@
             client_id: SQUARE_APPLICATION_ID,
             version: '1.3',
             notes: 'Order ' + result.data.referenceCode,
-            auto_return: true,
-            options: { supported_tender_types: ['CREDIT_CARD'] }
+            // auto_return / skip_receipt belong inside options (Square's
+            // iOS reference). Square returns here on its own after paying;
+            // our own receipt email covers receipts.
+            options: { supported_tender_types: ['CREDIT_CARD'], auto_return: true, skip_receipt: true }
           };
 
+          // If the Square POS app opens, this page goes to the background.
+          // If it's still in front after a few seconds, the app isn't
+          // installed or iPadOS blocked the switch (e.g. Guided Access on).
+          var leftPage = false;
+          var onHide = function(){ if (document.visibilityState === 'hidden') leftPage = true; };
+          document.addEventListener('visibilitychange', onHide);
+          setTimeout(function(){
+            document.removeEventListener('visibilitychange', onHide);
+            if (leftPage) return;
+            // The saved order is kept: if the app does open late (the iPad
+            // can ask "Open in Square?" first), its return still confirms.
+            setPaymentButtonsDisabled(false);
+            msgEl.textContent = "The card reader app didn't open. Please use Scan to Pay or pay with cash, and let a staff member know.";
+          }, 4000);
           window.location.href = 'square-commerce-v1://payment/create?data=' + encodeURIComponent(JSON.stringify(dataParameter));
         })
         .catch(function(){
@@ -2358,7 +2392,7 @@
       if (transactionInfo.error_code) {
         var restored = restoreCartAndShowCheckout();
         var msgEl = document.getElementById('kioskCheckoutMsg');
-        msgEl.textContent = transactionInfo.error_code === 'user_canceled'
+        msgEl.textContent = (transactionInfo.error_code === 'payment_canceled' || transactionInfo.error_code === 'user_canceled')
           ? 'Payment was canceled.' + (restored ? ' Your cart is still here.' : '')
           : 'Payment did not complete (' + transactionInfo.error_code + '). Please try again.';
         return;
