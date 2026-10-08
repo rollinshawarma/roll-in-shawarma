@@ -503,6 +503,8 @@
   .kh-brand img{ width:48px; height:48px; border-radius:50%; flex:none; }
   .kiosk-header h2{ font-family:var(--display); font-size:32px; font-weight:800; color:var(--white); white-space:nowrap; }
   .kh-actions{ display:flex; align-items:center; gap:10px; }
+  #memberBtn{ background:#FFF6E6; color:var(--white); border:2px solid #F5C77A; font-size:18px; font-weight:800; padding:12px 22px; border-radius:999px; min-height:56px; white-space:nowrap; }
+  #memberBtn.in{ background:var(--gold); border-color:var(--gold); color:var(--gold-ink); }
   #startOverBtn{ color:var(--cream); border:2px solid var(--line); font-size:18px; font-weight:700; padding:12px 22px; border-radius:999px; min-height:56px; }
   .ksteps{ list-style:none; display:flex; align-items:center; gap:8px; margin:0 auto; padding:0; counter-reset:ks; }
   .ksteps li{ counter-increment:ks; display:flex; align-items:center; gap:8px; font-size:16px; font-weight:700; color:var(--muted); white-space:nowrap; }
@@ -773,6 +775,7 @@
     <div class="kh-brand"><img src="logo.jpg" alt=""><h2>Build Your Order</h2></div>
     <ol class="ksteps" aria-label="Steps"><li class="on">Order</li><li>Your name</li><li>Pay</li></ol>
     <div class="kh-actions">
+      <button type="button" id="memberBtn" class="hidden">Member check-in</button>
       <button type="button" id="startOverBtn">Start over</button>
     </div>
   </div>
@@ -1064,6 +1067,7 @@
           if (atEventToday || !dealsByName || !Object.keys(dealsByName).length) {
             section.classList.add('hidden');
             section.innerHTML = '';
+            document.getElementById('memberBtn').classList.add('hidden');
             return;
           }
           renderDealsSection();
@@ -1076,6 +1080,12 @@
 
     function renderDealsSection(){
       var section = document.getElementById('dealsSection');
+      var mb = document.getElementById('memberBtn');
+      mb.classList.remove('hidden');
+      mb.classList.toggle('in', !!memberVerified);
+      mb.textContent = memberVerified ? (memberFirstName ? 'Hi ' + memberFirstName + ' \u00b7 Your deals' : 'Your member deals') : 'Member check-in';
+      section.classList.add('hidden'); section.innerHTML = '';
+      return;
 
       if (!memberVerified) {
         section.innerHTML =
@@ -2052,6 +2062,7 @@
     });
 
     document.getElementById('startOverBtn').addEventListener('click', function(){ window.location.reload(); });
+    document.getElementById('memberBtn').addEventListener('click', function(){ if (memberVerified) openMemberDealsScreen(); else openMemberCheckIn(); });
     document.getElementById('proceedToCheckoutBtn').addEventListener('click', goToCheckoutScreen);
     document.getElementById('kioskBackBtn').addEventListener('click', function(){
       checkoutScreen.classList.add('hidden');
