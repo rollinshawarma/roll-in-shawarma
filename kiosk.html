@@ -483,6 +483,15 @@
   #idleScreen h1{ font-family:var(--display); font-size:104px; line-height:.92; font-weight:800; color:#fff; margin:0 0 20px; letter-spacing:-.5px; }
   #idleScreen p{ font-size:26px; line-height:1.35; color:rgba(255,255,255,.85); margin:0 0 40px; max-width:640px; }
   #startOrderBtn{ background:var(--gold); color:var(--gold-ink); font-size:34px; font-weight:800; padding:30px 72px; border-radius:22px; box-shadow:0 18px 40px rgba(0,0,0,.35); animation:none; }
+  /* landscape: the whole photo (top included) on the right, text on the left */
+  @media (orientation: landscape){
+    #idleScreen .at-photo{ left:38%; background-size:auto 100%; background-position:center top; background-color:#000; }
+    #idleScreen .at-photo::after{ background:linear-gradient(90deg, #000 0%, rgba(0,0,0,0) 22%), linear-gradient(180deg, rgba(0,0,0,0) 72%, rgba(0,0,0,.45) 100%); }
+    #idleScreen{ justify-content:center; background:#000; }
+    .at-main{ max-width:46%; padding:0 0 0 56px; }
+    #idleScreen h1{ font-size:88px; }
+    #idleScreen p{ font-size:24px; }
+  }
   @media (prefers-reduced-motion: no-preference){
     #idleScreen .at-photo{ animation:atZoom 18s ease-in-out infinite alternate; }
     @keyframes atZoom{ from{ transform:scale(1); } to{ transform:scale(1.07); } }
@@ -1413,7 +1422,7 @@
     }
     var KIOSK_CAT_IMG = {
       'Shawarma': 'shawarma-wrap.webp', 'Frankie Rolls': 'tikka-wrap.webp', 'Bowls': 'bowl.webp', 'Tacos': 'tacos.webp',
-      'Loaded Fries': 'loaded-fries.webp', 'Sides': 'item-fries.jpg', 'Kulfi Ice Cream': 'menu-kulfi.jpg', 'Drinks': 'item-soda.jpg'
+      'Loaded Fries': 'loaded-fries.webp', 'Sides': 'item-fries.jpg', 'Kulfi Ice Cream': 'item-almond-kulfi.jpg', 'Drinks': 'item-soda.jpg'
     };
 
     // Only one category open at a time -- opening a new one collapses
