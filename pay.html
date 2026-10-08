@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Pay for your order — Roll-In Shawarma</title>
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#ffffff">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#ffffff; --panel:#f5f5f7; --ink:#1d1d1f; --text:#424245; --muted:#6e6e73;
+    --line:#e3e3e8; --red:#d62d20; --green:#1f8a4c; --brand:#c8102e;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ -webkit-text-size-adjust:100%; }
+  body{ background:var(--bg); color:var(--text); font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height:1.45; min-height:100vh; }
+  .wrap{ max-width:480px; margin:0 auto; padding:16px 16px calc(32px + env(safe-area-inset-bottom)); }
+  .top{ display:flex; align-items:center; gap:10px; padding:4px 0 18px; }
+  .top img{ width:40px; height:40px; border-radius:50%; object-fit:cover; flex:none; }
+  .brand{ font-family:"Barlow Condensed",sans-serif; font-weight:800; font-size:22px; letter-spacing:.2px; color:var(--ink); line-height:1; }
+  .brand small{ display:block; font-family:"Inter",sans-serif; font-size:12px; font-weight:600; color:var(--muted); letter-spacing:0; margin-top:3px; }
+  .ref{ margin-left:auto; font-size:12px; font-weight:700; color:var(--ink); background:var(--panel); border-radius:999px; padding:6px 12px; white-space:nowrap; }
+
+  h1{ font-size:26px; font-weight:800; color:var(--ink); letter-spacing:-.3px; line-height:1.15; }
+  .lead{ font-size:14.5px; color:var(--muted); margin:6px 0 18px; }
+
+  .cart{ background:var(--panel); border-radius:18px; padding:16px 16px 14px; }
+  .cart-row{ display:flex; gap:10px; align-items:flex-start; padding:7px 0; font-size:15px; }
+  .cart-row .q{ flex:none; min-width:26px; height:22px; padding:0 6px; border-radius:7px; background:#fff; border:1px solid var(--line); font-size:12.5px; font-weight:700; color:var(--ink); display:flex; align-items:center; justify-content:center; }
+  .cart-row .n{ flex:1; color:var(--ink); font-weight:500; min-width:0; overflow-wrap:anywhere; }
+  .cart-row .a{ flex:none; color:var(--text); font-variant-numeric:tabular-nums; }
+  .sums{ border-top:1px solid var(--line); margin-top:8px; padding-top:10px; }
+  .sum{ display:flex; justify-content:space-between; font-size:13.5px; color:var(--muted); padding:2px 0; font-variant-numeric:tabular-nums; }
+  .sum.save{ color:var(--green); }
+  .sum.total{ font-size:18px; font-weight:800; color:var(--ink); padding-top:8px; }
+
+  .pay{ margin-top:18px; }
+  .wallets{ display:flex; flex-direction:column; gap:10px; }
+  .apple-pay-btn{ display:block; width:100%; height:52px; -webkit-appearance:-apple-pay-button; appearance:-apple-pay-button; -apple-pay-button-type:pay; -apple-pay-button-style:black; border-radius:14px; border:0; cursor:pointer; }
+  .google-pay-btn{ width:100%; height:52px; border-radius:14px; overflow:hidden; }
+  .is-busy{ opacity:.5; pointer-events:none; }
+  .or{ display:flex; align-items:center; gap:12px; margin:16px 0 12px; font-size:12.5px; font-weight:600; color:var(--muted); text-transform:uppercase; letter-spacing:.6px; }
+  .or::before, .or::after{ content:''; flex:1; height:1px; background:var(--line); }
+  .card-box{ border:1px solid var(--line); border-radius:16px; padding:14px 14px 4px; }
+  .card-box b{ display:block; font-size:15px; font-weight:700; color:var(--ink); margin-bottom:10px; }
+  #cardContainer{ min-height:90px; }
+  .card-loading{ display:block; padding:14px 2px; color:var(--muted); font-size:14px; }
+  .pay-btn{ display:block; width:100%; height:54px; margin-top:12px; border:0; border-radius:999px; background:var(--ink); color:#fff; font:700 17px/1 "Inter",sans-serif; cursor:pointer; }
+  .pay-btn:disabled{ opacity:.5; cursor:default; }
+  .pay-btn:focus-visible{ outline:3px solid #0071e3; outline-offset:3px; }
+  .msg{ min-height:20px; margin-top:12px; font-size:14px; font-weight:600; color:var(--red); text-align:center; }
+  .msg:empty{ min-height:0; margin:0; }
+  .secure{ display:flex; gap:7px; align-items:flex-start; justify-content:center; margin-top:16px; font-size:12px; color:var(--muted); text-align:center; }
+  .secure svg{ width:14px; height:14px; flex:none; margin-top:1px; }
+
+  .state{ text-align:center; padding:48px 8px 12px; }
+  .state .badge{ width:68px; height:68px; border-radius:50%; margin:0 auto 18px; display:flex; align-items:center; justify-content:center; background:var(--panel); }
+  .state .badge svg{ width:32px; height:32px; }
+  .state.ok .badge{ background:rgba(31,138,76,0.12); color:var(--green); }
+  .state.bad .badge{ background:rgba(214,45,32,0.10); color:var(--red); }
+  .state p{ font-size:15px; color:var(--muted); margin-top:8px; }
+  .state a{ display:inline-block; margin-top:22px; padding:14px 26px; border-radius:999px; background:var(--ink); color:#fff; font-weight:700; text-decoration:none; }
+  .spin{ width:28px; height:28px; border:3px solid var(--line); border-top-color:var(--ink); border-radius:50%; animation:spin .8s linear infinite; }
+  @keyframes spin{ to{ transform:rotate(360deg); } }
+  .overlay{ position:fixed; inset:0; background:rgba(255,255,255,.82); display:flex; flex-direction:column; align-items:center; justify-content:center; gap:14px; font-weight:700; color:var(--ink); z-index:10; }
+  .hidden{ display:none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <img src="logo.jpg" alt="">
+    <div class="brand">Roll-In Shawarma<small>Kiosk order</small></div>
+    <span class="ref hidden" id="refBadge"></span>
+  </header>
+
+  <main id="loading" class="state"><div class="badge"><span class="spin"></span></div><p>Loading your order&hellip;</p></main>
+
+  <main id="checkout" class="hidden">
+    <h1>Review &amp; pay</h1>
+    <p class="lead" id="lead">Here's your order from the kiosk.</p>
+
+    <section class="cart" aria-label="Your order">
+      <div id="cartItems"></div>
+      <div class="sums" id="sums"></div>
+    </section>
+
+    <section class="pay" aria-label="Payment">
+      <div class="wallets">
+        <button type="button" id="applePayBtn" class="apple-pay-btn hidden" lang="en" aria-label="Pay with Apple Pay"></button>
+        <div id="googlePayBtn" class="google-pay-btn hidden"></div>
+      </div>
+      <div class="or hidden" id="payOr">or pay with card</div>
+      <div class="card-box" id="cardBox">
+        <b id="cardHead">Card</b>
+        <div id="cardContainer"><span class="card-loading">Loading secure card form&hellip;</span></div>
+      </div>
+      <button type="button" class="pay-btn" id="payBtn" disabled>Pay</button>
+      <div class="msg" id="msg" role="alert" aria-live="assertive"></div>
+      <p class="secure"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="4" y="11" width="16" height="10" rx="2"/><path d="M8 11V7a4 4 0 0 1 8 0v4"/></svg><span>Payments are processed securely by Square. Your card details never touch our servers.</span></p>
+    </section>
+  </main>
+
+  <main id="done" class="state ok hidden">
+    <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></div>
+    <h1>Paid. Thank you!</h1>
+    <p id="doneText">Your order is on its way to the kitchen. The kiosk screen will show it too.</p>
+    <a id="doneLink" href="index.html">Track your order</a>
+  </main>
+
+  <main id="gone" class="state bad hidden">
+    <div class="badge"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><line x1="12" y1="7.5" x2="12" y2="13"/><line x1="12" y1="16.5" x2="12" y2="16.6"/></svg></div>
+    <h1 id="goneTitle">This code has expired</h1>
+    <p id="goneText">Please start a new order on the kiosk, or pay at the window.</p>
+  </main>
+</div>
+<div class="overlay hidden" id="busy"><span class="spin"></span><span id="busyText">Processing&hellip;</span></div>
+
+<script>
+(function(){
+  'use strict';
+  var FN = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/';
+  var KEY = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
+  var SQUARE_APP_ID = 'sq0idp-6truvfPUiZyRoli_quQVJg';
+  var SQUARE_LOCATION_ID = 'LSGMC1VJ71JNG';
+
+  var qs = new URLSearchParams(location.search);
+  var REF = (qs.get('ref') || '').trim();
+  var T = (qs.get('t') || '').trim();
+  // The order id is the secret in this link; keep it out of history/shares.
+  try { history.replaceState(null, '', location.pathname + '?ref=' + encodeURIComponent(REF) + '&t=' + encodeURIComponent(T)); } catch (e) {}
+
+  function $(id){ return document.getElementById(id); }
+  function show(id){ ['loading', 'checkout', 'done', 'gone'].forEach(function(x){ $(x).classList.toggle('hidden', x !== id); }); }
+  function money(n){ return '$' + (Number(n) || 0).toFixed(2); }
+  function msg(t){ $('msg').textContent = t || ''; }
+  function thanksUrl(){ return 'thank-you.html?ref=' + encodeURIComponent(REF) + '&t=' + encodeURIComponent(T); }
+
+  function gone(title, text){
+    $('goneTitle').textContent = title;
+    $('goneText').textContent = text;
+    show('gone');
+  }
+  function paid(redirect){
+    stopPoll();
+    $('doneLink').href = redirect || thanksUrl();
+    show('done');
+    busy(false);
+    setTimeout(function(){ location.replace(redirect || thanksUrl()); }, 1600);
+  }
+
+  if (!/^Kiosk\d{3,6}$/.test(REF) || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(T)) {
+    gone('This link isn’t complete', 'Please scan the code on the kiosk screen again.');
+    return;
+  }
+  $('refBadge').textContent = 'Order ' + REF.replace(/^Kiosk/, '#');
+  $('refBadge').classList.remove('hidden');
+
+  var order = null, total = 0;
+
+  function fetchOrder(){
+    return fetch(FN + 'get-order-confirmation?ref=' + encodeURIComponent(REF) + '&t=' + encodeURIComponent(T), {
+      headers: { 'Authorization': 'Bearer ' + KEY, 'apikey': KEY }
+    }).then(function(r){ return r.json().then(function(d){ return { ok: r.ok, status: r.status, d: d }; }); });
+  }
+
+  function render(o){
+    var items = $('cartItems'); items.textContent = '';
+    (o.items || []).forEach(function(li){
+      var row = document.createElement('div'); row.className = 'cart-row';
+      var q = document.createElement('span'); q.className = 'q'; q.textContent = li.quantity + '×';
+      var n = document.createElement('span'); n.className = 'n'; n.textContent = li.name;
+      var a = document.createElement('span'); a.className = 'a'; a.textContent = money(li.lineTotal);
+      row.appendChild(q); row.appendChild(n); row.appendChild(a); items.appendChild(row);
+    });
+    var b = o.breakdown || {}, sums = $('sums'); sums.textContent = '';
+    function line(label, val, cls){
+      var r = document.createElement('div'); r.className = 'sum' + (cls ? ' ' + cls : '');
+      var l = document.createElement('span'); l.textContent = label;
+      var v = document.createElement('span'); v.textContent = val;
+      r.appendChild(l); r.appendChild(v); sums.appendChild(r);
+    }
+    line('Subtotal', money(b.subtotal));
+    if (b.discount > 0) line(b.promoCode ? 'Promo ' + b.promoCode : 'Discount', '−' + money(b.discount), 'save');
+    line('Tax', money(b.tax));
+    if (b.tip > 0) line('Tip', money(b.tip));
+    if (b.giftCards > 0) line('Gift cards', money(b.giftCards));
+    line('Total', money(o.total), 'total');
+    if (o.firstName && o.firstName !== 'Kiosk') $('lead').textContent = 'Hi ' + o.firstName + ', here’s your order from the kiosk.';
+    $('payBtn').textContent = 'Pay ' + money(o.total);
+  }
+
+  // ---- Waiting on the order: paid elsewhere (another phone, the window) ----
+  var pollTimer = null;
+  function stopPoll(){ if (pollTimer) { clearTimeout(pollTimer); pollTimer = null; } }
+  function poll(){
+    pollTimer = setTimeout(function(){
+      fetchOrder().then(function(r){
+        if (r.ok && r.d && r.d.status === 'paid') return paid();
+        if (r.ok && r.d && r.d.status === 'cancelled') { stopPoll(); return gone('This order was cancelled', 'Please start a new order on the kiosk, or pay at the window.'); }
+        poll();
+      }).catch(poll);
+    }, 6000);
+  }
+
+  // ---- Square Web Payments SDK: Apple Pay, Google Pay, card ----
+  var payments = null, card = null, apple = null, google = null, working = false;
+  function busy(on, text){
+    working = on;
+    $('busy').classList.toggle('hidden', !on);
+    if (text) $('busyText').textContent = text;
+    $('payBtn').disabled = on || !card;
+    ['applePayBtn', 'googlePayBtn'].forEach(function(id){ $(id).classList.toggle('is-busy', on); });
+  }
+  function loadSdk(){
+    if (window.Square) return Promise.resolve();
+    return new Promise(function(resolve, reject){
+      var s = document.createElement('script');
+      s.src = 'https://web.squarecdn.com/v1/square.js';
+      s.onload = resolve; s.onerror = reject;
+      document.head.appendChild(s);
+    });
+  }
+  var CARD_STYLE = {
+    '.input-container': { borderColor: '#d2d2d7', borderRadius: '12px' },
+    '.input-container.is-focus': { borderColor: '#1d1d1f' },
+    '.input-container.is-error': { borderColor: '#d62d20' },
+    '.message-text.is-error': { color: '#d62d20' },
+    '.message-icon.is-error': { color: '#d62d20' },
+    input: { fontSize: '16px', color: '#1d1d1f' },
+    'input::placeholder': { color: '#8e8e93' }
+  };
+  function setupPayments(){
+    return loadSdk().then(function(){
+      payments = window.Square.payments(SQUARE_APP_ID, SQUARE_LOCATION_ID);
+      var req = payments.paymentRequest({ countryCode: 'US', currencyCode: 'USD', total: { amount: total.toFixed(2), label: 'Roll-In Shawarma' }, requestBillingContact: true });
+      var a = payments.applePay(req).then(function(ap){ apple = ap; $('applePayBtn').classList.remove('hidden'); }).catch(function(){});
+      var g = payments.googlePay(req).then(function(gp){
+        google = gp;
+        return gp.attach('#googlePayBtn', { buttonColor: 'black', buttonType: 'pay', buttonSizeMode: 'fill' }).then(function(){ $('googlePayBtn').classList.remove('hidden'); });
+      }).catch(function(){});
+      var c = payments.card({ style: CARD_STYLE }).catch(function(){ return payments.card(); }).then(function(cd){
+        return cd.attach('#cardContainer').then(function(){
+          card = cd;
+          var l = document.querySelector('.card-loading'); if (l) l.remove();
+          $('payBtn').disabled = working;
+        });
+      });
+      return Promise.all([a, g, c.catch(function(e){ throw e; })]).then(function(){
+        if (apple) { $('googlePayBtn').classList.add('hidden'); google = null; }
+        var anyWallet = !!(apple || google);
+        $('payOr').classList.toggle('hidden', !anyWallet);
+        $('cardHead').classList.toggle('hidden', anyWallet);
+      });
+    }).catch(function(err){
+      console.error('Payment setup failed:', err);
+      $('cardBox').classList.add('hidden');
+      $('payBtn').classList.add('hidden');
+      if (!apple && !google) msg('We couldn’t load the payment form. Please refresh this page, or pay with cash at the kiosk.');
+    });
+  }
+
+  function charge(token, verificationToken, email){
+    busy(true, 'Processing payment…');
+    msg('');
+    return fetch(FN + 'pay-kiosk-order', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KEY, 'apikey': KEY },
+      body: JSON.stringify({ ref: REF, t: T, token: token, verificationToken: verificationToken || undefined, email: email || undefined })
+    }).then(function(r){ return r.json().then(function(d){ return { ok: r.ok, status: r.status, d: d }; }); })
+      .then(function(r){
+        if (r.ok && r.d && r.d.paid) return paid(r.d.redirectUrl);
+        busy(false);
+        if (r.d && r.d.code === 'EXPIRED') { stopPoll(); return gone('This code has expired', r.d.error); }
+        msg((r.d && r.d.error) || 'Your payment didn’t go through. You haven’t been charged. Please try again.');
+      })
+      .catch(function(){
+        busy(false);
+        msg('We couldn’t reach the payment system. Check the kiosk screen: if it doesn’t show your order confirmed, try again.');
+      });
+  }
+
+  function walletPay(method){
+    if (!method || working) return;
+    // tokenize() has to start inside the tap, or Safari blocks the sheet.
+    var tokenizing = method.tokenize();
+    busy(true, 'Waiting for approval…');
+    tokenizing.then(function(res){
+      if (!res || res.status !== 'OK' || !res.token) {
+        busy(false);
+        var detail = res && res.errors && res.errors[0] && res.errors[0].message;
+        if (res && res.status !== 'Cancel' && detail) msg(detail);
+        return;
+      }
+      var d = res.details || {}, bill = d.billing || {};
+      return charge(res.token, null, bill.email || '');
+    }).catch(function(){ busy(false); });
+  }
+  $('applePayBtn').addEventListener('click', function(){ walletPay(apple); });
+  $('googlePayBtn').addEventListener('click', function(){ walletPay(google); });
+
+  function cardErrorText(e){
+    var f = e && e.field;
+    if (f === 'cardNumber') return 'Check the card number.';
+    if (f === 'expirationDate') return 'Check the expiration date.';
+    if (f === 'cvv') return 'Check the security code (CVV).';
+    if (f === 'postalCode') return 'Check the ZIP code.';
+    return (e && e.message) || 'Check your card details and try again.';
+  }
+  $('payBtn').addEventListener('click', function(){
+    if (!card || working) return;
+    msg('');
+    busy(true, 'Processing payment…');
+    var first = order && order.firstName && order.firstName !== 'Kiosk' ? order.firstName : undefined;
+    card.tokenize({
+      amount: total.toFixed(2), currencyCode: 'USD', intent: 'CHARGE',
+      customerInitiated: true, sellerKeyedIn: false,
+      billingContact: { givenName: first }
+    }).then(function(res){
+      if (!res || res.status !== 'OK' || !res.token) {
+        busy(false);
+        msg(cardErrorText(res && res.errors && res.errors[0]));
+        return;
+      }
+      return charge(res.token, null, '');
+    }).catch(function(err){
+      console.error('Card tokenize failed:', err);
+      busy(false);
+      msg('We couldn’t process the card. You haven’t been charged. Please try again.');
+    });
+  });
+
+  // ---- Start ----
+  fetchOrder().then(function(r){
+    if (!r.ok || !r.d) {
+      return gone(r.status === 404 ? 'We couldn’t find this order' : 'Something went wrong', r.status === 404 ? 'Please scan the code on the kiosk screen again.' : 'Please refresh this page, or pay with cash at the kiosk.');
+    }
+    order = r.d;
+    if (order.status === 'paid') return paid();
+    if (order.status !== 'pending') return gone('This order was cancelled', 'Please start a new order on the kiosk, or pay at the window.');
+    total = Number(order.total) || 0;
+    render(order);
+    show('checkout');
+    setupPayments();
+    poll();
+  }).catch(function(){
+    gone('No connection', 'Check your phone’s internet and refresh this page.');
+  });
+})();
+</script>
+</body>
+</html>
