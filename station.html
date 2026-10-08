@@ -534,6 +534,81 @@
     .curbside-badge{ font-size:17px; }
     .curbside-badge.arrived{ font-size:19px; }
   }
+
+  /* =========================================================
+     KITCHEN BOARD v2 -- the same header on every screen:
+     [ name · clock · updated ]  [ station tabs ]  [ tools · Lock ]
+     ========================================================= */
+  .kh{ display:flex !important; flex-wrap:wrap; align-items:center; gap:10px 16px !important; padding:12px 18px !important; justify-content:flex-start !important; }
+  .kh-id{ display:flex; align-items:baseline; gap:12px; margin-right:auto; min-width:0; }
+  .kh-id h1{ margin:0 !important; white-space:nowrap; }
+  .kh-id .board-last-updated{ margin:0 !important; white-space:nowrap; }
+  .kh-id [id$="Clock"]{ margin:0 !important; white-space:nowrap; }
+  .st-tabs{ display:flex; flex-wrap:wrap; gap:4px; background:#1c1c1e; border:1px solid #2c2c2e; border-radius:14px; padding:4px; }
+  .kh .st-tab{ display:inline-flex; align-items:center; gap:6px; margin:0 !important; border:0 !important; border-radius:10px !important; padding:10px 16px !important;
+    font-size:16px !important; font-weight:700; color:var(--cream) !important; background:transparent; white-space:nowrap; min-height:44px; }
+  .kh button.st-tab:active{ background:#2c2c2e; }
+  .kh .st-tab.on{ background:#f5f5f7; color:#1d1d1f !important; }
+  .kh .st-tab.hidden{ display:none !important; }
+  .kh .st-tab.cal-btn{ color:#ffd479 !important; }
+  .kh .st-tab.on #calEventName{ color:inherit; font-size:inherit; font-weight:inherit; margin:0; }
+  .kh .st-tab .nd-count, .kh .st-tab .cal-n{ margin-left:4px; }
+  .kh-tools{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+  .kh-tools button{ margin:0 !important; min-height:44px; }
+  .kh .kh-lock{ color:var(--muted) !important; border:1px solid var(--line) !important; border-radius:100px; padding:9px 15px !important; font-size:15px !important; font-weight:700; }
+
+  /* ---------- Sub Station v2: order tickets, fryer items blink red ---------- */
+  #fryerPanels{ flex:1; min-height:0; display:flex !important; flex-direction:column; }
+  #fryerSummary{ flex:none; display:flex; flex-wrap:wrap; gap:10px 24px; padding:12px 18px; border-bottom:1px solid var(--line); }
+  .fs-group{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+  .fs-label{ font-family:var(--kds-font); font-size:20px; font-weight:800; color:var(--cream); text-transform:uppercase; letter-spacing:.03em; margin-right:4px; }
+  .fs-none{ color:var(--muted); font-size:15px; font-weight:600; }
+  .fs-chip{ display:inline-flex; align-items:baseline; gap:6px; border-radius:12px; padding:10px 14px; font-size:18px; font-weight:700; min-height:48px; }
+  .fs-chip b{ font-family:var(--kds-font); font-size:24px; }
+  .fs-chip small{ font-size:12.5px; font-weight:800; text-transform:uppercase; letter-spacing:.04em; opacity:.85; margin-left:4px; }
+  .fs-chip.drop{ background:#ff3b30; color:#fff; animation:fryBlink 1s steps(2, start) infinite; }
+  .fs-chip.fry{ background:rgba(255,159,10,.18); color:var(--cook); border:2px solid var(--cook); }
+  .fs-chip:disabled{ opacity:.5; animation:none; }
+  #fryerTickets{ flex:1; min-height:0; overflow-y:auto; padding:14px 16px 30px; display:grid; grid-template-columns:repeat(auto-fill, minmax(290px, 1fr)); gap:14px; align-content:start; }
+  .ft{ background:#1c1c1e; border:2px solid #2c2c2e; border-radius:14px; padding:12px 14px; display:flex; flex-direction:column; gap:8px; }
+  .ft.todo{ border-color:#ff3b30; animation:fryBorder 1s steps(2, start) infinite; }
+  .ft.frying{ border-color:var(--cook); }
+  .ft.done{ border-color:rgba(48,209,88,.6); }
+  .ft.nofry{ opacity:.55; }
+  .ft header{ display:flex; align-items:center; gap:8px; min-width:0; }
+  .ft-ref{ font-family:var(--kds-font); font-size:26px; font-weight:800; color:var(--white); white-space:nowrap; }
+  .ft-src{ font-size:12px; font-weight:800; text-transform:uppercase; letter-spacing:.04em; padding:3px 8px; border-radius:6px; background:#3a3a3c; color:#fff; white-space:nowrap; }
+  .ft-src.dd{ background:#ff3008; } .ft-src.ue{ background:#06c167; color:#00210f; } .ft-src.gh{ background:#ff8000; color:#2a1400; }
+  .ft-src.ki{ background:#5e5ce6; } .ft-src.du{ background:#0a84ff; } .ft-src.web{ background:#3a3a3c; }
+  .ft-name{ color:var(--muted); font-size:15px; font-weight:600; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; min-width:0; }
+  .ft-age{ margin-left:auto; font-family:var(--kds-font); font-size:20px; font-weight:700; color:var(--cream); }
+  .ft ul{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:6px; }
+  .ft li{ display:flex; align-items:center; gap:10px; border-radius:10px; padding:8px 10px; font-size:18px; }
+  .ft li .q{ font-family:var(--kds-font); font-size:22px; font-weight:800; min-width:34px; }
+  .ft li .n{ flex:1; min-width:0; font-weight:700; }
+  .ft li .n small{ display:block; font-size:13.5px; font-weight:700; color:#ffb4ab; margin-top:1px; }
+  .ft li .n .item-variation, .ft li .n .item-modifier{ color:inherit; opacity:.85; }
+  .ft li .t{ font-size:11.5px; font-weight:800; letter-spacing:.05em; white-space:nowrap; }
+  .ft li .n .t{ display:block; margin-top:3px; opacity:.95; }
+  .ft header .ft-name{ flex:1; }
+  .ft header .ft-age{ margin-left:0; }
+  .ft li.fx{ cursor:pointer; min-height:56px; -webkit-tap-highlight-color:transparent; }
+  .ft li.fx.queued{ background:#ff3b30; color:#fff; animation:fryBlink 1s steps(2, start) infinite; }
+  .ft li.fx.queued .n small{ color:#fff; }
+  .ft li.fx.prepping{ background:rgba(255,159,10,.16); color:var(--cook); border:2px solid var(--cook); }
+  .ft li.fx.ready{ background:rgba(48,209,88,.12); color:var(--ready); }
+  .ft li.fx.busy{ opacity:.5; animation:none; }
+  .ft li.nf{ color:var(--muted); background:transparent; padding:3px 10px; font-size:16px; }
+  .ft li.nf .q{ font-size:18px; }
+  .ft li.nf.drink{ font-size:14px; }
+  .ft li.nf.ok .n{ text-decoration:line-through; }
+  .ft-notes{ background:rgba(255,214,10,.12); color:var(--note); border-radius:8px; padding:6px 9px; font-size:14px; font-weight:600; }
+  .ft-foot{ color:var(--muted); font-size:14px; font-weight:700; }
+  .ft-foot.ok{ color:var(--ready); }
+  .ft-empty{ color:var(--muted); font-size:18px; text-align:center; padding:60px 10px; grid-column:1 / -1; }
+  @keyframes fryBlink{ 0%{ background:#ff3b30; } 50%{ background:#7a120c; } 100%{ background:#ff3b30; } }
+  @keyframes fryBorder{ 0%{ border-color:#ff3b30; box-shadow:0 0 0 2px rgba(255,59,48,.45); } 50%{ border-color:#5a1410; box-shadow:none; } 100%{ border-color:#ff3b30; } }
+  @media (prefers-reduced-motion: reduce){ .ft li.fx.queued, .fs-chip.drop, .ft.todo{ animation:none; } }
 </style>
 </head>
 <body>
@@ -633,20 +708,27 @@
 </div>
 
 <div id="board" class="hidden">
-  <div id="boardHeader">
-    <h1>Kitchen Board</h1>
-    <div id="boardLastUpdated" class="board-last-updated">&mdash;</div>
-    <div id="boardClock">&mdash;</div>
-    <button type="button" id="scheduledBtn">&#9200; Scheduled<span class="sched-count zero" id="scheduledCount">0</span></button>
-    <button type="button" id="spotsBtn" title="Parking spots in use">&#127359; Spots<span class="dots" id="spotsDots">&#9675;&#9675;&#9675;&#9675;&#9675;</span></button>
-    <button type="button" id="truckLocBtn" title="Save where the truck is parked (for drive-up check-ins)">&#128205; Truck location</button>
-    <button type="button" id="recallBtn">&#8634; Recall</button>
-    <button type="button" id="switchToFryerBtn">Switch to Sub Station</button>
-    <button type="button" id="viewToggleBtn" title="Switch between item prep and whole tickets">&#9638; Tickets view</button>
-    <button type="button" id="nextDoorBtn" title="Next Door delivery orders">&#127970; Next Door<span class="nd-count zero" id="nextDoorCount">0</span></button>
-    <button type="button" id="switchToLunchBtn" class="hidden">Corporate Lunch</button>
-    <button type="button" id="switchToCalBtn" class="cal-btn hidden">Event board</button>
-    <button type="button" id="lockBtn">Lock Screen</button>
+  <div id="boardHeader" class="kh">
+    <div class="kh-id">
+      <h1>Kitchen Board</h1>
+      <div id="boardClock">&mdash;</div>
+      <div id="boardLastUpdated" class="board-last-updated">&mdash;</div>
+    </div>
+    <nav class="st-tabs" aria-label="Stations">
+      <span class="st-tab on" aria-current="page">&#127859; Main</span>
+      <button type="button" id="switchToFryerBtn" class="st-tab">&#127839; Sub Station</button>
+      <button type="button" id="switchToCalBtn" class="st-tab cal-btn hidden">Event board</button>
+      <button type="button" id="switchToLunchBtn" class="st-tab hidden">&#127970; Corporate Lunch</button>
+      <button type="button" id="nextDoorBtn" class="st-tab" title="Next Door delivery orders">&#128666; Next Door<span class="nd-count zero" id="nextDoorCount">0</span></button>
+    </nav>
+    <div class="kh-tools">
+      <button type="button" id="viewToggleBtn" title="Switch between item prep and whole tickets">&#9638; Tickets view</button>
+      <button type="button" id="scheduledBtn">&#9200; Scheduled<span class="sched-count zero" id="scheduledCount">0</span></button>
+      <button type="button" id="spotsBtn" title="Parking spots in use">&#127359; Spots<span class="dots" id="spotsDots">&#9675;&#9675;&#9675;&#9675;&#9675;</span></button>
+      <button type="button" id="truckLocBtn" title="Save where the truck is parked (for drive-up check-ins)">&#128205; Truck location</button>
+      <button type="button" id="recallBtn">&#8634; Recall</button>
+      <button type="button" id="lockBtn" class="kh-lock">&#128274; Lock</button>
+    </div>
   </div>
   <div id="boardErrorBanner" class="hidden"></div>
   <div id="squareSyncBanner" class="hidden" role="alert"></div>
@@ -691,37 +773,46 @@
 </div>
 
 <div id="fryerBoard" class="hidden">
-  <div id="fryerBoardHeader">
-    <h1>Fryer Station</h1>
-    <div id="fryerBoardLastUpdated" class="board-last-updated">&mdash;</div>
-    <div id="fryerBoardClock">&mdash;</div>
-    <button type="button" id="switchToMainBtn">Switch to Main Station</button>
-    <button type="button" id="fryerToLunchBtn" class="hidden">Corporate Lunch</button>
-    <button type="button" id="fryerToCalBtn" class="cal-btn hidden">Event board</button>
-    <button type="button" id="fryerLockBtn">Lock Screen</button>
+  <div id="fryerBoardHeader" class="kh">
+    <div class="kh-id">
+      <h1>Sub Station</h1>
+      <div id="fryerBoardClock">&mdash;</div>
+      <div id="fryerBoardLastUpdated" class="board-last-updated">&mdash;</div>
+    </div>
+    <nav class="st-tabs" aria-label="Stations">
+      <button type="button" id="switchToMainBtn" class="st-tab">&#127859; Main</button>
+      <span class="st-tab on" aria-current="page">&#127839; Sub Station</span>
+      <button type="button" id="fryerToCalBtn" class="st-tab cal-btn hidden">Event board</button>
+      <button type="button" id="fryerToLunchBtn" class="st-tab hidden">&#127970; Corporate Lunch</button>
+    </nav>
+    <div class="kh-tools">
+      <button type="button" id="fryerLockBtn" class="kh-lock">&#128274; Lock</button>
+    </div>
   </div>
   <div id="fryerBoardErrorBanner" class="hidden"></div>
   <div id="fryerCanceledOrdersBanner" class="hidden"></div>
+  <!-- Every order as a ticket; fryer items blink red until dropped. -->
   <div id="fryerPanels">
-    <div id="fryerItemPanel">
-      <div class="panel-head">Fryer Items</div>
-      <div id="fryerItemColumns">
-        <div id="fryerColQueued" class="item-col"><div class="item-col-label">To Prep</div></div>
-        <div id="fryerColPrepping" class="item-col"><div class="item-col-label">Prepping</div></div>
-        <div id="fryerColReady" class="item-col"><div class="item-col-label">Ready</div></div>
-      </div>
-    </div>
+    <div id="fryerSummary" aria-live="polite"></div>
+    <div id="fryerTickets"></div>
   </div>
 </div>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
 <div id="doorBoard" class="hidden">
-  <div id="doorHeader">
-    <h1>Next Door</h1>
-    <div id="doorUpdated" class="board-last-updated">&mdash;</div>
-    <div id="doorClock">&mdash;</div>
-    <button type="button" id="doorToMainBtn">Main Station</button>
-    <button type="button" id="doorLockBtn">Lock Screen</button>
+  <div id="doorHeader" class="kh">
+    <div class="kh-id">
+      <h1>Next Door</h1>
+      <div id="doorClock">&mdash;</div>
+      <div id="doorUpdated" class="board-last-updated">&mdash;</div>
+    </div>
+    <nav class="st-tabs" aria-label="Stations">
+      <button type="button" id="doorToMainBtn" class="st-tab">&#127859; Main</button>
+      <span class="st-tab on" aria-current="page">&#128666; Next Door</span>
+    </nav>
+    <div class="kh-tools">
+      <button type="button" id="doorLockBtn" class="kh-lock">&#128274; Lock</button>
+    </div>
   </div>
   <div id="doorError" class="hidden"></div>
   <div id="doorEvents"></div>
@@ -731,14 +822,20 @@
 <!-- Event board: calendar events (event-day-printing.sql). One order at a
      time: Pull next order -> make it -> Ready (prints) -> Picked up. -->
 <div id="calBoard" class="hidden">
-  <div id="calHeader">
-    <h1>Event board</h1>
-    <div id="calEventName"></div>
-    <div id="calClock">&mdash;</div>
-    <div id="calUpdated" class="board-last-updated">&mdash;</div>
-    <button type="button" id="calToFryerBtn">Sub Station</button>
-    <button type="button" id="calToMainBtn">Main Station</button>
-    <button type="button" id="calLockBtn">Lock Screen</button>
+  <div id="calHeader" class="kh">
+    <div class="kh-id">
+      <h1>Event board</h1>
+      <div id="calClock">&mdash;</div>
+      <div id="calUpdated" class="board-last-updated">&mdash;</div>
+    </div>
+    <nav class="st-tabs" aria-label="Stations">
+      <button type="button" id="calToMainBtn" class="st-tab">&#127859; Main</button>
+      <button type="button" id="calToFryerBtn" class="st-tab">&#127839; Sub Station</button>
+      <span class="st-tab on" aria-current="page">&#128197; <span id="calEventName">Event</span></span>
+    </nav>
+    <div class="kh-tools">
+      <button type="button" id="calLockBtn" class="kh-lock">&#128274; Lock</button>
+    </div>
   </div>
   <div id="calError" class="hidden"></div>
   <div id="calTop">
@@ -750,13 +847,20 @@
 </div>
 
 <div id="lunchBoard" class="hidden">
-  <div id="lunchHeader">
-    <h1>Corporate Lunch</h1>
-    <div id="lunchUpdated" class="board-last-updated">&mdash;</div>
-    <div id="lunchClock">&mdash;</div>
-    <button type="button" id="lunchToMainBtn">Main Station</button>
-    <button type="button" id="lunchToFryerBtn">Sub Station</button>
-    <button type="button" id="lunchLockBtn">Lock Screen</button>
+  <div id="lunchHeader" class="kh">
+    <div class="kh-id">
+      <h1>Corporate Lunch</h1>
+      <div id="lunchClock">&mdash;</div>
+      <div id="lunchUpdated" class="board-last-updated">&mdash;</div>
+    </div>
+    <nav class="st-tabs" aria-label="Stations">
+      <button type="button" id="lunchToMainBtn" class="st-tab">&#127859; Main</button>
+      <button type="button" id="lunchToFryerBtn" class="st-tab">&#127839; Sub Station</button>
+      <span class="st-tab on" aria-current="page">&#127970; Corporate Lunch</span>
+    </nav>
+    <div class="kh-tools">
+      <button type="button" id="lunchLockBtn" class="kh-lock">&#128274; Lock</button>
+    </div>
   </div>
   <div id="lunchError" class="hidden"></div>
   <div id="lunchEvents"></div>
@@ -891,7 +995,7 @@
     }).catch(function(){});
     // Event board (calendar events): shown during event hours or while event orders are open.
     sb.rpc('kds_cal_event_today').then(function(res){
-      var ev = res && !res.error && res.data;
+      var ev = res && !res.error && res.data && res.data.title ? res.data : null;
       ['chooseCalBtn', 'switchToCalBtn', 'fryerToCalBtn'].forEach(function(id){
         var b = document.getElementById(id); if (!b) return;
         b.classList.toggle('hidden', !ev);
@@ -2388,6 +2492,7 @@
 
     window.startFryerBoard = function(){
       stationOnActiveBoard = true;
+      if (!window.__kdsTags) sb.rpc('kds_event_settings_get').then(function(res){ if (res && !res.error && res.data) { window.__kdsTags = res.data; if (fLastRows) renderFryerItemPanel(fLastRows); } }).catch(function(){});
       requestWakeLock();
       fetchAndRender();
       realtimeChannel = sb.channel('kds-fryer-board')
@@ -2430,7 +2535,7 @@
         var fryerRows = res.data.filter(isFryerItem);
         if (window.refreshLunchVisibility) window.refreshLunchVisibility();
         detectNewFryerOrdersAndPlaySounds(fryerRows);
-        renderFryerItemPanel(fryerRows);
+        renderFryerItemPanel(res.data);   // every order; fryer items highlighted
         checkForFryerCanceledOrders();
         lastFetchAt = Date.now();
         updateLastUpdatedDisplay();
@@ -2492,62 +2597,124 @@
       });
       if (next !== null) fReadyTimer = setTimeout(function(){ if (fLastRows) renderFryerItemPanel(fLastRows); }, next + 50);
     }
+    // ---- Sub Station v2: every order as a ticket ----
+    // Fryer items blink red until they're dropped, show solid orange while
+    // in the fryer, and get a green check when done. Everything else on the
+    // order is shown dimmed so the fryer cook sees the whole order.
+    // Tap an item to move it along; the strip on top batches the basket.
+    var fBusy = {}, fUnitTapMissing = false;
+    var SRC = { doordash: ['DoorDash', 'dd'], ubereats: ['Uber Eats', 'ue'], grubhub: ['Grubhub', 'gh'], kiosk: ['Kiosk', 'ki'], qr: ['Drive-up', 'du'], website: ['Online', 'web'] };
+    // Fryer words come from the kitchen settings (staff portal) when loaded.
+    function fryerWords(){
+      var w = window.__kdsTags && window.__kdsTags.fryer_words;
+      var list = String(w || '').split(',').map(function(x){ return x.trim().toLowerCase(); }).filter(Boolean);
+      return list.length ? list : FRYER_KEYWORDS;
+    }
+    function isFry(name){ var n = String(name || '').toLowerCase(); return fryerWords().some(function(k){ return n.indexOf(k) !== -1; }); }
+    function ago(iso){ var m = Math.max(0, Math.floor((Date.now() - Date.parse(iso)) / 60000)); return isNaN(m) ? '' : m < 1 ? 'now' : m + 'm'; }
     function renderFryerItemPanel(rows){
       fLastRows = rows;
-      var byItem = {};
+      // group rows into orders (rows arrive oldest order first)
+      var orders = [], byId = {};
       rows.forEach(function(r){
-        if (r.is_drink) return;
-        if (!fFreshReady(r)) return;
-        if (!byItem[r.item_name]) byItem[r.item_name] = { queued: 0, prepping: 0, ready: 0, notes: { queued: {}, prepping: {}, ready: {} } };
-        byItem[r.item_name][r.status] += 1;
-        // "No onions" etc. from the customer, counted per stage
-        if (r.item_note) { var nb = byItem[r.item_name].notes[r.status]; nb[r.item_note] = (nb[r.item_note] || 0) + 1; }
+        var o = byId[r.order_id];
+        if (!o) { o = byId[r.order_id] = { id: r.order_id, ref: r.reference_code, name: r.customer_name, src: r.order_source, at: r.order_created_at, notes: r.order_notes, cash: r.payment_method === 'cash', units: [] }; orders.push(o); }
+        o.units.push(r);
       });
-
-      var itemNames = Object.keys(byItem).sort();
-
-      renderFryerColumn('fryerColQueued', itemNames, byItem, 'queued', 'box-gray', function(name){
-        return function(){ sb.rpc('kds_start_prep', { p_item_name: name }).then(fetchAndRender); };
-      });
-      renderFryerColumn('fryerColPrepping', itemNames, byItem, 'prepping', 'box-orange', function(name){
-        return function(){ sb.rpc('kds_mark_one_ready', { p_item_name: name }).then(fetchAndRender); };
-      });
-      renderFryerColumn('fryerColReady', itemNames, byItem, 'ready', 'box-green', null);
-      fScheduleReadyExpiry();
-
-      previousCounts = byItem;
+      // summary strip: fryer items to drop / in the fryer, across all orders
+      var drop = {}, frying = {};
+      orders.forEach(function(o){ o.units.forEach(function(u){
+        if (u.is_drink || !isFry(u.item_name)) return;
+        var key = u.item_name + (u.item_note ? ' (' + u.item_note + ')' : '');
+        var bucket = u.status === 'queued' ? drop : u.status === 'prepping' ? frying : null;
+        if (bucket) (bucket[key] = bucket[key] || { name: u.item_name, ids: [] }).ids.push(u.prep_unit_id);
+      }); });
+      var chips = function(map, cls, verb){
+        return Object.keys(map).sort().map(function(k){
+          return '<button type="button" class="fs-chip ' + cls + '" data-batch="' + cls + '" data-name="' + escHtml(map[k].name) + '" data-ids="' + map[k].ids.join(',') + '">' +
+            '<b>' + map[k].ids.length + '×</b> ' + escHtml(k) + '<small>' + verb + '</small></button>';
+        }).join('');
+      };
+      var dropHtml = chips(drop, 'drop', 'Drop all'), fryHtml = chips(frying, 'fry', 'All done');
+      document.getElementById('fryerSummary').innerHTML =
+        '<div class="fs-group"><span class="fs-label">To drop</span>' + (dropHtml || '<span class="fs-none">Nothing to drop</span>') + '</div>' +
+        '<div class="fs-group"><span class="fs-label">In the fryer</span>' + (fryHtml || '<span class="fs-none">Fryer empty</span>') + '</div>';
+      // one ticket per order
+      var stageRank = { queued: 0, prepping: 1, ready: 2 };
+      var html = orders.map(function(o){
+        var groups = [], gi = {};
+        o.units.forEach(function(u){
+          var fry = !u.is_drink && isFry(u.item_name);
+          var k = [u.item_name, u.item_note || '', u.status, fry ? 1 : 0, u.is_drink ? 1 : 0].join('|');
+          if (!gi[k]) { gi[k] = { name: u.item_name, note: u.item_note, status: u.status, fry: fry, drink: !!u.is_drink, ids: [] }; groups.push(gi[k]); }
+          gi[k].ids.push(u.prep_unit_id);
+        });
+        // fryer items first, then the rest, drinks last
+        groups.sort(function(a, b){ return (b.fry - a.fry) || (a.drink - b.drink) || (stageRank[a.status] - stageRank[b.status]); });
+        var todo = groups.some(function(g){ return g.fry && g.status === 'queued'; });
+        var inFryer = groups.some(function(g){ return g.fry && g.status === 'prepping'; });
+        var anyFry = groups.some(function(g){ return g.fry; });
+        var state = todo ? 'todo' : inFryer ? 'frying' : anyFry ? 'done' : 'nofry';
+        var src = SRC[o.src] || [o.src || 'Order', 'web'];
+        var lines = groups.map(function(g){
+          var cls = g.fry ? 'fx ' + g.status : (g.drink ? 'nf drink' : 'nf') + (g.status === 'ready' ? ' ok' : '');
+          var tag = g.fry ? (g.status === 'queued' ? 'TAP TO DROP' : g.status === 'prepping' ? 'IN FRYER · TAP WHEN DONE' : '✓ DONE') : (g.status === 'ready' ? '✓' : '');
+          var tap = g.fry && g.status !== 'ready';
+          return '<li class="' + cls + '"' + (tap ? ' data-unit="' + g.ids[0] + '" data-name="' + escHtml(g.name) + '" data-status="' + g.status + '" role="button" tabindex="0"' : '') + '>' +
+            '<span class="q">' + g.ids.length + '×</span><span class="n">' + renderItemNameHtml(g.name) + (g.note ? '<small>' + escHtml(g.note) + '</small>' : '') +
+            (tag && g.fry ? '<span class="t">' + tag + '</span>' : '') + '</span>' + (tag && !g.fry ? '<span class="t">' + tag + '</span>' : '') + '</li>';
+        }).join('');
+        return '<article class="ft ' + state + '" data-order="' + o.id + '">' +
+          '<header><span class="ft-ref">' + escHtml(o.ref || '') + '</span><span class="ft-src ' + src[1] + '">' + escHtml(src[0]) + '</span>' +
+            '<span class="ft-name">' + escHtml(o.name || '') + '</span><span class="ft-age" data-at="' + escHtml(o.at || '') + '">' + ago(o.at) + '</span></header>' +
+          '<ul>' + lines + '</ul>' +
+          (o.notes ? '<div class="ft-notes">' + escHtml(o.notes) + '</div>' : '') +
+          (state === 'nofry' ? '<div class="ft-foot">No fryer items</div>' : state === 'done' ? '<div class="ft-foot ok">✓ Fryer done</div>' : '') +
+        '</article>';
+      }).join('');
+      document.getElementById('fryerTickets').innerHTML = html || '<div class="ft-empty">No orders right now.</div>';
       isFirstItemRender = false;
     }
-
-    function renderFryerColumn(colId, itemNames, byItem, statusKey, boxClass, makeHandler){
-      var col = document.getElementById(colId);
-      var label = col.querySelector('.item-col-label');
-      col.innerHTML = '';
-      col.appendChild(label);
-
-      var any = false;
-      itemNames.forEach(function(name){
-        var count = byItem[name][statusKey];
-        if (count <= 0) return;
-        any = true;
-        var priorCount = previousCounts[name] ? previousCounts[name][statusKey] : 0;
-        var shouldFlash = !isFirstItemRender && count !== priorCount;
-        var box = document.createElement('div');
-        box.className = 'item-box ' + boxClass + (shouldFlash ? ' flash' : '');
-        var noteMap = (byItem[name].notes || {})[statusKey] || {};
-        var noteHtml = Object.keys(noteMap).map(function(n){ return '<span class="item-modifier">' + noteMap[n] + '\u00d7 ' + escHtml(n) + '</span>'; }).join('');
-        box.innerHTML = '<span class="nm">' + renderItemNameHtml(name) + noteHtml + '</span><span class="cnt">x' + count + '</span>';
-        if (makeHandler) box.addEventListener('click', makeHandler(name));
-        col.appendChild(box);
-      });
-
-      if (!any) {
-        var hint = document.createElement('div');
-        hint.className = 'col-empty-hint';
-        hint.textContent = 'Nothing here right now';
-        col.appendChild(hint);
-      }
+    // order ages tick without a redraw
+    setInterval(function(){
+      document.querySelectorAll('#fryerTickets .ft-age').forEach(function(el){ var at = el.getAttribute('data-at'); if (at) el.textContent = ago(at); });
+    }, 20000);
+    function fryerTap(el){
+      var id = el.getAttribute('data-unit'), name = el.getAttribute('data-name'), st = el.getAttribute('data-status');
+      if (!id || fBusy[id]) return;
+      fBusy[id] = true; el.classList.add('busy');
+      var byName = function(){ return sb.rpc(st === 'queued' ? 'kds_start_prep' : 'kds_mark_one_ready', { p_item_name: name }); };
+      // Exactly this item (kitchen-board-v2.sql); before that's run, the oldest of its kind.
+      (fUnitTapMissing ? byName() : sb.rpc('kds_unit_tap', { p_unit_id: id }).then(function(res){
+        if (res && res.error && /does not exist|could not find/i.test(res.error.message || '')) { fUnitTapMissing = true; return byName(); }
+        if (res && res.error) showFryerError('Couldn’t update that item — ' + (res.error.message || 'unknown error'));
+        return res;
+      })).then(function(){ delete fBusy[id]; fetchAndRender(); }, function(){ delete fBusy[id]; el.classList.remove('busy'); showFryerError("Couldn't reach the server — check your connection."); });
     }
+    document.getElementById('fryerTickets').addEventListener('click', function(e){
+      var li = e.target.closest('li[data-unit]'); if (li) fryerTap(li);
+    });
+    document.getElementById('fryerTickets').addEventListener('keydown', function(e){
+      if ((e.key === 'Enter' || e.key === ' ') && e.target.matches('li[data-unit]')) { e.preventDefault(); fryerTap(e.target); }
+    });
+    // Strip on top: "Drop all 3 Fries" / "All Fries done".
+    document.getElementById('fryerSummary').addEventListener('click', function(e){
+      var b = e.target.closest('[data-batch]'); if (!b || b.disabled) return;
+      var ids = b.getAttribute('data-ids').split(',').filter(Boolean), name = b.getAttribute('data-name');
+      var from = b.getAttribute('data-batch') === 'drop' ? 'queued' : 'prepping';
+      b.disabled = true;
+      sb.rpc('kds_units_advance', { p_unit_ids: ids, p_from: from }).then(function(res){
+        if (res && res.error) {
+          if (/does not exist|could not find/i.test(res.error.message || '')) {
+            // Before kitchen-board-v2.sql: one step per item, oldest first.
+            var chain = Promise.resolve();
+            ids.forEach(function(){ chain = chain.then(function(){ return sb.rpc(from === 'queued' ? 'kds_start_prep' : 'kds_mark_one_ready', { p_item_name: name }); }); });
+            return chain;
+          }
+          showFryerError('Couldn’t update those items — ' + (res.error.message || 'unknown error'));
+        }
+      }).then(fetchAndRender, function(){ showFryerError("Couldn't reach the server — check your connection."); fetchAndRender(); });
+    });
   })();
 
   // ---------------- Corporate lunch board ----------------
@@ -2745,7 +2912,7 @@
         var waiting = Number(d.waiting) || 0;
         var cooking = (d.orders || []).some(function(o){ return o.stage === 'cooking'; });
         document.getElementById('calQueueNum').textContent = waiting;
-        document.getElementById('calEventName').textContent = d.event && d.event.title ? d.event.title + (d.event.from ? ' · ' + d.event.from + (d.event.until ? '–' + d.event.until : '') : '') : '';
+        document.getElementById('calEventName').textContent = d.event && d.event.title ? d.event.title + (d.event.from ? ' · ' + d.event.from + (d.event.until ? '–' + d.event.until : '') : '') : 'Event';
         var b = document.getElementById('calPullBtn');
         if (!b.dataset.busy) {
           b.disabled = cooking || !waiting;
