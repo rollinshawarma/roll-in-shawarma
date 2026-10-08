@@ -609,6 +609,33 @@
   @keyframes fryBlink{ 0%{ background:#ff3b30; } 50%{ background:#7a120c; } 100%{ background:#ff3b30; } }
   @keyframes fryBorder{ 0%{ border-color:#ff3b30; box-shadow:0 0 0 2px rgba(255,59,48,.45); } 50%{ border-color:#5a1410; box-shadow:none; } 100%{ border-color:#ff3b30; } }
   @media (prefers-reduced-motion: reduce){ .ft li.fx.queued, .fs-chip.drop, .ft.todo{ animation:none; } }
+
+  /* ---------- Pause online orders (kitchen) ---------- */
+  #pauseOnlineBtn{ color:#ffb340 !important; border:1.5px solid rgba(255,179,64,.7) !important; border-radius:100px; padding:9px 15px !important; font-size:15px !important; font-weight:800; white-space:nowrap; }
+  #pauseOnlineBtn.is-paused{ background:#ff453a; border-color:#ff453a !important; color:#fff !important; animation:pmPulse 1.6s ease-in-out infinite; }
+  #pauseOnlineBtn.is-event{ color:#ffd479 !important; border-color:rgba(255,212,121,.5) !important; }
+  @keyframes pmPulse{ 50%{ box-shadow:0 0 0 6px rgba(255,69,58,.25); } }
+  .pm-overlay{ position:fixed; inset:0; z-index:900; background:rgba(0,0,0,.72); display:flex; align-items:center; justify-content:center; padding:16px; }
+  .pm-overlay.hidden{ display:none; }
+  .pm-box{ position:relative; width:min(420px, 100%); background:#1c1c1e; border:1px solid #2c2c2e; border-radius:22px; padding:22px 22px 18px; color:var(--white); text-align:center; }
+  .pm-x{ position:absolute; top:10px; right:12px; width:40px; height:40px; border-radius:50%; font-size:26px; color:var(--muted); }
+  .pm-box h2{ font-family:var(--kds-font); font-size:30px; font-weight:800; margin:2px 0 4px; }
+  .pm-sub{ color:var(--muted); font-size:14.5px; margin:0 0 14px; }
+  .pm-durs{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin-bottom:16px; }
+  .pm-durs button{ min-height:46px; border-radius:12px; border:1.5px solid #3a3a3c; color:var(--cream); font-size:16px; font-weight:700; }
+  .pm-durs button.on{ background:#ffb340; border-color:#ffb340; color:#241600; }
+  .pm-durs.hidden{ display:none; }
+  .pm-pin-label{ font-size:14px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; }
+  .pm-dots{ display:flex; justify-content:center; gap:12px; min-height:22px; margin:10px 0 6px; }
+  .pm-dots i{ width:16px; height:16px; border-radius:50%; background:var(--white); display:block; }
+  .pm-msg{ min-height:20px; font-size:14px; font-weight:700; color:#ff6961; margin-bottom:8px; }
+  .pm-msg.ok{ color:#30d158; }
+  .pm-keys{ display:grid; grid-template-columns:repeat(3, 1fr); gap:8px; }
+  .pm-keys button{ min-height:58px; border-radius:14px; background:#2c2c2e; font-family:var(--kds-font); font-size:28px; font-weight:700; color:var(--white); }
+  .pm-keys button:active{ background:#3a3a3c; }
+  .pm-keys .pm-ok{ background:#ff453a; font-family:"Inter",sans-serif; font-size:17px; font-weight:800; }
+  .pm-keys .pm-ok.resume{ background:#30d158; color:#00240c; }
+  .pm-keys .pm-ok:disabled{ opacity:.4; }
 </style>
 </head>
 <body>
@@ -707,6 +734,30 @@
   <button type="button" id="stationChoiceBackBtn">&larr; Back to menu</button>
 </div>
 
+<!-- Pause / resume online orders from the kitchen (online-pause.sql) -->
+<div id="pauseModal" class="pm-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="pmTitle">
+  <div class="pm-box">
+    <button type="button" class="pm-x" id="pmCancel" aria-label="Cancel">&times;</button>
+    <h2 id="pmTitle">Pause online orders</h2>
+    <p class="pm-sub" id="pmSub">Website orders stop right away. The kiosk and Scan to Pay keep working.</p>
+    <div class="pm-durs" id="pmDurs" role="group" aria-label="How long">
+      <button type="button" data-min="30">30 min</button>
+      <button type="button" data-min="60">1 hour</button>
+      <button type="button" data-min="-1" class="on">Rest of today</button>
+      <button type="button" data-min="">Until I resume</button>
+    </div>
+    <div class="pm-pin-label">Enter your PIN</div>
+    <div class="pm-dots" id="pmDots"></div>
+    <div class="pm-msg" id="pmMsg" role="alert"></div>
+    <div class="pm-keys" id="pmKeys">
+      <button type="button" data-k="1">1</button><button type="button" data-k="2">2</button><button type="button" data-k="3">3</button>
+      <button type="button" data-k="4">4</button><button type="button" data-k="5">5</button><button type="button" data-k="6">6</button>
+      <button type="button" data-k="7">7</button><button type="button" data-k="8">8</button><button type="button" data-k="9">9</button>
+      <button type="button" data-k="del" aria-label="Delete">&#9003;</button><button type="button" data-k="0">0</button><button type="button" data-k="ok" class="pm-ok" id="pmOk" disabled>Pause</button>
+    </div>
+  </div>
+</div>
+
 <div id="board" class="hidden">
   <div id="boardHeader" class="kh">
     <div class="kh-id">
@@ -722,6 +773,7 @@
       <button type="button" id="nextDoorBtn" class="st-tab" title="Next Door delivery orders">&#128666; Next Door<span class="nd-count zero" id="nextDoorCount">0</span></button>
     </nav>
     <div class="kh-tools">
+      <button type="button" id="pauseOnlineBtn" title="Pause or resume website orders (needs your PIN)">&#9208; Pause online</button>
       <button type="button" id="viewToggleBtn" title="Switch between item prep and whole tickets">&#9638; Tickets view</button>
       <button type="button" id="scheduledBtn">&#9200; Scheduled<span class="sched-count zero" id="scheduledCount">0</span></button>
       <button type="button" id="spotsBtn" title="Parking spots in use">&#127359; Spots<span class="dots" id="spotsDots">&#9675;&#9675;&#9675;&#9675;&#9675;</span></button>
@@ -2116,6 +2168,7 @@
     }
     function paintOrderPause(){
       var el = document.getElementById('orderPauseBanner'), d = orderPause;
+      if (typeof paintPauseBtn === 'function') paintPauseBtn();
       if (!el) return;
       var resume = d && d.resume ? d.resume : [];
       if (!d || (!d.paused && !resume.length)) { el.classList.add('hidden'); return; }
@@ -2132,6 +2185,75 @@
           resume.map(function(r){ return '<button type="button" data-op="' + escHtml(r.partner) + '" data-op-act="resumed" data-op-key="' + escHtml(r.key) + '">' + escHtml(opName(r.partner)) + ' is back on</button>'; }).join('') + '</span>';
       }
     }
+    // ---- Pause / resume online orders with a staff PIN (online-pause.sql) ----
+    function paintPauseBtn(){
+      var b = document.getElementById('pauseOnlineBtn'), d = orderPause; if (!b) return;
+      var manual = !!(d && d.manual), ev = !!(d && d.event && !d.manual);
+      b.classList.toggle('is-paused', manual); b.classList.toggle('is-event', ev);
+      b.innerHTML = manual ? '&#9654; Resume online' : ev ? '&#128197; Event pause on' : '&#9208; Pause online';
+      b.title = manual ? 'Website orders are paused' + (d.manual.until ? ' until ' + fmtTime(d.manual.until) : '') + '. Tap to turn them back on.'
+        : ev ? 'Website orders are paused for ' + d.event.name + '. You can still pause from here after it.' : 'Pause website orders (needs your PIN)';
+    }
+    var pm = { pin: '', resume: false, mins: -1, busy: false };
+    function pmPaint(){
+      document.getElementById('pmDots').innerHTML = pm.pin.split('').map(function(){ return '<i></i>'; }).join('');
+      var ok = document.getElementById('pmOk');
+      ok.disabled = pm.busy || pm.pin.length < 4;
+      ok.textContent = pm.busy ? '\u2026' : pm.resume ? 'Resume' : 'Pause';
+      ok.classList.toggle('resume', pm.resume);
+    }
+    function pmMsg(t, good){ var m = document.getElementById('pmMsg'); m.textContent = t || ''; m.classList.toggle('ok', !!good); }
+    function pmOpen(){
+      pm = { pin: '', resume: !!(orderPause && orderPause.manual), mins: -1, busy: false };
+      document.getElementById('pmTitle').textContent = pm.resume ? 'Resume online orders' : 'Pause online orders';
+      document.getElementById('pmSub').textContent = pm.resume ? 'Website orders start again right away.' : 'Website orders stop right away. The kiosk and Scan to Pay keep working.';
+      document.getElementById('pmDurs').classList.toggle('hidden', pm.resume);
+      document.querySelectorAll('#pmDurs button').forEach(function(x){ x.classList.toggle('on', x.getAttribute('data-min') === '-1'); });
+      pmMsg(''); pmPaint();
+      document.getElementById('pauseModal').classList.remove('hidden');
+    }
+    function pmClose(){ document.getElementById('pauseModal').classList.add('hidden'); pm.pin = ''; }
+    document.getElementById('pauseOnlineBtn').addEventListener('click', pmOpen);
+    document.getElementById('pmCancel').addEventListener('click', pmClose);
+    document.getElementById('pauseModal').addEventListener('click', function(e){ if (e.target === this) pmClose(); });
+    document.getElementById('pmDurs').addEventListener('click', function(e){
+      var b = e.target.closest('[data-min]'); if (!b) return;
+      document.querySelectorAll('#pmDurs button').forEach(function(x){ x.classList.toggle('on', x === b); });
+      var v = b.getAttribute('data-min'); pm.mins = v === '' ? null : Number(v);
+    });
+    function pmSubmit(){
+      if (pm.busy || pm.pin.length < 4) return;
+      pm.busy = true; pmMsg(''); pmPaint();
+      sb.rpc('kds_online_pause', { p_pin: pm.pin, p_paused: !pm.resume, p_minutes: pm.resume ? null : pm.mins }).then(function(res){
+        pm.busy = false;
+        if (res && res.error) {
+          pm.pin = ''; pmPaint();
+          pmMsg(/does not exist|could not find/i.test(res.error.message || '') ? 'Run online-pause.sql first.' : (res.error.message || 'Something went wrong.'));
+          return;
+        }
+        var d = res && res.data;
+        if (!d || d.ok === false) { pm.pin = ''; pmPaint(); pmMsg('Wrong PIN. Try again.'); return; }
+        orderPause = d; paintOrderPause();
+        pmMsg((pm.resume ? 'Online orders are back on' : 'Online orders paused') + (d.by ? ' \u00b7 ' + d.by : ''), true);
+        setTimeout(pmClose, 900);
+      }, function(){ pm.busy = false; pm.pin = ''; pmPaint(); pmMsg("Couldn't reach the server. Check the connection."); });
+    }
+    document.getElementById('pmKeys').addEventListener('click', function(e){
+      var b = e.target.closest('[data-k]'); if (!b || pm.busy) return;
+      var k = b.getAttribute('data-k');
+      if (k === 'ok') return pmSubmit();
+      if (k === 'del') pm.pin = pm.pin.slice(0, -1);
+      else if (pm.pin.length < 8) pm.pin += k;
+      pmMsg(''); pmPaint();
+    });
+    document.addEventListener('keydown', function(e){
+      if (document.getElementById('pauseModal').classList.contains('hidden')) return;
+      if (/^\d$/.test(e.key) && pm.pin.length < 8) { pm.pin += e.key; pmPaint(); }
+      else if (e.key === 'Backspace') { pm.pin = pm.pin.slice(0, -1); pmPaint(); }
+      else if (e.key === 'Enter') pmSubmit();
+      else if (e.key === 'Escape') pmClose();
+    });
+
     document.getElementById('orderPauseBanner').addEventListener('click', function(e){
       var b = e.target.closest('[data-op]'); if (!b || !orderPause) return;
       b.disabled = true;
