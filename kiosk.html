@@ -2045,7 +2045,8 @@
     }
 
     // ---- Scan to Pay: creates the order and shows a QR code ----
-    // ---- linking to Square's own hosted checkout page.        ----
+    // ---- linking to our pay page (pay.html): the cart, then   ----
+    // ---- Apple Pay / Google Pay / card on the customer's phone. ----
     function startScanPayment(tipAmount){
       var payBtn = document.getElementById('payScanBtn');
       var msgEl = document.getElementById('kioskCheckoutMsg');
@@ -2076,7 +2077,9 @@
         customerEmail: email || undefined,
         orderSource: 'kiosk',
         memberCode: memberCodeVerified || undefined,
-        tipAmount: tipAmount
+        tipAmount: tipAmount,
+        // The phone opens our own pay page (cart + Apple Pay / Google Pay / card).
+        payOnPhone: true
       });
       // A registered tablet signs the order (lets it order outside posted hours).
       (kioskDevice ? signKioskRequest(scanBody).catch(function(){ return {}; }) : Promise.resolve({})).then(function(proof){
@@ -2089,11 +2092,12 @@
         .then(function(result){
           setPaymentButtonsDisabled(false);
           msgEl.textContent = '';
-          if (!result.ok || !result.data.url) {
+          var payLink = result.data && (result.data.payUrl || result.data.url);
+          if (!result.ok || !payLink) {
             msgEl.textContent = formatErrorMessage(result.data && result.data.error) || "Couldn't start checkout \u2014 please ask for help.";
             return;
           }
-          showScanToPay(result.data.url, result.data.referenceCode, result.data.total);
+          showScanToPay(payLink, result.data.referenceCode, result.data.total);
         })
         .catch(function(){
           setPaymentButtonsDisabled(false);
