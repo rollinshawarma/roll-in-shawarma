@@ -491,6 +491,8 @@
   .du-hours{ margin:14px auto 12px; border-collapse:collapse; font-size:14px; }
   .du-hours td{ padding:3px 10px; text-align:left; }
   .du-hours td:first-child{ font-weight:700; }
+  .du-hours tr.du-today td{ color:var(--white, #fff); font-weight:800; }
+  .du-hours tr.du-today td:first-child{ color:var(--gold, #ffa94d); }
   .door-strip{ background:#1d1d1f; color:#fff; padding:14px 16px 12px; }
   .door-strip.hidden{ display:none; }
   .door-kicker{ font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#ffb4ab; }
@@ -877,8 +879,14 @@
           '<br>Drive-up ordering is off today while we&rsquo;re there. Come see us!' +
           (map ? '<br><a href="' + escHtml(map) + '" target="_blank" rel="noopener">Directions</a>' : '');
       }
-      var rows = (du.hours || []).map(function(h){
-        return '<tr><td>' + escHtml(h.day) + '</td><td>' + escHtml(h.hours) + '</td></tr>';
+      // Start the week at today (truck time): "Today (Thu)", then Fri, Sat...
+      var hrs = (du.hours || []).slice(), todayShort = '';
+      try { todayShort = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short' }).format(new Date()); } catch (e) {}
+      var ti = hrs.findIndex(function(h){ return String(h.day).slice(0, 3) === todayShort; });
+      if (ti > 0) hrs = hrs.slice(ti).concat(hrs.slice(0, ti));
+      var rows = hrs.map(function(h, i){
+        var isToday = ti >= 0 && i === 0;
+        return '<tr' + (isToday ? ' class="du-today"' : '') + '><td>' + (isToday ? 'Today (' + escHtml(h.day) + ')' : escHtml(h.day)) + '</td><td>' + escHtml(h.hours) + '</td></tr>';
       }).join('');
       return '<b>Drive-up ordering is closed right now.</b>' + (du.opens ? '<br>It opens ' + escHtml(du.opens) + '.' : '') +
         (rows ? '<table class="du-hours" aria-label="Drive-up hours">' + rows + '</table>' : '') +
