@@ -1037,6 +1037,32 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
 .ws-drink.noimg[aria-pressed="true"]{ background:var(--ink); border-color:var(--ink); color:#fff; }
 .ws-drink.noimg::after{ display:none; }
 
+/* ---- Taco Tuesday / Thursday: deal card + teaser ---- */
+.taco-banner.tc-on{ position:relative; display:grid; grid-template-columns:132px 1fr auto; align-items:center; gap:4px 20px; max-width:760px; margin:0 auto 24px; padding:16px 18px 16px 16px; border-radius:22px; text-align:left;
+  background:linear-gradient(105deg, #fff1dc 0%, #ffe3c2 100%); color:#5c2b00; border:1px solid #ffd3a1; box-shadow:0 10px 26px rgba(179,71,11,.12); overflow:hidden; }
+.taco-banner.tc-on .tc-img{ width:132px; height:100px; object-fit:cover; border-radius:16px; grid-row:1 / span 2; }
+.taco-banner.tc-on .tc-body{ min-width:0; }
+.taco-banner.tc-on .tc-kicker{ display:inline-block; background:#d62d20; color:#fff; font-size:11.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; padding:4px 9px; border-radius:999px; }
+.taco-banner.tc-on .tc-title{ font-family:"Barlow Condensed","Inter",sans-serif; font-size:36px; line-height:1; font-weight:800; letter-spacing:.01em; color:#2b1300; margin:7px 0 4px; text-transform:uppercase; }
+.taco-banner.tc-on .tc-deal{ margin:0; font-size:16px; font-weight:600; color:#5c2b00; }
+.taco-banner.tc-on .tc-deal s{ color:#a0703f; font-weight:500; margin:0 2px; }
+.taco-banner.tc-on .tc-deal b{ display:inline-block; background:#1d1d1f; color:#fff; font-size:20px; font-weight:800; padding:2px 10px; border-radius:10px; margin-left:2px; }
+.taco-banner.tc-on .tc-note{ margin:6px 0 0; font-size:13px; color:#7a4a1a; }
+.taco-banner.tc-on .tc-go{ align-self:center; background:#d62d20; color:#fff; border:0; border-radius:999px; padding:13px 20px; font:700 15px/1 "Inter",sans-serif; white-space:nowrap; cursor:pointer; }
+.taco-banner.tc-on .tc-go:hover{ background:#b3261e; }
+.taco-banner.tc-teaser{ display:flex; align-items:center; justify-content:center; gap:10px; max-width:760px; margin:0 auto 20px; padding:10px 16px; border-radius:14px; background:#f5f5f7; color:#3a3a3c; font-size:14px; text-align:left; }
+.taco-banner.tc-teaser b{ color:#1d1d1f; }
+.taco-banner.tc-teaser .tc-t-ico{ font-size:20px; }
+.mn-deal{ display:inline-block; vertical-align:middle; margin-left:8px; background:#d62d20; color:#fff; font:800 12px/1 "Inter",sans-serif; letter-spacing:.02em; padding:5px 8px; border-radius:999px; transform:translateY(-3px); }
+.ws-deal-price{ color:#d62d20; font-weight:700; }
+@media (max-width:560px){
+  .taco-banner.tc-on{ grid-template-columns:96px 1fr; padding:14px; gap:6px 14px; }
+  .taco-banner.tc-on .tc-img{ width:96px; height:96px; grid-row:auto; }
+  .taco-banner.tc-on .tc-title{ font-size:30px; }
+  .taco-banner.tc-on .tc-k2{ display:none; }
+  .taco-banner.tc-on .tc-go{ grid-column:1 / -1; width:100%; padding:14px; }
+}
+
 /* ---- member alerts ---- */
 .member-signup-form .opt{ font-weight:400; color:var(--muted); }
 .member-signup-form .zip-hint{ margin:-6px 0 14px; text-align:left; font-size:13px; }
@@ -2948,6 +2974,25 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     }
 
     var wsTacoDay = null, wsDeals = {}, wsDealPicks = {};
+    // Taco days: the deal card. Other days: a one-line teaser with the next taco day.
+    function wsTacoHtml(items){
+      var price = window.RollinDeals ? window.RollinDeals.tacoPrice : 6.99;
+      var tacos = items.filter(function(it){ return it.category === 'Tacos'; });
+      var regs = tacos.map(function(it){ return Number(it.regular_price || it.price); }).filter(function(n){ return n > price; });
+      var reg = regs.length ? Math.min.apply(null, regs) : null;
+      if (wsTacoDay) {
+        return '<img class="tc-img" src="tacos.webp" alt="" loading="lazy" onerror="this.remove()">' +
+          '<div class="tc-body"><span class="tc-kicker">Today only<span class="tc-k2"> \u00b7 every Tue &amp; Thu</span></span>' +
+          '<h3 class="tc-title">Taco ' + escHtml(wsTacoDay) + '</h3>' +
+          '<p class="tc-deal">Every taco order ' + (reg ? '<s>' + wsMoney(reg) + '</s> ' : '') + '<b>' + wsMoney(price) + '</b></p>' +
+          '<p class="tc-note">Already applied at checkout. No code needed.</p></div>' +
+          '<button type="button" class="tc-go" data-taco-go>Order tacos <span aria-hidden="true">\u2192</span></button>';
+      }
+      var w = '';
+      try { w = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'long' }).format(new Date()); } catch (e) {}
+      var next = { Monday: 'Tomorrow', Tuesday: 'Thursday', Wednesday: 'Tomorrow', Thursday: 'Tuesday', Friday: 'Tuesday', Saturday: 'Tuesday', Sunday: 'Tuesday' }[w] || 'Tuesday';
+      return '<span class="tc-t-ico" aria-hidden="true">\uD83C\uDF2E</span><span><b>Tacos are ' + wsMoney(price) + ' every Tuesday &amp; Thursday.</b> Next taco day: ' + next + '.</span>';
+    }
     function renderMenu(items){
       wsSections = []; wsGroups = {}; wsComboAddons = {};
       wsTacoDay = window.RollinDeals ? window.RollinDeals.applyTacoPricing(items) : null;
@@ -2959,7 +3004,9 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       var tb = document.getElementById('tacoBanner');
       if (tb) {
         tb.classList.toggle('hidden', !wsTacoDay);
-        if (wsTacoDay) tb.innerHTML = '\uD83C\uDF2E <b>Taco ' + wsTacoDay + ':</b> every taco order is $' + window.RollinDeals.tacoPrice.toFixed(2) + ' today. Already applied, no code needed.';
+        tb.classList.remove('hidden');
+        tb.className = 'taco-banner ' + (wsTacoDay ? 'tc-on' : 'tc-teaser');
+        tb.innerHTML = wsTacoHtml(items);
       }
       var byCat = {};
       items.forEach(function(item){
@@ -2980,12 +3027,22 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       wsSyncCombos();
       saveCart();
 
+      var tbGo = document.getElementById('tacoBanner');
+      if (tbGo && !tbGo.__tcBound) {
+        tbGo.__tcBound = true;
+        tbGo.addEventListener('click', function(e){
+          if (!e.target.closest('[data-taco-go]')) return;
+          var i = wsSections.findIndex(function(s){ return s.cat === 'Tacos'; });
+          var row = i < 0 ? null : wsEl('wsIndex').querySelector('.mn-row[data-ws-cat="' + i + '"]');
+          if (row) row.click();
+        });
+      }
       wsEl('wsIndex').innerHTML = wsSections.map(function(sec, i){
         var cut = categoryCutouts[sec.cat], img = cut || categoryImages[sec.cat] || '';
         var n = sec.groups.length;
         return '<button type="button" class="mn-row" data-ws-cat="' + i + '">' +
           '<span class="mn-thumb' + (cut ? '' : ' is-photo') + '">' + (img ? '<img src="' + escHtml(img) + '" alt="" loading="lazy" onerror="this.remove()">' : '') + '</span>' +
-          '<span class="mn-name">' + escHtml(sec.cat) + '<span class="mn-meta">' + n + (n === 1 ? ' item' : ' items') + '</span></span>' +
+          '<span class="mn-name">' + escHtml(sec.cat) + (wsTacoDay && sec.cat === 'Tacos' && window.RollinDeals ? '<span class="mn-deal">' + wsMoney(window.RollinDeals.tacoPrice) + ' today</span>' : '') + '<span class="mn-meta">' + n + (n === 1 ? ' item' : ' items') + '</span></span>' +
           '<svg class="mn-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"></polyline></svg>' +
         '</button>';
       }).join('');
@@ -3010,7 +3067,8 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       var prices = pool.map(function(i){ return Number(i.price); });
       var min = Math.min.apply(null, prices), max = Math.max.apply(null, prices);
       var reg = g.items[0].taco_deal ? '<s class="ws-was">' + wsMoney(g.items[0].regular_price) + '</s> ' : '';
-      return reg + (g.items.length > 1 && min !== max ? 'From ' : '') + wsMoney(min);
+      if (reg) return reg + '<span class="ws-deal-price">' + (g.items.length > 1 && min !== max ? 'From ' : '') + wsMoney(min) + '</span>';
+      return (g.items.length > 1 && min !== max ? 'From ' : '') + wsMoney(min);
     }
     function wsTileHtml(g){
       var soldOut = !g.items.some(wsAvail);
@@ -4912,6 +4970,11 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     // Event-link visitors aren't affected (event_ui.js takes over pickup).
     var blocks = [], manual = null;
     function blockAt(ms){ for (var i = 0; i < blocks.length; i++) if (ms >= blocks[i][0] && ms < blocks[i][1]) return blocks[i]; return null; }
+    // A calendar event today (online-pause.sql): the truck is at the event,
+    // so the whole day's online ordering is off. [from, to, event name]
+    function eventToday(){ var t = parts(new Date()).d; for (var i = 0; i < blocks.length; i++) if (blocks[i][2] && parts(new Date(blocks[i][0])).d === t) return blocks[i]; return null; }
+    function pEsc(v){ return String(v == null ? '' : v).replace(/[&<>"']/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+    function eventMsg(b){ return 'We\u2019re at ' + pEsc(b[2]) + ' today, so we\u2019re not accepting online orders at the moment. Sorry for the inconvenience.'; }
     function asapOpen(){ var n = parts(new Date()), h = OPEN[n.dow]; return !manual && !blockAt(Date.now()) && !!h && n.mins >= h[0] && n.mins < h[1] - BUFFER; }
     function buildDays(){
       var now = new Date(), n = parts(now), earliest = now.getTime() + LEAD * 60000, out = [];
@@ -4982,9 +5045,11 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       // customer pick another day themselves.
       var todayLeft = !!(days[0] && days[0].today);
       if (!keepChoice) mustChoose = !open && !todayLeft;
-      var n = parts(new Date()), h = OPEN[n.dow], blk = blockAt(Date.now());
+      var n = parts(new Date()), h = OPEN[n.dow], blk = blockAt(Date.now()), evDay = eventToday();
       note.innerHTML = manual
         ? 'Online ordering is paused right now' + (manual.until ? ' until ' + clockOf(manual.until) : '') + '. Please check back soon.'
+        : evDay
+        ? eventMsg(evDay) + ' You can order ahead for another day.'
         : blk && h && n.mins >= h[0] && n.mins < h[1] - BUFFER
         ? 'We\u2019re catering a private event right now, so online orders are paused until ' + clockOf(blk[1]) + '. Choose a later pickup time.'
         : todayLeft
@@ -5011,9 +5076,9 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
 
     function clockOf(ms){ var d = new Date(ms), p = parts(d), today = parts(new Date()); return (p.d !== today.d ? WD[p.dow] + ' ' : '') + fmtMins(p.mins); }
     function paintPauseBar(){
-      var bar = document.getElementById('orderPauseBar'), blk = blockAt(Date.now());
+      var bar = document.getElementById('orderPauseBar'), blk = blockAt(Date.now()), evDay = eventToday();
       var onEventLink = window.rollinEvent && window.rollinEvent.info && window.rollinEvent.info();
-      var show = !onEventLink && (manual || blk);
+      var show = !onEventLink && (manual || blk || evDay);
       if (!show) { if (bar) bar.remove(); return; }
       if (!bar) {
         var menu = document.getElementById('menu'); if (!menu) return;
@@ -5022,6 +5087,8 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       }
       bar.innerHTML = manual
         ? '<b>Online ordering is paused right now.</b><span>' + (manual.until ? 'We\u2019ll be back at ' + clockOf(manual.until) + '. ' : 'Please check back soon. ') + 'You can still order at the truck.</span>'
+        : evDay
+        ? '<b>We\u2019re at ' + pEsc(evDay[2]) + ' today.</b><span>So we\u2019re not accepting online orders at the moment. Sorry for the inconvenience. You can order ahead for another day, or come see us there!</span>'
         : '<b>We\u2019re catering a private event right now.</b><span>Online orders are paused until ' + clockOf(blk[1]) + '. You can order ahead for a later pickup.</span>';
     }
     function loadPauseStatus(){
@@ -5029,7 +5096,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       c.rpc('get_ordering_status').then(function(res){
         var d = res && !res.error ? res.data : null;
         if (!d) return;   // older database: nothing paused
-        blocks = (d.blocks || []).map(function(b){ return [Date.parse(b[0]), Date.parse(b[1])]; });
+        blocks = (d.blocks || []).map(function(b){ return [Date.parse(b[0]), Date.parse(b[1]), b[2] || null]; });
         manual = d.manual ? { until: d.until ? Date.parse(d.until) : null } : null;
         window.__rollinOrderingPaused = !!manual;
         paintPauseBar();
