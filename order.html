@@ -531,6 +531,19 @@
   .pop-price s{ margin-right:4px; }
   .pop-card .tile-actions-anchor{ position:absolute; top:108px; right:8px; }
   .sec-popular{ padding-bottom:6px; }
+
+  /* ---- closed: browse the menu, no ordering ---- */
+  .du-browse-btn{ display:inline-flex; align-items:center; justify-content:center; height:50px; padding:0 30px; margin-top:22px; border-radius:999px; background:var(--white); color:#000; font-weight:700; font-size:16px; }
+  body.du-browse #menuState{ display:none !important; }
+  body.du-browse .tile-actions-anchor, body.du-browse #orderBar, body.du-browse #reorderCard, body.du-browse #itemSheet .sheet-foot, body.du-browse .upsell{ display:none !important; }
+  body.du-browse .menu{ padding-bottom:150px; }
+  body.du-browse #itemBody .combo, body.du-browse #itemBody .ing-block:has(.ing-add-list), body.du-browse #itemBody textarea, body.du-browse #itemBody .ing-hint, body.du-browse #itemBody label:has(textarea){ display:none !important; }
+  body.du-browse #itemBody .ing-grid{ pointer-events:none; }
+  .du-ahead-bar{ position:fixed; left:0; right:0; bottom:0; z-index:60; display:grid; grid-template-columns:1fr auto; gap:8px 10px; align-items:center; padding:12px 16px calc(12px + env(safe-area-inset-bottom)); background:rgba(20,20,22,0.96); -webkit-backdrop-filter:blur(14px); backdrop-filter:blur(14px); border-top:1px solid var(--line); }
+  .dab-text{ grid-column:1 / -1; color:var(--cream); font-size:14px; font-weight:600; text-align:center; }
+  .dab-btn{ display:flex; align-items:center; justify-content:center; height:50px; border-radius:999px; background:var(--white); color:#000; font-weight:700; font-size:16px; text-decoration:none; }
+  .dab-hours{ height:50px; padding:0 18px; border-radius:999px; border:1px solid var(--line); color:var(--white); font-weight:600; font-size:15px; }
+  @media (min-width:620px){ .du-ahead-bar{ grid-template-columns:auto 1fr auto; max-width:none; } .dab-text{ grid-column:auto; text-align:left; } }
 </style>
 </head>
 <body>
@@ -901,7 +914,8 @@
         var when = ev.from && ev.until ? ev.from + ' \u2013 ' + ev.until : ev.until ? 'until ' + ev.until : ev.from ? 'from ' + ev.from : '';
         return '<b>Today we&rsquo;re at ' + escHtml(ev.title) + '</b><br>' + escHtml(ev.location || '') + (when ? ' &middot; ' + escHtml(when) : '') +
           '<br>Drive-up ordering is off today while we&rsquo;re there. Come see us!' +
-          (map ? '<br><a href="' + escHtml(map) + '" target="_blank" rel="noopener">Directions</a>' : '');
+          (map ? '<br><a href="' + escHtml(map) + '" target="_blank" rel="noopener">Directions</a>' : '') +
+          '<br><button type="button" class="du-browse-btn" id="duBrowseBtn">See the menu</button>';
       }
       // Start the week at today (truck time): "Today (Thu)", then Fri, Sat...
       var hrs = (du.hours || []).slice(), todayShort = '';
@@ -914,19 +928,40 @@
       }).join('');
       return '<b>Drive-up ordering is closed right now.</b>' + (du.opens ? '<br>It opens ' + escHtml(du.opens) + '.' : '') +
         (rows ? '<table class="du-hours" aria-label="Drive-up hours">' + rows + '</table>' : '') +
-        '<a href="index.html#menu">Order ahead on our website</a>';
+        '<button type="button" class="du-browse-btn" id="duBrowseBtn">See the menu</button>';
     }
     // Resolves true when the drive-up menu should load.
     function loadDriveup(){
       return sbShared.rpc('get_driveup_status').then(function(res){
         var du = res && !res.error ? res.data : null;
-        if (!du || typeof du.open !== 'boolean' || du.open) return true;   // not set up yet: the checkout still checks
+        if (!du || typeof du.open !== 'boolean' || du.open) { try { sessionStorage.removeItem('duBrowse'); } catch (e) {} return true; }   // not set up yet: the checkout still checks
         $('menuState').classList.remove('hidden');
         $('menuState').innerHTML = driveupMessage(du);
         if ($('orderBar')) $('orderBar').classList.add('hidden');
         document.body.classList.add('driveup-closed');
         // Opens by itself when the truck is back / hours start.
         setTimeout(function(){ location.reload(); }, 120000);
+        // "See the menu": browse only (no ordering), with a link to order
+        // ahead for another day on the website. Remembered across the reload.
+        var browse = function(){
+          try { sessionStorage.setItem('duBrowse', '1'); } catch (e) {}
+          document.body.classList.add('du-browse');
+          var when = du.reason === 'away' ? 'Drive-up ordering is off while we\u2019re at an event.' : 'Drive-up ordering is closed' + (du.opens ? ' \u00b7 opens ' + du.opens : '') + '.';
+          var bar = document.createElement('div');
+          bar.className = 'du-ahead-bar'; bar.id = 'duAheadBar';
+          bar.innerHTML = '<div class="dab-text">' + escHtml(when) + '</div>' +
+            '<a class="dab-btn" href="index.html#menu">Pre-order for another day</a>' +
+            '<button type="button" class="dab-hours" id="duHoursBtn">Hours</button>';
+          document.body.appendChild(bar);
+          $('duHoursBtn').addEventListener('click', function(){
+            try { sessionStorage.removeItem('duBrowse'); } catch (e) {}
+            location.reload();
+          });
+          loadMenu();
+        };
+        var again = false; try { again = sessionStorage.getItem('duBrowse') === '1'; } catch (e) {}
+        if (again) browse();
+        else $('duBrowseBtn').addEventListener('click', browse);
         return false;
       }, function(){ return true; });
     }
