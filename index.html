@@ -1101,6 +1101,42 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
 .cat-paid{ background:#f0faf3; border:1px solid #bfe5cb; border-radius:16px; padding:14px 16px; margin:0 0 18px; color:#3a3a3c; line-height:1.45; }
 .cat-paid b{ color:#146c3a; }
 
+/* ---- catering intake (Book the Truck) ---- */
+.cat-intake fieldset{ border:0; margin:0; padding:0; min-width:0; }
+.cat-intake legend{ font-family:var(--display); font-size:26px; font-weight:800; letter-spacing:-.01em; color:var(--ink); padding:0; margin:0 0 14px; }
+.cat-intake label i, .ci-label i{ color:#c4271b; font-style:normal; margin-left:2px; }
+.ci-progress{ margin:0 0 18px; }
+.ci-bar{ height:6px; border-radius:3px; background:#ececf0; overflow:hidden; }
+.ci-bar i{ display:block; height:100%; width:0; background:var(--saffron); border-radius:3px; transition:width .25s ease; }
+.ci-step-label{ margin-top:8px; font-size:12.5px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.04em; }
+.ci-q{ margin:0 0 18px; }
+.ci-label{ font-size:13px; font-weight:600; color:var(--ink-2); margin-bottom:8px; }
+.ci-hint{ display:block; font-size:12.5px; font-weight:400; color:var(--muted); margin:-2px 0 8px; line-height:1.4; }
+label > .ci-hint{ margin:6px 0 0; }
+.ci-intro{ font-size:14px; color:var(--muted); margin:0 0 14px; }
+.ci-chips{ display:flex; flex-wrap:wrap; gap:8px; }
+.cform .ci-chip{ position:relative; margin:0; font-weight:500; }
+.cform .ci-chip input, .cform .ci-card input{ position:absolute; opacity:0; width:1px; height:1px; margin:0; pointer-events:none; }
+.ci-chip span{ display:inline-flex; align-items:center; min-height:42px; padding:8px 15px; border:1.5px solid var(--line); border-radius:999px; background:#fff; font-size:14.5px; color:var(--ink); cursor:pointer; line-height:1.25; }
+.ci-chip input:checked + span{ background:var(--ink); border-color:var(--ink); color:#fff; }
+.ci-chip input:focus-visible + span, .ci-card input:focus-visible + span{ outline:2px solid var(--saffron); outline-offset:2px; }
+.ci-cards{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+.cform .ci-card{ position:relative; margin:0; }
+.ci-card span{ display:block; height:100%; padding:12px 14px; border:1.5px solid var(--line); border-radius:14px; background:#fff; cursor:pointer; }
+.ci-card b{ display:block; font-size:15px; color:var(--ink); margin-bottom:3px; }
+.ci-card small{ display:block; font-size:12.5px; font-weight:400; color:var(--muted); line-height:1.35; }
+.ci-card input:checked + span{ border-color:var(--ink); box-shadow:inset 0 0 0 1.5px var(--ink); background:var(--saffron-soft); }
+.ci-diet{ display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; }
+.ci-diet label{ margin-bottom:10px; }
+.cat-intake .cat-check span{ font-weight:500; }
+.ci-nav{ display:flex; gap:10px; margin-top:6px; }
+.ci-nav button{ height:50px; border-radius:999px; font-weight:600; font-size:16px; }
+.ci-nav .ci-back{ padding:0 22px; border:1.5px solid var(--line); background:#fff; color:var(--ink); }
+.ci-nav .ci-next, .cform .ci-nav button[type="submit"]{ flex:1; margin:0; background:var(--ink); color:#fff; }
+.ci-nav [hidden]{ display:none !important; }
+.cat-intake [hidden]{ display:none !important; }
+@media (max-width:600px){ .ci-cards{ grid-template-columns:1fr; } .ci-diet{ grid-template-columns:1fr 1fr; } }
+
 /* ---- company tab checkout ---- */
 .drop-bar .ev-tab{ color:#b8f5c9; font-weight:600; }
 .drop-bar a + a{ margin-top:2px; }
@@ -1646,36 +1682,50 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
           <svg class="menu-acc-chevron" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
         </button>
         <div class="menu-acc-body cform-body"><div class="menu-acc-inner cform-inner">
-          <form class="cform cat-form" data-kind="event" novalidate>
+          <form class="cform cat-intake" data-kind="event" novalidate>
+            <div class="ci-progress"><div class="ci-bar"><i></i></div><div class="ci-step-label" aria-live="polite"></div></div>
+            <fieldset class="ci-step" data-step="0" data-title="About you"><legend>About you</legend>
             <input type="text" name="website" class="cat-hp" tabindex="-1" autocomplete="off" aria-hidden="true">
             <div class="row2">
-              <label>Name*<input type="text" name="name" required autocomplete="name" maxlength="100"></label>
-              <label>Phone<input type="tel" name="phone" autocomplete="tel" maxlength="40"></label>
+              <label>Contact name<i>*</i><input type="text" name="name" required autocomplete="name" maxlength="100"></label>
+              <label>Company / organization<input type="text" name="company" autocomplete="organization" maxlength="120" placeholder="Optional"></label>
             </div>
             <div class="row2">
-              <label>Email*<input type="email" name="email" required autocomplete="email" maxlength="200"></label>
-              <label>Event date<input type="date" name="event_date" id="cateringEventDate"></label>
+              <label>Email<i>*</i><input type="email" name="email" required autocomplete="email" maxlength="200"></label>
+              <label>Phone<i>*</i><input type="tel" name="phone" required autocomplete="tel" maxlength="40"></label>
             </div>
+            <label class="cat-check"><input type="checkbox" data-a="text_ok"> OK to text me about this event</label>
+            <div class="row2"><label>Day-of contact (if not you)<input type="text" data-a="dayof_name" maxlength="100" placeholder="Optional"></label><label>Day-of phone<input type="tel" data-a="dayof_phone" maxlength="40" placeholder="Optional"></label></div>
+            <label>How did you hear about us?<select data-a="heard"><option value="">Choose…</option><option>Instagram / Facebook</option><option>Google</option><option>Saw the truck</option><option>Past event</option><option>Friend or co-worker</option><option>Other</option></select></label>
+            </fieldset>
+            <fieldset class="ci-step" data-step="1" data-title="Event" hidden><legend>Event</legend><div class="ci-q "><div class="ci-label">What type of event?<i>*</i></div><div class="ci-chips" role="radiogroup" data-req="event_type"><label class="ci-chip"><input type="radio" name="a_event_type" value="Corporate / employee lunch" data-a="event_type"><span>Corporate / employee lunch</span></label><label class="ci-chip"><input type="radio" name="a_event_type" value="Wedding" data-a="event_type"><span>Wedding</span></label><label class="ci-chip"><input type="radio" name="a_event_type" value="Birthday / private party" data-a="event_type"><span>Birthday / private party</span></label><label class="ci-chip"><input type="radio" name="a_event_type" value="Community / apartment event" data-a="event_type"><span>Community / apartment event</span></label><label class="ci-chip"><input type="radio" name="a_event_type" value="Festival / public event" data-a="event_type"><span>Festival / public event</span></label><label class="ci-chip"><input type="radio" name="a_event_type" value="School / church / non-profit" data-a="event_type"><span>School / church / non-profit</span></label><label class="ci-chip"><input type="radio" name="a_event_type" value="Other" data-a="event_type"><span>Other</span></label></div></div><div class="ci-q "><div class="ci-label">What service are you looking for?<i>*</i></div><div class="ci-cards" role="radiogroup" data-req="service"><label class="ci-card"><input type="radio" name="a_service" value="Truck – host pays" data-a="service"><span><b>Truck – host pays</b><small>Guests order at the truck window; you cover the bill.</small></span></label><label class="ci-card"><input type="radio" name="a_service" value="Truck – guests pay" data-a="service"><span><b>Truck – guests pay</b><small>The truck comes and guests buy their own food.</small></span></label><label class="ci-card"><input type="radio" name="a_service" value="Drop-off catering" data-a="service"><span><b>Drop-off catering</b><small>Trays delivered, no truck.</small></span></label><label class="ci-card"><input type="radio" name="a_service" value="Not sure – recommend one" data-a="service"><span><b>Not sure – recommend one</b><small>Tell us about the event and we’ll suggest the best fit.</small></span></label></div></div>
             <div class="row2">
-              <label>Guests<input type="number" name="guests" min="1" max="5000" inputmode="numeric" placeholder="e.g. 50"></label>
-              <label>Start time<input type="time" name="start_time"></label>
-            </div>
-            <label>Where<input type="text" name="location" maxlength="200" placeholder="Address or city"></label>
-            <label>Food
+              <label>Event date<i>*</i><input type="date" name="event_date" id="cateringEventDate" required></label>
+              <label>Service start time<i>*</i><input type="time" name="start_time" required></label>
+            </div><div class="ci-q "><div class="ci-label">Is the date flexible?</div><div class="ci-chips" role="radiogroup"><label class="ci-chip"><input type="radio" name="a_date_flex" value="Fixed" data-a="date_flex"><span>Fixed</span></label><label class="ci-chip"><input type="radio" name="a_date_flex" value="Flexible" data-a="date_flex"><span>Flexible</span></label></div></div><div class="ci-if" data-if="date_flex=Flexible"><label>Other dates that work<input type="text" data-a="alt_dates" maxlength="200" placeholder="e.g. any Saturday in May"></label></div><label>Service length<select data-a="duration"><option value="">Choose…</option><option>1 hour</option><option>1.5 hours</option><option>2 hours</option><option>3 hours</option><option>4+ hours</option></select><span class="ci-hint">We arrive about 45 minutes early to set up.</span></label><div class="ci-q "><div class="ci-label">Setting</div><div class="ci-chips" role="radiogroup"><label class="ci-chip"><input type="radio" name="a_setting" value="Outdoor" data-a="setting"><span>Outdoor</span></label><label class="ci-chip"><input type="radio" name="a_setting" value="Indoor, truck parks outside" data-a="setting"><span>Indoor, truck parks outside</span></label><label class="ci-chip"><input type="radio" name="a_setting" value="Indoor (drop-off)" data-a="setting"><span>Indoor (drop-off)</span></label></div></div><label>Event address<i>*</i><input type="text" name="location" required maxlength="200" placeholder="Street, city"></label><label>Is this a recurring event?<select data-a="recurring"><option value="">Choose…</option><option>One-time</option><option>Weekly</option><option>Monthly</option><option>Seasonal</option></select></label>
+            </fieldset>
+            <fieldset class="ci-step" data-step="2" data-title="Guests" hidden><legend>Guests</legend>
+            <div class="row2">
+              <label>How many guests?<i>*</i><input type="number" name="guests" required min="1" max="5000" inputmode="numeric" placeholder="e.g. 80"></label><label>Kids under 12 (optional)<input type="number" data-a="kids" min="0" max="5000" inputmode="numeric" placeholder="0"></label></div><div class="ci-q "><div class="ci-label">How will guests come to eat?</div><div class="ci-hint">This tells us how many cooks and how much grill time to plan.</div><div class="ci-chips" role="radiogroup"><label class="ci-chip"><input type="radio" name="a_arrival_pattern" value="All at once (e.g. a lunch break)" data-a="arrival_pattern"><span>All at once (e.g. a lunch break)</span></label><label class="ci-chip"><input type="radio" name="a_arrival_pattern" value="Spread out over the event" data-a="arrival_pattern"><span>Spread out over the event</span></label><label class="ci-chip"><input type="radio" name="a_arrival_pattern" value="In waves (shifts)" data-a="arrival_pattern"><span>In waves (shifts)</span></label><label class="ci-chip"><input type="radio" name="a_arrival_pattern" value="Not sure" data-a="arrival_pattern"><span>Not sure</span></label></div></div><div class="ci-if" data-if="service=Truck – guests pay"><div class="ci-q "><div class="ci-label">Is the event open to the public?</div><div class="ci-chips" role="radiogroup"><label class="ci-chip"><input type="radio" name="a_public_event" value="Yes" data-a="public_event"><span>Yes</span></label><label class="ci-chip"><input type="radio" name="a_public_event" value="No" data-a="public_event"><span>No</span></label></div></div><div class="ci-q "><div class="ci-label">Will other food vendors be there?</div><div class="ci-chips" role="radiogroup"><label class="ci-chip"><input type="radio" name="a_other_vendors" value="Yes" data-a="other_vendors"><span>Yes</span></label><label class="ci-chip"><input type="radio" name="a_other_vendors" value="No" data-a="other_vendors"><span>No</span></label><label class="ci-chip"><input type="radio" name="a_other_vendors" value="Not sure" data-a="other_vendors"><span>Not sure</span></label></div></div><div class="ci-q "><div class="ci-label">Will you promote the truck to your guests?</div><div class="ci-chips" role="radiogroup"><label class="ci-chip"><input type="radio" name="a_promote" value="Yes" data-a="promote"><span>Yes</span></label><label class="ci-chip"><input type="radio" name="a_promote" value="No" data-a="promote"><span>No</span></label></div></div></div>
+            </fieldset>
+            <fieldset class="ci-step" data-step="3" data-title="Menu" hidden><legend>Menu</legend>
+            <label>Menu
               <select name="package">
                 <option value="shawarma">Shawarma &mdash; $10 per person</option>
                 <option value="frankie">Frankie rolls &mdash; $8 per person</option>
                 <option value="bowls">Rice bowls &mdash; $11 per person</option>
                 <option value="tacos">Tacos &mdash; $7 per person</option>
                 <option value="mix">A mix of everything &mdash; about $10 per person</option>
-                <option value="unsure">Not sure yet</option>
+                <option value="unsure" selected>Recommend for us</option>
               </select>
-            </label>
-            <label class="cat-check"><input type="checkbox" name="fries" checked> Add fries trays (one half tray per 15 guests, $29.99 each)</label>
-            <div class="cat-estimate" aria-live="polite"></div>
-            <label>Anything else?<textarea name="details" rows="3" maxlength="2000" placeholder="Type of event, dietary needs, timing..."></textarea></label>
+            </label><div class="ci-q "><div class="ci-label">Add-ons</div><div class="ci-hint">Fries: one half tray per 15 guests, $29.99 each.</div><div class="ci-chips" role="group"><label class="ci-chip"><input type="checkbox" name="a_addons" value="Fries trays" data-a="addons" checked><span>Fries trays</span></label><label class="ci-chip"><input type="checkbox" name="a_addons" value="Samosas" data-a="addons"><span>Samosas</span></label><label class="ci-chip"><input type="checkbox" name="a_addons" value="Kulfi dessert" data-a="addons"><span>Kulfi dessert</span></label><label class="ci-chip"><input type="checkbox" name="a_addons" value="Sodas / water" data-a="addons"><span>Sodas / water</span></label><label class="ci-chip"><input type="checkbox" name="a_addons" value="Mango lassi" data-a="addons"><span>Mango lassi</span></label></div></div><div class="cat-estimate" aria-live="polite"></div><div class="ci-q "><div class="ci-label">Serving style</div><div class="ci-chips" role="radiogroup"><label class="ci-chip"><input type="radio" name="a_serving_style" value="Order at the window" data-a="serving_style"><span>Order at the window</span></label><label class="ci-chip"><input type="radio" name="a_serving_style" value="Buffet trays" data-a="serving_style"><span>Buffet trays</span></label><label class="ci-chip"><input type="radio" name="a_serving_style" value="Individually boxed &amp; labeled" data-a="serving_style"><span>Individually boxed &amp; labeled</span></label></div></div><div class="ci-q "><div class="ci-label">Dietary needs (how many guests)</div><div class="ci-diet"><label>Vegetarian<input type="number" data-a="diet_veg" min="0" max="5000" inputmode="numeric" placeholder="0"></label><label>Vegan<input type="number" data-a="diet_vegan" min="0" max="5000" inputmode="numeric" placeholder="0"></label><label>Gluten-free<input type="number" data-a="diet_gf" min="0" max="5000" inputmode="numeric" placeholder="0"></label><label>Nut allergy<input type="number" data-a="diet_nut" min="0" max="5000" inputmode="numeric" placeholder="0"></label></div><label>Anything else (allergies, no pork, etc.)<input type="text" data-a="diet_other" maxlength="300"></label></div><div class="ci-q "><div class="ci-label">Spice level for the group</div><div class="ci-chips" role="radiogroup"><label class="ci-chip"><input type="radio" name="a_spice" value="Mild" data-a="spice"><span>Mild</span></label><label class="ci-chip"><input type="radio" name="a_spice" value="Medium" data-a="spice"><span>Medium</span></label><label class="ci-chip"><input type="radio" name="a_spice" value="Spicy" data-a="spice"><span>Spicy</span></label><label class="ci-chip"><input type="radio" name="a_spice" value="A mix" data-a="spice"><span>A mix</span></label></div></div><label>Estimated catering budget<select data-a="budget"><option value="">Choose…</option><option>Under $500</option><option>$500–$1,000</option><option>$1,000–$2,000</option><option>$2,000–$4,000</option><option>$4,000+</option><option>Not sure – need a quote</option></select></label>
+            </fieldset>
+            <fieldset class="ci-step" data-step="4" data-title="Site" hidden><legend>Site</legend><div class="ci-if" data-if="service!=Drop-off catering"><p class="ci-intro">A few questions so the truck can get in and set up.</p><div class="ci-q "><div class="ci-label">Is there a level spot about 30 ft × 12 ft for the truck?</div><div class="ci-chips" role="radiogroup"><label class="ci-chip"><input type="radio" name="a_parking" value="Yes – level &amp; paved" data-a="parking"><span>Yes – level &amp; paved</span></label><label class="ci-chip"><input type="radio" name="a_parking" value="Grass or uneven" data-a="parking"><span>Grass or uneven</span></label><label class="ci-chip"><input type="radio" name="a_parking" value="No" data-a="parking"><span>No</span></label><label class="ci-chip"><input type="radio" name="a_parking" value="Not sure" data-a="parking"><span>Not sure</span></label></div></div><div class="ci-q "><div class="ci-label">Any low branches, gates, tight turns or height limits on the way in?</div><div class="ci-chips" role="radiogroup"><label class="ci-chip"><input type="radio" name="a_access" value="Yes" data-a="access"><span>Yes</span></label><label class="ci-chip"><input type="radio" name="a_access" value="No" data-a="access"><span>No</span></label><label class="ci-chip"><input type="radio" name="a_access" value="Not sure" data-a="access"><span>Not sure</span></label></div></div><div class="ci-if" data-if="access=Yes"><label>Tell us about it<input type="text" data-a="access_notes" maxlength="200"></label></div><div class="ci-q "><div class="ci-label">How far is the truck spot from where guests will be?</div><div class="ci-chips" role="radiogroup"><label class="ci-chip"><input type="radio" name="a_distance" value="Under 100 ft" data-a="distance"><span>Under 100 ft</span></label><label class="ci-chip"><input type="radio" name="a_distance" value="100–300 ft" data-a="distance"><span>100–300 ft</span></label><label class="ci-chip"><input type="radio" name="a_distance" value="Farther" data-a="distance"><span>Farther</span></label></div></div><div class="ci-q "><div class="ci-label">Is power available?</div><div class="ci-chips" role="radiogroup"><label class="ci-chip"><input type="radio" name="a_power" value="Yes – 30A or 50A" data-a="power"><span>Yes – 30A or 50A</span></label><label class="ci-chip"><input type="radio" name="a_power" value="Standard outlet only" data-a="power"><span>Standard outlet only</span></label><label class="ci-chip"><input type="radio" name="a_power" value="No – bring a generator" data-a="power"><span>No – bring a generator</span></label><label class="ci-chip"><input type="radio" name="a_power" value="Not sure" data-a="power"><span>Not sure</span></label></div></div><div class="ci-q "><div class="ci-label">Any generator or noise rules at the venue?</div><div class="ci-chips" role="radiogroup"><label class="ci-chip"><input type="radio" name="a_noise_rules" value="Yes" data-a="noise_rules"><span>Yes</span></label><label class="ci-chip"><input type="radio" name="a_noise_rules" value="No" data-a="noise_rules"><span>No</span></label><label class="ci-chip"><input type="radio" name="a_noise_rules" value="Not sure" data-a="noise_rules"><span>Not sure</span></label></div></div><div class="ci-q "><div class="ci-label">Does the venue need an insurance certificate (COI) or permit from us?</div><div class="ci-chips" role="radiogroup"><label class="ci-chip"><input type="radio" name="a_coi" value="Yes" data-a="coi"><span>Yes</span></label><label class="ci-chip"><input type="radio" name="a_coi" value="No" data-a="coi"><span>No</span></label><label class="ci-chip"><input type="radio" name="a_coi" value="Not sure" data-a="coi"><span>Not sure</span></label></div></div><div class="ci-q "><div class="ci-label">Rain plan</div><div class="ci-chips" role="radiogroup"><label class="ci-chip"><input type="radio" name="a_rain" value="Covered area" data-a="rain"><span>Covered area</span></label><label class="ci-chip"><input type="radio" name="a_rain" value="Move indoors" data-a="rain"><span>Move indoors</span></label><label class="ci-chip"><input type="radio" name="a_rain" value="Rain date" data-a="rain"><span>Rain date</span></label><label class="ci-chip"><input type="radio" name="a_rain" value="Go ahead anyway" data-a="rain"><span>Go ahead anyway</span></label></div></div></div><div class="ci-if" data-if="service=Drop-off catering"><p class="ci-intro">Drop-off details.</p><div class="row2"><label>Deliver between<input type="time" data-a="drop_from" maxlength="5"></label><label>and<input type="time" data-a="drop_to" maxlength="5"></label></div><div class="ci-q "><div class="ci-label">Setup</div><div class="ci-chips" role="radiogroup"><label class="ci-chip"><input type="radio" name="a_drop_setup" value="Just drop off" data-a="drop_setup"><span>Just drop off</span></label><label class="ci-chip"><input type="radio" name="a_drop_setup" value="Set up trays &amp; utensils" data-a="drop_setup"><span>Set up trays &amp; utensils</span></label><label class="ci-chip"><input type="radio" name="a_drop_setup" value="Chafing dishes (extra charge)" data-a="drop_setup"><span>Chafing dishes (extra charge)</span></label></div></div><label>Delivery notes (loading dock, floor, parking)<input type="text" data-a="drop_notes" maxlength="300"></label></div>
+            </fieldset>
+            <fieldset class="ci-step" data-step="5" data-title="Booking" hidden><legend>Booking</legend><div class="ci-if" data-if="service!=Drop-off catering"><div class="ci-q "><div class="ci-label">Truck mobilization fee: $300<i>*</i></div><div class="ci-hint">Covers bringing and setting up the truck. Travel beyond 25 miles of Green, OH may add a charge.</div><div class="ci-chips" role="radiogroup" data-req="fee_ok"><label class="ci-chip"><input type="radio" name="a_fee_ok" value="I understand" data-a="fee_ok"><span>I understand</span></label><label class="ci-chip"><input type="radio" name="a_fee_ok" value="I&#x27;d like more information" data-a="fee_ok"><span>I&#x27;d like more information</span></label><label class="ci-chip"><input type="radio" name="a_fee_ok" value="I&#x27;m looking for other options" data-a="fee_ok"><span>I&#x27;m looking for other options</span></label></div></div></div><div class="ci-q "><div class="ci-label">30% deposit to confirm your date<i>*</i></div><div class="ci-hint">Credited toward your final invoice. Your date is held once the deposit is received.</div><div class="ci-chips" role="radiogroup" data-req="deposit_ok"><label class="ci-chip"><input type="radio" name="a_deposit_ok" value="I agree" data-a="deposit_ok"><span>I agree</span></label><label class="ci-chip"><input type="radio" name="a_deposit_ok" value="I&#x27;d like to discuss payment options" data-a="deposit_ok"><span>I&#x27;d like to discuss payment options</span></label></div></div><div class="ci-if" data-if="service=Truck – guests pay"><div class="ci-q "><div class="ci-label">Guest-paid events: would you guarantee a minimum in sales?</div><div class="ci-hint">If guest purchases fall below the minimum in your quote, the host covers the difference.</div><div class="ci-chips" role="radiogroup"><label class="ci-chip"><input type="radio" name="a_minimum_ok" value="Yes" data-a="minimum_ok"><span>Yes</span></label><label class="ci-chip"><input type="radio" name="a_minimum_ok" value="I&#x27;d like more information" data-a="minimum_ok"><span>I&#x27;d like more information</span></label><label class="ci-chip"><input type="radio" name="a_minimum_ok" value="No" data-a="minimum_ok"><span>No</span></label></div></div></div><div class="row2"><label>How will you pay?<select data-a="pay_method"><option value="">Choose…</option><option>Card</option><option>Check</option><option>ACH / bank transfer</option><option>Invoice or PO needed</option></select></label><label>When do you need a quote?<select data-a="quote_by"><option value="">Choose…</option><option>Within 48 hours</option><option>In 3–7 days</option><option>In 1–2 weeks</option><option>No rush</option></select></label></div><div class="row2"><label>Tax-exempt organization?<select data-a="tax_exempt"><option value="">Choose…</option><option>Yes – will send certificate</option><option>No</option></select></label><label>Need a W-9 from us?<select data-a="w9"><option value="">Choose…</option><option>Yes</option><option>No</option></select></label></div><div class="ci-q "><div class="ci-label">Comparing other caterers?</div><div class="ci-chips" role="radiogroup"><label class="ci-chip"><input type="radio" name="a_comparing" value="Yes" data-a="comparing"><span>Yes</span></label><label class="ci-chip"><input type="radio" name="a_comparing" value="No" data-a="comparing"><span>No</span></label><label class="ci-chip"><input type="radio" name="a_comparing" value="Prefer not to say" data-a="comparing"><span>Prefer not to say</span></label></div></div><div class="ci-q "><div class="ci-label">Do you approve the quote and payment?</div><div class="ci-chips" role="radiogroup"><label class="ci-chip"><input type="radio" name="a_approver" value="Yes, I do" data-a="approver"><span>Yes, I do</span></label><label class="ci-chip"><input type="radio" name="a_approver" value="Someone else" data-a="approver"><span>Someone else</span></label></div></div><div class="ci-if" data-if="approver=Someone else"><label>Who approves it?<input type="text" data-a="approver_name" maxlength="100"></label></div><label class="cat-check"><input type="checkbox" data-a="headcount_ok" data-req-box> <span>I understand the final headcount is due 7 days before the event.<i>*</i></span></label><label class="cat-check"><input type="checkbox" data-a="terms_ok" data-req-box> <span>I understand cancellation and rescheduling terms will be in the final catering agreement.<i>*</i></span></label><label>Additional questions or special requests<textarea name="details" rows="3" maxlength="2000"></textarea></label>
+            </fieldset>
             <div class="cat-msg" role="alert"></div>
-            <button type="submit">Get my quote</button>
+            <div class="ci-nav"><button type="button" class="ci-back" hidden>Back</button><button type="button" class="ci-next">Next</button><button type="submit" hidden>Send request</button></div>
             <div class="fine">We reply within a day with a menu and quote. Nothing is charged now.</div>
           </form>
         </div></div>
@@ -4731,6 +4781,92 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       estimate(f);
     });
     if (/[?&]catering=/.test(location.search)) { var p = document.getElementById('catPaid'); if (p) p.classList.remove('hidden'); }
+  })();
+  // ---- Catering: "Book the Truck" step-by-step intake ----
+  (function(){
+    var f = document.querySelector('.cat-intake'); if (!f) return;
+    var E = function(n){ return f.elements.namedItem(n); };
+    var URL_ = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/catering-request';
+    var PRICES = { shawarma: 1000, frankie: 800, bowls: 1100, tacos: 700, mix: 1000 };
+    var opened = Date.now(), steps = [].slice.call(f.querySelectorAll('.ci-step')), at = 0;
+    var msg = f.querySelector('.cat-msg'), back = f.querySelector('.ci-back'), next = f.querySelector('.ci-next'), send = f.querySelector('button[type=submit]');
+    function val(k){
+      var els = f.querySelectorAll('[data-a="' + k + '"]');
+      if (!els.length) return '';
+      if (els[0].type === 'radio') { var c = [].filter.call(els, function(e){ return e.checked; })[0]; return c ? c.value : ''; }
+      if (els[0].type === 'checkbox' && els.length > 1) return [].filter.call(els, function(e){ return e.checked; }).map(function(e){ return e.value; });
+      if (els[0].type === 'checkbox') return els[0].checked;
+      return els[0].value.trim();
+    }
+    // Show/hide follow-up questions: data-if="key=Value" or "key!=Value".
+    function applyIfs(){
+      f.querySelectorAll('.ci-if').forEach(function(el){
+        var m = el.getAttribute('data-if').match(/^(\w+)(!?=)(.*)$/), v = val(m[1]);
+        el.hidden = m[2] === '=' ? v !== m[3] : v === m[3];
+      });
+    }
+    // Hidden follow-up questions don't count (other steps being hidden does not matter).
+    function live(el){ for (var p = el; p && p !== f; p = p.parentNode) if (p.hidden && p.classList.contains('ci-if')) return false; return true; }
+    function money(c){ return '$' + (c / 100).toLocaleString('en-US', { minimumFractionDigits: c % 100 ? 2 : 0, maximumFractionDigits: 2 }); }
+    function estimate(){
+      var est = f.querySelector('.cat-estimate'), g = Math.round(Number(E('guests').value)), p = PRICES[E('package').value];
+      if (!g || g < 1 || !p) { est.innerHTML = ''; est.classList.remove('on'); return; }
+      var fries = (val('addons') || []).indexOf('Fries trays') >= 0, trays = fries ? Math.ceil(g / 15) : 0, total = p * g + trays * 2999;
+      est.classList.add('on');
+      est.innerHTML = '<b>About ' + money(total) + '</b><span>' + g + ' guests × ' + money(p) + (trays ? ' + ' + trays + ' fries tray' + (trays > 1 ? 's' : '') : '') +
+        ' (about ' + money(Math.round(total / g)) + ' a guest). Other add-ons, service and travel are quoted separately.</span>';
+    }
+    function show(i){
+      at = i; applyIfs();
+      steps.forEach(function(s, k){ s.hidden = k !== i; });
+      var n = steps.length;
+      f.querySelector('.ci-bar i').style.width = Math.round((i + 1) / n * 100) + '%';
+      f.querySelector('.ci-step-label').textContent = 'Step ' + (i + 1) + ' of ' + n + ' · ' + steps[i].getAttribute('data-title');
+      back.hidden = i === 0; next.hidden = i === n - 1; send.hidden = i !== n - 1;
+      msg.textContent = '';
+    }
+    // Required answers on the current step (only the questions showing).
+    function problem(step){
+      var bad = null, why = '';
+      [].forEach.call(step.querySelectorAll('[required]'), function(i){ if (!bad && live(i) && !i.value.trim()) { bad = i; why = 'Please fill in every field marked *.'; } });
+      [].forEach.call(step.querySelectorAll('[data-req]'), function(g){ if (!bad && live(g) && !val(g.getAttribute('data-req'))) { bad = g.querySelector('input'); why = 'Please answer every question marked *.'; } });
+      [].forEach.call(step.querySelectorAll('[data-req-box]'), function(b){ if (!bad && live(b) && !b.checked) { bad = b; why = 'Please check the boxes marked * to send your request.'; } });
+      if (!bad && step.contains(E('email')) && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(E('email').value.trim())) { bad = E('email'); why = 'Please check your email address.'; }
+      if (!bad && step.contains(E('event_date')) && E('event_date').value) {
+        var today = new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date());
+        if (E('event_date').value < today) { bad = E('event_date'); why = 'That date has already passed.'; }
+      }
+      return bad ? { el: bad, why: why } : null;
+    }
+    next.addEventListener('click', function(){
+      var p = problem(steps[at]);
+      if (p) { msg.textContent = p.why; try { p.el.focus({ preventScroll: true }); } catch (x) {} p.el.scrollIntoView({ block: 'center', behavior: 'smooth' }); return; }
+      show(at + 1); f.scrollIntoView({ block: 'start', behavior: 'smooth' });
+    });
+    back.addEventListener('click', function(){ show(at - 1); f.scrollIntoView({ block: 'start', behavior: 'smooth' }); });
+    f.addEventListener('change', function(){ applyIfs(); estimate(); });
+    f.addEventListener('input', function(e){ if (e.target === E('guests')) estimate(); if (msg.textContent) msg.textContent = ''; });
+    f.addEventListener('keydown', function(e){ if (e.key === 'Enter' && e.target.tagName === 'INPUT' && at < steps.length - 1) { e.preventDefault(); next.click(); } });
+    f.addEventListener('submit', function(e){
+      e.preventDefault();
+      for (var i = 0; i < steps.length; i++) { var p = problem(steps[i]); if (p) { show(i); msg.textContent = p.why; p.el.focus(); return; } }
+      var answers = {};
+      [].forEach.call(f.querySelectorAll('[data-a]'), function(el){ var k = el.getAttribute('data-a'); if (!(k in answers) && live(el)) answers[k] = val(k); });
+      var data = { action: 'submit', kind: 'event', elapsed_ms: Date.now() - opened, website: E('website').value,
+        name: E('name').value.trim(), company: E('company').value.trim(), email: E('email').value.trim(), phone: E('phone').value.trim(),
+        event_date: E('event_date').value, start_time: E('start_time').value, guests: E('guests').value, location: E('location').value.trim(),
+        package: E('package').value, fries: (answers.addons || []).indexOf('Fries trays') >= 0, details: E('details').value.trim(), answers: answers };
+      send.disabled = true; send.textContent = 'Sending…';
+      fetch(URL_, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(data) })
+        .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(d){ return { ok: r.ok, d: d }; }); })
+        .then(function(res){
+          send.disabled = false; send.textContent = 'Send request';
+          if (!res.ok || res.d.error) { msg.textContent = res.d.error || 'Couldn’t send. Please call or text (330) 587-5203.'; return; }
+          f.outerHTML = '<div class="cat-done"><b>Thanks! Request ' + String(res.d.ref).replace(/[^A-Z0-9]/gi, '') + ' is in.</b><span>We’ll reply within a day with a menu and quote. A copy is in your inbox.</span></div>';
+          try { if (window.fbq) fbq('track', 'Lead', { content_category: 'catering', value: res.d.estimate_cents ? res.d.estimate_cents / 100 : undefined, currency: 'USD' }); } catch (x) {}
+        }, function(){ send.disabled = false; send.textContent = 'Send request'; msg.textContent = 'Couldn’t send. Check your connection, or call or text (330) 587-5203.'; });
+    });
+    show(0); estimate();
   })();
     // ---- Member offers: on/off ----
     function loadMemberAlerts(){
