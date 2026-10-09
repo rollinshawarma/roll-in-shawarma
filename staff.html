@@ -671,6 +671,14 @@
     .ad-sum div:nth-child(2){ border-right:0; }
     .ad-sum div:nth-child(-n+2){ border-bottom:1px solid #eeeef2; }
   }
+
+  .cf-answers{ display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:10px; margin:4px 0 14px; }
+  .cf-ans-group{ background:var(--bg-2, #f5f5f7); border-radius:12px; padding:10px 12px; }
+  .cf-ans-head{ font-size:11.5px; font-weight:800; text-transform:uppercase; letter-spacing:.05em; color:var(--muted, #6e6e73); margin-bottom:4px; }
+  .cf-ans-group dl{ margin:0; display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 1.1fr); gap:3px 10px; font-size:13px; }
+  .cf-ans-group dt{ color:var(--muted, #6e6e73); }
+  .cf-ans-group dd{ margin:0; font-weight:600; }
+  .cf-ans-group dd.flag{ color:#b3261e; }
 </style>
 </head>
 <body>
@@ -3438,6 +3446,22 @@
     var waiting = cfState.rows.some(function(r){ return r.deposit_order_id && !r.deposit_paid_at; });
     if (checkPaid && (waiting || !cfState.rows.length) && sb.functions) cfCall({ action:'refresh' }).then(go, go); else go();
   }
+  // Intake answers from the website form, grouped by section. Answers worth
+  // a second look (other options, more info, no power, COI, guest-paid
+  // minimum refused...) are highlighted.
+  var CF_FLAG = /more information|other options|discuss payment|^No$|No – bring a generator|Grass or uneven|Required|Invoice or PO/;
+  var CF_FLAG_KEYS = { fee_ok: 1, deposit_ok: 1, minimum_ok: 1, power: 1, parking: 1, coi: 1, halal: 1, other_vendors: 1, diet_nut: 1, pay_method: 1, comparing: 1 };
+  function cfAnswers(list){
+    if (!Array.isArray(list) || !list.length) return '';
+    var groups = [], by = {};
+    list.forEach(function(x){ if (!by[x.s]) { by[x.s] = []; groups.push(x.s); } by[x.s].push(x); });
+    return '<div class="cf-answers">' + groups.map(function(g){
+      return '<div class="cf-ans-group"><div class="cf-ans-head">' + esc(g) + '</div><dl>' + by[g].map(function(x){
+        var flag = CF_FLAG_KEYS[x.k] && (CF_FLAG.test(x.a) || (x.k === 'diet_nut' && Number(x.a) > 0) || (x.k === 'coi' && x.a === 'Yes') || (x.k === 'other_vendors' && x.a === 'Yes') || (x.k === 'comparing' && x.a === 'Yes'));
+        return '<dt>' + esc(x.q) + '</dt><dd' + (flag ? ' class="flag"' : '') + '>' + esc(x.a) + '</dd>';
+      }).join('') + '</dl></div>';
+    }).join('') + '</div>';
+  }
   function renderCatering(){
     var f = cfState.filter;
     var rows = cfState.rows.filter(function(r){
@@ -3462,7 +3486,7 @@
             fact('Email', '<a href="mailto:' + esc(r.email) + '?subject=' + encodeURIComponent('Your Roll-In Shawarma catering request ' + r.ref) + '">' + esc(r.email) + '</a>') +
             fact('Phone', r.phone ? '<a href="tel:' + esc(r.phone.replace(/[^0-9+]/g, '')) + '">' + esc(r.phone) + '</a>' : '') +
             fact('Start', r.start_time ? esc(r.start_time.slice(0, 5)) : '') + fact('Food', esc(r.package)) + fact('How often', esc(r.frequency)) +
-            fact('Estimate', cfMoney(r.estimate_cents)) + fact('Details', esc(r.details)) + '</dl>' +
+            fact('Estimate', cfMoney(r.estimate_cents)) + fact('Details', esc(r.details)) + '</dl>' + cfAnswers(r.answers) +
           '<div class="ad-pair"><div><label>Status</label><select data-cf-status>' + Object.keys(CF_STATUS).map(function(k){ return '<option value="' + k + '"' + (k === r.status ? ' selected' : '') + '>' + CF_STATUS[k][0] + '</option>'; }).join('') + '</select></div>' +
             '<div><label>Quote ($)</label><input type="number" min="0" step="1" data-cf-quote value="' + (r.quote_cents != null ? r.quote_cents / 100 : '') + '"></div></div>' +
           '<label>Notes (staff only)</label><textarea rows="2" data-cf-notes maxlength="2000">' + esc(r.staff_notes || '') + '</textarea>' +
