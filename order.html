@@ -507,6 +507,30 @@
   .door-note{ font-size:13.5px; color:#d2d2d7; margin-top:8px; }
   .door-note.warn{ color:#ffd479; font-weight:700; }
   .door-where{ font-size:14px; color:#98989d; margin:10px 0 0; }
+
+  /* ---- v2: one scrolling menu ---- */
+  .menu[data-view="all"] .section{ display:block; }
+  .cat-rail-top{ display:none !important; }
+  body.qr-index .cat-rail{ display:block; }
+  .mn-top{ padding-top:2px; }
+  .mn-top:empty{ display:none; }
+  .veg-tag{ display:inline-block; vertical-align:2px; margin-left:4px; padding:1px 6px; border-radius:6px; border:1px solid #30d158; color:#30d158; font-size:11px; font-weight:800; letter-spacing:.02em; line-height:1.4; }
+  .reorder{ display:flex; align-items:center; gap:12px; margin:14px 0 4px; padding:14px; border-radius:16px; background:var(--panel); border:1px solid var(--line); }
+  .ro-text{ flex:1; min-width:0; }
+  .ro-text b{ display:block; color:var(--white); font-size:16px; }
+  .ro-text span{ display:block; color:var(--muted); font-size:13.5px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; margin-top:2px; }
+  .ro-btn{ flex:none; height:42px; padding:0 16px; border-radius:999px; background:var(--white); color:#000; font-weight:700; font-size:14.5px; }
+  .pop-row{ display:flex; gap:12px; overflow-x:auto; margin:12px 0 0; padding:0 0 6px; scroll-snap-type:x mandatory; scrollbar-width:none; }
+  .pop-row::-webkit-scrollbar{ display:none; }
+  .pop-card{ position:relative; flex:none; width:150px; scroll-snap-align:start; }
+  .pop-open{ display:block; width:100%; text-align:left; color:var(--white); }
+  .pop-photo{ display:block; width:150px; height:150px; border-radius:16px; overflow:hidden; background:var(--panel-2); }
+  .pop-photo img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .pop-name{ display:block; margin-top:8px; font-weight:700; font-size:14.5px; line-height:1.25; display:-webkit-box; -webkit-line-clamp:2; -webkit-box-orient:vertical; overflow:hidden; }
+  .pop-price{ display:block; margin-top:2px; color:var(--muted); font-size:14px; }
+  .pop-price s{ margin-right:4px; }
+  .pop-card .tile-actions-anchor{ position:absolute; top:108px; right:8px; }
+  .sec-popular{ padding-bottom:6px; }
 </style>
 </head>
 <body>
@@ -1047,7 +1071,8 @@
       menu.querySelectorAll('.section, .menu-foot, .section-lite').forEach(function(n){ n.remove(); });
 
       var hasDeals = isMember() && dealList().length > 0;
-      $('catRail').innerHTML = (hasDeals ? '<button type="button" class="chip" data-jump="sec-deals">Member deals</button>' : '') +
+      $('catRail').innerHTML = (popularGroups().length ? '<button type="button" class="chip" data-jump="sec-popular">Popular</button>' : '') +
+        (hasDeals ? '<button type="button" class="chip" data-jump="sec-deals">Member deals</button>' : '') +
         sections.map(function(s, i){
         return '<button type="button" class="chip" data-jump="sec-' + i + '">' + escHtml(s.cat) + '</button>';
       }).join('');
@@ -1059,14 +1084,10 @@
           '<span class="mn-thumb' + (cut ? '' : ' is-photo') + '">' + (img ? '<img src="' + escHtml(img) + '" alt="" loading="lazy" onerror="this.remove()">' : '') + '</span>' +
           '<span class="mn-name">' + escHtml(name) + '<span class="mn-meta">' + n + (n === 1 ? ' item' : ' items') + '</span></span>' + chev + '</button>';
       }
-      var indexHtml = '<div class="mn-index section-lite" id="qrIndex">' +
+      // Top of the menu: taco-day note, "Order again", "Popular".
+      var indexHtml = '<div class="mn-top section-lite" id="qrIndex">' +
         (tacoDay ? '<div class="taco-banner">\uD83C\uDF2E Taco ' + tacoDay + ': every taco order is ' + money(window.RollinDeals.tacoPrice) + ' today<small>Already applied to the menu. No code needed.</small></div>' : '') +
-        '<h2 class="mn-head">Menu</h2>' +
-        (hasDeals ? rowHtml('sec-deals', 'Member deals', dealList().length, 'item-family-deal.jpg', false) : '') +
-        sections.map(function(s, i){
-          var cut = CATEGORY_CUTOUTS[s.cat];
-          return rowHtml('sec-' + i, s.cat, s.groups.length, cut || CATEGORY_IMAGES[s.cat] || '', !!cut);
-        }).join('') + '</div>';
+        reorderHtml() + '</div>' + popularHtml();
 
       var dealHtml = memberDealsHtml();
       var html = indexHtml + dealHtml +
@@ -1082,30 +1103,29 @@
       activeChipId = null; // chips were just redrawn
       // Keep the customer where they were (a re-draw after check-in or a
       // sold-out update shouldn't throw them back to the list).
-      if (qrView === 'detail' && $(qrSection)) showSection(qrSection, true); else showIndex(true);
+      showIndex(true);
+      setupScrollSpy();
     }
 
     // ---- Category list <-> one category (like the website on a phone) ----
-    var qrView = 'index', qrSection = null;
+    var qrView = 'all', qrSection = null, spyPaused = false;
+    // Every category on one page; the tabs jump to a section and follow the scroll.
     function showIndex(keepScroll){
-      qrView = 'index';
-      $('menu').setAttribute('data-view', 'index');
-      document.body.classList.add('qr-index');
-      document.querySelectorAll('#menu .section').forEach(function(sec){ sec.classList.remove('is-active'); });
+      qrView = 'all';
+      $('menu').setAttribute('data-view', 'all');
+      document.body.classList.remove('qr-index');
       if (!keepScroll) window.scrollTo(0, 0);
     }
     function showSection(id, keepScroll){
       var sec = $(id);
       if (!sec) return showIndex(keepScroll);
-      qrView = 'detail'; qrSection = id;
-      $('menu').setAttribute('data-view', 'detail');
-      document.body.classList.remove('qr-index');
-      document.querySelectorAll('#menu .section').forEach(function(x){ x.classList.toggle('is-active', x === sec); });
+      showIndex(true);
+      qrSection = id;
       setActiveChip(id);
-      if (!keepScroll) {
-        var top = $('menu').getBoundingClientRect().top + window.pageYOffset - 8;
-        window.scrollTo(0, Math.max(0, Math.min(window.pageYOffset, top)));
-      }
+      if (keepScroll) return;
+      spyPaused = true;
+      var top = sec.getBoundingClientRect().top + window.pageYOffset - $('catRail').getBoundingClientRect().height - 10;
+      try { window.scrollTo({ top: Math.max(0, top), behavior: 'smooth' }); } catch (e) { window.scrollTo(0, Math.max(0, top)); }
     }
     window.qrOpenCategory = function(name){
       var i = sections.findIndex(function(s){ return s.cat === name; });
@@ -1117,6 +1137,69 @@
       if (row) showSection(row.getAttribute('data-cat-open'));
     });
 
+    function isVeg(name){ return /\(Veg\)|Veggie|Paneer|Falafel|Samosa/i.test(name); }
+    // "Popular": best sellers first; anything sold out or missing is skipped.
+    var POPULAR = ['Chicken Shawarma', 'Butter Chicken Frankie', 'Loaded Fries', 'Chicken Tikka Tacos', 'Chicken Over Rice Bowl', 'Falafel Shawarma (Veg)', 'Mango Lassi', '2 Samosas'];
+    function popularGroups(){
+      var byName = {};
+      Object.keys(groupsByKey).forEach(function(k){ var g = groupsByKey[k]; if (!byName[g.name]) byName[g.name] = g; });
+      return POPULAR.map(function(n){ return byName[n]; }).filter(function(g){ return g && g.items.some(isAvailable); }).slice(0, 6);
+    }
+    function popularHtml(){
+      var list = popularGroups();
+      if (!list.length) return '';
+      return '<section class="section sec-popular" id="sec-popular" aria-labelledby="sec-popular-t">' +
+        '<h2 class="section-title" id="sec-popular-t">Popular</h2>' +
+        '<div class="pop-row">' + list.map(function(g){
+          return '<article class="pop-card" data-group="' + escHtml(g.key) + '">' +
+            '<button type="button" class="pop-open" data-open="' + escHtml(g.key) + '" aria-label="' + escHtml(g.name + ', ' + groupPriceText(g).replace(/<[^>]+>/g, ' ')) + '">' +
+              '<span class="pop-photo">' + photoImg(g.items[0], g.cat, g.name) + '</span>' +
+              '<span class="pop-name">' + escHtml(g.name.replace(/\s*\(Veg\)\s*$/i, '')) + '</span>' +
+              '<span class="pop-price">' + groupPriceText(g) + '</span>' +
+            '</button>' +
+            '<div class="tile-actions-anchor" data-action="' + escHtml(g.key) + '">' + actionHtml(g) + '</div>' +
+          '</article>';
+        }).join('') + '</div></section>';
+    }
+    // "Order again": the last paid order from this phone (plain dishes,
+    // with their changes). Today's prices; sold-out items are skipped.
+    var REORDER_KEY = 'rollin_reorder', REORDER_TTL = 60 * 24 * 3600 * 1000;
+    function reorderLines(){
+      try {
+        var r = JSON.parse(localStorage.getItem(REORDER_KEY) || 'null');
+        if (!r || !r.lines || Date.now() - r.savedAt > REORDER_TTL) return [];
+        return r.lines.filter(function(l){ var it = itemsById[l.id]; return it && isAvailable(it) && !HIDDEN_CATEGORIES[it.category]; });
+      } catch (e) { return []; }
+    }
+    function reorderHtml(){
+      var lines = reorderLines();
+      if (!lines.length) return '';
+      var total = 0, names = lines.map(function(l){
+        var it = itemsById[l.id]; total += Number(it.price) * l.qty;
+        return (l.qty > 1 ? l.qty + ' \u00d7 ' : '') + itemLabel(it);
+      });
+      return '<div class="reorder" id="reorderCard"><div class="ro-text"><b>Order again</b><span>' + escHtml(names.join(', ')) + '</span></div>' +
+        '<button type="button" class="ro-btn" id="reorderBtn">Add \u00b7 ' + money(total) + '</button></div>';
+    }
+    document.addEventListener('click', function(e){
+      if (!e.target.closest || !e.target.closest('#reorderBtn')) return;
+      var lines = reorderLines(), n = 0;
+      lines.forEach(function(l){
+        var custom = (l.remove && l.remove.length) || (l.add && l.add.length) || l.note ? { remove: l.remove || [], add: l.add || [], note: l.note || '' } : null;
+        for (var k = 0; k < l.qty; k++) { addOneRaw(l.id, custom); n++; }
+      });
+      if (!n) return;
+      syncCombos(); afterCartChange(true);
+      toast('Added your last order');
+    });
+    function saveReorder(){
+      try {
+        var lines = cart.filter(function(c){ var it = itemsById[c.menu_item_id]; return it && !c.deal && !c.dealOf && it.category !== 'Combo Add-ons' && it.category !== 'Deal Selections' && it.category !== 'Deals'; })
+          .map(function(c){ return { id: c.menu_item_id, qty: c.quantity, remove: c.remove || [], add: c.add || [], note: c.note || '' }; });
+        if (lines.length) localStorage.setItem(REORDER_KEY, JSON.stringify({ savedAt: Date.now(), lines: lines.slice(0, 20) }));
+      } catch (e) {}
+    }
+
     function tileHtml(g){
       var soldOut = !g.items.some(isAvailable);
       var priceText = groupPriceText(g);
@@ -1126,7 +1209,7 @@
           ' aria-label="' + escHtml(g.name + ', ' + priceText.replace(/<[^>]+>/g, ' ') + (soldOut ? ', sold out' : ', see details')) + '">' +
           '<span class="tile-photo">' + photoImg(g.items[0], g.cat, g.name) + '</span>' +
           '<span class="tile-body">' +
-            '<span class="tile-name">' + escHtml(g.name) + '</span>' +
+            '<span class="tile-name">' + escHtml(g.name.replace(/\s*\(Veg\)\s*$/i, '')) + (isVeg(g.name) ? ' <span class="veg-tag" title="Vegetarian">Veg</span>' : '') + '</span>' +
             (g.items[0].description ? '<span class="tile-desc">' + escHtml(g.items[0].description) + '</span>' : '') +
             (sub ? '<span class="tile-sub">' + sub + '</span>' : '') +
             '<span class="tile-price">' + priceText + '</span>' +
@@ -1155,8 +1238,7 @@
 
     function refreshTileActions(){
       Object.keys(groupsByKey).forEach(function(key){
-        var el = document.querySelector('.tile-actions-anchor[data-action="' + cssAttr(key) + '"]');
-        if (el) el.innerHTML = actionHtml(groupsByKey[key]);
+        document.querySelectorAll('.tile-actions-anchor[data-action="' + cssAttr(key) + '"]').forEach(function(el){ el.innerHTML = actionHtml(groupsByKey[key]); });
       });
     }
     function cssAttr(s){ return String(s).replace(/\\/g, '\\\\').replace(/"/g, '\\"'); }
@@ -1181,7 +1263,6 @@
       // reach the top); following the scroll resumes on the next touch.
       showSection(chip.getAttribute('data-jump'));
     });
-    var spyPaused = false;
     ['touchstart', 'wheel', 'keydown', 'mousedown'].forEach(function(ev){
       window.addEventListener(ev, function(e){
         if ((e.type === 'mousedown' || e.type === 'touchstart') && e.target.closest && e.target.closest('#catRail')) return;
@@ -2465,6 +2546,7 @@
     var LAST_ORDER_KEY = 'rollin_last_order';
     function rememberOrder(data){
       if (!data || !data.orderId) return;
+      saveReorder();
       try { localStorage.setItem(LAST_ORDER_KEY, JSON.stringify({ id: data.orderId, ref: data.referenceCode, savedAt: Date.now() })); } catch(e){}
     }
     // Shown only for a paid order that's still in progress: the live
