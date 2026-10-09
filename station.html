@@ -384,6 +384,11 @@
   body.tickets-mode .order-card .pull-prep-btn{ background:#1d1d1f; color:#fff; border:0; font-family:"Inter",sans-serif; font-size:18px; border-radius:10px; padding:12px; }
   body.tickets-mode .order-card .pull-prep-btn.all-ready-btn{ background:#1f8a4c; }
   body.tickets-mode .order-card .complete-btn{ background:#0a84ff; color:#fff; border-radius:10px; }
+  /* Tickets view: drive-up "Arrived — Spot N" was dark green on the dark badge (unreadable) */
+  body.tickets-mode .order-card .curbside-badge.arrived{ background:var(--ready); color:#032010; font-size:22px; font-weight:800; }
+  body.tickets-mode .order-card .curbside-badge.arrived small{ color:#032010; }
+  body.tickets-mode .order-card .curbside-badge.otw{ background:#1d1d1f; color:#64d2ff; }
+  body.tickets-mode .order-card.order-arrived{ box-shadow:0 0 0 4px var(--ready); }
   #squareSyncBanner .dismiss{ color:var(--muted); font-weight:600; margin-left:8px; }
   /* ---------- IDLE / MAIN MENU / EMPLOYEE CLOCK-IN ---------- */
   #idleScreen{
@@ -2463,7 +2468,7 @@
               escHtml(notesText) +
             '</div>';
         }
-        return '<div class="order-card' + (allReady ? ' order-complete' : '') + (isCash ? ' order-cash' : '') + (isCurbside ? ' order-curbside' : '') + (isAllergy ? ' order-allergy' : '') + '" data-order-id="' + orderId + '" data-stage="' + stage + '">' +
+        return '<div class="order-card' + (allReady ? ' order-complete' : '') + (isCash ? ' order-cash' : '') + (isCurbside ? ' order-curbside' : '') + (isAllergy ? ' order-allergy' : '') + (isCurbside && o.arrival === 'arrived' ? ' order-arrived' : '') + '" data-order-id="' + orderId + '" data-stage="' + stage + '">' +
           '<div class="order-card-head">' +
             '<span class="order-ref">' + escHtml(o.reference_code || '') + '</span>' +
             '<span class="order-name">' + escHtml(o.customer_name || '') + '</span>' +
