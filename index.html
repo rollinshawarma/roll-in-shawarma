@@ -3054,9 +3054,9 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       var tb = document.getElementById('tacoBanner');
       if (tb) {
         tb.classList.toggle('hidden', !wsTacoDay);
-        tb.classList.remove('hidden');
-        tb.className = 'taco-banner ' + (wsTacoDay ? 'tc-on' : 'tc-teaser');
-        tb.innerHTML = wsTacoHtml(items);
+        // Only on Taco Tuesday / Thursday; hidden every other day.
+        tb.className = 'taco-banner ' + (wsTacoDay ? 'tc-on' : 'hidden');
+        tb.innerHTML = wsTacoDay ? wsTacoHtml(items) : '';
       }
       var byCat = {};
       items.forEach(function(item){
@@ -5501,7 +5501,8 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       var api = window.rollinDealsApi, list = api ? api.list() : [];
       var day = api && api.tacoDay();
       var cards = [];
-      cards.push('<div class="rw-item is-auto"><img src="item-signature-chicken-tacos.jpg" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">' +
+      // Taco Tuesday / Thursday shows only on those days.
+      if (day) cards.push('<div class="rw-item is-auto"><img src="item-signature-chicken-tacos.jpg" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">' +
         '<div class="rw-item-body"><div class="rw-item-title">Taco Tuesday &amp; Thursday</div>' +
         '<div class="rw-item-sub">Every taco order is $6.99 on Tuesdays and Thursdays. Applied automatically.</div>' +
         (day ? '<div class="rw-ready">&#10003; On today</div>' : '') + '</div>' +
