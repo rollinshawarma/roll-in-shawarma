@@ -743,8 +743,8 @@
 <div id="pauseModal" class="pm-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="pmTitle">
   <div class="pm-box">
     <button type="button" class="pm-x" id="pmCancel" aria-label="Cancel">&times;</button>
-    <h2 id="pmTitle">Pause online orders</h2>
-    <p class="pm-sub" id="pmSub">Website orders stop right away. The kiosk and Scan to Pay keep working.</p>
+    <h2 id="pmTitle">Pause all ordering</h2>
+    <p class="pm-sub" id="pmSub">Website, drive-up, kiosk (Scan to Pay, card reader, cash) and Next Door orders stop right away. Pause DoorDash, Uber Eats and Grubhub on their tablets.</p>
     <div class="pm-durs" id="pmDurs" role="group" aria-label="How long">
       <button type="button" data-min="30">30 min</button>
       <button type="button" data-min="60">1 hour</button>
@@ -778,7 +778,7 @@
       <button type="button" id="nextDoorBtn" class="st-tab" title="Next Door delivery orders">&#128666; Next Door<span class="nd-count zero" id="nextDoorCount">0</span></button>
     </nav>
     <div class="kh-tools">
-      <button type="button" id="pauseOnlineBtn" title="Pause or resume website orders (needs your PIN)">&#9208; Pause online</button>
+      <button type="button" id="pauseOnlineBtn" title="Pause or resume all ordering: website, drive-up and kiosk (needs your PIN)">&#9208; Pause ordering</button>
       <button type="button" id="viewToggleBtn" title="Switch between item prep and whole tickets">&#9638; Tickets view</button>
       <button type="button" id="scheduledBtn">&#9200; Scheduled<span class="sched-count zero" id="scheduledCount">0</span></button>
       <button type="button" id="spotsBtn" title="Parking spots in use">&#127359; Spots<span class="dots" id="spotsDots">&#9675;&#9675;&#9675;&#9675;&#9675;</span></button>
@@ -2195,7 +2195,7 @@
       var b = document.getElementById('pauseOnlineBtn'), d = orderPause; if (!b) return;
       var manual = !!(d && d.manual), ev = !!(d && d.event && !d.manual);
       b.classList.toggle('is-paused', manual); b.classList.toggle('is-event', ev);
-      b.innerHTML = manual ? '&#9654; Resume online' : ev ? '&#128197; Event pause on' : '&#9208; Pause online';
+      b.innerHTML = manual ? '&#9654; Resume ordering' : ev ? '&#128197; Event pause on' : '&#9208; Pause ordering';
       b.title = manual ? 'Website orders are paused' + (d.manual.until ? ' until ' + fmtTime(d.manual.until) : '') + '. Tap to turn them back on.'
         : ev ? 'Website orders are paused for ' + d.event.name + '. You can still pause from here after it.' : 'Pause website orders (needs your PIN)';
     }
@@ -2210,8 +2210,8 @@
     function pmMsg(t, good){ var m = document.getElementById('pmMsg'); m.textContent = t || ''; m.classList.toggle('ok', !!good); }
     function pmOpen(){
       pm = { pin: '', resume: !!(orderPause && orderPause.manual), mins: -1, busy: false };
-      document.getElementById('pmTitle').textContent = pm.resume ? 'Resume online orders' : 'Pause online orders';
-      document.getElementById('pmSub').textContent = pm.resume ? 'Website orders start again right away.' : 'Website orders stop right away. The kiosk and Scan to Pay keep working.';
+      document.getElementById('pmTitle').textContent = pm.resume ? 'Resume ordering' : 'Pause all ordering';
+      document.getElementById('pmSub').textContent = pm.resume ? 'Website, drive-up and kiosk ordering start again right away. Turn the delivery apps back on too.' : 'Website, drive-up, kiosk (Scan to Pay, card reader, cash) and Next Door orders stop right away. Pause DoorDash, Uber Eats and Grubhub on their tablets.';
       document.getElementById('pmDurs').classList.toggle('hidden', pm.resume);
       document.querySelectorAll('#pmDurs button').forEach(function(x){ x.classList.toggle('on', x.getAttribute('data-min') === '-1'); });
       pmMsg(''); pmPaint();
@@ -2239,7 +2239,7 @@
         var d = res && res.data;
         if (!d || d.ok === false) { pm.pin = ''; pmPaint(); pmMsg('Wrong PIN. Try again.'); return; }
         orderPause = d; paintOrderPause();
-        pmMsg((pm.resume ? 'Online orders are back on' : 'Online orders paused') + (d.by ? ' \u00b7 ' + d.by : ''), true);
+        pmMsg((pm.resume ? 'Ordering is back on everywhere' : 'All ordering paused') + (d.by ? ' \u00b7 ' + d.by : ''), true);
         setTimeout(pmClose, 900);
       }, function(){ pm.busy = false; pm.pin = ''; pmPaint(); pmMsg("Couldn't reach the server. Check the connection."); });
     }
