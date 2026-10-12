@@ -531,6 +531,8 @@
   .pop-price s{ margin-right:4px; }
   .pop-card .tile-actions-anchor{ position:absolute; top:108px; right:8px; }
   .sec-popular{ padding-bottom:6px; }
+  /* cart suggestions: the + sits on the photo (it was hidden under it) */
+  .mini .tile-photo .add-btn{ position:absolute; z-index:2; right:6px; bottom:6px; width:38px; height:38px; background:var(--white); color:#000; font-weight:700; box-shadow:0 2px 8px rgba(0,0,0,.4); }
 
   /* ---- closed: browse the menu, no ordering ---- */
   .du-browse-btn{ display:inline-flex; align-items:center; justify-content:center; height:50px; padding:0 30px; margin-top:22px; border-radius:999px; background:var(--white); color:#000; font-weight:700; font-size:16px; }
@@ -909,6 +911,10 @@
     // driveup-gate.sql decides (calendar event now = away; else standard
     // hours or kitchen board open). The checkout asks the same question.
     function driveupMessage(du){
+      if (du.reason === 'paused') {
+        return '<b>We\u2019ve paused ordering for a few minutes.</b><br>' + (du.untilLabel ? 'We\u2019ll be back by ' + escHtml(du.untilLabel) + '. ' : '') + 'Sorry! This page will open again on its own.' +
+          '<br><button type="button" class="du-browse-btn" id="duBrowseBtn">See the menu</button>';
+      }
       var ev = du.event, map = ev && ev.map ? 'https://maps.google.com/?q=' + encodeURIComponent(ev.map) : '';
       if (du.reason === 'away' && ev) {
         var when = ev.from && ev.until ? ev.from + ' \u2013 ' + ev.until : ev.until ? 'until ' + ev.until : ev.from ? 'from ' + ev.from : '';
@@ -932,8 +938,16 @@
     }
     // Resolves true when the drive-up menu should load.
     function loadDriveup(){
-      return sbShared.rpc('get_driveup_status').then(function(res){
+      // A kitchen "Pause ordering" closes drive-up too (until it's resumed).
+      var os = sbShared.rpc('get_ordering_status').then(function(r){ return r && !r.error ? r.data : null; }, function(){ return null; });
+      return Promise.all([sbShared.rpc('get_driveup_status'), os]).then(function(rs){
+        var res = rs[0], st = rs[1];
         var du = res && !res.error ? res.data : null;
+        if (st && st.manual) {
+          var ul = '';
+          try { if (st.until) ul = new Date(st.until).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }); } catch (e) {}
+          du = { open: false, reason: 'paused', untilLabel: ul };
+        }
         if (!du || typeof du.open !== 'boolean' || du.open) { try { sessionStorage.removeItem('duBrowse'); } catch (e) {} return true; }   // not set up yet: the checkout still checks
         $('menuState').classList.remove('hidden');
         $('menuState').innerHTML = driveupMessage(du);
@@ -946,11 +960,11 @@
         var browse = function(){
           try { sessionStorage.setItem('duBrowse', '1'); } catch (e) {}
           document.body.classList.add('du-browse');
-          var when = du.reason === 'away' ? 'Drive-up ordering is off while we\u2019re at an event.' : 'Drive-up ordering is closed' + (du.opens ? ' \u00b7 opens ' + du.opens : '') + '.';
+          var when = du.reason === 'paused' ? 'Ordering is paused for a few minutes' + (du.untilLabel ? ' \u00b7 back ' + du.untilLabel : '') + '.' : du.reason === 'away' ? 'Drive-up ordering is off while we\u2019re at an event.' : 'Drive-up ordering is closed' + (du.opens ? ' \u00b7 opens ' + du.opens : '') + '.';
           var bar = document.createElement('div');
           bar.className = 'du-ahead-bar'; bar.id = 'duAheadBar';
           bar.innerHTML = '<div class="dab-text">' + escHtml(when) + '</div>' +
-            '<a class="dab-btn" href="index.html#menu">Pre-Order</a>' +
+            (du.reason === 'paused' ? '' : '<a class="dab-btn" href="index.html#menu">Pre-Order</a>') +
             '<button type="button" class="dab-hours" id="duHoursBtn">Hours</button>';
           document.body.appendChild(bar);
           $('duHoursBtn').addEventListener('click', function(){
@@ -2696,6 +2710,12 @@
     }
 
     if (DOOR_CODE) loadDoor().then(function(ok){ if (ok) loadMenu(); }); else loadDriveup().then(function(ok){ if (ok) loadMenu(); });
+    // While ordering is open: if the kitchen pauses ordering, show the paused
+    // screen within a minute (the cart is kept for when it opens again).
+    if (!DOOR_CODE) setInterval(function(){
+      if (document.body.classList.contains('driveup-closed') || document.hidden) return;
+      sbShared.rpc('get_ordering_status').then(function(r){ if (r && !r.error && r.data && r.data.manual) { saveCart(); location.reload(); } }, function(){});
+    }, 60000);
     loadKitchenPulse();
     setInterval(loadKitchenPulse, 60000);
   })();
