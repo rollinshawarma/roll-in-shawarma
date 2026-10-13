@@ -2205,13 +2205,21 @@
     // which can't see a Home Screen web app's saved order.
     function readerEnabled(){
       var on = false;
-      try { on = localStorage.getItem('rollinKioskReader') === '1'; } catch (e) {}
+      on = true;   // default on; '0' = switched off on this tablet
+      try { on = localStorage.getItem('rollinKioskReader') !== '0'; } catch (e) {}
       var standalone = window.navigator.standalone === true || (window.matchMedia && window.matchMedia('(display-mode: standalone)').matches);
       return on && !!kioskDevice && !standalone;
     }
+    var KIOSK_SCAN_TO_PAY = false;   // placeholder: true shows Scan to Pay again
+    function scanToPayShown(){ return KIOSK_SCAN_TO_PAY || !readerEnabled(); }
     function updateReaderButton(){
       var b = document.getElementById('payTapDirectBtn');
-      if (b) b.classList.toggle('hidden', !readerEnabled());
+      var reader = readerEnabled();
+      if (b) b.classList.toggle('hidden', !reader);
+      document.getElementById('payScanBtn').classList.toggle('hidden', !scanToPayShown());
+      document.body.classList.toggle('pay-reader-first', reader && !scanToPayShown());
+      var more = document.getElementById('exploreOtherPaymentsBtn');
+      if (more) more.textContent = scanToPayShown() ? 'Continue to Payment' : 'Pay with cash at the window';
     }
     function goToCheckoutScreen(){
       if (!cart.length) return;
@@ -2572,6 +2580,15 @@
     // ---- Scan to Pay: creates the order and shows a QR code ----
     // ---- linking to our pay page (pay.html): the cart, then   ----
     // ---- Apple Pay / Google Pay / card on the customer's phone. ----
+    var phonePayReady = null;
+    (function checkPhonePay(){
+      var fn = KIOSK_EDGE_FUNCTION_URL.replace(/create-order-checkout$/, 'pay-kiosk-order');
+      Promise.all([
+        fetch('pay.html', { method: 'HEAD', cache: 'no-store' }).then(function(r){ return r.ok; }, function(){ return false; }),
+        fetch(fn, { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KIOSK_ANON_KEY }, body: '{}' })
+          .then(function(r){ return r.status !== 404; }, function(){ return false; })
+      ]).then(function(ok){ phonePayReady = ok[0] && ok[1]; });
+    })();
     function startScanPayment(tipAmount){
       var payBtn = document.getElementById('payScanBtn');
       var msgEl = document.getElementById('kioskCheckoutMsg');
@@ -2604,7 +2621,7 @@
         memberCode: memberCodeVerified || undefined,
         tipAmount: tipAmount,
         // The phone opens our own pay page (cart + Apple Pay / Google Pay / card).
-        payOnPhone: true
+        payOnPhone: phonePayReady === true
       });
       // A registered tablet signs the order (lets it order outside posted hours).
       (kioskDevice ? signKioskRequest(scanBody).catch(function(){ return {}; }) : Promise.resolve({})).then(function(proof){
