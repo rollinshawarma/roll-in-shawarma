@@ -2192,6 +2192,18 @@
     }
     checkKioskPause();
     setInterval(checkKioskPause, 30000);
+    (function(){
+      var de = document.documentElement;
+      var req = de.requestFullscreen || de.webkitRequestFullscreen;
+      if (!req || window.navigator.standalone === true) return;
+      var isFull = function(){ return !!(document.fullscreenElement || document.webkitFullscreenElement); };
+      var lastTry = 0;
+      document.addEventListener('click', function(){
+        if (isFull() || Date.now() - lastTry < 1500) return;
+        lastTry = Date.now();
+        try { var p = req.call(de); if (p && p.catch) p.catch(function(){}); } catch (e) {}
+      }, true);
+    })();
     function goToOrderScreen(){
       idleScreen.classList.add('hidden');
       checkoutScreen.classList.add('hidden');
