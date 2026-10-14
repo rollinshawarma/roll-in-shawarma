@@ -81,6 +81,19 @@
   #spotsBtn .dots{ letter-spacing:2px; margin-left:4px; }
   #spotsPanel{ flex:none; background:var(--panel); border-bottom:1px solid rgba(11,175,76,0.55); padding:12px 24px; }
   #spotsPanel .recall-panel-head{ color:#39E07F; }
+  #kioskHealthBtn{ display:inline-flex; align-items:center; gap:8px; font-size:15px; font-weight:700; padding:9px 15px; border:1px solid var(--line); border-radius:100px; color:var(--cream); white-space:nowrap; }
+  #kioskHealthBtn.hidden{ display:none !important; }
+  .kk-dot{ width:12px; height:12px; border-radius:50%; background:#8e8e93; flex:none; }
+  .kk-dot.ok{ background:#30d158; } .kk-dot.warn{ background:#ffb340; } .kk-dot.bad{ background:#ff453a; animation:pmPulse 1.6s ease-in-out infinite; }
+  #kioskHealthPanel{ flex:none; background:var(--panel); border-bottom:1px solid rgba(124,196,255,.45); padding:12px 24px; }
+  #kioskHealthPanel .recall-panel-head{ color:#7cc4ff; }
+  #kioskHealthBanner{ flex:none; background:#3a1512; color:#ffb4ad; font-size:17px; font-weight:800; padding:10px 24px; border-bottom:1px solid #ff453a; cursor:pointer; }
+  #kioskHealthBanner.hidden{ display:none; }
+  .kh-row{ display:grid; grid-template-columns:minmax(140px, 1fr) 1.2fr 1.4fr 1fr; gap:14px; align-items:center; padding:10px 0; border-top:1px solid rgba(255,255,255,.08); font-size:16px; }
+  .kh-row:first-child{ border-top:0; }
+  .kh-row b{ font-size:17px; }
+  .kh-st{ display:inline-flex; align-items:center; gap:8px; }
+  .kh-muted{ color:rgba(255,255,255,.55); }
   .spots-row{ display:grid; grid-template-columns:repeat(5, 1fr); gap:10px; }
   .spot-card{ border:1px solid var(--line); border-radius:12px; padding:10px 12px; min-height:92px; display:flex; flex-direction:column; gap:4px; }
   .spot-card .num{ font-size:26px; font-weight:800; color:var(--white); line-height:1; }
@@ -779,6 +792,7 @@
     </nav>
     <div class="kh-tools">
       <button type="button" id="pauseOnlineBtn" title="Pause or resume all ordering: website, drive-up and kiosk (needs your PIN)">&#9208; Pause ordering</button>
+      <button type="button" id="kioskHealthBtn" class="hidden" title="Kiosk tablets and card machine"><span class="kk-dot" id="kioskHealthDot"></span>Kiosk</button>
       <button type="button" id="viewToggleBtn" title="Switch between item prep and whole tickets">&#9638; Tickets view</button>
       <button type="button" id="scheduledBtn">&#9200; Scheduled<span class="sched-count zero" id="scheduledCount">0</span></button>
       <button type="button" id="spotsBtn" title="Parking spots in use">&#127359; Spots<span class="dots" id="spotsDots">&#9675;&#9675;&#9675;&#9675;&#9675;</span></button>
@@ -792,6 +806,14 @@
   <div id="canceledOrdersBanner" class="hidden"></div>
   <div id="eventQueueBanner" class="hidden" role="status"></div>
   <div id="orderPauseBanner" class="hidden" role="alert"></div>
+  <div id="kioskHealthBanner" class="hidden" role="alert"></div>
+  <div id="kioskHealthPanel" class="hidden">
+    <div class="recall-panel-head">
+      <span>Kiosk <span class="recall-sub">(checks in every minute; the card machine's status comes from Square every few minutes)</span></span>
+      <button type="button" id="kioskHealthCloseBtn">&times;</button>
+    </div>
+    <div id="kioskHealthList"></div>
+  </div>
   <div id="spotsPanel" class="hidden">
     <div class="recall-panel-head">
       <span>Parking spots <span class="recall-sub">(a spot frees up when its order is marked picked up)</span></span>
@@ -944,6 +966,96 @@
   }
   setInterval(kdsHeartbeat, 60000);
   setTimeout(kdsHeartbeat, 5000);
+
+  // ---------------- Kiosk health (kiosk-event-pack.sql) ----------------
+  // Green: every kiosk that's been on today is checking in, and its card
+  // machine is online. Amber: card machine needs attention or low battery.
+  // Red: a kiosk stopped checking in, or its card machine is offline.
+  (function(){
+    var KIOSK_SILENT_MIN = 3;          // no check-in for this long = offline
+    var KIOSK_TODAY_HOURS = 6;         // only kiosks seen in the last 6 h count
+    var dismissedKey = '';
+    function esc(t){ return String(t == null ? '' : t).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+    function ago(iso, now){
+      if (!iso) return 'never';
+      var m = Math.max(0, Math.round((now - new Date(iso).getTime()) / 60000));
+      if (m < 1) return 'just now';
+      if (m < 60) return m + ' min ago';
+      var h = Math.floor(m / 60);
+      return h < 24 ? h + ' h ' + (m % 60) + ' min ago' : Math.floor(h / 24) + ' days ago';
+    }
+    function judge(k, now){
+      var seen = k.last_seen_at ? now - new Date(k.last_seen_at).getTime() : Infinity;
+      var active = seen < KIOSK_TODAY_HOURS * 3600000;
+      var online = seen < KIOSK_SILENT_MIN * 60000;
+      var t = k.terminal_status, tLevel = 'none', tText = 'No card machine';
+      if (k.terminal_paired) {
+        if (t === 'AVAILABLE') { tLevel = 'ok'; tText = 'Card machine online'; }
+        else if (t === 'OFFLINE') { tLevel = 'bad'; tText = 'Card machine offline'; }
+        else if (t === 'NEEDS_ATTENTION') { tLevel = 'warn'; tText = 'Card machine needs attention'; }
+        else { tLevel = 'unknown'; tText = 'Card machine: status unknown'; }
+        if (k.terminal_battery != null) {
+          tText += ' · ' + k.terminal_battery + '%' + (k.terminal_charging ? ' (plugged in)' : '');
+          if (k.terminal_battery < 20 && !k.terminal_charging && tLevel === 'ok') tLevel = 'warn';
+        }
+      }
+      var level = !active ? 'idle' : !online ? 'bad' : tLevel === 'bad' ? 'bad' : tLevel === 'warn' ? 'warn' : 'ok';
+      return { active: active, online: online, level: level, tLevel: tLevel, tText: tText };
+    }
+    var btn = document.getElementById('kioskHealthBtn'), dot = document.getElementById('kioskHealthDot');
+    var panel = document.getElementById('kioskHealthPanel'), banner = document.getElementById('kioskHealthBanner');
+    function paint(d){
+      var now = d.now ? new Date(d.now).getTime() : Date.now();
+      var ks = d.kiosks || [];
+      if (!ks.length) { btn.classList.add('hidden'); panel.classList.add('hidden'); banner.classList.add('hidden'); return; }
+      btn.classList.remove('hidden');
+      var js = ks.map(function(k){ return judge(k, now); });
+      var levels = js.filter(function(j){ return j.active; }).map(function(j){ return j.level; });
+      var worst = levels.indexOf('bad') >= 0 ? 'bad' : levels.indexOf('warn') >= 0 ? 'warn' : levels.length ? 'ok' : '';
+      dot.className = 'kk-dot' + (worst ? ' ' + worst : '');
+      document.getElementById('kioskHealthList').innerHTML = ks.map(function(k, i){
+        var j = js[i];
+        var st = !j.active ? '<span class="kh-st kh-muted"><span class="kk-dot"></span>Not on today · last seen ' + esc(ago(k.last_seen_at, now)) + '</span>'
+          : j.online ? '<span class="kh-st"><span class="kk-dot ok"></span>Kiosk online</span>'
+          : '<span class="kh-st"><span class="kk-dot bad"></span>Kiosk offline · last seen ' + esc(ago(k.last_seen_at, now)) + '</span>';
+        var tl = j.tLevel === 'none' || j.tLevel === 'unknown' ? '' : j.tLevel;
+        return '<div class="kh-row"><b>' + esc(k.name || 'Kiosk') + '</b>' + st +
+          '<span class="kh-st' + (j.tLevel === 'none' ? ' kh-muted' : '') + '"><span class="kk-dot ' + tl + '"></span>' + esc(j.tText) + '</span>' +
+          '<span class="kh-muted">Last kiosk order ' + esc(ago(d.last_kiosk_order_at, now)) + '</span></div>';
+      }).join('');
+      // banner for a problem the kitchen should know about right now
+      var probs = [];
+      ks.forEach(function(k, i){
+        var j = js[i];
+        if (!j.active) return;
+        if (!j.online) probs.push((k.name || 'Kiosk') + ' stopped checking in (' + ago(k.last_seen_at, now) + ') — check its Wi-Fi and that the kiosk page is open');
+        else if (j.tLevel === 'bad') probs.push((k.name || 'Kiosk') + ': card machine is offline — customers can still use Scan to Pay');
+      });
+      var key = probs.join('|');
+      banner.classList.toggle('hidden', !probs.length || key === dismissedKey);
+      banner.textContent = probs.length ? '⚠ ' + probs.join(' · ') + '  (tap to hide)' : '';
+      banner.setAttribute('data-key', key);
+    }
+    function load(){
+      var unlocked = false;
+      try { unlocked = sessionStorage.getItem('kdsUnlocked') === '1'; } catch(e){}
+      if (!unlocked || document.visibilityState !== 'visible') return;
+      sb.rpc('get_kiosk_health').then(function(res){
+        if (res.error || !res.data) { btn.classList.add('hidden'); return; }
+        paint(res.data);
+      }, function(){});
+    }
+    btn.addEventListener('click', function(){
+      var open = panel.classList.contains('hidden');
+      panel.classList.toggle('hidden', !open);
+      if (open) load();
+    });
+    document.getElementById('kioskHealthCloseBtn').addEventListener('click', function(){ panel.classList.add('hidden'); });
+    banner.addEventListener('click', function(){ dismissedKey = banner.getAttribute('data-key') || ''; banner.classList.add('hidden'); });
+    setInterval(load, 60000);
+    setTimeout(load, 4000);
+    window.refreshKioskHealth = load;
+  })();
 
   // ---------------- Keep the tablet awake while a board is active ----------------
   // Uses the Screen Wake Lock API, supported on modern Chrome/Android and
