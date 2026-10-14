@@ -4,6 +4,12 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Order Here — Roll-In Shawarma</title>
+<link rel="manifest" href="kiosk-manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Roll-In Kiosk">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <meta name="robots" content="noindex">
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
@@ -863,7 +869,7 @@
     <div class="at-slide" style="background-image:url(item-chicken-over-rice-bowl.jpg)"></div>
     <div class="at-slide" style="background-image:url(item-chicken-loaded-fries.jpg)"></div>
   </div>
-  <div class="at-top"><img class="logo" src="logo.jpg" alt=""><span>Roll-In Shawarma</span></div>
+  <div class="at-top" id="atLogo"><img class="logo" src="logo.jpg" alt=""><span>Roll-In Shawarma</span></div>
   <div class="at-main">
     <div class="at-chips">
       <span class="at-chip at-chip-gold">Skip the line &middot; order here</span>
@@ -2960,6 +2966,21 @@
       tpLeave(true);
       startScanPayment(tp.tip);
     });
+
+    // ---- staff: tap the logo on the start screen 5 times -> kiosk setup ----
+    (function(){
+      var taps = 0, timer = null;
+      document.getElementById('atLogo').addEventListener('click', function(e){
+        e.stopPropagation();          // a logo tap never starts an order
+        taps += 1;
+        clearTimeout(timer);
+        timer = setTimeout(function(){ taps = 0; }, 3000);
+        if (taps >= 5) {
+          taps = 0;
+          if (window.confirm('Open kiosk setup? (staff only)')) window.location.href = 'kiosk-setup.html';
+        }
+      });
+    })();
 
     // ================= Event pack =================
     var lastKioskOrderId = null;
