@@ -44,6 +44,7 @@
   .dev-info{ flex:1; min-width:0; }
   .dev-name{ font-weight:600; }
   .dev-meta{ font-size:13px; color:var(--muted); }
+  .revoke.remove{ margin-left:8px; color:var(--ink-2); }
   .revoke{ border:1.5px solid var(--line); background:#fff; border-radius:999px; height:36px; padding:0 14px; font:inherit; font-size:14px; font-weight:600; color:var(--accent); cursor:pointer; }
   .warn{ background:#fff8e6; border-radius:14px; padding:12px 14px; font-size:14px; color:#6b4e00; margin-top:12px; }
   .check{ display:flex; align-items:center; gap:10px; font-size:15px; font-weight:600; margin:14px 0 4px; cursor:pointer; }
@@ -251,7 +252,7 @@
         var here = localDevice && localDevice.id === x.id;
         return '<div class="dev"><div class="dev-info"><div class="dev-name">' + x.name.replace(/[<>&"]/g, '') + (here ? ' <span class="pill">This tablet</span>' : '') + '</div>' +
           '<div class="dev-meta">' + (x.passkey_verified ? 'Passkey confirmed' : 'Manager approval only') + ' &middot; added ' + fmt(x.created_at) + ' &middot; last cash order ' + fmt(x.last_used_at) + (x.square_terminal_device_id ? ' &middot; card machine paired' : '') + '</div></div>' +
-          (off ? '<span class="pill off">Switched off</span>' : '<button class="revoke" data-id="' + x.id + '" type="button">Switch off</button>') + '</div>';
+          (off ? '<span class="pill off">Switched off</span><button class="revoke remove" data-rm="' + x.id + '" type="button">Remove</button>' : '<button class="revoke" data-id="' + x.id + '" type="button">Switch off</button>') + '</div>';
       }).join('') : '<p>No tablets registered yet.</p>';
     }
   }
@@ -362,6 +363,15 @@
   });
 
   $('deviceList').addEventListener('click', function(e){
+    var rm = e.target.closest('[data-rm]');
+    if (rm) {
+      if (!confirm('Remove this switched-off tablet from the list?')) return;
+      rm.disabled = true;
+      call('delete', { deviceId: rm.getAttribute('data-rm') }).then(function(){ return call('list'); })
+        .then(function(d){ renderList(d.devices); msg('listMsg', 'Removed.', 'ok'); })
+        .catch(function(err){ rm.disabled = false; msg('listMsg', err.message, 'error'); });
+      return;
+    }
     var b = e.target.closest('.revoke');
     if (!b || !confirm('Switch this tablet off? It will no longer be able to place cash orders.')) return;
     b.disabled = true;
