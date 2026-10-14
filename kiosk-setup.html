@@ -3,6 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<link rel="manifest" href="kiosk-manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Roll-In Kiosk">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
 <meta name="robots" content="noindex, nofollow">
 <title>Kiosk Tablet Setup | Roll-In Shawarma</title>
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
@@ -43,6 +49,9 @@
   .check{ display:flex; align-items:center; gap:10px; font-size:15px; font-weight:600; margin:14px 0 4px; cursor:pointer; }
   .check input{ width:22px; height:22px; accent-color:#1d1d1f; }
   .hidden{ display:none !important; }
+  .back-kiosk{ display:inline-block; margin:-14px 0 18px; font-size:15px; font-weight:600; color:var(--ink); text-decoration:none; background:#fff; border-radius:999px; padding:8px 14px; }
+  .move-box{ background:#eef6ff; border-radius:14px; padding:12px 14px; margin-top:12px; font-size:14px; color:#1d3b5c; }
+  .move-box .btn{ margin-top:10px; background:#0a64c2; }
   .pair-code{ font-family:"Inter Tight","Inter",sans-serif; font-size:44px; font-weight:700; letter-spacing:.12em; text-align:center; padding:18px 10px; margin-top:14px; background:#f5f5f7; border-radius:16px; }
   .steps{ margin:10px 0 0 20px; font-size:15px; color:var(--ink-2); }
   .steps li{ margin:4px 0; }
@@ -52,6 +61,7 @@
 <body>
 <div class="wrap">
   <div class="brand"><img src="logo.jpg" alt="">Roll-In Shawarma</div>
+  <a class="back-kiosk" href="kiosk.html">&larr; Back to the kiosk</a>
   <h1>Kiosk tablet setup</h1>
   <p class="lead">Register the truck's kiosk tablet so it can take cash orders. Do this once, on the tablet itself, in the same browser the kiosk runs in.</p>
 
@@ -98,6 +108,7 @@
         <li>Leave this page open. It turns green when the Terminal is connected.</li>
       </ol>
     </div>
+    <div class="move-box hidden" id="terminalMoveBox"></div>
     <button class="btn" id="terminalPairBtn" type="button">Pair a Square Terminal</button>
     <button class="btn btn-soft hidden" id="terminalUnpairBtn" type="button">Unpair the card machine</button>
     <div class="msg" id="terminalMsg"></div>
@@ -233,7 +244,7 @@
       $('openKiosk').classList.toggle('hidden', !mine);
       $('readerCard').classList.toggle('hidden', !mine);
       drawReader();
-      drawTerminal(mine ? devices.filter(function(x){ return x.id === localDevice.id; })[0] : null);
+      drawTerminal(mine ? devices.filter(function(x){ return x.id === localDevice.id; })[0] : null, devices);
       $('registerBtn').textContent = mine ? 'Register again (replaces this one)' : 'Register this tablet';
       $('deviceList').innerHTML = devices.length ? devices.map(function(x){
         var off = !!x.revoked_at;
@@ -246,9 +257,19 @@
   }
   // ---- Square Terminal pairing (saved on the server for this tablet) ----
   var terminalReady = true, pairTimer = null;
-  function drawTerminal(dev){
+  function drawTerminal(dev, devices){
     $('terminalCard').classList.toggle('hidden', !dev);
     if (!dev) return;
+    // A card machine paired with another entry (like this iPad's old Safari
+    // registration): move it here, no new code on the Terminal.
+    var others = (devices || []).filter(function(x){ return x.id !== dev.id && x.square_terminal_device_id; });
+    var mb = $('terminalMoveBox');
+    mb.classList.toggle('hidden', !!dev.square_terminal_device_id || !others.length);
+    mb.innerHTML = others.map(function(x){
+      return 'The card machine is paired with <b>' + x.name.replace(/[<>&"]/g, '') + '</b>' + (x.revoked_at ? ' (switched off)' : '') +
+        '. Use it on this tablet instead? No new code is needed on the Terminal.' +
+        '<button class="btn" type="button" data-move="' + x.id + '">Use that card machine here</button>';
+    }).join('<br>');
     $('terminalSqlWarn').classList.toggle('hidden', terminalReady);
     $('terminalPairBtn').disabled = !terminalReady;
     var paired = !!dev.square_terminal_device_id;
@@ -284,6 +305,16 @@
       }).catch(function(e){ msg('terminalMsg', e.message, 'error'); pairTimer = setTimeout(check, 5000); });
     }, 3000);
   }
+  $('terminalMoveBox').addEventListener('click', function(e){
+    var b = e.target.closest('[data-move]');
+    if (!b || !localDevice) return;
+    b.disabled = true;
+    msg('terminalMsg', 'Moving the card machine\u2026');
+    call('terminal_move', { deviceId: localDevice.id, fromDeviceId: b.getAttribute('data-move') }).then(function(){ return call('list'); }).then(function(d){
+      renderList(d.devices);
+      msg('terminalMsg', 'Done. The card machine now takes payments from this tablet. Open the kiosk to see Pay with card.', 'ok');
+    }).catch(function(err){ b.disabled = false; msg('terminalMsg', err.message, 'error'); });
+  });
   $('terminalPairBtn').addEventListener('click', function(){
     if (!localDevice) return;
     var btn = this;
