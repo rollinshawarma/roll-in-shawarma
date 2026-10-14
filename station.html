@@ -575,6 +575,41 @@
   .kh .st-tab.on #calEventName{ color:inherit; font-size:inherit; font-weight:inherit; margin:0; }
   .kh .st-tab .nd-count, .kh .st-tab .cal-n{ margin-left:4px; }
   .kh-tools{ display:flex; flex-wrap:wrap; align-items:center; gap:8px; }
+  /* one-line header (short labels) */
+  .kh{ flex-wrap:nowrap !important; gap:10px !important; }
+  .kh-id{ flex:none; }
+  .kh-id h1{ white-space:nowrap; }
+  .kh-id .board-last-updated{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .st-tabs{ flex-wrap:nowrap !important; flex:none; }
+  .st-tabs .st-tab{ white-space:nowrap; }
+  .kh-tools{ flex-wrap:nowrap !important; flex:none; gap:6px !important; }
+  .kh-tools button{ white-space:nowrap; padding-left:12px !important; padding-right:12px !important; }
+  #lockBtn, #fryerLockBtn, #calLockBtn, #scheduledBtn, #recallBtn{ min-width:44px; justify-content:center; }
+  #calEventName{ display:inline-block; max-width:240px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; vertical-align:bottom; font-size:inherit !important; margin-right:0 !important; color:inherit !important; }
+  .lt-cash{ display:block; margin-top:6px; background:#FFD60A; color:#1a1600; border:2px solid #b38f00; border-radius:8px; padding:6px 10px; font-size:17px; font-weight:800; text-align:center; }
+  /* the station tab already says which board this is: keep just the clock */
+  .kh-id h1{ display:none; }
+  .kh-id{ align-items:center; }
+  #boardClock, #fryerBoardClock{ white-space:nowrap; }
+  #truckLocBtn.needs{ color:#ffd479 !important; border-color:rgba(255,212,121,.7) !important; }
+  @media (max-width:1450px){
+    .kh-id #boardLastUpdated, .kh-id #fryerBoardLastUpdated{ display:none; }
+    .st-tabs .st-tab{ padding-left:10px !important; padding-right:10px !important; }
+    .kh-tools button{ padding-left:10px !important; padding-right:10px !important; font-size:14px !important; }
+  }
+  @media (max-width:1100px){
+    .kh{ padding-left:10px !important; padding-right:10px !important; gap:8px !important; }
+    #boardClock, #fryerBoardClock{ font-size:20px !important; }
+    .st-tabs{ gap:2px !important; padding:3px !important; }
+    .st-tabs .st-tab{ padding-left:7px !important; padding-right:7px !important; font-size:13px !important; }
+    .kh-tools{ gap:4px !important; }
+    .kh-tools button{ padding-left:7px !important; padding-right:7px !important; font-size:13px !important; }
+    #spotsDots{ letter-spacing:-2px; font-size:11px; }
+    #lockBtn, #fryerLockBtn, #scheduledBtn, #recallBtn{ min-width:38px; }
+  }
+  @media (max-width:980px){
+    .kh{ flex-wrap:wrap !important; }
+  }
   .kh-tools button{ margin:0 !important; min-height:44px; }
   .kh .kh-lock{ color:var(--muted) !important; border:1px solid var(--line) !important; border-radius:100px; padding:9px 15px !important; font-size:15px !important; font-weight:700; }
 
@@ -788,20 +823,20 @@
     </div>
     <nav class="st-tabs" aria-label="Stations">
       <span class="st-tab on" aria-current="page">&#127859; Main</span>
-      <button type="button" id="switchToFryerBtn" class="st-tab">&#127839; Sub Station</button>
+      <button type="button" id="switchToFryerBtn" class="st-tab" title="Sub Station">&#127839; Sub</button>
       <button type="button" id="switchToCalBtn" class="st-tab cal-btn hidden">Event board</button>
-      <button type="button" id="switchToLunchBtn" class="st-tab hidden">&#127970; Corporate Lunch</button>
-      <button type="button" id="nextDoorBtn" class="st-tab" title="Next Door delivery orders">&#128666; Next Door<span class="nd-count zero" id="nextDoorCount">0</span></button>
+      <button type="button" id="switchToLunchBtn" class="st-tab hidden" title="Corporate lunch">&#127970; Lunch</button>
+      <button type="button" id="nextDoorBtn" class="st-tab" title="Next Door delivery orders">&#128666; Door<span class="nd-count zero" id="nextDoorCount">0</span></button>
     </nav>
     <div class="kh-tools">
-      <button type="button" id="pauseOnlineBtn" title="Pause or resume all ordering: website, drive-up and kiosk (needs your PIN)">&#9208; Pause ordering</button>
+      <button type="button" id="pauseOnlineBtn" title="Pause or resume all ordering: website, drive-up and kiosk (needs your PIN)">&#9208; Pause</button>
       <button type="button" id="kioskHealthBtn" class="hidden" title="Kiosk tablets and card machine"><span class="kk-dot" id="kioskHealthDot"></span>Kiosk</button>
-      <button type="button" id="viewToggleBtn" title="Switch between item prep and whole tickets">&#9638; Tickets view</button>
-      <button type="button" id="scheduledBtn">&#9200; Scheduled<span class="sched-count zero" id="scheduledCount">0</span></button>
-      <button type="button" id="spotsBtn" title="Parking spots in use">&#127359; Spots<span class="dots" id="spotsDots">&#9675;&#9675;&#9675;&#9675;&#9675;</span></button>
-      <button type="button" id="truckLocBtn" title="Save where the truck is parked (for drive-up check-ins)">&#128205; Truck location</button>
-      <button type="button" id="recallBtn">&#8634; Recall</button>
-      <button type="button" id="lockBtn" class="kh-lock">&#128274; Lock</button>
+      <button type="button" id="viewToggleBtn" title="Switch between item prep and whole tickets">&#9638; Tickets</button>
+      <button type="button" id="scheduledBtn" title="Scheduled orders" aria-label="Scheduled orders">&#9200;<span class="sched-count zero" id="scheduledCount">0</span></button>
+      <button type="button" id="spotsBtn" title="Parking spots in use" aria-label="Parking spots">&#127359;<span class="dots" id="spotsDots">&#9675;&#9675;&#9675;&#9675;&#9675;</span></button>
+      <button type="button" id="truckLocBtn" title="Save where the truck is parked (for drive-up check-ins)">&#128205; Location</button>
+      <button type="button" id="recallBtn" title="Recall: bring back an order marked done" aria-label="Recall">&#8634;</button>
+      <button type="button" id="lockBtn" class="kh-lock" title="Lock the board" aria-label="Lock">&#128274;</button>
     </div>
   </div>
   <div id="boardErrorBanner" class="hidden"></div>
@@ -863,12 +898,12 @@
     </div>
     <nav class="st-tabs" aria-label="Stations">
       <button type="button" id="switchToMainBtn" class="st-tab">&#127859; Main</button>
-      <span class="st-tab on" aria-current="page">&#127839; Sub Station</span>
+      <span class="st-tab on" aria-current="page" title="Sub Station">&#127839; Sub</span>
       <button type="button" id="fryerToCalBtn" class="st-tab cal-btn hidden">Event board</button>
-      <button type="button" id="fryerToLunchBtn" class="st-tab hidden">&#127970; Corporate Lunch</button>
+      <button type="button" id="fryerToLunchBtn" class="st-tab hidden" title="Corporate lunch">&#127970; Lunch</button>
     </nav>
     <div class="kh-tools">
-      <button type="button" id="fryerLockBtn" class="kh-lock">&#128274; Lock</button>
+      <button type="button" id="fryerLockBtn" class="kh-lock" title="Lock the board" aria-label="Lock">&#128274;</button>
     </div>
   </div>
   <div id="fryerBoardErrorBanner" class="hidden"></div>
@@ -912,11 +947,11 @@
     </div>
     <nav class="st-tabs" aria-label="Stations">
       <button type="button" id="calToMainBtn" class="st-tab">&#127859; Main</button>
-      <button type="button" id="calToFryerBtn" class="st-tab">&#127839; Sub Station</button>
+      <button type="button" id="calToFryerBtn" class="st-tab" title="Sub Station">&#127839; Sub</button>
       <span class="st-tab on" aria-current="page">&#128197; <span id="calEventName">Event</span></span>
     </nav>
     <div class="kh-tools">
-      <button type="button" id="calLockBtn" class="kh-lock">&#128274; Lock</button>
+      <button type="button" id="calLockBtn" class="kh-lock" title="Lock the board" aria-label="Lock">&#128274;</button>
     </div>
   </div>
   <div id="calError" class="hidden"></div>
@@ -1173,8 +1208,8 @@
         b.classList.toggle('hidden', !ev);
         if (ev) {
           var n = Number(ev.waiting) || 0;
-          b.innerHTML = '&#128197; ' + escHtml(ev.title || 'Event') + '<span class="cal-n' + (n ? '' : ' zero') + '">' + n + '</span>';
-          b.title = n + ' event order' + (n === 1 ? '' : 's') + ' waiting on the Event board';
+          b.innerHTML = '&#128197; Event<span class="cal-n' + (n ? '' : ' zero') + '">' + n + '</span>';
+          b.title = (ev.title || 'Event') + ': ' + n + ' event order' + (n === 1 ? '' : 's') + ' waiting on the Event board';
         }
       });
     }).catch(function(){});
@@ -1669,7 +1704,7 @@
     var VIEW_KEY = 'kdsMainView';
     function setView(v, save){
       document.body.classList.toggle('tickets-mode', v === 'tickets');
-      document.getElementById('viewToggleBtn').innerHTML = v === 'tickets' ? '&#9776; Items view' : '&#9638; Tickets view';
+      document.getElementById('viewToggleBtn').innerHTML = v === 'tickets' ? '&#9776; Items' : '&#9638; Tickets';
       if (save) { try { localStorage.setItem(VIEW_KEY, v); } catch(e){} }
       if (window.__kdsMainRefresh && !board.classList.contains('hidden')) window.__kdsMainRefresh();
     }
@@ -2184,10 +2219,11 @@
     // ---- Truck location (drive-up check-ins measure the distance to it) ----
     var truckBtn = document.getElementById('truckLocBtn');
     function showTruckLoc(info){
-      if (!info || !info.set) { truckBtn.className = 'needs'; truckBtn.innerHTML = '&#128205; Set truck location'; return; }
+      truckBtn.innerHTML = '&#128205; Location';
+      if (!info || !info.set) { truckBtn.className = 'needs'; truckBtn.title = 'Truck location not set: tap to save where the truck is parked'; return; }
       var at = new Date(info.updated_at), old = Date.now() - at.getTime() > 12 * 3600000;
       truckBtn.className = old ? 'needs' : 'ok';
-      truckBtn.innerHTML = '&#128205; ' + (old ? 'Update truck location' : 'Truck set ' + at.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }));
+      truckBtn.title = old ? 'Truck location is old: tap to update it' : 'Truck location saved at ' + at.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) + ' (tap to update)';
     }
     window.refreshTruckLoc = function(){
       sb.rpc('get_truck_location').then(function(res){ if (!res.error) showTruckLoc(res.data); }, function(){});
@@ -2195,7 +2231,7 @@
     truckBtn.addEventListener('click', function(){
       if (!navigator.geolocation) { alert('This tablet can\u2019t share its location.'); return; }
       if (!confirm('Save this tablet\u2019s current spot as where the truck is parked? Do this once each time the truck moves.')) return;
-      truckBtn.disabled = true; truckBtn.innerHTML = '&#128205; Finding the truck\u2026';
+      truckBtn.disabled = true; truckBtn.innerHTML = '&#128205; \u2026';
       navigator.geolocation.getCurrentPosition(function(p){
         sb.rpc('set_truck_location', { p_lat: p.coords.latitude, p_lng: p.coords.longitude, p_accuracy: p.coords.accuracy }).then(function(res){
           truckBtn.disabled = false;
@@ -2310,7 +2346,7 @@
       var b = document.getElementById('pauseOnlineBtn'), d = orderPause; if (!b) return;
       var manual = !!(d && d.manual), ev = !!(d && d.event && !d.manual);
       b.classList.toggle('is-paused', manual); b.classList.toggle('is-event', ev);
-      b.innerHTML = manual ? '&#9654; Resume ordering' : ev ? '&#128197; Event pause on' : '&#9208; Pause ordering';
+      b.innerHTML = manual ? '&#9654; Resume' : ev ? '&#128197; Event pause' : '&#9208; Pause';
       b.title = manual ? 'Website orders are paused' + (d.manual.until ? ' until ' + fmtTime(d.manual.until) : '') + '. Tap to turn them back on.'
         : ev ? 'Website orders are paused for ' + d.event.name + '. You can still pause from here after it.' : 'Pause website orders (needs your PIN)';
     }
@@ -3144,7 +3180,7 @@
       rpcs: { unfire: 'kds_cal_unpull', ready: 'kds_cal_ready' },
       cfg: { columns: 'queue', ticket_size: 'large', show_event: true, show_tags: false },
       emptyText: 'Nothing on the line. Tap “Pull next order”.',
-      evLine: function(o){ return o.cash ? '<b style="color:#b3261e">⚠ COLLECT ' + escHtml(money(o.total)) + ' CASH</b>' : (o.source === 'kiosk' ? 'Paid at kiosk' : 'Paid online'); },
+      evLine: function(o){ return o.cash ? '<b class="lt-cash">⚠ COLLECT ' + escHtml(money(o.total)) + ' CASH</b>' : (o.source === 'kiosk' ? 'Paid at kiosk' : 'Paid online'); },
       more: function(){ return ''; },
       chips: function(d){
         var next = (d.next || []).map(function(n){ return '<b>' + escHtml(n.ref || '') + '</b> ' + escHtml(n.name || ''); });
