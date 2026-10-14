@@ -776,6 +776,66 @@
   #tpCancelBtn{ background:none; color:var(--cream); border:2px solid var(--line); }
   #tpCancelBtn:disabled{ opacity:.4; }
   body.pay-terminal #payTerminalBtn{ flex:1.4; }
+
+  /* ---------- event pack ---------- */
+  #idleScreen .at-slide{ position:absolute; inset:0; background-position:center 35%; background-size:cover; background-repeat:no-repeat; opacity:0; transition:opacity 1.4s ease; }
+  #idleScreen .at-slide.on{ opacity:1; }
+  .at-chips{ display:flex; flex-wrap:wrap; gap:10px; margin-bottom:22px; }
+  .at-chip{ display:inline-flex; align-items:center; gap:6px; padding:10px 18px; border-radius:999px; background:rgba(255,255,255,.16); color:#fff; font-size:20px; font-weight:700; backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); }
+  .at-chip-gold{ background:var(--gold); color:var(--gold-ink); }
+  .at-grab{ margin-top:34px; }
+  .at-grab-title{ color:#fff; font-size:22px; font-weight:800; margin-bottom:12px; }
+  .at-grab-title small{ font-size:17px; font-weight:600; color:rgba(255,255,255,.7); margin-left:6px; }
+  .at-grab-row{ display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:14px; }
+  .at-grab-card{ display:flex; flex-direction:column; align-items:flex-start; text-align:left; background:#fff; border:0; border-radius:20px; padding:0 0 14px; overflow:hidden; box-shadow:0 14px 30px rgba(0,0,0,.35); min-height:0; }
+  .at-grab-card .ag-photo{ display:block; width:100%; height:120px; background:#f3ece2; overflow:hidden; }
+  .at-grab-card .ag-photo img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .at-grab-card .ag-name{ font-size:19px; font-weight:800; color:var(--white); padding:12px 14px 2px; line-height:1.15; }
+  .at-grab-card .ag-price{ font-size:18px; font-weight:700; color:var(--gold-ink); padding:0 14px; }
+  @media (orientation:landscape){
+    .at-grab-row{ grid-template-columns:repeat(3, minmax(0, 1fr)); gap:10px; }
+    .at-grab-card .ag-photo{ height:90px; }
+    .at-grab-card .ag-name{ font-size:16px; }
+    .at-chip{ font-size:17px; padding:8px 14px; }
+  }
+
+  .kx-sheet{ position:fixed; inset:0; z-index:120; background:rgba(23,19,15,.55); display:flex; align-items:flex-end; justify-content:center; padding:24px; }
+  .kx-card{ background:#fff; border-radius:28px; width:min(760px, 100%); padding:30px 28px 24px; box-shadow:0 30px 80px rgba(0,0,0,.35); display:flex; flex-direction:column; gap:12px; max-height:92vh; overflow:auto; }
+  .kx-head h2{ font-family:var(--display); font-size:44px; color:var(--white); line-height:1; margin-bottom:6px; }
+  .kx-head p{ font-size:19px; color:var(--cream); }
+  .kx-drinks{ display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:12px; margin:8px 0; }
+  .kx-drink{ display:flex; flex-direction:column; align-items:center; gap:8px; min-height:110px; justify-content:center; background:#fff; border:2px solid var(--line); border-radius:18px; font-size:21px; font-weight:800; color:var(--white); padding:12px; }
+  .kx-drink img{ width:56px; height:56px; object-fit:contain; }
+  .kx-drink:active{ border-color:var(--gold); background:#FFF6E6; }
+  .kx-upsell{ display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:12px; margin:8px 0; }
+  .kx-up{ display:grid; grid-template-columns:84px 1fr; grid-template-rows:auto auto auto; column-gap:12px; align-items:center; text-align:left; background:#fff; border:2px solid var(--line); border-radius:18px; padding:10px; min-height:0; }
+  .kx-up .ku-photo{ grid-row:1 / 4; width:84px; height:84px; border-radius:14px; overflow:hidden; background:#f3ece2; }
+  .kx-up .ku-photo img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .kx-up .ku-name{ font-size:19px; font-weight:800; color:var(--white); line-height:1.15; }
+  .kx-up .ku-price{ font-size:17px; color:var(--cream); }
+  .kx-up .ku-add{ font-size:17px; font-weight:800; color:var(--gold-ink); }
+  .kx-up.added{ border-color:var(--green, #1f8a4c); background:#eef8f1; }
+  .kx-up.added .ku-add{ color:var(--green, #1f8a4c); }
+  .kx-primary{ min-height:76px; border-radius:18px; background:var(--gold); color:var(--gold-ink); font-size:24px; font-weight:800; border:0; }
+  .kx-secondary{ min-height:60px; border-radius:18px; background:none; color:var(--cream); font-size:20px; font-weight:700; border:2px solid var(--line); }
+  .kx-wait{ font-size:19px; font-weight:700; color:var(--green, #1f8a4c); margin:-4px 0 14px; }
+
+  #kioskOffline{ position:fixed; inset:0; z-index:150; background:#fff; display:flex; align-items:center; justify-content:center; padding:40px; text-align:center; }
+  #kioskOffline.hidden{ display:none; }
+  .ko-card{ max-width:620px; display:flex; flex-direction:column; align-items:center; }
+  .ko-icon{ width:110px; height:110px; border-radius:30px; background:#fde7e5; color:#d62d20; display:flex; align-items:center; justify-content:center; margin-bottom:24px; }
+  .ko-icon svg{ width:62px; height:62px; }
+  #kioskOffline h2{ font-family:var(--display); font-size:58px; color:var(--white); line-height:1; margin-bottom:14px; }
+  #kioskOffline p{ font-size:22px; color:var(--cream); margin-bottom:24px; }
+  .ko-wait{ display:flex; align-items:center; gap:10px; font-size:18px; color:var(--muted); }
+  .ko-wait .spin{ width:18px; height:18px; border-radius:50%; border:2px solid var(--line); border-top-color:var(--gold); animation:spin .9s linear infinite; }
+
+  .confirm-track{ display:flex; align-items:center; gap:18px; text-align:left; background:#fff; border:2px solid var(--line); border-radius:22px; padding:14px 20px 14px 14px; margin:6px 0 4px; max-width:560px; }
+  .confirm-track.hidden{ display:none; }
+  .confirm-track canvas{ width:150px !important; height:150px !important; flex:none; }
+  .ct-text b{ display:block; font-size:24px; color:var(--white); margin-bottom:4px; }
+  .ct-text span{ font-size:18px; color:var(--cream); }
+  #confirmDoneBtn{ margin-left:12px; background:none; border:2px solid var(--line); border-radius:999px; padding:6px 16px; font-size:17px; font-weight:700; color:var(--cream); }
 </style>
 </head>
 <body>
@@ -796,12 +856,53 @@
   </div>
 </div>
 <div id="idleScreen">
-  <div class="at-photo" aria-hidden="true"></div>
+  <div class="at-photo" aria-hidden="true">
+    <div class="at-slide on" style="background-image:url(menu-shawarma.jpg)"></div>
+    <div class="at-slide" style="background-image:url(item-butter-chicken-frankie.jpg)"></div>
+    <div class="at-slide" style="background-image:url(item-chicken-tikka-tacos.jpg)"></div>
+    <div class="at-slide" style="background-image:url(item-chicken-over-rice-bowl.jpg)"></div>
+    <div class="at-slide" style="background-image:url(item-chicken-loaded-fries.jpg)"></div>
+  </div>
   <div class="at-top"><img class="logo" src="logo.jpg" alt=""><span>Roll-In Shawarma</span></div>
   <div class="at-main">
+    <div class="at-chips">
+      <span class="at-chip at-chip-gold">Skip the line &middot; order here</span>
+      <span class="at-chip hidden" id="atEvent"></span>
+      <span class="at-chip hidden" id="atWait"></span>
+    </div>
     <h1>Rolled fresh<br>to order.</h1>
     <p>Shawarma, frankie rolls, bowls and tacos. Order here and we&rsquo;ll call your name.</p>
     <button type="button" id="startOrderBtn">Touch to order</button>
+    <div class="at-grab hidden" id="atGrab">
+      <div class="at-grab-title">Grab &amp; go combos <small>dish + fries + a drink</small></div>
+      <div class="at-grab-row" id="atGrabRow"></div>
+    </div>
+  </div>
+</div>
+
+<div id="grabSheet" class="kx-sheet hidden" role="dialog" aria-modal="true" aria-labelledby="grabTitle">
+  <div class="kx-card">
+    <div class="kx-head"><h2 id="grabTitle">Pick your drink</h2><p id="grabSub"></p></div>
+    <div class="kx-drinks" id="grabDrinks"></div>
+    <button type="button" class="kx-secondary" id="grabCancel">Cancel</button>
+  </div>
+</div>
+
+<div id="upsellSheet" class="kx-sheet hidden" role="dialog" aria-modal="true" aria-labelledby="upsellTitle">
+  <div class="kx-card">
+    <div class="kx-head"><h2 id="upsellTitle">Add a drink or dessert?</h2><p>One tap to add. Your order is almost ready to pay.</p></div>
+    <div class="kx-upsell" id="upsellList"></div>
+    <button type="button" class="kx-primary" id="upsellContinue">Continue to pay &rarr;</button>
+    <button type="button" class="kx-secondary" id="upsellSkip">No thanks</button>
+  </div>
+</div>
+
+<div id="kioskOffline" class="hidden" role="alert" aria-live="assertive">
+  <div class="ko-card">
+    <div class="ko-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8.8a15 15 0 0 1 20 0"></path><path d="M5 12.5a10 10 0 0 1 14 0"></path><path d="M8.5 16.1a5 5 0 0 1 7 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line><line x1="3" y1="3" x2="21" y2="21"></line></svg></div>
+    <h2>Please order at the window</h2>
+    <p>This kiosk lost its internet connection for a moment. Sorry about that! Our team at the window will take your order.</p>
+    <div class="ko-wait"><span class="spin"></span> Reconnecting&hellip; this screen goes away by itself.</div>
   </div>
 </div>
 
@@ -883,6 +984,7 @@
   <div class="checkout-body">
     <ol class="ksteps ksteps-center" aria-label="Steps"><li class="done">Order</li><li class="on">Your name</li><li>Pay</li></ol>
     <h2>Almost there!</h2>
+    <p class="kx-wait hidden" id="checkoutWait"></p>
     <div class="checkout-items-list" id="checkoutItemsList"></div>
     <div class="checkout-breakdown-row">Subtotal <span id="checkoutSubtotalDisplay">$0.00</span></div>
     <div class="checkout-total-row">Total <span id="checkoutTotalDisplay">$0.00</span></div>
@@ -979,7 +1081,11 @@
   </div>
   <p id="confirmedInstructions">We'll call your name when it's ready.</p>
   <div id="confirmedItemsList" class="confirm-items"></div>
-  <div class="confirm-countdown">Starting a new order in <span id="confirmedCountdown">15</span>s&hellip;</div>
+  <div class="confirm-track hidden" id="confirmTrack">
+    <canvas id="confirmTrackQr" width="150" height="150"></canvas>
+    <div class="ct-text"><b>Track it on your phone</b><span>Scan to see when it&rsquo;s ready. Tap &ldquo;Buzz me&rdquo; there and you&rsquo;re free to wander.</span></div>
+  </div>
+  <div class="confirm-countdown">Starting a new order in <span id="confirmedCountdown">15</span>s&hellip; <button type="button" id="confirmDoneBtn">Done</button></div>
 </div>
 
 <script>
@@ -1137,6 +1243,7 @@
         window.__kioskByCategory = byCategory;
         renderCategoryList();
         refreshDealsSection();
+        paintGrabGo();
       });
     }
 
@@ -2252,7 +2359,7 @@
     function scanToPayShown(){ return KIOSK_SCAN_TO_PAY || !readerEnabled(); }
     function updateReaderButton(){
       var tb = document.getElementById('payTerminalBtn');
-      var term = !!kioskDevice && kioskHasTerminal;
+      var term = !!kioskDevice && kioskHasTerminal && !terminalLooksDown();
       if (tb) tb.classList.toggle('hidden', !term);
       document.getElementById('payScanBtn').classList.toggle('payment-method-btn-highlighted', !term);
       document.body.classList.toggle('pay-terminal', term);
@@ -2266,6 +2373,7 @@
     }
     function goToCheckoutScreen(){
       if (!cart.length) return;
+      if (!upsellDone && !orderScreen.classList.contains('hidden') && openUpsell()) return;
       updateReaderButton();
       orderScreen.classList.add('hidden');
       checkoutScreen.classList.remove('hidden');
@@ -2430,7 +2538,8 @@
         itemsEl.innerHTML = '';
       }
 
-      var seconds = 15;
+      paintConfirmExtras(isCash);
+      var seconds = document.getElementById('confirmTrack').classList.contains('hidden') ? 15 : 25;
       var countdownEl = document.getElementById('confirmedCountdown');
       countdownEl.textContent = seconds;
       var timer = setInterval(function(){
@@ -2613,6 +2722,7 @@
             return;
           }
           var confirmedItems = cart.map(function(c){ return { name: c.name + (ingNote(c) ? ' (' + ingNote(c) + ')' : ''), quantity: c.quantity }; });
+          lastKioskOrderId = result.data.orderId || null;
           showOrderConfirmed(result.data.referenceCode, confirmedItems, true);
         })
         .catch(function(err){
@@ -2688,6 +2798,7 @@
             msgEl.textContent = formatErrorMessage(result.data && result.data.error) || "Couldn't start checkout \u2014 please ask for help.";
             return;
           }
+          lastKioskOrderId = result.data.orderId || null;
           showScanToPay(payLink, result.data.referenceCode, result.data.total);
         })
         .catch(function(){
@@ -2816,11 +2927,13 @@
         .then(function(res){
           if (!res.ok || !res.data.terminalCheckoutId) {
             if (res.data && res.data.code === 'NO_TERMINAL') { kioskHasTerminal = false; updateReaderButton(); }
+            if (res.data && res.data.code === 'TERMINAL_START') terminalFailUntil = Date.now() + 3 * 60000;
             tpSay(null, formatErrorMessage(res.data && res.data.error) || 'Couldn\u2019t reach the card machine. You haven\u2019t been charged.', { retry: true });
             return;
           }
           tp.checkoutId = res.data.terminalCheckoutId;
           tp.ref = res.data.referenceCode;
+          lastKioskOrderId = res.data.orderId || null;
           if (res.data.total != null) tpEl('tpTotal').textContent = '$' + Number(res.data.total).toFixed(2);
           tpSay('Waiting for your card\u2026', '');
           tp.timer = setTimeout(tpPoll, 1500);
@@ -2847,6 +2960,235 @@
       tpLeave(true);
       startScanPayment(tp.tip);
     });
+
+    // ================= Event pack =================
+    var lastKioskOrderId = null;
+    var kioskWaitMin = null, kioskEventTitle = null;
+
+    // ---- start screen: rotating photos ----
+    (function(){
+      var slides = document.querySelectorAll('#idleScreen .at-slide'), i = 0;
+      if (slides.length < 2) return;
+      setInterval(function(){
+        if (idleScreen.classList.contains('hidden')) return;
+        slides[i].classList.remove('on');
+        i = (i + 1) % slides.length;
+        slides[i].classList.add('on');
+      }, 6000);
+    })();
+
+    // ---- wait time, event name, and "are we online?" ----
+    var kioskOnline = true, infoFails = 0, infoTimer = null;
+    function paintInfo(){
+      var w = kioskWaitMin, ev = kioskEventTitle;
+      var atWait = document.getElementById('atWait'), atEvent = document.getElementById('atEvent'), cw = document.getElementById('checkoutWait');
+      atWait.classList.toggle('hidden', !w);
+      if (w) atWait.textContent = '⏱ About ' + w + ' min wait right now';
+      atEvent.classList.toggle('hidden', !ev);
+      if (ev) atEvent.textContent = 'Welcome, ' + ev + '!';
+      cw.classList.toggle('hidden', !w);
+      if (w) cw.textContent = 'Ready in about ' + w + ' min after you pay.';
+    }
+    function kioskBusyPaying(){
+      return ['scanToPayScreen', 'terminalPayScreen', 'orderConfirmedScreen'].some(function(id){ var el = document.getElementById(id); return el && !el.classList.contains('hidden'); });
+    }
+    function setKioskOnline(on){
+      kioskOnline = on;
+      var ov = document.getElementById('kioskOffline');
+      var show = !on && !kioskBusyPaying();
+      ov.classList.toggle('hidden', !show);
+      clearTimeout(infoTimer);
+      infoTimer = setTimeout(checkKioskInfo, on ? 30000 : 8000);
+    }
+    function checkKioskInfo(){
+      clearTimeout(infoTimer);
+      if (navigator.onLine === false) { infoFails = 2; setKioskOnline(false); return; }
+      var settled = false;
+      var guard = setTimeout(function(){ if (!settled) { settled = true; failed(); } }, 9000);
+      function failed(){ infoFails += 1; setKioskOnline(infoFails < 2); }
+      sbShared.rpc('get_kiosk_info').then(function(res){
+        if (settled) return; settled = true; clearTimeout(guard);
+        if (res && res.error) {
+          // Not set up yet (kiosk-event-pack.sql): we're online, just no wait time.
+          var m = String(res.error.message || '') + ' ' + String(res.error.code || '');
+          if (res.status === 404 || /PGRST202|get_kiosk_info|function/i.test(m)) { infoFails = 0; setKioskOnline(true); return; }
+          return failed();
+        }
+        infoFails = 0;
+        var d = (res && res.data) || {};
+        kioskWaitMin = d.wait_min ? Number(d.wait_min) : null;
+        kioskEventTitle = d.event_title || null;
+        paintInfo();
+        setKioskOnline(true);
+      }, function(){ if (settled) return; settled = true; clearTimeout(guard); failed(); });
+    }
+    window.addEventListener('offline', function(){ infoFails = 2; setKioskOnline(false); });
+    window.addEventListener('online', function(){ setTimeout(checkKioskInfo, 1500); });
+    setTimeout(checkKioskInfo, 1200);
+
+    // ---- card machine health + kiosk heartbeat (signed, once a minute) ----
+    var terminalStatus = null, terminalFailUntil = 0;
+    function terminalLooksDown(){ return terminalStatus === 'OFFLINE' || Date.now() < terminalFailUntil; }
+    function kioskHeartbeat(){
+      if (!kioskDevice || !kioskOnline) return;
+      var str = JSON.stringify({ action: 'heartbeat' });
+      signKioskRequest(str).then(function(proof){
+        return fetch(TERMINAL_URL, {
+          method: 'POST',
+          headers: Object.assign({ 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KIOSK_ANON_KEY }, proof),
+          body: str
+        });
+      }).then(function(r){ return r.ok ? r.json() : null; }).then(function(d){
+        if (!d) return;
+        var before = terminalLooksDown();
+        terminalStatus = d.terminalStatus || null;
+        if (typeof d.terminal === 'boolean') kioskHasTerminal = d.terminal;
+        if (before !== terminalLooksDown() || typeof d.terminal === 'boolean') updateReaderButton();
+      }).catch(function(){});
+    }
+    setTimeout(kioskHeartbeat, 6000);
+    setInterval(kioskHeartbeat, 60000);
+
+    // ---- order-number screen: track QR ----
+    function paintConfirmExtras(isCash){
+      var box = document.getElementById('confirmTrack');
+      box.classList.add('hidden');
+      if (kioskWaitMin) {
+        var ins = document.getElementById('confirmedInstructions');
+        ins.textContent = ins.textContent + ' About ' + kioskWaitMin + ' min.';
+      }
+      if (!lastKioskOrderId || typeof QRCode === 'undefined') return;
+      var url = new URL('track.html?order=' + encodeURIComponent(lastKioskOrderId), location.href).href;
+      try {
+        QRCode.toCanvas(document.getElementById('confirmTrackQr'), url, { width: 150, margin: 1 }, function(err){
+          if (!err) box.classList.remove('hidden');
+        });
+      } catch (e) {}
+    }
+    document.getElementById('confirmDoneBtn').addEventListener('click', function(){ window.location.reload(); });
+
+    // ---- grab-and-go combos on the start screen ----
+    // Edit this list to change which dishes show (the first 3 available ones
+    // that come as a combo are shown).
+    var GRAB_GO = ['Chicken Shawarma', 'Butter Chicken Frankie', 'Chicken Tikka Tacos', 'Falafel Shawarma (Veg)', 'Chicken Tikka Frankie'];
+    var COMBO_DRINKS = ['Coke', 'Diet Coke', 'Coke Zero', 'Sprite', 'Root Beer', 'Water'];
+    var grabPick = null;
+    function grabItems(){
+      var all = Object.keys(itemsById).map(function(id){ return itemsById[id]; });
+      if (!comboAddonsByName['Combo Fries']) return [];
+      var out = [];
+      GRAB_GO.forEach(function(n){
+        if (out.length >= 3) return;
+        var it = all.find(function(i){ return i.name === n && !i.variant_name && i.is_available !== false && Number(i.combo_upcharge) > 0; });
+        if (it) out.push(it);
+      });
+      return out;
+    }
+    function paintGrabGo(){
+      var list = grabItems(), wrap = document.getElementById('atGrab');
+      wrap.classList.toggle('hidden', !list.length);
+      document.getElementById('atGrabRow').innerHTML = list.map(function(it){
+        var price = Number(it.price) + Number(it.combo_upcharge);
+        return '<button type="button" class="at-grab-card" data-grab="' + escHtml(it.id) + '">' +
+          '<span class="ag-photo">' + itemPhotoHtml(it) + '</span>' +
+          '<span class="ag-name">' + escHtml(it.name.replace(/\s*\(Veg\)/, '')) + ' combo</span>' +
+          '<span class="ag-price">$' + price.toFixed(2) + '</span></button>';
+      }).join('');
+    }
+    document.getElementById('atGrabRow').addEventListener('click', function(e){
+      var b = e.target.closest('[data-grab]');
+      if (!b) return;
+      e.stopPropagation();
+      var it = itemsById[b.getAttribute('data-grab')];
+      if (!it) return;
+      grabPick = it;
+      document.getElementById('grabSub').textContent = it.name + ' + fries + your drink';
+      var drinks = COMBO_DRINKS.filter(function(d){ var x = comboAddonsByName['Combo ' + d]; return x && x.is_available !== false; });
+      document.getElementById('grabDrinks').innerHTML = drinks.map(function(d){
+        return '<button type="button" class="kx-drink" data-drink="' + escHtml(d) + '">' +
+          '<img src="item-combo-drink-' + slugify(d) + '.jpg" alt="" onerror="this.remove()"><span>' + escHtml(d) + '</span></button>';
+      }).join('');
+      document.getElementById('grabSheet').classList.remove('hidden');
+    });
+    document.getElementById('grabDrinks').addEventListener('click', function(e){
+      var b = e.target.closest('[data-drink]');
+      if (!b || !grabPick) return;
+      document.getElementById('grabSheet').classList.add('hidden');
+      var it = grabPick; grabPick = null;
+      goToOrderScreen();
+      addOne(it.id);
+      addComboAddon(b.getAttribute('data-drink'));
+    });
+    document.getElementById('grabCancel').addEventListener('click', function(){ grabPick = null; document.getElementById('grabSheet').classList.add('hidden'); });
+    ['grabSheet', 'upsellSheet'].forEach(function(id){
+      document.getElementById(id).addEventListener('click', function(e){ e.stopPropagation(); });
+    });
+
+    // ---- "Add a drink or dessert?" before paying ----
+    // Edit these lists to change the suggestions ("Name|Variant" for a size or flavor).
+    var UPSELL_DRINKS = ['Mango Lassi', 'Soda|Coke', 'Sharbat Soda', 'Water'];
+    var UPSELL_SWEETS = ['Mango Kulfi', 'Pistachio Kulfi', 'Falooda', 'Almond Kulfi'];
+    var UPSELL_SIDES = ['2 Samosas'];
+    var upsellDone = false;
+    function findMenuItem(spec){
+      var p = spec.split('|');
+      return Object.keys(itemsById).map(function(id){ return itemsById[id]; }).find(function(i){
+        return i.name === p[0] && (p[1] ? i.variant_name === p[1] : !i.variant_name) && i.is_available !== false && i.category !== 'Deal Selections' && i.category !== 'Combo Add-ons';
+      });
+    }
+    function cartHas(test){
+      return cart.some(function(c){ var it = itemsById[c.menu_item_id]; return it && test(it); });
+    }
+    function upsellPicks(){
+      var hasDrink = cartHas(function(i){ return i.category === 'Drinks' || (i.category === 'Combo Add-ons' && i.name !== 'Combo Fries'); });
+      var hasSweet = cartHas(function(i){ return i.category === 'Kulfi Ice Cream' || /Falooda|Kulfi/.test(i.name); });
+      var hasSide = cartHas(function(i){ return i.category === 'Sides' || i.name === 'Combo Fries'; });
+      var picks = [];
+      function take(list, n){ list.map(findMenuItem).filter(Boolean).slice(0, n).forEach(function(i){ if (picks.indexOf(i) < 0) picks.push(i); }); }
+      if (!hasDrink) take(UPSELL_DRINKS, 2);
+      if (!hasSweet) take(UPSELL_SWEETS, hasDrink ? 2 : 1);
+      if (!hasSide) take(UPSELL_SIDES, 1);
+      return picks.slice(0, 4);
+    }
+    function upsellCount(id){ return cart.reduce(function(s, c){ return s + (c.menu_item_id === id ? c.quantity : 0); }, 0); }
+    function paintUpsell(picks){
+      document.getElementById('upsellList').innerHTML = picks.map(function(it){
+        var n = upsellCount(it.id);
+        return '<button type="button" class="kx-up' + (n ? ' added' : '') + '" data-up="' + escHtml(it.id) + '">' +
+          '<span class="ku-photo">' + itemPhotoHtml(it) + '</span>' +
+          '<span class="ku-name">' + escHtml(it.name + (it.variant_name ? ' — ' + it.variant_name : '')) + '</span>' +
+          '<span class="ku-price">$' + Number(it.price).toFixed(2) + '</span>' +
+          '<span class="ku-add">' + (n ? '✓ Added' + (n > 1 ? ' ×' + n : '') : '+ Add') + '</span></button>';
+      }).join('');
+    }
+    var upsellShown = [];
+    function openUpsell(){
+      var picks = upsellPicks();
+      if (!picks.length) { upsellDone = true; return false; }
+      upsellShown = picks;
+      paintUpsell(picks);
+      document.getElementById('upsellSheet').classList.remove('hidden');
+      resetInactivityTimer();
+      return true;
+    }
+    function closeUpsell(){
+      upsellDone = true;
+      document.getElementById('upsellSheet').classList.add('hidden');
+      goToCheckoutScreen();
+    }
+    document.getElementById('upsellList').addEventListener('click', function(e){
+      var b = e.target.closest('[data-up]');
+      if (!b) return;
+      addOne(b.getAttribute('data-up'));
+      paintUpsell(upsellShown);
+      resetInactivityTimer();
+    });
+    document.getElementById('upsellContinue').addEventListener('click', closeUpsell);
+    document.getElementById('upsellSkip').addEventListener('click', closeUpsell);
+
+    // menu ready on the start screen too (grab-and-go), refreshed while idle
+    loadMenu();
+    setInterval(function(){ if (!idleScreen.classList.contains('hidden')) loadMenu(); }, 300000);
 
     // ---- Helper shared by all three payment buttons: disables/    ----
     // ---- enables them together without ever touching their inner  ----
@@ -3154,6 +3496,7 @@
             msgEl.textContent = formatErrorMessage(result.data && result.data.error) || "Couldn't confirm this payment \u2014 please ask for help.";
             return;
           }
+          lastKioskOrderId = readerOrderId;
           showOrderConfirmed(result.data.referenceCode, result.data.items, false);
         })
         .catch(function(){
