@@ -608,6 +608,30 @@
   .sc-bar i{ display:block; height:14px; border-radius:7px; background:#1d1d1f; min-width:3px; }
   .sc-bar span:last-child{ text-align:right; color:var(--muted); white-space:nowrap; }
   .sc-bar.none i{ background:#e2e2e7; }
+  .sr-controls select, .sr-controls input{ width:100%; }
+  .sr-when{ display:grid; grid-template-columns:1.4fr 1fr 1fr; gap:10px; }
+  .sr-actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; }
+  .sr-actions button{ width:auto; flex:1 1 140px; }
+  .sr-actions .btn-ghost{ background:#f0f0f2; color:var(--ink); }
+  .sr-msg{ margin-top:10px; font-size:14px; color:var(--muted); }
+  .sr-msg.error{ color:#d62d20; }
+  .sr-title{ font-family:var(--display); font-size:20px; font-weight:700; color:var(--ink); margin:6px 0 12px; }
+  .sr-tiles{ grid-template-columns:repeat(5,1fr); }
+  .sr-note{ margin-top:10px; }
+  .sr-bars .sc-bar{ grid-template-columns:120px 1fr 120px; }
+  @media (max-width:600px){
+    .sr-when{ grid-template-columns:1fr 1fr; }
+    .sr-when div:first-child{ grid-column:1 / -1; }
+    .sr-tiles{ grid-template-columns:1fr 1fr; }
+    .sr-bars .sc-bar{ grid-template-columns:78px 1fr 96px; }
+  }
+  @media print{
+    body *{ visibility:hidden !important; }
+    #panelSalesreport, #panelSalesreport *{ visibility:visible !important; }
+    #panelSalesreport{ position:absolute; left:0; top:0; width:100%; padding:0 10px; }
+    #panelSalesreport .sr-controls, #panelSalesreport .page-head .hint{ display:none !important; }
+    #panelSalesreport .card{ border:1px solid #ddd; box-shadow:none; break-inside:avoid; }
+  }
   @media (max-width:899px){
     .sc-tiles{ grid-template-columns:1fr 1fr; }
     .sc-tiles div:nth-child(2){ border-right:0; }
@@ -754,6 +778,7 @@
       <button class="nav-link hidden" data-tab="corpevents" id="tabCorpBtn"><svg class="icon"><use href="#ic-building"/></svg>Corporate events<span class="nav-badge nav-badge-soft hidden" id="navCorpBadge"></span></button>
       <button class="nav-link hidden" data-tab="nextdoor" id="tabDoorBtn"><svg class="icon"><use href="#ic-building"/></svg>Next Door delivery<span class="nav-badge nav-badge-soft hidden" id="navDoorBadge"></span></button>
       <button class="nav-link hidden" data-tab="offers" id="tabOffersBtn"><svg class="icon"><use href="#ic-mail"/></svg>Member offers</button>
+      <button class="nav-link hidden" data-tab="salesreport" id="tabSalesBtn"><svg class="icon"><use href="#ic-chart"/></svg>Sales report</button>
       <button class="nav-link hidden" data-tab="stops" id="tabStopsBtn"><svg class="icon"><use href="#ic-trophy"/></svg>Stop scorecard<span class="nav-badge nav-badge-soft">Soon</span></button>
       <button class="nav-link hidden" data-tab="ads" id="tabAdsBtn"><svg class="icon"><use href="#ic-target"/></svg>Ads<span class="nav-badge hidden" id="navAdsBadge"></span></button>
 
@@ -1336,6 +1361,48 @@
         </table>
       </div>
       <p class="hint">Sales include tax and tips, minus refunds. Window and Square sales count when they&rsquo;re synced into orders.</p>
+    </div>
+  </div>
+
+  <!-- SALES REPORT -->
+  <div class="tab-panel hidden" id="panelSalesreport">
+    <div class="page-head">
+      <h2>Sales report</h2>
+      <p class="hint">Sales for any stretch of time: pick an event day or set the date and hours. Good for event organizers who take a percentage, and for seeing which events are worth repeating.</p>
+    </div>
+    <div class="card sr-controls">
+      <label for="srPreset">Event or day</label>
+      <select id="srPreset"><option value="today">Today (all day)</option><option value="yesterday">Yesterday (all day)</option></select>
+      <div class="sr-when">
+        <div><label for="srDate">Date</label><input type="date" id="srDate"></div>
+        <div><label for="srFrom">From</label><input type="time" id="srFrom" value="00:00"></div>
+        <div><label for="srTo">To</label><input type="time" id="srTo" value="23:59"></div>
+      </div>
+      <div class="sr-actions">
+        <button type="button" id="srRun" class="btn-primary">Run report</button>
+        <button type="button" id="srPrint" class="btn-ghost" disabled>Print</button>
+        <button type="button" id="srCsv" class="btn-ghost" disabled>Download CSV</button>
+      </div>
+      <div id="srMsg" class="sr-msg"></div>
+    </div>
+    <div id="srOut" class="hidden">
+      <div class="sr-title" id="srTitle"></div>
+      <div class="sc-tiles sr-tiles" id="srTiles"></div>
+      <p class="hint sr-note" id="srCashNote"></p>
+
+      <div class="section-title">By payment type</div>
+      <div class="card"><div style="overflow-x:auto;"><table class="stack"><thead><tr><th>Payment</th><th>Orders</th><th>Sales</th><th>Tips</th></tr></thead><tbody id="srPay"></tbody></table></div></div>
+
+      <div class="section-title">By channel</div>
+      <div class="card"><div style="overflow-x:auto;"><table class="stack"><thead><tr><th>Where ordered</th><th>Orders</th><th>Sales</th><th>Share</th></tr></thead><tbody id="srChan"></tbody></table></div></div>
+
+      <div class="section-title">By hour</div>
+      <div class="card"><div id="srHours" class="sc-bars sr-bars"></div></div>
+
+      <div class="section-title">What sold</div>
+      <div class="card"><div style="overflow-x:auto;"><table class="stack"><thead><tr><th>Item</th><th>Qty</th><th>Sales</th></tr></thead><tbody id="srItems"></tbody></table></div>
+        <p class="hint">Item sales are before tax and discounts. Combo fries and drinks show as their own lines.</p></div>
+      <p class="hint">Sales = order totals (tax and tips included) minus refunds, counted by pickup time. Window sales count only when they're synced from Square. Cancelled orders aren't counted.</p>
     </div>
   </div>
 
@@ -1966,6 +2033,9 @@
         setInterval(loadSoldOut, 60000);
         document.getElementById('tabAdsBtn').classList.remove('hidden');
         document.getElementById('tabStopsBtn').classList.remove('hidden');
+        document.getElementById('tabSalesBtn').classList.remove('hidden');
+        document.querySelector('.nav-link[data-tab="salesreport"]').addEventListener('click', srOpen);
+        if (location.hash === '#sales') setTimeout(function(){ showTab('salesreport'); srOpen(); }, 0);
         document.getElementById('tabCateringBtn').classList.remove('hidden');
         document.getElementById('tabCorpBtn').classList.remove('hidden');
         document.getElementById('tabDoorBtn').classList.remove('hidden');
@@ -4333,6 +4403,122 @@
 
   // ================= STOP SCORECARD =================
   var scState = { days:90, loaded:false };
+  // ---------------- SALES REPORT ----------------
+  var srState = { presets: [], data: null, loaded: false, label: '' };
+  function srPad(n){ return (n < 10 ? '0' : '') + n; }
+  function srLocalDate(d){ return d.getFullYear() + '-' + srPad(d.getMonth() + 1) + '-' + srPad(d.getDate()); }
+  function srLocalTime(d){ return srPad(d.getHours()) + ':' + srPad(d.getMinutes()); }
+  function srMoney(n){ n = Number(n || 0); return '$' + n.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function srEsc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+  function srOpen(){
+    if (!document.getElementById('srDate').value) document.getElementById('srDate').value = srLocalDate(new Date());
+    if (srState.loaded) return;
+    srState.loaded = true;
+    sb.rpc('sales_report_presets').then(function(res){
+      if (res.error || !Array.isArray(res.data)) return;
+      srState.presets = res.data;
+      var sel = document.getElementById('srPreset');
+      res.data.forEach(function(p, i){
+        var d = new Date(p.day + 'T12:00:00');
+        var o = document.createElement('option');
+        o.value = 'ev' + i;
+        o.textContent = d.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }) + ' \u00b7 ' + p.title;
+        sel.appendChild(o);
+      });
+    });
+  }
+  function srRange(){
+    var date = document.getElementById('srDate').value, from = document.getElementById('srFrom').value || '00:00', to = document.getElementById('srTo').value || '23:59';
+    if (!date) return null;
+    var a = new Date(date + 'T' + from), b = new Date(date + 'T' + to);
+    if (to === '23:59') b = new Date(b.getTime() + 60000);
+    if (b <= a) b = new Date(b.getTime() + 86400000);   // runs past midnight
+    return { from: a, to: b };
+  }
+  document.getElementById('srPreset').addEventListener('change', function(){
+    var v = this.value, d = new Date();
+    if (v === 'today' || v === 'yesterday') {
+      if (v === 'yesterday') d.setDate(d.getDate() - 1);
+      document.getElementById('srDate').value = srLocalDate(d);
+      document.getElementById('srFrom').value = '00:00';
+      document.getElementById('srTo').value = '23:59';
+    } else {
+      var p = srState.presets[Number(v.slice(2))];
+      if (!p) return;
+      var a = new Date(p.from), b = new Date(p.to);
+      document.getElementById('srDate').value = srLocalDate(a);
+      document.getElementById('srFrom').value = srLocalTime(a);
+      document.getElementById('srTo').value = srLocalTime(b);
+    }
+    srRun();
+  });
+  function srRun(){
+    var r = srRange(), msg = document.getElementById('srMsg');
+    if (!r) { msg.textContent = 'Pick a date.'; msg.className = 'sr-msg error'; return; }
+    msg.textContent = 'Loading\u2026'; msg.className = 'sr-msg';
+    var btn = document.getElementById('srRun'); btn.disabled = true;
+    sb.rpc('sales_report', { p_from: r.from.toISOString(), p_to: r.to.toISOString() }).then(function(res){
+      btn.disabled = false;
+      if (res.error) {
+        msg.textContent = /sales_report/.test(res.error.message || '') && /find|exist/i.test(res.error.message || '') ? 'Run kiosk-event-pack.sql in Supabase first.' : (res.error.message || 'Couldn\u2019t load the report.');
+        msg.className = 'sr-msg error';
+        return;
+      }
+      msg.textContent = '';
+      var sel = document.getElementById('srPreset');
+      var pre = sel.value.indexOf('ev') === 0 ? sel.options[sel.selectedIndex].textContent + ' \u2014 ' : '';
+      srState.label = pre + r.from.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) +
+        ' to ' + r.to.toLocaleString('en-US', r.to.toDateString() === r.from.toDateString() ? { hour: 'numeric', minute: '2-digit' } : { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+      srState.data = res.data;
+      srPaint(res.data);
+    }, function(){ btn.disabled = false; msg.textContent = 'Couldn\u2019t reach the server.'; msg.className = 'sr-msg error'; });
+  }
+  document.getElementById('srRun').addEventListener('click', srRun);
+  function srPaint(d){
+    document.getElementById('srOut').classList.remove('hidden');
+    document.getElementById('srPrint').disabled = false;
+    document.getElementById('srCsv').disabled = false;
+    document.getElementById('srTitle').textContent = srState.label;
+    var t = d.totals || {};
+    document.getElementById('srTiles').innerHTML =
+      '<div><b>' + srMoney(t.sales) + '</b><small>Sales</small></div>' +
+      '<div><b>' + (t.orders || 0) + '</b><small>Orders</small></div>' +
+      '<div><b>' + srMoney(t.avg_ticket) + '</b><small>Avg ticket</small></div>' +
+      '<div><b>' + srMoney(t.tips) + '</b><small>Tips</small></div>' +
+      '<div><b>' + srMoney(t.refunds) + '</b><small>Refunds</small></div>';
+    var uc = d.unpaid_cash || {};
+    document.getElementById('srCashNote').textContent = uc.orders ? uc.orders + ' cash order' + (uc.orders === 1 ? '' : 's') + ' (' + srMoney(uc.amount) + ') not marked paid yet \u2014 not in sales. Mark them in the Cash log.' : '';
+    function rows(list, cols, empty){
+      if (!list || !list.length) return '<tr class="empty-row"><td colspan="' + cols.length + '">' + empty + '</td></tr>';
+      return list.map(function(x){ return '<tr>' + cols.map(function(c){ return '<td data-label="' + c[0] + '">' + c[1](x) + '</td>'; }).join('') + '</tr>'; }).join('');
+    }
+    var total = Number(t.sales || 0);
+    document.getElementById('srPay').innerHTML = rows(d.by_payment, [['Payment', function(x){ return srEsc(x.label); }], ['Orders', function(x){ return x.orders; }], ['Sales', function(x){ return srMoney(x.sales); }], ['Tips', function(x){ return srMoney(x.tips); }]], 'No sales in this window.');
+    document.getElementById('srChan').innerHTML = rows(d.by_channel, [['Where ordered', function(x){ return srEsc(x.label); }], ['Orders', function(x){ return x.orders; }], ['Sales', function(x){ return srMoney(x.sales); }], ['Share', function(x){ return total ? Math.round(100 * x.sales / total) + '%' : '\u2014'; }]], 'No sales in this window.');
+    var hrs = d.by_hour || [], max = Math.max.apply(null, hrs.map(function(h){ return Number(h.sales); }).concat([1]));
+    document.getElementById('srHours').innerHTML = hrs.length ? hrs.map(function(h){
+      return '<div class="sc-bar"><span>' + srEsc(h.label) + '</span><i style="width:' + Math.max(1, Math.round(100 * Number(h.sales) / max)) + '%"></i><span>' + srMoney(h.sales) + ' \u00b7 ' + h.orders + '</span></div>';
+    }).join('') : '<p class="hint">No sales in this window.</p>';
+    document.getElementById('srItems').innerHTML = rows(d.items, [['Item', function(x){ return srEsc(x.name); }], ['Qty', function(x){ return x.qty; }], ['Sales', function(x){ return srMoney(x.sales); }]], 'Nothing sold in this window.');
+  }
+  document.getElementById('srPrint').addEventListener('click', function(){ window.print(); });
+  document.getElementById('srCsv').addEventListener('click', function(){
+    var d = srState.data; if (!d) return;
+    var q = function(v){ v = String(v == null ? '' : v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; };
+    var L = [['Roll-In Shawarma sales report'], [srState.label], [],
+      ['Sales', d.totals.sales], ['Orders', d.totals.orders], ['Avg ticket', d.totals.avg_ticket], ['Tips', d.totals.tips], ['Refunds', d.totals.refunds],
+      ['Cash not marked paid (orders / amount)', (d.unpaid_cash || {}).orders, (d.unpaid_cash || {}).amount], [],
+      ['Payment', 'Orders', 'Sales', 'Tips']].concat((d.by_payment || []).map(function(x){ return [x.label, x.orders, x.sales, x.tips]; }))
+      .concat([[], ['Channel', 'Orders', 'Sales']]).concat((d.by_channel || []).map(function(x){ return [x.label, x.orders, x.sales]; }))
+      .concat([[], ['Hour', 'Orders', 'Sales']]).concat((d.by_hour || []).map(function(x){ return [x.label, x.orders, x.sales]; }))
+      .concat([[], ['Item', 'Qty', 'Sales']]).concat((d.items || []).map(function(x){ return [x.name, x.qty, x.sales]; }));
+    var blob = new Blob([L.map(function(r){ return r.map(q).join(','); }).join('\n')], { type: 'text/csv' });
+    var a = document.createElement('a');
+    a.href = URL.createObjectURL(blob);
+    a.download = 'sales-report-' + (document.getElementById('srDate').value || 'day') + '.csv';
+    document.body.appendChild(a); a.click(); a.remove();
+  });
+
   function scMoney(n){ n = Number(n || 0); return '$' + (n >= 1000 ? Math.round(n).toLocaleString() : n.toFixed(n % 1 ? 2 : 0)); }
   function scQuantile(arr, q){ if (!arr.length) return 0; var a = arr.slice().sort(function(x, y){ return x - y; }); var i = (a.length - 1) * q, lo = Math.floor(i), hi = Math.ceil(i); return a[lo] + (a[hi] - a[lo]) * (i - lo); }
   function loadScorecard(){
