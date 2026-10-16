@@ -534,6 +534,14 @@
   /* cart suggestions: the + sits on the photo (it was hidden under it) */
   .mini .tile-photo .add-btn{ position:absolute; z-index:2; right:6px; bottom:6px; width:38px; height:38px; background:var(--white); color:#000; font-weight:700; box-shadow:0 2px 8px rgba(0,0,0,.4); }
 
+  /* ---- phones: the item sheet must fit the screen you can actually see.
+     100vh on iPhone Safari is the height with the toolbars hidden, so a 92vh
+     sheet pushed its top (and the close button) off the screen. dvh = the
+     visible height right now. ---- */
+  .sheet{ max-height:calc(100vh - 70px); max-height:calc(100dvh - 16px - env(safe-area-inset-top, 0px)); }
+  @media (min-width:700px){ .sheet{ max-height:88vh; max-height:88dvh; } }
+  #itemSheet .sheet-head{ top:10px; right:10px; }
+  #itemSheet .sheet-close{ width:44px; height:44px; font-size:26px; background:rgba(0,0,0,.72); border:1.5px solid rgba(255,255,255,.35); }
   /* ---- closed: browse the menu, no ordering ---- */
   .du-browse-btn{ display:inline-flex; align-items:center; justify-content:center; height:50px; padding:0 30px; margin-top:22px; border-radius:999px; background:var(--white); color:#000; font-weight:700; font-size:16px; }
   body.du-browse #menuState{ display:none !important; }
