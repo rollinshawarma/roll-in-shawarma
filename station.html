@@ -3073,6 +3073,7 @@
       var ps = printState[o.id], print = '';
       if (o.stage === 'ready') {
         if (ps && ps.bad) print = '<div class="lt-print bad">⚠ Ticket didn’t print: ' + escHtml(ps.msg) + '<button type="button" data-lt="print" data-id="' + o.id + '">Retry</button></div>';
+        else if (ps && ps.paid) print = '<div class="lt-print">🖨 Ticket printed when it was paid</div>';
         else if (o.ticket || (ps && ps.ok)) print = '<div class="lt-print">🖨 Ticket sent to the Square printer</div>';
         else print = '<div class="lt-print">Printing…</div>';
       }
@@ -3149,7 +3150,7 @@
     // Ready -> print the Square ticket (once; the server also guards it).
     function pushPrint(id){
       printState[id] = { pending: true };
-      authFetch({ orderId: id }).then(function(){ printState[id] = { ok: true }; render(); },
+      authFetch({ orderId: id }).then(function(d){ printState[id] = { ok: true, paid: !!(d && d.printedAtPayment) }; render(); },
         function(e){ printState[id] = { bad: true, msg: (e && e.message) || 'no answer' }; render(); });
     }
     colsEl.addEventListener('click', function(e){
