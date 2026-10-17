@@ -345,6 +345,8 @@
   #chooseCalBtn{ color:#ffd479; border-color:rgba(255,190,60,.6); }
   .cal-btn .cal-n{ display:inline-block; min-width:22px; margin-left:8px; padding:1px 7px; border-radius:100px; background:#ff9f0a; color:#241902; font-size:14px; text-align:center; }
   .cal-btn .cal-n.zero{ background:#3a3a3c; color:var(--muted); }
+  .cal-btn.cal-flash{ animation:calFlash .7s ease-in-out 12; }
+  @keyframes calFlash{ 0%,100%{ background:transparent; } 50%{ background:#ff9f0a; color:#241902 !important; } }
   #calBoard{ height:100%; display:flex; flex-direction:column; }
   #calBoard.hidden{ display:none; }
   #calHeader{ display:flex; flex-wrap:wrap; align-items:center; gap:10px 8px; padding:14px 20px; border-bottom:1px solid var(--line); flex:none; }
@@ -1191,9 +1193,9 @@
 
   // ---------------- Corporate Lunch button: only when an event is on ----------------
   // (today, from 3 h before it starts to 2 h after it ends, or event orders still open)
-  var lunchVisAt = 0;
+  var lunchVisAt = 0, calWaitPrev = null, calActive = false;
   window.refreshLunchVisibility = function(force){
-    if (!force && Date.now() - lunchVisAt < 30000) return;
+    if (!force && Date.now() - lunchVisAt < (calActive ? 10000 : 30000)) return;
     lunchVisAt = Date.now();
     if (typeof sb === 'undefined' || !sb) return;
     sb.rpc('kds_has_events').then(function(res){
@@ -1203,6 +1205,17 @@
     // Event board (calendar events): shown during event hours or while event orders are open.
     sb.rpc('kds_cal_event_today').then(function(res){
       var ev = res && !res.error && res.data && res.data.title ? res.data : null;
+      calActive = !!ev;
+      var nWait = ev ? Number(ev.waiting) || 0 : 0;
+      var onCal = !document.getElementById('calBoard').classList.contains('hidden');
+      if (calWaitPrev !== null && nWait > calWaitPrev && !onCal) {
+        if (window.playOrderSound) window.playOrderSound('event');
+        ['switchToCalBtn', 'fryerToCalBtn'].forEach(function(id){
+          var b = document.getElementById(id); if (!b) return;
+          b.classList.remove('cal-flash'); void b.offsetWidth; b.classList.add('cal-flash');
+        });
+      }
+      calWaitPrev = nWait;
       ['chooseCalBtn', 'switchToCalBtn', 'fryerToCalBtn'].forEach(function(id){
         var b = document.getElementById(id); if (!b) return;
         b.classList.toggle('hidden', !ev);
@@ -1214,6 +1227,12 @@
       });
     }).catch(function(){});
   };
+
+  setInterval(function(){
+    var unlocked = false;
+    try { unlocked = sessionStorage.getItem('kdsUnlocked') === '1'; } catch(e){}
+    if (unlocked && calActive && document.visibilityState === 'visible' && window.refreshLunchVisibility) window.refreshLunchVisibility();
+  }, 10000);
 
   // ---------------- Sound system ----------------
   // Distinct per-source tones so staff can tell where a new order
@@ -1319,9 +1338,16 @@
       }
     };
     SOUNDS.qr_scan = SOUNDS.qr; // in case order_source is ever stored with an underscore variant
+    // Event order waiting: bright triple strike, played twice, so it cuts
+    // through a busy event.
+    SOUNDS.event = function(){
+      var t = audioCtx.currentTime;
+      [0, 0.16, 0.32, 0.9, 1.06, 1.22].forEach(function(dt, i){ ringBell([784, 988, 1175][i % 3], t + dt, 0.42); });
+    };
 
     window.playOrderSound = function(source){
       if (!audioCtx) return;
+      if (audioCtx.state === 'suspended' && audioCtx.resume) { try { audioCtx.resume(); } catch(e){} }
       var fn = SOUNDS[source] || SOUNDS.website;
       try { fn(); } catch(e) { console.error('playOrderSound failed:', e); }
     };
@@ -3196,7 +3222,7 @@
           b.disabled = cooking || !waiting;
           b.textContent = cooking ? 'Tap Ready to pull the next' : waiting ? 'Pull next order' : 'No orders waiting';
         }
-        if (lastWaiting !== null && waiting > lastWaiting && window.playOrderSound) window.playOrderSound('website');
+        if (lastWaiting !== null && waiting > lastWaiting && window.playOrderSound) window.playOrderSound('event');
         lastWaiting = waiting;
       }
     });
