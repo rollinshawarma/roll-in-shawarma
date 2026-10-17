@@ -861,6 +861,33 @@
   .staff-pad .staff-ok:disabled{ opacity:.4; }
   .staff-hint{ font-size:15px; color:var(--muted); text-align:center; }
   .staff-link{ text-align:center; font-size:16px; font-weight:700; color:var(--cream); }
+
+  /* ---------- start screen fits every iPad (event chips never reach the logo) ---------- */
+  .at-chip{ white-space:nowrap; max-width:100%; overflow:hidden; text-overflow:ellipsis; }
+  #atEvent{ max-width:min(520px, 100%); }
+  @media (orientation: landscape){
+    /* text column sits below the logo bar and is centred in the space left */
+    #idleScreen{ padding:112px 0 24px !important; justify-content:center; }
+    .at-chips{ gap:8px; margin-bottom:16px; }
+    .at-chip{ font-size:16px; padding:7px 13px; }
+  }
+  @media (orientation: landscape) and (max-height: 900px){
+    #idleScreen h1{ font-size:64px; margin-bottom:12px; }
+    #idleScreen p{ font-size:19px; margin-bottom:20px; }
+    #startOrderBtn{ font-size:26px; padding:18px 48px; border-radius:18px; }
+    .at-grab{ margin-top:20px; }
+    .at-grab-title{ font-size:18px; margin-bottom:8px; }
+    .at-grab-title small{ font-size:14px; }
+    .at-grab-card .ag-photo{ height:64px; }
+    .at-grab-card .ag-name{ font-size:14px; padding:8px 10px 0; }
+    .at-grab-card .ag-price{ font-size:14px; padding:0 10px; }
+    .at-grab-card{ padding-bottom:8px; border-radius:14px; }
+  }
+  @media (orientation: landscape) and (max-height: 790px){
+    #idleScreen p{ display:none; }
+    #idleScreen h1{ font-size:56px; }
+    .at-grab-card .ag-photo{ height:54px; }
+  }
 </style>
 </head>
 <body>
