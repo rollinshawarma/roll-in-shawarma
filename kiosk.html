@@ -888,6 +888,20 @@
     #idleScreen h1{ font-size:56px; }
     .at-grab-card .ag-photo{ height:54px; }
   }
+
+  /* ---- kiosk card fix: why Pay with card is off + Scan to Pay idle countdown ---- */
+  .staff-card-why{ font-size:16px; line-height:1.4; font-weight:600; padding:12px 14px; border-radius:14px; text-align:left; }
+  .staff-card-why.ok{ background:rgba(31,138,76,.12); color:#1f8a4c; }
+  .staff-card-why.bad{ background:rgba(214,45,32,.10); color:#b3261e; }
+  .staff-card-why:empty{ display:none; }
+  #scanIdleNote{ position:fixed; left:50%; bottom:28px; transform:translateX(-50%); z-index:950; width:min(640px, calc(100vw - 32px));
+    background:#17130f; color:#fff; border-radius:22px; padding:20px 26px 18px 26px; box-shadow:0 14px 40px rgba(0,0,0,.35);
+    display:flex; flex-direction:column; gap:6px; text-align:center; border:3px solid var(--gold, #f7ad28); }
+  #scanIdleNote.hidden{ display:none; }
+  #scanIdleNote strong{ font-size:26px; font-weight:800; }
+  #scanIdleNote span{ font-size:20px; }
+  #scanIdleNote b{ color:var(--gold, #f7ad28); font-size:24px; }
+  #scanIdleNote small{ font-size:15px; color:rgba(255,255,255,.75); }
 </style>
 </head>
 <body>
@@ -952,6 +966,8 @@
 <div id="staffSheet" class="kx-sheet hidden" role="dialog" aria-modal="true" aria-labelledby="staffTitle">
   <div class="kx-card staff-card">
     <div class="kx-head"><h2 id="staffTitle">Kiosk setup</h2><p id="staffStatus"></p></div>
+    <div class="staff-card-why" id="staffWhy"></div>
+    <button type="button" class="kx-secondary hidden" id="staffRetryTerm">Try the card machine again</button>
     <label class="staff-label" for="staffName">Kiosk name</label>
     <input type="text" id="staffName" class="staff-input" value="Truck kiosk" maxlength="60" autocomplete="off">
     <label class="staff-check"><input type="checkbox" id="staffReplace" checked> This is the only kiosk (switch off and remove all other kiosk tablets)</label>
@@ -1124,6 +1140,12 @@
   <button type="button" id="scanCheckNowBtn">Already paid? Check now &rarr;</button>
   <div id="scanToPayMsg" class="scan-error-msg"></div>
   <button type="button" id="scanCancelBtn">&larr; Back to checkout</button>
+</div>
+
+<div id="scanIdleNote" class="hidden" role="alert" aria-live="assertive">
+  <strong>Still there?</strong>
+  <span>Starting a new order in <b id="scanIdleSecs">15</b>s. Tap anywhere to keep paying.</span>
+  <small>Already paying on your phone? Your order still goes through.</small>
 </div>
 
 <div id="terminalPayScreen" class="hidden" role="dialog" aria-live="polite">
@@ -2397,7 +2419,7 @@
     // ---- Screen navigation ----
     var kioskPausedNow = false;
     function paintKioskPause(st){
-      kioskPausedNow = !!(st && st.manual);
+      kioskPausedNow = false;   // the kitchen pause no longer stops the kiosk
       var busy = ['scanToPayScreen', 'terminalPayScreen', 'orderConfirmedScreen'].some(function(id){ var el = document.getElementById(id); return el && !el.classList.contains('hidden'); });
       document.getElementById('kioskPaused').classList.toggle('hidden', !kioskPausedNow || busy);
       var ul = '';
@@ -2407,8 +2429,6 @@
     function checkKioskPause(){
       sbShared.rpc('get_ordering_status').then(function(r){ if (r && !r.error) paintKioskPause(r.data); }, function(){});
     }
-    checkKioskPause();
-    setInterval(checkKioskPause, 30000);
     function goToOrderScreen(){
       idleScreen.classList.add('hidden');
       checkoutScreen.classList.add('hidden');
@@ -2511,6 +2531,8 @@
     // refuses cash orders from anything that isn't a registered tablet.
     var kioskDevice = null; // { id, key } once loaded
     var kioskHasTerminal = false; // a Square Terminal is paired with this tablet
+    var kioskCheck = 'loading';   // none | off | unreachable | active (shown on the 5-tap setup sheet)
+    var terminalLastError = '';
     var KIOSK_DEVICE_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/kiosk-device';
     function kioskDb(){
       return new Promise(function(resolve, reject){
@@ -2552,12 +2574,13 @@
       var cashBtnEl = document.getElementById('payCashBtn');
       if (cashBtnEl) cashBtnEl.style.display = 'none'; // shown once the tablet checks out
       loadKioskDevice().then(function(dev){
-        if (!dev || !dev.id || !dev.key) return;
+        if (!dev || !dev.id || !dev.key) { kioskCheck = 'none'; return; }
         return fetch(KIOSK_DEVICE_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KIOSK_ANON_KEY },
           body: JSON.stringify({ action: 'status', deviceId: dev.id })
         }).then(function(r){ return r.json(); }).then(function(res){
+          kioskCheck = res && res.active ? 'active' : 'off';
           if (res && res.active) {
             kioskDevice = dev;
             kioskHasTerminal = !!res.terminal;
@@ -2565,7 +2588,7 @@
             updateReaderButton();
           }
         });
-      }).catch(function(){});
+      }).catch(function(){ kioskCheck = 'unreachable'; });
     })();
     var CONFIRMATION_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/get-order-confirmation';
     var KIOSK_ANON_KEY = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
@@ -2576,7 +2599,50 @@
     var POLL_INTERVAL_MS = 2500;
     var POLL_MAX_ATTEMPTS = 120; // ~5 minutes
 
+    // ---- Scan to Pay left alone: 30 s quiet, then a 15 s countdown ----
+    var SCAN_IDLE_SECONDS = 30, SCAN_COUNTDOWN_SECONDS = 15;
+    var scanIdle = { quiet: null, tick: null, left: 0, on: false };
+    function scanIdleHideRing(){
+      document.getElementById('scanIdleNote').classList.add('hidden');
+      document.getElementById('inactivityTimer').classList.add('hidden');
+    }
+    function scanIdleStop(){
+      clearTimeout(scanIdle.quiet); clearInterval(scanIdle.tick);
+      scanIdle.quiet = scanIdle.tick = null; scanIdle.on = false;
+      scanIdleHideRing();
+    }
+    function scanIdlePaint(){
+      document.getElementById('scanIdleSecs').textContent = scanIdle.left;
+      var ring = document.getElementById('inactivityTimer');
+      ring.classList.remove('hidden');
+      document.getElementById('inactivityRingNumber').textContent = scanIdle.left;
+      document.getElementById('inactivityRingProgress').style.strokeDashoffset = String(163.36 * (1 - scanIdle.left / SCAN_COUNTDOWN_SECONDS));
+    }
+    function scanIdleArm(){
+      clearTimeout(scanIdle.quiet); clearInterval(scanIdle.tick);
+      scanIdleHideRing();
+      scanIdle.on = true;
+      scanIdle.quiet = setTimeout(function(){
+        if (scanToPayScreen.classList.contains('hidden')) return scanIdleStop();
+        scanIdle.left = SCAN_COUNTDOWN_SECONDS;
+        document.getElementById('scanIdleNote').classList.remove('hidden');
+        scanIdlePaint();
+        scanIdle.tick = setInterval(function(){
+          if (scanToPayScreen.classList.contains('hidden')) return scanIdleStop();
+          scanIdle.left -= 1;
+          if (scanIdle.left <= 0) { scanIdleStop(); window.location.reload(); return; }
+          scanIdlePaint();
+        }, 1000);
+      }, SCAN_IDLE_SECONDS * 1000);
+    }
+    ['touchstart', 'mousedown', 'keydown'].forEach(function(evt){
+      document.addEventListener(evt, function(){
+        if (scanIdle.on && !scanToPayScreen.classList.contains('hidden')) scanIdleArm();
+      }, { passive: true, capture: true });
+    });
+
     function stopPolling(){
+      scanIdleStop();
       clearTimeout(pollTimer);
       pollTimer = null;
       pollAttempts = 0;
@@ -2588,6 +2654,7 @@
     // all, which avoids ever relying on a separate page's own retry
     // logic racing against this one. Auto-resets after 5 seconds.
     function showOrderConfirmed(referenceCode, items, isCash){
+      scanIdleStop();
       scanToPayScreen.classList.add('hidden');
       document.getElementById('terminalPayScreen').classList.add('hidden');
       checkoutScreen.classList.add('hidden');
@@ -2701,6 +2768,7 @@
       clearInterval(inactivityInterval);
       document.getElementById('inactivityTimer').classList.add('hidden');
       awaitingPhonePayment = true;
+      scanIdleArm();   // ...but a screen left alone for 30 s starts a countdown
 
       document.getElementById('scanCheckNowBtn').onclick = function(){
         var checkBtn = this;
@@ -3000,6 +3068,8 @@
           if (!res.ok || !res.data.terminalCheckoutId) {
             if (res.data && res.data.code === 'NO_TERMINAL') { kioskHasTerminal = false; updateReaderButton(); }
             if (res.data && res.data.code === 'TERMINAL_START') terminalFailUntil = Date.now() + 3 * 60000;
+            terminalLastError = (res.data && res.data.error) || 'The card machine didn\u2019t answer.';
+            updateReaderButton();
             tpSay(null, formatErrorMessage(res.data && res.data.error) || 'Couldn\u2019t reach the card machine. You haven\u2019t been charged.', { retry: true });
             return;
           }
@@ -3046,11 +3116,36 @@
         pin = ''; busy = false; paintDots(); say('');
         var st = kioskDevice ? 'This kiosk is active' + (kioskHasTerminal ? ' \u00b7 card machine paired.' : ' \u00b7 no card machine yet.') : 'This kiosk isn\u2019t activated: no cash or card machine.';
         document.getElementById('staffStatus').textContent = st;
+        paintCardWhy();
         if (kioskDevice && kioskDevice.name) document.getElementById('staffName').value = kioskDevice.name;
         sheet.classList.remove('hidden');
         clearInterval(inactivityInterval);
       }
       function closeSheet(){ sheet.classList.add('hidden'); pin = ''; resetInactivityTimer && resetInactivityTimer(); }
+      function paintCardWhy(){
+        var why = '', ok = false, retry = false;
+        if (kioskCheck === 'loading') why = 'Still checking this kiosk\u2026 close and open this again in a few seconds.';
+        else if (kioskCheck === 'none') why = 'Pay with card is off: this kiosk isn\u2019t activated in this app. Enter a manager PIN below.';
+        else if (kioskCheck === 'off') why = 'Pay with card is off: this kiosk was switched off on the setup page. Enter a manager PIN below to turn it back on.';
+        else if (kioskCheck === 'unreachable') why = 'Pay with card is off: couldn\u2019t reach the server to check this kiosk. Check the Wi-Fi, then reload.';
+        else if (!kioskHasTerminal) why = 'Pay with card is off: no card machine is linked to this kiosk. Enter a manager PIN below to move the card machine here, or pair one on the full setup page.';
+        else if (terminalLooksDown()) {
+          retry = true;
+          why = 'Pay with card is paused for ' + Math.max(1, Math.ceil((terminalFailUntil - Date.now()) / 60000)) + ' min: the last payment couldn\u2019t start on the card machine' +
+            (terminalLastError ? ' (\u201c' + terminalLastError + '\u201d)' : '') + '. Check the card machine is on, on Wi-Fi and signed in to the kiosk, then tap below.';
+        } else {
+          ok = true;
+          why = 'Pay with card is on.' + (terminalStatus === 'OFFLINE' ? ' Square last said the card machine was offline. If a payment doesn\u2019t start, check its Wi-Fi.' : '');
+        }
+        var el = document.getElementById('staffWhy');
+        el.textContent = why;
+        el.className = 'staff-card-why' + (ok ? ' ok' : ' bad');
+        document.getElementById('staffRetryTerm').classList.toggle('hidden', !retry);
+      }
+      document.getElementById('staffRetryTerm').addEventListener('click', function(){
+        terminalFailUntil = 0; terminalLastError = '';
+        updateReaderButton(); paintCardWhy();
+      });
       document.getElementById('atLogo').addEventListener('click', function(e){
         e.stopPropagation();          // a logo tap never starts an order
         taps += 1;
@@ -3170,7 +3265,8 @@
 
     // ---- card machine health + kiosk heartbeat (signed, once a minute) ----
     var terminalStatus = null, terminalFailUntil = 0;
-    function terminalLooksDown(){ return terminalStatus === 'OFFLINE' || Date.now() < terminalFailUntil; }
+    function terminalLooksDown(){ return Date.now() < terminalFailUntil; }
+    setInterval(function(){ if (typeof updateReaderButton === 'function') updateReaderButton(); }, 15000);
     function kioskHeartbeat(){
       if (!kioskDevice || !kioskOnline) return;
       var str = JSON.stringify({ action: 'heartbeat' });
