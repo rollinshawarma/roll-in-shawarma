@@ -2448,7 +2448,11 @@
       return on && !!kioskDevice && !standalone;
     }
     var KIOSK_SCAN_TO_PAY = true;    // Scan to Pay is the main card option
-    function scanToPayShown(){ return KIOSK_SCAN_TO_PAY || !readerEnabled(); }
+    function cardMachineReady(){ return !!kioskDevice && kioskHasTerminal && !terminalLooksDown(); }
+    function scanToPayShown(){
+      if (cardMachineReady() && terminalStatus !== 'OFFLINE') return false;
+      return KIOSK_SCAN_TO_PAY || !readerEnabled();
+    }
     function updateReaderButton(){
       var tb = document.getElementById('payTerminalBtn');
       var term = !!kioskDevice && kioskHasTerminal && !terminalLooksDown();
@@ -2461,7 +2465,7 @@
       document.getElementById('payScanBtn').classList.toggle('hidden', !scanToPayShown());
       document.body.classList.toggle('pay-reader-first', reader && !scanToPayShown());
       var more = document.getElementById('exploreOtherPaymentsBtn');
-      if (more) more.textContent = scanToPayShown() ? 'Continue to Payment' : 'Pay with cash at the window';
+      if (more) more.textContent = (scanToPayShown() || term) ? 'Continue to Payment' : 'Pay with cash at the window';
     }
     function goToCheckoutScreen(){
       if (!cart.length) return;
@@ -2957,7 +2961,7 @@
       if (wait) tpEl('tpWaitText').textContent = wait;
       tpEl('tpMsg').textContent = msg || '';
       tpEl('tpRetryBtn').classList.toggle('hidden', !opts.retry);
-      tpEl('tpScanBtn').classList.toggle('hidden', !opts.retry || !scanToPayShown());
+      tpEl('tpScanBtn').classList.toggle('hidden', !opts.retry);
       tpEl('tpCancelBtn').textContent = opts.retry ? '\u2190 Back' : 'Cancel';
       tpEl('tpCancelBtn').disabled = !!opts.lockCancel;
     }
