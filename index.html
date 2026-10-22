@@ -1195,6 +1195,46 @@ body.ev-tab-mode #rewardSection, body.ev-tab-mode #coPointsLine{ display:none !i
 .drop-bar.closed a{ color:#6b3d00; }
 .drop-co-note{ background:#f5f5f7; border-radius:14px; padding:12px 14px; margin:4px 0 14px; font-size:14px; color:#3a3a3c; line-height:1.45; }
 .drop-co-note b{ display:block; color:#1d1d1f; }
+
+  /* ---- Platinum + secret menu (secret-menu.sql) ---- */
+  body.sm-off .pt-tease, body.sm-off #ptCard, body.sm-off .mn-locked{ display:none !important; }
+  .sr-only{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+  .pt-tease, .pt-card{ max-width:760px; margin:28px auto 0; border-radius:26px; padding:24px 24px 20px; color:#f4f4f6; text-align:left;
+    background:radial-gradient(120% 140% at 100% 0%, #3a3842 0%, #1b1a1f 60%); box-shadow:0 18px 40px -20px rgba(0,0,0,.6); border:1px solid rgba(255,255,255,.08); }
+  .pt-card{ max-width:620px; margin:16px auto 0; }
+  .pt-tease-top{ display:flex; align-items:center; justify-content:space-between; }
+  .pt-badge{ display:inline-block; font-size:12px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; padding:5px 11px; border-radius:999px; color:#1b1a1f;
+    background:linear-gradient(135deg, #f4f4f6 0%, #b9bcc6 50%, #e9eaee 100%); }
+  .pt-lock{ font-size:22px; opacity:.85; }
+  .pt-tease h3, .pt-card h3{ font-family:"Barlow Condensed","Inter",sans-serif; font-size:32px; line-height:1.05; font-weight:800; margin:14px 0 6px; color:#fff; }
+  .pt-tease p, .pt-card p{ margin:0; font-size:15.5px; line-height:1.5; color:rgba(255,255,255,.78); }
+  .pt-peek{ display:grid; grid-template-columns:1fr 1fr; gap:12px; margin:18px 0 12px; }
+  .pt-peek-card{ display:flex; flex-direction:column; gap:4px; padding:14px; border-radius:18px; background:rgba(255,255,255,.06); border:1px solid rgba(255,255,255,.09); }
+  .pt-peek-ico{ font-size:26px; }
+  .pt-peek-card b{ font-size:17px; color:#fff; }
+  .pt-peek-card small{ font-size:13.5px; color:rgba(255,255,255,.7); }
+  .pt-blur{ filter:blur(6px); user-select:none; }
+  .pt-fine{ font-size:13px !important; color:rgba(255,255,255,.55) !important; }
+  .pt-bar{ height:10px; border-radius:999px; background:rgba(255,255,255,.12); overflow:hidden; margin:14px 0 2px; }
+  .pt-bar i{ display:block; height:100%; width:0; border-radius:inherit; background:linear-gradient(90deg, #b9bcc6, #ffffff); transition:width .6s ease; }
+  .pt-card.is-platinum{ background:radial-gradient(120% 140% at 100% 0%, #4a4856 0%, #1b1a1f 65%); border-color:rgba(233,234,238,.35); }
+  .pt-go{ margin-top:14px; width:100%; min-height:50px; border-radius:16px; font-size:16.5px; font-weight:800; color:#1b1a1f;
+    background:linear-gradient(135deg, #f4f4f6 0%, #c9ccd4 50%, #eef0f3 100%); }
+  .pt-go.hidden, .pt-bar.hidden{ display:none; }
+  @media (max-width:520px){ .pt-peek{ grid-template-columns:1fr; } .pt-tease h3, .pt-card h3{ font-size:28px; } }
+  .mn-row.mn-secret .mn-name{ color:#3a3842; }
+  .mn-row.mn-secret .mn-thumb{ background:#1b1a1f; }
+  .ws-real{ display:block; margin-top:2px; font-size:12.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#8a8d97; }
+  .ws-alias{ font-weight:800; }
+  .ws-secret{ position:relative; border:2px dashed #b9bcc6; border-radius:24px; padding:20px 20px 24px;
+    background:repeating-linear-gradient(-45deg, rgba(27,26,31,.025) 0 12px, transparent 12px 24px); }
+  .ws-stamp{ display:inline-block; margin:2px 0 14px; padding:5px 12px; border:3px double #c0281c; border-radius:6px; color:#c0281c;
+    font-family:"Courier New", monospace; font-size:13px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; transform:rotate(-2.5deg); opacity:.9; }
+  .mn-row.mn-locked{ opacity:.92; }
+  .mn-row.mn-locked .mn-thumb{ background:#1b1a1f; }
+  .mn-row.mn-locked .mn-meta{ color:#c0281c; font-weight:700; }
+  .ws-secret .ws-sec-title::after{ content:"\2726  Platinum"; display:inline-block; vertical-align:middle; margin-left:12px; font-family:"Inter",sans-serif; font-size:12px; font-weight:800;
+    letter-spacing:.12em; text-transform:uppercase; padding:5px 10px; border-radius:999px; color:#1b1a1f; background:linear-gradient(135deg, #f4f4f6, #b9bcc6 50%, #e9eaee); }
 </style>
 <script type="application/ld+json">
 {
@@ -1483,6 +1523,18 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         <li><b>Order &amp; earn</b><span>Online, kiosk or drive-up: sign in (or check in with your Member ID) and earn from anywhere.</span></li>
         <li><b>Redeem</b><span>Pick a reward, add the item, and it&rsquo;s free at checkout.</span></li>
       </ol>
+
+      <!-- Platinum teaser (secret-menu.sql) -->
+      <div class="pt-tease">
+        <div class="pt-tease-top"><span class="pt-badge">&#10022; Platinum</span><span class="pt-lock" aria-hidden="true">&#128274;</span></div>
+        <h3>There&rsquo;s a menu that isn&rsquo;t on the menu.</h3>
+        <p>Earn 900 points and you&rsquo;re Platinum for good. A secret menu unlocks on the website, drive-up and kiosk.</p>
+        <div class="pt-peek" aria-label="A peek at the secret menu">
+          <div class="pt-peek-card"><span class="pt-peek-ico" aria-hidden="true">&#127831;</span><b class="pt-blur" aria-hidden="true">The Six</b><span class="sr-only">A secret item</span><small>Four flavors. Six at a time.</small></div>
+          <div class="pt-peek-card"><span class="pt-peek-ico" aria-hidden="true">&#127791;</span><b class="pt-blur" aria-hidden="true">The Smuggler</b><span class="sr-only">A secret item</span><small>California called. We answered in tikka.</small></div>
+        </div>
+        <p class="pt-fine">10 points for every $1 of food. Redeeming rewards never takes Platinum away.</p>
+      </div>
     </div>
 
     <!-- ============ SIGNED IN: Chick-fil-A style rewards home ============ -->
@@ -1501,6 +1553,19 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         <div class="rw-points"><span id="rwBalance">&mdash;</span><small>points</small></div>
         <div class="rw-bar" role="progressbar" aria-valuemin="0" aria-valuemax="100" id="rwBarWrap"><i id="rwBar"></i></div>
         <div class="rw-next" id="rwNext">Loading your points&hellip;</div>
+      </div>
+
+      <!-- Platinum: progress or "secret menu unlocked" (secret-menu.sql) -->
+      <div class="pt-card" id="ptCard" hidden>
+        <div class="pt-tease-top"><span class="pt-badge">&#10022; Platinum</span><span class="pt-lock" id="ptLock" aria-hidden="true">&#128274;</span></div>
+        <h3 id="ptTitle"></h3>
+        <p id="ptText"></p>
+        <div class="pt-bar" id="ptBarWrap" role="progressbar" aria-valuemin="0" aria-valuemax="900"><i id="ptBar"></i></div>
+        <div id="ptPeek"><div class="pt-peek" aria-label="A peek at the secret menu">
+          <div class="pt-peek-card"><span class="pt-peek-ico" aria-hidden="true">&#127831;</span><b class="pt-blur" aria-hidden="true">The Six</b><span class="sr-only">A secret item</span><small>Four flavors. Six at a time.</small></div>
+          <div class="pt-peek-card"><span class="pt-peek-ico" aria-hidden="true">&#127791;</span><b class="pt-blur" aria-hidden="true">The Smuggler</b><span class="sr-only">A secret item</span><small>California called. We answered in tikka.</small></div>
+        </div></div>
+        <button type="button" class="pt-go hidden" id="ptGo">Open the secret menu <span aria-hidden="true">&rarr;</span></button>
       </div>
 
       <p class="member-quote" id="memberQuote"></p>
@@ -2935,6 +3000,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     }
 
     var categoryImages = {
+      'Secret Menu': 'secret-menu.svg',
       'Shawarma': 'menu-shawarma.jpg', 'Frankie Rolls': 'menu-frankie.jpg',
       'Bowls': 'menu-bowl.jpg', 'Tacos': 'menu-tacos.jpg',
       'Loaded Fries': 'menu-fries.jpg', 'Sides': 'menu-samosas.jpg',
@@ -2947,6 +3013,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       'Bowls': 'bowl.webp', 'Tacos': 'tacos.webp', 'Loaded Fries': 'loaded-fries.webp'
     };
     var categoryDescriptions = {
+      'Secret Menu': 'Platinum members only. You didn\u2019t hear it from us.',
       'Shawarma': 'Marinated chicken or falafel, white sauce, fries & pickled cucumber',
       'Frankie Rolls': 'Marinated chicken or paneer, fresh veggies, cilantro & lime',
       'Bowls': 'Flavored rice, cucumber, peppers, lettuce, tomato & sauce',
@@ -2962,6 +3029,11 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     function wsMoney(n){ return '$' + Number(n).toFixed(2); }
     function wsAvail(i){ return !!i && i.is_available !== false; }
     function wsSlug(n){ return String(n).toLowerCase().replace(/[()]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
+    // Secret menu code names (secret-menu.sql): the dish's code name, real name under it.
+    function wsTitle(g){
+      var sn = g.items[0] && g.items[0].secret_name;
+      return sn ? escHtml(sn) + '<span class="ws-real">' + escHtml(g.name) + (g.cat === 'Secret Menu' && /wings/i.test(g.name) ? ' \u00b7 6 pc' : '') + '</span>' : escHtml(g.name);
+    }
     function wsLabel(item){ return item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : ''); }
     function wsAttr(v){ return String(v).replace(/\\/g, '\\\\').replace(/"/g, '\\"'); }
     // Same photos as the kiosk: item-<name>.jpg; the category photo if a
@@ -3090,7 +3162,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       wsEl('wsIndex').innerHTML = wsSections.map(function(sec, i){
         var cut = categoryCutouts[sec.cat], img = cut || categoryImages[sec.cat] || '';
         var n = sec.groups.length;
-        return '<button type="button" class="mn-row" data-ws-cat="' + i + '">' +
+        return '<button type="button" class="mn-row' + (sec.cat === 'Secret Menu' ? ' mn-secret' : '') + '" data-ws-cat="' + i + '">' +
           '<span class="mn-thumb' + (cut ? '' : ' is-photo') + '">' + (img ? '<img src="' + escHtml(img) + '" alt="" loading="lazy" onerror="this.remove()">' : '') + '</span>' +
           '<span class="mn-name">' + escHtml(sec.cat) + (wsTacoDay && sec.cat === 'Tacos' && window.RollinDeals ? '<span class="mn-deal">' + wsMoney(window.RollinDeals.tacoPrice) + ' today</span>' : '') + '<span class="mn-meta">' + n + (n === 1 ? ' item' : ' items') + '</span></span>' +
           '<svg class="mn-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"></polyline></svg>' +
@@ -3100,8 +3172,9 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         return '<button type="button" class="ws-chip" data-ws-jump="ws-sec-' + i + '">' + escHtml(sec.cat) + '</button>';
       }).join('');
       menuContainer.innerHTML = wsSections.map(function(sec, i){
-        return '<section class="ws-sec" id="ws-sec-' + i + '" aria-labelledby="ws-sec-' + i + '-t"' + (i === wsCurCat ? '' : ' hidden') + '>' +
+        return '<section class="ws-sec' + (sec.cat === 'Secret Menu' ? ' ws-secret' : '') + '" id="ws-sec-' + i + '" aria-labelledby="ws-sec-' + i + '-t"' + (i === wsCurCat ? '' : ' hidden') + '>' +
           '<h3 class="ws-sec-title" id="ws-sec-' + i + '-t">' + escHtml(sec.cat) + '</h3>' +
+          (sec.cat === 'Secret Menu' ? '<div class="ws-stamp" aria-hidden="true">Classified \u00b7 Platinum eyes only</div>' : '') +
           (categoryDescriptions[sec.cat] ? '<p class="ws-sec-desc">' + escHtml(categoryDescriptions[sec.cat]) + '</p>' : '') +
           '<div class="ws-grid">' + sec.groups.map(wsTileHtml).join('') + '</div></section>';
       }).join('') || '<p class="menu-loading-hint">Menu unavailable right now &mdash; please call us.</p>';
@@ -3110,6 +3183,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       renderCartUI();
       if (window.rollinDealsRender) window.rollinDealsRender();
       wsStartAvailability();
+      if (window.__wsAfterRender) window.__wsAfterRender();
     }
 
     function wsGroupPrice(g){
@@ -3127,7 +3201,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         '<button type="button" class="ws-open" data-ws-open="' + escHtml(g.key) + '"' + (soldOut ? ' disabled' : '') +
           ' aria-label="' + escHtml(g.name + ', ' + price.replace(/<[^>]+>/g, '') + (soldOut ? ', sold out' : ', see details')) + '">' +
           '<span class="ws-photo">' + wsPhoto(g.items[0], g.cat, g.name) + '</span>' +
-          '<span class="ws-body"><span class="ws-name">' + escHtml(g.name) + '</span>' +
+          '<span class="ws-body"><span class="ws-name">' + wsTitle(g) + '</span>' +
           (g.items[0].description ? '<span class="ws-blurb">' + escHtml(g.items[0].description) + '</span>' : '') +
           (g.items.length > 1 ? '<span class="ws-sub">' + g.items.length + ' options</span>' : '') +
           '<span class="ws-price">' + price + '</span></span>' +
@@ -3257,16 +3331,16 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       var g = wsSheet.group, item = itemsById[wsSheet.itemId];
       var desc = item.description || categoryDescriptions[g.cat] || '';
       var html = '<div class="ws-sheet-photo">' + wsPhoto(g.items[0], g.cat, g.name) + '</div>' +
-        '<h3 class="ws-title" id="wsTitle">' + escHtml(g.name) + '</h3>' +
+        '<h3 class="ws-title" id="wsTitle">' + wsTitle(g) + '</h3>' +
         '<div class="ws-sheet-price">' + wsMoney(item.price) + '</div>' +
         (desc ? '<p class="ws-desc">' + escHtml(desc) + '</p>' : '');
       if (g.items.length > 1) {
         var diff = g.items.some(function(i){ return Number(i.price) !== Number(g.items[0].price); });
-        html += '<fieldset class="ws-opts"><legend>' + (/Bowls|Shawarma|Frankie/.test(g.cat) ? 'Choose your protein' : 'Choose one') + '<small>Required</small></legend>' +
+        html += '<fieldset class="ws-opts"><legend>' + (/Bowls|Shawarma|Frankie/.test(g.cat) ? 'Choose your protein' : g.cat === 'Secret Menu' ? 'Choose your flavor' : 'Choose one') + '<small>Required</small></legend>' +
           g.items.map(function(i){
             var ok = wsAvail(i);
             return '<label class="ws-opt' + (ok ? '' : ' is-disabled') + '"><input type="radio" name="wsOpt" value="' + i.id + '"' +
-              (i.id === wsSheet.itemId ? ' checked' : '') + (ok ? '' : ' disabled') + '><span class="ws-opt-name">' + escHtml(i.variant_name || i.name) + '</span>' +
+              (i.id === wsSheet.itemId ? ' checked' : '') + (ok ? '' : ' disabled') + '><span class="ws-opt-name">' + (i.secret_alias ? '<b class="ws-alias">' + escHtml(i.secret_alias) + '</b> \u00b7 ' : '') + escHtml(i.variant_name || i.name) + '</span>' +
               '<span class="ws-opt-price">' + (ok ? (diff ? wsMoney(i.price) : '') : 'Sold out') + '</span></label>';
           }).join('') + '</fieldset>';
       }
@@ -3409,6 +3483,28 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     })();
 
     loadCart();
+    // Secret menu (Platinum): the items the server last confirmed for this
+    // member, kept on this device so a saved cart with them survives a
+    // reload. Cleared on sign-out; the server re-checks every order.
+    var wsBaseMenu = null, wsSecret = [];
+    try { wsSecret = JSON.parse(localStorage.getItem('rollinSecretMenu') || '[]') || []; } catch (e) { wsSecret = []; }
+    if (!Array.isArray(wsSecret)) wsSecret = [];
+    function wsMenuWithSecret(){ return wsSecret.concat(wsBaseMenu || []); }
+    function wsSecretSig(list){ return list.map(function(i){ return i.id + ':' + i.price + ':' + i.is_available; }).join('|'); }
+    window.__wsSetSecret = function(items){
+      items = Array.isArray(items) ? items.filter(function(i){ return i && i.id; }) : [];
+      var changed = wsSecretSig(items) !== wsSecretSig(wsSecret);
+      wsSecret = items;
+      try { if (items.length) localStorage.setItem('rollinSecretMenu', JSON.stringify(items)); else localStorage.removeItem('rollinSecretMenu'); } catch (e) {}
+      if (changed && wsBaseMenu) renderMenu(wsMenuWithSecret());
+    };
+    window.__wsOpenSecret = function(){
+      var i = wsSections.findIndex(function(sec){ return sec.cat === 'Secret Menu'; });
+      var row = i < 0 ? null : wsEl('wsIndex').querySelector('.mn-row[data-ws-cat="' + i + '"]');
+      var menu = document.getElementById('menu');
+      if (menu) menu.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (row) setTimeout(function(){ row.click(); }, 350);
+    };
     // get_public_menu includes sold-out items so they show greyed out;
     // falls back to the table if that function isn't deployed yet.
     sbShared.rpc('get_public_menu').then(function(res){
@@ -3419,7 +3515,8 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         menuContainer.innerHTML = '<p class="menu-loading-hint">Menu unavailable right now &mdash; please call us at (330) 587-5203.</p>';
         return;
       }
-      renderMenu(res.data);
+      wsBaseMenu = res.data;
+      renderMenu(wsMenuWithSecret());
     });
 
     var cartFabBtn = document.getElementById('cartFabBtn');
@@ -5884,5 +5981,91 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
   })();
 </script>
 
+
+<script>
+  // ---- Platinum + secret menu (secret-menu.sql) ----
+  // Shows what the server says: get_my_platinum() for a signed-in member.
+  // Ordering a secret item is checked again on the server.
+  (function(){
+    if (typeof sbShared === 'undefined') return;
+    var sb = sbShared, $ = function(id){ return document.getElementById(id); };
+    document.body.classList.add('sm-off');   // until the switch is confirmed on
+    function fmt(n){ return Number(n || 0).toLocaleString('en-US'); }
+    // ---- rotating hints (a different pair each visit) ----
+    var HINTS = [
+      ['Four flavors. Six at a time.', 'Butter. Fire. Six.', 'Sticky fingers guaranteed.', 'Ask a Platinum member. They won’t tell you either.'],
+      ['California called. We answered in tikka.', 'Rolled tight. Kept quieter.', 'There’s a reason it’s not on the board.', 'Fries inside. That’s all you get.']
+    ];
+    function pick(a){ return a[Math.floor(Math.random() * a.length)]; }
+    var hintPair = [pick(HINTS[0]), pick(HINTS[1])];
+    document.querySelectorAll('.pt-peek').forEach(function(pk){
+      pk.querySelectorAll('.pt-peek-card small').forEach(function(sm, i){ if (hintPair[i]) sm.textContent = hintPair[i]; });
+    });
+    // ---- locked "Secret Menu" row in the menu list (not Platinum yet) ----
+    var lock = { show: true, toGo: null };
+    window.__wsAfterRender = function(){
+      var idx = $('wsIndex'); if (!idx) return;
+      var old = idx.querySelector('.mn-locked'); if (old) old.remove();
+      if (!lock.show) return;
+      var b = document.createElement('button');
+      b.type = 'button'; b.className = 'mn-row mn-locked';
+      b.innerHTML = '<span class="mn-thumb is-photo"><img src="secret-menu.svg" alt="" loading="lazy" onerror="this.remove()"></span>' +
+        '<span class="mn-name">Secret Menu<span class="mn-meta">\uD83D\uDD12 ' + (lock.toGo ? fmt(lock.toGo) + ' points away' : 'Platinum members only') + '</span></span>';
+      b.addEventListener('click', function(){
+        var t = $('ptCard') && !$('ptCard').hidden ? $('ptCard') : document.querySelector('.pt-tease');
+        var d = $('deals'); if (d) d.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (t) setTimeout(function(){ t.scrollIntoView({ behavior: 'smooth', block: 'center' }); }, 450);
+      });
+      idx.appendChild(b);
+    };
+    function setLock(show, toGo){ lock.show = show; lock.toGo = toGo || null; window.__wsAfterRender(); }
+    function clear(){ var c = $('ptCard'); if (c) c.hidden = true; if (window.__wsSetSecret) window.__wsSetSecret([]); setLock(true, null); }
+    function paint(d){
+      var c = $('ptCard'); if (!c) return;
+      c.hidden = false;
+      c.classList.toggle('is-platinum', !!d.platinum);
+      $('ptLock').innerHTML = d.platinum ? '&#128275;' : '&#128274;';
+      $('ptBarWrap').classList.toggle('hidden', !!d.platinum);
+      $('ptPeek').hidden = !!d.platinum;
+      $('ptGo').classList.toggle('hidden', !d.platinum);
+      if (d.platinum) {
+        $('ptTitle').textContent = 'Welcome to the inside. The secret menu is open.';
+        $('ptText').textContent = 'Order it here, at the drive-up (signed in or with your Member ID) or at the kiosk after you check in.';
+      } else {
+        var goal = d.goal || 900, have = Math.min(goal, d.lifetime || 0);
+        $('ptTitle').textContent = fmt(d.to_go) + ' points to Platinum';
+        $('ptText').textContent = 'You\u2019ve earned ' + fmt(have) + ' of ' + fmt(goal) + '. Reach ' + fmt(goal) + ' and a secret menu unlocks for good.';
+        $('ptBar').style.width = Math.round(have / goal * 100) + '%';
+        $('ptBarWrap').setAttribute('aria-valuenow', String(have));
+      }
+    }
+    function check(){
+      var rr = window.rollinRewards;
+      if (!rr || !rr.signedIn()) { clear(); return; }
+      sb.rpc('get_my_platinum').then(function(res){
+        if (res.error || !res.data) { var c = $('ptCard'); if (c) c.hidden = true; return; }   // before secret-menu.sql: nothing shown
+        if (res.data.enabled === false) { document.body.classList.add('sm-off'); clear(); return; }   // switched off in the staff portal
+        paint(res.data);
+        if (window.__wsSetSecret) window.__wsSetSecret(res.data.platinum ? (res.data.items || []) : []);
+        setLock(!res.data.platinum, res.data.platinum ? null : res.data.to_go);
+      }, function(){});
+    }
+    if ($('ptGo')) $('ptGo').addEventListener('click', function(){ if (window.__wsOpenSecret) window.__wsOpenSecret(); });
+    // Staff portal switch (New features -> Secret menu): off = nothing shows.
+    function hook(){
+      if (!window.rollinRewards) return setTimeout(hook, 300);
+      sb.rpc('get_features').then(function(r){
+        var on = !!(r && !r.error && r.data && r.data.secret_menu === true);
+        document.body.classList.toggle('sm-off', !on);
+        if (!on) { var c = $('ptCard'); if (c) c.hidden = true; if (window.__wsSetSecret) window.__wsSetSecret([]); return; }
+        window.rollinRewards.onChange(check);
+        if (window.rollinRewards.signedIn()) check();
+      }, function(){});
+    }
+    hook();
+    // No session on this device: forget any remembered secret menu.
+    sb.auth.getSession().then(function(r){ if (!(r && r.data && r.data.session)) clear(); }, function(){});
+  })();
+</script>
 </body>
 </html>
