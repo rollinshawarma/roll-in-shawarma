@@ -2,7 +2,7 @@
  *
  *  - The member deals (one list for every platform) and what each one
  *    includes / lets you pick.
- *  - Taco Tuesday & Thursday: every taco order is $6.99 on those days
+ *  - Taco Tuesday: every taco order is $6.99 on Tuesdays
  *    (truck time, America/New_York). The server applies the same price,
  *    so what the page shows is what gets charged.
  *  - A small step-by-step picker for the deals (website + QR page;
@@ -63,8 +63,8 @@
     try { return new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'long' }).format(d || new Date()); }
     catch (e) { return ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'][(d || new Date()).getDay()]; }
   }
-  function tacoDay(d){ var w = truckWeekday(d); return (w === 'Tuesday' || w === 'Thursday') ? w : null; }
-  // Menu rows from get_public_menu: on Taco Tuesday/Thursday every taco
+  function tacoDay(d){ var w = truckWeekday(d); return w === 'Tuesday' ? w : null; }
+  // Menu rows from get_public_menu: on Taco Tuesday every taco
   // order drops to $6.99. The regular price is kept for a strike-through.
   function applyTacoPricing(items){
     var day = tacoDay();
