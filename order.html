@@ -554,6 +554,19 @@
   .dab-btn{ display:flex; align-items:center; justify-content:center; height:50px; border-radius:999px; background:var(--white); color:#000; font-weight:700; font-size:16px; text-decoration:none; }
   .dab-hours{ height:50px; padding:0 18px; border-radius:999px; border:1px solid var(--line); color:var(--white); font-weight:600; font-size:15px; }
   @media (min-width:620px){ .du-ahead-bar{ grid-template-columns:auto 1fr auto; max-width:none; } .dab-text{ grid-column:auto; text-align:left; } }
+
+  .real-name{ display:block; margin-top:2px; font-size:11.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:var(--muted, #9a9aa0); }
+  .sec-stamp{ display:inline-block; margin:2px 0 12px; padding:4px 10px; border:3px double #ff5b4f; border-radius:6px; color:#ff5b4f;
+    font-family:"Courier New", monospace; font-size:12px; font-weight:800; letter-spacing:.14em; text-transform:uppercase; transform:rotate(-2.5deg); }
+  .sec-secret{ border:2px dashed rgba(233,234,238,.35); border-radius:22px; padding:16px 14px 6px; margin-top:12px; }
+  .secret-lock{ display:flex; gap:12px; align-items:center; margin:14px 0 4px; padding:14px 16px; border-radius:18px; color:#fff;
+    background:radial-gradient(120% 140% at 100% 0%, #3a3842 0%, #1b1a1f 60%); border:1px solid rgba(255,255,255,.12); }
+  .secret-lock .sl-ico{ font-size:24px; }
+  .secret-lock b{ display:block; font-size:16px; }
+  .secret-lock small{ display:block; font-size:13.5px; color:rgba(255,255,255,.72); }
+  /* ---- Secret menu (Platinum) ---- */
+  .sec-secret .section-title::after{ content:"\2726  Platinum"; display:inline-block; vertical-align:middle; margin-left:10px; font-size:11px; font-weight:800; letter-spacing:.12em;
+    text-transform:uppercase; padding:4px 9px; border-radius:999px; color:#1b1a1f; background:linear-gradient(135deg, #f4f4f6, #b9bcc6 50%, #e9eaee); }
 </style>
 </head>
 <body>
@@ -989,6 +1002,7 @@
     }
     if (DOOR_CODE) setInterval(function(){ if (doorProg) loadDoor(); }, 60000);   // cutoffs pass, runs fill up
     var CATEGORY_IMAGES = {
+      'Secret Menu': 'secret-menu.svg',
       'Shawarma': 'menu-shawarma.jpg', 'Frankie Rolls': 'menu-frankie.jpg',
       'Bowls': 'menu-bowl.jpg', 'Tacos': 'menu-tacos.jpg',
       'Loaded Fries': 'menu-fries.jpg', 'Sides': 'menu-samosas.jpg',
@@ -996,6 +1010,7 @@
     };
     // Same wording as the main website's menu.
     var CATEGORY_DESCRIPTIONS = {
+      'Secret Menu': 'Platinum members only. You didn\u2019t hear it from us.',
       'Shawarma': 'Marinated chicken or falafel, white sauce, fries & pickled cucumber',
       'Frankie Rolls': 'Marinated chicken or paneer, fresh veggies, cilantro & lime',
       'Bowls': 'Flavored rice, cucumber, peppers, lettuce, tomato & sauce',
@@ -1077,7 +1092,8 @@
           $('menuRetryBtn').addEventListener('click', loadMenu);
           return;
         }
-        buildMenu(DOOR_CODE && doorProg ? doorFilter(res.data) : res.data);
+        qrBaseRows = DOOR_CODE && doorProg ? doorFilter(res.data) : res.data;
+        buildMenu(qrMenuRows());
         restoreCart();
         renderMenu();
         afterCartChange(false);
@@ -1086,6 +1102,49 @@
         $('menuState').innerHTML = 'We couldn&rsquo;t load the menu. Check your connection and try again.<br><button type="button" id="menuRetryBtn">Try again</button>';
         $('menuRetryBtn').addEventListener('click', loadMenu);
       });
+    }
+
+    // ---- Secret menu (Platinum) ----
+    var SECRET_KEY = 'rollin_qr_secret', qrMemberKnown = false, qrBaseRows = null, qrSecret = [], qrSecretFor = null;
+    try { var _sc = JSON.parse(sessionStorage.getItem(SECRET_KEY) || 'null'); if (_sc && Array.isArray(_sc.items)) qrSecret = _sc.items; } catch (e) {}
+    function qrMenuRows(){ return (DOOR_CODE ? [] : qrSecret).concat(qrBaseRows || []); }
+    function setSecret(items){
+      items = Array.isArray(items) ? items.filter(function(i){ return i && i.id; }) : [];
+      var sig = function(l){ return l.map(function(i){ return i.id + ':' + i.price + ':' + i.is_available; }).join('|'); };
+      var gone = qrSecret.filter(function(o){ return !items.some(function(n){ return n.id === o.id; }); }).map(function(o){ return o.id; });
+      var changed = sig(items) !== sig(qrSecret);
+      qrSecret = items;
+      try { if (items.length) sessionStorage.setItem(SECRET_KEY, JSON.stringify({ items: items })); else sessionStorage.removeItem(SECRET_KEY); } catch (e) {}
+      if (!changed || !qrBaseRows) return;
+      if (gone.length) cart = cart.filter(function(c){ return gone.indexOf(c.menu_item_id) < 0; });
+      buildMenu(qrMenuRows());
+      renderMenu();
+      if (typeof refreshTileActions === 'function') refreshTileActions();
+      afterCartChange(false);
+    }
+    var qrLockToGo = null;
+    function paintSecretLock(){
+      var old = document.getElementById('qrSecretLock'); if (old) old.remove();
+      var idx = document.getElementById('qrIndex');
+      if (!qrLockToGo || !idx || DOOR_CODE) return;
+      idx.insertAdjacentHTML('beforeend', '<div class="secret-lock" id="qrSecretLock"><span class="sl-ico" aria-hidden="true">\uD83D\uDD12</span>' +
+        '<span><b>Secret Menu</b><small>' + Number(qrLockToGo).toLocaleString('en-US') + ' points to Platinum. There’s a menu that isn’t on the menu.</small></span></div>');
+    }
+    function refreshSecret(){
+      if (DOOR_CODE) return;
+      var who = member ? 'signed-in' : (appliedMember || '');
+      if (!who && !qrMemberKnown) return;   // sign-in not checked yet: keep what we had
+      if (who === qrSecretFor) return;
+      qrSecretFor = who;
+      if (!who) { qrLockToGo = null; paintSecretLock(); setSecret([]); return; }
+      var call = member ? sbShared.rpc('get_my_platinum') : sbShared.rpc('get_platinum_menu', { p_code: appliedMember });
+      call.then(function(res){
+        if (qrSecretFor !== who) return;
+        var d = res && !res.error ? res.data : null;
+        qrLockToGo = d && !d.platinum ? (d.to_go || null) : null;
+        setSecret(d && d.platinum ? (d.items || []) : []);
+        paintSecretLock();
+      }, function(){});
     }
 
     var tacoDay = null, dealsByName = {}, dealPicksByName = {};
@@ -1149,8 +1208,9 @@
       var dealHtml = memberDealsHtml();
       var html = indexHtml + dealHtml +
         sections.map(function(s, i){
-        return '<section class="section" id="sec-' + i + '" aria-labelledby="sec-' + i + '-t">' +
+        return '<section class="section' + (s.cat === 'Secret Menu' ? ' sec-secret' : '') + '" id="sec-' + i + '" aria-labelledby="sec-' + i + '-t">' +
           '<h2 class="section-title" id="sec-' + i + '-t">' + escHtml(s.cat) + '</h2>' +
+          (s.cat === 'Secret Menu' ? '<div class="sec-stamp" aria-hidden="true">Classified \u00b7 Platinum eyes only</div>' : '') +
           (CATEGORY_DESCRIPTIONS[s.cat] ? '<p class="section-desc">' + escHtml(CATEGORY_DESCRIPTIONS[s.cat]) + '</p>' : '') +
           '<div class="grid">' + s.groups.map(tileHtml).join('') + '</div>' +
         '</section>';
@@ -1162,6 +1222,7 @@
       // sold-out update shouldn't throw them back to the list).
       showIndex(true);
       setupScrollSpy();
+      paintSecretLock();
     }
 
     // ---- Category list <-> one category (like the website on a phone) ----
@@ -1266,7 +1327,7 @@
           ' aria-label="' + escHtml(g.name + ', ' + priceText.replace(/<[^>]+>/g, ' ') + (soldOut ? ', sold out' : ', see details')) + '">' +
           '<span class="tile-photo">' + photoImg(g.items[0], g.cat, g.name) + '</span>' +
           '<span class="tile-body">' +
-            '<span class="tile-name">' + escHtml(g.name.replace(/\s*\(Veg\)\s*$/i, '')) + (isVeg(g.name) ? ' <span class="veg-tag" title="Vegetarian">Veg</span>' : '') + '</span>' +
+            '<span class="tile-name">' + (g.items[0].secret_name ? escHtml(g.items[0].secret_name) + '<span class="real-name">' + escHtml(g.name) + (/wings/i.test(g.name) ? ' \u00b7 6 pc' : '') + '</span>' : escHtml(g.name.replace(/\s*\(Veg\)\s*$/i, ''))) + (isVeg(g.name) ? ' <span class="veg-tag" title="Vegetarian">Veg</span>' : '') + '</span>' +
             (g.items[0].description ? '<span class="tile-desc">' + escHtml(g.items[0].description) + '</span>' : '') +
             (sub ? '<span class="tile-sub">' + sub + '</span>' : '') +
             '<span class="tile-price">' + priceText + '</span>' +
@@ -1451,6 +1512,7 @@
       var dl = $('qrDealsLink').querySelector('small');
       dl.textContent = on ? dealList().length + ' deals unlocked' : 'Check in to unlock';
       if (sections.length) { renderMenu(); refreshTileActions(); }
+      refreshSecret();
     }
     function openQrMenu(){ $('qrMenu').classList.remove('hidden'); $('qrMenuScrim').classList.remove('hidden'); document.documentElement.style.overflow = 'hidden'; }
     function closeQrMenu(){ $('qrMenu').classList.add('hidden'); $('qrMenuScrim').classList.add('hidden'); document.documentElement.style.overflow = ''; }
@@ -1701,18 +1763,18 @@
       var item = itemsById[sheet.itemId];
       var desc = item.description || CATEGORY_DESCRIPTIONS[g.cat] || '';
       var html = '<div class="sheet-photo">' + photoImg(g.items[0], g.cat, g.name) + '</div>' +
-        '<h2 class="item-title" id="itemTitle">' + escHtml(g.name) + '</h2>' +
+        '<h2 class="item-title" id="itemTitle">' + (g.items[0].secret_name ? escHtml(g.items[0].secret_name) + '<span class="real-name">' + escHtml(g.name) + '</span>' : escHtml(g.name)) + '</h2>' +
         '<div class="item-price">' + money(item.price) + '</div>' +
         (desc ? '<p class="item-desc">' + escHtml(desc) + '</p>' : '');
 
       if (g.items.length > 1) {
         var anyPriceDiff = g.items.some(function(i){ return Number(i.price) !== Number(g.items[0].price); });
-        html += '<fieldset class="opt-group"><legend>' + (g.cat === 'Bowls' || g.cat === 'Shawarma' || g.cat === 'Frankie Rolls' ? 'Choose your protein' : 'Choose one') + ' <small>Required</small></legend>' +
+        html += '<fieldset class="opt-group"><legend>' + (g.cat === 'Bowls' || g.cat === 'Shawarma' || g.cat === 'Frankie Rolls' ? 'Choose your protein' : g.cat === 'Secret Menu' ? 'Choose your flavor' : 'Choose one') + ' <small>Required</small></legend>' +
           g.items.map(function(i){
             var avail = isAvailable(i);
             return '<label class="opt' + (avail ? '' : ' is-disabled') + '">' +
               '<input type="radio" name="itemOpt" value="' + i.id + '"' + (i.id === sheet.itemId ? ' checked' : '') + (avail ? '' : ' disabled') + '>' +
-              '<span class="opt-name">' + escHtml(i.variant_name || i.name) + '</span>' +
+              '<span class="opt-name">' + (i.secret_alias ? '<b>' + escHtml(i.secret_alias) + '</b> \u00b7 ' : '') + escHtml(i.variant_name || i.name) + '</span>' +
               '<span class="opt-price">' + (avail ? (anyPriceDiff ? money(i.price) : '') : 'Sold out') + '</span>' +
             '</label>';
           }).join('') +
@@ -2242,6 +2304,7 @@
           return sbShared.rpc('get_my_member_profile').then(function(p){ member.profile = p && p.data; });
         });
       }).then(function(){
+        qrMemberKnown = true;
         var signed = !!member;
         $('memberIn').classList.toggle('hidden', !signed);
         $('memberIdField').classList.toggle('hidden', signed);
