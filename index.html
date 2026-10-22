@@ -770,7 +770,7 @@
   body:not(.truck-open) .drive-up-only{ display:none !important; }
   @media (max-width:520px){ #floatOrderGroup .float-btn{ font-size:14px; padding:0 8px; } }
 
-  /* ---- Taco Tuesday / Thursday ---- */
+  /* ---- Taco Tuesday ---- */
   .taco-banner{ max-width:760px; margin:0 auto 22px; padding:14px 18px; border-radius:18px; background:#fff4e5; color:#7a3d00; font-size:15px; text-align:center; }
   .taco-banner b{ color:#b3470b; }
   .ws-was{ color:var(--muted); font-weight:500; margin-right:2px; }
@@ -1037,7 +1037,7 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
 .ws-drink.noimg[aria-pressed="true"]{ background:var(--ink); border-color:var(--ink); color:#fff; }
 .ws-drink.noimg::after{ display:none; }
 
-/* ---- Taco Tuesday / Thursday: deal card + teaser ---- */
+/* ---- Taco Tuesday: deal card + teaser ---- */
 .taco-banner.tc-on{ position:relative; display:grid; grid-template-columns:132px 1fr auto; align-items:center; gap:4px 20px; max-width:760px; margin:0 auto 24px; padding:16px 18px 16px 16px; border-radius:22px; text-align:left;
   background:linear-gradient(105deg, #fff1dc 0%, #ffe3c2 100%); color:#5c2b00; border:1px solid #ffd3a1; box-shadow:0 10px 26px rgba(179,71,11,.12); overflow:hidden; }
 .taco-banner.tc-on .tc-img{ width:132px; height:100px; object-fit:cover; border-radius:16px; grid-row:1 / span 2; }
@@ -1224,7 +1224,7 @@ body.ev-tab-mode #rewardSection, body.ev-tab-mode #coPointsLine{ display:none !i
 }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
-<script src="deals.js"></script>
+<script src="deals.js?v=20261022"></script>
 <script src="ingredients.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js" integrity="sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k" crossorigin="anonymous"></script>
 <!-- Meta Pixel -->
@@ -1575,7 +1575,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
   <li><b>Redeeming.</b> Rewards are redeemed from your account and make one listed item free on a later order. Redeeming is final: points can&rsquo;t be returned or exchanged, and a reward can&rsquo;t be split, swapped for cash or combined with another reward on the same item.</li>
   <li><b>Canceled or refunded orders.</b> Points earned on an order that is canceled or refunded are removed from your account (partly refunded orders lose the matching share).</li>
   <li><b>No cash value.</b> Points and rewards have no cash value, can&rsquo;t be sold or transferred, and aren&rsquo;t property of the member.</li>
-  <li><b>Deals and offers.</b> Member deals, Taco Tuesday &amp; Thursday and the welcome free roll are subject to availability and may change. One welcome free roll per member.</li>
+  <li><b>Deals and offers.</b> Member deals, Taco Tuesday and the welcome free roll are subject to availability and may change. One welcome free roll per member.</li>
   <li><b>Fair use.</b> We may suspend an account or remove points gained by mistake, fraud or misuse of the program.</li>
   <li><b>Changes.</b> We may change or end the program, point values or rewards at any time. Changes are posted on this website; continuing to use your account means you accept them.</li>
   <li><b>Your information.</b> We use your name, email and birthday only to run your account, send receipts and your birthday treat. We never sell your information. You can ask us to close your account at any time.</li>
@@ -3032,7 +3032,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       var reg = regs.length ? Math.min.apply(null, regs) : null;
       if (wsTacoDay) {
         return '<img class="tc-img" src="tacos.webp" alt="" loading="lazy" onerror="this.remove()">' +
-          '<div class="tc-body"><span class="tc-kicker">Today only<span class="tc-k2"> \u00b7 every Tue &amp; Thu</span></span>' +
+          '<div class="tc-body"><span class="tc-kicker">Today only<span class="tc-k2"> \u00b7 every Tuesday</span></span>' +
           '<h3 class="tc-title">Taco ' + escHtml(wsTacoDay) + '</h3>' +
           '<p class="tc-deal">Every taco order ' + (reg ? '<s>' + wsMoney(reg) + '</s> ' : '') + '<b>' + wsMoney(price) + '</b></p>' +
           '<p class="tc-note">Already applied at checkout. No code needed.</p></div>' +
@@ -3040,8 +3040,8 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       }
       var w = '';
       try { w = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'long' }).format(new Date()); } catch (e) {}
-      var next = { Monday: 'Tomorrow', Tuesday: 'Thursday', Wednesday: 'Tomorrow', Thursday: 'Tuesday', Friday: 'Tuesday', Saturday: 'Tuesday', Sunday: 'Tuesday' }[w] || 'Tuesday';
-      return '<span class="tc-t-ico" aria-hidden="true">\uD83C\uDF2E</span><span><b>Tacos are ' + wsMoney(price) + ' every Tuesday &amp; Thursday.</b> Next taco day: ' + next + '.</span>';
+      var next = w === 'Monday' ? 'tomorrow' : 'Tuesday';
+      return '<span class="tc-t-ico" aria-hidden="true">\uD83C\uDF2E</span><span><b>Tacos are ' + wsMoney(price) + ' every Tuesday.</b> Next Taco Tuesday: ' + next + '.</span>';
     }
     function renderMenu(items){
       wsSections = []; wsGroups = {}; wsComboAddons = {};
@@ -3054,7 +3054,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       var tb = document.getElementById('tacoBanner');
       if (tb) {
         tb.classList.toggle('hidden', !wsTacoDay);
-        // Only on Taco Tuesday / Thursday; hidden every other day.
+        // Only on Taco Tuesday; hidden every other day.
         tb.className = 'taco-banner ' + (wsTacoDay ? 'tc-on' : 'hidden');
         tb.innerHTML = wsTacoDay ? wsTacoHtml(items) : '';
       }
@@ -5512,10 +5512,10 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       var api = window.rollinDealsApi, list = api ? api.list() : [];
       var day = api && api.tacoDay();
       var cards = [];
-      // Taco Tuesday / Thursday shows only on those days.
+      // Taco Tuesday shows only on Tuesdays.
       if (day) cards.push('<div class="rw-item is-auto"><img src="item-signature-chicken-tacos.jpg" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">' +
-        '<div class="rw-item-body"><div class="rw-item-title">Taco Tuesday &amp; Thursday</div>' +
-        '<div class="rw-item-sub">Every taco order is $6.99 on Tuesdays and Thursdays. Applied automatically.</div>' +
+        '<div class="rw-item-body"><div class="rw-item-title">Taco Tuesday</div>' +
+        '<div class="rw-item-sub">Every taco order is $6.99 on Tuesdays. Applied automatically.</div>' +
         (day ? '<div class="rw-ready">&#10003; On today</div>' : '') + '</div>' +
         '<button type="button" class="rw-go" disabled>Auto</button></div>');
       list.forEach(function(d){
