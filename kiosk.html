@@ -902,6 +902,22 @@
   #scanIdleNote span{ font-size:20px; }
   #scanIdleNote b{ color:var(--gold, #f7ad28); font-size:24px; }
   #scanIdleNote small{ font-size:15px; color:rgba(255,255,255,.75); }
+
+  /* ---- Secret menu (Platinum) ---- */
+  #secretNote{ position:fixed; left:50%; top:24px; transform:translateX(-50%); z-index:940; display:flex; flex-direction:column; align-items:center; gap:6px; text-align:center;
+    width:min(560px, calc(100vw - 32px)); padding:18px 24px; border-radius:22px; color:#fff; background:radial-gradient(120% 140% at 100% 0%, #4a4856 0%, #1b1a1f 65%);
+    border:2px solid rgba(233,234,238,.5); box-shadow:0 18px 40px rgba(0,0,0,.35); }
+  #secretNote.hidden{ display:none; }
+  #secretNote b{ font-size:26px; font-weight:800; }
+  #secretNote span:last-child{ font-size:17px; color:rgba(255,255,255,.75); }
+  .sn-badge, .secret-tag{ display:inline-block; font-size:13px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; padding:5px 11px; border-radius:999px;
+    color:#1b1a1f; background:linear-gradient(135deg, #f4f4f6, #b9bcc6 50%, #e9eaee); vertical-align:middle; }
+  .real-name{ display:block; margin-top:3px; font-size:13px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#8a8d97; }
+  .secret-stamp{ display:inline-block; margin-left:12px; padding:4px 10px; border:3px double #c0281c; border-radius:6px; color:#c0281c; vertical-align:middle;
+    font-family:"Courier New", monospace; font-size:13px; font-weight:800; letter-spacing:.12em; text-transform:uppercase; transform:rotate(-2deg); }
+  .category-expanded[data-cat="Secret Menu"]{ border:2px dashed #b9bcc6; border-radius:22px; padding:14px;
+    background:repeating-linear-gradient(-45deg, rgba(27,26,31,.03) 0 12px, transparent 12px 24px); }
+  #secretNote.is-locked{ border-color:rgba(255,255,255,.2); }
 </style>
 </head>
 <body>
@@ -983,6 +999,12 @@
     <a class="staff-link" href="kiosk-setup.html">Full setup page (pair a new card machine)</a>
     <button type="button" class="kx-secondary" id="staffClose">Close</button>
   </div>
+</div>
+
+<div id="secretNote" class="hidden" role="status" aria-live="polite">
+  <span class="sn-badge">&#10022; Platinum</span>
+  <b id="secretNoteTitle">Welcome back, insider.</b>
+  <span id="secretNoteText">The secret menu is open. Don&rsquo;t tell anyone.</span>
 </div>
 
 <div id="kioskOffline" class="hidden" role="alert" aria-live="assertive">
@@ -1304,6 +1326,36 @@
     // ---- Fetch menu (excluding Catering and Combo Add-ons -- those
     // are never browsed directly, only added programmatically) ----
     var comboAddonsByName = {};
+    // ---- Secret menu (Platinum members, after check-in) ----
+    var kioskSecret = [], kioskSecretFor = null;
+    function kioskCheckPlatinum(code){
+      if (!code || code === kioskSecretFor) return;
+      kioskSecretFor = code;
+      sbShared.rpc('get_platinum_menu', { p_code: code }).then(function(res){
+        var d = res && !res.error ? res.data : null;
+        if (d && !d.platinum && d.to_go && kioskSecretFor === code) {
+          // not Platinum yet: tease it
+          var n0 = document.getElementById('secretNote');
+          document.getElementById('secretNoteTitle').textContent = '\uD83D\uDD12 Secret menu: ' + Number(d.to_go).toLocaleString('en-US') + ' points to go';
+          document.getElementById('secretNoteText').textContent = 'There’s a menu that isn’t on the menu. Reach Platinum to unlock it.';
+          n0.classList.add('is-locked'); n0.classList.remove('hidden');
+          setTimeout(function(){ n0.classList.add('hidden'); }, 6000);
+          return;
+        }
+        if (!d || !d.platinum || !Array.isArray(d.items) || !d.items.length || kioskSecretFor !== code) return;
+        kioskSecret = d.items;
+        loadMenu();
+        setTimeout(function(){
+          var note = document.getElementById('secretNote');
+          if (note) {
+            document.getElementById('secretNoteTitle').textContent = 'Welcome back, insider.';
+            document.getElementById('secretNoteText').textContent = 'The secret menu is open. Don’t tell anyone.';
+            note.classList.remove('is-locked', 'hidden'); setTimeout(function(){ note.classList.add('hidden'); }, 6000);
+          }
+          if (typeof toggleCategory === 'function' && categoryOrder.indexOf('Secret Menu') !== -1 && expandedCategory !== 'Secret Menu') toggleCategory('Secret Menu');
+        }, 700);
+      }, function(){});
+    }
     function loadMenu(){
       sbShared.from('menu_items').select('*').order('display_order').then(function(res){
         if (res.error || !res.data) return;
@@ -1322,7 +1374,7 @@
         // Taco Tuesday: every taco order is $6.99 (deals.js,
         // same rule as the website, QR page and checkout server).
         kioskTacoDay = window.RollinDeals ? window.RollinDeals.applyTacoPricing(res.data) : null;
-        res.data.forEach(function(item){
+        kioskSecret.concat(res.data).forEach(function(item){
           itemsById[item.id] = item;
           if (item.category === 'Combo Add-ons') comboAddonsByName[item.name] = item;
           if (item.category === 'Deals') dealsByName[item.name] = item;
@@ -1481,6 +1533,7 @@
         memberVerified = true;
         memberCodeVerified = code;
         memberFirstName = row.first_name || '';
+        kioskCheckPlatinum(code);
         // Checked-in member: their name goes on the order automatically.
         var kn = document.getElementById('kioskName');
         if (kn && !kn.value.trim() && memberFirstName) kn.value = memberFirstName;
@@ -1822,7 +1875,7 @@
       }).join('');
       listEl.innerHTML = categoryOrder.map(function(cat){
         return '<div class="category-block" data-cat="' + escHtml(cat) + '">' +
-          '<h3 class="cat-title">' + escHtml(cat) + (cat === 'Tacos' && kioskTacoDay ? ' <span class="taco-tag">\uD83C\uDF2E Taco ' + kioskTacoDay + ': every taco order $6.99</span>' : '') + '</h3>' +
+          '<h3 class="cat-title">' + escHtml(cat) + (cat === 'Secret Menu' ? ' <span class="secret-tag">\u2726 Platinum</span><span class="secret-stamp">Classified \u00b7 Platinum eyes only</span>' : '') + (cat === 'Tacos' && kioskTacoDay ? ' <span class="taco-tag">\uD83C\uDF2E Taco ' + kioskTacoDay + ': every taco order $6.99</span>' : '') + '</h3>' +
           '<div class="category-expanded" data-cat="' + escHtml(cat) + '"></div>' +
         '</div>';
       }).join('');
@@ -1837,6 +1890,7 @@
       if (keep) toggleCategory(keep);
     }
     var KIOSK_CAT_IMG = {
+      'Secret Menu': 'secret-menu.svg',
       'Shawarma': 'shawarma-wrap.webp', 'Frankie Rolls': 'tikka-wrap.webp', 'Bowls': 'bowl.webp', 'Tacos': 'tacos.webp',
       'Loaded Fries': 'loaded-fries.webp', 'Sides': 'item-fries.jpg', 'Kulfi Ice Cream': 'item-almond-kulfi.jpg', 'Drinks': 'item-soda.jpg'
     };
@@ -1959,7 +2013,7 @@
           return '<div class="item-tile">' +
             itemPhotoHtml(item) +
             '<div class="item-tile-body">' +
-              '<div class="item-tile-name">' + escHtml(label) + '</div>' +
+              '<div class="item-tile-name">' + (item.secret_name ? escHtml(item.secret_name) + '<span class="real-name">' + escHtml(label) + '</span>' : escHtml(label)) + '</div>' +
               (item.description ? '<div class="item-tile-desc">' + escHtml(item.description) + '</div>' : '') +
               '<div class="item-tile-price">$' + Number(item.price).toFixed(2) + '</div>' +
               '<div class="item-tile-control"><div class="item-add-control" data-id="' + item.id + '"></div></div>' +
@@ -1971,13 +2025,13 @@
         var firstItem = group.items[0];
         var variantOptionsHtml = group.items.map(function(item){
           return '<div class="protein-choice-row" data-pick-id="' + item.id + '">' +
-            '<span class="protein-choice-name">' + escHtml(item.variant_name || item.name) + '</span>' +
+            '<span class="protein-choice-name">' + (item.secret_alias ? '<b>' + escHtml(item.secret_alias) + '</b> \u00b7 ' : '') + escHtml(item.variant_name || item.name) + '</span>' +
           '</div>';
         }).join('');
         return '<div class="select-tile" data-select-group="' + groupKey + '">' +
             itemPhotoHtml(firstItem) +
             '<div class="item-tile-body">' +
-              '<div class="item-tile-name">' + escHtml(group.name) + '</div>' +
+              '<div class="item-tile-name">' + (firstItem.secret_name ? escHtml(firstItem.secret_name) + '<span class="real-name">' + escHtml(group.name) + (/wings/i.test(group.name) ? ' \u00b7 6 pc' : '') + '</span>' : escHtml(group.name)) + '</div>' +
               '<div class="item-tile-price">$' + Number(firstItem.price).toFixed(2) + '</div>' +
               '<div class="item-tile-badge-row" data-variant-group="' + groupKey + '"></div>' +
               selectTilePlusHtml(groupKey) +
@@ -3695,7 +3749,7 @@
         idleScreen.classList.add('hidden');
         document.getElementById('kioskName').value = savedCart.name || '';
         document.getElementById('kioskEmail').value = savedCart.email || '';
-        if (savedCart.member) { memberVerified = true; memberCodeVerified = savedCart.member; memberFirstName = savedCart.memberName || ''; }
+        if (savedCart.member) { memberVerified = true; memberCodeVerified = savedCart.member; memberFirstName = savedCart.memberName || ''; kioskCheckPlatinum(savedCart.member); }
         if (!cart.length) return false;
         renderCartView();
         goToCheckoutScreen();
