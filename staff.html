@@ -609,6 +609,16 @@
   .sc-bar span:last-child{ text-align:right; color:var(--muted); white-space:nowrap; }
   .sc-bar.none i{ background:#e2e2e7; }
   .sr-controls select, .sr-controls input{ width:100%; }
+  .ft-plat{ display:inline-block; vertical-align:middle; margin-left:8px; font-size:12px; font-weight:800; letter-spacing:.12em; text-transform:uppercase;
+    padding:5px 10px; border-radius:999px; color:#1b1a1f; background:linear-gradient(135deg, #f4f4f6, #b9bcc6 50%, #e9eaee); }
+  .ft-row{ display:flex; align-items:center; justify-content:space-between; gap:16px; }
+  .ft-title{ font-size:18px; font-weight:700; }
+  .ft-sub{ font-size:14px; color:#6e6e73; margin-top:2px; }
+  .ft-card.is-on{ box-shadow:0 0 0 2px #30b35a inset; }
+  .ft-msg{ font-size:14px; margin-top:8px; min-height:18px; color:#1f8a4c; }
+  .ft-msg.bad{ color:var(--red); }
+  .ft-list{ margin:0; padding-left:18px; display:grid; gap:8px; font-size:15px; line-height:1.45; }
+  .ft-off{ color:var(--red); font-weight:600; }
   .sr-when{ display:grid; grid-template-columns:1.4fr 1fr 1fr; gap:10px; }
   .sr-actions{ display:flex; flex-wrap:wrap; gap:10px; margin-top:16px; }
   .sr-actions button{ width:auto; flex:1 1 140px; }
@@ -781,6 +791,9 @@
       <button class="nav-link hidden" data-tab="salesreport" id="tabSalesBtn"><svg class="icon"><use href="#ic-chart"/></svg>Sales report</button>
       <button class="nav-link hidden" data-tab="stops" id="tabStopsBtn"><svg class="icon"><use href="#ic-trophy"/></svg>Stop scorecard<span class="nav-badge nav-badge-soft">Soon</span></button>
       <button class="nav-link hidden" data-tab="ads" id="tabAdsBtn"><svg class="icon"><use href="#ic-target"/></svg>Ads<span class="nav-badge hidden" id="navAdsBadge"></span></button>
+
+      <div class="nav-section-label">New features</div>
+      <button class="nav-link hidden" data-tab="features" id="tabFeaturesBtn"><svg class="icon"><use href="#ic-gift"/></svg>Secret menu<span class="nav-badge nav-badge-soft hidden" id="navFeatSecret">Off</span></button>
 
       <div class="nav-section-label">Team</div>
       <button class="nav-link hidden" data-tab="approve" id="tabApproveBtn"><svg class="icon"><use href="#ic-check"/></svg>Approvals<span class="nav-badge hidden" id="navApproveBadge"></span></button>
@@ -1362,6 +1375,39 @@
       </div>
       <p class="hint">Sales include tax and tips, minus refunds. Window and Square sales count when they&rsquo;re synced into orders.</p>
     </div>
+  </div>
+
+  <!-- NEW FEATURES: SECRET MENU -->
+  <div class="tab-panel hidden" id="panelFeatures">
+    <div class="page-head">
+      <h2>Secret menu <span class="ft-plat">&#10022; Platinum</span></h2>
+      <p class="hint">A menu that isn&rsquo;t on the menu, for members who have earned 900 points. Switch it on when you&rsquo;re ready to launch.</p>
+    </div>
+    <div class="card ft-card">
+      <div class="ft-row">
+        <div class="ft-text">
+          <div class="ft-title" id="ftTitle">Secret menu is off</div>
+          <div class="ft-sub" id="ftSub">Loading&hellip;</div>
+        </div>
+        <button type="button" class="switch" role="switch" aria-checked="false" aria-label="Secret menu on or off" id="ftSwitch" disabled></button>
+      </div>
+      <div class="ft-msg" id="ftMsg" role="status"></div>
+    </div>
+
+    <div class="section-title">When it&rsquo;s on</div>
+    <div class="card">
+      <ul class="ft-list">
+        <li><b>Website:</b> the Platinum teaser in Rewards (blurred items, rotating hints), a locked &ldquo;Secret Menu&rdquo; row in the menu, and points-to-go for members. Platinum members see the Secret Menu first.</li>
+        <li><b>Drive-up:</b> Platinum members (signed in or checked in) get the Secret Menu; other members see how many points to go.</li>
+        <li><b>Kiosk:</b> after check-in, &ldquo;Welcome back, insider&rdquo; and the Secret Menu for Platinum; points to go for everyone else.</li>
+        <li><b>Kitchen:</b> secret items carry a &#10022; PLATINUM tag.</li>
+      </ul>
+      <p class="hint">When it&rsquo;s off, none of this shows anywhere and secret items can&rsquo;t be ordered (a cart that still has one is refused politely). Points and Platinum status keep counting either way.</p>
+    </div>
+
+    <div class="section-title">The secret menu</div>
+    <div class="card"><div style="overflow-x:auto;"><table class="stack"><thead><tr><th>Code name</th><th>Real name</th><th>Price</th><th>On the menu</th></tr></thead><tbody id="ftItems"><tr><td colspan="4">Loading&hellip;</td></tr></tbody></table></div>
+      <p class="hint">Mark one sold out in <b>Sold out</b>. To change names or prices, ask Claude or edit <code>secret-menu.sql</code>.</p></div>
   </div>
 
   <!-- SALES REPORT -->
@@ -2034,6 +2080,9 @@
         document.getElementById('tabAdsBtn').classList.remove('hidden');
         document.getElementById('tabStopsBtn').classList.remove('hidden');
         document.getElementById('tabSalesBtn').classList.remove('hidden');
+        document.getElementById('tabFeaturesBtn').classList.remove('hidden');
+        document.querySelector('.nav-link[data-tab="features"]').addEventListener('click', ftLoad);
+        ftLoad();
         document.querySelector('.nav-link[data-tab="salesreport"]').addEventListener('click', srOpen);
         if (location.hash === '#sales') setTimeout(function(){ showTab('salesreport'); srOpen(); }, 0);
         document.getElementById('tabCateringBtn').classList.remove('hidden');
@@ -2255,6 +2304,50 @@
   navBackdrop.addEventListener('click', closeMenu);
 
   // ---------------- TABS (nav drawer links) ----------------
+  // ---------------- NEW FEATURES: secret menu switch ----------------
+  var ftState = null, ftBusy = false;
+  function ftPaint(d){
+    ftState = d || {};
+    var f = ftState.secret_menu || {}, on = !!f.enabled;
+    var sw = document.getElementById('ftSwitch');
+    sw.setAttribute('aria-checked', on ? 'true' : 'false'); sw.disabled = ftBusy;
+    document.getElementById('ftTitle').textContent = on ? 'Secret menu is on' : 'Secret menu is off';
+    document.getElementById('ftSub').textContent = (on ? 'Customers can see and order it. ' : 'Hidden everywhere. ') +
+      (f.updated_at ? 'Last changed ' + new Date(f.updated_at).toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + (f.updated_by ? ' by ' + f.updated_by : '') + '.' : 'Never switched on yet.');
+    document.querySelector('#panelFeatures .ft-card').classList.toggle('is-on', on);
+    var badge = document.getElementById('navFeatSecret');
+    badge.textContent = on ? 'On' : 'Off'; badge.classList.remove('hidden');
+    var items = ftState.secret_items || [];
+    document.getElementById('ftItems').innerHTML = items.length ? items.map(function(it){
+      return '<tr><td data-label="Code name"><b>' + esc(it.secret_name || '') + '</b>' + (it.secret_alias ? ' \u00b7 ' + esc(it.secret_alias) : '') + '</td>' +
+        '<td data-label="Real name">' + esc(it.name + (it.variant_name ? ' - ' + it.variant_name : '')) + '</td>' +
+        '<td data-label="Price">$' + Number(it.price).toFixed(2) + '</td>' +
+        '<td data-label="On the menu">' + (it.is_available ? 'Yes' : '<span class="ft-off">Sold out</span>') + '</td></tr>';
+    }).join('') : '<tr><td colspan="4">No secret items yet.</td></tr>';
+  }
+  function ftSay(t, bad){ var m = document.getElementById('ftMsg'); m.textContent = t || ''; m.classList.toggle('bad', !!bad); }
+  function ftLoad(){
+    sb.rpc('staff_get_features').then(function(res){
+      if (res.error) {
+        document.getElementById('ftSub').textContent = /does not exist|could not find/i.test(res.error.message || '') ? 'Run secret-menu.sql in Supabase first.' : (res.error.message || 'Couldn\u2019t load.');
+        return;
+      }
+      ftPaint(res.data);
+    });
+  }
+  document.getElementById('ftSwitch').addEventListener('click', function(){
+    if (ftBusy || !ftState) return;
+    var turnOn = !(ftState.secret_menu && ftState.secret_menu.enabled);
+    if (!confirm(turnOn ? 'Switch the secret menu ON? Customers will see the Platinum teaser and Platinum members can order it.' : 'Switch the secret menu OFF? It disappears everywhere and secret items can\u2019t be ordered.')) return;
+    ftBusy = true; this.disabled = true; ftSay('Saving\u2026');
+    sb.rpc('staff_set_feature', { p_key: 'secret_menu', p_enabled: turnOn }).then(function(res){
+      ftBusy = false;
+      if (res.error) { ftSay(res.error.message || 'Couldn\u2019t save.', true); ftPaint(ftState); return; }
+      ftPaint(res.data);
+      ftSay(turnOn ? 'Secret menu is live. Pages pick it up on their next load.' : 'Secret menu switched off everywhere.');
+    }, function(){ ftBusy = false; ftSay('Couldn\u2019t reach the server.', true); ftPaint(ftState); });
+  });
+
   function showTab(tab){
     var btn = document.querySelector('.nav-link[data-tab="' + tab + '"]');
     if (!btn) return;
