@@ -694,6 +694,10 @@
   .pm-keys .pm-ok{ background:#ff453a; font-family:"Inter",sans-serif; font-size:17px; font-weight:800; }
   .pm-keys .pm-ok.resume{ background:#30d158; color:#00240c; }
   .pm-keys .pm-ok:disabled{ opacity:.4; }
+
+  /* ---- Platinum secret menu items ---- */
+  .plat-tag{ display:inline-block; margin-right:6px; padding:1px 8px; border-radius:999px; font-size:.78em; font-weight:800; letter-spacing:.08em;
+    color:#1b1a1f; background:linear-gradient(135deg, #f4f4f6, #b9bcc6 50%, #e9eaee); vertical-align:middle; }
 </style>
 </head>
 <body>
@@ -3257,6 +3261,31 @@
       }).join('');
     }
   });
+</script>
+
+<script>
+  // ---- Platinum secret menu: "✦ Wings - Tikka" -> [✦ PLATINUM] Wings - Tikka ----
+  (function(){
+    var busy = false;
+    function tag(root){
+      var w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: function(n){
+        return n.nodeValue.indexOf('\u2726 ') !== -1 && !(n.parentNode && n.parentNode.closest && n.parentNode.closest('.plat-tag, script, style, textarea, input'))
+          ? NodeFilter.FILTER_ACCEPT : NodeFilter.FILTER_REJECT; } });
+      var list = []; while (w.nextNode()) list.push(w.currentNode);
+      list.forEach(function(n){
+        var parts = n.nodeValue.split('\u2726 '), frag = document.createDocumentFragment();
+        parts.forEach(function(t, i){
+          if (i > 0) { var b = document.createElement('span'); b.className = 'plat-tag'; b.textContent = '\u2726 PLATINUM'; frag.appendChild(b); frag.appendChild(document.createTextNode(' ')); }
+          if (t) frag.appendChild(document.createTextNode(t));
+        });
+        n.parentNode.replaceChild(frag, n);
+      });
+    }
+    function run(){ busy = false; tag(document.body); }
+    new MutationObserver(function(){ if (!busy) { busy = true; requestAnimationFrame(run); } })
+      .observe(document.body, { childList: true, subtree: true, characterData: true });
+    run();
+  })();
 </script>
 </body>
 </html>
