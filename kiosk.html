@@ -485,6 +485,7 @@
   .at-top{ position:absolute; top:28px; left:32px; display:flex; align-items:center; gap:14px; color:#fff; font-family:var(--display); font-size:30px; font-weight:800; z-index:2; }
   #idleScreen .at-top img.logo{ width:72px; height:72px; margin:0; box-shadow:0 6px 20px rgba(0,0,0,.35); border-radius:50%; }
   .at-main{ position:relative; z-index:2; padding:0 56px 64px; max-width:900px; }
+  .kiosk-first-roll{ margin:0 0 14px; padding:14px 18px; border-radius:16px; background:#fff4e5; color:#7a4100; font-size:20px; font-weight:700; line-height:1.35; }
   .at-promo{ display:inline-block; background:var(--red); color:#fff; font-size:22px; font-weight:800; padding:10px 20px; border-radius:999px; margin-bottom:22px; }
   #idleScreen h1{ font-family:var(--display); font-size:104px; line-height:.92; font-weight:800; color:#fff; margin:0 0 20px; letter-spacing:-.5px; }
   #idleScreen p{ font-size:26px; line-height:1.35; color:rgba(255,255,255,.85); margin:0 0 40px; max-width:640px; }
@@ -1096,6 +1097,7 @@
     <h2>Almost there!</h2>
     <p class="kx-wait hidden" id="checkoutWait"></p>
     <div class="checkout-items-list" id="checkoutItemsList"></div>
+    <p class="kiosk-first-roll hidden" id="kioskFirstRoll" role="status"></p>
     <div class="checkout-breakdown-row">Subtotal <span id="checkoutSubtotalDisplay">$0.00</span></div>
     <div class="checkout-total-row">Total <span id="checkoutTotalDisplay">$0.00</span></div>
 
@@ -1534,6 +1536,7 @@
         memberCodeVerified = code;
         memberFirstName = row.first_name || '';
         kioskCheckPlatinum(code);
+        kioskLoadFirstRoll(code);
         // Checked-in member: their name goes on the order automatically.
         var kn = document.getElementById('kioskName');
         if (kn && !kn.value.trim() && memberFirstName) kn.value = memberFirstName;
@@ -2414,6 +2417,38 @@
     }
 
     function cartTotal(){ return cart.reduce(function(sum, c){ return sum + c.unitPrice * c.quantity; }, 0); }
+    // ---- First-order free roll (store-hours.sql, part B) ----
+    // Checked-in member's first order: the priciest Frankie Roll is free
+    // when the rest of the food is $15+ (before tax). The server works it
+    // out again; this is so the screens show the same total.
+    var kioskFirstRoll = null, kioskFirstRollFor = '';
+    function kioskLoadFirstRoll(code){
+      kioskFirstRollFor = code || ''; kioskFirstRoll = null;
+      if (!code) return;
+      sbShared.rpc('check_first_roll', { p_code: code }).then(function(r){
+        if (kioskFirstRollFor !== code) return;
+        kioskFirstRoll = r && !r.error && r.data && r.data.eligible ? r.data : null;
+        try { if (!checkoutScreen.classList.contains('hidden')) goToCheckoutScreen(); } catch (e) {}
+      }, function(){});
+    }
+    // { cents, title, need, hasRoll, eligible }
+    function kioskFirstRollSummary(){
+      var fr = memberCodeVerified && kioskFirstRollFor === memberCodeVerified ? kioskFirstRoll : null;
+      var out = { eligible: !!fr, cents: 0, title: '', need: 0, hasRoll: false, min: fr ? (+fr.min_cents || 1500) : 1500 };
+      if (!fr || !cart.length) return out;
+      var cat = fr.category || 'Frankie Rolls', best = null;
+      cart.forEach(function(c){
+        var it = itemsById[c.menu_item_id] || {};
+        if (it.category !== cat || c.dealOf) return;
+        var cents = Math.round((Number(c.unitPrice) - addOnPrice(c)) * 100);
+        if (!best || cents > best.cents) best = { cents: cents, title: it.name || c.name };
+      });
+      if (!best) return out;
+      out.hasRoll = true;
+      var paysFor = Math.round(cartTotal() * 100) - best.cents;
+      if (paysFor >= out.min) { out.cents = best.cents; out.title = best.title; } else out.need = out.min - paysFor;
+      return out;
+    }
     function cartCount(){ return cart.reduce(function(sum, c){ return sum + c.quantity; }, 0); }
 
     function clearCart(){
@@ -2531,10 +2566,20 @@
         return '<div class="checkout-item-row"><span class="nm">' + escHtml(c.name) + ' &times; ' + c.quantity + (ingNote(c) ? '<span class="checkout-item-note">' + escHtml(ingNote(c)) + '</span>' : '') + '</span>' +
           '<span class="amt">$' + (c.unitPrice * c.quantity).toFixed(2) + '</span></div>';
       }).join('');
-      var subtotalCents = Math.round(cartTotal() * 100);
+      var fr = kioskFirstRollSummary();
+      var subtotalCents = Math.round(cartTotal() * 100) - fr.cents;
       var taxCents = Math.round(subtotalCents * TAX_RATE);
       var totalCents = subtotalCents + taxCents;
       document.getElementById('checkoutSubtotalDisplay').textContent = '$' + (subtotalCents / 100).toFixed(2) + ' + $' + (taxCents / 100).toFixed(2) + ' tax';
+      var frEl = document.getElementById('kioskFirstRoll');
+      if (frEl) {
+        var frTxt = !fr.eligible ? ''
+          : fr.cents > 0 ? '\ud83c\udf89 First order: your ' + escHtml(fr.title) + ' is FREE (\u2212$' + (fr.cents / 100).toFixed(2) + ')'
+          : fr.hasRoll ? 'Add $' + (fr.need / 100).toFixed(2) + ' more and your Frankie Roll is free (first order only).'
+          : 'First order: add any Frankie Roll and it\u2019s free with $' + (fr.min / 100).toFixed(0) + '+ of other food.';
+        frEl.innerHTML = frTxt;
+        frEl.classList.toggle('hidden', !frTxt);
+      }
       document.getElementById('checkoutTotalDisplay').textContent = '$' + (totalCents / 100).toFixed(2);
       resetInactivityTimer();
     }
@@ -3670,7 +3715,7 @@
         document.getElementById('kioskCheckoutMsg').textContent = 'Your cart is empty.';
         return;
       }
-      var subtotalCents = Math.round(cartTotal() * 100);
+      var subtotalCents = Math.round(cartTotal() * 100) - kioskFirstRollSummary().cents;
       var taxCents = Math.round(subtotalCents * TAX_RATE);
       tipScreenBaseTotal = (subtotalCents + taxCents) / 100;
       selectedTipAmount = null;
@@ -3749,7 +3794,7 @@
         idleScreen.classList.add('hidden');
         document.getElementById('kioskName').value = savedCart.name || '';
         document.getElementById('kioskEmail').value = savedCart.email || '';
-        if (savedCart.member) { memberVerified = true; memberCodeVerified = savedCart.member; memberFirstName = savedCart.memberName || ''; kioskCheckPlatinum(savedCart.member); }
+        if (savedCart.member) { memberVerified = true; memberCodeVerified = savedCart.member; memberFirstName = savedCart.memberName || ''; kioskCheckPlatinum(savedCart.member); kioskLoadFirstRoll(savedCart.member); }
         if (!cart.length) return false;
         renderCartView();
         goToCheckoutScreen();
