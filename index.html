@@ -497,6 +497,9 @@
   .hours-row.is-today span:first-child::after{ content:"Today"; margin-left:8px; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#fff; background:var(--ink); padding:2px 7px; border-radius:999px; vertical-align:2px; }
   .hours-row span:last-child{ white-space:nowrap; text-align:right; }
   .hours-closed{ color:var(--muted); }
+  .hours-special-label{ margin-top:14px; }
+  .first-roll-note{ margin:10px 24px 4px; padding:10px 12px; border-radius:12px; background:#fff4e5; color:#7a4100; font-size:14px; line-height:1.4; }
+  .hours-special small{ display:block; font-size:13px; color:var(--muted); font-weight:400; }
   .find-note{ font-size:14px; color:var(--muted); margin-top:18px; }
   .contact-row{ display:flex; flex-wrap:wrap; align-items:center; gap:10px 18px; margin-top:22px; padding-top:22px; border-top:1px solid var(--line); font-size:15px; }
   .contact-row > a{ color:var(--accent); font-weight:500; }
@@ -1452,7 +1455,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     <div id="dealsLocked">
       <div class="sec-head">
         <h2 class="h2">Eat. Earn. Roll free.</h2>
-        <p class="lead">100 points for every $10 you spend. A free roll just for joining.</p>
+        <p class="lead">100 points for every $10 you spend. A free Frankie Roll on your first order.</p>
       </div>
 
       <ol class="rw-ladder" aria-label="Rewards you can earn">
@@ -1640,7 +1643,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
   <li><b>Redeeming.</b> Rewards are redeemed from your account and make one listed item free on a later order. Redeeming is final: points can&rsquo;t be returned or exchanged, and a reward can&rsquo;t be split, swapped for cash or combined with another reward on the same item.</li>
   <li><b>Canceled or refunded orders.</b> Points earned on an order that is canceled or refunded are removed from your account (partly refunded orders lose the matching share).</li>
   <li><b>No cash value.</b> Points and rewards have no cash value, can&rsquo;t be sold or transferred, and aren&rsquo;t property of the member.</li>
-  <li><b>Deals and offers.</b> Member deals, Taco Tuesday and the welcome free roll are subject to availability and may change. One welcome free roll per member.</li>
+  <li><b>Deals and offers.</b> Member deals, Taco Tuesday and the welcome free roll are subject to availability and may change. One welcome free roll per member: a Frankie Roll on the member&rsquo;s first order of $15 or more (before tax, not counting the free roll), online, at drive-up or at the kiosk. It can&rsquo;t be combined with WELCOME10.</li>
   <li><b>Fair use.</b> We may suspend an account or remove points gained by mistake, fraud or misuse of the program.</li>
   <li><b>Changes.</b> We may change or end the program, point values or rewards at any time. Changes are posted on this website; continuing to use your account means you accept them.</li>
   <li><b>Your information.</b> We use your name, email and birthday only to run your account, send receipts and your birthday treat. We never sell your information. You can ask us to close your account at any time.</li>
@@ -2147,6 +2150,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         <div id="promoMsg" class="promo-msg"></div>
       </div>
 
+      <p id="firstRollNote" class="first-roll-note hidden" role="status"></p>
       <div id="rewardSection" class="rw-co hidden">
         <div class="pickup-time-label">Your rewards</div>
         <div id="rewardChoices" class="rw-co-list"></div>
@@ -2186,6 +2190,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
           <div class="cart-breakdown-row">Subtotal <span id="cartCheckoutSubtotal">$0.00</span></div>
           <div class="cart-breakdown-row promo-discount-row hidden" id="promoDiscountRow">Discount <span id="cartCheckoutDiscount">&minus;$0.00</span></div>
           <div class="cart-breakdown-row promo-discount-row hidden" id="rewardDiscountRow">Rewards <span id="cartCheckoutReward">&minus;$0.00</span></div>
+          <div class="cart-breakdown-row promo-discount-row hidden" id="firstRollRow">First order: free roll <span id="cartCheckoutFirstRoll">&minus;$0.00</span></div>
           <div class="cart-breakdown-row">Sales Tax (6.75%) <span id="cartCheckoutTax">$0.00</span></div>
           <div class="cart-breakdown-row hidden" id="giftCardTotalRow">Gift Cards <span id="cartCheckoutGiftCards">$0.00</span></div>
           <div class="cart-breakdown-row">Online Processing Fee <span id="cartCheckoutFee">$0.00</span></div>
@@ -2271,6 +2276,80 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     'https://njcmcaoyzujijiyfardx.supabase.co',
     'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_'
   );
+
+  // ---- Store hours (staff portal -> Store hours; store-hours.sql) ----
+  // One copy of the hours for the whole page: weekly hours + special dates
+  // (holiday closures / different hours). Starts with the posted hours and
+  // switches to what staff set as soon as get_store_hours() answers.
+  // The checkout checks every pickup time again on the server.
+  window.RollinHours = (function(){
+    var TZ = 'America/New_York';
+    var weekly = { 0: null, 1: [960, 1260], 2: [960, 1260], 3: [960, 1260], 4: null, 5: [960, 1290], 6: [960, 1290] };
+    var special = {};   // 'YYYY-MM-DD' -> { h: [open, close] | null, note }
+    var subs = [], loaded = false;
+    var DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+    function pad(n){ return (n < 10 ? '0' : '') + n; }
+    function ymd(y, m, d){ var t = new Date(Date.UTC(y, m - 1, d)); return t.getUTCFullYear() + '-' + pad(t.getUTCMonth() + 1) + '-' + pad(t.getUTCDate()); }
+    function dowOf(ds){ var p = ds.split('-'); return new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])).getUTCDay(); }
+    function addDays(ds, k){ var p = ds.split('-'); return ymd(+p[0], +p[1], +p[2] + k); }
+    function today(){
+      try {
+        var o = {}; new Intl.DateTimeFormat('en-US', { timeZone: TZ, year: 'numeric', month: 'numeric', day: 'numeric' }).formatToParts(new Date()).forEach(function(x){ o[x.type] = x.value; });
+        return ymd(+o.year, +o.month, +o.day);
+      } catch (e) { var d = new Date(); return ymd(d.getFullYear(), d.getMonth() + 1, d.getDate()); }
+    }
+    // Hours on a date: { h: [open, close] | null, note, special }
+    function at(ds){
+      if (special[ds]) return { h: special[ds].h, note: special[ds].note, special: true };
+      return { h: weekly[dowOf(ds)] || null, note: null, special: false };
+    }
+    function fmt(m){ var h = Math.floor(m / 60) % 24, mm = m % 60; return (h % 12 || 12) + ':' + pad(mm) + ' ' + (h >= 12 ? 'PM' : 'AM'); }
+    function range(h){ return h ? fmt(h[0]) + ' – ' + fmt(h[1]) : 'Closed'; }
+    // Next open date on/after ds (up to 21 days): { ds, h, k }
+    function nextOpen(ds, minMins){
+      for (var k = 0; k < 21; k++) { var d = addDays(ds, k), a = at(d); if (a.h && (k > 0 || minMins == null || minMins < a.h[0])) return { ds: d, h: a.h, k: k }; }
+      return null;
+    }
+    // Weekly rows for display, Monday first, same hours grouped:
+    // [{ days: [1,2,3], label: 'Monday – Wednesday', h }]
+    function groups(){
+      var order = [1, 2, 3, 4, 5, 6, 0], out = [];
+      order.forEach(function(d){
+        var h = weekly[d] || null, last = out[out.length - 1];
+        var same = last && String(last.h) === String(h) && order.indexOf(last.days[last.days.length - 1]) === order.indexOf(d) - 1;
+        if (same) last.days.push(d); else out.push({ days: [d], h: h });
+      });
+      out.forEach(function(g){
+        var n = g.days.length;
+        g.label = n === 1 ? DAYS[g.days[0]] : n === 2 ? DAYS[g.days[0]] + ' & ' + DAYS[g.days[1]] : DAYS[g.days[0]] + ' – ' + DAYS[g.days[n - 1]];
+      });
+      return out;
+    }
+    // Special dates from today on: [{ ds, h, note }]
+    function upcoming(days){
+      var t = today(), end = addDays(t, days || 60);
+      return Object.keys(special).filter(function(d){ return d >= t && d <= end; }).sort().map(function(d){ return { ds: d, h: special[d].h, note: special[d].note }; });
+    }
+    function label(ds){ var p = ds.split('-'); return new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])).toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric' }); }
+    function onChange(fn){ subs.push(fn); if (loaded) { try { fn(); } catch (e) {} } }
+    function load(){
+      if (!window.sbShared) return;
+      sbShared.rpc('get_store_hours').then(function(res){
+        var d = res && !res.error ? res.data : null;
+        if (!d || !Array.isArray(d.weekly)) return;   // SQL not run yet: posted hours stay
+        var w = {};
+        d.weekly.forEach(function(r){ w[r.dow] = r.open == null || r.close == null ? null : [+r.open, +r.close]; });
+        var sp = {};
+        (d.special || []).forEach(function(r){ sp[String(r.day)] = { h: r.open == null || r.close == null ? null : [+r.open, +r.close], note: r.note || null }; });
+        weekly = w; special = sp; loaded = true;
+        subs.forEach(function(fn){ try { fn(); } catch (e) {} });
+      }, function(){});
+    }
+    load();
+    setInterval(load, 10 * 60000);
+    return { at: at, today: today, addDays: addDays, dowOf: dowOf, fmt: fmt, range: range, nextOpen: nextOpen, groups: groups,
+             upcoming: upcoming, label: label, onChange: onChange, DAYS: DAYS, weekly: function(){ return weekly; } };
+  })();
 
   // ---- PWA: install banner + service worker ----
   (function(){
@@ -3561,12 +3640,43 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       matched.forEach(function(m){ if (m.ok) { cents += m.cents; ids.push(m.voucher.id); } });
       return { all: all, matched: matched, cents: cents, ids: ids };
     }
+    // ---- First-order free roll (store-hours.sql, part B) ----
+    // Signed-in member's first order: the priciest Frankie Roll not already
+    // free from a points reward is free when what they pay for (before tax)
+    // is $15+. A once-per-customer code (WELCOME10) is taken off instead.
+    // The checkout works this out again on the server.
+    function firstRollSummary(rw, promo){
+      var R = window.rollinRewards, fr = R && R.firstRoll ? R.firstRoll() : null;
+      var out = { eligible: !!fr, cents: 0, title: '', need: 0, hasRoll: false, promoDropped: false, min: fr ? (+fr.min_cents || 1500) : 1500 };
+      if (!fr || !cart.length) return out;
+      var cat = fr.category || 'Frankie Rolls', usedByReward = {};
+      (rw.matched || []).forEach(function(m){ if (m.ok && m.voucher.match_category === cat) usedByReward.n = (usedByReward.n || 0) + 1; });
+      var units = [];
+      cart.forEach(function(c){
+        var it = itemsById[c.menu_item_id] || {};
+        if (it.category !== cat) return;
+        for (var k = 0; k < c.quantity; k++) units.push({ cents: Math.round((Number(c.unitPrice) - addOnPrice(c)) * 100), name: it.name });
+      });
+      units.sort(function(a, b){ return b.cents - a.cents; });
+      units = units.slice(usedByReward.n || 0);
+      if (!units.length) return out;
+      out.hasRoll = true;
+      var oncePer = !!(appliedPromo && appliedPromo.onePerCustomer);
+      var paysFor = Math.round(cartTotal() * 100) - (oncePer ? 0 : Math.round((promo || 0) * 100)) - (rw.cents || 0) - units[0].cents;
+      if (paysFor >= out.min) { out.cents = units[0].cents; out.title = units[0].name || 'Frankie Roll'; out.promoDropped = oncePer; }
+      else out.need = out.min - paysFor;
+      return out;
+    }
     function baseTotalsWithRewards(){
       var promo = appliedPromo ? appliedPromo.discountAmount : 0;
       var rw = rewardSummary();
-      var t = computeOrderTotals(cartTotal(), promo + rw.cents / 100, giftCardCartTotal());
+      var fr = firstRollSummary(rw, promo);
+      if (fr.promoDropped) promo = 0;
+      var t = computeOrderTotals(cartTotal(), promo + rw.cents / 100 + fr.cents / 100, giftCardCartTotal());
       var promoPart = Math.min(Math.round(promo * 100), Math.round(t.subtotal * 100));
-      t.reward = Math.round(t.discount * 100 - promoPart) / 100;
+      t.firstRoll = fr.cents / 100;
+      t.firstRollInfo = fr;
+      t.reward = Math.round(t.discount * 100 - promoPart - fr.cents) / 100;
       t.promo = promoPart / 100;
       t.rewardIds = t.reward > 0 ? rw.ids : [];
       t.points = Math.floor(Math.max(0, t.subtotal - t.discount)) * 10;
@@ -3620,6 +3730,20 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         discountRow.classList.add('hidden');
       }
       document.getElementById('rewardDiscountRow').classList.toggle('hidden', !(totals.reward > 0));
+      var frRow = document.getElementById('firstRollRow'), frNote = document.getElementById('firstRollNote'), fri = totals.firstRollInfo || {};
+      if (frRow) {
+        frRow.classList.toggle('hidden', !(totals.firstRoll > 0));
+        document.getElementById('cartCheckoutFirstRoll').textContent = '\u2212$' + (totals.firstRoll || 0).toFixed(2);
+      }
+      if (frNote) {
+        var nt = !fri.eligible || !cart.length ? ''
+          : totals.firstRoll > 0 ? '\ud83c\udf89 Your first order: your ' + escHtml(fri.title) + ' is on us!' + (fri.promoDropped ? ' (' + escHtml(appliedPromo.code) + ' can\u2019t be combined with it, so it\u2019s been taken off.)' : '')
+          : fri.hasRoll ? 'Add $' + (fri.need / 100).toFixed(2) + ' more to get your Frankie Roll free. This is your first order, and the free roll only works on it.'
+          : 'Your first order: add any Frankie Roll and it\u2019s free with $' + (fri.min / 100).toFixed(0) + '+ of other food. The free roll only works on your first order.';
+        frNote.innerHTML = nt;
+        frNote.classList.toggle('hidden', !nt);
+      }
+      if (fri.promoDropped) discountRow.classList.add('hidden');
       document.getElementById('cartCheckoutReward').textContent = '\u2212$' + (totals.reward || 0).toFixed(2);
       renderRewardChoices();
       // Rewards cover everything: no wallet sheet for $0, just place it.
@@ -3805,7 +3929,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
               refreshCheckoutBreakdown();
               return;
             }
-            appliedPromo = { code: result.code, discountAmount: result.discountAmount };
+            appliedPromo = { code: result.code, discountAmount: result.discountAmount, onePerCustomer: result.onePerCustomer === true };
             msgEl.textContent = 'Applied ' + result.code + ' \u2014 you saved $' + result.discountAmount.toFixed(2) + '!';
             msgEl.className = 'promo-msg success';
             refreshCheckoutBreakdown();
@@ -4513,14 +4637,12 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       return h12 + ':' + m + ' ' + ampm;
     }
 
-    // Weekdays the truck is closed (0 = Sunday ... 6 = Saturday): Thursday and Sunday.
-    var CLOSED_DAYS = [0, 4];
+    // Hours per date come from RollinHours (staff portal -> Store hours),
+    // special dates included.
+    function isClosedDate(ds){ return !window.RollinHours.at(ds).h; }
     function standardHoursFor(ds){
-      var d = new Date(ds + 'T00:00:00');
-      var day = d.getDay(); // 0=Sun, 1=Mon, ... 6=Sat
-      if (CLOSED_DAYS.indexOf(day) >= 0) return 'Closed';
-      if (day === 5 || day === 6) return '4:00 PM \u2013 9:30 PM';
-      return '4:00 PM \u2013 9:00 PM'; // Mon-Wed
+      var a = window.RollinHours.at(ds);
+      return window.RollinHours.range(a.h) + (a.special && a.note ? ' (' + a.note + ')' : '');
     }
 
     function eventsOnDay(ds){
@@ -4577,10 +4699,11 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         return;
       }
 
-      var wd = new Date(ds + 'T00:00:00').getDay();
-      if (CLOSED_DAYS.indexOf(wd) >= 0) {
-        detailEl.innerHTML = '<p class="cal-empty-hint">We\u2019re closed ' + ['Sundays', 'Mondays', 'Tuesdays', 'Wednesdays', 'Thursdays', 'Fridays', 'Saturdays'][wd] +
-          ' \u2014 back at our standard spot ' + (wd === 4 ? 'Friday' : 'Monday') + ', 4:00 PM.</p>';
+      if (isClosedDate(ds)) {
+        var RH = window.RollinHours, ca = RH.at(ds), nx = RH.nextOpen(RH.addDays(ds, 1));
+        var why = ca.special ? 'We\u2019re closed on ' + RH.label(ds) + (ca.note ? ' (' + escHtml(ca.note) + ')' : '') : 'We\u2019re closed ' + RH.DAYS[RH.dowOf(ds)] + 's';
+        detailEl.innerHTML = '<p class="cal-empty-hint">' + why +
+          (nx ? ' \u2014 back at our standard spot ' + (nx.k < 6 ? RH.DAYS[RH.dowOf(nx.ds)] : RH.label(nx.ds)) + ', ' + RH.fmt(nx.h[0]) + '.' : '.') + '</p>';
         return;
       }
 
@@ -4615,7 +4738,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         var ds = dateStr(viewYear, viewMonth, day);
         var isPast = ds < todayStr;
         var hasEvent = eventsOnDay(ds).length > 0;
-        var isMonday = CLOSED_DAYS.indexOf(new Date(ds + 'T00:00:00').getDay()) >= 0;   // a closed weekday
+        var isMonday = isClosedDate(ds);   // closed that date (weekly or special)
         var isAvailable = !isPast && !hasEvent && !isMonday;
         var classes = ['cal-day'];
         if (ds === todayStr) classes.push('today');
@@ -4658,6 +4781,8 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       renderGrid();
       renderDetail(todayStr);
     });
+    // Staff changed the hours (or they just loaded): repaint.
+    window.RollinHours.onChange(function(){ renderGrid(); if (selectedDateStr) renderDetail(selectedDateStr); });
   })();
 
   // ---- Member login: real email OTP verification ----
@@ -5048,42 +5173,73 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
 </script>
 
 <script>
-  // ---- Open-now status + today's hours (truck time: America/New_York) ----
+  // ---- Open-now status + hours card (truck time: America/New_York) ----
+  // From RollinHours (staff portal -> Store hours), special dates included.
   (function(){
-    // [openHour, openMin, closeHour, closeMin] by weekday, 0 = Sunday. Thursday and Sunday closed.
-    var HOURS = { 1:[16,0,21,0], 2:[16,0,21,0], 3:[16,0,21,0], 5:[16,0,21,30], 6:[16,0,21,30] };
-    var DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
-    function nowInOhio(){
+    var H = window.RollinHours;
+    if (!H) return;
+    function esc(v){ return String(v == null ? '' : v).replace(/[&<>"']/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+    function nowMins(){
       try {
-        var parts = new Intl.DateTimeFormat('en-US', { timeZone:'America/New_York', weekday:'short', hour:'numeric', minute:'numeric', hourCycle:'h23' }).formatToParts(new Date());
-        var o = {}; parts.forEach(function(p){ o[p.type] = p.value; });
-        return { day: ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].indexOf(o.weekday), mins: (parseInt(o.hour, 10) % 24) * 60 + parseInt(o.minute, 10) };
-      } catch(e) { var d = new Date(); return { day: d.getDay(), mins: d.getHours() * 60 + d.getMinutes() }; }
+        var o = {}; new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: 'numeric', hourCycle: 'h23' }).formatToParts(new Date()).forEach(function(p){ o[p.type] = p.value; });
+        return (parseInt(o.hour, 10) % 24) * 60 + parseInt(o.minute, 10);
+      } catch (e) { var d = new Date(); return d.getHours() * 60 + d.getMinutes(); }
     }
-    function fmt(h, m){ var ap = h >= 12 ? 'PM' : 'AM', h12 = h % 12 || 12; return h12 + (m ? ':' + String(m).padStart(2, '0') : '') + ' ' + ap; }
-    function render(){
-      var n = nowInOhio(), el = document.getElementById('openStatus');
-      document.querySelectorAll('.hours-row[data-days]').forEach(function(r){
-        r.classList.toggle('is-today', r.getAttribute('data-days').split(',').indexOf(String(n.day)) >= 0);
-      });
-      var h = HOURS[n.day], open = h ? h[0] * 60 + h[1] : 0, close = h ? h[2] * 60 + h[3] : 0;
-      // Drive Up (QR ordering from the car) only shows while we're open.
-      document.body.classList.toggle('truck-open', !!(h && n.day >= 0 && n.mins >= open && n.mins < close));
-      if (!el || n.day < 0) return;
-      el.classList.remove('is-open');
-      if (h && n.mins >= open && n.mins < close) {
-        el.classList.add('is-open');
-        el.textContent = 'Open now · until ' + fmt(h[2], h[3]);
-      } else if (h && n.mins < open) {
-        el.textContent = 'Opens today at ' + fmt(h[0], h[1]);
-      } else {
-        for (var k = 1; k <= 7; k++) {
-          var d = (n.day + k) % 7, nh = HOURS[d];
-          if (nh) { el.textContent = 'Closed now · opens ' + (k === 1 ? 'tomorrow' : DAYS[d]) + ' at ' + fmt(nh[0], nh[1]); break; }
+    // Hours card: weekly rows (grouped), then any special dates coming up.
+    function paintCard(){
+      var box = document.querySelector('.business-hours');
+      if (box) {
+        var html = '<div class="business-hours-label">Hours</div>' + H.groups().map(function(g){
+          return '<div class="hours-row" data-days="' + g.days.join(',') + '"><span>' + esc(g.label) + '</span>' +
+            (g.h ? '<span>' + esc(H.range(g.h)) + '</span>' : '<span class="hours-closed">Closed</span>') + '</div>';
+        }).join('');
+        var up = H.upcoming(45);
+        if (up.length) {
+          html += '<div class="business-hours-label hours-special-label">Holiday &amp; special hours</div>' + up.map(function(u){
+            var nt = u.note ? '<small>' + esc(u.note) + '</small>' : '';
+            return '<div class="hours-row hours-special" data-date="' + u.ds + '"><span>' + esc(H.label(u.ds)) + '</span>' +
+              (u.h ? '<span>' + esc(H.range(u.h)) + nt + '</span>' : '<span class="hours-closed">Closed' + nt + '</span>') + '</div>';
+          }).join('');
+        }
+        box.innerHTML = html;
+      }
+      // "Dinner Monday to Wednesday, Friday and Saturday at our standard spot..."
+      var lead = document.querySelector('#find .lead');
+      if (lead) {
+        var openGroups = H.groups().filter(function(g){ return g.h; }).map(function(g){ return g.days.length > 2 ? g.label.replace(' – ', ' to ') : g.label.replace(' & ', ' and '); });
+        if (openGroups.length) {
+          var lastG = openGroups[openGroups.length - 1];
+          var list = openGroups.length === 1 ? lastG : openGroups.slice(0, -1).join(', ') + (/ and /.test(lastG) ? ', ' : ' and ') + lastG;
+          lead.textContent = 'Dinner ' + list + ' at our standard spot in Akron, plus events around Northeast Ohio.';
         }
       }
     }
-    render();
+    function render(){
+      var el = document.getElementById('openStatus'), t = H.today(), a = H.at(t), n = nowMins(), dow = H.dowOf(t);
+      document.querySelectorAll('.business-hours .hours-row').forEach(function(r){
+        var dd = r.getAttribute('data-date'), days = r.getAttribute('data-days');
+        // A special date today highlights its own row instead of the weekday's.
+        r.classList.toggle('is-today', dd ? dd === t : (!a.special && days && days.split(',').indexOf(String(dow)) >= 0));
+      });
+      var h = a.h, isOpen = !!(h && n >= h[0] && n < h[1]);
+      // Drive Up (QR ordering from the car) only shows while we're open.
+      document.body.classList.toggle('truck-open', isOpen);
+      if (!el) return;
+      el.classList.toggle('is-open', isOpen);
+      var why = a.special && a.note ? ' (' + a.note + ')' : '';
+      if (isOpen) {
+        el.textContent = 'Open now · until ' + H.fmt(h[1]) + why;
+      } else if (h && n < h[0]) {
+        el.textContent = 'Opens today at ' + H.fmt(h[0]) + why;
+      } else {
+        var nx = H.nextOpen(H.addDays(t, 1));
+        var pre = !h && a.special ? 'Closed today' + why : 'Closed now';
+        el.textContent = nx ? pre + ' · opens ' + (nx.k === 0 ? 'tomorrow' : nx.k < 6 ? H.DAYS[H.dowOf(nx.ds)] : H.label(nx.ds)) + ' at ' + H.fmt(nx.h[0]) : pre;
+      }
+    }
+    function all(){ paintCard(); render(); }
+    all();
+    H.onChange(all);
     setInterval(render, 60000);
   })();
 
@@ -5183,7 +5339,9 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
   // function, which checks every order again on the server.
   (function(){
     var TZ = 'America/New_York';
-    var OPEN = { 1:[960,1260], 2:[960,1260], 3:[960,1260], 5:[960,1290], 6:[960,1290] }; // minutes after midnight; Thu + Sun closed
+    // Hours per date (weekly + special dates) from RollinHours: [open, close] minutes after midnight, or null = closed.
+    function pad2(n){ return (n < 10 ? '0' : '') + n; }
+    function hoursOn(y, m, d){ return window.RollinHours.at(y + '-' + pad2(m) + '-' + pad2(d)); }
     var SLOT = 15, BUFFER = 15, FIRST_AFTER_OPEN = 15, LEAD = 20, DAYS_AHEAD = 7;
     var WD = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -5210,22 +5368,23 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     function eventToday(){ var t = parts(new Date()).d; for (var i = 0; i < blocks.length; i++) if (blocks[i][2] && parts(new Date(blocks[i][0])).d === t) return blocks[i]; return null; }
     function pEsc(v){ return String(v == null ? '' : v).replace(/[&<>"']/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
     function eventMsg(b){ return 'We\u2019re at ' + pEsc(b[2]) + ' today, so we\u2019re not accepting online orders at the moment. Sorry for the inconvenience.'; }
-    function asapOpen(){ var n = parts(new Date()), h = OPEN[n.dow]; return !manual && !blockAt(Date.now()) && !!h && n.mins >= h[0] && n.mins < h[1] - BUFFER; }
+    function asapOpen(){ var n = parts(new Date()), h = hoursOn(n.y, n.m, n.d).h; return !manual && !blockAt(Date.now()) && !!h && n.mins >= h[0] && n.mins < h[1] - BUFFER; }
     function buildDays(){
       var now = new Date(), n = parts(now), earliest = now.getTime() + LEAD * 60000, out = [];
       for (var k = 0; k < DAYS_AHEAD; k++) {
-        var cal = new Date(Date.UTC(n.y, n.m - 1, n.d + k)), dow = cal.getUTCDay(), h = OPEN[dow];
+        var cal = new Date(Date.UTC(n.y, n.m - 1, n.d + k)), dow = cal.getUTCDay();
         var y = cal.getUTCFullYear(), m = cal.getUTCMonth() + 1, d = cal.getUTCDate(), slots = [];
-        if (!h) {   // closed that day: listed, but can't be picked
+        var ha = hoursOn(y, m, d), h = ha.h;
+        if (!h) {   // closed that day (weekly or a special date): listed, but can't be picked
           var cTxt = WD[dow] + ', ' + MON[m - 1] + ' ' + d;
-          out.push({ closed: true, today: k === 0, date: cTxt, label: (k === 0 ? 'Today' : k === 1 ? 'Tomorrow (' + cTxt + ')' : cTxt) + ' \u2014 Closed', slots: [] });
+          out.push({ closed: true, today: k === 0, date: cTxt, label: (k === 0 ? 'Today' : k === 1 ? 'Tomorrow (' + cTxt + ')' : cTxt) + ' \u2014 Closed' + (ha.note ? ' (' + ha.note + ')' : ''), slots: [] });
           continue;
         }
         for (var t = h[0] + FIRST_AFTER_OPEN; t <= h[1] - BUFFER; t += SLOT) {
           var when = ohioToDate(y, m, d, t);
           if (when.getTime() >= earliest && !blockAt(when.getTime())) slots.push({ iso: when.toISOString(), label: fmtMins(t) });
         }
-        var dateTxt = WD[dow] + ', ' + MON[m - 1] + ' ' + d;
+        var dateTxt = WD[dow] + ', ' + MON[m - 1] + ' ' + d + (ha.special && ha.note ? ' (' + ha.note + ' hours)' : '');
         if (slots.length) out.push({ today: k === 0, date: dateTxt, label: k === 0 ? 'Today' : k === 1 ? 'Tomorrow (' + dateTxt + ')' : dateTxt, slots: slots });
       }
       return out;
@@ -5266,7 +5425,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       var day = selectedDay(), t = timeSel.options[timeSel.selectedIndex];
       var show = needed && mode === 'later' && day && !day.today && t && t.value;
       otherDayEl.classList.toggle('hidden', !show);
-      if (show) otherDayEl.innerHTML = '<b>Not today:</b> this order is for pickup <b>' + day.date + ' at ' + t.text + '</b>.';
+      if (show) otherDayEl.innerHTML = '<b>Not today:</b> this order is for pickup <b>' + pEsc(day.date) + ' at ' + t.text + '</b>.';
     }
     function setMode(m){
       mode = m;
@@ -5286,7 +5445,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       // customer pick another day themselves.
       var todayLeft = !!(days[0] && days[0].today);
       if (!keepChoice) mustChoose = !open && !todayLeft;
-      var n = parts(new Date()), h = OPEN[n.dow], blk = blockAt(Date.now()), evDay = eventToday();
+      var n = parts(new Date()), ta = hoursOn(n.y, n.m, n.d), h = ta.h, blk = blockAt(Date.now()), evDay = eventToday();
       note.innerHTML = manual
         ? 'Online ordering is paused right now' + (manual.until ? ' until ' + clockOf(manual.until) : '') + '. Please check back soon.'
         : evDay
@@ -5298,10 +5457,12 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         : h && n.mins < h[0]
           ? 'We\u2019re not taking orders for today. You can order ahead: choose a day and time.'
           : h ? 'We\u2019ve stopped taking orders for today (we stop 15 minutes before closing). You can order ahead: choose a day and time.'
-              : 'We\u2019re closed on ' + ['Sundays', 'Mondays', 'Tuesdays', 'Wednesdays', 'Thursdays', 'Fridays', 'Saturdays'][n.dow] + '. You can order ahead: choose a day and time.';
+              : ta.special
+                ? 'We\u2019re closed today' + (ta.note ? ' (' + pEsc(ta.note) + ')' : '') + '. You can order ahead: choose a day and time.'
+                : 'We\u2019re closed on ' + ['Sundays', 'Mondays', 'Tuesdays', 'Wednesdays', 'Thursdays', 'Fridays', 'Saturdays'][n.dow] + '. You can order ahead: choose a day and time.';
       var off = mustChoose ? 1 : 0;
       daySel.innerHTML = (mustChoose ? '<option value="">Choose a day</option>' : '') + allDays.map(function(d){
-        return d.closed ? '<option value="" disabled>' + d.label + '</option>' : '<option value="' + d.idx + '">' + d.label + '</option>';
+        return d.closed ? '<option value="" disabled>' + pEsc(d.label) + '</option>' : '<option value="' + d.idx + '">' + pEsc(d.label) + '</option>';
       }).join('');
       if (!mustChoose && days.length) daySel.value = '0';
       fillTimes();
@@ -5317,6 +5478,8 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     laterBtn.addEventListener('click', function(){ setMode('later'); });
     daySel.addEventListener('change', fillTimes);
     timeSel.addEventListener('change', paintOtherDay);
+    // Staff changed the hours (or they just loaded): rebuild the days and times.
+    window.RollinHours.onChange(function(){ try { refresh(true); } catch (e) {} });
 
     function clockOf(ms){ var d = new Date(ms), p = parts(d), today = parts(new Date()); return (p.d !== today.d ? WD[p.dow] + ' ' : '') + fmtMins(p.mins); }
     function paintPauseBar(){
@@ -5423,6 +5586,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     function itemHint(v){
       return v.match_name ? (v.match_name + (v.match_variant ? ' (' + v.match_variant + ')' : '')) : ('any ' + v.match_category.replace(/s$/, ''));
     }
+    var firstRoll = null;
     window.rollinRewards = {
       token: function(){ return token; },
       signedIn: function(){ return !!(token && data); },
@@ -5431,11 +5595,13 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       match: matchRewards,
       itemHint: itemHint,
       reload: load,
+      // { eligible, min_cents, category } for the signed-in member, or null
+      firstRoll: function(){ return token && data && firstRoll && firstRoll.eligible ? firstRoll : null; },
       onChange: function(fn){ listeners.push(fn); }
     };
 
     sb.auth.getSession().then(function(r){ token = r && r.data && r.data.session ? r.data.session.access_token : null; });
-    sb.auth.onAuthStateChange(function(ev, session){ token = session ? session.access_token : null; if (!session) { data = null; notify(); } });
+    sb.auth.onAuthStateChange(function(ev, session){ token = session ? session.access_token : null; if (!session) { data = null; firstRoll = null; notify(); } });
 
     function notify(){ listeners.forEach(function(fn){ try { fn(); } catch(e){} }); }
 
@@ -5509,6 +5675,12 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         data = res.data;
         render();
         notify();
+        // First-order free roll (store-hours.sql): shown at checkout and in Deals.
+        sb.rpc('get_my_first_roll').then(function(r){
+          firstRoll = r && !r.error && r.data ? r.data : null;
+          notify();
+          if (window.rollinDealsRender) try { window.rollinDealsRender(); } catch (e) {}
+        }, function(){});
       });
     }
     function render(){
@@ -5623,9 +5795,10 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
           '<button type="button" class="rw-go" data-rw-deal="' + esc(d.name) + '">Add</button></div>');
       });
       cards.push('<div class="rw-item is-auto"><img src="item-chicken-shawarma.jpg" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">' +
-        '<div class="rw-item-body"><div class="rw-item-title">Welcome free roll</div>' +
-        '<div class="rw-item-sub">One free roll for joining. Show your Member ID at the window.</div></div>' +
-        '<button type="button" class="rw-go" disabled>Window</button></div>');
+        '<div class="rw-item-body"><div class="rw-item-title">Free roll on your first order</div>' +
+        '<div class="rw-item-sub">Add any Frankie Roll to your first order and it\u2019s free with $15+ of other food. Online, at drive-up or the kiosk. One per member.</div>' +
+        (window.rollinRewards && window.rollinRewards.firstRoll && window.rollinRewards.firstRoll() ? '<div class="rw-ready">&#10003; Ready on your first order</div>' : '') + '</div>' +
+        '<button type="button" class="rw-go" disabled>Auto</button></div>');
       box.innerHTML = cards.join('');
     }
     window.rollinDealsRender = renderDeals;
