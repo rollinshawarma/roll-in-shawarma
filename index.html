@@ -4982,8 +4982,10 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       else timeGreeting = 'Good night' + name + '!';
 
       var nudge;
-      if (day === 2 || day === 4) {
-        nudge = '\uD83C\uDF2E Today\u2019s the day \u2014 any taco is just $6.99.';
+      // Taco Tuesday only, by truck time (deals.js), same rule as the menu and checkout.
+      var tacoToday = window.RollinDeals && window.RollinDeals.tacoDay ? !!window.RollinDeals.tacoDay() : day === 2;
+      if (tacoToday) {
+        nudge = '\uD83C\uDF2E It\u2019s Taco Tuesday \u2014 any taco is just $6.99.';
       } else if (hour >= 11 && hour < 15) {
         nudge = '\uD83C\uDF7D\uFE0F Perfect timing for our Lunch Combo \u2014 $9.99 + tax, weekdays only.';
       } else if (hour >= 17 && hour < 21) {
@@ -6273,7 +6275,10 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       } else {
         var goal = d.goal || 900, have = Math.min(goal, d.lifetime || 0);
         $('ptTitle').textContent = fmt(d.to_go) + ' points to Platinum';
-        $('ptText').textContent = 'You\u2019ve earned ' + fmt(have) + ' of ' + fmt(goal) + '. Reach ' + fmt(goal) + ' and a secret menu unlocks for good.';
+        // "have" = all points ever earned, not the balance above: points spent on
+        // rewards still count toward Platinum (secret-menu.sql).
+        var bal = window.rollinRewards && window.rollinRewards.balance ? window.rollinRewards.balance() : null;
+        $('ptText').textContent = 'You\u2019ve earned ' + fmt(have) + ' points in total' + (bal != null && bal < have ? ' (including ' + fmt(have - bal) + ' you\u2019ve already spent on rewards)' : '') + '. Points you spend still count. Reach ' + fmt(goal) + ' all-time and a secret menu unlocks for good.';
         $('ptBar').style.width = Math.round(have / goal * 100) + '%';
         $('ptBarWrap').setAttribute('aria-valuenow', String(have));
       }
