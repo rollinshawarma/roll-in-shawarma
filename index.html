@@ -498,6 +498,12 @@
   .hours-row span:last-child{ white-space:nowrap; text-align:right; }
   .hours-closed{ color:var(--muted); }
   .hours-special-label{ margin-top:14px; }
+  .g-btn{ display:flex; align-items:center; justify-content:center; gap:10px; width:100%; min-height:48px; padding:12px 18px; border-radius:999px; border:1px solid #dadce0; background:#fff; color:#1f1f1f; font-weight:600; font-size:15px; font-family:inherit; cursor:pointer; }
+  .g-btn:hover{ background:#f8f9fa; }
+  .g-btn:disabled{ opacity:.6; cursor:wait; }
+  .g-btn .g-logo{ width:20px; height:20px; flex:none; }
+  .or-line{ display:flex; align-items:center; gap:10px; margin:12px 0; font-size:12.5px; color:#8a8a8e; }
+  .or-line::before, .or-line::after{ content:''; flex:1; height:1px; background:currentColor; opacity:.35; }
   .first-roll-note{ margin:10px 24px 4px; padding:10px 12px; border-radius:12px; background:#fff4e5; color:#7a4100; font-size:14px; line-height:1.4; }
   .hours-special small{ display:block; font-size:13px; color:var(--muted); font-weight:400; }
   .find-note{ font-size:14px; color:var(--muted); margin-top:18px; }
@@ -1471,7 +1477,9 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
 
         <div id="authStart">
           <h3>Join or sign in</h3>
-          <p class="auth-hint">No password to remember. We email you a one-time code.</p>
+          <p class="auth-hint">No password to remember. Use your Google account, or we email you a one-time code.</p>
+          <button type="button" class="g-btn" id="googleAuthBtn"><svg class="g-logo" viewBox="0 0 48 48" aria-hidden="true"><path fill="#EA4335" d="M24 9.5c3.54 0 6.71 1.22 9.21 3.6l6.85-6.85C35.9 2.38 30.47 0 24 0 14.62 0 6.51 5.38 2.56 13.22l7.98 6.19C12.43 13.72 17.74 9.5 24 9.5z"/><path fill="#4285F4" d="M46.98 24.55c0-1.57-.15-3.09-.38-4.55H24v9.02h12.94c-.58 2.96-2.26 5.48-4.78 7.18l7.73 6c4.51-4.18 7.09-10.36 7.09-17.65z"/><path fill="#FBBC05" d="M10.53 28.59c-.48-1.45-.76-2.99-.76-4.59s.27-3.14.76-4.59l-7.98-6.19C.92 16.46 0 20.12 0 24c0 3.88.92 7.54 2.56 10.78l7.97-6.19z"/><path fill="#34A853" d="M24 48c6.48 0 11.93-2.13 15.89-5.81l-7.73-6c-2.15 1.45-4.92 2.3-8.16 2.3-6.26 0-11.57-4.22-13.47-9.91l-7.98 6.19C6.51 42.62 14.62 48 24 48z"/></svg><span>Continue with Google</span></button>
+          <div class="or-line">or</div>
           <button type="button" class="btn btn-accent rw-wide" id="startAuthBtn">Continue with email</button>
         </div>
 
@@ -1522,7 +1530,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       </div>
 
       <ol class="rw-how">
-        <li><b>Join free</b><span>Email only, takes a minute.</span></li>
+        <li><b>Join free</b><span>Google or email, takes a minute.</span></li>
         <li><b>Order &amp; earn</b><span>Online, kiosk or drive-up: sign in (or check in with your Member ID) and earn from anywhere.</span></li>
         <li><b>Redeem</b><span>Pick a reward, add the item, and it&rsquo;s free at checkout.</span></li>
       </ol>
@@ -4811,6 +4819,36 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       step.classList.remove('hidden');
     }
 
+    // ---- Sign in with Google (Supabase -> Authentication -> Providers -> Google) ----
+    // Goes to Google and comes back to this page signed in. Same email as an
+    // existing member = same account, same points. New members finish the
+    // last step (name + birthday) like email sign-ups.
+    document.getElementById('googleAuthBtn').addEventListener('click', function(){
+      var btn = this;
+      btn.disabled = true;
+      clearMsg();
+      try { sessionStorage.setItem('rollinAuthReturn', 'deals'); } catch (e) {}
+      sb.auth.signInWithOAuth({
+        provider: 'google',
+        options: { redirectTo: window.location.origin + window.location.pathname, queryParams: { prompt: 'select_account' } }
+      }).then(function(res){
+        if (res && res.error) {
+          btn.disabled = false;
+          showMsg(/provider is not enabled|Unsupported provider/i.test(res.error.message || '') ? 'Google sign-in isn’t switched on yet. Please use email for now.' : res.error.message, 'error');
+        }
+      }, function(){ btn.disabled = false; showMsg('Couldn’t reach Google. Please try again or use email.', 'error'); });
+    });
+    // Back from Google with an error (cancelled, or not set up yet).
+    (function(){
+      var q = new URLSearchParams(location.search), h = new URLSearchParams(location.hash.replace(/^#/, ''));
+      var err = q.get('error_description') || h.get('error_description');
+      if (!err) return;
+      var cancelled = /denied|cancel/i.test(err + ' ' + (q.get('error') || h.get('error') || ''));
+      showMsg(cancelled ? 'Google sign-in was cancelled. You can try again or use email.' : 'Google sign-in didn’t work: ' + err.replace(/\+/g, ' '), 'error');
+      try { history.replaceState(null, '', location.pathname + '#deals'); } catch (e) {}
+      setTimeout(function(){ var d = document.getElementById('deals'); if (d) d.scrollIntoView(); }, 300);
+    })();
+
     document.getElementById('startAuthBtn').addEventListener('click', function(){
       clearMsg();
       showStep(emailForm);
@@ -5145,10 +5183,21 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       clearMsg();
       sb.rpc('get_my_member_profile').then(function(res){
         if (res.error) { showMsg(res.error.message, 'error'); return; }
+        var back = false; try { back = sessionStorage.getItem('rollinAuthReturn') === 'deals'; sessionStorage.removeItem('rollinAuthReturn'); } catch (e) {}
         if (res.data && res.data.first_name) {
           finishLogin(res.data);
         } else {
           showStep(profileForm);
+          // Signed in with Google: start with the name on the Google account.
+          sb.auth.getSession().then(function(r){
+            var md = (r && r.data && r.data.session && r.data.session.user && r.data.session.user.user_metadata) || {};
+            var full = String(md.full_name || md.name || '').trim();
+            var first = md.given_name || full.split(' ')[0] || '', last = md.family_name || (full.indexOf(' ') > 0 ? full.slice(full.indexOf(' ') + 1) : '');
+            var fn = document.getElementById('profileFirstName'), ln = document.getElementById('profileLastName');
+            if (fn && !fn.value) fn.value = String(first).slice(0, 60);
+            if (ln && !ln.value) ln.value = String(last).slice(0, 60);
+          });
+          if (back) setTimeout(function(){ var d = document.getElementById('deals'); if (d) d.scrollIntoView({ behavior: 'smooth' }); }, 300);
         }
       });
     }
