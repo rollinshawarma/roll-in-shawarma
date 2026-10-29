@@ -615,6 +615,49 @@
   .ft-title{ font-size:18px; font-weight:700; }
   .ft-sub{ font-size:14px; color:#6e6e73; margin-top:2px; }
   .ft-card.is-on{ box-shadow:0 0 0 2px #30b35a inset; }
+  /* Store hours */
+  .sh-week{ display:grid; gap:2px; }
+  .sh-day{ display:grid; grid-template-columns:120px 64px 1fr 1fr; gap:12px; align-items:center; padding:10px 0; border-bottom:1px solid var(--line); }
+  .sh-day:last-child{ border-bottom:0; }
+  .sh-day .sh-name{ font-weight:700; }
+  .sh-day input[type=time]{ margin:0; }
+  .sh-day.is-closed input[type=time]{ opacity:.35; pointer-events:none; }
+  .sh-day .sh-closed-txt{ grid-column:3 / span 2; color:var(--muted); font-size:14px; }
+  .sh-day.is-today .sh-name::after{ content:"Today"; margin-left:8px; font-size:10.5px; font-weight:800; text-transform:uppercase; letter-spacing:.06em; color:#fff; background:var(--gold); padding:2px 7px; border-radius:999px; }
+  .sh-actions{ margin-top:16px; }
+  .sh-save{ max-width:320px; }
+  .sh-msg{ margin-top:10px; font-size:13.5px; min-height:18px; }
+  .sh-msg.bad{ color:var(--red); }
+  .sh-msg.ok{ color:#1f8a46; }
+  .sh-updated{ margin:6px 0 0; }
+  .sh-form{ display:grid; grid-template-columns:minmax(150px, 190px) auto 1fr; gap:14px; align-items:end; }
+  .sh-f input{ margin-bottom:0; }
+  .sh-f-closed{ display:flex; flex-direction:column; align-items:flex-start; }
+  .sh-times{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
+  .sh-f-note{ grid-column:1 / -1; }
+  .sh-form.has-times{ grid-template-columns:minmax(150px, 190px) auto 1fr; }
+  .sh-quick{ display:flex; flex-wrap:wrap; gap:8px; margin:14px 0; }
+  .sh-quick button{ padding:7px 12px; font-size:12.5px; background:var(--panel-2); border:1px solid var(--line); color:var(--cream); }
+  .sh-sp{ display:flex; justify-content:space-between; align-items:center; gap:12px; padding:12px 0; border-top:1px solid var(--line); }
+  .sh-sp:first-child{ margin-top:16px; }
+  .sh-sp b{ display:block; }
+  .sh-sp small{ color:var(--muted); }
+  .sh-sp .sh-del{ padding:8px 14px; font-size:13px; background:transparent; border:1px solid var(--line); color:var(--red); }
+  .sh-preview{ display:grid; grid-template-columns:repeat(auto-fill, minmax(150px, 1fr)); gap:10px; }
+  .sh-pv{ border:1px solid var(--line); border-radius:12px; padding:10px 12px; font-size:13.5px; }
+  .sh-pv b{ display:block; margin-bottom:2px; }
+  .sh-pv.closed{ background:var(--panel-2); color:var(--muted); }
+  .sh-pv.special{ border-color:var(--gold); }
+  .sh-pv small{ display:block; color:var(--gold); font-weight:600; }
+  .sh-alert{ border-color:var(--red); }
+  .sh-alert-title{ font-weight:800; color:var(--red); margin-bottom:6px; }
+  .sh-out{ padding:8px 0; border-top:1px solid var(--line); font-size:14px; }
+  @media (max-width:640px){
+    .sh-day{ grid-template-columns:1fr 64px; }
+    .sh-day input[type=time], .sh-day .sh-closed-txt{ grid-column:auto; }
+    .sh-day .sh-closed-txt{ grid-column:1 / -1; }
+    .sh-form{ grid-template-columns:1fr; }
+  }
   .ft-msg{ font-size:14px; margin-top:8px; min-height:18px; color:#1f8a4c; }
   .ft-msg.bad{ color:var(--red); }
   .ft-list{ margin:0; padding-left:18px; display:grid; gap:8px; font-size:15px; line-height:1.45; }
@@ -781,6 +824,7 @@
       <button class="nav-link hidden" data-tab="cashorders" id="tabCashOrdersBtn"><svg class="icon"><use href="#ic-dollar"/></svg>Cash log</button>
 
       <div class="nav-section-label">Website</div>
+      <button class="nav-link hidden" data-tab="storehours" id="tabStoreHoursBtn"><svg class="icon"><use href="#ic-clock"/></svg>Store hours<span class="nav-badge hidden" id="navHoursBadge"></span></button>
       <button class="nav-link hidden" data-tab="banner" id="tabBannerBtn"><svg class="icon"><use href="#ic-megaphone"/></svg>Banner</button>
       <button class="nav-link hidden" data-tab="promotions" id="tabPromotionsBtn"><svg class="icon"><use href="#ic-tag"/></svg>Promo codes</button>
       <button class="nav-link hidden" data-tab="events" id="tabEventsBtn"><svg class="icon"><use href="#ic-calendar"/></svg>Events</button>
@@ -1323,7 +1367,7 @@
         <div class="nd-runs-head"><span></span><span><input type="time" id="ndRun1" value="18:30" aria-label="First run time"></span><span><input type="time" id="ndRun2" value="20:30" aria-label="Second run time"></span></div>
         <div id="ndDays"></div>
       </div>
-      <p class="hint">Weekdays get the first run; weekends get both. Untick a day to skip it. (The truck is normally closed Thursdays and Sundays.)</p>
+      <p class="hint">Weekdays get the first run; weekends get both. Untick a day to skip it. (No runs go out on days the truck is closed in <b>Store hours</b>, including holidays.)</p>
       <div class="ce-trio">
         <div><label for="ndCutoff">Last orders</label><select id="ndCutoff"><option value="30">30 min before</option><option value="45" selected>45 min before</option><option value="60">1 hour before</option><option value="90">90 min before</option><option value="120">2 hours before</option></select></div>
         <div><label for="ndLead">Kitchen sees tickets</label><select id="ndLead"><option value="30">30 min before</option><option value="45" selected>45 min before</option><option value="60">1 hour before</option><option value="90">90 min before</option></select></div>
@@ -1378,6 +1422,54 @@
   </div>
 
   <!-- NEW FEATURES: SECRET MENU -->
+  <!-- STORE HOURS (store-hours.sql) -->
+  <div class="tab-panel hidden" id="panelStorehours">
+    <div class="page-head">
+      <h2>Store hours</h2>
+      <p class="hint">One place for your hours. The website (Open now, hours card, calendar, pickup times), drive-up QR ordering, the card checkout, the kitchen&rsquo;s &ldquo;pause for the rest of today&rdquo;, Next Door delivery runs and the Apple Wallet card all follow what you set here. Online orders stop 15 minutes before closing; the first pickup time is 15 minutes after opening. The kiosk isn&rsquo;t tied to hours (it runs at events).</p>
+    </div>
+
+    <div class="card sh-alert hidden" id="shOutside">
+      <div class="sh-alert-title">&#9888; Paid orders booked outside the new hours</div>
+      <p class="hint">These customers already paid for a pickup time that&rsquo;s now closed. Call or text them, or refund from the Square Dashboard.</p>
+      <div id="shOutsideList"></div>
+    </div>
+
+    <div class="section-title">Every week</div>
+    <div class="card">
+      <div class="sh-week" id="shWeek"><p class="hint">Loading&hellip;</p></div>
+      <div class="sh-actions">
+        <button type="button" class="btn-primary sh-save" id="shSaveWeek" disabled>Save weekly hours</button>
+      </div>
+      <div class="sh-msg" id="shWeekMsg" role="status"></div>
+      <p class="hint sh-updated" id="shWeekUpdated"></p>
+    </div>
+
+    <div class="section-title">Holidays &amp; special dates</div>
+    <div class="card">
+      <p class="hint">A special date always wins over the weekly hours: close for a holiday, or open different hours for one day. Customers see the note (&ldquo;Thanksgiving&rdquo;).</p>
+      <div class="sh-form">
+        <div class="sh-f"><label for="shDay">Date</label><input type="date" id="shDay"></div>
+        <div class="sh-f sh-f-closed">
+          <label>Closed all day</label>
+          <button type="button" class="switch" role="switch" aria-checked="true" aria-label="Closed all day" id="shClosed"></button>
+        </div>
+        <div class="sh-f sh-times hidden" id="shTimes">
+          <div><label for="shOpen">Open</label><input type="time" id="shOpen" step="300" value="16:00"></div>
+          <div><label for="shClose">Close</label><input type="time" id="shClose" step="300" value="21:00"></div>
+        </div>
+        <div class="sh-f sh-f-note"><label for="shNote">Note for customers (optional)</label><input type="text" id="shNote" maxlength="60" placeholder="Thanksgiving"></div>
+      </div>
+      <div class="sh-quick" id="shQuick"></div>
+      <button type="button" class="btn-primary sh-save" id="shAddSpecial" disabled>Save this date</button>
+      <div class="sh-msg" id="shSpecialMsg" role="status"></div>
+      <div id="shSpecialList"></div>
+    </div>
+
+    <div class="section-title">The next 14 days, as customers see them</div>
+    <div class="card"><div id="shPreview" class="sh-preview"></div></div>
+  </div>
+
   <div class="tab-panel hidden" id="panelFeatures">
     <div class="page-head">
       <h2>Secret menu <span class="ft-plat">&#10022; Platinum</span></h2>
@@ -2080,6 +2172,10 @@
         document.getElementById('tabAdsBtn').classList.remove('hidden');
         document.getElementById('tabStopsBtn').classList.remove('hidden');
         document.getElementById('tabSalesBtn').classList.remove('hidden');
+        document.getElementById('tabStoreHoursBtn').classList.remove('hidden');
+        document.querySelector('.nav-link[data-tab="storehours"]').addEventListener('click', shLoad);
+        shLoad();
+        if (location.hash === '#hours') setTimeout(function(){ showTab('storehours'); shLoad(); }, 0);
         document.getElementById('tabFeaturesBtn').classList.remove('hidden');
         document.querySelector('.nav-link[data-tab="features"]').addEventListener('click', ftLoad);
         ftLoad();
@@ -2346,6 +2442,197 @@
       ftPaint(res.data);
       ftSay(turnOn ? 'Secret menu is live. Pages pick it up on their next load.' : 'Secret menu switched off everywhere.');
     }, function(){ ftBusy = false; ftSay('Couldn\u2019t reach the server.', true); ftPaint(ftState); });
+  });
+
+  // ---------------- STORE HOURS (store-hours.sql) ----------------
+  // Weekly hours + special dates. Managers and admins only (checked again
+  // in the database). Times are truck time (America/New_York).
+  var shState = null, shWeekDraft = null, shBusy = false;
+  var SH_DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
+  var SH_ORDER = [1, 2, 3, 4, 5, 6, 0];
+  function shPad(n){ return (n < 10 ? '0' : '') + n; }
+  function shToTime(m){ if (m == null) return ''; m = m % 1440; return shPad(Math.floor(m / 60)) + ':' + shPad(m % 60); }
+  function shFromTime(v, isClose){
+    var x = /^(\d{1,2}):(\d{2})/.exec(v || ''); if (!x) return null;
+    var m = (+x[1]) * 60 + (+x[2]);
+    return isClose && m === 0 ? 1440 : m;   // a 12:00 AM close = midnight
+  }
+  function shFmt(m){ var h = Math.floor(m / 60) % 24, mm = m % 60; return (h % 12 || 12) + ':' + shPad(mm) + ' ' + (h >= 12 ? 'PM' : 'AM'); }
+  function shRange(o, c){ return o == null ? 'Closed' : shFmt(o) + ' – ' + shFmt(c); }
+  function shDateLabel(ds){ var p = String(ds).split('-'); return new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])).toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }); }
+  function shSay(id, t, kind){ var m = document.getElementById(id); m.textContent = t || ''; m.className = 'sh-msg' + (kind ? ' ' + kind : ''); }
+  function shTodayStr(){
+    var o = {}; new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', year: 'numeric', month: 'numeric', day: 'numeric' }).formatToParts(new Date()).forEach(function(x){ o[x.type] = x.value; });
+    return o.year + '-' + shPad(+o.month) + '-' + shPad(+o.day);
+  }
+  function shWeekRow(dow){
+    var w = shWeekDraft[dow], closed = w.open == null, today = new Date(shTodayStr() + 'T12:00:00').getDay() === dow;
+    var edit = shState && shState.can_edit;
+    return '<div class="sh-day' + (closed ? ' is-closed' : '') + (today ? ' is-today' : '') + '" data-dow="' + dow + '">' +
+      '<span class="sh-name">' + SH_DAYS[dow] + '</span>' +
+      '<button type="button" class="switch" role="switch" aria-checked="' + (!closed) + '" aria-label="Open on ' + SH_DAYS[dow] + '" data-sh-open="' + dow + '"' + (edit ? '' : ' disabled') + '></button>' +
+      (closed ? '<span class="sh-closed-txt">Closed</span>'
+        : '<input type="time" step="300" aria-label="' + SH_DAYS[dow] + ' opens" data-sh-t="open" data-dow="' + dow + '" value="' + shToTime(w.open) + '"' + (edit ? '' : ' disabled') + '>' +
+          '<input type="time" step="300" aria-label="' + SH_DAYS[dow] + ' closes" data-sh-t="close" data-dow="' + dow + '" value="' + shToTime(w.close) + '"' + (edit ? '' : ' disabled') + '>') +
+      '</div>';
+  }
+  function shWeekDirty(){
+    if (!shState) return false;
+    return (shState.weekly || []).some(function(r){ var d = shWeekDraft[r.dow]; return d.open !== r.open || d.close !== r.close; });
+  }
+  function shPaintWeek(){
+    document.getElementById('shWeek').innerHTML = SH_ORDER.map(shWeekRow).join('');
+    document.getElementById('shSaveWeek').disabled = shBusy || !shState || !shState.can_edit || !shWeekDirty();
+  }
+  function shPaint(d){
+    shState = d || {};
+    shWeekDraft = {};
+    (shState.weekly || []).forEach(function(r){ shWeekDraft[r.dow] = { open: r.open == null ? null : +r.open, close: r.close == null ? null : +r.close, was: r.open == null ? null : [+r.open, +r.close] }; });
+    shPaintWeek();
+    var wu = shState.weekly_updated || {};
+    document.getElementById('shWeekUpdated').textContent = wu.by ? 'Last changed ' + new Date(wu.at).toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + ' by ' + wu.by + '.' : '';
+    // Special dates
+    var sp = shState.special_all || [];
+    document.getElementById('shSpecialList').innerHTML = sp.length ? sp.map(function(x){
+      return '<div class="sh-sp"><div><b>' + esc(shDateLabel(x.day)) + ' · ' + esc(shRange(x.open, x.close)) + '</b>' +
+        '<small>' + (x.note ? esc(x.note) + ' · ' : '') + (x.by ? 'set by ' + esc(x.by) : '') + '</small></div>' +
+        (shState.can_edit ? '<button type="button" class="sh-del" data-sh-del="' + esc(x.day) + '">Remove</button>' : '') + '</div>';
+    }).join('') : '<p class="hint" style="margin:16px 0 0;">No special dates coming up.</p>';
+    document.getElementById('shAddSpecial').disabled = shBusy || !shState.can_edit;
+    // Preview
+    document.getElementById('shPreview').innerHTML = (shState.days || []).map(function(x, i){
+      var closed = x.open == null;
+      return '<div class="sh-pv' + (closed ? ' closed' : '') + (x.special ? ' special' : '') + '"><b>' + (i === 0 ? 'Today' : i === 1 ? 'Tomorrow' : esc(shDateLabel(x.day).replace(/, \d{4}$/, ''))) + '</b>' +
+        esc(shRange(x.open, x.close)) + (x.special ? '<small>' + esc(x.note || 'Special date') + '</small>' : '') + '</div>';
+    }).join('');
+    // Paid orders now outside the hours
+    var out = shState.outside || [];
+    document.getElementById('shOutside').classList.toggle('hidden', !out.length);
+    document.getElementById('shOutsideList').innerHTML = out.map(function(o){
+      return '<div class="sh-out"><b>' + esc(o.ref) + '</b> · ' + esc(o.label) + ' · ' + esc(o.name || 'Guest') + (o.phone ? ' · <a href="tel:' + esc(o.phone) + '">' + esc(o.phone) + '</a>' : '') + '</div>';
+    }).join('');
+    var badge = document.getElementById('navHoursBadge');
+    badge.textContent = out.length ? String(out.length) : '';
+    badge.classList.toggle('hidden', !out.length);
+    // Quick picks: the next few US holidays the truck may close for
+    shPaintQuick();
+  }
+  function shLoad(){
+    sb.rpc('staff_get_store_hours').then(function(res){
+      if (res.error) {
+        document.getElementById('shWeek').innerHTML = '<p class="hint">' + (/does not exist|could not find/i.test(res.error.message || '') ? 'Run store-hours.sql in Supabase first.' : esc(res.error.message || 'Couldn’t load the hours.')) + '</p>';
+        return;
+      }
+      shPaint(res.data);
+    }, function(){ document.getElementById('shWeek').innerHTML = '<p class="hint">Couldn’t reach the server.</p>'; });
+  }
+  document.getElementById('shWeek').addEventListener('click', function(e){
+    var b = e.target.closest('[data-sh-open]'); if (!b || b.disabled) return;
+    var dow = +b.getAttribute('data-sh-open'), w = shWeekDraft[dow];
+    if (w.open == null) { var back = w.was || [960, 1260]; w.open = back[0]; w.close = back[1]; }
+    else { w.was = [w.open, w.close]; w.open = null; w.close = null; }
+    shPaintWeek(); shSay('shWeekMsg', '');
+  });
+  document.getElementById('shWeek').addEventListener('change', function(e){
+    var t = e.target; if (!t.matches('input[type=time]')) return;
+    var dow = +t.getAttribute('data-dow'), which = t.getAttribute('data-sh-t'), v = shFromTime(t.value, which === 'close');
+    if (v == null) return;
+    shWeekDraft[dow][which] = v;
+    document.getElementById('shSaveWeek').disabled = shBusy || !shWeekDirty();
+    shSay('shWeekMsg', '');
+  });
+  document.getElementById('shSaveWeek').addEventListener('click', function(){
+    if (shBusy || !shState) return;
+    var changes = [], problems = [];
+    (shState.weekly || []).forEach(function(r){
+      var d = shWeekDraft[r.dow];
+      if (d.open === r.open && d.close === r.close) return;
+      if (d.open != null && (d.open % 5 || d.close % 5)) problems.push(SH_DAYS[r.dow] + ': use 5-minute steps');
+      else if (d.open != null && d.close < d.open + 30) problems.push(SH_DAYS[r.dow] + ': closing must be at least 30 minutes after opening');
+      changes.push({ dow: r.dow, open: d.open, close: d.close });
+    });
+    if (problems.length) { shSay('shWeekMsg', problems.join('. ') + '.', 'bad'); return; }
+    if (!changes.length) return;
+    var summary = changes.map(function(c){ return SH_DAYS[c.dow] + ': ' + shRange(c.open, c.close); }).join('\n');
+    if (!confirm('Save these weekly hours?\n\n' + summary + '\n\nThe website, drive-up and checkout use them right away.')) return;
+    shBusy = true; this.disabled = true; shSay('shWeekMsg', 'Saving…');
+    sb.rpc('staff_set_weekly_hours', { p_week: changes }).then(function(res){
+      shBusy = false;
+      if (res.error) { shSay('shWeekMsg', res.error.message || 'Couldn’t save.', 'bad'); shPaintWeek(); return; }
+      shPaint(res.data);
+      shSay('shWeekMsg', 'Saved. Customers see the new hours on their next page load.' + ((res.data.outside || []).length ? ' Check the paid orders listed above.' : ''), 'ok');
+    }, function(){ shBusy = false; shSay('shWeekMsg', 'Couldn’t reach the server.', 'bad'); shPaintWeek(); });
+  });
+  // Special date form
+  document.getElementById('shClosed').addEventListener('click', function(){
+    var on = this.getAttribute('aria-checked') !== 'true';
+    this.setAttribute('aria-checked', on ? 'true' : 'false');
+    document.getElementById('shTimes').classList.toggle('hidden', on);
+  });
+  function shSetForm(ds, note){
+    document.getElementById('shDay').value = ds;
+    document.getElementById('shNote').value = note || '';
+    document.getElementById('shClosed').setAttribute('aria-checked', 'true');
+    document.getElementById('shTimes').classList.add('hidden');
+    shSay('shSpecialMsg', '');
+  }
+  // US holidays in the next ~13 months, for one-tap "closed" dates.
+  function shHolidays(){
+    var t = shTodayStr(), y0 = +t.slice(0, 4), out = [];
+    function nth(y, m, dow, n){ var d = new Date(Date.UTC(y, m, 1)); var add = (dow - d.getUTCDay() + 7) % 7 + (n - 1) * 7; return new Date(Date.UTC(y, m, 1 + add)); }
+    function last(y, m, dow){ var d = new Date(Date.UTC(y, m + 1, 0)); return new Date(Date.UTC(y, m, d.getUTCDate() - ((d.getUTCDay() - dow + 7) % 7))); }
+    function ds(d){ return d.getUTCFullYear() + '-' + shPad(d.getUTCMonth() + 1) + '-' + shPad(d.getUTCDate()); }
+    [y0, y0 + 1].forEach(function(y){
+      out.push([ds(new Date(Date.UTC(y, 0, 1))), 'New Year’s Day'], [ds(last(y, 4, 1)), 'Memorial Day'], [ds(new Date(Date.UTC(y, 6, 4))), 'Fourth of July'],
+        [ds(nth(y, 8, 1, 1)), 'Labor Day'], [ds(nth(y, 10, 4, 4)), 'Thanksgiving'], [ds(new Date(Date.UTC(y, 11, 24))), 'Christmas Eve'],
+        [ds(new Date(Date.UTC(y, 11, 25))), 'Christmas'], [ds(new Date(Date.UTC(y, 11, 31))), 'New Year’s Eve']);
+    });
+    var have = {}; ((shState && shState.special_all) || []).forEach(function(x){ have[x.day] = 1; });
+    return out.filter(function(h){ return h[0] >= t && !have[h[0]]; }).sort(function(a, b){ return a[0] < b[0] ? -1 : 1; }).slice(0, 5);
+  }
+  function shPaintQuick(){
+    var q = shState && shState.can_edit ? shHolidays() : [];
+    document.getElementById('shQuick').innerHTML = q.length ? q.map(function(h){
+      return '<button type="button" data-sh-quick="' + h[0] + '" data-note="' + esc(h[1]) + '">' + esc(h[1]) + ' · ' + esc(shDateLabel(h[0]).replace(/, \d{4}$/, '')) + '</button>';
+    }).join('') : '';
+  }
+  document.getElementById('shQuick').addEventListener('click', function(e){
+    var b = e.target.closest('[data-sh-quick]'); if (!b) return;
+    shSetForm(b.getAttribute('data-sh-quick'), b.getAttribute('data-note'));
+  });
+  document.getElementById('shAddSpecial').addEventListener('click', function(){
+    if (shBusy) return;
+    var day = document.getElementById('shDay').value, closed = document.getElementById('shClosed').getAttribute('aria-checked') === 'true';
+    var note = document.getElementById('shNote').value.trim();
+    var o = closed ? null : shFromTime(document.getElementById('shOpen').value, false);
+    var c = closed ? null : shFromTime(document.getElementById('shClose').value, true);
+    if (!day) { shSay('shSpecialMsg', 'Pick a date.', 'bad'); return; }
+    if (day < shTodayStr()) { shSay('shSpecialMsg', 'That date has passed.', 'bad'); return; }
+    if (!closed && (o == null || c == null)) { shSay('shSpecialMsg', 'Set the open and close times.', 'bad'); return; }
+    if (!closed && c < o + 30) { shSay('shSpecialMsg', 'Closing must be at least 30 minutes after opening.', 'bad'); return; }
+    if (/[<>]/.test(note)) { shSay('shSpecialMsg', 'The note can’t contain < or >.', 'bad'); return; }
+    var what = shDateLabel(day) + ': ' + (closed ? 'Closed all day' : shRange(o, c)) + (note ? ' (' + note + ')' : '');
+    if (!confirm('Save this special date?\n\n' + what + '\n\nOnline ordering and drive-up follow it right away.')) return;
+    shBusy = true; this.disabled = true; shSay('shSpecialMsg', 'Saving…');
+    sb.rpc('staff_set_special_day', { p_day: day, p_open: o, p_close: c, p_note: note || null }).then(function(res){
+      shBusy = false;
+      if (res.error) { shSay('shSpecialMsg', res.error.message || 'Couldn’t save.', 'bad'); document.getElementById('shAddSpecial').disabled = false; return; }
+      shPaint(res.data);
+      shSetForm('', '');
+      shSay('shSpecialMsg', 'Saved ' + what + '.' + ((res.data.outside || []).length ? ' Check the paid orders listed above.' : ''), 'ok');
+    }, function(){ shBusy = false; document.getElementById('shAddSpecial').disabled = false; shSay('shSpecialMsg', 'Couldn’t reach the server.', 'bad'); });
+  });
+  document.getElementById('shSpecialList').addEventListener('click', function(e){
+    var b = e.target.closest('[data-sh-del]'); if (!b || shBusy) return;
+    var day = b.getAttribute('data-sh-del');
+    if (!confirm('Remove the special hours for ' + shDateLabel(day) + '? That day goes back to the weekly hours.')) return;
+    shBusy = true; b.disabled = true;
+    sb.rpc('staff_delete_special_day', { p_day: day }).then(function(res){
+      shBusy = false;
+      if (res.error) { shSay('shSpecialMsg', res.error.message || 'Couldn’t remove it.', 'bad'); b.disabled = false; return; }
+      shPaint(res.data);
+      shSay('shSpecialMsg', 'Removed. ' + shDateLabel(day) + ' follows the weekly hours again.', 'ok');
+    }, function(){ shBusy = false; b.disabled = false; shSay('shSpecialMsg', 'Couldn’t reach the server.', 'bad'); });
   });
 
   function showTab(tab){
