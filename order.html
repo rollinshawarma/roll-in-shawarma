@@ -489,6 +489,8 @@
   body.driveup-closed #qrMenuBtn, body.driveup-closed #memberChip, body.driveup-closed .cat-rail-top, body.driveup-closed #kitchenPulse{ display:none !important; }
   #menuState a{ color:inherit; font-weight:700; }
   .du-hours{ margin:14px auto 12px; border-collapse:collapse; font-size:14px; }
+  .fr-note{ margin:10px 0 0; padding:10px 12px; border-radius:12px; background:rgba(255,169,77,.14); color:var(--gold, #ffa94d); font-size:14px; line-height:1.4; }
+  .du-note{ display:block; margin-top:6px; color:var(--gold, #ffa94d); }
   .du-hours td{ padding:3px 10px; text-align:left; }
   .du-hours td:first-child{ font-weight:700; }
   .du-hours tr.du-today td{ color:var(--white, #fff); font-weight:800; }
@@ -953,7 +955,7 @@
         var isToday = ti >= 0 && i === 0;
         return '<tr' + (isToday ? ' class="du-today"' : '') + '><td>' + (isToday ? 'Today (' + escHtml(h.day) + ')' : escHtml(h.day)) + '</td><td>' + escHtml(h.hours) + '</td></tr>';
       }).join('');
-      return '<b>Drive-up ordering is closed right now.</b>' + (du.opens ? '<br>It opens ' + escHtml(du.opens) + '.' : '') +
+      return '<b>Drive-up ordering is closed right now.</b>' + (du.note ? '<span class="du-note">' + escHtml(du.note) + '</span>' : '') + (du.opens ? '<br>It opens ' + escHtml(du.opens) + '.' : '') +
         (rows ? '<table class="du-hours" aria-label="Drive-up hours">' + rows + '</table>' : '') +
         '<button type="button" class="du-browse-btn" id="duBrowseBtn">See the menu</button>';
     }
@@ -1513,6 +1515,7 @@
       dl.textContent = on ? dealList().length + ' deals unlocked' : 'Check in to unlock';
       if (sections.length) { renderMenu(); refreshTileActions(); }
       refreshSecret();
+      loadFirstRoll();
     }
     function openQrMenu(){ $('qrMenu').classList.remove('hidden'); $('qrMenuScrim').classList.remove('hidden'); document.documentElement.style.overflow = 'hidden'; }
     function closeQrMenu(){ $('qrMenu').classList.add('hidden'); $('qrMenuScrim').classList.add('hidden'); document.documentElement.style.overflow = ''; }
@@ -1658,12 +1661,65 @@
       var discountCents = appliedPromo ? Math.min(subtotalCents, Math.round(appliedPromo.discountAmount * 100)) : 0;
       var rw = qrRewardSummary();
       var rewardCents = Math.min(rw.cents, subtotalCents - discountCents);
-      var taxedCents = subtotalCents - discountCents - rewardCents;
+      var fr = qrFirstRollSummary(rw, subtotalCents, discountCents, rewardCents);
+      if (fr.promoDropped) { discountCents = 0; rewardCents = Math.min(rw.cents, subtotalCents); }
+      var taxedCents = subtotalCents - discountCents - rewardCents - fr.cents;
       var taxCents = Math.round(taxedCents * TAX_RATE);
       var tipCents = Math.round((tip || 0) * 100);
       return { subtotal: subtotalCents / 100, discount: discountCents / 100, tax: taxCents / 100, tip: tipCents / 100,
                total: (taxedCents + taxCents + tipCents) / 100, base: (taxedCents + taxCents) / 100,
-               reward: rewardCents / 100, rewardIds: rewardCents > 0 ? rw.ids : [], points: Math.floor(taxedCents / 100) * 10 };
+               reward: rewardCents / 100, rewardIds: rewardCents > 0 ? rw.ids : [], points: Math.floor(taxedCents / 100) * 10,
+               firstRoll: fr.cents / 100, firstRollInfo: fr };
+    }
+    // ---- First-order free roll (store-hours.sql, part B) ----
+    // Signed in or checked in with a Member ID, first order: the priciest
+    // Frankie Roll (not already free from a reward) is free when what they
+    // pay for is $15+ before tax. WELCOME10 is taken off instead. The
+    // checkout works this out again on the server.
+    var qrFirstRoll = null, qrFirstRollFor = '';
+    function loadFirstRoll(){
+      var who = member ? 'signed-in' : (appliedMember || '');
+      if (who === qrFirstRollFor) return;
+      qrFirstRollFor = who; qrFirstRoll = null;
+      var repaint = function(){
+        if (!$('checkoutScreen').classList.contains('hidden')) renderCheckout();
+        if (!$('cartSheet').classList.contains('hidden')) renderCart();
+      };
+      if (!who) { repaint(); return; }
+      var call = member ? sbShared.rpc('get_my_first_roll') : sbShared.rpc('check_first_roll', { p_code: appliedMember });
+      call.then(function(r){
+        if (qrFirstRollFor !== who) return;
+        qrFirstRoll = r && !r.error && r.data && r.data.eligible ? r.data : null;
+        repaint();
+      }, function(){});
+    }
+    function qrFirstRollSummary(rw, subtotalCents, discountCents, rewardCents){
+      var fr = qrFirstRoll, out = { eligible: !!fr, cents: 0, title: '', need: 0, hasRoll: false, promoDropped: false, min: fr ? (+fr.min_cents || 1500) : 1500 };
+      if (!fr || !cart.length) return out;
+      var cat = fr.category || 'Frankie Rolls', usedByReward = 0;
+      (rw.matched || []).forEach(function(m){ if (m.ok && m.voucher.match_category === cat) usedByReward++; });
+      var units = [];
+      cart.forEach(function(c){
+        var it = itemsById[c.menu_item_id] || {};
+        if (it.category !== cat || c.dealOf) return;
+        for (var k = 0; k < c.quantity; k++) units.push({ cents: Math.round((Number(c.unitPrice) - addOnPrice(c)) * 100), name: it.name });
+      });
+      units.sort(function(a, b){ return b.cents - a.cents; });
+      units = units.slice(usedByReward);
+      if (!units.length) return out;
+      out.hasRoll = true;
+      var oncePer = !!(appliedPromo && appliedPromo.onePerCustomer);
+      var paysFor = subtotalCents - (oncePer ? 0 : discountCents) - rewardCents - units[0].cents;
+      if (paysFor >= out.min) { out.cents = units[0].cents; out.title = units[0].name || 'Frankie Roll'; out.promoDropped = oncePer; }
+      else out.need = out.min - paysFor;
+      return out;
+    }
+    function firstRollNoteHtml(t){
+      var fri = t.firstRollInfo || {};
+      if (!fri.eligible || !cart.length) return '';
+      return t.firstRoll > 0 ? '\ud83c\udf89 Your first order: your ' + escHtml(fri.title) + ' is on us!' + (fri.promoDropped ? ' (' + escHtml(appliedPromo.code) + ' can\u2019t be combined with it, so it\u2019s been taken off.)' : '')
+        : fri.hasRoll ? 'Add ' + money(fri.need / 100) + ' more to get your Frankie Roll free. It only works on your first order.'
+        : 'First order: add any Frankie Roll and it\u2019s free with $' + (fri.min / 100).toFixed(0) + '+ of other food. It only works on your first order.';
     }
 
     function afterCartChange(bump){
@@ -2194,7 +2250,7 @@
           buildTipOptions(); renderCheckout();
           return false;
         }
-        appliedPromo = { code: d.code || code, discountAmount: Number(d.discountAmount) || 0 };
+        appliedPromo = { code: d.code || code, discountAmount: Number(d.discountAmount) || 0, onePerCustomer: d.onePerCustomer === true };
         $('promoCode').value = appliedPromo.code;
         msgEl.className = 'apply-msg ok'; msgEl.textContent = appliedPromo.code + ' applied. You save ' + money(appliedPromo.discountAmount) + '.';
         buildTipOptions(); renderCheckout();
@@ -2229,9 +2285,11 @@
         '<div><span>Subtotal</span><span>' + money(t.subtotal) + '</span></div>' +
         (t.discount > 0 ? '<div class="disc"><span>Promo (' + escHtml(appliedPromo.code) + ')</span><span>\u2212' + money(t.discount) + '</span></div>' : '') +
         (t.reward > 0 ? '<div class="disc"><span>Rewards</span><span>\u2212' + money(t.reward) + '</span></div>' : '') +
+        (t.firstRoll > 0 ? '<div class="disc"><span>First order: free roll</span><span>\u2212' + money(t.firstRoll) + '</span></div>' : '') +
         '<div><span>Tax (6.75%)</span><span>' + money(t.tax) + '</span></div>' +
         '<div><span>Tip</span><span>' + (selectedTip === null ? '&mdash;' : money(t.tip)) + '</span></div>' +
-        '<div class="grand"><span>Total</span><span>' + money(t.total) + '</span></div>';
+        '<div class="grand"><span>Total</span><span>' + money(t.total) + '</span></div>' +
+        (firstRollNoteHtml(t) ? '<p class="fr-note" role="status">' + firstRollNoteHtml(t) + '</p>' : '');
 
       $('reviewOrderBtn').innerHTML = 'Review order <span class="cta-amt">' + money(t.total) + '</span>';
       var spotText = doorProg ? (doorRunOk() ? 'Delivery ' + doorLabel(doorRun) + ' to ' + doorProg.place : 'Pick a delivery time')
