@@ -628,6 +628,66 @@
   .bn-state{ font-size:12px; font-weight:700; padding:4px 10px; border-radius:999px; background:var(--panel-2); color:var(--muted); flex:none; }
   .bn-state.on{ background:#e6f6ec; color:#1f8a46; }
   .bn-now{ margin-top:12px; padding:12px 14px; border-radius:12px; background:var(--panel-2); font-size:13.5px; line-height:1.5; }
+  /* Payroll */
+  .pr-bar{ display:flex; gap:8px; align-items:center; margin:4px 0 16px; max-width:520px; }
+  .pr-bar select{ flex:1; min-height:42px; }
+  .pr-nav{ width:42px; height:42px; padding:0; border-radius:12px; background:var(--panel-2); border:1px solid var(--line); color:var(--white); font-size:22px; }
+  .pr-alert{ border-radius:12px; padding:12px 14px; margin-bottom:10px; font-size:14px; line-height:1.45; border:1px solid var(--line); background:var(--panel); }
+  .pr-alert b{ display:block; margin-bottom:2px; }
+  .pr-alert.bad{ border-color:var(--red); background:rgba(214,45,32,0.06); }
+  .pr-alert.warn{ border-color:#e0a100; background:rgba(224,161,0,0.08); }
+  .pr-alert ul{ margin:6px 0 0 18px; padding:0; }
+  .pr-alert button{ margin-top:8px; }
+  .pr-kpis{ display:grid; grid-template-columns:repeat(auto-fit, minmax(140px, 1fr)); gap:10px; margin-bottom:6px; }
+  .pr-kpi{ background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:12px 14px; }
+  .pr-kpi b{ display:block; font-size:21px; }
+  .pr-kpi small{ color:var(--muted); font-size:12.5px; }
+  .pr-card{ padding:18px; }
+  .pr-table{ font-size:13.5px; }
+  .pr-table td, .pr-table th{ white-space:nowrap; padding-left:8px; padding-right:8px; }
+  .pr-table td small{ display:block; color:var(--muted); font-size:11.5px; }
+  .pr-pill{ display:inline-block; font-size:11.5px; font-weight:700; padding:3px 9px; border-radius:999px; background:var(--panel-2); color:var(--muted); }
+  .pr-pill.ok{ background:#e6f6ec; color:#1f8a46; }
+  .pr-pill.bad{ background:rgba(214,45,32,0.1); color:var(--red); }
+  .pr-pill.warn{ background:rgba(224,161,0,0.14); color:#8a6200; }
+  .pr-actions{ display:flex; flex-wrap:wrap; gap:8px; margin-top:14px; }
+  .pr-actions .btn-primary{ width:auto; }
+  .pr-foot{ margin:10px 0 0; }
+  .pr-two{ display:grid; grid-template-columns:1fr 1fr; gap:16px; }
+  .pr-row{ display:flex; justify-content:space-between; gap:10px; padding:7px 0; border-top:1px solid var(--line); font-size:14px; }
+  .pr-row:first-child{ border-top:0; }
+  .pr-bars .pr-row{ align-items:center; }
+  .pr-bar-track{ flex:1; height:8px; border-radius:99px; background:var(--panel-2); overflow:hidden; margin:0 10px; }
+  .pr-bar-fill{ height:100%; background:#30b35a; }
+  .pr-bar-fill.over{ background:var(--red); }
+  .pr-form{ display:grid; grid-template-columns:minmax(180px, 320px); gap:10px; }
+  .pr-form-3{ grid-template-columns:repeat(3, minmax(120px, 1fr)); }
+  .pr-form input, .pr-form select{ margin-bottom:0; }
+  .pr-msg{ font-size:13.5px; margin-top:8px; min-height:18px; }
+  .pr-msg.bad{ color:var(--red); }
+  .pr-msg.ok{ color:#1f8a46; }
+  .pr-run{ border-top:1px solid var(--line); padding:12px 0; }
+  .pr-run:first-child{ border-top:0; padding-top:0; }
+  .pr-run-head{ display:flex; justify-content:space-between; gap:10px; align-items:center; flex-wrap:wrap; }
+  .pr-run table{ margin-top:8px; font-size:13px; }
+  .pr-flags{ display:flex; flex-wrap:wrap; gap:14px; margin:10px 0; font-size:14px; }
+  .pr-flags label{ display:flex; gap:6px; align-items:center; text-transform:none; letter-spacing:0; font-size:14px; color:var(--white); font-weight:500; margin:0; }
+  .pr-flags input{ width:18px; height:18px; margin:0; }
+  .pr-hist{ margin-top:10px; font-size:13.5px; }
+  .pr-log-item{ border-top:1px solid var(--line); padding:8px 0; font-size:13.5px; }
+  .pr-log-item small{ color:var(--muted); display:block; }
+  /* My hours: this week + sign-off */
+  .my-week-card .mw-grid{ display:grid; grid-template-columns:repeat(4, 1fr); gap:10px; margin:10px 0 14px; }
+  .my-week-card .mw-grid div{ background:var(--panel-2); border-radius:12px; padding:10px 12px; }
+  .my-week-card .mw-grid b{ display:block; font-size:19px; }
+  .my-week-card .mw-grid small{ color:var(--muted); font-size:12px; }
+  .mw-tabs{ display:flex; gap:6px; margin-bottom:6px; }
+  .mw-tabs button{ padding:7px 14px; font-size:13px; background:var(--panel-2); border:1px solid var(--line); color:var(--cream); }
+  .mw-tabs button.on{ background:#1d1d1f; color:#fff; }
+  .mw-sign{ display:flex; gap:8px; flex-wrap:wrap; }
+  .mw-sign .btn-primary{ width:auto; }
+  .mw-note{ margin-top:10px; }
+  @media (max-width:760px){ .pr-two{ grid-template-columns:1fr; } .pr-form-3{ grid-template-columns:1fr; } .my-week-card .mw-grid{ grid-template-columns:1fr 1fr; } }
   .ft-card.is-on{ box-shadow:0 0 0 2px #30b35a inset; }
   /* Store hours */
   .sh-week{ display:grid; gap:2px; }
@@ -1026,7 +1086,9 @@
 
   <!-- CLOCK TAB (history only, clock action lives on Home) -->
   <div class="tab-panel hidden" id="panelClock">
-    <h2 class="page-title">My hours</h2><div class="section-title">By week</div>
+    <h2 class="page-title">My hours</h2>
+    <div class="card my-week-card hidden" id="myWeekCard"></div>
+    <div class="section-title">By week</div>
     <div id="myWeeksContainer"></div>
   </div>
 
@@ -1861,10 +1923,74 @@
 
   <!-- PAYROLL TAB -->
   <div class="tab-panel hidden" id="panelPayroll">
-    <div class="card">
-      <h2>Payroll by week</h2>
-      <p class="hint">Approved hours only. Export a week to CSV when you're ready to pay.</p>
-      <div id="payrollWeeksContainer"></div>
+    <div class="page-head">
+      <h2>Payroll</h2>
+      <p class="hint">Monday&ndash;Sunday workweeks in truck time. Overtime is 1.5&times; after 40 hours. Tips are split by hours worked. Approved hours only; &ldquo;Draft paycheck&rdquo; saves a pay record you can always look back at.</p>
+    </div>
+    <div class="pr-bar">
+      <button type="button" class="pr-nav" id="prPrev" aria-label="Previous week">&lsaquo;</button>
+      <select id="prWeek" aria-label="Week"></select>
+      <button type="button" class="pr-nav" id="prNext" aria-label="Next week">&rsaquo;</button>
+    </div>
+    <div id="prLegacy" class="hidden"><div class="card"><p class="hint" id="prLegacyNote"></p><div id="payrollWeeksContainer"></div></div></div>
+    <div id="prMain">
+      <div id="prAlerts"></div>
+      <div class="pr-kpis" id="prKpis"></div>
+
+      <div class="section-title">People this week</div>
+      <div class="card pr-card"><div style="overflow-x:auto;"><table class="stack pr-table">
+        <thead><tr><th>Employee</th><th>Hours</th><th>Rate</th><th>Straight pay</th><th>Overtime</th><th>Tips</th><th>Make-up</th><th>Gross</th><th>Timesheet</th><th>Status</th></tr></thead>
+        <tbody id="prLines"><tr><td colspan="10">Loading&hellip;</td></tr></tbody>
+      </table></div>
+        <div class="pr-actions">
+          <button type="button" class="btn-primary btn-small" id="prDraft">Draft paycheck</button>
+          <button type="button" class="btn-export btn-small" id="prExportSummary">Export for payroll service (CSV)</button>
+          <button type="button" class="btn-export btn-small" id="prExportDetail">Export shifts (CSV)</button>
+        </div>
+        <p class="hint pr-foot">Gross = straight pay + overtime premium + tips + tip make-up. Taxes and direct deposit run in your payroll service (Square Payroll, Gusto&hellip;): import the summary CSV there.</p>
+      </div>
+
+      <div class="pr-two">
+        <div>
+          <div class="section-title">Tips</div>
+          <div class="card pr-card" id="prTips"></div>
+        </div>
+        <div>
+          <div class="section-title">Labor cost vs. food sales</div>
+          <div class="card pr-card" id="prLabor"></div>
+        </div>
+      </div>
+
+      <div class="section-title">Pay records for this week</div>
+      <div class="card pr-card" id="prRuns"></div>
+
+      <div class="section-title">Change log</div>
+      <div class="card pr-card">
+        <p class="hint">Every manual entry, time change, approval and deletion for this week, with who did it.</p>
+        <div id="prLog"><button type="button" class="btn-ghost btn-small" id="prLogBtn">Show changes</button></div>
+      </div>
+
+      <div id="prAdmin" class="hidden">
+        <div class="section-title">Pay rates (admins)</div>
+        <div class="card pr-card">
+          <p class="hint">A new rate starts on the date you pick and never changes weeks already worked. Rates can&rsquo;t start inside a week that&rsquo;s already paid.</p>
+          <div class="pr-form">
+            <div><label for="prEmp">Employee</label><select id="prEmp"></select></div>
+          </div>
+          <div id="prRateBox"></div>
+        </div>
+        <div class="section-title">Payroll settings (admins)</div>
+        <div class="card pr-card">
+          <div class="pr-form pr-form-3">
+            <div><label for="prMin">Minimum wage ($/hr)</label><input type="number" step="0.01" min="0" id="prMin"></div>
+            <div><label for="prTipMin">Tipped minimum ($/hr)</label><input type="number" step="0.01" min="0" id="prTipMin"></div>
+            <div><label for="prTarget">Labor target (% of food sales)</label><input type="number" step="1" min="1" max="100" id="prTarget"></div>
+          </div>
+          <button type="button" class="btn-primary btn-small" id="prSaveSettings" style="max-width:220px;">Save settings</button>
+          <p class="hint" style="margin-top:8px;">Ohio 2026: $11.00 and $5.50 for tipped staff (tips must make up the rest; the make-up column covers any shortfall). Check each January.</p>
+          <div class="pr-msg" id="prSettingsMsg"></div>
+        </div>
+      </div>
     </div>
   </div>
 
@@ -2220,6 +2346,8 @@
       document.getElementById('homeDate').textContent = dateStr;
       loadSiteBanner();
       document.getElementById('tabBannerBtn').classList.remove('hidden');
+      loadMyWeek();
+      document.querySelector('.nav-link[data-tab="clock"]').addEventListener('click', loadMyWeek);
 
       var isManager = currentEmployee.role === 'manager' || currentEmployee.role === 'admin';
       var isAdmin = currentEmployee.role === 'admin';
@@ -2233,6 +2361,7 @@
         document.getElementById('homeToday').classList.remove('hidden');
         document.getElementById('tabEventsBtn').classList.remove('hidden');
         document.getElementById('tabPayrollBtn').classList.remove('hidden');
+        document.querySelector('.nav-link[data-tab="payroll"]').addEventListener('click', function(){ loadPayroll(); });
         document.getElementById('tabPromotionsBtn').classList.remove('hidden');
         document.getElementById('tabCashOrdersBtn').classList.remove('hidden');
         document.getElementById('tabKitchenBtn').classList.remove('hidden');
@@ -5643,7 +5772,360 @@
   });
 
   // ---------------- PAYROLL TAB ----------------
-  function loadPayroll(){
+  // ---------------- PAYROLL (payroll-pro.sql) ----------------
+  // Weekly payroll: overtime, tips, pay records, change log, rates.
+  // Falls back to the older screen until payroll-pro.sql is run.
+  var pr = { week: null, data: null, weeks: [], busy: false, isAdmin: false };
+  function prMoney(v){ var n = Number(v) || 0; return (n < 0 ? '−$' : '$') + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function prHrs(v){ return (Number(v) || 0).toFixed(2); }
+  function prDay(ds){ var p = String(ds).split('-'); return new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])).toLocaleDateString('en-US', { timeZone: 'UTC', weekday: 'short', month: 'short', day: 'numeric' }); }
+  function prWeekLabel(ws){ var p = ws.split('-'), a = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])), b = new Date(a.getTime() + 6 * 864e5);
+    var f = function(d){ return d.toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric' }); }; return f(a) + ' – ' + f(b); }
+  function prWhen(ts){ return ts ? new Date(ts).toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : ''; }
+  function prSay(id, t, kind){ var m = document.getElementById(id); if (!m) return; m.textContent = t || ''; m.className = 'pr-msg' + (kind ? ' ' + kind : ''); }
+
+  function loadPayroll(week){
+    sb.rpc('payroll_weeks', { p_count: 16 }).then(function(res){
+      if (res.error) {
+        if (/does not exist|could not find/i.test(res.error.message || '')) {
+          document.getElementById('prMain').classList.add('hidden');
+          document.getElementById('prLegacy').classList.remove('hidden');
+          document.getElementById('prLegacyNote').textContent = 'Run payroll-pro.sql in Supabase to turn on overtime, tips and pay records. Until then, this is the basic view.';
+          loadPayrollLegacy();
+        }
+        return;
+      }
+      pr.weeks = res.data || [];
+      var sel = document.getElementById('prWeek');
+      if (!pr.week || week) pr.week = week || (pr.weeks[0] && pr.weeks[0].week_start);
+      sel.innerHTML = pr.weeks.map(function(w, i){
+        var tags = [];
+        if (i === 0) tags.push('this week');
+        if (w.paid_runs > 0) tags.push('paid');
+        if (w.approved > 0) tags.push(w.approved + ' to pay');
+        if (w.pending > 0) tags.push(w.pending + ' pending');
+        return '<option value="' + w.week_start + '"' + (w.week_start === pr.week ? ' selected' : '') + '>' + prWeekLabel(w.week_start) + (tags.length ? ' · ' + tags.join(', ') : '') + '</option>';
+      }).join('');
+      prLoadWeek();
+    });
+  }
+  function prLoadWeek(){
+    sb.rpc('payroll_week', { p_week_start: pr.week }).then(function(res){
+      if (res.error) { document.getElementById('prLines').innerHTML = '<tr><td colspan="10">' + esc(res.error.message || 'Couldn’t load payroll.') + '</td></tr>'; return; }
+      prPaint(res.data);
+    });
+  }
+  document.getElementById('prWeek').addEventListener('change', function(){ pr.week = this.value; document.getElementById('prLog').innerHTML = '<button type="button" class="btn-ghost btn-small" id="prLogBtn">Show changes</button>'; prLoadWeek(); });
+  function prStep(dir){
+    var i = pr.weeks.findIndex(function(w){ return w.week_start === pr.week; });
+    var j = i - dir; if (j < 0 || j >= pr.weeks.length) return;
+    var sel = document.getElementById('prWeek'); sel.value = pr.weeks[j].week_start; sel.dispatchEvent(new Event('change'));
+  }
+  document.getElementById('prPrev').addEventListener('click', function(){ prStep(-1); });
+  document.getElementById('prNext').addEventListener('click', function(){ prStep(1); });
+
+  function prPaint(d){
+    pr.data = d; pr.isAdmin = !!d.is_admin;
+    var s = d.settings || {}, lines = d.lines || [], isThisWeek = pr.weeks[0] && pr.weeks[0].week_start === d.week_start;
+    var otAt = Number(s.ot_weekly_hours) || 40;
+    // ---- alerts ----
+    var al = [];
+    var open = d.open_shifts || [];
+    if (open.length) al.push('<div class="pr-alert bad"><b>Missed clock-outs (' + open.length + ')</b>Still clocked in after closing or from an earlier day. Fix the clock-out time in Approvals so pay is right.<ul>' +
+      open.map(function(o){ return '<li>' + esc(o.name) + ' · clocked in ' + esc(prWhen(o.clock_in)) + ' (' + o.hours_open + ' h ago)</li>'; }).join('') +
+      '</ul><button type="button" class="btn-ghost btn-small" data-go-tab="approve">Open Approvals</button></div>');
+    var pend = lines.reduce(function(n, l){ return n + (l.pending || 0); }, 0);
+    if (pend) al.push('<div class="pr-alert warn"><b>' + pend + ' shift' + (pend > 1 ? 's' : '') + ' waiting for approval</b>Only approved hours are paid, and tips are split by approved hours. Approve or fix them first.<br><button type="button" class="btn-ghost btn-small" data-go-tab="approve">Open Approvals</button></div>');
+    var disputes = lines.filter(function(l){ return l.signed_agreed === false; });
+    if (disputes.length) al.push('<div class="pr-alert bad"><b>Timesheet questions</b><ul>' + disputes.map(function(l){ return '<li>' + esc(l.name) + ': “' + esc(l.signed_note || '') + '”</li>'; }).join('') + '</ul></div>');
+    var minors = d.minor_flags || [];
+    if (minors.length) al.push('<div class="pr-alert warn"><b>Under-18 staff</b>Ohio requires a 30-minute break after 5 hours, and limits late and early hours for minors.<ul>' +
+      minors.map(function(m){ return '<li>' + esc(m.name) + ' · ' + esc(prDay(m.day)) + ': ' + esc(m.issue) + '</li>'; }).join('') + '</ul></div>');
+    if (isThisWeek) {
+      var near = lines.filter(function(l){ return Number(l.hours_so_far) >= otAt - 6; });
+      if (near.length) al.push('<div class="pr-alert warn"><b>Overtime watch</b>' + near.map(function(l){
+        var left = otAt - Number(l.hours_so_far);
+        return esc(l.name) + ' is at ' + prHrs(l.hours_so_far) + ' h' + (left > 0 ? ' (' + prHrs(left) + ' h before overtime)' : ' (in overtime)');
+      }).join(' · ') + '</div>');
+    }
+    document.getElementById('prAlerts').innerHTML = al.join('');
+    // ---- KPIs ----
+    var tot = lines.reduce(function(a, l){ a.h += +l.hours; a.ot += +l.ot_hours; a.g += +l.gross; a.t += +l.tips; a.owed += +(l.owed && l.owed.gross || 0); return a; }, { h: 0, ot: 0, g: 0, t: 0, owed: 0 });
+    var labor = d.labor || [], ls = labor.reduce(function(a, x){ a.s += +x.sales; a.w += +x.wages; return a; }, { s: 0, w: 0 });
+    var pct = ls.s > 0 ? Math.round(1000 * ls.w / ls.s) / 10 : null;
+    document.getElementById('prKpis').innerHTML =
+      '<div class="pr-kpi"><b>' + prHrs(tot.h) + '</b><small>Approved hours' + (tot.ot ? ' · ' + prHrs(tot.ot) + ' overtime' : '') + '</small></div>' +
+      '<div class="pr-kpi"><b>' + prMoney(tot.g) + '</b><small>Gross pay (incl. tips)</small></div>' +
+      '<div class="pr-kpi"><b>' + prMoney(tot.t) + '</b><small>Tips to staff</small></div>' +
+      '<div class="pr-kpi"><b>' + prMoney(tot.owed) + '</b><small>Still to pay</small></div>' +
+      '<div class="pr-kpi"><b>' + (pct == null ? '—' : pct + '%') + '</b><small>Labor vs. food sales (target ' + Number(s.labor_target_pct || 30) + '%)</small></div>';
+    // ---- people ----
+    document.getElementById('prLines').innerHTML = lines.length ? lines.map(function(l){
+      var owed = l.owed || {}, owedG = Number(owed.gross) || 0;
+      var status = owedG >= 0.01 ? '<span class="pr-pill warn">Owed ' + prMoney(owedG) + '</span>'
+        : (Number(l.paid_gross) > 0 ? '<span class="pr-pill ok">Paid</span>' : (l.pending ? '<span class="pr-pill">Pending</span>' : '<span class="pr-pill">—</span>'));
+      var sign = l.signed_agreed === true ? '<span class="pr-pill ok">Confirmed</span>' : l.signed_agreed === false ? '<span class="pr-pill bad">Question</span>' : '<span class="pr-pill">Not yet</span>';
+      var rate = Number(l.rate_min) !== Number(l.rate_max) && l.rate_max != null ? prMoney(l.rate_min) + '–' + prMoney(l.rate_max) + '<small>blended ' + prMoney(l.regular_rate) + '</small>' : prMoney(l.regular_rate);
+      var tags = [];
+      if (l.is_tipped) tags.push('tipped');
+      if (l.is_minor) tags.push('under 18');
+      if (!l.tip_ok) tags.push('no tip share');
+      return '<tr>' +
+        '<td data-label="Employee"><b>' + esc(l.name) + '</b>' + (tags.length ? '<small>' + esc(tags.join(' · ')) + '</small>' : '') + '</td>' +
+        '<td data-label="Hours">' + prHrs(l.hours) + (Number(l.ot_hours) > 0 ? '<small>' + prHrs(l.regular_hours) + ' reg + ' + prHrs(l.ot_hours) + ' OT</small>' : '') + (l.pending ? '<small>+' + l.pending + ' pending</small>' : '') + '</td>' +
+        '<td data-label="Rate">' + rate + '</td>' +
+        '<td data-label="Straight pay">' + prMoney(l.straight_pay) + '</td>' +
+        '<td data-label="Overtime">' + (Number(l.ot_premium) ? prMoney(l.ot_premium) + '<small>half-time premium</small>' : '—') + '</td>' +
+        '<td data-label="Tips">' + (Number(l.tips) ? prMoney(l.tips) : '—') + '</td>' +
+        '<td data-label="Make-up">' + (Number(l.makeup) ? prMoney(l.makeup) + '<small>to reach min. wage</small>' : '—') + '</td>' +
+        '<td data-label="Gross"><b>' + prMoney(l.gross) + '</b></td>' +
+        '<td data-label="Timesheet">' + sign + '</td>' +
+        '<td data-label="Status">' + status + '</td></tr>';
+    }).join('') : '<tr><td colspan="10">No hours this week yet.</td></tr>';
+    var owedAny = lines.some(function(l){ return Math.abs(Number(l.owed && l.owed.gross) || 0) >= 0.01; });
+    var draftBtn = document.getElementById('prDraft');
+    draftBtn.disabled = pr.busy || !owedAny;
+    draftBtn.textContent = (d.runs || []).some(function(r){ return r.status === 'paid'; }) ? 'Draft follow-up paycheck' : 'Draft paycheck';
+    // ---- tips ----
+    var t = d.tips || {};
+    document.getElementById('prTips').innerHTML =
+      '<div class="pr-row"><span>Card tips (website, drive-up, kiosk, window)</span><b>' + prMoney(t.card) + '</b></div>' +
+      '<div class="pr-row"><span>Cash tip jar</span><span><input type="number" step="0.01" min="0" id="prCash" value="' + (Number(t.cash) || 0).toFixed(2) + '" style="width:110px;margin:0;display:inline-block;"> <button type="button" class="btn-ghost btn-small" id="prCashSave">Save</button></span></div>' +
+      (Number(t.unassigned) ? '<div class="pr-row"><span>Not assigned (nobody tip-eligible clocked in that day)</span><b>' + prMoney(t.unassigned) + '</b></div>' : '') +
+      '<div class="pr-msg" id="prCashMsg"></div>' +
+      ((t.by_day || []).length ? '<p class="hint" style="margin:10px 0 4px;">Card tips by day (split by hours worked that day):</p>' + t.by_day.map(function(x){
+        return '<div class="pr-row"><span>' + esc(prDay(x.day)) + '</span><span>' + prMoney(x.tips) + ' · ' + prHrs(x.hours) + ' h</span></div>'; }).join('') : '') +
+      '<p class="hint" style="margin:10px 0 0;">Delivery app tips go to their drivers and aren&rsquo;t included. Owners/admins and managers don&rsquo;t share tips unless an admin turns it on for them.</p>';
+    document.getElementById('prCashSave').addEventListener('click', function(){
+      var v = parseFloat(document.getElementById('prCash').value);
+      if (!(v >= 0)) { prSay('prCashMsg', 'Enter the cash tips in dollars.', 'bad'); return; }
+      prSay('prCashMsg', 'Saving…');
+      sb.rpc('payroll_set_cash_tips', { p_week_start: d.week_start, p_amount: v }).then(function(res){
+        if (res.error) { prSay('prCashMsg', res.error.message, 'bad'); return; }
+        prPaint(res.data); prSay('prCashMsg', 'Saved and split by hours.', 'ok');
+      });
+    });
+    // ---- labor ----
+    var target = Number(s.labor_target_pct) || 30;
+    document.getElementById('prLabor').innerHTML = '<div class="pr-bars">' + labor.map(function(x){
+      var p = x.pct == null ? null : Number(x.pct), w = p == null ? 0 : Math.min(100, p);
+      return '<div class="pr-row"><span style="width:92px;">' + esc(prDay(x.day)) + '</span><div class="pr-bar-track"><div class="pr-bar-fill' + (p != null && p > target ? ' over' : '') + '" style="width:' + w + '%"></div></div>' +
+        '<span style="width:150px;text-align:right;">' + (p == null ? (Number(x.wages) ? prMoney(x.wages) + ' wages, no sales' : '—') : p + '% · ' + prMoney(x.wages) + ' / ' + prMoney(x.sales)) + '</span></div>';
+    }).join('') + '</div><p class="hint" style="margin:10px 0 0;">Wages (incl. pending shifts) ÷ food sales (after discounts, before tax and tips). Red = above your ' + target + '% target.</p>';
+    // ---- pay records ----
+    var runs = d.runs || [];
+    document.getElementById('prRuns').innerHTML = runs.length ? runs.map(function(r){
+      var tt = r.totals || {};
+      return '<div class="pr-run"><div class="pr-run-head"><div><b>' + (r.status === 'paid' ? 'Paid' : 'Reopened') + '</b> · drafted ' + esc(prWhen(r.created_at)) + (r.by ? ' by ' + esc(r.by) : '') +
+        (r.status === 'reopened' ? ' · reopened ' + esc(prWhen(r.reopened_at)) + (r.reopened_by ? ' by ' + esc(r.reopened_by) : '') : '') +
+        '<br><small class="hint">' + (tt.people || 0) + ' people · ' + prHrs(tt.hours) + ' h (' + prHrs(tt.ot_hours) + ' OT) · tips ' + prMoney(tt.tips) + ' · gross ' + prMoney(tt.gross) + '</small></div>' +
+        '<span><button type="button" class="btn-export btn-small" data-run-csv="' + r.id + '">CSV</button>' +
+        (pr.isAdmin && r.status === 'paid' ? ' <button type="button" class="btn-ghost btn-small" data-run-reopen="' + r.id + '">Reopen</button>' : '') + '</span></div>' +
+        '<div style="overflow-x:auto;"><table class="stack"><thead><tr><th>Employee</th><th>Hours</th><th>OT</th><th>Straight</th><th>OT premium</th><th>Tips</th><th>Make-up</th><th>Gross</th></tr></thead><tbody>' +
+        (r.lines || []).map(function(x){ return '<tr><td data-label="Employee">' + esc(x.name) + '</td><td data-label="Hours">' + prHrs(x.hours) + '</td><td data-label="OT">' + prHrs(x.ot_hours) + '</td><td data-label="Straight">' + prMoney(x.straight_pay) +
+          '</td><td data-label="OT premium">' + prMoney(x.ot_premium) + '</td><td data-label="Tips">' + prMoney(x.tips) + '</td><td data-label="Make-up">' + prMoney(x.makeup) + '</td><td data-label="Gross"><b>' + prMoney(x.gross) + '</b></td></tr>'; }).join('') +
+        '</tbody></table></div></div>';
+    }).join('') : '<p class="hint" style="margin:0;">No paycheck drafted for this week yet.</p>';
+    // ---- admin ----
+    document.getElementById('prAdmin').classList.toggle('hidden', !pr.isAdmin);
+    if (pr.isAdmin) {
+      document.getElementById('prMin').value = Number(s.min_wage).toFixed(2);
+      document.getElementById('prTipMin').value = Number(s.tipped_min_wage).toFixed(2);
+      document.getElementById('prTarget').value = Number(s.labor_target_pct);
+      prFillEmployees();
+    }
+  }
+
+  document.getElementById('prMain').addEventListener('click', function(e){
+    var go = e.target.closest('[data-go-tab]');
+    if (go) { showTab(go.getAttribute('data-go-tab')); return; }
+    var csv = e.target.closest('[data-run-csv]');
+    if (csv) {
+      var run = (pr.data.runs || []).find(function(r){ return r.id === csv.getAttribute('data-run-csv'); });
+      if (run) prSummaryCsv(run.lines || [], 'pay_record_' + pr.data.week_start + '_' + run.created_at.slice(0, 10) + '.csv', false);
+      return;
+    }
+    var ro = e.target.closest('[data-run-reopen]');
+    if (ro && !pr.busy) {
+      if (!confirm('Reopen this pay record? Its hours go back to "approved" so you can fix them and draft again. Only do this if the payment hasn’t been sent yet, or you’ll fix it in your payroll service too.')) return;
+      pr.busy = true; ro.disabled = true;
+      sb.rpc('reopen_pay_run', { p_run: ro.getAttribute('data-run-reopen') }).then(function(res){
+        pr.busy = false;
+        if (res.error) { alert(res.error.message); ro.disabled = false; return; }
+        prPaint(res.data);
+      });
+      return;
+    }
+    if (e.target.id === 'prLogBtn') prLoadLog();
+  });
+
+  // Payroll service import: one row per person (what's owed now, or a saved record).
+  function prSummaryCsv(lines, filename, useOwed){
+    var rows = [['Employee', 'Email', 'Week start', 'Regular hours', 'Overtime hours', 'Total hours', 'Regular rate', 'Straight-time pay', 'Overtime premium (0.5x)', 'Overtime pay (1.5x)', 'Tips', 'Tip make-up', 'Gross pay']];
+    lines.forEach(function(l){
+      var v = useOwed ? Object.assign({ regular_rate: l.regular_rate }, l.owed || {}) : l;
+      if (useOwed && !(Math.abs(Number(v.gross) || 0) >= 0.01 || Number(v.hours))) return;
+      var rate = Number(l.regular_rate) || 0;
+      rows.push([l.name, l.email || '', pr.data.week_start, prHrs(v.regular_hours), prHrs(v.ot_hours), prHrs(v.hours), rate.toFixed(4),
+        (Number(v.straight_pay) || 0).toFixed(2), (Number(v.ot_premium) || 0).toFixed(2),
+        (Number(v.ot_hours) * rate * 1.5).toFixed(2), (Number(v.tips) || 0).toFixed(2), (Number(v.makeup) || 0).toFixed(2), (Number(v.gross) || 0).toFixed(2)]);
+    });
+    downloadCSV(filename, rows);
+  }
+  document.getElementById('prExportSummary').addEventListener('click', function(){
+    if (!pr.data) return;
+    var owedAny = (pr.data.lines || []).some(function(l){ return Math.abs(Number(l.owed && l.owed.gross) || 0) >= 0.01; });
+    prSummaryCsv(pr.data.lines || [], 'payroll_' + pr.data.week_start + (owedAny ? '_to_pay' : '_week') + '.csv', owedAny);
+  });
+  document.getElementById('prExportDetail').addEventListener('click', function(){
+    if (!pr.data) return;
+    var ws = pr.data.week_start, we = pr.data.week_end;
+    sb.from('time_entries').select('employee_id, work_date, clock_in, clock_out, status, note').gte('work_date', ws).lte('work_date', we).order('work_date').then(function(res){
+      var names = {}; (pr.data.lines || []).forEach(function(l){ names[l.employee_id] = l.name; });
+      var t = function(x){ return x ? new Date(x).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }) : ''; };
+      var rows = [['Employee', 'Date', 'Clock in', 'Clock out', 'Hours', 'Status', 'Note']];
+      (res.data || []).forEach(function(e){
+        rows.push([names[e.employee_id] || e.employee_id, e.work_date, t(e.clock_in), t(e.clock_out),
+          e.clock_in && e.clock_out ? ((new Date(e.clock_out) - new Date(e.clock_in)) / 36e5).toFixed(2) : '', e.status, e.note || '']);
+      });
+      downloadCSV('shifts_' + ws + '.csv', rows);
+    });
+  });
+  document.getElementById('prDraft').addEventListener('click', function(){
+    if (pr.busy || !pr.data) return;
+    var owed = (pr.data.lines || []).filter(function(l){ return Math.abs(Number(l.owed && l.owed.gross) || 0) >= 0.01; });
+    var sum = owed.reduce(function(a, l){ return a + Number(l.owed.gross); }, 0);
+    var pend = (pr.data.lines || []).reduce(function(n, l){ return n + (l.pending || 0); }, 0);
+    if (!confirm('Draft the paycheck for ' + prWeekLabel(pr.data.week_start) + '?\n\n' + owed.map(function(l){ return l.name + ': ' + prMoney(l.owed.gross) + (Number(l.owed.ot_hours) ? ' (' + prHrs(l.owed.ot_hours) + ' h OT)' : ''); }).join('\n') +
+      '\n\nTotal ' + prMoney(sum) + '. These hours are marked paid and saved as a pay record.' + (pend ? '\n\nNote: ' + pend + ' shift(s) are still pending and won’t be included.' : ''))) return;
+    pr.busy = true; this.disabled = true; this.textContent = 'Drafting…';
+    var btn = this;
+    sb.rpc('draft_payroll_week', { p_week_start: pr.data.week_start }).then(function(res){
+      pr.busy = false;
+      if (res.error) { alert('Couldn’t draft this paycheck — ' + (res.error.message || 'unknown error')); btn.disabled = false; btn.textContent = 'Draft paycheck'; return; }
+      loadPayroll(pr.data.week_start);
+    });
+  });
+  function prLoadLog(){
+    var box = document.getElementById('prLog'); box.innerHTML = '<p class="hint">Loading…</p>';
+    sb.rpc('payroll_change_log', { p_week_start: pr.week }).then(function(res){
+      if (res.error) { box.innerHTML = '<p class="hint">' + esc(res.error.message) + '</p>'; return; }
+      var items = res.data || [];
+      var t = function(x){ return x ? new Date(x).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }) : '—'; };
+      var kinds = { manual_add: 'Added a shift', edit: 'Changed times', status: 'Changed status', delete: 'Deleted a shift' };
+      box.innerHTML = items.length ? items.map(function(i){
+        var o = i.old || {}, n = i.new || {}, what = '';
+        if (i.kind === 'edit') what = t(o.clock_in) + '–' + t(o.clock_out) + ' → ' + t(n.clock_in) + '–' + t(n.clock_out) + (o.work_date !== n.work_date ? ' (date ' + esc(o.work_date) + ' → ' + esc(n.work_date) + ')' : '');
+        else if (i.kind === 'manual_add') what = esc(n.work_date) + ' ' + t(n.clock_in) + '–' + t(n.clock_out) + (n.note ? ' · “' + esc(n.note) + '”' : '');
+        else if (i.kind === 'status') what = esc(o.status) + ' → ' + esc(n.status);
+        else if (i.kind === 'delete') what = esc(o.work_date) + ' ' + t(o.clock_in) + '–' + t(o.clock_out);
+        return '<div class="pr-log-item"><b>' + esc(i.employee || '') + '</b> · ' + (kinds[i.kind] || esc(i.kind)) + ': ' + what + '<small>' + esc(prWhen(i.at)) + ' by ' + esc(i.by) + '</small></div>';
+      }).join('') : '<p class="hint" style="margin:0;">No changes this week.</p>';
+    });
+  }
+  // ---- Admin: rates and pay flags ----
+  function prFillEmployees(){
+    var sel = document.getElementById('prEmp');
+    if (sel.options.length) return;
+    sb.from('employees').select('id, name, active').order('name').then(function(res){
+      sel.innerHTML = '<option value="">Choose someone</option>' + (res.data || []).filter(function(e){ return e.active !== false; }).map(function(e){ return '<option value="' + e.id + '">' + esc(e.name) + '</option>'; }).join('');
+    });
+  }
+  document.getElementById('prEmp').addEventListener('change', function(){ if (this.value) prLoadRates(this.value); else document.getElementById('prRateBox').innerHTML = ''; });
+  function prLoadRates(id){
+    sb.rpc('admin_rate_history', { p_emp: id }).then(function(res){ if (res.error) { document.getElementById('prRateBox').innerHTML = '<p class="hint">' + esc(res.error.message) + '</p>'; return; } prPaintRates(res.data); });
+  }
+  function prPaintRates(d){
+    var e = d.employee || {}, today = new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' });
+    var minFrom = d.last_paid_day ? (function(){ var p = d.last_paid_day.split('-'); var x = new Date(Date.UTC(+p[0], +p[1] - 1, +p[2] + 1)); return x.toISOString().slice(0, 10); })() : '';
+    document.getElementById('prRateBox').innerHTML =
+      '<div class="pr-flags">' +
+        '<label><input type="checkbox" id="prFlagTipped"' + (e.is_tipped ? ' checked' : '') + '> Tipped employee (tipped minimum + make-up)</label>' +
+        '<label><input type="checkbox" id="prFlagTipOk"' + (e.tip_eligible ? ' checked' : '') + '> Shares in tips</label>' +
+        '<label><input type="checkbox" id="prFlagMinor"' + (e.is_minor ? ' checked' : '') + '> Under 18</label>' +
+      '</div>' +
+      '<div class="pr-form pr-form-3"><div><label for="prNewRate">New hourly rate ($)</label><input type="number" step="0.01" min="0" id="prNewRate" value="' + Number(e.rate || 0).toFixed(2) + '"></div>' +
+      '<div><label for="prRateFrom">Starts on</label><input type="date" id="prRateFrom" value="' + (minFrom && minFrom > today ? minFrom : today) + '"' + (minFrom ? ' min="' + minFrom + '"' : '') + '></div>' +
+      '<div style="display:flex;align-items:flex-end;"><button type="button" class="btn-primary btn-small" id="prRateSave">Save rate</button></div></div>' +
+      (d.last_paid_day ? '<p class="hint" style="margin:6px 0 0;">Paid through ' + esc(prDay(d.last_paid_day)) + '.</p>' : '') +
+      '<div class="pr-msg" id="prRateMsg"></div>' +
+      '<div class="pr-hist">' + (d.history || []).map(function(h){
+        return '<div class="pr-row"><span>' + prMoney(h.rate) + '/hr</span><span>' + (h.from <= '2000-01-02' ? 'from the start' : 'from ' + esc(prDay(h.from))) + (h.by ? ' · set by ' + esc(h.by) : '') + '</span></div>'; }).join('') + '</div>';
+    ['prFlagTipped', 'prFlagTipOk', 'prFlagMinor'].forEach(function(id){
+      document.getElementById(id).addEventListener('change', function(){
+        sb.rpc('admin_set_pay_flags', { p_emp: e.id, p_is_tipped: document.getElementById('prFlagTipped').checked,
+          p_is_minor: document.getElementById('prFlagMinor').checked, p_tip_eligible: document.getElementById('prFlagTipOk').checked }).then(function(res){
+          if (res.error) { prSay('prRateMsg', res.error.message, 'bad'); prLoadRates(e.id); return; }
+          prPaintRates(res.data); prSay('prRateMsg', 'Saved.', 'ok'); prLoadWeek();
+        });
+      });
+    });
+    document.getElementById('prRateSave').addEventListener('click', function(){
+      var rate = parseFloat(document.getElementById('prNewRate').value), from = document.getElementById('prRateFrom').value;
+      if (!(rate >= 0) || !from) { prSay('prRateMsg', 'Enter a rate and a start date.', 'bad'); return; }
+      if (!confirm(e.name + ': ' + prMoney(rate) + '/hr starting ' + prDay(from) + '?')) return;
+      prSay('prRateMsg', 'Saving…');
+      sb.rpc('admin_set_rate', { p_emp: e.id, p_rate: rate, p_effective_from: from }).then(function(res){
+        if (res.error) { prSay('prRateMsg', res.error.message, 'bad'); return; }
+        prPaintRates(res.data); prSay('prRateMsg', 'Saved. Weeks before ' + prDay(from) + ' keep the old rate.', 'ok'); prLoadWeek();
+      });
+    });
+  }
+  document.getElementById('prSaveSettings').addEventListener('click', function(){
+    var body = { min_wage: parseFloat(document.getElementById('prMin').value), tipped_min_wage: parseFloat(document.getElementById('prTipMin').value), labor_target_pct: parseFloat(document.getElementById('prTarget').value) };
+    if (!(body.min_wage > 0) || !(body.tipped_min_wage > 0) || !(body.labor_target_pct > 0)) { prSay('prSettingsMsg', 'Fill in all three.', 'bad'); return; }
+    prSay('prSettingsMsg', 'Saving…');
+    sb.rpc('admin_set_payroll_settings', { p: body }).then(function(res){
+      if (res.error) { prSay('prSettingsMsg', res.error.message, 'bad'); return; }
+      prSay('prSettingsMsg', 'Saved.', 'ok'); prLoadWeek();
+    });
+  });
+
+  // ---- My hours: this week / last week, with sign-off ----
+  var mw = { which: 0 };
+  function mwWeekStart(offset){
+    var d = new Date(new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' }) + 'T12:00:00Z');
+    var dow = (d.getUTCDay() + 6) % 7; d.setUTCDate(d.getUTCDate() - dow - 7 * offset);
+    return d.toISOString().slice(0, 10);
+  }
+  function loadMyWeek(){
+    var box = document.getElementById('myWeekCard'); if (!box) return;
+    sb.rpc('my_payroll_week', { p_week_start: mwWeekStart(mw.which) }).then(function(res){
+      if (res.error) { box.classList.add('hidden'); return; }   // payroll-pro.sql not run yet
+      box.classList.remove('hidden');
+      var d = res.data || {}, me = d.me || {}, so = d.signoff, otAt = Number(d.ot_weekly_hours) || 40;
+      var soFar = Number(me.hours_so_far) || 0;
+      var ended = mw.which > 0;
+      box.innerHTML = '<div class="mw-tabs"><button type="button" data-mw="0" class="' + (mw.which === 0 ? 'on' : '') + '">This week</button><button type="button" data-mw="1" class="' + (mw.which === 1 ? 'on' : '') + '">Last week</button></div>' +
+        '<h2 style="margin:6px 0 0;">' + prWeekLabel(d.week_start) + '</h2>' +
+        '<div class="mw-grid">' +
+          '<div><b>' + prHrs(me.hours || 0) + '</b><small>Approved hours' + (Number(me.pending) ? ' (+' + me.pending + ' pending)' : '') + '</small></div>' +
+          '<div><b>' + prHrs(me.ot_hours || 0) + '</b><small>Overtime hours</small></div>' +
+          '<div><b>' + prMoney(me.tips || 0) + '</b><small>Tips so far</small></div>' +
+          '<div><b>' + prMoney(me.gross || 0) + '</b><small>Estimated gross</small></div>' +
+        '</div>' +
+        (!ended && soFar > 0 ? '<p class="hint" style="margin:-4px 0 12px;">' + prHrs(soFar) + ' hours so far' + (soFar < otAt ? ' · overtime starts after ' + otAt : ' · you’re in overtime') + '.</p>' : '') +
+        (so ? '<p class="hint" style="margin:0 0 10px;">' + (so.agreed ? '✓ You confirmed this week ' : 'You flagged a question ') + esc(prWhen(so.signed_at)) + (so.note ? ': “' + esc(so.note) + '”' : '') + '. You can update it below.</p>' : '') +
+        '<div class="mw-sign"><button type="button" class="btn-primary btn-small" id="mwOk">My hours look right</button><button type="button" class="btn-ghost btn-small" id="mwBad">Something’s wrong</button></div>' +
+        '<div class="mw-note hidden" id="mwNoteBox"><textarea id="mwNote" rows="2" maxlength="500" placeholder="e.g. I worked until 9:30 on Friday, not 9:00"></textarea><button type="button" class="btn-primary btn-small" id="mwSend" style="width:auto;">Send to my manager</button></div>' +
+        '<div class="pr-msg" id="mwMsg"></div>' +
+        '<p class="hint" style="margin:10px 0 0;">Estimated gross is before taxes. Tips can change until all hours for the week are approved.</p>';
+      box.querySelectorAll('[data-mw]').forEach(function(b){ b.addEventListener('click', function(){ mw.which = +b.getAttribute('data-mw'); loadMyWeek(); }); });
+      var send = function(agreed, note){
+        prSay('mwMsg', 'Saving…');
+        sb.rpc('sign_my_timesheet', { p_week_start: d.week_start, p_agreed: agreed, p_note: note || null }).then(function(r){
+          if (r.error) { prSay('mwMsg', r.error.message, 'bad'); return; }
+          loadMyWeek();
+        });
+      };
+      document.getElementById('mwOk').addEventListener('click', function(){ send(true); });
+      document.getElementById('mwBad').addEventListener('click', function(){ document.getElementById('mwNoteBox').classList.remove('hidden'); document.getElementById('mwNote').focus(); });
+      document.getElementById('mwSend').addEventListener('click', function(){ send(false, document.getElementById('mwNote').value.trim()); });
+    });
+  }
+
+  // Older payroll screen (before payroll-pro.sql).
+  function loadPayrollLegacy(){
     sb.from('employees').select('id,name,hourly_rate').then(function(empRes){
       var empMap = {};
       (empRes.data || []).forEach(function(e){ empMap[e.id] = e; });
