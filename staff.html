@@ -620,6 +620,14 @@
   .ft-row{ display:flex; align-items:center; justify-content:space-between; gap:16px; }
   .ft-title{ font-size:18px; font-weight:700; }
   .ft-sub{ font-size:14px; color:#6e6e73; margin-top:2px; }
+  .bn-row{ display:flex; align-items:center; justify-content:space-between; gap:14px; padding:12px 0; border-top:1px solid var(--line); }
+  .bn-row b{ display:block; font-size:15px; }
+  .bn-row small{ display:block; color:var(--muted); font-size:12.5px; line-height:1.4; margin-top:2px; }
+  .bn-row-main{ border-top:0; padding-top:4px; }
+  .bn-slides.is-off{ opacity:.45; }
+  .bn-state{ font-size:12px; font-weight:700; padding:4px 10px; border-radius:999px; background:var(--panel-2); color:var(--muted); flex:none; }
+  .bn-state.on{ background:#e6f6ec; color:#1f8a46; }
+  .bn-now{ margin-top:12px; padding:12px 14px; border-radius:12px; background:var(--panel-2); font-size:13.5px; line-height:1.5; }
   .ft-card.is-on{ box-shadow:0 0 0 2px #30b35a inset; }
   /* Store hours */
   .sh-week{ display:grid; gap:2px; }
@@ -936,6 +944,35 @@
       </label>
       <button type="button" class="btn-export" id="siteBannerSaveBtn">Save banner</button>
       <div id="siteBannerMsg" class="hint" style="margin-top:8px;"></div>
+    </div>
+
+    <div class="card bn-card">
+      <h2>Top bar on the website</h2>
+      <p class="hint">The bar above the website rotates these slides every few seconds. Switch off anything you don&rsquo;t want customers to see. Changes show on the website within a few minutes (right away for new visitors).</p>
+      <div class="bn-row bn-row-main">
+        <div><b>Show the top bar</b><small>Off hides the whole bar, every slide.</small></div>
+        <button type="button" class="switch" role="switch" aria-checked="true" aria-label="Show the top bar" data-bn="bar" disabled></button>
+      </div>
+      <div class="bn-slides" id="bnSlides">
+        <div class="bn-row">
+          <div><b>Your message</b><small id="bnMsgPreview">Set above with &ldquo;Show this banner on the website&rdquo;.</small></div>
+          <span class="bn-state" id="bnMsgState">Off</span>
+        </div>
+        <div class="bn-row">
+          <div><b>Next event</b><small>Your next confirmed event in the coming 3 days, with a map link (from Events).</small></div>
+          <button type="button" class="switch" role="switch" aria-checked="true" aria-label="Next event slide" data-bn="event" disabled></button>
+        </div>
+        <div class="bn-row">
+          <div><b>Standard spot</b><small>&ldquo;Find us at our standard spot &mdash; 3554 S Arlington Rd, Akron &middot; Directions&rdquo;</small></div>
+          <button type="button" class="switch" role="switch" aria-checked="true" aria-label="Standard spot slide" data-bn="location" disabled></button>
+        </div>
+        <div class="bn-row">
+          <div><b>Google review</b><small>&ldquo;Loved your food? Leave us a Google review&rdquo;</small></div>
+          <button type="button" class="switch" role="switch" aria-checked="true" aria-label="Google review slide" data-bn="review" disabled></button>
+        </div>
+      </div>
+      <div class="bn-now" id="bnNow"></div>
+      <div class="hint" id="bnMsg" role="status" style="margin:8px 0 0;"></div>
     </div>
   </div>
 
@@ -1953,6 +1990,23 @@
   var SUPABASE_ANON_KEY = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
   var sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+  // Google sign-in: check first that Google is switched on in Supabase, so a
+  // customer never lands on a raw "provider is not enabled" error page.
+  window.rollinGoogle = function(client, opts){
+    var url = 'https://njcmcaoyzujijiyfardx.supabase.co', key = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
+    var go = function(){
+      return client.auth.signInWithOAuth({ provider: 'google', options: Object.assign({}, opts.options, { skipBrowserRedirect: true }) }).then(function(res){
+        if (res && res.error) return res;
+        if (res && res.data && res.data.url) location.assign(res.data.url);
+        return { data: res && res.data, error: null };
+      });
+    };
+    return fetch(url + '/auth/v1/settings', { headers: { apikey: key } }).then(function(r){ return r.ok ? r.json() : null; }).then(function(st){
+      if (st && st.external && st.external.google === false) return { data: null, error: { message: 'provider is not enabled' } };
+      return go();
+    }, go);
+  };
+
   var currentEmployee = null;
   var pendingEmail = '';
   var allEmployeesCache = [];
@@ -2135,7 +2189,7 @@
   // by claim_employee_record, same as with email codes.
   document.getElementById('staffGoogleBtn').addEventListener('click', function(){
     var btn = this; btn.disabled = true;
-    sb.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: window.location.origin + window.location.pathname, queryParams: { prompt: 'select_account' } } }).then(function(res){
+    window.rollinGoogle(sb, { provider: 'google', options: { redirectTo: window.location.origin + window.location.pathname, queryParams: { prompt: 'select_account' } } }).then(function(res){
       if (res && res.error) {
         btn.disabled = false;
         showMsg('loginMsg', /provider is not enabled|Unsupported provider/i.test(res.error.message || '') ? 'Google sign-in isn’t switched on yet. Use the email code for now.' : res.error.message, 'error');
@@ -3829,7 +3883,59 @@
     btn.addEventListener('click', function(){ loadKitchenAnalytics(btn.dataset.range); });
   });
 
+  // ---- Top bar slides (banner-settings.sql) ----
+  var bnState = null, bnBusy = false;
+  function bnPaint(d){
+    bnState = d;
+    document.querySelectorAll('[data-bn]').forEach(function(b){
+      var k = b.getAttribute('data-bn');
+      b.setAttribute('aria-checked', d[k] ? 'true' : 'false');
+      b.disabled = bnBusy;
+    });
+    document.getElementById('bnSlides').classList.toggle('is-off', !d.bar);
+    var on = !!(d.message_on && d.message);
+    var st = document.getElementById('bnMsgState');
+    st.textContent = on ? 'On' : 'Off'; st.classList.toggle('on', on);
+    document.getElementById('bnMsgPreview').textContent = d.message ? '\u201c' + d.message + '\u201d (switch it above)' : 'Nothing written yet. Write it above.';
+    var list = [];
+    if (on) list.push('your message');
+    if (d.event) list.push('the next event (when there is one)');
+    if (d.location) list.push('standard spot');
+    if (d.review) list.push('Google review');
+    document.getElementById('bnNow').innerHTML = !d.bar ? '<b>Customers see:</b> no top bar.'
+      : list.length ? '<b>Customers see:</b> ' + esc(list.join(', ')) + '.' : '<b>Customers see:</b> no top bar (every slide is off).';
+    var m = document.getElementById('bnMsg');
+    if (d.updated_by && !m.textContent) m.textContent = 'Last changed ' + new Date(d.updated_at).toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + ' by ' + d.updated_by + '.';
+  }
+  document.querySelector('.bn-card').addEventListener('click', function(e){
+    var b = e.target.closest('[data-bn]'); if (!b || b.disabled || !bnState || bnBusy) return;
+    var k = b.getAttribute('data-bn'), next = !bnState[k], body = {}; body[k] = next;
+    bnBusy = true; b.setAttribute('aria-checked', next ? 'true' : 'false');
+    var m = document.getElementById('bnMsg'); m.textContent = 'Saving\u2026';
+    sb.rpc('staff_set_banner', { p: body }).then(function(res){
+      bnBusy = false;
+      if (res.error) { m.textContent = 'Couldn\u2019t save \u2014 ' + (res.error.message || 'try again'); bnPaint(bnState); return; }
+      m.textContent = 'Saved.';
+      bnPaint(res.data);
+    }, function(){ bnBusy = false; m.textContent = 'Couldn\u2019t reach the server.'; bnPaint(bnState); });
+  });
+  function loadBannerSlides(){
+    sb.rpc('staff_get_banner').then(function(res){
+      if (res.error) {
+        document.getElementById('bnNow').textContent = /does not exist|could not find/i.test(res.error.message || '') ? 'Run banner-settings.sql in Supabase to use these switches.' : (res.error.message || 'Couldn\u2019t load.');
+        return;
+      }
+      var d = res.data || {};
+      // The saved message shows here even while it's switched off.
+      var msgEl = document.getElementById('siteBannerMessage');
+      if (d.message && !msgEl.value) msgEl.value = d.message;
+      document.getElementById('siteBannerActive').checked = !!d.message_on;
+      bnPaint(d);
+    });
+  }
+
   function loadSiteBanner(){
+    loadBannerSlides();
     sb.rpc('get_site_banner').then(function(res){
       // get_site_banner only returns a row when the banner is
       // actually active with a real message -- an empty result here
@@ -3860,6 +3966,7 @@
         return;
       }
       msgEl.textContent = active ? 'Saved \u2014 now showing on the website.' : 'Saved \u2014 banner is off.';
+      if (bnState) bnPaint(Object.assign({}, bnState, { message: message, message_on: active }));
     }).catch(function(){
       btn.disabled = false;
       msgEl.textContent = "Couldn't reach the server \u2014 check your connection.";
