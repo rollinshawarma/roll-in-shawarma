@@ -2048,7 +2048,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       </div>
     </div>
     <div class="foot-bottom">
-      <div>&copy; Roll-In Shawarma &middot; Green, Ohio 44685</div>
+      <div>&copy; Roll-In Shawarma &middot; Green, Ohio 44685 &middot; <a href="privacy.html">Privacy</a></div>
       <div>We roll it. You love it.</div>
     </div>
   </div>
@@ -2284,6 +2284,23 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     'https://njcmcaoyzujijiyfardx.supabase.co',
     'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_'
   );
+
+  // Google sign-in: check first that Google is switched on in Supabase, so a
+  // customer never lands on a raw "provider is not enabled" error page.
+  window.rollinGoogle = function(client, opts){
+    var url = 'https://njcmcaoyzujijiyfardx.supabase.co', key = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
+    var go = function(){
+      return client.auth.signInWithOAuth({ provider: 'google', options: Object.assign({}, opts.options, { skipBrowserRedirect: true }) }).then(function(res){
+        if (res && res.error) return res;
+        if (res && res.data && res.data.url) location.assign(res.data.url);
+        return { data: res && res.data, error: null };
+      });
+    };
+    return fetch(url + '/auth/v1/settings', { headers: { apikey: key } }).then(function(r){ return r.ok ? r.json() : null; }).then(function(st){
+      if (st && st.external && st.external.google === false) return { data: null, error: { message: 'provider is not enabled' } };
+      return go();
+    }, go);
+  };
 
   // ---- Store hours (staff portal -> Store hours; store-hours.sql) ----
   // One copy of the hours for the whole page: weekly hours + special dates
@@ -4828,7 +4845,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       btn.disabled = true;
       clearMsg();
       try { sessionStorage.setItem('rollinAuthReturn', 'deals'); } catch (e) {}
-      sb.auth.signInWithOAuth({
+      window.rollinGoogle(sb, {
         provider: 'google',
         options: { redirectTo: window.location.origin + window.location.pathname, queryParams: { prompt: 'select_account' } }
       }).then(function(res){
