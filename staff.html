@@ -4961,14 +4961,22 @@
     if (inv.status === 'sent' && inv.overdue) return '<span class="ad-chip bad">Overdue</span>';
     var s = IV_ST[inv.status] || [inv.status, '']; return '<span class="ad-chip ' + s[1] + '">' + s[0] + '</span>';
   }
-  function ivCall(body){
-    return sb.functions.invoke('invoice', { body: body }).then(function(res){
-      if (!res.error) return res.data || {};
-      if (/failed to send a request|failed to fetch|networkerror/i.test(res.error.message || '') || res.error.name === 'FunctionsFetchError')
-        return { error: 'Can’t reach the “invoice” function. In Supabase → Edge Functions, check there’s a function named exactly invoice, that it’s deployed, and that “Verify JWT” is off. Your draft is saved.' };
+  // The function's link name is case-sensitive; try "invoice", then "Invoice", and remember which one answers.
+  var IV_FNS = ['invoice', 'Invoice'];
+  try { var _f = localStorage.getItem('ivFn'); if (_f && IV_FNS.indexOf(_f) > 0) IV_FNS = [_f, 'invoice']; } catch (e) {}
+  function ivUnreachable(err){ return !!err && (err.name === 'FunctionsFetchError' || /failed to send a request|failed to fetch|networkerror|not.?found/i.test(err.message || '') || (err.context && err.context.status === 404)); }
+  function ivCall(body, i){
+    i = i || 0;
+    var name = IV_FNS[i];
+    return sb.functions.invoke(name, { body: body }).then(function(res){
+      if (!res.error) { if (i) { IV_FNS = [name].concat(IV_FNS.filter(function(x){ return x !== name; })); try { localStorage.setItem('ivFn', name); } catch (e) {} } return res.data || {}; }
+      if (ivUnreachable(res.error)) {
+        if (i + 1 < IV_FNS.length) return ivCall(body, i + 1);
+        return { error: 'Can’t reach the invoice function. In Supabase → Edge Functions, check it’s deployed and that “Verify JWT” is off. Your draft is saved.' };
+      }
       var c = res.error.context;
       return c && c.json ? c.json().then(function(j){ return j && j.error ? j : { error: res.error.message }; }, function(){ return { error: res.error.message }; }) : { error: res.error.message };
-    }, function(){ return { error: 'No connection. Try again.' }; });
+    }, function(){ return i + 1 < IV_FNS.length ? ivCall(body, i + 1) : { error: 'No connection. Try again.' }; });
   }
 
   // ----- list -----
