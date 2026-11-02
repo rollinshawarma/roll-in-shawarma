@@ -690,7 +690,7 @@
   @media (max-width:760px){ .pr-two{ grid-template-columns:1fr; } .pr-form-3{ grid-template-columns:1fr; } .my-week-card .mw-grid{ grid-template-columns:1fr 1fr; } }
   /* Supplies */
   .su-card{ padding:16px; }
-  .su-stores{ display:flex; gap:6px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; }
+  .su-stores{ display:flex; flex-wrap:wrap; gap:6px; padding-bottom:4px; }
   .su-stores::-webkit-scrollbar{ display:none; }
   .su-stores button{ flex:none; padding:9px 14px; font-size:14px; background:var(--panel); border:1px solid var(--line); color:var(--cream); font-weight:700; white-space:nowrap; }
   .su-stores button.on{ background:#1d1d1f; color:#fff; border-color:#1d1d1f; }
@@ -702,7 +702,7 @@
   .su-urg{ display:flex; align-items:center; gap:6px; margin:0; text-transform:none; letter-spacing:0; font-size:14px; color:var(--white); font-weight:600; }
   .su-urg input{ width:18px; height:18px; margin:0; }
   .su-add .btn-primary{ width:auto; }
-  .su-cats{ display:flex; gap:6px; overflow-x:auto; margin-top:12px; padding-bottom:4px; scrollbar-width:none; }
+  .su-cats{ display:flex; flex-wrap:wrap; gap:6px; margin-top:12px; padding-bottom:4px; }
   .su-cats::-webkit-scrollbar{ display:none; }
   .su-cats button{ flex:none; padding:7px 12px; font-size:13px; background:var(--panel-2); border:1px solid var(--line); color:var(--cream); font-weight:700; white-space:nowrap; }
   .su-cats button.on{ background:#ffd60a; border-color:#ffd60a; color:#2a2200; }
