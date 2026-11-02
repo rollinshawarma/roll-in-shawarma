@@ -240,9 +240,14 @@
   function gone(title, text){ $('loading').classList.add('hidden'); $('goneTitle').textContent = title; if (text) $('goneText').textContent = text; $('gone').classList.remove('hidden'); }
   if (!/^[0-9a-f]{40}$/.test(T)) { gone('This link isn’t complete', 'Please open the link from your email or text again.'); return; }
 
-  function fetchInv(){
-    return fetch(FN + 'invoice', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KEY, 'apikey': KEY }, body: JSON.stringify({ action: 'view', token: T }) })
-      .then(function(r){ return r.json().then(function(d){ return { ok: r.ok, d: d }; }); });
+  // The function's link name is case-sensitive; try "invoice", then "Invoice".
+  function fetchInv(i){
+    i = i || 0; var names = ['invoice', 'Invoice'];
+    return fetch(FN + names[i], { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KEY, 'apikey': KEY }, body: JSON.stringify({ action: 'view', token: T }) })
+      .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(d){
+        if (r.status === 404 && d && d.code === 'NOT_FOUND' && i + 1 < names.length) return fetchInv(i + 1);
+        return { ok: r.ok, d: d }; }); },
+        function(e){ if (i + 1 < names.length) return fetchInv(i + 1); throw e; });
   }
   function drawQr(url){
     var box = $('qr'); box.textContent = '';
