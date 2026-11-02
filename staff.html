@@ -688,6 +688,93 @@
   .mw-sign .btn-primary{ width:auto; }
   .mw-note{ margin-top:10px; }
   @media (max-width:760px){ .pr-two{ grid-template-columns:1fr; } .pr-form-3{ grid-template-columns:1fr; } .my-week-card .mw-grid{ grid-template-columns:1fr 1fr; } }
+  /* Supplies */
+  .su-card{ padding:16px; }
+  .su-stores{ display:flex; gap:6px; overflow-x:auto; padding-bottom:4px; scrollbar-width:none; }
+  .su-stores::-webkit-scrollbar{ display:none; }
+  .su-stores button{ flex:none; padding:9px 14px; font-size:14px; background:var(--panel); border:1px solid var(--line); color:var(--cream); font-weight:700; white-space:nowrap; }
+  .su-stores button.on{ background:#1d1d1f; color:#fff; border-color:#1d1d1f; }
+  .su-stores button .n{ display:inline-block; min-width:20px; margin-left:4px; padding:0 6px; border-radius:99px; background:var(--panel-2); color:var(--muted); font-size:12px; }
+  .su-stores button.on .n{ background:rgba(255,255,255,.2); color:#fff; }
+  .su-stores button .n.urgent{ background:var(--red); color:#fff; }
+  .su-add{ display:grid; grid-template-columns:1fr 120px 170px auto auto; gap:8px; align-items:center; }
+  .su-add input[type=text], .su-add select{ margin:0; font-size:16px; min-height:44px; }
+  .su-urg{ display:flex; align-items:center; gap:6px; margin:0; text-transform:none; letter-spacing:0; font-size:14px; color:var(--white); font-weight:600; }
+  .su-urg input{ width:18px; height:18px; margin:0; }
+  .su-add .btn-primary{ width:auto; }
+  .su-cats{ display:flex; gap:6px; overflow-x:auto; margin-top:12px; padding-bottom:4px; scrollbar-width:none; }
+  .su-cats::-webkit-scrollbar{ display:none; }
+  .su-cats button{ flex:none; padding:7px 12px; font-size:13px; background:var(--panel-2); border:1px solid var(--line); color:var(--cream); font-weight:700; white-space:nowrap; }
+  .su-cats button.on{ background:#ffd60a; border-color:#ffd60a; color:#2a2200; }
+  .su-chips{ display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .su-chips button{ padding:7px 12px; font-size:13px; background:var(--panel-2); border:1px solid var(--line); color:var(--cream); font-weight:600; }
+  .su-chips button small{ color:var(--muted); font-size:10.5px; font-weight:800; margin-left:2px; }
+  .su-chips button.on{ background:#e6f6ec; border-color:#bfe8cd; color:#1f8a46; }
+  .su-chips.editing button{ border-style:dashed; }
+  .su-bar{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin:12px 0; }
+  .su-wa{ background:#25d366; color:#04260f; }
+  .su-filter{ display:flex; align-items:center; gap:6px; margin:0 0 0 auto; text-transform:none; letter-spacing:0; font-size:14px; color:var(--white); font-weight:500; }
+  .su-filter input{ width:18px; height:18px; margin:0; }
+  .su-cat{ font-weight:800; margin:14px 0 6px; font-size:15px; display:flex; justify-content:space-between; align-items:center; gap:8px; }
+  .su-cat small{ color:var(--muted); font-weight:600; }
+  .su-item{ display:grid; grid-template-columns:auto 1fr auto; gap:10px; align-items:center; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:10px 12px; margin-bottom:8px; }
+  .su-item.urgent{ border-color:var(--red); }
+  .su-got{ width:46px; height:46px; padding:0; border-radius:12px; background:var(--panel-2); border:1px solid var(--line); color:#1f8a46; font-size:20px; }
+  .su-nm{ font-weight:700; font-size:16px; }
+  .su-nm .q{ color:var(--muted); font-weight:600; margin-left:6px; }
+  .su-nm .u{ display:inline-block; margin-left:6px; padding:1px 8px; border-radius:99px; background:var(--red); color:#fff; font-size:11px; font-weight:800; vertical-align:middle; }
+  .su-meta{ font-size:12.5px; color:var(--muted); margin-top:2px; }
+  .su-meta b{ color:#8a6200; }
+  .su-acts{ display:flex; gap:6px; flex-wrap:wrap; justify-content:flex-end; }
+  .su-acts button{ padding:7px 11px; font-size:12.5px; background:var(--panel-2); border:1px solid var(--line); color:var(--cream); }
+  .su-acts button.mine{ background:#fff4e5; border-color:#ffd59e; color:#8a4b00; }
+  .su-acts button.nostore{ border-style:dashed; border-color:#e08a00; color:#a05f00; }
+  .su-pick{ grid-column:1 / -1; display:flex; flex-wrap:wrap; gap:6px; }
+  .su-pick button{ padding:7px 11px; font-size:12.5px; background:var(--panel-2); border:1px solid var(--line); color:var(--cream); }
+  .su-pick button.on{ background:#1d1d1f; color:#fff; }
+  .su-empty{ color:var(--muted); text-align:center; padding:24px 0; }
+  @media (max-width:640px){ .su-add{ grid-template-columns:1fr 1fr; } .su-add #suName{ grid-column:1 / -1; } .su-item{ grid-template-columns:auto 1fr; } .su-acts{ grid-column:1 / -1; justify-content:flex-start; } .su-filter{ margin-left:0; } }
+  /* Supplies: set up the kitchen board */
+  .su-mode{ display:inline-flex; background:var(--panel-2); border:1px solid var(--line); border-radius:12px; padding:3px; margin:0 0 14px; flex-wrap:wrap; }
+  .su-mode button{ padding:9px 14px; font-size:14px; background:transparent; color:var(--cream); border-radius:10px; }
+  .su-mode button.on{ background:#1d1d1f; color:#fff; }
+  .su-setup-grid{ display:grid; grid-template-columns:minmax(0, 1fr); gap:16px; align-items:start; }
+  @media (min-width:1500px){ .su-setup-grid{ grid-template-columns:minmax(0, 1.6fr) minmax(320px, 1fr); } }
+  .ss-add{ display:grid; grid-template-columns:1fr 150px 110px 120px auto; gap:8px; margin:10px 0 4px; }
+  .ss-add input, .ss-add select{ margin:0; min-height:42px; font-size:15px; }
+  .ss-add .btn-primary{ width:auto; }
+  .ss-add-cat{ grid-template-columns:64px 1fr 170px auto; }
+  .ss-add-store{ grid-template-columns:1fr 140px auto auto; }
+  .ss-icon{ text-align:center; font-size:20px !important; }
+  .ss-row{ display:grid; grid-template-columns:auto minmax(140px, 1fr) 150px 92px 110px auto auto; gap:6px; align-items:center; padding:8px 0; border-top:1px solid var(--line); }
+  .ss-row.cat{ grid-template-columns:auto 56px 1fr 160px auto auto auto; }
+  .ss-row.store{ grid-template-columns:auto 1fr 130px auto auto auto; }
+  .ss-row input, .ss-row select{ margin:0; min-height:40px; font-size:14.5px; padding:8px 10px; }
+  .ss-row.off input:not([type=checkbox]), .ss-row.off select{ opacity:.5; }
+  .ss-mv{ display:flex; flex-direction:column; gap:2px; }
+  .ss-mv button{ width:30px; height:20px; padding:0; border-radius:6px; background:var(--panel-2); border:1px solid var(--line); color:var(--cream); font-size:11px; }
+  .ss-mv button:disabled{ opacity:.25; }
+  .ss-row .switch{ transform:scale(.85); }
+  .ss-del{ padding:7px 10px; font-size:12.5px; background:transparent; border:1px solid var(--line); color:var(--red); }
+  .ss-n{ font-size:12px; color:var(--muted); white-space:nowrap; }
+  .ss-online{ display:flex; align-items:center; gap:5px; margin:0; text-transform:none; letter-spacing:0; font-size:13px; color:var(--white); font-weight:500; white-space:nowrap; }
+  .ss-online input{ width:16px; height:16px; margin:0; }
+  .ss-preview{ position:sticky; top:12px; background:#1c1c1e; color:#f5f5f7; border-radius:18px; padding:16px; border:1px solid #2c2c2e; }
+  .ss-preview .pv-title{ font-weight:800; font-size:18px; margin-bottom:8px; }
+  .ss-preview .pv-tabs{ display:flex; gap:5px; flex-wrap:wrap; margin-bottom:10px; }
+  .ss-preview .pv-tabs span{ padding:6px 10px; border-radius:9px; background:#2c2c2e; font-size:12.5px; font-weight:700; }
+  .ss-preview .pv-tabs span.on{ background:#ffd60a; color:#2a2200; }
+  .ss-preview .pv-chips{ display:flex; gap:6px; flex-wrap:wrap; }
+  .ss-preview .pv-chips span{ padding:7px 11px; border-radius:99px; border:1.5px solid #3a3a3c; font-size:13px; font-weight:700; }
+  .ss-preview .pv-chips small{ color:#98989d; font-size:10px; margin-left:4px; }
+  .ss-preview .pv-empty{ color:#98989d; font-size:13px; }
+  .ss-preview .pv-hint{ color:#98989d; font-size:12px; margin-top:12px; }
+  @media (max-width:900px){
+    .su-setup-grid{ grid-template-columns:1fr; } .ss-preview{ position:static; }
+    .ss-add, .ss-add-cat, .ss-add-store{ grid-template-columns:1fr 1fr; } .ss-add input:first-of-type{ grid-column:1 / -1; }
+    .ss-add-cat .ss-icon{ grid-column:auto; }
+    .ss-row, .ss-row.cat, .ss-row.store{ grid-template-columns:auto 1fr 1fr; } .ss-row > input:first-of-type{ grid-column:2 / -1; }
+  }
   .ft-card.is-on{ box-shadow:0 0 0 2px #30b35a inset; }
   /* Store hours */
   .sh-week{ display:grid; gap:2px; }
@@ -897,6 +984,7 @@
       <button class="nav-link hidden" data-tab="kitchen" id="tabKitchenBtn"><svg class="icon"><use href="#ic-flame"/></svg>Kitchen</button>
       <button class="nav-link hidden" data-tab="soldout" id="tabSoldoutBtn"><svg class="icon"><use href="#ic-ban"/></svg>Sold out<span class="nav-badge nav-badge-soft hidden" id="navSoldBadge"></span></button>
       <button class="nav-link hidden" data-tab="perks" id="tabPerksBtn"><svg class="icon"><use href="#ic-gift"/></svg>Redeem rewards</button>
+      <button class="nav-link" data-tab="supplies" id="tabSuppliesBtn"><svg class="icon"><use href="#ic-gift"/></svg>Supplies<span class="nav-badge hidden" id="navSupBadge"></span></button>
       <button class="nav-link hidden" data-tab="cashorders" id="tabCashOrdersBtn"><svg class="icon"><use href="#ic-dollar"/></svg>Cash log</button>
 
       <div class="nav-section-label">Website</div>
@@ -1529,6 +1617,90 @@
   </div>
 
   <!-- NEW FEATURES: SECRET MENU -->
+  <!-- SUPPLIES (supplies.sql) -->
+  <div class="tab-panel hidden" id="panelSupplies">
+    <div class="page-head">
+      <h2>Supplies</h2>
+      <p class="hint">One list per store. Going shopping? Pick the store, tap &ldquo;I&rsquo;m buying&rdquo; so nobody doubles up, then check items off as they go in the cart.</p>
+    </div>
+    <div class="su-mode hidden" id="suMode" role="tablist" aria-label="Supplies view">
+      <button type="button" data-mode="lists" class="on">&#128722; Shopping lists</button>
+      <button type="button" data-mode="setup">&#9881;&#65039; Set up the kitchen board</button>
+    </div>
+    <div id="suSetup" class="hidden">
+      <p class="hint">What shows on the kitchen tablet&rsquo;s Supplies screen. Changes show on the tablet within a few seconds. Use &uarr; &darr; to set the order.</p>
+      <div class="su-setup-grid">
+        <div>
+          <div class="section-title">Items on the board</div>
+          <div class="card su-card">
+            <div class="su-cats" id="ssCatPick" role="tablist" aria-label="Category"></div>
+            <form class="ss-add" id="ssAddItem" autocomplete="off">
+              <input type="text" id="ssNewName" placeholder="New item, e.g. 12&quot; box" maxlength="60" aria-label="New item name">
+              <select id="ssNewStore" aria-label="Store"></select>
+              <input type="text" id="ssNewUnit" placeholder="Unit (case)" maxlength="20" aria-label="Unit">
+              <input type="text" id="ssNewPack" placeholder="Pack (200 ct)" maxlength="30" aria-label="Pack size">
+              <button type="submit" class="btn-primary btn-small">Add item</button>
+            </form>
+            <div class="pr-msg" id="ssItemMsg" role="status"></div>
+            <div id="ssItems"></div>
+          </div>
+        </div>
+        <div>
+          <div class="section-title">How it looks on the kitchen tablet</div>
+          <div class="ss-preview" id="ssPreview"></div>
+        </div>
+      </div>
+      <div class="section-title">Tabs (categories)</div>
+      <div class="card su-card">
+        <form class="ss-add ss-add-cat" id="ssAddCat" autocomplete="off">
+          <input type="text" id="ssCatIcon" placeholder="🌯" maxlength="8" aria-label="Icon (emoji)" class="ss-icon">
+          <input type="text" id="ssCatName" placeholder="New tab, e.g. Frankie rolls" maxlength="30" aria-label="Tab name">
+          <select id="ssCatStore" aria-label="Usual store"></select>
+          <button type="submit" class="btn-primary btn-small">Add tab</button>
+        </form>
+        <div class="pr-msg" id="ssCatMsg" role="status"></div>
+        <div id="ssCats"></div>
+      </div>
+      <div class="section-title">Stores</div>
+      <div class="card su-card">
+        <form class="ss-add ss-add-store" id="ssAddStore" autocomplete="off">
+          <input type="text" id="ssStoreName" placeholder="New store, e.g. Sam&rsquo;s Club" maxlength="40" aria-label="Store name">
+          <input type="text" id="ssStoreShort" placeholder="Short name" maxlength="14" aria-label="Short name">
+          <label class="su-urg"><input type="checkbox" id="ssStoreOnline"> Online</label>
+          <button type="submit" class="btn-primary btn-small">Add store</button>
+        </form>
+        <div class="pr-msg" id="ssStoreMsg" role="status"></div>
+        <div id="ssStores"></div>
+      </div>
+    </div>
+    <div id="suLists">
+    <div class="su-stores" id="suStores" role="tablist" aria-label="Stores"></div>
+    <div class="su-bar">
+      <button type="button" class="btn-small su-wa" id="suWa">&#128172; Send to WhatsApp</button>
+      <button type="button" class="btn-ghost btn-small" id="suCopy">Copy list</button>
+      <label class="su-filter"><input type="checkbox" id="suMine"> Only what I&rsquo;m buying</label>
+    </div>
+    <div id="suList"></div>
+
+    <div class="section-title">Add to the list</div>
+    <div class="card su-card">
+      <form class="su-add" id="suForm" autocomplete="off">
+        <input type="text" id="suName" placeholder="Add an item&hellip;" maxlength="60" autocapitalize="sentences" enterkeyhint="done" aria-label="Item">
+        <input type="text" id="suQty" placeholder="How many?" maxlength="24" enterkeyhint="done" aria-label="How many (optional)">
+        <select id="suStore" aria-label="Store"><option value="">Usual store</option></select>
+        <label class="su-urg"><input type="checkbox" id="suUrgent"> Urgent</label>
+        <button type="submit" class="btn-primary btn-small" id="suAdd">Add</button>
+      </form>
+      <div class="pr-msg" id="suMsg" role="status"></div>
+      <div class="su-cats" id="suCats" role="tablist" aria-label="Categories"></div>
+      <div class="su-chips" id="suChips"></div>
+      <button type="button" class="btn-ghost btn-small hidden" id="suEditChips" style="margin-top:10px;">Edit tap-to-add items</button>
+    </div>
+    <div class="section-title">Bought this week</div>
+    <div class="card su-card" id="suRecent"></div>
+    </div>
+  </div>
+
   <!-- STORE HOURS (store-hours.sql) -->
   <div class="tab-panel hidden" id="panelStorehours">
     <div class="page-head">
@@ -2348,6 +2520,8 @@
       document.getElementById('tabBannerBtn').classList.remove('hidden');
       loadMyWeek();
       document.querySelector('.nav-link[data-tab="clock"]').addEventListener('click', loadMyWeek);
+      loadSupplies();
+      if (location.hash === '#supplies') setTimeout(function(){ showTab('supplies'); }, 0);
 
       var isManager = currentEmployee.role === 'manager' || currentEmployee.role === 'admin';
       var isAdmin = currentEmployee.role === 'admin';
@@ -2651,6 +2825,391 @@
       ftPaint(res.data);
       ftSay(turnOn ? 'Secret menu is live. Pages pick it up on their next load.' : 'Secret menu switched off everywhere.');
     }, function(){ ftBusy = false; ftSay('Couldn\u2019t reach the server.', true); ftPaint(ftState); });
+  });
+
+  // ---------------- SUPPLIES (supplies.sql) ----------------
+  // One shopping list per store; tap-to-add by category.
+  var su = { data: null, busy: false, timer: null, editChips: false, store: 'all', cat: 'top', pick: null };
+    // ---- shared by the kitchen tablet and the staff portal ----
+  var STORE_ICON = { rd: '🏬', costco: '🛒', aldi: '🧺', webst: '💻' };
+  function supCats(d){ var m = {}; (d.categories || []).forEach(function(c, i){ m[c.key] = Object.assign({ i: i }, c); }); return m; }
+  function supStores(d){ var m = {}; (d.stores || []).forEach(function(s, i){ m[s.key] = Object.assign({ i: i }, s); }); return m; }
+  // Open items grouped by store (stores in order, then "No store yet"); inside, urgent first then by category.
+  function supByStore(d, items){
+    var cats = supCats(d), out = [];
+    var sortIt = function(a, b){ return (b.urgent - a.urgent) || ((cats[a.category] || {}).i - (cats[b.category] || {}).i) || a.name.localeCompare(b.name); };
+    (d.stores || []).forEach(function(s){ var g = items.filter(function(i){ return i.store === s.key; }).sort(sortIt); if (g.length) out.push({ store: s, items: g }); });
+    var none = items.filter(function(i){ return !i.store || !supStores(d)[i.store]; }).sort(sortIt);
+    if (none.length) out.push({ store: { key: '', name: 'No store yet', short: 'No store' }, items: none });
+    return out;
+  }
+  function supByCategory(d, items){
+    var out = [];
+    (d.categories || []).forEach(function(c){ var g = items.filter(function(i){ return i.category === c.key; }).sort(function(a, b){ return (b.urgent - a.urgent) || a.name.localeCompare(b.name); }); if (g.length) out.push({ cat: c, items: g }); });
+    return out;
+  }
+  // WhatsApp / copy text. storeKey: one store's list, or null for every store.
+  function supText(d, storeKey){
+    var open = (d.open || []).filter(function(i){ return storeKey == null || (storeKey === '' ? !i.store : i.store === storeKey); });
+    if (!open.length) return '';
+    var cats = supCats(d), groups = supByStore(d, open);
+    var lines = ['📦 *Roll-In supplies*' + (storeKey != null && groups[0] ? ' — ' + groups[0].store.name : '') + ' (' + open.length + ')'];
+    groups.forEach(function(g){
+      lines.push('', (STORE_ICON[g.store.key] || '❓') + ' *' + g.store.name + (g.store.online ? ' (order online)' : '') + '* (' + g.items.length + ')');
+      g.items.forEach(function(i){
+        lines.push((i.urgent ? '⚠ ' : '• ') + i.name + (i.qty ? ' — ' + i.qty : '') + (i.urgent ? ' *URGENT*' : '') + (i.buying_name ? ' (' + i.buying_name + ' buying)' : ''));
+      });
+    });
+    lines.push('', 'Check items off: https://rollinshawarma.com/staff.html#supplies');
+    return lines.join('\n');
+  }
+  function suAgo(iso){ var m = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
+    return m < 1 ? 'just now' : m < 60 ? m + ' min ago' : m < 1440 ? Math.round(m / 60) + ' h ago' : new Date(iso).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }); }
+  function suSay(t, kind){ var m = document.getElementById('suMsg'); m.textContent = t || ''; m.className = 'pr-msg' + (kind ? ' ' + kind : ''); }
+  function suBadge(d){
+    var n = d && d.open ? d.open.length : 0, b = document.getElementById('navSupBadge');
+    b.textContent = n; b.classList.toggle('hidden', !n);
+    b.classList.toggle('nav-badge-soft', !(d && d.open || []).some(function(i){ return i.urgent; }));
+  }
+  function loadSupplies(){
+    return sb.rpc('supplies_list').then(function(res){
+      if (res.error) {
+        if (/does not exist|could not find/i.test(res.error.message || '')) document.getElementById('suList').innerHTML = '<p class="hint">Run supplies.sql in Supabase to turn on Supplies.</p>';
+        return;
+      }
+      su.data = res.data; suBadge(su.data); suPaint();
+    }, function(){});
+  }
+  function suPaint(){
+    var d = su.data; if (!d) return;
+    var me = d.me || {}, open = d.open || [], mineOnly = document.getElementById('suMine').checked, stores = supStores(d), cats = supCats(d);
+    // Store tabs: All + each store (+ "No store" when needed)
+    var tabs = [{ key: 'all', name: 'All' }].concat(d.stores || []);
+    var noStore = open.filter(function(i){ return !i.store || !stores[i.store]; });
+    if (noStore.length) tabs.push({ key: '', name: 'No store' });
+    if (!tabs.some(function(t){ return t.key === su.store; })) su.store = 'all';
+    document.getElementById('suStores').innerHTML = tabs.map(function(t){
+      var items = t.key === 'all' ? open : t.key === '' ? noStore : open.filter(function(i){ return i.store === t.key; });
+      var urg = items.some(function(i){ return i.urgent; });
+      return '<button type="button" role="tab" aria-selected="' + (t.key === su.store) + '" data-store="' + esc(t.key) + '" class="' + (t.key === su.store ? 'on' : '') + '">' +
+        (STORE_ICON[t.key] ? STORE_ICON[t.key] + ' ' : '') + esc(t.short || t.name) + '<span class="n' + (urg ? ' urgent' : '') + '">' + items.length + '</span></button>'; }).join('');
+    document.getElementById('suWa').textContent = '💬 Send ' + (su.store === 'all' ? 'all lists' : 'this list') + ' to WhatsApp';
+    // List
+    var list = su.store === 'all' ? open : su.store === '' ? noStore : open.filter(function(i){ return i.store === su.store; });
+    if (mineOnly) list = list.filter(function(i){ return i.buying_by === me.id; });
+    var html = '';
+    if (!list.length) html = '<div class="su-empty">' + (mineOnly ? 'You haven’t picked anything to buy yet.' : 'Nothing to buy here. 👍') + '</div>';
+    var groups = su.store === 'all' ? supByStore(d, list).map(function(g){ return { title: (STORE_ICON[g.store.key] || '❓') + ' ' + g.store.name + (g.store.online ? ' · order online' : ''), items: g.items }; })
+      : supByCategory(d, list).map(function(g){ return { title: g.cat.icon + ' ' + g.cat.name, items: g.items }; });
+    groups.forEach(function(g){
+      html += '<div class="su-cat"><span>' + esc(g.title) + '</span><small>' + g.items.length + '</small></div>' + g.items.map(function(i){
+        var mine = i.buying_by === me.id, s = stores[i.store], c = cats[i.category] || {};
+        var meta = (su.store === 'all' && c.name ? c.icon + ' ' + esc(c.name) + ' · ' : '') + 'Added by ' + esc(i.added_by_name || 'someone') + ' · ' + esc(suAgo(i.added_at));
+        if (i.buying_name) meta += ' · <b>' + (mine ? 'You’re buying it' : esc(i.buying_name) + ' is buying it') + '</b>';
+        var pick = su.pick === i.id ? '<div class="su-pick">' + (d.stores || []).map(function(x){
+            return '<button type="button" data-setstore="' + esc(x.key) + '" class="' + (x.key === i.store ? 'on' : '') + '">' + (STORE_ICON[x.key] || '') + ' ' + esc(x.name) + '</button>'; }).join('') +
+            '<button type="button" data-setstore="">No store</button></div>' : '';
+        return '<div class="su-item' + (i.urgent ? ' urgent' : '') + '" data-id="' + esc(i.id) + '">' +
+          '<button type="button" class="su-got" data-act="got" aria-label="Bought ' + esc(i.name) + '" title="Bought it">✓</button>' +
+          '<div><div class="su-nm">' + esc(i.name) + (i.qty ? '<span class="q">' + esc(i.qty) + '</span>' : '') + (i.urgent ? '<span class="u">URGENT</span>' : '') + '</div><div class="su-meta">' + meta + (i.note ? ' · “' + esc(i.note) + '”' : '') + '</div></div>' +
+          '<div class="su-acts"><button type="button" data-act="store" class="' + (s ? '' : 'nostore') + '">' + (s ? (STORE_ICON[s.key] || '') + ' ' + esc(s.short) : 'Pick store') + ' ▾</button>' +
+          '<button type="button" data-act="buying" class="' + (mine ? 'mine' : '') + '">' + (mine ? 'Not buying' : 'I’m buying') + '</button>' +
+          '<button type="button" data-act="urgent">' + (i.urgent ? 'Not urgent' : 'Urgent') + '</button>' +
+          '<button type="button" data-act="remove" aria-label="Remove ' + esc(i.name) + '">Remove</button></div>' + pick + '</div>';
+      }).join('');
+    });
+    document.getElementById('suList').innerHTML = html;
+    // Add form: store picker, category tabs + tap-to-add
+    var sel = document.getElementById('suStore'), cur = sel.value;
+    sel.innerHTML = '<option value="">Usual store</option>' + (d.stores || []).map(function(s){ return '<option value="' + esc(s.key) + '">' + esc(s.name) + '</option>'; }).join('');
+    sel.value = cur;
+    var chips = d.chips || [], onList = {}; open.forEach(function(i){ onList[i.name.toLowerCase()] = true; });
+    var ctabs = [{ key: 'top', name: 'Most used', icon: '⭐' }].concat((d.categories || []).filter(function(c){ return chips.some(function(x){ return x.category === c.key; }); }));
+    if (!ctabs.some(function(t){ return t.key === su.cat; })) su.cat = 'top';
+    document.getElementById('suCats').innerHTML = ctabs.map(function(t){ return '<button type="button" role="tab" aria-selected="' + (t.key === su.cat) + '" data-cat="' + esc(t.key) + '" class="' + (t.key === su.cat ? 'on' : '') + '">' + t.icon + ' ' + esc(t.name) + '</button>'; }).join('');
+    var shown = su.cat === 'top' ? chips.slice().sort(function(a, b){ return (b.uses || 0) - (a.uses || 0); }).slice(0, 14) : chips.filter(function(c){ return c.category === su.cat; });
+    document.getElementById('suChips').classList.toggle('editing', su.editChips);
+    document.getElementById('suChips').innerHTML = shown.map(function(c){
+      var on = onList[c.name.toLowerCase()];
+      return '<button type="button" data-chip="' + esc(c.name) + '" class="' + (on && !su.editChips ? 'on' : '') + '">' + (su.editChips ? '✕ ' : on ? '✓ ' : '+ ') + esc(c.name) +
+        (c.store && stores[c.store] ? '<small>' + esc(stores[c.store].short) + '</small>' : '') + '</button>'; }).join('') || '<p class="hint" style="margin:0;">Nothing here yet.</p>';
+    document.getElementById('suEditChips').classList.toggle('hidden', !(me.role === 'manager' || me.role === 'admin'));
+    document.getElementById('suMode').classList.toggle('hidden', !(me.role === 'manager' || me.role === 'admin'));
+    document.getElementById('suEditChips').textContent = '\u2699\uFE0F Set up the kitchen board';
+    document.getElementById('suRecent').innerHTML = (d.recent || []).length ? d.recent.map(function(i){
+      return '<div class="pr-row"><span><b>' + esc(i.name) + '</b>' + (i.qty ? ' · ' + esc(i.qty) : '') + '<br><small class="hint">' + esc(i.done_by_name || 'someone') + (i.store && stores[i.store] ? ' at ' + esc(stores[i.store].name) : '') + ' · ' + esc(suAgo(i.done_at)) + '</small></span>' +
+        '<button type="button" class="btn-ghost btn-small" data-again="' + esc(i.name) + '">Add again</button></div>'; }).join('')
+      : '<p class="hint" style="margin:0;">Nothing bought in the last 7 days.</p>';
+  }
+  function suRun(p){
+    su.busy = true;
+    return p.then(function(res){
+      su.busy = false;
+      if (res.error) { suSay(res.error.message || 'Couldn’t save.', 'bad'); return false; }
+      su.data = res.data; suBadge(su.data); suPaint(); return true;
+    }, function(){ su.busy = false; suSay('No connection. Try again.', 'bad'); return false; });
+  }
+  function suAdd(name){
+    name = String(name || '').trim();
+    if (!name) { suSay('Type an item first.', 'bad'); return; }
+    if (su.busy) return;
+    var urgent = document.getElementById('suUrgent').checked, qty = document.getElementById('suQty').value, store = document.getElementById('suStore').value || null;
+    suRun(sb.rpc('supplies_add', { p_name: name, p_qty: qty || null, p_urgent: urgent, p_store: store })).then(function(ok){
+      if (!ok) return;
+      var it = (su.data.open || []).find(function(x){ return x.name.toLowerCase() === name.toLowerCase(); }) || {}, sn = supStores(su.data)[it.store];
+      suSay('Added ' + (it.name || name) + (sn ? ' to ' + sn.name : '') + '.', 'ok');
+      document.getElementById('suName').value = ''; document.getElementById('suQty').value = ''; document.getElementById('suUrgent').checked = false; document.getElementById('suStore').value = '';
+    });
+  }
+  document.getElementById('suForm').addEventListener('submit', function(e){ e.preventDefault(); suAdd(document.getElementById('suName').value); });
+  document.getElementById('suMine').addEventListener('change', suPaint);
+  document.getElementById('suStores').addEventListener('click', function(e){ var b = e.target.closest('[data-store]'); if (b) { su.store = b.getAttribute('data-store'); su.pick = null; suPaint(); } });
+  document.getElementById('suCats').addEventListener('click', function(e){ var b = e.target.closest('[data-cat]'); if (b) { su.cat = b.getAttribute('data-cat'); suPaint(); } });
+  // Managers: the full editor lives in "Set up the kitchen board".
+  document.getElementById('suEditChips').addEventListener('click', function(){ suSetMode('setup'); window.scrollTo(0, 0); });
+  document.getElementById('suChips').addEventListener('click', function(e){
+    var b = e.target.closest('[data-chip]'); if (!b) return;
+    var n = b.getAttribute('data-chip');
+    if (su.editChips) { if (confirm('Hide "' + n + '" from tap-to-add? (Typing it again brings it back.)')) suRun(sb.rpc('supplies_chip', { p_name: n, p_hidden: true })); return; }
+    if (b.classList.contains('on')) { suSay(n + ' is already on the list.'); return; }
+    suAdd(n);
+  });
+  document.getElementById('suList').addEventListener('click', function(e){
+    var r = e.target.closest('[data-id]'); if (!r || su.busy) return;
+    var id = r.getAttribute('data-id');
+    var item = (su.data.open || []).find(function(i){ return i.id === id; }) || {}, me = su.data.me || {};
+    var ss = e.target.closest('[data-setstore]');
+    if (ss) {
+      var k = ss.getAttribute('data-setstore'); su.pick = null;
+      suRun(sb.rpc('supplies_update', { p_id: id, p: { store: k, remember: true } })).then(function(ok){ var sn = supStores(su.data)[k]; if (ok) suSay(item.name + (sn ? ' → ' + sn.name + ' (from now on)' : ' has no store') + '.', 'ok'); });
+      return;
+    }
+    var b = e.target.closest('[data-act]'); if (!b) return;
+    var act = b.getAttribute('data-act');
+    if (act === 'store') { su.pick = su.pick === id ? null : id; suPaint(); return; }
+    if (act === 'got') suRun(sb.rpc('supplies_update', { p_id: id, p: { status: 'bought' } })).then(function(ok){ if (ok) suSay('✓ ' + item.name + ' bought.', 'ok'); });
+    if (act === 'buying') suRun(sb.rpc('supplies_update', { p_id: id, p: { buying: item.buying_by !== me.id } }));
+    if (act === 'urgent') suRun(sb.rpc('supplies_update', { p_id: id, p: { urgent: !item.urgent } }));
+    if (act === 'remove' && confirm('Take ' + item.name + ' off the list?')) suRun(sb.rpc('supplies_update', { p_id: id, p: { status: 'removed' } }));
+  });
+  document.getElementById('suRecent').addEventListener('click', function(e){ var b = e.target.closest('[data-again]'); if (b) suAdd(b.getAttribute('data-again')); });
+  document.getElementById('suWa').addEventListener('click', function(){
+    var t = su.data ? supText(su.data, su.store === 'all' ? null : su.store) : ''; if (!t) { suSay('That list is empty.'); return; }
+    window.open('https://wa.me/?text=' + encodeURIComponent(t), '_blank', 'noopener');
+  });
+  document.getElementById('suCopy').addEventListener('click', function(){
+    var t = su.data ? supText(su.data, su.store === 'all' ? null : su.store) : ''; if (!t) { suSay('That list is empty.'); return; }
+    (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(function(){ suSay('Copied.', 'ok'); }, function(){ suSay('Couldn’t copy on this device.', 'bad'); });
+  });
+  document.querySelector('.nav-link[data-tab="supplies"]').addEventListener('click', function(){
+    loadSupplies();
+    clearInterval(su.timer);
+    su.timer = setInterval(function(){ if (!document.getElementById('panelSupplies').classList.contains('hidden')) loadSupplies(); else clearInterval(su.timer); }, 20000);
+  });
+
+  // ---------------- SUPPLIES: set up the kitchen board (managers) ----------------
+  var ss = { data: null, cat: null, busy: false };
+  function ssSay(id, t, kind){ var m = document.getElementById(id); if (m) { m.textContent = t || ''; m.className = 'pr-msg' + (kind ? ' ' + kind : ''); } }
+  function ssStoreOptions(sel, none){
+    return (none ? '<option value="">' + none + '</option>' : '') + ((ss.data && ss.data.stores) || []).map(function(s){
+      return '<option value="' + esc(s.key) + '"' + (s.key === sel ? ' selected' : '') + '>' + esc(s.name) + (s.active ? '' : ' (off)') + '</option>'; }).join('');
+  }
+  function suSetMode(m){
+    var setup = m === 'setup';
+    document.querySelectorAll('#suMode [data-mode]').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-mode') === m); });
+    document.getElementById('suSetup').classList.toggle('hidden', !setup);
+    document.getElementById('suLists').classList.toggle('hidden', setup);
+    if (setup) ssLoad();
+  }
+  function ssLoad(){
+    return sb.rpc('supplies_setup_get').then(function(res){
+      if (res.error) { ssSay('ssItemMsg', res.error.message, 'bad'); return; }
+      ssPaint(res.data);
+    });
+  }
+  function ssRun(p, msgId, okText){
+    if (ss.busy) return Promise.resolve(false);
+    ss.busy = true;
+    return p.then(function(res){
+      ss.busy = false;
+      if (res.error) { ssSay(msgId, res.error.message || 'Couldn’t save.', 'bad'); ssPaint(ss.data); return false; }
+      ssPaint(res.data); if (okText) ssSay(msgId, okText, 'ok');
+      loadSupplies();   // keep the shopping lists in step
+      return true;
+    }, function(){ ss.busy = false; ssSay(msgId, 'No connection. Try again.', 'bad'); return false; });
+  }
+  function ssMove(list, i, dir){ var a = list.slice(), j = i + dir; if (j < 0 || j >= a.length) return null; var t = a[i]; a[i] = a[j]; a[j] = t; return a; }
+  function ssPaint(d){
+    ss.data = d;
+    var cats = d.categories || [], stores = d.stores || [], items = d.items || [];
+    if (!ss.cat || !cats.some(function(c){ return c.key === ss.cat; })) ss.cat = cats[0] && cats[0].key;
+    var cat = cats.find(function(c){ return c.key === ss.cat; }) || {};
+    // Category picker for items
+    document.getElementById('ssCatPick').innerHTML = cats.map(function(c){
+      return '<button type="button" data-sscat="' + esc(c.key) + '" class="' + (c.key === ss.cat ? 'on' : '') + '">' + esc(c.icon) + ' ' + esc(c.name) + ' <small>' + c.shown + (c.hidden ? ' · hidden' : '') + '</small></button>'; }).join('');
+    var ns = document.getElementById('ssNewStore'), keep = ns.value;
+    ns.innerHTML = ssStoreOptions(null, 'Usual store: ' + ((stores.find(function(s){ return s.key === cat.default_store; }) || {}).name || 'none'));
+    ns.value = keep;
+    // Items in the chosen category
+    var list = items.filter(function(i){ return i.category === ss.cat; });
+    document.getElementById('ssItems').innerHTML = list.length ? list.map(function(i, n){
+      return '<div class="ss-row' + (i.hidden ? ' off' : '') + '" data-item="' + esc(i.key) + '">' +
+        '<div class="ss-mv"><button type="button" data-mv="-1" aria-label="Move up"' + (n === 0 ? ' disabled' : '') + '>▲</button><button type="button" data-mv="1" aria-label="Move down"' + (n === list.length - 1 ? ' disabled' : '') + '>▼</button></div>' +
+        '<input type="text" data-f="name" value="' + esc(i.name) + '" maxlength="60" aria-label="Item name">' +
+        '<select data-f="store" aria-label="Store">' + ssStoreOptions(i.store, 'No store') + '</select>' +
+        '<input type="text" data-f="unit" value="' + esc(i.unit || '') + '" placeholder="Unit" maxlength="20" aria-label="Unit">' +
+        '<input type="text" data-f="pack" value="' + esc(i.pack || '') + '" placeholder="Pack" maxlength="30" aria-label="Pack size">' +
+        '<button type="button" class="switch" role="switch" aria-checked="' + (!i.hidden) + '" data-f="show" aria-label="Show ' + esc(i.name) + ' on the board" title="Show on the board"></button>' +
+        '<button type="button" class="ss-del" data-del="1" aria-label="Delete ' + esc(i.name) + '">Delete</button></div>';
+    }).join('') : '<p class="hint" style="margin:10px 0 0;">No items in this tab yet. Add one above.</p>';
+    // Categories
+    document.getElementById('ssCatStore').innerHTML = ssStoreOptions(null, 'Usual store: none');
+    var ordered = cats.filter(function(c){ return c.key !== 'other'; });
+    document.getElementById('ssCats').innerHTML = cats.map(function(c){
+      var n = ordered.findIndex(function(x){ return x.key === c.key; }), other = c.key === 'other';
+      return '<div class="ss-row cat' + (c.hidden ? ' off' : '') + '" data-cat="' + esc(c.key) + '">' +
+        '<div class="ss-mv"><button type="button" data-mv="-1" aria-label="Move up"' + (other || n === 0 ? ' disabled' : '') + '>▲</button><button type="button" data-mv="1" aria-label="Move down"' + (other || n === ordered.length - 1 ? ' disabled' : '') + '>▼</button></div>' +
+        '<input type="text" class="ss-icon" data-f="icon" value="' + esc(c.icon) + '" maxlength="8" aria-label="Icon">' +
+        '<input type="text" data-f="name" value="' + esc(c.name) + '" maxlength="30" aria-label="Tab name">' +
+        '<select data-f="default_store" aria-label="Usual store for new items">' + ssStoreOptions(c.default_store, 'No usual store') + '</select>' +
+        '<span class="ss-n">' + c.items + ' items</span>' +
+        (other ? '<span></span>' : '<button type="button" class="switch" role="switch" aria-checked="' + (!c.hidden) + '" data-f="show" aria-label="Show the ' + esc(c.name) + ' tab" title="Show this tab on the board"></button>') +
+        (other ? '<span></span>' : '<button type="button" class="ss-del" data-del="1">Delete</button>') + '</div>';
+    }).join('');
+    // Stores
+    document.getElementById('ssStores').innerHTML = stores.map(function(s, n){
+      return '<div class="ss-row store' + (s.active ? '' : ' off') + '" data-store="' + esc(s.key) + '">' +
+        '<div class="ss-mv"><button type="button" data-mv="-1" aria-label="Move up"' + (n === 0 ? ' disabled' : '') + '>▲</button><button type="button" data-mv="1" aria-label="Move down"' + (n === stores.length - 1 ? ' disabled' : '') + '>▼</button></div>' +
+        '<input type="text" data-f="name" value="' + esc(s.name) + '" maxlength="40" aria-label="Store name">' +
+        '<input type="text" data-f="short" value="' + esc(s.short) + '" maxlength="14" aria-label="Short name">' +
+        '<label class="ss-online"><input type="checkbox" data-f="online"' + (s.online ? ' checked' : '') + '> Online</label>' +
+        '<span class="ss-n">' + s.items + ' items' + (s.open ? ' · ' + s.open + ' to buy' : '') + '</span>' +
+        '<button type="button" class="switch" role="switch" aria-checked="' + s.active + '" data-f="active" aria-label="Use ' + esc(s.name) + '" title="Use this store"></button></div>';
+    }).join('');
+    ssPreview();
+  }
+  // What the kitchen tablet shows for the chosen tab.
+  function ssPreview(){
+    var d = ss.data, cats = (d.categories || []).filter(function(c){ return !c.hidden; }), stores = {};
+    (d.stores || []).forEach(function(s){ if (s.active) stores[s.key] = s; });
+    var cur = (d.categories || []).find(function(c){ return c.key === ss.cat; }) || {};
+    var chips = (d.items || []).filter(function(i){ return i.category === ss.cat && !i.hidden; });
+    document.getElementById('ssPreview').innerHTML = '<div class="pv-title">📦 Supplies · Tap to add</div>' +
+      '<div class="pv-tabs"><span>⭐ Most used</span>' + cats.filter(function(c){ return (d.items || []).some(function(i){ return i.category === c.key && !i.hidden; }); }).map(function(c){
+        return '<span class="' + (c.key === ss.cat ? 'on' : '') + '">' + esc(c.icon) + ' ' + esc(c.name) + '</span>'; }).join('') + '</div>' +
+      (cur.hidden ? '<div class="pv-empty">This tab is hidden on the board.</div>'
+        : chips.length ? '<div class="pv-chips">' + chips.map(function(i){ return '<span>+ ' + esc(i.name) + (i.store && stores[i.store] ? '<small>' + esc(stores[i.store].short) + '</small>' : '') + '</span>'; }).join('') + '</div>'
+        : '<div class="pv-empty">No items shown in this tab.</div>') +
+      '<div class="pv-hint">Tabs with no items shown are left off the board.</div>';
+  }
+  function ssItemPayload(row){
+    var key = row.getAttribute('data-item'), it = (ss.data.items || []).find(function(i){ return i.key === key; }) || {};
+    return { key: key, name: row.querySelector('[data-f="name"]').value, category: it.category, store: row.querySelector('[data-f="store"]').value,
+      unit: row.querySelector('[data-f="unit"]').value, pack: row.querySelector('[data-f="pack"]').value, hidden: row.querySelector('[data-f="show"]').getAttribute('aria-checked') !== 'true' };
+  }
+  function ssCatPayload(row){
+    var sw = row.querySelector('[data-f="show"]');
+    return { key: row.getAttribute('data-cat'), icon: row.querySelector('[data-f="icon"]').value, name: row.querySelector('[data-f="name"]').value,
+      default_store: row.querySelector('[data-f="default_store"]').value, hidden: sw ? sw.getAttribute('aria-checked') !== 'true' : false };
+  }
+  function ssStorePayload(row){
+    return { key: row.getAttribute('data-store'), name: row.querySelector('[data-f="name"]').value, short: row.querySelector('[data-f="short"]').value,
+      online: row.querySelector('[data-f="online"]').checked, active: row.querySelector('[data-f="active"]').getAttribute('aria-checked') === 'true' };
+  }
+  document.getElementById('suMode').addEventListener('click', function(e){ var b = e.target.closest('[data-mode]'); if (b) suSetMode(b.getAttribute('data-mode')); });
+  document.getElementById('ssCatPick').addEventListener('click', function(e){ var b = e.target.closest('[data-sscat]'); if (b) { ss.cat = b.getAttribute('data-sscat'); document.getElementById('ssNewStore').value = ''; ssPaint(ss.data); ssSay('ssItemMsg', ''); } });
+  // Items: edits save when you leave a box or change a choice.
+  var ssItems = document.getElementById('ssItems');
+  ssItems.addEventListener('change', function(e){
+    var row = e.target.closest('[data-item]'); if (!row) return;
+    ssRun(sb.rpc('supplies_setup_item', { p: ssItemPayload(row) }), 'ssItemMsg', 'Saved.');
+  });
+  ssItems.addEventListener('click', function(e){
+    var row = e.target.closest('[data-item]'); if (!row) return;
+    var key = row.getAttribute('data-item');
+    if (e.target.closest('[data-f="show"]')) {
+      var sw = e.target.closest('[data-f="show"]'); sw.setAttribute('aria-checked', sw.getAttribute('aria-checked') === 'true' ? 'false' : 'true');
+      var p = ssItemPayload(row);
+      ssRun(sb.rpc('supplies_setup_item', { p: p }), 'ssItemMsg', p.name + (p.hidden ? ' is hidden on the board.' : ' shows on the board.'));
+      return;
+    }
+    var mv = e.target.closest('[data-mv]');
+    if (mv) {
+      var keys = (ss.data.items || []).filter(function(i){ return i.category === ss.cat; }).map(function(i){ return i.key; });
+      var next = ssMove(keys, keys.indexOf(key), +mv.getAttribute('data-mv'));
+      if (next) ssRun(sb.rpc('supplies_setup_order', { p_kind: 'item', p_keys: next }), 'ssItemMsg');
+      return;
+    }
+    if (e.target.closest('[data-del]')) {
+      var nm = row.querySelector('[data-f="name"]').value;
+      if (confirm('Delete "' + nm + '" from the kitchen board? (If it’s on a shopping list now, it stays there.)')) ssRun(sb.rpc('supplies_setup_delete_item', { p_key: key }), 'ssItemMsg', 'Deleted ' + nm + '.');
+    }
+  });
+  document.getElementById('ssAddItem').addEventListener('submit', function(e){
+    e.preventDefault();
+    var name = document.getElementById('ssNewName').value.trim();
+    if (!name) { ssSay('ssItemMsg', 'Type the item’s name.', 'bad'); return; }
+    var cat = (ss.data.categories || []).find(function(c){ return c.key === ss.cat; }) || {};
+    ssRun(sb.rpc('supplies_setup_item', { p: { name: name, category: ss.cat, store: document.getElementById('ssNewStore').value || cat.default_store || '',
+      unit: document.getElementById('ssNewUnit').value, pack: document.getElementById('ssNewPack').value } }), 'ssItemMsg', 'Added ' + name + ' to ' + (cat.name || 'the board') + '.').then(function(ok){
+      if (ok) { ['ssNewName', 'ssNewUnit', 'ssNewPack'].forEach(function(id){ document.getElementById(id).value = ''; }); document.getElementById('ssNewName').focus(); }
+    });
+  });
+  // Categories
+  var ssCats = document.getElementById('ssCats');
+  ssCats.addEventListener('change', function(e){ var row = e.target.closest('[data-cat]'); if (row) ssRun(sb.rpc('supplies_setup_category', { p: ssCatPayload(row) }), 'ssCatMsg', 'Saved.'); });
+  ssCats.addEventListener('click', function(e){
+    var row = e.target.closest('[data-cat]'); if (!row) return;
+    var key = row.getAttribute('data-cat');
+    var sw = e.target.closest('[data-f="show"]');
+    if (sw) { sw.setAttribute('aria-checked', sw.getAttribute('aria-checked') === 'true' ? 'false' : 'true'); var p = ssCatPayload(row);
+      ssRun(sb.rpc('supplies_setup_category', { p: p }), 'ssCatMsg', 'The ' + p.name + ' tab is ' + (p.hidden ? 'hidden.' : 'showing.')); return; }
+    var mv = e.target.closest('[data-mv]');
+    if (mv) {
+      var keys = (ss.data.categories || []).filter(function(c){ return c.key !== 'other'; }).map(function(c){ return c.key; });
+      var next = ssMove(keys, keys.indexOf(key), +mv.getAttribute('data-mv'));
+      if (next) ssRun(sb.rpc('supplies_setup_order', { p_kind: 'category', p_keys: next }), 'ssCatMsg');
+      return;
+    }
+    if (e.target.closest('[data-del]')) {
+      var nm = row.querySelector('[data-f="name"]').value;
+      if (confirm('Delete the "' + nm + '" tab? Its items move to "Other".')) ssRun(sb.rpc('supplies_setup_delete_category', { p_key: key }), 'ssCatMsg', 'Deleted ' + nm + '.');
+    }
+  });
+  document.getElementById('ssAddCat').addEventListener('submit', function(e){
+    e.preventDefault();
+    var name = document.getElementById('ssCatName').value.trim();
+    if (!name) { ssSay('ssCatMsg', 'Type the tab’s name.', 'bad'); return; }
+    ssRun(sb.rpc('supplies_setup_category', { p: { name: name, icon: document.getElementById('ssCatIcon').value || '📦', default_store: document.getElementById('ssCatStore').value } }), 'ssCatMsg', 'Added the ' + name + ' tab. Add items to it above.').then(function(ok){
+      if (ok) {
+        var c = (ss.data.categories || []).find(function(x){ return x.name === name; }); if (c) { ss.cat = c.key; document.getElementById('ssNewStore').value = ''; ssPaint(ss.data); }
+        document.getElementById('ssCatName').value = ''; document.getElementById('ssCatIcon').value = '';
+      }
+    });
+  });
+  // Stores
+  var ssStores = document.getElementById('ssStores');
+  ssStores.addEventListener('change', function(e){ var row = e.target.closest('[data-store]'); if (row) ssRun(sb.rpc('supplies_setup_store', { p: ssStorePayload(row) }), 'ssStoreMsg', 'Saved.'); });
+  ssStores.addEventListener('click', function(e){
+    var row = e.target.closest('[data-store]'); if (!row) return;
+    var key = row.getAttribute('data-store');
+    var sw = e.target.closest('[data-f="active"]');
+    if (sw) { sw.setAttribute('aria-checked', sw.getAttribute('aria-checked') === 'true' ? 'false' : 'true'); var p = ssStorePayload(row);
+      ssRun(sb.rpc('supplies_setup_store', { p: p }), 'ssStoreMsg', p.name + (p.active ? ' is on.' : ' is off (its items show under "No store").')); return; }
+    var mv = e.target.closest('[data-mv]');
+    if (mv) {
+      var keys = (ss.data.stores || []).map(function(s){ return s.key; });
+      var next = ssMove(keys, keys.indexOf(key), +mv.getAttribute('data-mv'));
+      if (next) ssRun(sb.rpc('supplies_setup_order', { p_kind: 'store', p_keys: next }), 'ssStoreMsg');
+    }
+  });
+  document.getElementById('ssAddStore').addEventListener('submit', function(e){
+    e.preventDefault();
+    var name = document.getElementById('ssStoreName').value.trim();
+    if (!name) { ssSay('ssStoreMsg', 'Type the store’s name.', 'bad'); return; }
+    ssRun(sb.rpc('supplies_setup_store', { p: { name: name, short: document.getElementById('ssStoreShort').value, online: document.getElementById('ssStoreOnline').checked } }), 'ssStoreMsg', 'Added ' + name + '.').then(function(ok){
+      if (ok) { document.getElementById('ssStoreName').value = ''; document.getElementById('ssStoreShort').value = ''; document.getElementById('ssStoreOnline').checked = false; }
+    });
   });
 
   // ---------------- STORE HOURS (store-hours.sql) ----------------
