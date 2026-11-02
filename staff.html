@@ -449,6 +449,113 @@
   @media (prefers-reduced-motion:reduce){ *{ transition:none !important; } }
 
   /* ---- Catering ---- */
+  /* Invoices */
+  .iv-stats{ display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:10px; margin-bottom:14px; }
+  .iv-stat{ background:#fff; border:1px solid #e6e6eb; border-radius:14px; padding:12px 14px; }
+  .iv-stat b{ display:block; font-size:22px; font-weight:700; color:var(--ink); font-variant-numeric:tabular-nums; }
+  .iv-stat span{ font-size:12.5px; color:var(--muted); }
+  .iv-stat.bad b{ color:#c4271b; }
+  .iv-bar{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+  .iv-bar .sc-range{ margin-bottom:0; flex-wrap:wrap; }
+  .iv-bar-btns{ display:flex; gap:8px; }
+  .iv-bar-btns button{ width:auto; }
+  #ivList{ margin-top:14px; }
+  .iv-row{ display:grid; grid-template-columns:auto minmax(0, 1fr) auto; gap:12px; align-items:center; width:100%; background:#fff; border:1px solid #e6e6eb; border-radius:14px; padding:12px 14px; margin-bottom:8px; text-align:left; color:var(--ink); min-height:0; }
+  .iv-row:hover{ background:#fafafc; transform:none; }
+  .iv-no{ font-weight:700; font-size:13px; color:var(--muted); font-variant-numeric:tabular-nums; }
+  .iv-who{ font-weight:600; font-size:15px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .iv-meta{ font-size:12.5px; color:var(--muted); margin-top:2px; font-weight:400; }
+  .iv-amt{ text-align:right; font-weight:700; font-size:15.5px; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .iv-amt .ad-chip{ display:block; margin:4px 0 0 auto; width:max-content; }
+  .iv-empty{ text-align:center; color:var(--muted); padding:28px 0; }
+  .iv-price{ padding:18px; }
+  .iv-price-head{ display:flex; justify-content:space-between; align-items:center; }
+  .iv-price-head button{ width:auto; }
+  .iv-price-add, .iv-prow{ display:grid; grid-template-columns:minmax(0, 1fr) 110px 110px auto auto; gap:8px; align-items:center; margin-top:10px; }
+  .iv-prow{ padding-top:8px; border-top:1px solid #eeeef2; }
+  .iv-price-add input, .iv-prow input{ margin:0; }
+  .iv-price-add button, .iv-prow button{ width:auto; }
+  .iv-chk{ display:inline-flex; align-items:center; gap:6px; font-size:13.5px; font-weight:600; color:var(--ink); margin:0; white-space:nowrap; cursor:pointer; }
+  .iv-chk input{ width:18px; height:18px; margin:0; accent-color:#1d1d1f; }
+  .iv-del{ width:auto; background:none; border:0; color:#c4271b; font-size:13px; font-weight:600; padding:6px 8px; min-height:0; }
+  /* editor */
+  .iv-back{ width:auto; background:none; border:0; color:var(--ink); font-weight:600; padding:6px 0; min-height:0; }
+  .iv-title-row{ display:flex; align-items:center; gap:10px; margin:4px 0 10px; }
+  .iv-title-row h2{ font-family:var(--display); font-size:30px; margin:0; }
+  .iv-grid{ display:grid; grid-template-columns:minmax(0, 1fr) 340px; gap:16px; align-items:start; }
+  .iv-card{ padding:18px; }
+  .iv-card h3{ font-size:16px; margin:0 0 12px; }
+  .iv-card .row2 > div{ min-width:0; }
+  .iv-card input, .iv-card select, .iv-card textarea{ margin-bottom:0; }
+  .iv-card .row2{ row-gap:12px; }
+  .iv-dates{ margin-top:12px; }
+  .iv-due{ display:flex; gap:8px; } .iv-due select{ flex:1; min-width:0; } .iv-due input{ flex:1; min-width:0; }
+  .iv-picker{ position:relative; display:flex; gap:8px; margin-bottom:12px; }
+  .iv-picker input{ flex:1; margin:0; }
+  .iv-picker button{ width:auto; white-space:nowrap; }
+  .iv-results{ position:absolute; top:calc(100% + 4px); left:0; right:0; z-index:20; background:#fff; border:1px solid #e3e3e8; border-radius:14px; box-shadow:0 12px 32px rgba(0,0,0,0.14); max-height:340px; overflow-y:auto; padding:6px; }
+  .iv-results .g{ font-size:11.5px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; padding:8px 10px 4px; }
+  .iv-results button{ display:flex; justify-content:space-between; gap:10px; width:100%; background:none; border:0; border-radius:10px; padding:9px 10px; text-align:left; color:var(--ink); font-size:14.5px; font-weight:500; min-height:0; }
+  .iv-results button:hover, .iv-results button.hl{ background:#f2f2f6; transform:none; }
+  .iv-results button small{ color:var(--muted); font-weight:500; white-space:nowrap; }
+  .iv-results .none{ padding:12px; color:var(--muted); font-size:14px; }
+  .iv-lines-head{ display:none; }
+  .iv-line{ display:grid; grid-template-columns:minmax(56px, 84px) minmax(64px, 110px) minmax(80px, 120px) 40px minmax(76px, 1fr) 30px; gap:6px 8px; align-items:end; }
+  #ivLines{ container-type:inline-size; }
+  @container (max-width:420px){ .iv-line{ grid-template-columns:1fr 1fr 1fr; } .iv-line .iv-namecell{ grid-template-columns:1fr; } .iv-line .iv-lamt{ grid-column:2; } }
+  .iv-line .iv-namecell{ grid-column:1 / -1; display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 1fr); gap:8px; }
+  .iv-line{ padding:10px 0; border-bottom:1px solid #eeeef2; }
+  .iv-line input{ margin:0; padding:8px 10px; font-size:14.5px; min-height:40px; }
+  .iv-line .iv-namecell input:first-child{ font-weight:600; }
+  .iv-line .iv-desc{ font-size:13.5px; color:var(--muted); }
+  .iv-line .iv-tax{ display:flex; flex-direction:column; align-items:flex-start; justify-content:flex-end; margin:0; min-height:40px; }
+  .iv-line .iv-tax .iv-mlab{ order:-1; }
+  .iv-line .iv-tax input{ margin:8px 0 10px 4px; }
+  .iv-line .iv-tax input{ width:20px; height:20px; min-height:0; accent-color:#1d1d1f; }
+  .iv-line .iv-lamt{ text-align:right; font-weight:700; font-size:15.5px; padding-bottom:10px; font-variant-numeric:tabular-nums; }
+  .iv-line .iv-x{ width:30px; height:30px; margin-bottom:5px; border-radius:50%; background:none; border:0; color:var(--muted); font-size:18px; padding:0; min-height:0; }
+  .iv-line .iv-x:hover{ background:#ffe9e7; color:#c4271b; transform:none; }
+  .iv-mlab{ display:block; font-size:11px; color:var(--muted); font-weight:600; margin-bottom:3px; text-transform:uppercase; letter-spacing:.04em; }
+  .iv-empty-lines{ margin:10px 0 0; }
+  .iv-sum{ position:sticky; top:12px; }
+  .iv-srow{ display:flex; justify-content:space-between; align-items:center; gap:10px; padding:7px 0; font-size:14.5px; }
+  .iv-srow small{ color:var(--muted); font-size:12px; margin-left:4px; }
+  .iv-srow b{ font-variant-numeric:tabular-nums; }
+  .iv-srow label{ margin:0; font-size:14.5px; font-weight:400; color:var(--ink); }
+  .iv-money{ display:flex; align-items:center; gap:4px; width:120px; }
+  .iv-money input{ margin:0; text-align:right; padding:7px 10px; min-height:36px; }
+  .iv-fee{ display:flex; width:100%; padding:7px 0; font-weight:400; font-size:14.5px; }
+  .iv-fee b{ margin-left:auto; font-weight:700; }
+  .iv-total{ border-top:1px solid #e6e6eb; margin-top:6px; padding-top:12px; font-size:19px; font-weight:700; }
+  .iv-acts{ display:flex; flex-direction:column; gap:8px; margin-top:14px; }
+  .iv-acts button, .iv-acts a{ width:100%; }
+  .iv-acts a{ display:inline-flex; justify-content:center; align-items:center; text-decoration:none; }
+  .iv-acts .iv-two{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .iv-acts .iv-link{ background:none; border:0; color:var(--muted); font-size:13px; font-weight:600; min-height:0; padding:4px; }
+  .iv-acts .iv-link.danger{ color:#c4271b; }
+  #ivShareCard .iv-acts{ margin-top:0; }
+  .iv-paid{ margin-top:12px; padding-top:12px; border-top:1px solid #eeeef2; }
+  .iv-paid button{ width:100%; margin-top:10px; }
+  .iv-banner{ border-radius:14px; padding:12px 14px; margin-bottom:12px; font-size:14px; line-height:1.45; }
+  .iv-banner.paid{ background:rgba(48,179,90,0.12); color:#146c3a; }
+  .iv-banner.void{ background:#ececf0; color:#3a3a3c; }
+  .iv-banner.stale{ background:#fff4e0; color:#8a4b00; }
+  .iv-banner.sent{ background:#eef5ff; color:#0b4a8c; }
+  .iv-hist{ font-size:13px; padding:6px 0; border-top:1px solid #eeeef2; color:var(--ink); }
+  .iv-hist:first-child{ border-top:0; }
+  .iv-hist small{ display:block; color:var(--muted); }
+  .iv-locked input, .iv-locked select, .iv-locked textarea{ background:#f5f5f7; }
+  @media (max-width:980px){ .iv-grid{ grid-template-columns:1fr; } .iv-sum{ position:static; } }
+  @media (max-width:700px){
+    .iv-stats{ grid-template-columns:1fr 1fr; } .iv-stats .iv-stat:last-child{ grid-column:1 / -1; }
+    .iv-bar-btns{ width:100%; } .iv-bar-btns button{ flex:1; }
+    .iv-line{ grid-template-columns:1fr 1fr 1fr; }
+    .iv-line .iv-namecell{ grid-template-columns:1fr; }
+    .iv-line .iv-lamt{ grid-column:2; }
+    .iv-price-add, .iv-prow{ grid-template-columns:1fr 1fr; } .iv-price-add input:first-child, .iv-prow input:first-child{ grid-column:1 / -1; }
+    .iv-picker{ flex-wrap:wrap; } .iv-picker button{ width:100%; }
+  }
+  @media print{ .iv-acts, .iv-back{ display:none; } }
   .cf-card{ background:var(--card); border:1px solid #e6e6eb; border-radius:16px; margin-bottom:10px; overflow:hidden; }
   .cf-head{ display:flex; gap:12px; align-items:flex-start; width:100%; background:none; border:0; padding:14px; text-align:left; color:var(--ink); border-radius:0; justify-content:flex-start; min-height:0; }
   .cf-head:hover{ transform:none; background:#fafafc; }
@@ -999,6 +1106,7 @@
       <button class="nav-link hidden" data-tab="promotions" id="tabPromotionsBtn"><svg class="icon"><use href="#ic-tag"/></svg>Promo codes</button>
       <button class="nav-link hidden" data-tab="events" id="tabEventsBtn"><svg class="icon"><use href="#ic-calendar"/></svg>Events</button>
       <button class="nav-link hidden" data-tab="catering" id="tabCateringBtn"><svg class="icon"><use href="#ic-gift"/></svg>Catering<span class="nav-badge hidden" id="navCaterBadge"></span></button>
+      <button class="nav-link hidden" data-tab="invoices" id="tabInvoicesBtn"><svg class="icon"><use href="#ic-file"/></svg>Invoices<span class="nav-badge hidden" id="navInvBadge"></span></button>
       <button class="nav-link hidden" data-tab="corpevents" id="tabCorpBtn"><svg class="icon"><use href="#ic-building"/></svg>Corporate events<span class="nav-badge nav-badge-soft hidden" id="navCorpBadge"></span></button>
       <button class="nav-link hidden" data-tab="nextdoor" id="tabDoorBtn"><svg class="icon"><use href="#ic-building"/></svg>Next Door delivery<span class="nav-badge nav-badge-soft hidden" id="navDoorBadge"></span></button>
       <button class="nav-link hidden" data-tab="offers" id="tabOffersBtn"><svg class="icon"><use href="#ic-mail"/></svg>Member offers</button>
@@ -1380,6 +1488,113 @@
     </div>
     <div id="cfMsg"></div>
     <div id="cfList"><p class="hint">Loading&hellip;</p></div>
+  </div>
+
+<!-- INVOICES (invoices.sql + the "invoice" edge function) -->
+  <div class="tab-panel hidden" id="panelInvoices">
+    <div class="page-head">
+      <h2>Invoices</h2>
+      <p class="hint">Bill a customer for catering, an event or anything else. Pick items from your price list or the menu, set the quantity and price, tick which lines are taxed, then email it with a Square pay link or text the link.</p>
+    </div>
+    <div id="ivListView">
+      <div class="iv-stats" id="ivStats"></div>
+      <div class="iv-bar">
+        <div class="sc-range" id="ivFilter" role="group" aria-label="Show">
+          <button type="button" data-f="open" class="on">Open</button>
+          <button type="button" data-f="overdue">Overdue</button>
+          <button type="button" data-f="paid">Paid</button>
+          <button type="button" data-f="void">Void</button>
+          <button type="button" data-f="all">All</button>
+        </div>
+        <div class="iv-bar-btns">
+          <button type="button" class="btn-ghost btn-small" id="ivPriceBtn">Price list</button>
+          <button type="button" class="btn-primary btn-small" id="ivNew">+ New invoice</button>
+        </div>
+      </div>
+      <div id="ivMsg"></div>
+      <div class="card iv-price hidden" id="ivPrice">
+        <div class="iv-price-head"><h3>Price list</h3><button type="button" class="btn-ghost btn-small" id="ivPriceClose">Done</button></div>
+        <p class="hint">Things you invoice often (truck fee, per-person catering, travel). Menu items are added automatically with their menu price. Changes here don&rsquo;t change invoices already made.</p>
+        <form class="iv-price-add" id="ivPriceAdd" autocomplete="off">
+          <input type="text" id="ivPName" placeholder="Item, e.g. Truck booking fee" maxlength="120" aria-label="Item name">
+          <input type="text" id="ivPUnit" placeholder="Unit (event)" maxlength="20" aria-label="Unit">
+          <input type="number" id="ivPPrice" placeholder="Price $" min="0" step="0.01" aria-label="Price">
+          <label class="iv-chk"><input type="checkbox" id="ivPTax" checked> Tax</label>
+          <button type="submit" class="btn-primary btn-small">Add</button>
+        </form>
+        <div id="ivPriceMsg"></div>
+        <div id="ivPriceList"></div>
+      </div>
+      <div id="ivList"><p class="hint">Loading&hellip;</p></div>
+    </div>
+
+    <div id="ivEditView" class="hidden">
+      <button type="button" class="iv-back" id="ivBack">&larr; All invoices</button>
+      <div class="iv-title-row"><h2 id="ivTitle">New invoice</h2><span id="ivStatus"></span></div>
+      <div id="ivBanner"></div>
+      <div id="ivEditMsg"></div>
+      <div class="iv-grid">
+        <div>
+          <div class="card iv-card">
+            <h3>Bill to</h3>
+            <div class="row2">
+              <div><label for="ivName">Customer name *</label><input type="text" id="ivName" maxlength="80" autocomplete="off"></div>
+              <div><label for="ivCompany">Company</label><input type="text" id="ivCompany" maxlength="80" autocomplete="off"></div>
+              <div><label for="ivEmail">Email</label><input type="email" id="ivEmail" maxlength="120" autocomplete="off" placeholder="To email the invoice"></div>
+              <div><label for="ivPhone">Phone</label><input type="tel" id="ivPhone" maxlength="30" autocomplete="off" placeholder="To text the link"></div>
+            </div>
+            <div class="row2 iv-dates">
+              <div><label for="ivIssue">Invoice date</label><input type="date" id="ivIssue"></div>
+              <div><label for="ivDuePick">Due</label>
+                <div class="iv-due"><select id="ivDuePick"><option value="0">On receipt</option><option value="7">In 7 days</option><option value="14">In 14 days</option><option value="30">In 30 days</option><option value="pick">Pick a date</option></select>
+                <input type="date" id="ivDue" class="hidden" aria-label="Due date"></div></div>
+            </div>
+          </div>
+
+          <div class="card iv-card">
+            <h3>Items</h3>
+            <div class="iv-picker">
+              <input type="search" id="ivSearch" placeholder="Add an item: search the price list or menu&hellip;" autocomplete="off" aria-label="Add an item">
+              <button type="button" class="btn-ghost btn-small" id="ivBlank">+ Custom line</button>
+              <div class="iv-results hidden" id="ivResults" role="listbox"></div>
+            </div>
+            <div class="iv-lines-head" aria-hidden="true"><span>Item</span><span>Qty</span><span>Unit</span><span>Price</span><span>Tax</span><span>Amount</span><span></span></div>
+            <div id="ivLines"></div>
+            <p class="hint iv-empty-lines" id="ivNoLines">No items yet. Search above, or add a custom line.</p>
+          </div>
+
+          <div class="card iv-card">
+            <h3>Notes to the customer</h3>
+            <textarea id="ivNotes" rows="3" maxlength="1000" placeholder="Thank you for choosing Roll-In Shawarma!"></textarea>
+          </div>
+        </div>
+
+        <div>
+          <div class="card iv-card iv-sum">
+            <h3>Total</h3>
+            <div class="iv-srow"><span>Subtotal</span><b id="ivSub">$0.00</b></div>
+            <div class="iv-srow iv-disc"><label for="ivDisc">Discount</label><div class="iv-money"><span>$</span><input type="number" id="ivDisc" min="0" step="0.01" placeholder="0.00"></div></div>
+            <div class="iv-srow"><span>Sales tax <small>6.75% on taxed lines</small></span><b id="ivTax">$0.00</b></div>
+            <label class="iv-chk iv-fee"><input type="checkbox" id="ivFee"> Add card fee (3.3% + 30&cent;) <b id="ivFeeAmt"></b></label>
+            <div class="iv-srow iv-total"><span>Total</span><b id="ivTotal">$0.00</b></div>
+            <div class="iv-acts" id="ivActs"></div>
+          </div>
+          <div class="card iv-card hidden" id="ivShareCard">
+            <h3>Share &amp; payment</h3>
+            <div class="iv-acts" id="ivShare"></div>
+            <div class="iv-paid hidden" id="ivPaidForm">
+              <div class="row2"><div><label for="ivPaidMethod">Paid by</label><select id="ivPaidMethod"><option value="cash">Cash</option><option value="check">Check</option><option value="zelle">Zelle</option><option value="card">Card (in person)</option><option value="other">Other</option></select></div>
+              <div><label for="ivPaidNote">Note</label><input type="text" id="ivPaidNote" maxlength="140" placeholder="Check #1042"></div></div>
+              <button type="button" class="btn-approve btn-small" id="ivPaidGo">Mark as paid</button>
+            </div>
+          </div>
+          <div class="card iv-card hidden" id="ivHistCard">
+            <h3>History</h3>
+            <div id="ivHist"></div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <!-- MEMBER OFFERS -->
@@ -2588,6 +2803,10 @@
         setInterval(function(){ loadCatering(false); }, 120000);
         document.querySelector('.nav-link[data-tab="catering"]').addEventListener('click', function(){ loadCatering(true); });
         if (location.hash === '#catering') setTimeout(function(){ showTab('catering'); }, 0);
+        document.getElementById('tabInvoicesBtn').classList.remove('hidden');
+        document.querySelector('.nav-link[data-tab="invoices"]').addEventListener('click', function(){ if (document.getElementById('ivEditView').classList.contains('hidden')) ivLoad(true); });
+        ivLoad(true);
+        if (location.hash === '#invoices') setTimeout(function(){ showTab('invoices'); }, 0);
 
         adsState.isAdmin = isAdmin;
         if (isAdmin) document.getElementById('adSettingsCard').classList.remove('hidden');
@@ -4697,6 +4916,376 @@
   // ---------------- PROMOTIONS TAB ----------------
   // ================= CATERING REQUESTS =================
   var cfState = { rows:[], filter:'open', openId:null };
+  // ---------------- INVOICES (invoices.sql + "invoice" edge function) ----------------
+  var IV_SITE = 'https://rollinshawarma.com';
+  var IV_TAX = 0.0675;
+  var iv = { filter: 'open', cat: null, cur: null, lines: [], dirty: false, busy: false, hl: -1, results: [], loaded: false };
+  var IV_ST = { draft: ['Draft', ''], sent: ['Sent', 'wait'], paid: ['Paid', 'live'], void: ['Void', ''] };
+  function ivMoney(c){ return (c < 0 ? '−' : '') + '$' + (Math.abs(Math.round(c || 0)) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function ivToday(){ return new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' }); }
+  function ivAddDays(d, n){ var x = new Date(d + 'T12:00:00Z'); x.setUTCDate(x.getUTCDate() + n); return x.toISOString().slice(0, 10); }
+  function ivFmt(d){ return d ? new Date(d + 'T12:00:00Z').toLocaleDateString('en-US', { timeZone: 'UTC', month: 'short', day: 'numeric', year: 'numeric' }) : ''; }
+  function ivWhen(ts){ return ts ? new Date(ts).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : ''; }
+  function ivPage(inv){ return IV_SITE + '/invoice.html?i=' + encodeURIComponent(inv.token); }
+  function ivChip(inv){
+    if (inv.status === 'sent' && inv.overdue) return '<span class="ad-chip bad">Overdue</span>';
+    var s = IV_ST[inv.status] || [inv.status, '']; return '<span class="ad-chip ' + s[1] + '">' + s[0] + '</span>';
+  }
+  function ivCall(body){
+    return sb.functions.invoke('invoice', { body: body }).then(function(res){
+      if (!res.error) return res.data || {};
+      var c = res.error.context;
+      return c && c.json ? c.json().then(function(j){ return j && j.error ? j : { error: res.error.message }; }, function(){ return { error: res.error.message }; }) : { error: res.error.message };
+    }, function(){ return { error: 'No connection. Try again.' }; });
+  }
+
+  // ----- list -----
+  function ivLoad(checkPaid){
+    var go = function(){
+      return sb.rpc('invoice_list', { p_filter: iv.filter }).then(function(res){
+        if (res.error) {
+          var m = /does not exist|could not find/i.test(res.error.message || '') ? 'Invoices aren’t set up yet. Run invoices.sql in Supabase (see INVOICES-SETUP.md).' : (res.error.message || 'Couldn’t load invoices.');
+          document.getElementById('ivList').innerHTML = '<p class="hint">' + esc(m) + '</p>'; return;
+        }
+        ivRenderList(res.data || {});
+      });
+    };
+    go();
+    if (checkPaid) ivCall({ action: 'refresh' }).then(function(r){ if (r && r.paid) go(); });
+  }
+  function ivRenderList(d){
+    var c = d.counts || {};
+    document.getElementById('ivStats').innerHTML =
+      '<div class="iv-stat"><b>' + ivMoney(d.outstanding_cents || 0) + '</b><span>Waiting to be paid · ' + (c.sent || 0) + ' sent</span></div>' +
+      '<div class="iv-stat' + (c.overdue ? ' bad' : '') + '"><b>' + ivMoney(d.overdue_cents || 0) + '</b><span>Overdue · ' + (c.overdue || 0) + '</span></div>' +
+      '<div class="iv-stat"><b>' + ivMoney(d.paid_30d_cents || 0) + '</b><span>Paid in the last 30 days</span></div>';
+    var badge = document.getElementById('navInvBadge');
+    badge.textContent = c.overdue || ''; badge.classList.toggle('hidden', !c.overdue);
+    var items = d.items || [];
+    document.getElementById('ivList').innerHTML = items.length ? items.map(function(i){
+      var meta = [i.company && i.company !== i.customer_name ? i.company : '', 'Issued ' + ivFmt(i.issue_date)];
+      if (i.status === 'sent') meta.push(i.due_date ? (i.overdue ? 'Was due ' : 'Due ') + ivFmt(i.due_date) : 'Due on receipt');
+      if (i.status === 'sent') meta.push(i.viewed_at ? 'Opened ' + ivWhen(i.viewed_at) : 'Not opened yet');
+      if (i.status === 'paid' && i.paid_at) meta.push('Paid ' + ivWhen(i.paid_at));
+      if (i.link_stale) meta.push('Changes not sent');
+      return '<button type="button" class="iv-row" data-iv="' + esc(i.id) + '"><span class="iv-no">INV-' + esc(i.number) + '</span>' +
+        '<span style="min-width:0"><span class="iv-who" style="display:block">' + esc(i.customer_name) + '</span><span class="iv-meta" style="display:block">' + esc(meta.filter(Boolean).join(' · ')) + '</span></span>' +
+        '<span class="iv-amt">' + ivMoney(i.total_cents) + ivChip(i) + '</span></button>';
+    }).join('') : '<div class="iv-empty">' + (iv.filter === 'open' ? 'No open invoices. Tap “+ New invoice” to make one.' : 'Nothing here.') + '</div>';
+  }
+
+  // ----- price list -----
+  function ivLoadCatalog(){
+    return sb.rpc('invoice_catalog_list').then(function(res){ if (!res.error) { iv.cat = res.data; ivRenderPrice(); } return iv.cat; });
+  }
+  function ivRenderPrice(){
+    var saved = (iv.cat && iv.cat.saved) || [];
+    document.getElementById('ivPriceList').innerHTML = saved.length ? saved.map(function(s){
+      return '<div class="iv-prow" data-pid="' + esc(s.id) + '"><input type="text" data-pf="name" value="' + esc(s.name) + '" maxlength="120" aria-label="Item">' +
+        '<input type="text" data-pf="unit" value="' + esc(s.unit || '') + '" maxlength="20" placeholder="Unit" aria-label="Unit">' +
+        '<input type="number" data-pf="price" value="' + (s.price_cents / 100).toFixed(2) + '" min="0" step="0.01" aria-label="Price">' +
+        '<label class="iv-chk"><input type="checkbox" data-pf="taxable"' + (s.taxable ? ' checked' : '') + '> Tax</label>' +
+        '<button type="button" class="iv-del" data-pdel>Delete</button></div>'; }).join('') : '<p class="hint">No saved items yet.</p>';
+  }
+  function ivPriceSave(row){
+    var p = { id: row.getAttribute('data-pid'), name: row.querySelector('[data-pf="name"]').value, unit: row.querySelector('[data-pf="unit"]').value,
+      price_cents: Math.round(Number(row.querySelector('[data-pf="price"]').value || 0) * 100), taxable: row.querySelector('[data-pf="taxable"]').checked };
+    sb.rpc('invoice_catalog_save', { p: p }).then(function(res){
+      if (res.error) { showMsg('ivPriceMsg', res.error.message, 'error'); ivRenderPrice(); return; }
+      iv.cat = res.data; showMsg('ivPriceMsg', 'Saved.', 'ok'); ivRenderPrice();
+    });
+  }
+
+  // ----- editor -----
+  function ivShow(which){
+    document.getElementById('ivListView').classList.toggle('hidden', which !== 'list');
+    document.getElementById('ivEditView').classList.toggle('hidden', which !== 'edit');
+    window.scrollTo(0, 0);
+  }
+  function ivOpen(id, prefill){
+    clearMsg('ivEditMsg');
+    if (!iv.cat) ivLoadCatalog();
+    if (!id) {
+      iv.cur = null;
+      var p = prefill || {};
+      ivFill({ invoice: { status: 'draft', customer_name: p.customer_name || '', company: p.company || '', customer_email: p.customer_email || '', customer_phone: p.customer_phone || '',
+        issue_date: ivToday(), due_date: ivToday(), notes: p.notes || '', discount_cents: 0, fee_on: false, catering_ref: p.catering_ref || null }, lines: p.lines || [], events: [] });
+      iv.dirty = !!prefill;
+      ivShow('edit');
+      setTimeout(function(){ document.getElementById(p.customer_name ? 'ivSearch' : 'ivName').focus(); }, 50);
+      return;
+    }
+    sb.rpc('invoice_get', { p_id: id }).then(function(res){
+      if (res.error) { showMsg('ivMsg', res.error.message, 'error'); return; }
+      ivFill(res.data); iv.dirty = false; ivShow('edit');
+    });
+  }
+  function ivFill(d){
+    var inv = d.invoice; iv.cur = inv.id ? d : null;
+    iv.lines = (d.lines || []).map(function(l){ return { name: l.name, description: l.description || '', qty: Number(l.qty), unit: l.unit || '', unit_cents: l.unit_cents, taxable: l.taxable !== false }; });
+    var g = function(id){ return document.getElementById(id); };
+    g('ivTitle').textContent = inv.number ? 'INV-' + inv.number : 'New invoice';
+    g('ivStatus').innerHTML = inv.number ? ivChip(inv) : '';
+    g('ivName').value = inv.customer_name || ''; g('ivCompany').value = inv.company || ''; g('ivEmail').value = inv.customer_email || ''; g('ivPhone').value = inv.customer_phone || '';
+    g('ivIssue').value = inv.issue_date || ivToday();
+    var diff = inv.due_date ? Math.round((new Date(inv.due_date + 'T12:00:00Z') - new Date(g('ivIssue').value + 'T12:00:00Z')) / 86400000) : 0;
+    var pick = [0, 7, 14, 30].indexOf(diff) >= 0 ? String(diff) : 'pick';
+    g('ivDuePick').value = pick; g('ivDue').value = inv.due_date || ''; g('ivDue').classList.toggle('hidden', pick !== 'pick');
+    g('ivNotes').value = inv.notes || '';
+    g('ivDisc').value = inv.discount_cents ? (inv.discount_cents / 100).toFixed(2) : '';
+    g('ivFee').checked = !!inv.fee_on;
+    var locked = inv.status === 'paid' || inv.status === 'void';
+    g('ivEditView').classList.toggle('iv-locked', locked);
+    g('ivEditView').querySelectorAll('.iv-grid input, .iv-grid select, .iv-grid textarea').forEach(function(x){ if (!x.closest('#ivShareCard')) x.disabled = locked; });
+    g('ivBlank').disabled = locked;
+    ivRenderLines(); ivCalc(); ivRenderActions(d);
+    g('ivHistCard').classList.toggle('hidden', !(d.events || []).length);
+    g('ivHist').innerHTML = (d.events || []).map(function(e){ return '<div class="iv-hist">' + esc(e.what) + '<small>' + esc(ivWhen(e.at)) + (e.by ? ' · ' + esc(e.by) : '') + '</small></div>'; }).join('');
+  }
+  function ivRenderActions(d){
+    var inv = (d && d.invoice) || {}, g = function(id){ return document.getElementById(id); };
+    var banner = '';
+    if (inv.status === 'paid') banner = '<div class="iv-banner paid">✓ Paid ' + esc(ivMoney(inv.total_cents)) + (inv.paid_at ? ' on ' + esc(ivWhen(inv.paid_at)) : '') + (inv.paid_method ? ' · ' + esc(inv.paid_method) : '') + (inv.paid_note ? ' · ' + esc(inv.paid_note) : '') + '. Paid invoices can’t be changed; use Duplicate to make a new one.</div>';
+    else if (inv.status === 'void') banner = '<div class="iv-banner void">This invoice was voided' + (inv.voided_at ? ' on ' + esc(ivWhen(inv.voided_at)) : '') + '. Its pay link is off.</div>';
+    else if (inv.link_stale) banner = '<div class="iv-banner stale">You changed this invoice after sending it. The customer’s pay link still has the old amount, so tap <b>Send update</b> to make a new link.</div>';
+    else if (inv.status === 'sent') banner = '<div class="iv-banner sent">Sent' + (inv.sent_at ? ' ' + esc(ivWhen(inv.sent_at)) : '') + (inv.customer_email && inv.last_emailed_at ? ' to ' + esc(inv.customer_email) : '') + ' · ' + (inv.viewed_at ? 'opened ' + esc(ivWhen(inv.viewed_at)) : 'not opened yet') + '. Paid by card shows up here by itself.</div>';
+    g('ivBanner').innerHTML = banner;
+    var a = '';
+    if (!inv.status || inv.status === 'draft') {
+      a = '<button type="button" class="btn-primary" data-iva="email">Save &amp; email invoice</button>' +
+          '<div class="iv-two"><button type="button" class="btn-ghost btn-small" data-iva="link">Save &amp; get link</button><button type="button" class="btn-ghost btn-small" data-iva="save">Save draft</button></div>' +
+          (inv.id ? '<button type="button" class="iv-link danger" data-iva="delete">Delete draft</button>' : '');
+    } else if (inv.status === 'sent') {
+      a = (inv.link_stale ? '<button type="button" class="btn-primary" data-iva="update">Send update</button>' : '<button type="button" class="btn-primary" data-iva="save">Save changes</button>');
+    } else {
+      a = '<button type="button" class="btn-primary" data-iva="dup">Duplicate as a new invoice</button>';
+    }
+    g('ivActs').innerHTML = a;
+    var share = '';
+    if (inv.status === 'sent' || inv.status === 'paid') {
+      var phone = String(inv.customer_phone || '').replace(/[^\d+]/g, '');
+      share = '<button type="button" class="btn-ghost btn-small" data-iva="copy">Copy invoice link</button>' +
+        (inv.status === 'sent' ? '<div class="iv-two"><a class="btn-ghost btn-small" data-iva="sms" href="#">Text</a><a class="btn-ghost btn-small" data-iva="wa" href="#">WhatsApp</a></div>' +
+          (inv.customer_email ? '<button type="button" class="btn-ghost btn-small" data-iva="remind">Email a reminder</button>' : '') +
+          '<button type="button" class="btn-approve btn-small" data-iva="paidform">Mark as paid (cash, check…)</button>' : '') +
+        '<a class="iv-link" data-iva="open" href="' + esc(ivPage(inv)) + '" target="_blank" rel="noopener">Open the customer’s invoice page ↗</a>' +
+        (inv.status === 'sent' ? '<div class="iv-two"><button type="button" class="iv-link" data-iva="dup">Duplicate</button><button type="button" class="iv-link danger" data-iva="void">Void invoice</button></div>' : '');
+      if (phone) share = share.replace('data-iva="sms" href="#"', 'data-iva="sms" href="#" data-phone="' + esc(phone) + '"');
+    }
+    g('ivShare').innerHTML = share;
+    g('ivShareCard').classList.toggle('hidden', !share);
+    g('ivPaidForm').classList.add('hidden');
+  }
+  function ivRenderLines(){
+    var locked = iv.cur && ['paid', 'void'].indexOf(iv.cur.invoice.status) >= 0, dis = locked ? ' disabled' : '';
+    document.getElementById('ivLines').innerHTML = iv.lines.map(function(l, i){
+      return '<div class="iv-line" data-ln="' + i + '">' +
+        '<div class="iv-namecell"><input type="text" data-lf="name" value="' + esc(l.name) + '" maxlength="120" aria-label="Item"' + dis + '>' +
+          '<input type="text" class="iv-desc" data-lf="description" value="' + esc(l.description) + '" maxlength="300" placeholder="Description (optional)" aria-label="Description"' + dis + '></div>' +
+        '<div><span class="iv-mlab">Qty</span><input type="number" data-lf="qty" value="' + l.qty + '" min="0.01" step="any" aria-label="Quantity"' + dis + '></div>' +
+        '<div><span class="iv-mlab">Unit</span><input type="text" data-lf="unit" value="' + esc(l.unit) + '" maxlength="20" placeholder="each" aria-label="Unit"' + dis + '></div>' +
+        '<div><span class="iv-mlab">Price</span><input type="number" data-lf="price" value="' + (l.unit_cents / 100).toFixed(2) + '" min="0" step="0.01" aria-label="Unit price"' + dis + '></div>' +
+        '<label class="iv-tax"><input type="checkbox" data-lf="taxable"' + (l.taxable ? ' checked' : '') + ' aria-label="Charge tax on ' + esc(l.name) + '"' + dis + '><span class="iv-mlab">Tax</span></label>' +
+        '<div class="iv-lamt" data-lamt>' + ivMoney(Math.round(l.qty * l.unit_cents)) + '</div>' +
+        (locked ? '<span></span>' : '<button type="button" class="iv-x" data-ldel aria-label="Remove ' + esc(l.name) + '">×</button>') + '</div>';
+    }).join('');
+    document.getElementById('ivNoLines').classList.toggle('hidden', iv.lines.length > 0);
+  }
+  // Same math as the database: tax on taxed lines after their share of the discount; card fee on the rest.
+  function ivTotals(lines, discCents, feeOn){
+    var sub = 0, taxed = 0;
+    lines.forEach(function(l){ var c = Math.round((Number(l.qty) || 0) * (l.unit_cents || 0)); sub += c; if (l.taxable) taxed += c; });
+    var disc = Math.min(Math.max(0, discCents || 0), sub);
+    var tax = sub > 0 ? Math.round((taxed - Math.round(disc * taxed / sub)) * IV_TAX) : 0;
+    var fee = feeOn && sub - disc + tax > 0 ? Math.round((sub - disc + tax) * 0.033) + 30 : 0;
+    return { sub: sub, disc: disc, tax: tax, fee: fee, total: sub - disc + tax + fee };
+  }
+  function ivCalc(){
+    var t = ivTotals(iv.lines, Math.round(Number(document.getElementById('ivDisc').value || 0) * 100), document.getElementById('ivFee').checked);
+    var sent = iv.cur && iv.cur.invoice.status !== 'draft' && !iv.dirty;
+    var total = sent ? iv.cur.invoice.total_cents : t.total, tax = sent ? iv.cur.invoice.tax_cents : t.tax;   // after sending, show Square's exact figures
+    document.getElementById('ivSub').textContent = ivMoney(t.sub);
+    document.getElementById('ivTax').textContent = ivMoney(tax);
+    document.getElementById('ivFeeAmt').textContent = t.fee ? ivMoney(t.fee) : '';
+    document.getElementById('ivTotal').textContent = ivMoney(total);
+    return t;
+  }
+  function ivDue(){
+    var pick = document.getElementById('ivDuePick').value, issue = document.getElementById('ivIssue').value || ivToday();
+    return pick === 'pick' ? (document.getElementById('ivDue').value || null) : ivAddDays(issue, Number(pick));
+  }
+  function ivPayload(){
+    var g = function(id){ return document.getElementById(id).value; };
+    return { id: iv.cur ? iv.cur.invoice.id : null, customer_name: g('ivName'), company: g('ivCompany'), customer_email: g('ivEmail'), customer_phone: g('ivPhone'),
+      issue_date: g('ivIssue') || null, due_date: ivDue(), notes: g('ivNotes'), discount_cents: Math.round(Number(g('ivDisc') || 0) * 100),
+      fee_on: document.getElementById('ivFee').checked, catering_ref: iv.cur ? iv.cur.invoice.catering_ref : (iv.prefillRef || null),
+      lines: iv.lines.map(function(l){ return { name: l.name, description: l.description, qty: l.qty, unit: l.unit, unit_cents: l.unit_cents, taxable: l.taxable }; }) };
+  }
+  function ivSave(){
+    var p = ivPayload();
+    if (!String(p.customer_name).trim()) { showMsg('ivEditMsg', 'Add the customer’s name.', 'error'); document.getElementById('ivName').focus(); return Promise.resolve(null); }
+    if (!p.lines.length) { showMsg('ivEditMsg', 'Add at least one item.', 'error'); document.getElementById('ivSearch').focus(); return Promise.resolve(null); }
+    return sb.rpc('invoice_save', { p: p }).then(function(res){
+      if (res.error) { showMsg('ivEditMsg', res.error.message, 'error'); return null; }
+      iv.dirty = false; ivFill(res.data); return res.data;
+    });
+  }
+  function ivReload(msg, type){
+    if (!iv.cur) return;
+    return sb.rpc('invoice_get', { p_id: iv.cur.invoice.id }).then(function(res){ if (!res.error) { ivFill(res.data); iv.dirty = false; } if (msg) showMsg('ivEditMsg', msg, type || 'ok'); });
+  }
+  function ivRun(btn, work){
+    if (iv.busy) return; iv.busy = true;
+    var label = btn ? btn.innerHTML : ''; if (btn) { btn.disabled = true; btn.textContent = 'Working…'; }
+    Promise.resolve().then(work).then(function(){ iv.busy = false; if (btn && document.body.contains(btn)) { btn.disabled = false; btn.innerHTML = label; } },
+      function(e){ iv.busy = false; if (btn && document.body.contains(btn)) { btn.disabled = false; btn.innerHTML = label; } showMsg('ivEditMsg', (e && e.message) || 'Something went wrong.', 'error'); });
+  }
+  function ivSend(email){
+    return ivSave().then(function(d){
+      if (!d) return;
+      if (email && !d.invoice.customer_email) { showMsg('ivEditMsg', 'Add the customer’s email, or use “Save & get link” to text it instead.', 'error'); document.getElementById('ivEmail').focus(); return; }
+      return ivCall({ action: 'send', id: d.invoice.id, email: email }).then(function(r){
+        if (r.error) { showMsg('ivEditMsg', r.error, 'error'); return ivReload(); }
+        var m = r.emailed ? 'Emailed to ' + d.invoice.customer_email + ' with a pay link for ' + ivMoney(r.total_cents) + '.' :
+          r.email_tried ? 'The pay link is ready, but the email didn’t go through. Copy the link or text it.' : 'The pay link is ready. Copy it or text it to the customer.';
+        return ivReload(m, r.email_tried && !r.emailed ? 'error' : 'ok').then(function(){ ivLoad(false); });
+      });
+    });
+  }
+  function ivSearchRender(){
+    var q = document.getElementById('ivSearch').value.trim().toLowerCase(), box = document.getElementById('ivResults');
+    var cat = iv.cat || { saved: [], menu: [] }, words = q.split(/\s+/).filter(Boolean);
+    var hit = function(s){ var t = (s.name + ' ' + (s.description || '') + ' ' + (s.category || '')).toLowerCase(); return words.every(function(w){ return t.indexOf(w) >= 0; }); };
+    var res = [], html = '';
+    var saved = cat.saved.filter(hit);
+    if (saved.length) { html += '<div class="g">Price list</div>'; saved.forEach(function(s){ res.push({ name: s.name, description: s.description || '', unit: s.unit || '', unit_cents: s.price_cents, taxable: s.taxable }); html += ivResBtn(res.length - 1, s.name, s.price_cents, s.unit); }); }
+    var lastCat = null;
+    cat.menu.filter(hit).forEach(function(m){
+      if (m.category !== lastCat) { html += '<div class="g">Menu · ' + esc(m.category) + '</div>'; lastCat = m.category; }
+      res.push({ name: m.name, description: '', unit: 'each', unit_cents: m.price_cents, taxable: true }); html += ivResBtn(res.length - 1, m.name, m.price_cents, 'each');
+    });
+    if (!res.length) html = '<div class="none">' + (iv.cat ? 'No match. Use “+ Custom line” for something new.' : 'Loading…') + '</div>';
+    iv.results = res; iv.hl = res.length && q ? 0 : -1;
+    box.innerHTML = html; box.classList.remove('hidden');
+    ivHl();
+  }
+  function ivResBtn(i, name, cents, unit){ return '<button type="button" role="option" data-res="' + i + '"><span>' + esc(name) + '</span><small>' + ivMoney(cents) + (unit ? ' / ' + esc(unit) : '') + '</small></button>'; }
+  function ivHl(){ document.querySelectorAll('#ivResults [data-res]').forEach(function(b){ var on = +b.getAttribute('data-res') === iv.hl; b.classList.toggle('hl', on); if (on) b.scrollIntoView({ block: 'nearest' }); }); }
+  function ivAddLine(l, focusField){
+    iv.lines.push({ name: l.name || '', description: l.description || '', qty: l.qty || 1, unit: l.unit || '', unit_cents: l.unit_cents || 0, taxable: l.taxable !== false });
+    iv.dirty = true; ivRenderLines(); ivCalc();
+    var row = document.querySelector('#ivLines [data-ln="' + (iv.lines.length - 1) + '"] [data-lf="' + (focusField || 'qty') + '"]');
+    if (row) { row.focus(); if (row.select) row.select(); }
+  }
+  function ivBack(){
+    if (iv.dirty && !confirm('Leave without saving your changes?')) return;
+    iv.dirty = false; ivShow('list'); ivLoad(false);
+  }
+  // From a catering request (Catering tab → "Make invoice").
+  function ivFromCatering(r){
+    iv.prefillRef = r.ref || null;
+    var lines = [];
+    if (r.quote_cents) lines.push({ name: 'Catering' + (r.event_date ? ' – ' + ivFmt(r.event_date) : ''), description: (r.guests ? r.guests + ' guests' : '') + (r.ref ? (r.guests ? ' · ' : '') + 'Ref ' + r.ref : ''), qty: 1, unit: 'event', unit_cents: r.quote_cents, taxable: true });
+    showTab('invoices');
+    ivOpen(null, { customer_name: r.name || '', company: r.company || '', customer_email: r.email || '', customer_phone: r.phone || '', catering_ref: r.ref || null, lines: lines,
+      notes: r.deposit_paid_at && r.deposit_cents ? 'Deposit of ' + ivMoney(r.deposit_cents) + ' already received.' : '' });
+  }
+
+  (function ivWire(){
+    var g = function(id){ return document.getElementById(id); };
+    if (!g('panelInvoices')) return;
+    g('ivFilter').addEventListener('click', function(e){
+      var b = e.target.closest('button[data-f]'); if (!b) return;
+      this.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x === b); });
+      iv.filter = b.getAttribute('data-f'); ivLoad(false);
+    });
+    g('ivList').addEventListener('click', function(e){ var b = e.target.closest('[data-iv]'); if (b) ivOpen(b.getAttribute('data-iv')); });
+    g('ivNew').addEventListener('click', function(){ iv.prefillRef = null; ivOpen(null); });
+    g('ivBack').addEventListener('click', ivBack);
+    g('ivPriceBtn').addEventListener('click', function(){ g('ivPrice').classList.toggle('hidden'); if (!iv.cat) ivLoadCatalog(); else ivRenderPrice(); });
+    g('ivPriceClose').addEventListener('click', function(){ g('ivPrice').classList.add('hidden'); });
+    g('ivPriceAdd').addEventListener('submit', function(e){
+      e.preventDefault();
+      sb.rpc('invoice_catalog_save', { p: { name: g('ivPName').value, unit: g('ivPUnit').value, price_cents: Math.round(Number(g('ivPPrice').value || 0) * 100), taxable: g('ivPTax').checked } }).then(function(res){
+        if (res.error) { showMsg('ivPriceMsg', res.error.message, 'error'); return; }
+        iv.cat = res.data; ivRenderPrice(); showMsg('ivPriceMsg', 'Added ' + g('ivPName').value + '.', 'ok');
+        g('ivPName').value = ''; g('ivPUnit').value = ''; g('ivPPrice').value = ''; g('ivPTax').checked = true; g('ivPName').focus();
+      });
+    });
+    g('ivPriceList').addEventListener('change', function(e){ var row = e.target.closest('[data-pid]'); if (row) ivPriceSave(row); });
+    g('ivPriceList').addEventListener('click', function(e){
+      if (!e.target.closest('[data-pdel]')) return;
+      var row = e.target.closest('[data-pid]'); if (!confirm('Delete ' + row.querySelector('[data-pf="name"]').value + ' from the price list?')) return;
+      sb.rpc('invoice_catalog_delete', { p_id: row.getAttribute('data-pid') }).then(function(res){ if (!res.error) { iv.cat = res.data; ivRenderPrice(); } });
+    });
+    // Item picker
+    var search = g('ivSearch');
+    search.addEventListener('focus', function(){ if (!iv.cat) ivLoadCatalog().then(ivSearchRender); ivSearchRender(); });
+    search.addEventListener('input', ivSearchRender);
+    search.addEventListener('keydown', function(e){
+      if (e.key === 'ArrowDown') { e.preventDefault(); iv.hl = Math.min(iv.results.length - 1, iv.hl + 1); ivHl(); }
+      else if (e.key === 'ArrowUp') { e.preventDefault(); iv.hl = Math.max(0, iv.hl - 1); ivHl(); }
+      else if (e.key === 'Enter') { e.preventDefault(); if (iv.hl >= 0 && iv.results[iv.hl]) { ivAddLine(iv.results[iv.hl]); search.value = ''; g('ivResults').classList.add('hidden'); } }
+      else if (e.key === 'Escape') { g('ivResults').classList.add('hidden'); }
+    });
+    g('ivResults').addEventListener('mousedown', function(e){ e.preventDefault(); });   // keep focus while picking
+    g('ivResults').addEventListener('click', function(e){
+      var b = e.target.closest('[data-res]'); if (!b) return;
+      ivAddLine(iv.results[+b.getAttribute('data-res')]); search.value = ''; g('ivResults').classList.add('hidden');
+    });
+    document.addEventListener('click', function(e){ if (!e.target.closest('.iv-picker')) g('ivResults').classList.add('hidden'); });
+    g('ivBlank').addEventListener('click', function(){ ivAddLine({ name: '', unit: 'each', unit_cents: 0, taxable: true }, 'name'); });
+    // Lines
+    g('ivLines').addEventListener('input', function(e){
+      var row = e.target.closest('[data-ln]'); if (!row) return;
+      var l = iv.lines[+row.getAttribute('data-ln')], f = e.target.getAttribute('data-lf');
+      if (f === 'price') l.unit_cents = Math.max(0, Math.round(Number(e.target.value || 0) * 100));
+      else if (f === 'qty') l.qty = Math.max(0, Number(e.target.value || 0));
+      else if (f === 'taxable') l.taxable = e.target.checked;
+      else l[f] = e.target.value;
+      row.querySelector('[data-lamt]').textContent = ivMoney(Math.round(l.qty * l.unit_cents));
+      iv.dirty = true; ivCalc();
+    });
+    g('ivLines').addEventListener('change', function(e){ if (e.target.getAttribute('data-lf') === 'taxable') { iv.lines[+e.target.closest('[data-ln]').getAttribute('data-ln')].taxable = e.target.checked; iv.dirty = true; ivCalc(); } });
+    g('ivLines').addEventListener('click', function(e){
+      if (!e.target.closest('[data-ldel]')) return;
+      iv.lines.splice(+e.target.closest('[data-ln]').getAttribute('data-ln'), 1); iv.dirty = true; ivRenderLines(); ivCalc();
+    });
+    ['ivName', 'ivCompany', 'ivEmail', 'ivPhone', 'ivIssue', 'ivDue', 'ivNotes'].forEach(function(id){ g(id).addEventListener('input', function(){ iv.dirty = true; }); });
+    g('ivDisc').addEventListener('input', function(){ iv.dirty = true; ivCalc(); });
+    g('ivFee').addEventListener('change', function(){ iv.dirty = true; ivCalc(); });
+    g('ivDuePick').addEventListener('change', function(){ iv.dirty = true; g('ivDue').classList.toggle('hidden', this.value !== 'pick'); if (this.value === 'pick' && !g('ivDue').value) g('ivDue').value = ivAddDays(g('ivIssue').value || ivToday(), 14); });
+    // Actions
+    var act = function(e){
+      var b = e.target.closest('[data-iva]'); if (!b) return;
+      var a = b.getAttribute('data-iva'), inv = iv.cur && iv.cur.invoice;
+      if (a === 'open') return;
+      e.preventDefault(); clearMsg('ivEditMsg');
+      if (a === 'save') return ivRun(b, function(){ return ivSave().then(function(d){ if (d) { showMsg('ivEditMsg', inv && inv.status === 'sent' && d.invoice.link_stale ? 'Saved. Tap “Send update” so the customer’s link has the new amount.' : 'Saved.', 'ok'); ivLoad(false); } }); });
+      if (a === 'email') return ivRun(b, function(){ return ivSend(true); });
+      if (a === 'link') return ivRun(b, function(){ return ivSend(false); });
+      if (a === 'update') return ivRun(b, function(){ return ivSend(!!g('ivEmail').value.trim()); });
+      if (a === 'delete') { if (!confirm('Delete this draft?')) return; return ivRun(b, function(){ return sb.rpc('invoice_delete_draft', { p_id: inv.id }).then(function(res){ if (res.error) { showMsg('ivEditMsg', res.error.message, 'error'); return; } iv.dirty = false; ivShow('list'); ivLoad(false); showMsg('ivMsg', 'Draft deleted.', 'ok'); }); }); }
+      if (a === 'dup') return ivRun(b, function(){ return sb.rpc('invoice_duplicate', { p_id: inv.id }).then(function(res){ if (res.error) { showMsg('ivEditMsg', res.error.message, 'error'); return; } ivFill(res.data); iv.dirty = false; window.scrollTo(0, 0); showMsg('ivEditMsg', 'Copied into a new draft. Change what you need, then send it.', 'ok'); ivLoad(false); }); });
+      if (!inv) return;
+      var link = ivPage(inv), text = 'Hi ' + String(inv.customer_name).split(' ')[0] + ', here’s your invoice INV-' + inv.number + ' from Roll-In Shawarma for ' + ivMoney(inv.total_cents) + ': ' + link;
+      if (a === 'copy') { (navigator.clipboard ? navigator.clipboard.writeText(link) : Promise.reject()).then(function(){ showMsg('ivEditMsg', 'Invoice link copied.', 'ok'); }, function(){ prompt('Copy the invoice link:', link); }); return; }
+      if (a === 'sms') { location.href = 'sms:' + (b.getAttribute('data-phone') || '') + '?&body=' + encodeURIComponent(text); return; }
+      if (a === 'wa') { var ph = String(inv.customer_phone || '').replace(/\D/g, ''); if (ph.length === 10) ph = '1' + ph; window.open('https://wa.me/' + ph + '?text=' + encodeURIComponent(text), '_blank', 'noopener'); return; }
+      if (a === 'remind') return ivRun(b, function(){ return ivCall({ action: 'remind', id: inv.id }).then(function(r){ if (r.error) { showMsg('ivEditMsg', r.error, 'error'); return ivReload(); } return ivReload(r.emailed ? 'Reminder emailed to ' + inv.customer_email + '.' : 'The reminder didn’t go through. Try again or text the link.', r.emailed ? 'ok' : 'error'); }); });
+      if (a === 'paidform') { g('ivPaidForm').classList.toggle('hidden'); return; }
+      if (a === 'void') { if (!confirm('Void INV-' + inv.number + '? Its pay link stops working.')) return; return ivRun(b, function(){ return ivCall({ action: 'void', id: inv.id }).then(function(r){ return ivReload(r.error || 'Voided. The pay link is off.', r.error ? 'error' : 'ok').then(function(){ ivLoad(false); }); }); }); }
+    };
+    g('ivActs').addEventListener('click', act);
+    g('ivShare').addEventListener('click', act);
+    g('ivPaidGo').addEventListener('click', function(){
+      var inv = iv.cur && iv.cur.invoice, b = this; if (!inv) return;
+      ivRun(b, function(){ return ivCall({ action: 'mark_paid', id: inv.id, method: g('ivPaidMethod').value, note: g('ivPaidNote').value }).then(function(r){
+        return ivReload(r.error || 'Marked as paid. The pay link is off.', r.error ? 'error' : 'ok').then(function(){ ivLoad(false); }); }); });
+    });
+    window.addEventListener('beforeunload', function(e){ if (iv.dirty && !g('ivEditView').classList.contains('hidden')) { e.preventDefault(); e.returnValue = ''; } });
+  })();
+
   var CF_STATUS = { 'new':['New','wait'], quoted:['Quoted',''], booked:['Booked','live'], done:['Done',''], lost:['Lost','bad'] };
   function cfMoney(c){ return c == null ? '' : '$' + (c / 100).toLocaleString('en-US', { minimumFractionDigits: c % 100 ? 2 : 0, maximumFractionDigits: 2 }); }
   function cfCall(body){
@@ -4769,6 +5358,7 @@
           '<label>Notes (staff only)</label><textarea rows="2" data-cf-notes maxlength="2000">' + esc(r.staff_notes || '') + '</textarea>' +
           '<div class="cf-row"><button type="button" class="btn-primary btn-small" data-cf-save>Save</button>' +
             '<button type="button" class="btn-export btn-small" data-cf-event>Add to Events</button>' +
+            '<button type="button" class="btn-export btn-small" data-cf-inv>Make invoice</button>' +
             (function(){
               var ce = typeof ceState !== 'undefined' && ceState.rows.find(function(x){ return x.catering_request_id === r.id && x.status !== 'canceled'; });
               return ce ? '<button type="button" class="btn-approve btn-small" data-cf-ce="' + esc(ce.event_id) + '">✓ Ordering link set up · open</button>'
@@ -4832,6 +5422,7 @@
         email_domain: dom && !FREE.test(dom) ? dom : null, kitchen_pace: 1 });
       return;
     }
+    if (e.target.closest('[data-cf-inv]')) { ivFromCatering(r); return; }
     if (e.target.closest('[data-cf-event]')) {
       showTab('events');
       var set = function(id, v){ var el = document.getElementById(id); if (el && v != null) el.value = v; };
