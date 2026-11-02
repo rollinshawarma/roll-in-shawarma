@@ -695,6 +695,64 @@
   .pm-keys .pm-ok.resume{ background:#30d158; color:#00240c; }
   .pm-keys .pm-ok:disabled{ opacity:.4; }
 
+
+  /* ---------- Supplies (supplies.sql) ---------- */
+  #suppliesBtn{ font-size:15px; font-weight:700; padding:9px 15px; border:1px solid var(--line); border-radius:100px; white-space:nowrap; }
+  #suppliesBtn .nd-count.urgent{ background:#ff453a; }
+  .sup-box{ position:relative; width:min(1100px, 100%); max-height:95vh; overflow-y:auto; background:#1c1c1e; border:1px solid #2c2c2e; border-radius:22px; padding:20px 22px 0; color:var(--white); text-align:left; }
+  .sup-box h2{ font-family:var(--kds-font); font-size:32px; font-weight:800; margin:0 0 2px; }
+  .sup-sub{ color:var(--muted); font-size:14.5px; margin:0 0 14px; }
+  .sup-add{ display:grid; grid-template-columns:1fr 140px 190px auto auto; gap:8px; }
+  .sup-add input, .sup-add select{ min-height:58px; border-radius:14px; border:1.5px solid #3a3a3c; background:#000; color:var(--white); font-size:21px; padding:0 14px; font-family:inherit; width:100%; }
+  .sup-add select{ font-size:17px; }
+  .sup-add input:focus, .sup-add select:focus{ outline:none; border-color:#64d2ff; }
+  .sup-urg{ min-height:58px; padding:0 16px; border-radius:14px; border:1.5px solid #3a3a3c; color:var(--cream); font-size:16px; font-weight:800; }
+  .sup-urg[aria-pressed="true"]{ background:#ff453a; border-color:#ff453a; color:#fff; }
+  .sup-go{ min-height:58px; padding:0 26px; border-radius:14px; background:#30d158; color:#00240c; font-size:19px; font-weight:800; }
+  .sup-msg{ min-height:20px; font-size:14px; font-weight:700; color:#ff6961; margin:6px 0 2px; }
+  .sup-msg.ok{ color:#30d158; }
+  .sup-label{ font-size:12.5px; font-weight:800; color:var(--muted); text-transform:uppercase; letter-spacing:.06em; margin:12px 0 6px; }
+  .sup-chips{ display:flex; flex-wrap:wrap; gap:8px; }
+  .sup-chips button{ min-height:46px; padding:0 14px; border-radius:100px; border:1.5px solid #3a3a3c; color:var(--cream); font-size:16px; font-weight:700; display:inline-flex; align-items:center; gap:6px; }
+  .sup-chips button small{ font-size:11px; font-weight:800; color:var(--muted); letter-spacing:.03em; }
+  .sup-chips button.on{ background:#30d158; border-color:#30d158; color:#00240c; }
+  .sup-chips button.on small{ color:#00240c; }
+  .sup-chips button.who-on{ background:#64d2ff; border-color:#64d2ff; color:#001b28; }
+  .sup-chips button:active{ transform:scale(.97); }
+  .sup-tabs{ display:flex; gap:6px; overflow-x:auto; padding-bottom:6px; margin-bottom:8px; scrollbar-width:none; }
+  .sup-tabs::-webkit-scrollbar{ display:none; }
+  .sup-tabs button{ flex:none; min-height:44px; padding:0 14px; border-radius:12px; background:#2c2c2e; color:var(--cream); font-size:15.5px; font-weight:700; white-space:nowrap; }
+  .sup-tabs button.on{ background:#ffd60a; color:#2a2200; }
+  .sup-view{ display:flex; align-items:center; justify-content:space-between; gap:10px; margin:18px 0 4px; flex-wrap:wrap; }
+  .sup-seg{ display:inline-flex; background:#2c2c2e; border-radius:12px; padding:3px; }
+  .sup-seg button{ min-height:40px; padding:0 14px; border-radius:10px; color:var(--cream); font-size:15px; font-weight:700; }
+  .sup-seg button.on{ background:#fff; color:#000; }
+  .sup-group{ margin-top:14px; border:1px solid #2c2c2e; border-radius:16px; padding:4px 14px 6px; }
+  .sup-ghead{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:10px 0 6px; }
+  .sup-ghead h3{ font-family:var(--kds-font); font-size:24px; font-weight:800; margin:0; color:#ffd60a; }
+  .sup-ghead h3 small{ color:var(--muted); font-family:"Inter",sans-serif; font-size:13px; font-weight:700; margin-left:6px; }
+  .sup-gwa{ min-height:40px; padding:0 14px; border-radius:10px; background:#25d366; color:#04260f; font-size:14px; font-weight:800; }
+  .sup-row{ display:grid; grid-template-columns:auto 1fr auto auto auto; gap:10px; align-items:center; padding:9px 0; border-top:1px solid #2c2c2e; }
+  .sup-got{ width:54px; height:54px; border-radius:14px; background:#2c2c2e; color:#30d158; font-size:26px; font-weight:800; }
+  .sup-got:active{ background:#30d158; color:#00240c; }
+  .sup-name{ font-size:20px; font-weight:800; line-height:1.2; }
+  .sup-name .q{ color:#64d2ff; font-weight:700; margin-left:6px; }
+  .sup-name .u{ display:inline-block; margin-left:8px; padding:2px 9px; border-radius:100px; background:#ff453a; color:#fff; font-size:12px; letter-spacing:.05em; vertical-align:middle; }
+  .sup-meta{ font-size:13.5px; color:var(--muted); margin-top:2px; }
+  .sup-meta b{ color:#ffd60a; font-weight:700; }
+  .sup-store{ min-height:44px; padding:0 12px; border-radius:12px; background:#2c2c2e; color:var(--cream); font-size:14px; font-weight:700; white-space:nowrap; }
+  .sup-store.none{ border:1.5px dashed #ff9f0a; color:#ff9f0a; background:transparent; }
+  .sup-ic{ width:46px; height:46px; border-radius:12px; background:#2c2c2e; color:var(--cream); font-size:19px; }
+  .sup-ic.on{ background:#ff453a; color:#fff; }
+  .sup-pick{ grid-column:1 / -1; display:flex; flex-wrap:wrap; gap:6px; padding:4px 0 6px 64px; }
+  .sup-pick button{ min-height:42px; padding:0 14px; border-radius:10px; background:#2c2c2e; color:var(--cream); font-size:15px; font-weight:700; }
+  .sup-pick button.on{ background:#64d2ff; color:#001b28; }
+  .sup-empty{ color:var(--muted); font-size:18px; text-align:center; padding:26px 0; }
+  .sup-foot{ position:sticky; bottom:0; background:#1c1c1e; display:flex; flex-wrap:wrap; gap:8px; padding:14px 0 16px; margin-top:12px; border-top:1px solid #2c2c2e; }
+  .sup-wa{ min-height:54px; padding:0 22px; border-radius:14px; background:#25d366; color:#04260f; font-size:18px; font-weight:800; }
+  .sup-sec{ min-height:54px; padding:0 18px; border-radius:14px; background:#2c2c2e; color:var(--cream); font-size:16px; font-weight:700; }
+  .sup-recent .sup-row{ opacity:.75; grid-template-columns:auto 1fr auto; }
+  @media (max-width:900px){ .sup-add{ grid-template-columns:1fr 1fr 1fr; } .sup-add input#supName{ grid-column:1 / -1; } .sup-row{ grid-template-columns:auto 1fr auto; } .sup-row .sup-store{ grid-column:2; justify-self:start; } }
   /* ---- Platinum secret menu items ---- */
   .plat-tag{ display:inline-block; margin-right:6px; padding:1px 8px; border-radius:999px; font-size:.78em; font-weight:800; letter-spacing:.08em;
     color:#1b1a1f; background:linear-gradient(135deg, #f4f4f6, #b9bcc6 50%, #e9eaee); vertical-align:middle; }
@@ -820,6 +878,43 @@
   </div>
 </div>
 
+
+<!-- Supplies to restock (supplies.sql) -->
+<div id="suppliesModal" class="pm-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="supTitle">
+  <div class="sup-box">
+    <button type="button" class="pm-x" id="supClose" aria-label="Close">&times;</button>
+    <h2 id="supTitle">&#128230; Supplies</h2>
+    <p class="sup-sub">Running low? Tap it below or type it. Each item goes on its store&rsquo;s list<span id="supStoreNames"> (Restaurant Depot, Costco, Aldi, WebstaurantStore)</span>.</p>
+    <form class="sup-add" id="supForm" autocomplete="off">
+      <input type="text" id="supName" placeholder="Type an item&hellip; (e.g. 10&quot; box)" maxlength="60" autocapitalize="sentences" autocorrect="on" spellcheck="true" enterkeyhint="done" aria-label="Item">
+      <input type="text" id="supQty" placeholder="How many?" maxlength="24" enterkeyhint="done" aria-label="How many (optional)">
+      <select id="supStore" aria-label="Store"><option value="">Usual store</option></select>
+      <button type="button" class="sup-urg" id="supUrgent" aria-pressed="false">&#9888; Urgent</button>
+      <button type="submit" class="sup-go" id="supAdd">Add</button>
+    </form>
+    <div class="sup-msg" id="supMsg" role="status"></div>
+    <div class="sup-label" id="supWhoLabel">Who&rsquo;s adding?</div>
+    <div class="sup-chips" id="supWho"></div>
+    <div class="sup-label">Tap to add</div>
+    <div class="sup-tabs" id="supCatTabs" role="tablist" aria-label="Categories"></div>
+    <div class="sup-chips" id="supChips"></div>
+    <div class="sup-view">
+      <div class="sup-label" style="margin:0;" id="supCountLabel">Shopping lists</div>
+      <div class="sup-seg" role="group" aria-label="Group the list by">
+        <button type="button" data-view="store" class="on">By store</button>
+        <button type="button" data-view="cat">By category</button>
+      </div>
+    </div>
+    <div id="supList"></div>
+    <div id="supRecent" class="sup-recent hidden"></div>
+    <div class="sup-foot">
+      <button type="button" class="sup-wa" id="supWa">&#128172; Send all to WhatsApp</button>
+      <button type="button" class="sup-sec" id="supCopy">Copy list</button>
+      <button type="button" class="sup-sec" id="supRecentBtn">Recently bought</button>
+    </div>
+  </div>
+</div>
+
 <div id="board" class="hidden">
   <div id="boardHeader" class="kh">
     <div class="kh-id">
@@ -842,6 +937,7 @@
       <button type="button" id="spotsBtn" title="Parking spots in use" aria-label="Parking spots">&#127359;<span class="dots" id="spotsDots">&#9675;&#9675;&#9675;&#9675;&#9675;</span></button>
       <button type="button" id="truckLocBtn" title="Save where the truck is parked (for drive-up check-ins)">&#128205; Location</button>
       <button type="button" id="recallBtn" title="Recall: bring back an order marked done" aria-label="Recall">&#8634;</button>
+      <button type="button" id="suppliesBtn" title="Supplies to restock">&#128230; Supplies<span class="nd-count zero" id="suppliesCount">0</span></button>
       <button type="button" id="lockBtn" class="kh-lock" title="Lock the board" aria-label="Lock">&#128274;</button>
     </div>
   </div>
@@ -3285,6 +3381,230 @@
     new MutationObserver(function(){ if (!busy) { busy = true; requestAnimationFrame(run); } })
       .observe(document.body, { childList: true, subtree: true, characterData: true });
     run();
+  })();
+</script>
+
+<script>
+  // ---------------- Supplies (supplies.sql) ----------------
+  // Restock lists by store (Restaurant Depot, Costco, Aldi, WebstaurantStore).
+  // Tap an item by category or type one (the tablet keyboard + its mic key
+  // work), mark urgent, pick who's adding it, check items off, send a
+  // store's list (or all of them) to WhatsApp.
+  (function(){
+    var $ = function(id){ return document.getElementById(id); };
+    if (!$('suppliesBtn')) return;
+    var st = { data: null, urgent: false, who: null, busy: false, timer: null, ready: true, tab: 'top', view: 'store', pick: null };
+    function esc(t){ return String(t == null ? '' : t).replace(/[&<>"']/g, function(c){ return {'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]; }); }
+    // ---- shared by the kitchen tablet and the staff portal ----
+    var STORE_ICON = { rd: '🏬', costco: '🛒', aldi: '🧺', webst: '💻' };
+    function supCats(d){ var m = {}; (d.categories || []).forEach(function(c, i){ m[c.key] = Object.assign({ i: i }, c); }); return m; }
+    function supStores(d){ var m = {}; (d.stores || []).forEach(function(s, i){ m[s.key] = Object.assign({ i: i }, s); }); return m; }
+    // Open items grouped by store (stores in order, then "No store yet"); inside, urgent first then by category.
+    function supByStore(d, items){
+      var cats = supCats(d), out = [];
+      var sortIt = function(a, b){ return (b.urgent - a.urgent) || ((cats[a.category] || {}).i - (cats[b.category] || {}).i) || a.name.localeCompare(b.name); };
+      (d.stores || []).forEach(function(s){ var g = items.filter(function(i){ return i.store === s.key; }).sort(sortIt); if (g.length) out.push({ store: s, items: g }); });
+      var none = items.filter(function(i){ return !i.store || !supStores(d)[i.store]; }).sort(sortIt);
+      if (none.length) out.push({ store: { key: '', name: 'No store yet', short: 'No store' }, items: none });
+      return out;
+    }
+    function supByCategory(d, items){
+      var out = [];
+      (d.categories || []).forEach(function(c){ var g = items.filter(function(i){ return i.category === c.key; }).sort(function(a, b){ return (b.urgent - a.urgent) || a.name.localeCompare(b.name); }); if (g.length) out.push({ cat: c, items: g }); });
+      return out;
+    }
+    // WhatsApp / copy text. storeKey: one store's list, or null for every store.
+    function supText(d, storeKey){
+      var open = (d.open || []).filter(function(i){ return storeKey == null || (storeKey === '' ? !i.store : i.store === storeKey); });
+      if (!open.length) return '';
+      var cats = supCats(d), groups = supByStore(d, open);
+      var lines = ['📦 *Roll-In supplies*' + (storeKey != null && groups[0] ? ' — ' + groups[0].store.name : '') + ' (' + open.length + ')'];
+      groups.forEach(function(g){
+        lines.push('', (STORE_ICON[g.store.key] || '❓') + ' *' + g.store.name + (g.store.online ? ' (order online)' : '') + '* (' + g.items.length + ')');
+        g.items.forEach(function(i){
+          lines.push((i.urgent ? '⚠ ' : '• ') + i.name + (i.qty ? ' — ' + i.qty : '') + (i.urgent ? ' *URGENT*' : '') + (i.buying_name ? ' (' + i.buying_name + ' buying)' : ''));
+        });
+      });
+      lines.push('', 'Check items off: https://rollinshawarma.com/staff.html#supplies');
+      return lines.join('\n');
+    }
+    function ago(iso){ var m = Math.max(0, Math.round((Date.now() - new Date(iso).getTime()) / 60000));
+      return m < 1 ? 'just now' : m < 60 ? m + ' min ago' : m < 1440 ? Math.round(m / 60) + ' h ago' : new Date(iso).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }); }
+    function say(t, ok){ var m = $('supMsg'); m.textContent = t || ''; m.className = 'sup-msg' + (ok ? ' ok' : ''); }
+    try { var w = JSON.parse(sessionStorage.getItem('supWho') || 'null'); if (w && w.t > Date.now() - 30 * 60000) st.who = w; } catch (e) {}
+    try { st.view = localStorage.getItem('supView') || 'store'; } catch (e) {}
+
+    function badge(d){
+      var open = (d && d.open) || [], c = $('suppliesCount');
+      c.textContent = open.length;
+      c.classList.toggle('zero', !open.length);
+      c.classList.toggle('urgent', open.some(function(i){ return i.urgent; }));
+    }
+    function load(){
+      return sb.rpc('supplies_list').then(function(res){
+        if (res.error) {
+          if (/does not exist|could not find/i.test(res.error.message || '')) { st.ready = false; $('suppliesBtn').classList.add('hidden'); }
+          return null;
+        }
+        st.data = res.data; badge(st.data);
+        if (!$('suppliesModal').classList.contains('hidden')) paint();
+        return st.data;
+      }, function(){ return null; });
+    }
+    function paint(){
+      var d = st.data || { open: [], recent: [], chips: [], on_shift: [], stores: [], categories: [] }, open = d.open || [];
+      var stores = supStores(d), cats = supCats(d);
+      var onList = {}; open.forEach(function(i){ onList[i.name.toLowerCase()] = true; });
+      if ((d.stores || []).length) $('supStoreNames').textContent = ' (' + d.stores.map(function(s){ return s.name; }).join(', ') + ')';
+      // Store picker for typed items
+      var sel = $('supStore'), cur = sel.value;
+      sel.innerHTML = '<option value="">Usual store</option>' + (d.stores || []).map(function(s){ return '<option value="' + esc(s.key) + '">' + esc(s.name) + '</option>'; }).join('');
+      sel.value = cur;
+      // Who
+      var people = d.on_shift || [];
+      $('supWho').innerHTML = people.length ? people.map(function(p){
+        return '<button type="button" data-who="' + esc(p.id) + '" class="' + (st.who && st.who.id === p.id ? 'who-on' : '') + '">' + esc(p.name) + '</button>'; }).join('')
+        : '<span class="sup-meta">Nobody is clocked in, so items are added as ' + esc(d.me && d.me.name || 'Kitchen') + '.</span>';
+      // Category tabs + items
+      var chips = d.chips || [];
+      var tabs = [{ key: 'top', name: 'Most used', icon: '⭐' }].concat((d.categories || []).filter(function(c){ return chips.some(function(x){ return x.category === c.key; }); }));
+      if (!tabs.some(function(t){ return t.key === st.tab; })) st.tab = 'top';
+      $('supCatTabs').innerHTML = tabs.map(function(t){
+        return '<button type="button" role="tab" aria-selected="' + (t.key === st.tab) + '" data-tab="' + esc(t.key) + '" class="' + (t.key === st.tab ? 'on' : '') + '">' + t.icon + ' ' + esc(t.name) + '</button>'; }).join('');
+      var shown = st.tab === 'top'
+        ? chips.slice().sort(function(a, b){ return (b.uses || 0) - (a.uses || 0); }).slice(0, 18)
+        : chips.filter(function(c){ return c.category === st.tab; });
+      $('supChips').innerHTML = shown.map(function(c){
+        var on = onList[c.name.toLowerCase()];
+        return '<button type="button" data-chip="' + esc(c.name) + '" class="' + (on ? 'on' : '') + '">' + (on ? '✓ ' : '+ ') + esc(c.name) +
+          (c.store && stores[c.store] ? ' <small>' + esc(stores[c.store].short) + '</small>' : '') + '</button>'; }).join('') || '<span class="sup-meta">Nothing here yet. Type an item above.</span>';
+      // View toggle
+      document.querySelectorAll('#suppliesModal [data-view]').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-view') === st.view); });
+      $('supCountLabel').textContent = open.length ? open.length + ' to buy' : 'Shopping lists';
+      // List
+      var html = '';
+      if (!open.length) html = '<div class="sup-empty">Nothing to restock. 👍</div>';
+      else if (st.view === 'store') {
+        supByStore(d, open).forEach(function(g){
+          html += '<div class="sup-group"><div class="sup-ghead"><h3>' + (STORE_ICON[g.store.key] || '❓') + ' ' + esc(g.store.name) + '<small>' + g.items.length + (g.store.online ? ' · order online' : '') + '</small></h3>' +
+            '<button type="button" class="sup-gwa" data-wa-store="' + esc(g.store.key) + '">💬 Send this list</button></div>' + g.items.map(function(i){ return row(i, stores, cats, 'store'); }).join('') + '</div>';
+        });
+      } else {
+        supByCategory(d, open).forEach(function(g){
+          html += '<div class="sup-group"><div class="sup-ghead"><h3>' + g.cat.icon + ' ' + esc(g.cat.name) + '<small>' + g.items.length + '</small></h3></div>' + g.items.map(function(i){ return row(i, stores, cats, 'cat'); }).join('') + '</div>';
+        });
+      }
+      $('supList').innerHTML = html;
+      $('supRecent').innerHTML = (d.recent || []).length ? '<div class="sup-group"><div class="sup-ghead"><h3>✓ Bought this week</h3></div>' + d.recent.map(function(i){
+        return '<div class="sup-row"><span></span><div><div class="sup-name">' + esc(i.name) + (i.qty ? '<span class="q">' + esc(i.qty) + '</span>' : '') + '</div>' +
+          '<div class="sup-meta">Bought by ' + esc(i.done_by_name || 'someone') + (i.store && stores[i.store] ? ' at ' + esc(stores[i.store].name) : '') + ' · ' + esc(ago(i.done_at)) + '</div></div>' +
+          '<button type="button" class="sup-ic" data-again="' + esc(i.name) + '" title="Add again" aria-label="Add ' + esc(i.name) + ' again">↺</button></div>'; }).join('') + '</div>'
+        : '<div class="sup-empty">Nothing bought in the last 7 days.</div>';
+    }
+    function row(i, stores, cats, view){
+      var c = cats[i.category] || {}, s = stores[i.store];
+      var meta = (view === 'store' && c.name ? c.icon + ' ' + esc(c.name) + ' · ' : '') + 'Added by ' + esc(i.added_by_name || 'someone') + ' · ' + esc(ago(i.added_at));
+      if (i.buying_name) meta += ' · <b>' + esc(i.buying_name) + ' is buying it</b>';
+      var pick = st.pick === i.id ? '<div class="sup-pick">' + (st.data.stores || []).map(function(x){
+          return '<button type="button" data-setstore="' + esc(x.key) + '" class="' + (x.key === i.store ? 'on' : '') + '">' + (STORE_ICON[x.key] || '') + ' ' + esc(x.name) + '</button>'; }).join('') +
+          '<button type="button" data-setstore="">No store</button></div>' : '';
+      return '<div class="sup-row" data-id="' + esc(i.id) + '">' +
+        '<button type="button" class="sup-got" data-act="got" title="Got it" aria-label="Got ' + esc(i.name) + '">✓</button>' +
+        '<div><div class="sup-name">' + esc(i.name) + (i.qty ? '<span class="q">' + esc(i.qty) + '</span>' : '') + (i.urgent ? '<span class="u">URGENT</span>' : '') + '</div>' +
+        '<div class="sup-meta">' + meta + (i.note ? ' · “' + esc(i.note) + '”' : '') + '</div></div>' +
+        '<button type="button" class="sup-store' + (s ? '' : ' none') + '" data-act="store" title="Change store">' + (s ? (STORE_ICON[s.key] || '') + ' ' + esc(s.short) : 'Pick store') + ' ▾</button>' +
+        '<button type="button" class="sup-ic' + (i.urgent ? ' on' : '') + '" data-act="urgent" title="Urgent" aria-label="Mark urgent">⚠</button>' +
+        '<button type="button" class="sup-ic" data-act="remove" title="Remove" aria-label="Remove ' + esc(i.name) + '">✕</button>' + pick + '</div>';
+    }
+    function run(p){
+      st.busy = true;
+      return p.then(function(res){
+        st.busy = false;
+        if (res.error) { say(res.error.message || 'Couldn’t save. Try again.'); return false; }
+        st.data = res.data; badge(st.data); paint(); return true;
+      }, function(){ st.busy = false; say('No connection. Try again.'); return false; });
+    }
+    function add(name, qty){
+      name = String(name || '').trim();
+      if (!name) { say('Type an item first.'); $('supName').focus(); return; }
+      if (st.busy) return;
+      say('');
+      var store = $('supStore').value || null;
+      run(sb.rpc('supplies_add', { p_name: name, p_qty: qty || null, p_urgent: st.urgent, p_by: st.who ? st.who.id : null, p_store: store })).then(function(ok){
+        if (!ok) return;
+        var it = (st.data.open || []).find(function(x){ return x.name.toLowerCase() === name.toLowerCase(); }) || {};
+        var sn = supStores(st.data)[it.store];
+        say('Added ' + (it.name || name) + (sn ? ' to ' + sn.name : '') + (st.urgent ? ' (urgent)' : '') + '.', true);
+        $('supName').value = ''; $('supQty').value = ''; $('supStore').value = '';
+        st.urgent = false; $('supUrgent').setAttribute('aria-pressed', 'false');
+      });
+    }
+    function open(){
+      $('suppliesModal').classList.remove('hidden');
+      paint(); load();
+      clearInterval(st.timer); st.timer = setInterval(load, 15000);
+      setTimeout(function(){ $('supName').focus(); }, 60);   // opens the keyboard on tablets
+    }
+    function close(){ $('suppliesModal').classList.add('hidden'); clearInterval(st.timer); say(''); st.pick = null; }
+    function sendWa(storeKey){
+      var t = supText(st.data || {}, storeKey);
+      if (!t) { say('That list is empty.'); return; }
+      window.open('https://wa.me/?text=' + encodeURIComponent(t), '_blank', 'noopener');
+    }
+
+    $('suppliesBtn').addEventListener('click', open);
+    $('supClose').addEventListener('click', close);
+    $('suppliesModal').addEventListener('click', function(e){ if (e.target === this) close(); });
+    $('supForm').addEventListener('submit', function(e){ e.preventDefault(); add($('supName').value, $('supQty').value); });
+    ['supName', 'supQty'].forEach(function(id){ $(id).addEventListener('keydown', function(e){ if (e.key === 'Enter') { e.preventDefault(); add($('supName').value, $('supQty').value); } }); });
+    $('supUrgent').addEventListener('click', function(){ st.urgent = !st.urgent; this.setAttribute('aria-pressed', st.urgent ? 'true' : 'false'); });
+    $('supWho').addEventListener('click', function(e){
+      var b = e.target.closest('[data-who]'); if (!b) return;
+      var p = (st.data.on_shift || []).find(function(x){ return x.id === b.getAttribute('data-who'); });
+      st.who = st.who && st.who.id === p.id ? null : { id: p.id, name: p.name, t: Date.now() };
+      try { st.who ? sessionStorage.setItem('supWho', JSON.stringify(st.who)) : sessionStorage.removeItem('supWho'); } catch (x) {}
+      paint();
+    });
+    $('supCatTabs').addEventListener('click', function(e){ var b = e.target.closest('[data-tab]'); if (b) { st.tab = b.getAttribute('data-tab'); paint(); } });
+    $('supChips').addEventListener('click', function(e){
+      var b = e.target.closest('[data-chip]'); if (!b) return;
+      if (b.classList.contains('on')) { say(b.getAttribute('data-chip') + ' is already on the list.'); return; }
+      add(b.getAttribute('data-chip'), $('supQty').value);
+    });
+    document.querySelectorAll('#suppliesModal [data-view]').forEach(function(b){
+      b.addEventListener('click', function(){ st.view = b.getAttribute('data-view'); try { localStorage.setItem('supView', st.view); } catch (x) {} paint(); });
+    });
+    $('supList').addEventListener('click', function(e){
+      var wa = e.target.closest('[data-wa-store]'); if (wa) { sendWa(wa.getAttribute('data-wa-store')); return; }
+      var r = e.target.closest('[data-id]'); if (!r || st.busy) return;
+      var id = r.getAttribute('data-id');
+      var item = (st.data.open || []).find(function(i){ return i.id === id; }) || {};
+      var by = st.who ? st.who.id : null;
+      var ss = e.target.closest('[data-setstore]');
+      if (ss) {
+        var k = ss.getAttribute('data-setstore'); st.pick = null;
+        run(sb.rpc('supplies_update', { p_id: id, p: { store: k, remember: true } })).then(function(ok){
+          var sn = supStores(st.data)[k]; if (ok) say(item.name + (sn ? ' → ' + sn.name + ' (from now on)' : ' has no store') + '.', true); });
+        return;
+      }
+      var b = e.target.closest('[data-act]'); if (!b) return;
+      var act = b.getAttribute('data-act');
+      if (act === 'store') { st.pick = st.pick === id ? null : id; paint(); return; }
+      if (act === 'got') run(sb.rpc('supplies_update', { p_id: id, p: { status: 'bought', by: by } })).then(function(ok){ if (ok) say('✓ ' + item.name + ' restocked.', true); });
+      if (act === 'urgent') run(sb.rpc('supplies_update', { p_id: id, p: { urgent: !item.urgent } }));
+      if (act === 'remove') { if (confirm('Take ' + item.name + ' off the list?')) run(sb.rpc('supplies_update', { p_id: id, p: { status: 'removed', by: by } })); }
+    });
+    $('supRecent').addEventListener('click', function(e){ var b = e.target.closest('[data-again]'); if (b) add(b.getAttribute('data-again')); });
+    $('supRecentBtn').addEventListener('click', function(){ $('supRecent').classList.toggle('hidden'); this.textContent = $('supRecent').classList.contains('hidden') ? 'Recently bought' : 'Hide recently bought'; });
+    $('supWa').addEventListener('click', function(){ sendWa(null); });
+    $('supCopy').addEventListener('click', function(){
+      var t = supText(st.data || {}, null);
+      if (!t) { say('The list is empty.'); return; }
+      (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(function(){ say('Copied. Paste it anywhere.', true); }, function(){ say('Couldn’t copy on this device.'); });
+    });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !$('suppliesModal').classList.contains('hidden')) close(); });
+    load();
+    setInterval(function(){ if (st.ready && $('suppliesModal').classList.contains('hidden')) load(); }, 60000);
   })();
 </script>
 </body>
