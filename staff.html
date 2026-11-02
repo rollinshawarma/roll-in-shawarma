@@ -449,6 +449,32 @@
   @media (prefers-reduced-motion:reduce){ *{ transition:none !important; } }
 
   /* ---- Catering ---- */
+  /* On Location ordering */
+  .sp-card{ border:2px solid #e6e6eb; }
+  .sp-card.live{ border-color:#30b35a; }
+  .sp-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+  .sp-head h3{ margin:0; font-size:18px; }
+  .sp-form{ margin-top:14px; display:grid; gap:12px; }
+  .sp-form input, .sp-form select{ margin:0; }
+  .sp-gps{ width:auto; justify-self:start; }
+  .sp-gps.ok{ border-color:#1f8a4c; color:#146c3a; }
+  .sp-gps-msg{ font-size:12.5px; color:var(--muted); margin-top:-6px; }
+  .sp-inline{ display:flex; gap:8px; } .sp-inline select{ flex:1; min-width:0; } .sp-inline input{ flex:1.4; min-width:0; }
+  .sp-sum{ background:#f5f5f7; border-radius:12px; padding:10px 12px; font-size:14px; }
+  .sp-form .btn-approve{ width:100%; }
+  .sp-item{ border-radius:14px; padding:14px; margin-top:12px; background:rgba(48,179,90,0.08); border:1px solid rgba(48,179,90,0.35); }
+  .sp-item.soon{ background:#eef5ff; border-color:#b9d4f5; }
+  .sp-item .k{ font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:#146c3a; }
+  .sp-item.soon .k{ color:#0b4a8c; }
+  .sp-item .w{ font-size:17px; font-weight:700; margin:2px 0; }
+  .sp-item .t{ font-size:13.5px; color:var(--muted); }
+  .sp-item .t a{ color:inherit; }
+  .sp-acts{ display:flex; flex-wrap:wrap; gap:8px; margin-top:10px; }
+  .sp-acts button{ width:auto; }
+  .sp-recent{ margin-top:14px; font-size:13.5px; }
+  .sp-recent summary{ cursor:pointer; font-weight:600; }
+  .sp-recent .r{ padding:6px 0; border-top:1px solid #eeeef2; color:var(--muted); }
+  .sp-recent .r b{ color:var(--ink); font-weight:600; }
   /* Invoices */
   .iv-stats{ display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:10px; margin-bottom:14px; }
   .iv-stat{ background:#fff; border:1px solid #e6e6eb; border-radius:14px; padding:12px 14px; }
@@ -1958,6 +1984,31 @@
       <p class="hint">One place for your hours. The website (Open now, hours card, calendar, pickup times), drive-up QR ordering, the card checkout, the kitchen&rsquo;s &ldquo;pause for the rest of today&rdquo;, Next Door delivery runs and the Apple Wallet card all follow what you set here. Online orders stop 15 minutes before closing; the first pickup time is 15 minutes after opening. The kiosk isn&rsquo;t tied to hours (it runs at events).</p>
     </div>
 
+    <div class="card sp-card" id="spCard">
+      <div class="sp-head"><h3>&#128666; On Location</h3><span class="ad-chip" id="spChip">Off</span></div>
+      <p class="hint">For events, catering and morning stops away from our usual spot: take website orders for pickup <b>at that location</b> for a set time, even outside store hours. Customers see a top-of-page notice and a card with a map and directions, and must confirm the pickup spot at checkout. When the time is up, the website goes back to the hours below. The kitchen tablet has the same switch (&#128666; On Location).</p>
+      <div id="spList"></div>
+      <form id="spForm" autocomplete="off" class="sp-form">
+        <div class="row2">
+          <div><label for="spName">Pickup location *</label><input type="text" id="spName" maxlength="80" placeholder="e.g. Summit County Fair, Gate B"></div>
+          <div><label for="spAddr">Address</label><input type="text" id="spAddr" maxlength="200" placeholder="Street, city (for directions)"></div>
+        </div>
+        <button type="button" class="btn-ghost btn-small sp-gps" id="spGps">&#128205; Use my current location</button>
+        <span class="sp-gps-msg" id="spGpsMsg"></span>
+        <div class="row2 sp-times">
+          <div><label for="spStart">Starts</label>
+            <div class="sp-inline"><select id="spStartPick"><option value="now">Now</option><option value="later">Later</option></select><input type="datetime-local" id="spStart" class="hidden"></div></div>
+          <div><label for="spDur">How long</label>
+            <div class="sp-inline"><select id="spDur"><option value="60">1 hour</option><option value="120" selected>2 hours</option><option value="180">3 hours</option><option value="240">4 hours</option><option value="360">6 hours</option><option value="until">Until…</option></select><input type="datetime-local" id="spEnd" class="hidden"></div></div>
+        </div>
+        <div><label for="spNote">Note for customers <small>(optional)</small></label><input type="text" id="spNote" maxlength="200" placeholder="e.g. Find us by the main stage"></div>
+        <div class="sp-sum" id="spSum"></div>
+        <div id="spMsg"></div>
+        <button type="submit" class="btn-approve" id="spGo">Turn on On Location ordering</button>
+      </form>
+      <details class="sp-recent"><summary>Recent locations</summary><div id="spRecent"></div></details>
+    </div>
+
     <div class="card sh-alert hidden" id="shOutside">
       <div class="sh-alert-title">&#9888; Paid orders booked outside the new hours</div>
       <p class="hint">These customers already paid for a pickup time that&rsquo;s now closed. Call or text them, or refund from the Square Dashboard.</p>
@@ -2806,8 +2857,8 @@
         document.getElementById('tabStopsBtn').classList.remove('hidden');
         document.getElementById('tabSalesBtn').classList.remove('hidden');
         document.getElementById('tabStoreHoursBtn').classList.remove('hidden');
-        document.querySelector('.nav-link[data-tab="storehours"]').addEventListener('click', shLoad);
-        shLoad();
+        document.querySelector('.nav-link[data-tab="storehours"]').addEventListener('click', function(){ shLoad(); spLoad(); });
+        shLoad(); spLoad();
         if (location.hash === '#hours') setTimeout(function(){ showTab('storehours'); shLoad(); }, 0);
         document.getElementById('tabFeaturesBtn').classList.remove('hidden');
         document.querySelector('.nav-link[data-tab="features"]').addEventListener('click', ftLoad);
@@ -3539,6 +3590,106 @@
     // Quick picks: the next few US holidays the truck may close for
     shPaintQuick();
   }
+  // ---------------- POP-UP ONLINE ORDERING (popup-ordering.sql) ----------------
+  var sp = { list: null, lat: null, lng: null, acc: null, busy: false };
+  function spTime(iso, withDay){ var d = new Date(iso), same = d.toLocaleDateString('en-US', { timeZone: 'America/New_York' }) === new Date().toLocaleDateString('en-US', { timeZone: 'America/New_York' });
+    return (withDay !== false && !same ? d.toLocaleDateString('en-US', { timeZone: 'America/New_York', weekday: 'short', month: 'short', day: 'numeric' }) + ', ' : '') + d.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }); }
+  function spLeft(to){ var m = Math.max(0, Math.round((Date.parse(to) - Date.now()) / 60000)); return m >= 60 ? Math.floor(m / 60) + 'h ' + (m % 60) + 'm' : m + ' min'; }
+  // datetime-local value (Ohio time) -> ISO
+  function spIso(v){
+    if (!v) return null; var m = /^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})/.exec(v); if (!m) return null;
+    var want = Date.UTC(+m[1], +m[2] - 1, +m[3], +m[4], +m[5]), t = want;
+    for (var i = 0; i < 3; i++) { var o = {}; new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', hourCycle: 'h23' }).formatToParts(new Date(t)).forEach(function(x){ o[x.type] = x.value; });
+      t = want - (Date.UTC(+o.year, +o.month - 1, +o.day, +o.hour % 24, +o.minute) - t); }
+    return new Date(t).toISOString();
+  }
+  function spLocalInput(ms){ var o = {}; new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(ms)).forEach(function(x){ o[x.type] = x.value; });
+    return o.year + '-' + o.month + '-' + o.day + 'T' + (o.hour === '24' ? '00' : o.hour) + ':' + o.minute; }
+  function spPlan(){
+    var g = function(id){ return document.getElementById(id); };
+    var start = g('spStartPick').value === 'later' ? spIso(g('spStart').value) : null, sMs = start ? Date.parse(start) : Date.now();
+    var end = g('spDur').value === 'until' ? spIso(g('spEnd').value) : new Date(sMs + Number(g('spDur').value) * 60000).toISOString();
+    return { start: start, end: end };
+  }
+  function spPaintSum(){
+    var pl = spPlan(), name = document.getElementById('spName').value.trim(), el = document.getElementById('spSum');
+    if ((document.getElementById('spStartPick').value === 'later' && !pl.start) || !pl.end) { el.textContent = 'Choose the times.'; return; }
+    el.innerHTML = 'Website orders <b>on</b> ' + (pl.start ? 'from ' + esc(spTime(pl.start)) : '<b>now</b>') + ' until <b>' + esc(spTime(pl.end)) + '</b>' + (name ? ' for pickup at <b>' + esc(name) + '</b>' : '') + '. Then back to normal hours.';
+  }
+  function spRender(d){
+    sp.list = d;
+    var cur = (d && d.current) || [], now = Date.now(), live = cur.find(function(p){ return Date.parse(p.from) <= now; });
+    var chip = document.getElementById('spChip');
+    chip.className = 'ad-chip' + (live ? ' live' : cur.length ? ' wait' : '');
+    chip.textContent = live ? 'On · ' + spLeft(live.to) + ' left' : cur.length ? 'Scheduled' : 'Off';
+    document.getElementById('spCard').classList.toggle('live', !!live);
+    document.getElementById('spList').innerHTML = cur.map(function(p){
+      var on = Date.parse(p.from) <= now;
+      return '<div class="sp-item' + (on ? '' : ' soon') + '"><div class="k">' + (on ? '● On now · ' + spLeft(p.to) + ' left' : 'Scheduled') + '</div>' +
+        '<div class="w">' + esc(p.name) + '</div><div class="t">' + esc(spTime(p.from) + ' – ' + spTime(p.to)) + (p.address ? ' · ' + esc(p.address) : '') + (p.map ? ' · <a href="' + esc(p.map) + '" target="_blank" rel="noopener">Map ↗</a>' : '') + (p.by ? ' · by ' + esc(p.by) : '') + '</div>' +
+        '<div class="sp-acts">' + (on ? '<button type="button" class="btn-ghost btn-small" data-sp="ext" data-id="' + esc(p.id) + '" data-min="30">+30 min</button><button type="button" class="btn-ghost btn-small" data-sp="ext" data-id="' + esc(p.id) + '" data-min="60">+1 hour</button>' : '') +
+        '<button type="button" class="btn-ghost btn-small" data-sp="end" data-id="' + esc(p.id) + '" style="color:#c4271b">' + (on ? 'End now' : 'Cancel') + '</button></div></div>';
+    }).join('');
+    document.getElementById('spGo').textContent = live ? 'Plan another location' : 'Turn on On Location ordering';
+    var rec = (d && d.recent) || [];
+    document.getElementById('spRecent').innerHTML = rec.length ? rec.map(function(p){
+      return '<div class="r"><b>' + esc(p.name) + '</b> · ' + esc(spTime(p.from) + ' – ' + spTime(p.to, false)) + (p.canceled ? ' · canceled' : p.ended_early ? ' · ended early' : '') + (p.by ? ' · ' + esc(p.by) : '') + '</div>'; }).join('') : '<p class="hint">None yet.</p>';
+  }
+  function spLoad(){
+    return sb.rpc('staff_popup_list').then(function(res){
+      if (res.error) { if (/does not exist|could not find/i.test(res.error.message || '')) document.getElementById('spCard').classList.add('hidden'); return; }
+      document.getElementById('spCard').classList.remove('hidden'); spRender(res.data);
+    });
+  }
+  (function spWire(){
+    var g = function(id){ return document.getElementById(id); };
+    if (!g('spCard')) return;
+    g('spStartPick').addEventListener('change', function(){ var later = this.value === 'later'; g('spStart').classList.toggle('hidden', !later); if (later && !g('spStart').value) g('spStart').value = spLocalInput(Date.now() + 3600000 - (Date.now() % 900000)); spPaintSum(); });
+    g('spDur').addEventListener('change', function(){ var u = this.value === 'until'; g('spEnd').classList.toggle('hidden', !u); if (u && !g('spEnd').value) g('spEnd').value = spLocalInput((spPlan().start ? Date.parse(spPlan().start) : Date.now()) + 3 * 3600000 - (Date.now() % 900000)); spPaintSum(); });
+    ['spName', 'spStart', 'spEnd'].forEach(function(id){ g(id).addEventListener('input', spPaintSum); });
+    g('spGps').addEventListener('click', function(){
+      var b = this;
+      if (!navigator.geolocation) { g('spGpsMsg').textContent = 'This device can’t share its location.'; return; }
+      b.disabled = true; b.textContent = '📍 Finding you…';
+      navigator.geolocation.getCurrentPosition(function(p){
+        b.disabled = false; sp.lat = p.coords.latitude; sp.lng = p.coords.longitude; sp.acc = p.coords.accuracy;
+        b.classList.add('ok'); b.textContent = '📍 Pin saved ✓';
+        g('spGpsMsg').textContent = 'Customers get directions to this spot (±' + Math.round(p.coords.accuracy || 0) + ' m).';
+      }, function(err){
+        b.disabled = false; b.textContent = '📍 Use my current location';
+        g('spGpsMsg').textContent = err && err.code === 1 ? 'Location is blocked. Allow it for this site, or type the address.' : 'Couldn’t get a GPS fix. Type the address instead.';
+      }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
+    });
+    g('spForm').addEventListener('submit', function(e){
+      e.preventDefault(); if (sp.busy) return;
+      var pl = spPlan(), name = g('spName').value.trim();
+      if (!name) { showMsg('spMsg', 'Add the pickup location so customers know where to go.', 'error'); g('spName').focus(); return; }
+      if ((g('spStartPick').value === 'later' && !pl.start) || !pl.end) { showMsg('spMsg', 'Choose the times.', 'error'); return; }
+      sp.busy = true;
+      sb.rpc('staff_popup_save', { p: { location_name: name, address: g('spAddr').value, note: g('spNote').value, starts_at: pl.start || '', ends_at: pl.end,
+        lat: sp.lat, lng: sp.lng, accuracy: sp.acc, set_truck_location: sp.lat != null && !pl.start } }).then(function(res){
+        sp.busy = false;
+        if (res.error) { showMsg('spMsg', res.error.message, 'error'); return; }
+        spRender(res.data); g('spForm').reset(); sp.lat = sp.lng = sp.acc = null; g('spGps').classList.remove('ok'); g('spGps').textContent = '📍 Use my current location'; g('spGpsMsg').textContent = '';
+        g('spStart').classList.add('hidden'); g('spEnd').classList.add('hidden'); spPaintSum();
+        showMsg('spMsg', pl.start ? 'Scheduled. Website orders turn on at ' + spTime(pl.start) + '.' : 'On Location ordering is on until ' + spTime(pl.end) + '.', 'ok');
+      }, function(){ sp.busy = false; showMsg('spMsg', 'No connection. Try again.', 'error'); });
+    });
+    g('spList').addEventListener('click', function(e){
+      var b = e.target.closest('[data-sp]'); if (!b || sp.busy) return;
+      var id = b.getAttribute('data-id'), act = b.getAttribute('data-sp');
+      if (act === 'end' && !confirm(b.textContent === 'Cancel' ? 'Cancel this On Location stop?' : 'End On Location ordering now? The website goes back to normal hours and our usual spot.')) return;
+      sp.busy = true; b.disabled = true;
+      (act === 'ext' ? sb.rpc('staff_popup_extend', { p_id: id, p_minutes: Number(b.getAttribute('data-min')) }) : sb.rpc('staff_popup_end', { p_id: id })).then(function(res){
+        sp.busy = false;
+        if (res.error) { showMsg('spMsg', res.error.message, 'error'); b.disabled = false; return; }
+        spRender(res.data); showMsg('spMsg', act === 'ext' ? 'Extended.' : 'Done. Back to normal hours.', 'ok');
+      }, function(){ sp.busy = false; b.disabled = false; });
+    });
+    spPaintSum();
+    setInterval(function(){ if (sp.list && !document.getElementById('panelStorehours').classList.contains('hidden')) spRender(sp.list); }, 30000);
+  })();
+
   function shLoad(){
     sb.rpc('staff_get_store_hours').then(function(res){
       if (res.error) {
