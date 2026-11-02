@@ -694,6 +694,42 @@
   .pm-keys .pm-ok{ background:#ff453a; font-family:"Inter",sans-serif; font-size:17px; font-weight:800; }
   .pm-keys .pm-ok.resume{ background:#30d158; color:#00240c; }
   .pm-keys .pm-ok:disabled{ opacity:.4; }
+  /* On Location: online ordering away from the usual spot */
+  #popupBtn{ color:#30d158 !important; border:1.5px solid rgba(48,209,88,.6) !important; border-radius:100px; padding:9px 15px !important; font-size:15px !important; font-weight:800; white-space:nowrap; }
+  #popupBtn.is-on{ background:#30d158; color:#00240c !important; border-color:#30d158 !important; }
+  #popupBtn.is-soon{ border-color:rgba(100,210,255,.7) !important; color:#64d2ff !important; }
+  .pu-box{ width:min(520px, 100%); max-height:94vh; overflow-y:auto; text-align:left; }
+  .pu-box h2{ text-align:center; }
+  .pu-box .pm-sub{ text-align:center; }
+  .pu-lbl{ display:block; font-size:13px; font-weight:800; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin:12px 0 6px; }
+  .pu-lbl b{ color:#ff6961; } .pu-lbl small{ text-transform:none; letter-spacing:0; font-weight:600; }
+  .pu-box input[type=text], .pu-box input[type=time]{ width:100%; min-height:54px; border-radius:14px; border:1.5px solid #3a3a3c; background:#000; color:var(--white); font-size:19px; padding:0 14px; font-family:inherit; }
+  .pu-box input:focus{ outline:none; border-color:#64d2ff; }
+  .pu-box input.hidden{ display:none; }
+  .pu-box input[type=time]{ margin-top:8px; }
+  .pu-gps{ width:100%; min-height:50px; margin-top:10px; border-radius:14px; border:1.5px dashed #64d2ff; color:#64d2ff; font-size:16px; font-weight:800; }
+  .pu-gps.ok{ border-style:solid; background:rgba(100,210,255,.12); }
+  .pu-gps-msg{ font-size:13.5px; color:var(--muted); min-height:18px; margin-top:4px; }
+  .pu-row{ margin-bottom:0; }
+  .pu-durs{ grid-template-columns:repeat(3, 1fr); margin-bottom:0; }
+  .pu-box .pm-durs button.on{ background:#30d158; border-color:#30d158; color:#00240c; }
+  .pu-sum{ margin:14px 0 4px; padding:12px 14px; border-radius:14px; background:#2c2c2e; font-size:15.5px; line-height:1.4; }
+  .pu-sum b{ color:#30d158; }
+  .pu-next{ width:100%; min-height:58px; border-radius:14px; background:#30d158; color:#00240c; font-size:19px; font-weight:800; margin-top:4px; }
+  .pu-back{ width:100%; min-height:46px; margin-top:10px; border-radius:12px; color:var(--muted); font-size:15px; font-weight:700; }
+  .pm-keys .pu-ok{ background:#30d158; color:#00240c; }
+  .pm-keys .pu-ok.danger{ background:#ff453a; color:#fff; }
+  .pu-on{ border:2px solid #30d158; border-radius:16px; padding:14px 16px; margin:4px 0 12px; background:rgba(48,209,88,.1); }
+  .pu-on.soon{ border-color:#64d2ff; background:rgba(100,210,255,.08); }
+  .pu-on .k{ font-size:12.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:#30d158; }
+  .pu-on.soon .k{ color:#64d2ff; }
+  .pu-on .w{ font-size:22px; font-weight:800; margin:2px 0; }
+  .pu-on .t{ font-size:15px; color:var(--cream); }
+  .pu-on .left{ font-family:var(--kds-font); font-size:30px; font-weight:800; color:#30d158; margin-top:4px; }
+  .pu-acts{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:8px; margin-top:12px; }
+  .pu-acts button{ min-height:52px; border-radius:12px; background:#2c2c2e; color:var(--white); font-size:16px; font-weight:800; }
+  .pu-acts button.end{ background:#ff453a; color:#fff; }
+  .pu-new{ width:100%; min-height:46px; margin-top:4px; border-radius:12px; border:1.5px solid #3a3a3c; color:var(--cream); font-size:15px; font-weight:700; }
 
 
   /* ---------- Supplies (supplies.sql) ---------- */
@@ -863,6 +899,56 @@
 </div>
 
 
+<!-- On Location: online ordering for events and catering (popup-ordering.sql) -->
+<div id="popupModal" class="pm-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="puTitle">
+  <div class="pm-box pu-box">
+    <button type="button" class="pm-x" id="puCancel" aria-label="Close">&times;</button>
+    <h2 id="puTitle">&#128666; On Location</h2>
+    <div id="puStatus"></div>
+    <form id="puForm" autocomplete="off">
+      <p class="pm-sub">The truck is at an event, catering or a morning stop: take website orders for pickup <b>here</b>, even outside store hours. It switches off by itself when the time is up.</p>
+      <label class="pu-lbl" for="puName">Pickup location <b>*</b></label>
+      <input type="text" id="puName" maxlength="80" placeholder="e.g. Summit County Fair, Gate B" enterkeyhint="next">
+      <label class="pu-lbl" for="puAddr">Address <small>(optional)</small></label>
+      <input type="text" id="puAddr" maxlength="200" placeholder="Street, city" enterkeyhint="done">
+      <button type="button" class="pu-gps" id="puGps">&#128205; Use this tablet&rsquo;s location</button>
+      <div class="pu-gps-msg" id="puGpsMsg"></div>
+      <div class="pu-lbl">Starts</div>
+      <div class="pm-durs pu-row" id="puStart" role="group" aria-label="Starts">
+        <button type="button" data-start="now" class="on">Now</button>
+        <button type="button" data-start="later">Later today</button>
+      </div>
+      <input type="time" id="puStartAt" class="hidden" aria-label="Start time">
+      <div class="pu-lbl">How long</div>
+      <div class="pm-durs pu-durs" id="puDurs" role="group" aria-label="How long">
+        <button type="button" data-min="60">1 hour</button>
+        <button type="button" data-min="120" class="on">2 hours</button>
+        <button type="button" data-min="180">3 hours</button>
+        <button type="button" data-min="240">4 hours</button>
+        <button type="button" data-min="360">6 hours</button>
+        <button type="button" data-min="until">Until&hellip;</button>
+      </div>
+      <input type="time" id="puUntil" class="hidden" aria-label="End time">
+      <div class="pu-sum" id="puSum"></div>
+      <div class="pm-msg" id="puFormMsg" role="alert"></div>
+      <button type="submit" class="pu-next" id="puNext">Next: enter your PIN</button>
+    </form>
+    <div id="puPinStep" class="hidden">
+      <p class="pm-sub" id="puPinWhat"></p>
+      <div class="pm-pin-label">Enter your PIN</div>
+      <div class="pm-dots" id="puDots"></div>
+      <div class="pm-msg" id="puMsg" role="alert"></div>
+      <div class="pm-keys" id="puKeys">
+        <button type="button" data-k="1">1</button><button type="button" data-k="2">2</button><button type="button" data-k="3">3</button>
+        <button type="button" data-k="4">4</button><button type="button" data-k="5">5</button><button type="button" data-k="6">6</button>
+        <button type="button" data-k="7">7</button><button type="button" data-k="8">8</button><button type="button" data-k="9">9</button>
+        <button type="button" data-k="del" aria-label="Delete">&#9003;</button><button type="button" data-k="0">0</button><button type="button" data-k="ok" class="pm-ok pu-ok" id="puOk" disabled>Start</button>
+      </div>
+      <button type="button" class="pu-back" id="puBack">&larr; Back</button>
+    </div>
+  </div>
+</div>
+
 <!-- Supplies to restock (supplies.sql). Set up in the staff portal: Supplies → Set up the kitchen board. -->
 <div id="suppliesModal" class="pm-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="supTitle">
   <div class="sup-box">
@@ -907,6 +993,7 @@
     </nav>
     <div class="kh-tools">
       <button type="button" id="pauseOnlineBtn" title="Pause or resume online orders: website, drive-up and Next Door. The kiosk keeps going. (Needs your PIN)">&#9208; Pause</button>
+      <button type="button" id="popupBtn" title="On Location: take website orders for an event or catering away from the usual spot (needs your PIN)">&#128666; On Location</button>
       <button type="button" id="kioskHealthBtn" class="hidden" title="Kiosk tablets and card machine"><span class="kk-dot" id="kioskHealthDot"></span>Kiosk</button>
       <button type="button" id="viewToggleBtn" title="Switch between item prep and whole tickets">&#9638; Tickets</button>
       <button type="button" id="scheduledBtn" title="Scheduled orders" aria-label="Scheduled orders">&#9200;<span class="sched-count zero" id="scheduledCount">0</span></button>
@@ -2511,6 +2598,199 @@
       else if (e.key === 'Enter') pmSubmit();
       else if (e.key === 'Escape') pmClose();
     });
+
+    // ---- On Location (popup-ordering.sql) ----
+    // Turn on website orders outside store hours for an event, with a pickup
+    // location. It switches itself off at the end time. Start / extend / end
+    // need a staff PIN (same as Pause).
+    var pu = { list: [], pin: '', busy: false, action: null, id: null, payload: null, lat: null, lng: null, acc: null, mins: 120, start: 'now' };
+    function puNow(){ var t = Date.now(); return pu.list.find(function(p){ return Date.parse(p.from) <= t && Date.parse(p.to) > t; }) || null; }
+    function puNext(){ var t = Date.now(); return pu.list.filter(function(p){ return Date.parse(p.from) > t; }).sort(function(a, b){ return Date.parse(a.from) - Date.parse(b.from); })[0] || null; }
+    function puLeft(to){ var m = Math.max(0, Math.round((Date.parse(to) - Date.now()) / 60000)); return m >= 60 ? Math.floor(m / 60) + 'h ' + (m % 60) + 'm' : m + ' min'; }
+    function puTime(iso){ return new Date(iso).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }); }
+    function puDay(iso){ var d = new Date(iso), t = new Date(); var same = d.toLocaleDateString('en-US', { timeZone: 'America/New_York' }) === t.toLocaleDateString('en-US', { timeZone: 'America/New_York' }); return same ? '' : d.toLocaleDateString('en-US', { timeZone: 'America/New_York', weekday: 'short' }) + ' '; }
+    function puPaintBtn(){
+      var b = document.getElementById('popupBtn'); if (!b) return;
+      var on = puNow(), nx = puNext();
+      b.classList.toggle('is-on', !!on); b.classList.toggle('is-soon', !on && !!nx);
+      b.innerHTML = on ? '&#128666; On Location · ' + puLeft(on.to) : nx ? '&#128666; On Location ' + puDay(nx.from) + puTime(nx.from) : '&#128666; On Location';
+      b.title = on ? 'On Location: website orders for ' + on.name + ' until ' + puTime(on.to) + '. Tap to extend or end.' : 'On Location: take website orders for an event or catering away from the usual spot (needs your PIN)';
+      if (!document.getElementById('popupModal').classList.contains('hidden') && document.getElementById('puPinStep').classList.contains('hidden')) puPaintStatus();
+    }
+    function puLoad(){
+      sb.rpc('get_ordering_status').then(function(res){
+        if (!res || res.error || !res.data) return;
+        pu.list = Array.isArray(res.data.popups) ? res.data.popups : [];
+        puPaintBtn();
+      }, function(){});
+    }
+    function puPaintStatus(){
+      var on = puNow(), nx = puNext(), html = '';
+      var card = function(p, live){
+        return '<div class="pu-on' + (live ? '' : ' soon') + '"><div class="k">' + (live ? '● Online orders are ON' : 'Scheduled') + '</div>' +
+          '<div class="w">' + escHtml(p.name) + '</div><div class="t">' + escHtml(puDay(p.from) + puTime(p.from) + ' – ' + puTime(p.to)) + (p.address ? ' · ' + escHtml(p.address) : '') + '</div>' +
+          (live ? '<div class="left">' + puLeft(p.to) + ' left</div>' : '') +
+          '<div class="pu-acts">' + (live ? '<button type="button" data-pu="extend" data-id="' + escHtml(p.id) + '" data-min="30">+30 min</button><button type="button" data-pu="extend" data-id="' + escHtml(p.id) + '" data-min="60">+1 hour</button>' : '<span></span><span></span>') +
+          '<button type="button" class="end" data-pu="end" data-id="' + escHtml(p.id) + '">' + (live ? 'End now' : 'Cancel') + '</button></div></div>';
+      };
+      if (on) html += card(on, true);
+      if (nx) html += card(nx, false);
+      document.getElementById('puStatus').innerHTML = html;
+      var form = document.getElementById('puForm');
+      form.classList.toggle('hidden', !!on && !pu.showForm);
+      if (on && !pu.showForm) document.getElementById('puStatus').insertAdjacentHTML('beforeend', '<button type="button" class="pu-new" data-pu="new">Plan another location</button>');
+    }
+    function puOhioIso(hhmm, baseIso){
+      // "HH:MM" today (Ohio time) -> ISO. A time earlier than the start means the next day.
+      var p = String(hhmm || '').split(':'); if (p.length < 2) return null;
+      var now = new Date(), o = {}; new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', year: 'numeric', month: 'numeric', day: 'numeric', hour: 'numeric', minute: 'numeric', hourCycle: 'h23' }).formatToParts(now).forEach(function(x){ o[x.type] = x.value; });
+      var want = Date.UTC(+o.year, +o.month - 1, +o.day, +p[0], +p[1]), offs = Date.UTC(+o.year, +o.month - 1, +o.day, +o.hour % 24, +o.minute) - Math.floor(now.getTime() / 60000) * 60000;
+      var t = want - offs;
+      var base = baseIso ? Date.parse(baseIso) : Date.now() - 5 * 60000;
+      while (t <= base) t += 86400000;
+      return new Date(t).toISOString();
+    }
+    function puPlan(){
+      var start = pu.start === 'later' ? puOhioIso(document.getElementById('puStartAt').value) : null;
+      var startMs = start ? Date.parse(start) : Date.now();
+      var end = pu.mins === 'until' ? puOhioIso(document.getElementById('puUntil').value, new Date(startMs).toISOString()) : new Date(startMs + pu.mins * 60000).toISOString();
+      return { start: start, end: end };
+    }
+    function puPaintSum(){
+      var name = document.getElementById('puName').value.trim(), pl = puPlan();
+      var el = document.getElementById('puSum');
+      if (!pl.end || (pu.start === 'later' && !pl.start)) { el.innerHTML = 'Choose the times.'; return; }
+      el.innerHTML = 'Website orders <b>on</b> ' + (pl.start ? 'from ' + puDay(pl.start) + puTime(pl.start) : '<b>now</b>') + ' until <b>' + puDay(pl.end) + puTime(pl.end) + '</b>' +
+        (name ? ', for pickup at <b>' + escHtml(name) + '</b>' : '') + '. After that, back to normal hours.';
+    }
+    function puOpen(){
+      pu.pin = ''; pu.busy = false; pu.showForm = false;
+      document.getElementById('puPinStep').classList.add('hidden');
+      document.getElementById('puFormMsg').textContent = '';
+      puPaintStatus(); puPaintSum();
+      document.getElementById('popupModal').classList.remove('hidden');
+      puLoad();
+    }
+    function puClose(){ document.getElementById('popupModal').classList.add('hidden'); pu.pin = ''; }
+    function puPinPaint(){
+      document.getElementById('puDots').innerHTML = pu.pin.split('').map(function(){ return '<i></i>'; }).join('');
+      var ok = document.getElementById('puOk');
+      ok.disabled = pu.busy || pu.pin.length < 4;
+      ok.textContent = pu.busy ? '…' : pu.action === 'start' ? 'Start' : pu.action === 'end' ? 'End' : 'Extend';
+      ok.classList.toggle('danger', pu.action === 'end');
+    }
+    function puAsk(action, what, payload){
+      pu.action = action; pu.payload = payload; pu.pin = ''; pu.busy = false;
+      document.getElementById('puPinWhat').innerHTML = what;
+      document.getElementById('puMsg').textContent = '';
+      document.getElementById('puForm').classList.add('hidden');
+      document.getElementById('puStatus').classList.add('hidden');
+      document.getElementById('puPinStep').classList.remove('hidden');
+      if (document.activeElement && document.activeElement.blur) document.activeElement.blur();
+      puPinPaint();
+    }
+    function puBackToForm(){
+      document.getElementById('puPinStep').classList.add('hidden');
+      document.getElementById('puStatus').classList.remove('hidden');
+      puPaintStatus();
+    }
+    function puSubmit(){
+      if (pu.busy || pu.pin.length < 4) return;
+      pu.busy = true; document.getElementById('puMsg').textContent = ''; puPinPaint();
+      sb.rpc('kds_popup', { p_pin: pu.pin, p_action: pu.action, p: pu.payload }).then(function(res){
+        pu.busy = false;
+        var m = document.getElementById('puMsg'); m.classList.remove('ok');
+        if (res && res.error) {
+          pu.pin = ''; puPinPaint();
+          m.textContent = /does not exist|could not find/i.test(res.error.message || '') ? 'Run popup-ordering.sql first.' : (res.error.message || 'Something went wrong.');
+          return;
+        }
+        var d = res && res.data;
+        if (!d || d.ok === false) { pu.pin = ''; puPinPaint(); m.textContent = 'Wrong PIN. Try again.'; return; }
+        pu.list = (d.current || []).map(function(x){ return x; });
+        m.classList.add('ok');
+        m.textContent = (pu.action === 'start' ? 'On Location is on' : pu.action === 'end' ? 'On Location ended · back to normal hours' : 'Extended') + (d.by ? ' · ' + d.by : '');
+        if (pu.action === 'start') { document.getElementById('puForm').reset(); pu.lat = pu.lng = pu.acc = null; document.getElementById('puGps').classList.remove('ok'); document.getElementById('puGps').innerHTML = '&#128205; Use this tablet&rsquo;s location'; document.getElementById('puGpsMsg').textContent = ''; }
+        puPaintBtn(); puLoad();
+        if (typeof refreshOrderPause === 'function') refreshOrderPause(true);
+        if (typeof window.refreshTruckLoc === 'function') window.refreshTruckLoc();
+        setTimeout(function(){ pu.showForm = false; puBackToForm(); }, 1100);
+      }, function(){ pu.busy = false; pu.pin = ''; puPinPaint(); document.getElementById('puMsg').textContent = "Couldn't reach the server. Check the connection."; });
+    }
+    (function(){
+      var btn = document.getElementById('popupBtn'); if (!btn) return;
+      btn.addEventListener('click', puOpen);
+      document.getElementById('puCancel').addEventListener('click', puClose);
+      document.getElementById('popupModal').addEventListener('click', function(e){ if (e.target === this) puClose(); });
+      document.getElementById('puBack').addEventListener('click', puBackToForm);
+      document.getElementById('puStart').addEventListener('click', function(e){
+        var b = e.target.closest('[data-start]'); if (!b) return;
+        this.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x === b); });
+        pu.start = b.getAttribute('data-start');
+        document.getElementById('puStartAt').classList.toggle('hidden', pu.start !== 'later');
+        if (pu.start === 'later') document.getElementById('puStartAt').focus();
+        puPaintSum();
+      });
+      document.getElementById('puDurs').addEventListener('click', function(e){
+        var b = e.target.closest('[data-min]'); if (!b) return;
+        this.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x === b); });
+        var v = b.getAttribute('data-min'); pu.mins = v === 'until' ? 'until' : Number(v);
+        document.getElementById('puUntil').classList.toggle('hidden', pu.mins !== 'until');
+        if (pu.mins === 'until') document.getElementById('puUntil').focus();
+        puPaintSum();
+      });
+      ['puName', 'puStartAt', 'puUntil'].forEach(function(id){ document.getElementById(id).addEventListener('input', function(){ document.getElementById('puFormMsg').textContent = ''; puPaintSum(); }); });
+      document.getElementById('puGps').addEventListener('click', function(){
+        var b = this, msg = document.getElementById('puGpsMsg');
+        if (!navigator.geolocation) { msg.textContent = 'This tablet can’t share its location.'; return; }
+        b.disabled = true; b.innerHTML = '&#128205; Finding this spot…';
+        navigator.geolocation.getCurrentPosition(function(p){
+          b.disabled = false; pu.lat = p.coords.latitude; pu.lng = p.coords.longitude; pu.acc = p.coords.accuracy;
+          b.classList.add('ok'); b.innerHTML = '&#128205; Pin saved ✓';
+          msg.textContent = 'Customers get directions to this spot' + (p.coords.accuracy ? ' (±' + Math.round(p.coords.accuracy) + ' m)' : '') + '. Drive-up check-ins use it too.';
+        }, function(err){
+          b.disabled = false; b.innerHTML = '&#128205; Use this tablet&rsquo;s location';
+          msg.textContent = err && err.code === 1 ? 'Location is blocked for this page. Allow it in the tablet’s settings, or type the address.' : 'Couldn’t get a GPS fix. Type the address instead.';
+        }, { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 });
+      });
+      document.getElementById('puForm').addEventListener('submit', function(e){
+        e.preventDefault();
+        var fm = document.getElementById('puFormMsg'), name = document.getElementById('puName').value.trim(), pl = puPlan();
+        fm.textContent = '';
+        if (!name) { fm.textContent = 'Add the pickup location so customers know where to go.'; document.getElementById('puName').focus(); return; }
+        if (pu.start === 'later' && !pl.start) { fm.textContent = 'Choose the start time.'; return; }
+        if (!pl.end) { fm.textContent = 'Choose the end time.'; return; }
+        var payload = { location_name: name, address: document.getElementById('puAddr').value.trim(), starts_at: pl.start || '', ends_at: pl.end,
+          lat: pu.lat, lng: pu.lng, accuracy: pu.acc, set_truck_location: pu.lat != null };
+        puAsk('start', 'Take website orders for pickup at <b>' + escHtml(name) + '</b>, ' + (pl.start ? puDay(pl.start) + puTime(pl.start) : 'now') + ' – ' + puDay(pl.end) + puTime(pl.end) + '.', payload);
+      });
+      document.getElementById('puStatus').addEventListener('click', function(e){
+        var b = e.target.closest('[data-pu]'); if (!b) return;
+        var a = b.getAttribute('data-pu'), id = b.getAttribute('data-id');
+        if (a === 'new') { pu.showForm = true; puPaintStatus(); return; }
+        var p = pu.list.find(function(x){ return x.id === id; }) || {};
+        if (a === 'extend') puAsk('extend', 'Add ' + (b.getAttribute('data-min') === '60' ? '1 hour' : '30 minutes') + ' to <b>' + escHtml(p.name || 'this location') + '</b>.', { id: id, minutes: Number(b.getAttribute('data-min')) });
+        if (a === 'end') puAsk('end', (Date.parse(p.from) > Date.now() ? 'Cancel' : 'End') + ' On Location at <b>' + escHtml(p.name || '') + '</b>. Website orders go back to normal hours.', { id: id });
+      });
+      document.getElementById('puKeys').addEventListener('click', function(e){
+        var b = e.target.closest('[data-k]'); if (!b || pu.busy) return;
+        var k = b.getAttribute('data-k');
+        if (k === 'ok') return puSubmit();
+        if (k === 'del') pu.pin = pu.pin.slice(0, -1); else if (pu.pin.length < 8) pu.pin += k;
+        document.getElementById('puMsg').textContent = ''; puPinPaint();
+      });
+      document.addEventListener('keydown', function(e){
+        if (document.getElementById('popupModal').classList.contains('hidden')) return;
+        if (e.key === 'Escape') return puClose();
+        if (document.getElementById('puPinStep').classList.contains('hidden')) return;
+        if (/^\d$/.test(e.key) && pu.pin.length < 8) { pu.pin += e.key; puPinPaint(); }
+        else if (e.key === 'Backspace') { pu.pin = pu.pin.slice(0, -1); puPinPaint(); }
+        else if (e.key === 'Enter') puSubmit();
+      });
+      puLoad();
+      setInterval(puLoad, 30000);
+      setInterval(puPaintBtn, 20000);
+    })();
 
     document.getElementById('orderPauseBanner').addEventListener('click', function(e){
       var b = e.target.closest('[data-op]'); if (!b || !orderPause) return;
