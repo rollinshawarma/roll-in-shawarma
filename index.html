@@ -1191,6 +1191,54 @@ body.ev-tab-mode #rewardSection, body.ev-tab-mode #coPointsLine{ display:none !i
 #cartCustomerEmail[readonly]{ background:#f5f5f7; color:#3a3a3c; }
 
 /* ---- lunch drop links ---- */
+.pt-popup{ margin-top:12px; border:2px solid #0a7a3d; background:#effaf3; border-radius:14px; padding:12px 14px; font-size:14px; color:#1d1d1f; }
+.pt-popup-head{ font-size:15px; }
+.pt-popup-addr{ color:#424245; margin-top:2px; }
+.pt-popup-map{ display:inline-block; margin-top:6px; color:#0a7a3d; font-weight:600; text-decoration:none; }
+.pt-popup-ok{ display:flex; gap:8px; align-items:flex-start; margin-top:10px; font-weight:600; cursor:pointer; }
+.pt-popup-ok input{ width:20px; height:20px; margin:0; flex:none; accent-color:#0a7a3d; }
+.pt-popup-ok small{ font-weight:400; color:#6e6e73; }
+.pt-popup.need{ border-color:#d62d20; background:#fff3f2; }
+/* ---- On Location (popup-ordering.sql): the truck is serving somewhere else ---- */
+body.onloc-live #annbar{ display:none !important; }
+#onLocStrip{ background:#0b6b35; color:#fff; font-size:14px; }
+#onLocStrip .wrap{ display:flex; align-items:center; justify-content:center; gap:6px 16px; flex-wrap:wrap; padding:9px 16px; text-align:center; }
+#onLocStrip .ol-dot{ width:8px; height:8px; border-radius:50%; background:#7dffa8; animation:olPulse 1.8s infinite; flex:none; }
+#onLocStrip.soon{ background:#7a4d00; } #onLocStrip.soon .ol-dot{ background:#ffd479; animation:none; }
+#onLocStrip b{ font-weight:700; }
+#onLocStrip a{ color:#fff; font-weight:600; text-decoration:underline; text-underline-offset:3px; white-space:nowrap; }
+@keyframes olPulse{ 0%{ box-shadow:0 0 0 0 rgba(125,255,168,.7); } 70%{ box-shadow:0 0 0 8px rgba(125,255,168,0); } 100%{ box-shadow:0 0 0 0 rgba(125,255,168,0); } }
+.onloc{ display:grid; grid-template-columns:minmax(0, 1.25fr) minmax(0, 1fr); background:#fff; border:2px solid #0b6b35; border-radius:22px; overflow:hidden; margin:0 0 26px; box-shadow:0 10px 30px rgba(11,107,53,.12); text-align:left; }
+.onloc.no-map{ grid-template-columns:1fr; }
+.onloc-main{ padding:22px 24px; display:flex; flex-direction:column; gap:6px; }
+.onloc-kicker{ display:inline-flex; align-items:center; gap:8px; font-size:12px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#0b6b35; }
+.onloc-kicker .ol-dot{ width:9px; height:9px; border-radius:50%; background:#22c55e; animation:olPulse 1.8s infinite; }
+.onloc.soon{ border-color:#f2a20c; box-shadow:0 10px 30px rgba(242,162,12,.14); }
+.onloc.soon .onloc-kicker{ color:#8a5a00; } .onloc.soon .onloc-kicker .ol-dot{ background:#f2a20c; animation:none; }
+.onloc h3{ font-size:clamp(24px, 3.4vw, 32px); line-height:1.1; letter-spacing:-.02em; color:#1d1d1f; margin:2px 0; }
+.onloc-when{ font-size:16px; color:#1d1d1f; font-weight:600; }
+.onloc-when .left{ display:inline-block; margin-left:8px; padding:2px 10px; border-radius:999px; background:#e8f7ee; color:#0b6b35; font-weight:700; font-size:13px; }
+.onloc.soon .onloc-when .left{ background:#fff4e0; color:#8a5a00; }
+.onloc-addr, .onloc-note{ font-size:14.5px; color:#424245; }
+.onloc-note{ font-style:italic; }
+.onloc-acts{ display:flex; gap:10px; flex-wrap:wrap; margin-top:10px; }
+.onloc-acts a{ display:inline-flex; align-items:center; justify-content:center; min-height:46px; padding:0 20px; border-radius:999px; font-weight:700; font-size:15px; text-decoration:none; }
+.onloc-acts .ol-order{ background:#0b6b35; color:#fff; }
+.onloc-acts .ol-order:hover{ background:#095a2c; }
+.onloc.soon .onloc-acts .ol-order{ background:#1d1d1f; }
+.onloc-acts .ol-dir{ background:#fff; color:#1d1d1f; border:1.5px solid #d2d2d7; }
+.onloc-fine{ font-size:12.5px; color:#6e6e73; margin-top:8px; }
+.onloc-map{ position:relative; min-height:240px; background:#e8f0ea; display:flex; align-items:center; justify-content:center; color:#0b6b35; font-weight:700; font-size:15px; }
+.onloc-map .ol-pin{ display:flex; flex-direction:column; align-items:center; gap:4px; padding:0 16px; text-align:center; }
+.onloc-map .ol-pin i{ font-style:normal; font-size:34px; line-height:1; }
+.onloc-map iframe{ position:absolute; inset:0; width:100%; height:100%; border:0; }
+@media (max-width:720px){
+  .onloc{ grid-template-columns:1fr; border-radius:18px; }
+  .onloc-main{ padding:18px; }
+  .onloc-map{ min-height:180px; }
+  .onloc-acts{ flex-direction:column; } .onloc-acts a{ width:100%; white-space:nowrap; }
+  #onLocStrip{ font-size:13.5px; }
+}
 .drop-bar{ display:flex; flex-direction:column; gap:3px; background:#1d1d1f; color:#fff; border-radius:18px; padding:16px 18px; margin:0 0 20px; font-size:14px; line-height:1.45; }
 .drop-bar .drop-kicker{ font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#ffb4ab; }
 .drop-bar b{ font-size:20px; line-height:1.2; }
@@ -2148,6 +2196,12 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
           <label>Time<select id="ptTime"></select></label>
         </div>
         <p class="pt-other-day hidden" id="ptOtherDay" role="status"></p>
+        <div class="pt-popup hidden" id="ptPopup" role="group" aria-label="Pickup location">
+          <div class="pt-popup-head">&#128205; Pickup at <b id="ptPopupName"></b></div>
+          <div class="pt-popup-addr" id="ptPopupAddr"></div>
+          <a class="pt-popup-map" id="ptPopupMap" href="#" target="_blank" rel="noopener">Open in Maps &#8599;</a>
+          <label class="pt-popup-ok"><input type="checkbox" id="ptPopupOk"> I&rsquo;ll pick up at this location <small>(it&rsquo;s not our usual spot)</small></label>
+        </div>
       </div>
 
       <div id="promoSection">
@@ -5321,6 +5375,12 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       // Drive Up (QR ordering from the car) only shows while we're open.
       document.body.classList.toggle('truck-open', isOpen);
       if (!el) return;
+      var pop = window.rollinPopupNow && window.rollinPopupNow();
+      if (pop) {
+        el.classList.add('is-open');
+        el.textContent = 'On location now at ' + pop.name + ' \u00b7 until ' + new Date(pop.to).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' });
+        return;
+      }
       el.classList.toggle('is-open', isOpen);
       var why = a.special && a.note ? ' (' + a.note + ')' : '';
       if (isOpen) {
@@ -5336,6 +5396,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     function all(){ paintCard(); render(); }
     all();
     H.onChange(all);
+    document.addEventListener('rollin:popups', render);
     setInterval(render, 60000);
   })();
 
@@ -5458,30 +5519,49 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     // all website orders; a corporate event blocks its own time window.
     // Event-link visitors aren't affected (event_ui.js takes over pickup).
     var blocks = [], manual = null;
+    // On Location (popup-ordering.sql): staff turn on online orders for an
+    // event or catering stop, with its own pickup location. ASAP while it runs (until 15 min
+    // before the end); pickup times every 15 min inside its window.
+    var popups = [];
+    function popupAt(ms){ for (var i = 0; i < popups.length; i++) if (ms >= popups[i].from && ms < popups[i].to - BUFFER * 60000) return popups[i]; return null; }
+    function popupSlot(ms){ for (var i = 0; i < popups.length; i++) if (ms >= popups[i].from && ms <= popups[i].to - BUFFER * 60000) return popups[i]; return null; }
+    function popupNow(){ return popupAt(Date.now()); }
+    window.rollinPopupNow = function(){ return popupNow(); };
     function blockAt(ms){ for (var i = 0; i < blocks.length; i++) if (ms >= blocks[i][0] && ms < blocks[i][1]) return blocks[i]; return null; }
     // A calendar event today (online-pause.sql): the truck is at the event,
     // so the whole day's online ordering is off. [from, to, event name]
     function eventToday(){ var t = parts(new Date()).d; for (var i = 0; i < blocks.length; i++) if (blocks[i][2] && parts(new Date(blocks[i][0])).d === t) return blocks[i]; return null; }
     function pEsc(v){ return String(v == null ? '' : v).replace(/[&<>"']/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
     function eventMsg(b){ return 'We\u2019re at ' + pEsc(b[2]) + ' today, so we\u2019re not accepting online orders at the moment. Sorry for the inconvenience.'; }
-    function asapOpen(){ var n = parts(new Date()), h = hoursOn(n.y, n.m, n.d).h; return !manual && !blockAt(Date.now()) && !!h && n.mins >= h[0] && n.mins < h[1] - BUFFER; }
+    function asapOpen(){ if (manual) return false; if (popupNow()) return true; var n = parts(new Date()), h = hoursOn(n.y, n.m, n.d).h; return !blockAt(Date.now()) && !!h && n.mins >= h[0] && n.mins < h[1] - BUFFER; }
     function buildDays(){
       var now = new Date(), n = parts(now), earliest = now.getTime() + LEAD * 60000, out = [];
       for (var k = 0; k < DAYS_AHEAD; k++) {
         var cal = new Date(Date.UTC(n.y, n.m - 1, n.d + k)), dow = cal.getUTCDay();
-        var y = cal.getUTCFullYear(), m = cal.getUTCMonth() + 1, d = cal.getUTCDate(), slots = [];
-        var ha = hoursOn(y, m, d), h = ha.h;
-        if (!h) {   // closed that day (weekly or a special date): listed, but can't be picked
-          var cTxt = WD[dow] + ', ' + MON[m - 1] + ' ' + d;
+        var y = cal.getUTCFullYear(), m = cal.getUTCMonth() + 1, d = cal.getUTCDate(), byIso = {};
+        var ha = hoursOn(y, m, d), h = ha.h, popNames = [];
+        if (h) for (var t = h[0] + FIRST_AFTER_OPEN; t <= h[1] - BUFFER; t += SLOT) {
+          var when = ohioToDate(y, m, d, t), ms = when.getTime(), pp = popupSlot(ms);
+          if (ms >= earliest && (pp || !blockAt(ms))) byIso[when.toISOString()] = { iso: when.toISOString(), ms: ms, label: fmtMins(t) + (pp ? ' \u00b7 at ' + pp.name : ''), popup: pp };
+        }
+        // On-location pickup times on this date (the same quarter hours the server accepts).
+        popups.forEach(function(p){
+          for (var ms2 = Math.ceil(p.from / 900000) * 900000; ms2 <= p.to - BUFFER * 60000; ms2 += SLOT * 60000) {
+            var q = parts(new Date(ms2));
+            if (q.y !== y || q.m !== m || q.d !== d || ms2 < earliest) continue;
+            var iso = new Date(ms2).toISOString();
+            byIso[iso] = { iso: iso, ms: ms2, label: fmtMins(q.mins) + ' \u00b7 at ' + p.name, popup: p };
+            if (popNames.indexOf(p.name) < 0) popNames.push(p.name);
+          }
+        });
+        var slots = Object.keys(byIso).map(function(x){ return byIso[x]; }).sort(function(a2, b2){ return a2.ms - b2.ms; });
+        var cTxt = WD[dow] + ', ' + MON[m - 1] + ' ' + d;
+        if (!h && !slots.length) {   // closed that day (weekly or a special date): listed, but can't be picked
           out.push({ closed: true, today: k === 0, date: cTxt, label: (k === 0 ? 'Today' : k === 1 ? 'Tomorrow (' + cTxt + ')' : cTxt) + ' \u2014 Closed' + (ha.note ? ' (' + ha.note + ')' : ''), slots: [] });
           continue;
         }
-        for (var t = h[0] + FIRST_AFTER_OPEN; t <= h[1] - BUFFER; t += SLOT) {
-          var when = ohioToDate(y, m, d, t);
-          if (when.getTime() >= earliest && !blockAt(when.getTime())) slots.push({ iso: when.toISOString(), label: fmtMins(t) });
-        }
-        var dateTxt = WD[dow] + ', ' + MON[m - 1] + ' ' + d + (ha.special && ha.note ? ' (' + ha.note + ' hours)' : '');
-        if (slots.length) out.push({ today: k === 0, date: dateTxt, label: k === 0 ? 'Today' : k === 1 ? 'Tomorrow (' + dateTxt + ')' : dateTxt, slots: slots });
+        var dateTxt = cTxt + (h && ha.special && ha.note ? ' (' + ha.note + ' hours)' : '') + (popNames.length ? ' \u00b7 On location' : '');
+        if (slots.length) out.push({ today: k === 0, date: dateTxt, label: k === 0 ? 'Today' + (popNames.length ? ' \u00b7 On location' : '') : k === 1 ? 'Tomorrow (' + dateTxt + ')' : dateTxt, slots: slots });
       }
       return out;
     }
@@ -5514,7 +5594,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       var day = selectedDay();
       timeSel.innerHTML = day ? day.slots.map(function(s){ return '<option value="' + s.iso + '">' + s.label + '</option>'; }).join('') : '<option value="">Choose a day first</option>';
       timeSel.disabled = !day;
-      paintOtherDay();
+      paintOtherDay(); paintPopup();
     }
     function paintOtherDay(){
       if (!otherDayEl) return;
@@ -5523,12 +5603,40 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       otherDayEl.classList.toggle('hidden', !show);
       if (show) otherDayEl.innerHTML = '<b>Not today:</b> this order is for pickup <b>' + pEsc(day.date) + ' at ' + t.text + '</b>.';
     }
+    var popBox = document.getElementById('ptPopup'), popOk = document.getElementById('ptPopupOk'), popShown = null;
+    var pmGroup = pmBtns.length ? pmBtns[0].parentNode : null;
+    function currentPopup(){
+      if (!needed) return null;
+      if (mode === 'asap') return popupNow();
+      var day = selectedDay(), iso = timeSel.value;
+      if (!day || !iso) return null;
+      for (var i = 0; i < day.slots.length; i++) if (day.slots[i].iso === iso) return day.slots[i].popup || null;
+      return null;
+    }
+    // An on-location order is picked up at the event: show where, ask the customer
+    // to confirm, and hide drive-up (it's only at our usual lot).
+    function paintPopup(){
+      if (!popBox) return;
+      var p = currentPopup();
+      popBox.classList.toggle('hidden', !p);
+      if (pmGroup) pmGroup.classList.toggle('hidden', !!p);
+      document.getElementById('pmNote').classList.toggle('hidden', !!p || method !== 'curbside');
+      document.getElementById('pmCarWrap').classList.toggle('hidden', !!p || method !== 'curbside');
+      var lbl = sec.querySelector('.pickup-time-label'); if (lbl) lbl.classList.toggle('hidden', !!p);
+      if (!p) { popShown = null; return; }
+      if (popShown !== p.id) { popOk.checked = false; popShown = p.id; popBox.classList.remove('need'); }
+      document.getElementById('ptPopupName').textContent = p.name;
+      document.getElementById('ptPopupAddr').textContent = p.address || '';
+      document.getElementById('ptPopupAddr').classList.toggle('hidden', !p.address);
+      var mp = document.getElementById('ptPopupMap'); mp.href = p.map || '#'; mp.classList.toggle('hidden', !p.map);
+    }
+    if (popOk) popOk.addEventListener('change', function(){ popBox.classList.toggle('need', !popOk.checked && popBox.classList.contains('need')); });
     function setMode(m){
       mode = m;
       asapBtn.setAttribute('aria-checked', m === 'asap' ? 'true' : 'false');
       laterBtn.setAttribute('aria-checked', m === 'later' ? 'true' : 'false');
       pickers.classList.toggle('hidden', m !== 'later');
-      paintOtherDay();
+      paintOtherDay(); paintPopup();
     }
     function refresh(keepChoice){
       var prevIso = timeSel.value;
@@ -5549,7 +5657,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         : blk && h && n.mins >= h[0] && n.mins < h[1] - BUFFER
         ? 'We\u2019re catering a private event right now, so online orders are paused until ' + clockOf(blk[1]) + '. Choose a later pickup time.'
         : todayLeft
-        ? 'We open at ' + fmtMins(h[0]) + ' today. Schedule your pickup: the first time today is ' + days[0].slots[0].label + '.'
+        ? (h && n.mins < h[0] && !days[0].slots[0].popup ? 'We open at ' + fmtMins(h[0]) + ' today. ' : '') + 'Schedule your pickup: the first time today is ' + days[0].slots[0].label + '.'
         : h && n.mins < h[0]
           ? 'We\u2019re not taking orders for today. You can order ahead: choose a day and time.'
           : h ? 'We\u2019ve stopped taking orders for today (we stop 15 minutes before closing). You can order ahead: choose a day and time.'
@@ -5573,21 +5681,74 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     asapBtn.addEventListener('click', function(){ if (!asapBtn.disabled) setMode('asap'); });
     laterBtn.addEventListener('click', function(){ setMode('later'); });
     daySel.addEventListener('change', fillTimes);
-    timeSel.addEventListener('change', paintOtherDay);
+    timeSel.addEventListener('change', function(){ paintOtherDay(); paintPopup(); });
     // Staff changed the hours (or they just loaded): rebuild the days and times.
     window.RollinHours.onChange(function(){ try { refresh(true); } catch (e) {} });
 
     function clockOf(ms){ var d = new Date(ms), p = parts(d), today = parts(new Date()); return (p.d !== today.d ? WD[p.dow] + ' ' : '') + fmtMins(p.mins); }
+    function untilText(ms){ var m = Math.max(1, Math.round((ms - Date.now()) / 60000)); return m >= 60 ? Math.floor(m / 60) + 'h' + (m % 60 ? ' ' + (m % 60) + 'm' : '') : m + ' min'; }
+    // Top-of-page strip while the truck is on location. It replaces the
+    // rotating bar, whose "standard spot" directions would be wrong today.
+    function paintOnLocStrip(pp, live){
+      var el = document.getElementById('onLocStrip');
+      document.body.classList.toggle('onloc-live', !!pp);
+      if (!pp) { if (el) el.remove(); return; }
+      if (!el) {
+        el = document.createElement('div'); el.id = 'onLocStrip'; el.setAttribute('role', 'status');
+        var ann = document.getElementById('annbar');
+        if (ann && ann.parentNode) ann.parentNode.insertBefore(el, ann); else document.body.insertBefore(el, document.body.firstChild);
+      }
+      el.className = live ? '' : 'soon';
+      el.innerHTML = '<div class="wrap"><span class="ol-dot"></span><span>' +
+        (live ? '&#128666; We’re on location at <b>' + pEsc(pp.name) + '</b> until ' + clockOf(pp.to) : '&#128666; On location today ' + clockOf(pp.from) + ' – ' + clockOf(pp.to) + ' at <b>' + pEsc(pp.name) + '</b>') +
+        '</span><a href="#wsMenu" data-onloc-order>' + (live ? 'Order now' : 'Order ahead') + '</a>' + (pp.map ? '<a href="' + pEsc(pp.map) + '" target="_blank" rel="noopener">Directions</a>' : '') + '</div>';
+    }
+    document.addEventListener('click', function(e){
+      var a = e.target.closest('[data-onloc-order]'); if (!a) return;
+      var m = document.getElementById('wsMenu') || document.getElementById('menu'); if (!m) return;
+      e.preventDefault(); m.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    });
     function paintPauseBar(){
       var bar = document.getElementById('orderPauseBar'), blk = blockAt(Date.now()), evDay = eventToday();
       var onEventLink = window.rollinEvent && window.rollinEvent.info && window.rollinEvent.info();
+      var pNow = !manual && popupNow(), pToday = null;
+      if (!manual && !pNow) { var td = parts(new Date()); popups.forEach(function(p){ var q = parts(new Date(p.from)); if (!pToday && p.from > Date.now() && q.y === td.y && q.m === td.m && q.d === td.d) pToday = p; }); }
+      var pp = pNow || pToday;
+      paintOnLocStrip(onEventLink ? null : pp, !!pNow);
+      if (!onEventLink && pp) {
+        if (!bar) {
+          var menu0 = document.getElementById('menu'); if (!menu0) return;
+          bar = document.createElement('div'); bar.id = 'orderPauseBar'; bar.setAttribute('role', 'status');
+          var wrap0 = menu0.querySelector('.wrap') || menu0; wrap0.insertBefore(bar, wrap0.firstChild);
+        }
+        var mapSrc = pp.lat != null && pp.lng != null ? pp.lat + ',' + pp.lng : (pp.address || '');
+        var mapKey = mapSrc + '|' + pp.id, oldMap = bar.querySelector('.onloc-map');
+        // Keep the map frame when only the countdown changes (no reload flicker).
+        var keepMap = oldMap && oldMap.getAttribute('data-key') === mapKey ? oldMap : null;
+        bar.className = 'onloc' + (pNow ? '' : ' soon') + (mapSrc ? '' : ' no-map');
+        bar.innerHTML = '<div class="onloc-main">' +
+          '<span class="onloc-kicker"><span class="ol-dot"></span>' + (pNow ? 'On location · ordering open' : 'On location today') + '</span>' +
+          '<h3>' + pEsc(pp.name) + '</h3>' +
+          '<div class="onloc-when">' + clockOf(pp.from) + ' – ' + clockOf(pp.to) + '<span class="left">' + (pNow ? untilText(pp.to) + ' left' : 'starts in ' + untilText(pp.from)) + '</span></div>' +
+          (pp.address ? '<div class="onloc-addr">&#128205; ' + pEsc(pp.address) + '</div>' : '') +
+          (pp.note ? '<div class="onloc-note">' + pEsc(pp.note) + '</div>' : '') +
+          '<div class="onloc-acts"><a class="ol-order" href="#wsMenu" data-onloc-order>' + (pNow ? 'Order for pickup here' : 'Order ahead for pickup here') + '</a>' +
+          (pp.map ? '<a class="ol-dir" href="' + pEsc(pp.map) + '" target="_blank" rel="noopener">Directions &#8599;</a>' : '') + '</div>' +
+          '<div class="onloc-fine">Pickup at this location only, at the truck window. Back to our regular hours and spot after ' + clockOf(pp.to) + '.</div></div>';
+        if (mapSrc) {
+          if (keepMap) bar.appendChild(keepMap);
+          else bar.insertAdjacentHTML('beforeend', '<div class="onloc-map" data-key="' + pEsc(mapKey) + '"><span class="ol-pin"><i>&#128205;</i>' + pEsc(pp.name) + '</span><iframe title="Map: ' + pEsc(pp.name) + '" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=' + encodeURIComponent(mapSrc) + '&z=15&output=embed"></iframe></div>');
+        }
+        return;
+      }
       var show = !onEventLink && (manual || blk || evDay);
       if (!show) { if (bar) bar.remove(); return; }
       if (!bar) {
         var menu = document.getElementById('menu'); if (!menu) return;
-        bar = document.createElement('div'); bar.id = 'orderPauseBar'; bar.className = 'drop-bar closed'; bar.setAttribute('role', 'status');
+        bar = document.createElement('div'); bar.id = 'orderPauseBar'; bar.setAttribute('role', 'status');
         var wrap = menu.querySelector('.wrap') || menu; wrap.insertBefore(bar, wrap.firstChild);
       }
+      bar.className = 'drop-bar closed';
       bar.innerHTML = manual
         ? '<b>Online ordering is paused right now.</b><span>' + (manual.until ? 'We\u2019ll be back at ' + clockOf(manual.until) + '. ' : 'Please check back soon. ') + 'You can still order at the truck.</span>'
         : evDay
@@ -5601,13 +5762,17 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         if (!d) return;   // older database: nothing paused
         blocks = (d.blocks || []).map(function(b){ return [Date.parse(b[0]), Date.parse(b[1]), b[2] || null]; });
         manual = d.manual ? { until: d.until ? Date.parse(d.until) : null } : null;
+        popups = (d.popups || []).map(function(p){ return { id: String(p.id), from: Date.parse(p.from), to: Date.parse(p.to), name: String(p.name || ''), address: p.address || '', note: p.note || '', map: p.map || '', lat: p.lat == null ? null : +p.lat, lng: p.lng == null ? null : +p.lng }; })
+          .filter(function(p){ return p.to > p.from; });
         window.__rollinOrderingPaused = !!manual;
+        try { document.dispatchEvent(new Event('rollin:popups')); } catch (e) {}
         paintPauseBar();
         if (needed) { refresh(true); if (!asapOpen()) setMode('later'); }
       }, function(){});
     }
     loadPauseStatus();
     setInterval(loadPauseStatus, 60000);
+    setInterval(function(){ if (popups.length) paintPauseBar(); }, 30000);   // countdown
 
     window.rollinPickup = {
       // Called each time checkout opens. needsTime is false for gift-card-only
@@ -5625,21 +5790,26 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         if (!needed) return null;
         if (manual) throw new Error('Online ordering is paused right now' + (manual.until ? ' until ' + clockOf(manual.until) : '') + '. Please check back soon.');
         refresh(true);
+        var pv = currentPopup();
+        if (pv && !popOk.checked) { popBox.classList.add('need'); popBox.scrollIntoView({ block: 'center', behavior: 'smooth' }); throw new Error('Please confirm you\u2019ll pick up at ' + pv.name + '.'); }
         if (mode === 'asap') return null;
         if (!days.length) throw new Error('No pickup times are available right now. Please call us at (330) 587-5203.');
         if (!selectedDay() || !timeSel.value) { daySel.focus(); throw new Error('We\u2019ve stopped taking orders for today. Choose a day and time to order ahead.'); }
         return timeSel.value;
       },
       // The server said we're closed or the time is gone: switch to scheduling.
-      method: function(){ return needed ? method : null; },
-      car: function(){ return needed && method === 'curbside' ? document.getElementById('pmCar').value.trim().slice(0, 40) : ''; },
+      method: function(){ return needed ? (currentPopup() ? 'window' : method) : null; },
+      car: function(){ return needed && method === 'curbside' && !currentPopup() ? document.getElementById('pmCar').value.trim().slice(0, 40) : ''; },
+      // { name, address, map } when this order is on location, else null
+      popup: function(){ var p = currentPopup(); return p ? { name: p.name, address: p.address, map: p.map } : null; },
       forceSchedule: function(){ refresh(false); setMode('later'); paintOtherDay(); },
       // e.g. "ASAP" or "Tomorrow at 5:30 PM"
       label: function(){
         if (!needed) return '';
-        if (mode === 'asap') return 'ASAP';
+        var pl = currentPopup();
+        if (mode === 'asap') return 'ASAP' + (pl ? ' \u00b7 at ' + pl.name : '');
         var d = selectedDay(), t = timeSel.options[timeSel.selectedIndex];
-        return d && t && t.value ? (d.today ? 'Today' : d.date) + ' at ' + t.text : '';
+        return d && t && t.value ? (d.today ? 'Today' : d.date.replace(' \u00b7 On location', '')) + ' at ' + t.text : '';
       },
       // True when the chosen pickup is not today (sent to the server, which
       // refuses an other-day order the customer didn't see).
