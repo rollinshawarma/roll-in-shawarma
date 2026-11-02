@@ -4964,6 +4964,8 @@
   function ivCall(body){
     return sb.functions.invoke('invoice', { body: body }).then(function(res){
       if (!res.error) return res.data || {};
+      if (/failed to send a request|failed to fetch|networkerror/i.test(res.error.message || '') || res.error.name === 'FunctionsFetchError')
+        return { error: 'Can’t reach the “invoice” function. In Supabase → Edge Functions, check there’s a function named exactly invoice, that it’s deployed, and that “Verify JWT” is off. Your draft is saved.' };
       var c = res.error.context;
       return c && c.json ? c.json().then(function(j){ return j && j.error ? j : { error: res.error.message }; }, function(){ return { error: res.error.message }; }) : { error: res.error.message };
     }, function(){ return { error: 'No connection. Try again.' }; });
