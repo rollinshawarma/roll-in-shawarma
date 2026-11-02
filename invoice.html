@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Invoice · Roll-In Shawarma</title>
+<meta name="robots" content="noindex">
+<meta name="referrer" content="no-referrer">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#ffffff">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{ --bg:#f5f5f7; --card:#ffffff; --ink:#1d1d1f; --text:#424245; --muted:#6e6e73; --line:#e3e3e8; --red:#d62d20; --green:#1f8a4c; }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ -webkit-text-size-adjust:100%; }
+  body{ background:var(--bg); color:var(--text); font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; line-height:1.45; min-height:100vh; }
+  .wrap{ max-width:760px; margin:0 auto; padding:20px 16px calc(40px + env(safe-area-inset-bottom)); }
+  .sheet{ background:var(--card); border-radius:22px; padding:28px; box-shadow:0 1px 3px rgba(0,0,0,.05); }
+  .head{ display:flex; justify-content:space-between; gap:16px; align-items:flex-start; flex-wrap:wrap; }
+  .brand{ display:flex; gap:12px; align-items:center; }
+  .brand img{ width:52px; height:52px; border-radius:50%; object-fit:cover; }
+  .brand b{ display:block; font-family:"Barlow Condensed",sans-serif; font-size:26px; font-weight:800; color:var(--ink); line-height:1; }
+  .brand small{ display:block; font-size:12.5px; color:var(--muted); margin-top:4px; }
+  .inv-id{ text-align:right; }
+  .inv-id h1{ font-family:"Barlow Condensed",sans-serif; font-size:34px; font-weight:800; color:var(--ink); letter-spacing:.5px; line-height:1; }
+  .inv-id div{ font-size:13px; color:var(--muted); margin-top:6px; }
+  .chip{ display:inline-block; margin-top:8px; padding:4px 12px; border-radius:999px; font-size:12px; font-weight:700; background:#eef5ff; color:#0b4a8c; }
+  .chip.paid{ background:rgba(31,138,76,.12); color:#146c3a; }
+  .chip.void{ background:#ececf0; color:#3a3a3c; }
+  .chip.due{ background:#ffe9e7; color:#c4271b; }
+  .meta{ display:grid; grid-template-columns:1fr 1fr; gap:16px; margin:26px 0 22px; padding:18px 0; border-top:1px solid var(--line); border-bottom:1px solid var(--line); }
+  .meta h4{ font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.06em; color:var(--muted); margin-bottom:6px; }
+  .meta p{ font-size:14.5px; color:var(--ink); }
+  .meta .r{ text-align:right; }
+  .due-box{ font-size:15px; }
+  .due-box b{ display:block; font-size:28px; color:var(--ink); font-variant-numeric:tabular-nums; line-height:1.15; }
+  table{ width:100%; border-collapse:collapse; font-size:14.5px; }
+  th{ font-size:11.5px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); text-align:left; padding:0 0 8px; border-bottom:1px solid var(--line); }
+  th.n, td.n{ text-align:right; white-space:nowrap; font-variant-numeric:tabular-nums; }
+  td{ padding:12px 0; border-bottom:1px solid #eeeef2; vertical-align:top; color:var(--ink); }
+  td small{ display:block; color:var(--muted); font-size:12.5px; margin-top:2px; }
+  td .nt{ display:inline-block; margin-left:6px; font-size:11px; color:var(--muted); font-weight:600; }
+  th + th, td + td{ padding-left:12px; }
+  .sums{ margin:14px 0 0 auto; width:min(320px, 100%); font-size:14.5px; }
+  .sums div{ display:flex; justify-content:space-between; padding:5px 0; font-variant-numeric:tabular-nums; }
+  .sums .total{ border-top:1px solid var(--line); margin-top:6px; padding-top:12px; font-size:19px; font-weight:800; color:var(--ink); }
+  .notes{ margin-top:24px; padding:16px 18px; background:#f5f5f7; border-radius:14px; font-size:14.5px; white-space:pre-line; color:var(--ink); }
+  .pay{ margin-top:24px; display:flex; flex-direction:column; align-items:center; gap:10px; }
+  .pay a.btn{ display:inline-flex; justify-content:center; align-items:center; min-height:56px; width:min(380px, 100%); border-radius:999px; background:#1d1d1f; color:#fff; font-weight:700; font-size:17px; text-decoration:none; }
+  .pay a.btn:hover{ background:#000; }
+  .pay small{ color:var(--muted); font-size:12.5px; text-align:center; }
+  .state{ margin-top:24px; border-radius:14px; padding:16px 18px; font-size:15px; text-align:center; }
+  .state.paid{ background:rgba(31,138,76,.1); color:#146c3a; font-weight:600; }
+  .state.void, .state.wait{ background:#f5f5f7; color:var(--text); }
+  .tools{ display:flex; justify-content:center; gap:16px; margin-top:16px; }
+  .tools button{ background:none; border:0; color:var(--red); font:inherit; font-size:14px; font-weight:600; cursor:pointer; padding:6px; }
+  .foot{ text-align:center; font-size:12.5px; color:var(--muted); margin-top:18px; line-height:1.6; }
+  .foot a{ color:var(--muted); }
+  .msg{ text-align:center; padding:60px 16px; }
+  .msg h1{ font-size:24px; color:var(--ink); margin-bottom:8px; }
+  .hidden{ display:none !important; }
+  @media (max-width:560px){
+    .sheet{ padding:20px 16px; border-radius:18px; }
+    .meta{ grid-template-columns:1fr; } .meta .r{ text-align:left; }
+    .inv-id{ text-align:left; }
+    th.hide-s, td.hide-s{ display:none; }
+  }
+  @media print{
+    body{ background:#fff; } .wrap{ padding:0; max-width:none; } .sheet{ box-shadow:none; padding:0; }
+    .pay, .tools, .state.wait{ display:none !important; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="loading" class="msg"><p>Loading your invoice&hellip;</p></div>
+  <div id="gone" class="msg hidden"><h1 id="goneTitle">We couldn&rsquo;t find this invoice</h1><p id="goneText">Please check the link, or call us at <a href="tel:+13305875203">(330) 587-5203</a>.</p></div>
+  <div id="inv" class="hidden">
+    <div class="sheet">
+      <div class="head">
+        <div class="brand"><img src="logo.jpg" alt=""><div><b>Roll-In Shawarma</b><small id="bizLine"></small></div></div>
+        <div class="inv-id"><h1 id="invNo">INVOICE</h1><div id="invDates"></div><span class="chip" id="invChip"></span></div>
+      </div>
+      <div class="meta">
+        <div><h4>Bill to</h4><p id="billTo"></p></div>
+        <div class="r due-box" id="dueBox"></div>
+      </div>
+      <table>
+        <thead><tr><th>Item</th><th class="n hide-s">Qty</th><th class="n hide-s">Price</th><th class="n">Amount</th></tr></thead>
+        <tbody id="lines"></tbody>
+      </table>
+      <div class="sums" id="sums"></div>
+      <div class="notes hidden" id="notes"></div>
+      <div class="pay hidden" id="pay"><a class="btn" id="payBtn" href="#" rel="noopener">Pay</a><small>Secure checkout by Square &middot; card, Apple Pay or Google Pay</small></div>
+      <div class="state hidden" id="state"></div>
+    </div>
+    <div class="tools"><button type="button" id="printBtn">Print or save as PDF</button></div>
+    <div class="foot" id="foot"></div>
+  </div>
+</div>
+<script>
+(function(){
+  'use strict';
+  var FN = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/';
+  var KEY = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
+  var qs = new URLSearchParams(location.search);
+  var T = (qs.get('i') || '').trim().toLowerCase();
+  var justPaid = qs.get('paid') === '1';
+  function $(id){ return document.getElementById(id); }
+  function money(c){ return '$' + (Math.round(c || 0) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function fmt(d){ return d ? new Date(d + 'T12:00:00Z').toLocaleDateString('en-US', { timeZone: 'UTC', month: 'long', day: 'numeric', year: 'numeric' }) : ''; }
+  function today(){ return new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' }); }
+  function el(tag, cls, text){ var e = document.createElement(tag); if (cls) e.className = cls; if (text != null) e.textContent = text; return e; }
+  function gone(title, text){ $('loading').classList.add('hidden'); $('goneTitle').textContent = title; if (text) $('goneText').textContent = text; $('gone').classList.remove('hidden'); }
+  if (!/^[0-9a-f]{40}$/.test(T)) { gone('This link isn’t complete', 'Please open the link from your email or text again.'); return; }
+
+  function fetchInv(){
+    return fetch(FN + 'invoice', { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KEY, 'apikey': KEY }, body: JSON.stringify({ action: 'view', token: T }) })
+      .then(function(r){ return r.json().then(function(d){ return { ok: r.ok, d: d }; }); });
+  }
+  function render(v){
+    document.title = v.number + ' · Roll-In Shawarma';
+    var b = v.business || {};
+    $('bizLine').textContent = [b.legal, b.city, b.phone].filter(Boolean).join(' · ');
+    $('invNo').textContent = v.number;
+    $('invDates').textContent = 'Issued ' + fmt(v.issue_date);
+    var overdue = v.status === 'sent' && v.due_date && v.due_date < today();
+    var chip = $('invChip');
+    chip.className = 'chip' + (v.status === 'paid' ? ' paid' : v.status === 'void' ? ' void' : overdue ? ' due' : '');
+    chip.textContent = v.status === 'paid' ? 'Paid' : v.status === 'void' ? 'Void' : overdue ? 'Past due' : 'Open';
+    var bill = $('billTo'); bill.textContent = '';
+    [v.customer_name, v.company && v.company !== v.customer_name ? v.company : null].filter(Boolean).forEach(function(t, i){ if (i) bill.appendChild(document.createElement('br')); bill.appendChild(document.createTextNode(t)); });
+    var due = $('dueBox'); due.textContent = '';
+    due.appendChild(el('h4', null, v.status === 'paid' ? 'Paid' : 'Amount due'));
+    due.appendChild(el('b', null, money(v.status === 'paid' || v.status === 'void' ? v.total_cents : v.total_cents)));
+    due.appendChild(el('span', null, v.status === 'paid' ? (v.paid_at ? 'on ' + new Date(v.paid_at).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' }) : '') :
+      v.status === 'void' ? 'This invoice was canceled' : v.due_date && v.due_date !== v.issue_date ? 'Due ' + fmt(v.due_date) : 'Due on receipt'));
+    var tb = $('lines'); tb.textContent = '';
+    (v.lines || []).forEach(function(l){
+      var tr = document.createElement('tr');
+      var td = el('td'); td.appendChild(document.createTextNode(l.name));
+      if (!l.taxable && v.tax_cents > 0) td.appendChild(el('span', 'nt', 'no tax'));
+      var sub = [l.description, l.qty + (l.unit ? ' ' + l.unit : '') + ' × ' + money(l.unit_cents)].filter(Boolean);
+      var sm = el('small', null, sub.join(' · ')); td.appendChild(sm);
+      tr.appendChild(td);
+      tr.appendChild(el('td', 'n hide-s', String(l.qty) + (l.unit ? ' ' + l.unit : '')));
+      tr.appendChild(el('td', 'n hide-s', money(l.unit_cents)));
+      tr.appendChild(el('td', 'n', money(l.line_cents)));
+      tb.appendChild(tr);
+    });
+    // On wide screens the qty/price columns show, so drop the repeat under the name.
+    if (window.matchMedia('(min-width:561px)').matches) tb.querySelectorAll('td small').forEach(function(s, i){ var l = v.lines[i]; s.textContent = l.description || ''; if (!l.description) s.remove(); });
+    var sums = $('sums'); sums.textContent = '';
+    var row = function(k, val, cls){ var d = el('div', cls); d.appendChild(el('span', null, k)); d.appendChild(el('span', null, val)); sums.appendChild(d); };
+    row('Subtotal', money(v.subtotal_cents));
+    if (v.discount_cents > 0) row('Discount', '−' + money(v.discount_cents));
+    if (v.tax_cents > 0) row('Sales tax (' + (v.tax_rate * 100).toFixed(2) + '%)', money(v.tax_cents));
+    if (v.fee_cents > 0) row('Card processing fee', money(v.fee_cents));
+    row(v.status === 'paid' ? 'Total paid' : 'Total due', money(v.total_cents), 'total');
+    if (v.notes) { $('notes').textContent = v.notes; $('notes').classList.remove('hidden'); }
+    var st = $('state'); st.className = 'state hidden';
+    $('pay').classList.add('hidden');
+    if (v.status === 'paid') { st.className = 'state paid'; st.textContent = '✓ Paid in full. Thank you!'; }
+    else if (v.status === 'void') { st.className = 'state void'; st.textContent = 'This invoice was canceled, so there’s nothing to pay. Questions? Call ' + (b.phone || 'us') + '.'; }
+    else if (v.pay_url) { $('payBtn').href = v.pay_url; $('payBtn').textContent = 'Pay ' + money(v.total_cents); $('pay').classList.remove('hidden'); }
+    else { st.className = 'state wait'; st.textContent = 'We’re updating this invoice. Please check back shortly, or call ' + (b.phone || 'us') + '.'; }
+    var foot = $('foot'); foot.textContent = '';
+    foot.appendChild(document.createTextNode('Questions about this invoice? '));
+    var a = el('a', null, b.phone || ''); a.href = 'tel:+13305875203'; foot.appendChild(a);
+    if (b.email) { foot.appendChild(document.createTextNode(' · ')); var m = el('a', null, b.email); m.href = 'mailto:' + b.email; foot.appendChild(m); }
+    $('loading').classList.add('hidden'); $('inv').classList.remove('hidden');
+  }
+  var tries = 0;
+  function go(){
+    fetchInv().then(function(r){
+      if (!r.ok) { gone('We couldn’t find this invoice', (r.d && r.d.error) || null); return; }
+      render(r.d);
+      // Back from Square: the payment can take a few seconds to show.
+      if (justPaid && r.d.status === 'sent' && tries < 6) {
+        tries++; $('pay').classList.add('hidden');
+        var st = $('state'); st.className = 'state wait'; st.textContent = 'Confirming your payment…';
+        setTimeout(go, 2500);
+      }
+    }, function(){ gone('No connection', 'Please check your internet and try again.'); });
+  }
+  try { history.replaceState(null, '', location.pathname + '?i=' + encodeURIComponent(T)); } catch (e) {}
+  $('printBtn').addEventListener('click', function(){ window.print(); });
+  go();
+})();
+</script>
+</body>
+</html>
