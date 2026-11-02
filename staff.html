@@ -545,6 +545,9 @@
   .iv-hist:first-child{ border-top:0; }
   .iv-hist small{ display:block; color:var(--muted); }
   .iv-locked input, .iv-locked select, .iv-locked textarea{ background:#f5f5f7; }
+  .iv-card textarea, #ivSet textarea{ width:100%; resize:vertical; font:inherit; font-size:15px; padding:10px 12px; border:1px solid var(--line); border-radius:10px; }
+  .iv-set-grid{ row-gap:12px; margin-top:10px; } .iv-set-grid input, .iv-set-grid select, .iv-set-grid textarea{ margin:0; }
+  .iv-span{ grid-column:1 / -1; }
   @media (max-width:980px){ .iv-grid{ grid-template-columns:1fr; } .iv-sum{ position:static; } }
   @media (max-width:700px){
     .iv-stats{ grid-template-columns:1fr 1fr; } .iv-stats .iv-stat:last-child{ grid-column:1 / -1; }
@@ -1507,11 +1510,33 @@
           <button type="button" data-f="all">All</button>
         </div>
         <div class="iv-bar-btns">
+          <button type="button" class="btn-ghost btn-small" id="ivSetBtn">Invoice settings</button>
           <button type="button" class="btn-ghost btn-small" id="ivPriceBtn">Price list</button>
           <button type="button" class="btn-primary btn-small" id="ivNew">+ New invoice</button>
         </div>
       </div>
       <div id="ivMsg"></div>
+      <div class="card iv-price hidden" id="ivSet">
+        <div class="iv-price-head"><h3>Invoice settings</h3><button type="button" class="btn-ghost btn-small" id="ivSetClose">Close</button></div>
+        <p class="hint">Your letterhead and payment details, printed on every invoice and invoice email.</p>
+        <form id="ivSetForm" autocomplete="off">
+          <div class="row2 iv-set-grid">
+            <div><label for="isName">Business name *</label><input type="text" id="isName" maxlength="80"></div>
+            <div><label for="isLegal">Legal name</label><input type="text" id="isLegal" maxlength="80" placeholder="PK Hospitality LLC"></div>
+            <div><label for="isAddr">Business / remit-to address</label><textarea id="isAddr" rows="3" maxlength="200" placeholder="Street&#10;Green, OH 44685"></textarea></div>
+            <div><label for="isPayable">Make checks payable to</label><input type="text" id="isPayable" maxlength="80" placeholder="Leave blank to hide “Pay by check”"><label for="isTax" style="margin-top:12px">Tax ID / EIN (optional)</label><input type="text" id="isTax" maxlength="20" placeholder="Shown in the footer if filled"></div>
+            <div><label for="isPhone">Phone</label><input type="tel" id="isPhone" maxlength="30"></div>
+            <div><label for="isEmail">Billing email</label><input type="email" id="isEmail" maxlength="120"></div>
+            <div><label for="isWeb">Website</label><input type="text" id="isWeb" maxlength="80"></div>
+            <div><label for="isDays">New invoices are due in</label><select id="isDays"><option value="0">On receipt</option><option value="7">7 days (Net 7)</option><option value="14">14 days (Net 14)</option><option value="30">30 days (Net 30)</option></select></div>
+            <div class="iv-span"><label for="isPay">Other ways to pay (optional)</label><textarea id="isPay" rows="2" maxlength="400" placeholder="e.g. Zelle: billing@… (shown under “Pay by check”)"></textarea></div>
+            <div class="iv-span"><label for="isTerms">Terms (bottom of the invoice)</label><textarea id="isTerms" rows="2" maxlength="600"></textarea></div>
+            <div class="iv-span"><label for="isNotes">Default note on new invoices</label><input type="text" id="isNotes" maxlength="400" placeholder="Thank you for your business!"></div>
+          </div>
+          <div id="ivSetMsg"></div>
+          <button type="submit" class="btn-primary btn-small" style="width:auto;margin-top:12px">Save settings</button>
+        </form>
+      </div>
       <div class="card iv-price hidden" id="ivPrice">
         <div class="iv-price-head"><h3>Price list</h3><button type="button" class="btn-ghost btn-small" id="ivPriceClose">Done</button></div>
         <p class="hint">Things you invoice often (truck fee, per-person catering, travel). Menu items are added automatically with their menu price. Changes here don&rsquo;t change invoices already made.</p>
@@ -1542,8 +1567,12 @@
               <div><label for="ivCompany">Company</label><input type="text" id="ivCompany" maxlength="80" autocomplete="off"></div>
               <div><label for="ivEmail">Email</label><input type="email" id="ivEmail" maxlength="120" autocomplete="off" placeholder="To email the invoice"></div>
               <div><label for="ivPhone">Phone</label><input type="tel" id="ivPhone" maxlength="30" autocomplete="off" placeholder="To text the link"></div>
+              <div><label for="ivAddr">Billing address</label><textarea id="ivAddr" rows="2" maxlength="300" placeholder="Accounts Payable&#10;55 Corporate Dr, Akron, OH 44308"></textarea></div>
+              <div><label for="ivPo">PO number</label><input type="text" id="ivPo" maxlength="40" autocomplete="off" placeholder="If their company uses one"></div>
             </div>
             <div class="row2 iv-dates">
+              <div><label for="ivSvcDate">Event / service date</label><input type="date" id="ivSvcDate"></div>
+              <div><label for="ivSvcLoc">Event location</label><input type="text" id="ivSvcLoc" maxlength="160" autocomplete="off" placeholder="Optional"></div>
               <div><label for="ivIssue">Invoice date</label><input type="date" id="ivIssue"></div>
               <div><label for="ivDuePick">Due</label>
                 <div class="iv-due"><select id="ivDuePick"><option value="0">On receipt</option><option value="7">In 7 days</option><option value="14">In 14 days</option><option value="30">In 30 days</option><option value="pick">Pick a date</option></select>
@@ -4919,7 +4948,8 @@
   // ---------------- INVOICES (invoices.sql + "invoice" edge function) ----------------
   var IV_SITE = 'https://rollinshawarma.com';
   var IV_TAX = 0.0675;
-  var iv = { filter: 'open', cat: null, cur: null, lines: [], dirty: false, busy: false, hl: -1, results: [], loaded: false };
+  var iv = { filter: 'open', cat: null, cur: null, lines: [], dirty: false, busy: false, hl: -1, results: [], loaded: false, set: null };
+  function ivLoadSettings(){ return sb.rpc('invoice_settings_get').then(function(res){ if (!res.error && res.data) iv.set = res.data; return iv.set; }); }
   var IV_ST = { draft: ['Draft', ''], sent: ['Sent', 'wait'], paid: ['Paid', 'live'], void: ['Void', ''] };
   function ivMoney(c){ return (c < 0 ? '−' : '') + '$' + (Math.abs(Math.round(c || 0)) / 100).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
   function ivToday(){ return new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' }); }
@@ -5005,11 +5035,14 @@
   function ivOpen(id, prefill){
     clearMsg('ivEditMsg');
     if (!iv.cat) ivLoadCatalog();
+    if (!id && !iv.set) { ivLoadSettings().then(function(){ ivOpen(null, prefill); }); return; }
     if (!id) {
       iv.cur = null;
       var p = prefill || {};
+      var st = iv.set || {}, days = st.default_due_days == null ? 14 : Number(st.default_due_days);
       ivFill({ invoice: { status: 'draft', customer_name: p.customer_name || '', company: p.company || '', customer_email: p.customer_email || '', customer_phone: p.customer_phone || '',
-        issue_date: ivToday(), due_date: ivToday(), notes: p.notes || '', discount_cents: 0, fee_on: false, catering_ref: p.catering_ref || null }, lines: p.lines || [], events: [] });
+        bill_address: '', po_number: '', service_date: p.service_date || null, service_location: p.service_location || '',
+        issue_date: ivToday(), due_date: ivAddDays(ivToday(), days), notes: [p.notes, st.default_notes].filter(Boolean).join('\n'), discount_cents: 0, fee_on: false, catering_ref: p.catering_ref || null }, lines: p.lines || [], events: [] });
       iv.dirty = !!prefill;
       ivShow('edit');
       setTimeout(function(){ document.getElementById(p.customer_name ? 'ivSearch' : 'ivName').focus(); }, 50);
@@ -5027,6 +5060,7 @@
     g('ivTitle').textContent = inv.number ? 'INV-' + inv.number : 'New invoice';
     g('ivStatus').innerHTML = inv.number ? ivChip(inv) : '';
     g('ivName').value = inv.customer_name || ''; g('ivCompany').value = inv.company || ''; g('ivEmail').value = inv.customer_email || ''; g('ivPhone').value = inv.customer_phone || '';
+    g('ivAddr').value = inv.bill_address || ''; g('ivPo').value = inv.po_number || ''; g('ivSvcDate').value = inv.service_date || ''; g('ivSvcLoc').value = inv.service_location || '';
     g('ivIssue').value = inv.issue_date || ivToday();
     var diff = inv.due_date ? Math.round((new Date(inv.due_date + 'T12:00:00Z') - new Date(g('ivIssue').value + 'T12:00:00Z')) / 86400000) : 0;
     var pick = [0, 7, 14, 30].indexOf(diff) >= 0 ? String(diff) : 'pick';
@@ -5116,7 +5150,7 @@
   }
   function ivPayload(){
     var g = function(id){ return document.getElementById(id).value; };
-    return { id: iv.cur ? iv.cur.invoice.id : null, customer_name: g('ivName'), company: g('ivCompany'), customer_email: g('ivEmail'), customer_phone: g('ivPhone'),
+    return { id: iv.cur ? iv.cur.invoice.id : null, customer_name: g('ivName'), company: g('ivCompany'), customer_email: g('ivEmail'), customer_phone: g('ivPhone'), bill_address: g('ivAddr'), po_number: g('ivPo'), service_date: g('ivSvcDate') || null, service_location: g('ivSvcLoc'),
       issue_date: g('ivIssue') || null, due_date: ivDue(), notes: g('ivNotes'), discount_cents: Math.round(Number(g('ivDisc') || 0) * 100),
       fee_on: document.getElementById('ivFee').checked, catering_ref: iv.cur ? iv.cur.invoice.catering_ref : (iv.prefillRef || null),
       lines: iv.lines.map(function(l){ return { name: l.name, description: l.description, qty: l.qty, unit: l.unit, unit_cents: l.unit_cents, taxable: l.taxable }; }) };
@@ -5188,6 +5222,7 @@
     if (r.quote_cents) lines.push({ name: 'Catering' + (r.event_date ? ' – ' + ivFmt(r.event_date) : ''), description: (r.guests ? r.guests + ' guests' : '') + (r.ref ? (r.guests ? ' · ' : '') + 'Ref ' + r.ref : ''), qty: 1, unit: 'event', unit_cents: r.quote_cents, taxable: true });
     showTab('invoices');
     ivOpen(null, { customer_name: r.name || '', company: r.company || '', customer_email: r.email || '', customer_phone: r.phone || '', catering_ref: r.ref || null, lines: lines,
+      service_date: r.event_date || null, service_location: r.location || '',
       notes: r.deposit_paid_at && r.deposit_cents ? 'Deposit of ' + ivMoney(r.deposit_cents) + ' already received.' : '' });
   }
 
@@ -5202,8 +5237,23 @@
     g('ivList').addEventListener('click', function(e){ var b = e.target.closest('[data-iv]'); if (b) ivOpen(b.getAttribute('data-iv')); });
     g('ivNew').addEventListener('click', function(){ iv.prefillRef = null; ivOpen(null); });
     g('ivBack').addEventListener('click', ivBack);
-    g('ivPriceBtn').addEventListener('click', function(){ g('ivPrice').classList.toggle('hidden'); if (!iv.cat) ivLoadCatalog(); else ivRenderPrice(); });
+    g('ivPriceBtn').addEventListener('click', function(){ g('ivSet').classList.add('hidden'); g('ivPrice').classList.toggle('hidden'); if (!iv.cat) ivLoadCatalog(); else ivRenderPrice(); });
     g('ivPriceClose').addEventListener('click', function(){ g('ivPrice').classList.add('hidden'); });
+    var IS = { isName: 'business_name', isLegal: 'legal_name', isAddr: 'address', isPayable: 'check_payable', isTax: 'tax_id', isPhone: 'phone', isEmail: 'email', isWeb: 'website', isDays: 'default_due_days', isPay: 'pay_instructions', isTerms: 'terms', isNotes: 'default_notes' };
+    var isFill = function(d){ Object.keys(IS).forEach(function(id){ var v = d && d[IS[id]]; g(id).value = v == null ? (id === 'isDays' ? '14' : '') : String(v); }); };
+    g('ivSetBtn').addEventListener('click', function(){
+      var box = g('ivSet'); box.classList.toggle('hidden'); g('ivPrice').classList.add('hidden'); clearMsg('ivSetMsg');
+      if (!box.classList.contains('hidden')) ivLoadSettings().then(isFill);
+    });
+    g('ivSetClose').addEventListener('click', function(){ g('ivSet').classList.add('hidden'); });
+    g('ivSetForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      var p = {}; Object.keys(IS).forEach(function(id){ p[IS[id]] = g(id).value; });
+      sb.rpc('invoice_settings_save', { p: p }).then(function(res){
+        if (res.error) { showMsg('ivSetMsg', res.error.message, 'error'); return; }
+        iv.set = res.data; isFill(res.data); showMsg('ivSetMsg', 'Saved. New invoices and the invoice page use these details.', 'ok');
+      });
+    });
     g('ivPriceAdd').addEventListener('submit', function(e){
       e.preventDefault();
       sb.rpc('invoice_catalog_save', { p: { name: g('ivPName').value, unit: g('ivPUnit').value, price_cents: Math.round(Number(g('ivPPrice').value || 0) * 100), taxable: g('ivPTax').checked } }).then(function(res){
@@ -5251,7 +5301,7 @@
       if (!e.target.closest('[data-ldel]')) return;
       iv.lines.splice(+e.target.closest('[data-ln]').getAttribute('data-ln'), 1); iv.dirty = true; ivRenderLines(); ivCalc();
     });
-    ['ivName', 'ivCompany', 'ivEmail', 'ivPhone', 'ivIssue', 'ivDue', 'ivNotes'].forEach(function(id){ g(id).addEventListener('input', function(){ iv.dirty = true; }); });
+    ['ivName', 'ivCompany', 'ivEmail', 'ivPhone', 'ivAddr', 'ivPo', 'ivSvcDate', 'ivSvcLoc', 'ivIssue', 'ivDue', 'ivNotes'].forEach(function(id){ g(id).addEventListener('input', function(){ iv.dirty = true; }); });
     g('ivDisc').addEventListener('input', function(){ iv.dirty = true; ivCalc(); });
     g('ivFee').addEventListener('change', function(){ iv.dirty = true; ivCalc(); });
     g('ivDuePick').addEventListener('change', function(){ iv.dirty = true; g('ivDue').classList.toggle('hidden', this.value !== 'pick'); if (this.value === 'pick' && !g('ivDue').value) g('ivDue').value = ivAddDays(g('ivIssue').value || ivToday(), 14); });
