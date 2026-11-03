@@ -1207,6 +1207,7 @@ body.ev-tab-mode #rewardSection, body.ev-tab-mode #coPointsLine{ display:none !i
 .pt-popup.need{ border-color:#d62d20; background:#fff3f2; }
 /* ---- On Location (popup-ordering.sql): the truck is serving somewhere else ---- */
 body.onloc-live #annbar{ display:none !important; }
+body.onloc-now .drive-up-only{ display:none !important; }
 #onLocStrip{ background:#0b6b35; color:#fff; font-size:14px; }
 #onLocStrip .wrap{ display:flex; align-items:center; justify-content:center; gap:6px 16px; flex-wrap:wrap; padding:9px 16px; text-align:center; }
 #onLocStrip .ol-dot{ width:8px; height:8px; border-radius:50%; background:#7dffa8; animation:olPulse 1.8s infinite; flex:none; }
@@ -5774,6 +5775,8 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     function paintOnLocStrip(pp, live){
       var el = document.getElementById('onLocStrip');
       document.body.classList.toggle('onloc-live', !!pp);
+      // On location right now: no Drive Up buttons (parking spots are only at our usual lot).
+      document.body.classList.toggle('onloc-now', !!pp && !!live);
       if (!pp) { if (el) el.remove(); return; }
       if (!el) {
         el = document.createElement('div'); el.id = 'onLocStrip'; el.setAttribute('role', 'status');
