@@ -838,6 +838,10 @@
 .wp.show{ opacity:1; transform:translate(-50%, 0); pointer-events:auto; }
 .wp-main{ display:flex; align-items:center; gap:8px; height:100%; padding:0 6px 0 14px; font-size:13px; font-weight:600; color:var(--ink); background:none; border:0; cursor:pointer; white-space:nowrap; }
 .wp-pct{ color:var(--accent); }
+/* "We're hiring" links (shown only while Staff portal -> Hiring is on) */
+.hiring-link.hidden{ display:none !important; }
+.navlinks .hiring-link::before, .mobile-nav .hiring-link::before{ content:""; display:inline-block; width:7px; height:7px; border-radius:50%; background:var(--accent); margin-right:7px; vertical-align:2px; }
+.scan-pay-link{ color:var(--accent); font-weight:700; text-decoration:underline; }
 .wp-min{ color:var(--muted); font-weight:500; font-size:12px; margin-left:-3px; }
 .wp-min[hidden]{ display:none; }
 .wp-sep{ width:1px; height:14px; background:rgba(0,0,0,.15); }
@@ -1369,6 +1373,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       <a href="#catering" class="member-hide">Catering</a>
       <a href="#gift-cards">Gift Cards</a>
       <a href="#find" class="member-hide">Hours &amp; Location</a>
+      <a href="jobs.html" class="hiring-link hidden">We&rsquo;re hiring</a>
     </div>
     <div class="nav-right">
       <a class="nav-signin" href="#deals" id="navSignIn">Sign In</a>
@@ -1389,6 +1394,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
   <a href="#catering" class="member-hide">Catering</a>
   <a href="#gift-cards">Gift Cards</a>
   <a href="#find" class="member-hide">Hours &amp; Location</a>
+  <a href="jobs.html" class="hiring-link hidden">We&rsquo;re hiring <small>(see open jobs)</small></a>
   <div class="mnav-small">
     <a href="#deals" id="mobileNavSignIn">Sign In</a>
     <a href="#" id="mobileNavSignOut" class="hidden">Sign Out</a>
@@ -2087,6 +2093,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
           <a href="#reviews" class="member-hide">Reviews</a>
           <a href="#catering">Catering</a>
           <a href="#find">Hours &amp; Location</a>
+          <a href="jobs.html" class="hiring-link hidden">We&rsquo;re hiring</a>
         </div>
         <div class="foot-col">
           <h5>Contact</h5>
@@ -2490,6 +2497,14 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       a.addEventListener('click', function(){ menu.classList.remove('open'); });
     });
   }
+
+  // ---- "We're hiring" links: only while Staff portal -> Hiring is on ----
+  (function(){
+    if (typeof sbShared === 'undefined') return;
+    sbShared.rpc('get_hiring').then(function(r){
+      if (r && !r.error && r.data && r.data.on) document.querySelectorAll('.hiring-link').forEach(function(a){ a.classList.remove('hidden'); });
+    }, function(){});
+  })();
 
   // ---- Welcome offer pill (Staff portal -> Promo codes -> Welcome offer) ----
   // Which code it offers, its words and on/off come from get_welcome_offer.
@@ -4161,6 +4176,26 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     document.getElementById('coEditDetailsBtn').addEventListener('click', function(){ showCoStep('details'); });
 
     // ---- Scan to pay on your phone ----
+    // The code picture comes from qrcode-generator (CDN). If the CDN copy is
+    // blocked or slow, the same library is loaded from this site instead.
+    function loadQrLib(){
+      if (typeof qrcode === 'function') return Promise.resolve();
+      if (!loadQrLib.p) loadQrLib.p = new Promise(function(ok, bad){
+        var sc = document.createElement('script');
+        sc.src = 'qrcode-generator.js?v=1.4.4';
+        var t = setTimeout(function(){ loadQrLib.p = null; bad(new Error('qrcode load timed out')); }, 8000);
+        sc.onload = function(){ clearTimeout(t); typeof qrcode === 'function' ? ok() : bad(new Error('no qrcode')); };
+        sc.onerror = function(){ clearTimeout(t); loadQrLib.p = null; bad(new Error('qrcode load failed')); };
+        document.head.appendChild(sc);
+      });
+      return loadQrLib.p;
+    }
+    function drawQr(url){
+      return loadQrLib().then(function(){
+        var qr = qrcode(0, 'M'); qr.addData(url); qr.make();
+        return qr.createSvgTag({ scalable: true, margin: 2 });
+      });
+    }
     (function(){
       var CONFIRM_URL = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/get-order-confirmation';
       var btn = document.getElementById('scanPayBtn'), panel = document.getElementById('scanPayPanel');
@@ -4206,17 +4241,32 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         stop(false);
         var my = run;
         btn.classList.add('hidden'); panel.classList.remove('hidden');
-        qrEl.classList.remove('done'); qrEl.innerHTML = '<span class="scan-pay-spin"></span>';
+        qrEl.classList.remove('done', 'hidden'); qrEl.innerHTML = '<span class="scan-pay-spin"></span>';
         head.textContent = 'Getting your pay code\u2026'; sub.textContent = SUB; status('Waiting for payment\u2026');
         panel.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
         submitOrder(order).then(function(d){
           if (my !== run) return;
-          if (!d || !d.url) { stop(true); return; }
-          if (d.paid) return paid(d.referenceCode, d.orderId);
-          var qr = qrcode(0, 'M'); qr.addData(d.url); qr.make();
-          qrEl.innerHTML = qr.createSvgTag({ scalable: true, margin: 2 });
-          head.textContent = 'Scan with your phone camera';
+          if (d && d.paid) return paid(d.referenceCode, d.orderId);
+          if (!d || !d.url) {
+            // Say what went wrong right here, where the customer is looking.
+            var why = (document.getElementById('cartCheckoutMsg') || {}).textContent || '';
+            qrEl.innerHTML = ''; qrEl.classList.add('hidden'); head.textContent = 'Couldn\u2019t make your pay code';
+            sub.textContent = why || 'Please try again in a moment, or pay with card.';
+            status('Nothing was charged', 'bad'); btn.classList.remove('hidden');
+            return;
+          }
           watch(my, d.referenceCode, d.orderId, Date.now() + 20 * 60 * 1000);
+          head.textContent = 'Scan with your phone camera';
+          drawQr(d.url).then(function(svg){
+            if (my !== run) return;
+            qrEl.innerHTML = svg;
+          }, function(){
+            if (my !== run) return;
+            // No code picture (e.g. a blocker stopped the code script): a link still works.
+            qrEl.innerHTML = ''; qrEl.classList.add('hidden');
+            head.textContent = 'Open the pay page';
+            sub.innerHTML = 'We couldn\u2019t draw the code on this screen. <a class="scan-pay-link" target="_blank" rel="noopener" href="' + escHtml(d.url) + '">Open the secure Square pay page</a> to pay here instead.';
+          });
         });
       });
       cancelBtn.addEventListener('click', function(){ stop(true); });
