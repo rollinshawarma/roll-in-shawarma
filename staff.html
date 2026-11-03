@@ -1070,6 +1070,16 @@
   .wo-sep{ width:1px; height:14px; background:rgba(0,0,0,.15); }
   .wo-code{ font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12.5px; letter-spacing:.06em; }
   .wo-x{ color:var(--muted); font-size:17px; padding:0 4px; }
+  .wo-rules{ background:#f7f7f9; border-radius:12px; padding:12px 14px 4px; margin:2px 0 14px; }
+  .wo-rules-h{ font-size:13.5px; font-weight:700; color:var(--ink); margin-bottom:10px; }
+  .wo-rules-h small{ display:block; font-weight:400; color:var(--muted); font-size:12.5px; margin-top:2px; }
+  .wo-rules-grid{ display:grid; grid-template-columns:1fr 1fr auto; gap:12px; align-items:start; }
+  .wo-rules-grid input{ margin-bottom:4px; }
+  .wo-rules-grid small{ display:block; font-size:11.5px; color:var(--muted); margin-bottom:8px; }
+  .wo-money{ display:flex; align-items:center; gap:4px; } .wo-money span{ color:var(--muted); font-weight:600; }
+  .wo-once{ margin-top:26px; }
+  .wo-prev .wo-min{ color:var(--muted); font-weight:500; font-size:12px; margin-left:-3px; }
+  @media (max-width:600px){ .wo-rules-grid{ grid-template-columns:1fr 1fr; } .wo-once{ grid-column:1 / -1; margin-top:0; margin-bottom:10px; } }
   .wo-note{ font-size:13px; color:var(--muted); margin:0 0 12px; line-height:1.5; }
   .wo-note b{ color:var(--ink); }
   .wo-note.bad{ color:#8a5a00; }
@@ -2469,9 +2479,17 @@
           <div><label for="woCode">Promo code</label><select id="woCode"></select></div>
           <div><label for="woText">Offer words</label><input type="text" id="woText" maxlength="28" placeholder="10% off"></div>
         </div>
+        <div class="wo-rules">
+          <div class="wo-rules-h">Code rules <small id="woRulesFor">These change the code itself, so they also apply when someone types it at checkout.</small></div>
+          <div class="wo-rules-grid">
+            <div><label for="woMin">Minimum order</label><div class="wo-money"><span>$</span><input type="number" id="woMin" min="0" max="1000" step="0.01" inputmode="decimal" placeholder="No minimum"></div></div>
+            <div><label for="woEnds">Last day</label><input type="date" id="woEnds" aria-describedby="woEndsHint"><small id="woEndsHint">Blank = no end</small></div>
+            <label class="iv-chk wo-once" id="woOnceWrap"><input type="checkbox" id="woOnce"> One use per customer</label>
+          </div>
+        </div>
         <div class="wo-prev-wrap">
           <span class="wo-prev-lbl">Preview</span>
-          <span class="wo-prev"><span class="wo-pct" id="woPrevText">10% off</span><span class="wo-sep"></span><span class="wo-code" id="woPrevCode">WELCOME10</span><span class="wo-x">&times;</span></span>
+          <span class="wo-prev"><span class="wo-pct" id="woPrevText">10% off</span><span class="wo-min" id="woPrevMin" hidden></span><span class="wo-sep"></span><span class="wo-code" id="woPrevCode">WELCOME10</span><span class="wo-x">&times;</span></span>
         </div>
         <p class="wo-note" id="woNote"></p>
         <div id="woMsg"></div>
@@ -4075,8 +4093,19 @@
   var wo = { d:null, on:false };
   function woEl(id){ return document.getElementById(id); }
   function woCodeInfo(){ var c = woEl('woCode').value; return ((wo.d && wo.d.codes) || []).find(function(x){ return x.code === c; }) || null; }
+  function woMinTxt(v){ var n = Number(v); return v !== '' && n > 0 ? '$' + (n % 1 ? n.toFixed(2) : n) + '+ orders' : ''; }
+  // Fill the rule fields from the picked code.
+  function woFillRules(){
+    var info = woCodeInfo();
+    woEl('woMin').value = info && info.min != null && Number(info.min) > 0 ? Number(info.min).toFixed(2) : '';
+    woEl('woEnds').value = info && info.ends || '';
+    woEl('woOnce').checked = !!(info && info.once);
+    woEl('woOnceWrap').classList.toggle('hidden', !!info && info.once_supported === false);
+    woEl('woRulesFor').textContent = 'Rules for ' + (info ? info.code : 'this code') + '. They change the code itself, so they also apply when someone types it at checkout.';
+  }
   function woPreview(){
     var info = woCodeInfo(), words = woEl('woText').value.trim();
+    var mt = woMinTxt(woEl('woMin').value); woEl('woPrevMin').textContent = mt; woEl('woPrevMin').hidden = !mt;
     woEl('woText').placeholder = info ? info.auto : '10% off';
     woEl('woPrevText').textContent = words || (info ? info.auto : '');
     woEl('woPrevCode').textContent = woEl('woCode').value || '';
@@ -4085,9 +4114,10 @@
     var n = woEl('woNote'), live = wo.d && wo.d.live;
     n.classList.remove('bad');
     if (!info) { n.textContent = 'Add a promo code below first, then pick it here.'; return; }
-    var bits = [];
-    if (info.min) bits.push('orders of $' + Number(info.min).toFixed(2) + ' or more');
-    if (info.once) bits.push('once per customer');
+    var bits = [], mn = Number(woEl('woMin').value);
+    if (mn > 0) bits.push('orders of $' + mn.toFixed(2) + ' or more');
+    if (woEl('woOnce').checked) bits.push('once per customer');
+    if (woEl('woEnds').value) bits.push('ends after ' + new Date(woEl('woEnds').value + 'T12:00:00').toLocaleDateString('en-US', { month:'short', day:'numeric', year:'numeric' }));
     if (!info.ok) { n.classList.add('bad'); n.innerHTML = '<b>' + esc(info.code) + '</b> is turned off, expired or used up, so the pill won\u2019t show. Fix it in the list below or pick another code.'; return; }
     n.innerHTML = (wo.on ? (live && live.on ? 'Showing on the website now. ' : 'Will show after you save. ') : 'Hidden from the website. ') +
       (bits.length ? 'Code rules: ' + esc(bits.join(', ')) + '.' : '') + ' People who closed an older offer will see a new code again.';
@@ -4104,23 +4134,35 @@
       woEl('woCode').innerHTML = codes.map(function(c){ return '<option value="' + esc(c.code) + '"' + (c.code === cur ? ' selected' : '') + '>' + esc(c.code) + (c.auto ? ' \u2014 ' + esc(c.auto) : '') + (c.ok ? '' : ' (not active)') + '</option>'; }).join('');
       woEl('woText').value = r.data.headline || '';
       woEl('woOn').disabled = false;
+      woFillRules();
       woEl('woMsg').innerHTML = '';
       woPreview();
     });
   }
   function woSave(){
     var btn = woEl('woSave'); btn.disabled = true;
-    sb.rpc('staff_set_welcome_offer', { p: { on: wo.on, code: woEl('woCode').value, headline: woEl('woText').value.trim() } }).then(function(r){
+    var mn = woEl('woMin').value.trim();
+    if (mn !== '' && (isNaN(+mn) || +mn < 0 || +mn > 1000)) { btn.disabled = false; woEl('woMsg').innerHTML = '<div class="msg error">Enter the minimum order in dollars, like 20.</div>'; return; }
+    var p = { on: wo.on, code: woEl('woCode').value, headline: woEl('woText').value.trim() };
+    // Only send the code rules that were changed here.
+    var info = woCodeInfo() || {}, curMin = info.min != null && Number(info.min) > 0 ? Number(info.min) : 0;
+    if ((mn === '' ? 0 : Math.round(+mn * 100) / 100) !== curMin) p.min_order = mn;
+    if (woEl('woEnds').value !== (info.ends || '')) p.ends = woEl('woEnds').value;
+    if (!woEl('woOnceWrap').classList.contains('hidden') && woEl('woOnce').checked !== !!info.once) p.once = woEl('woOnce').checked;
+    sb.rpc('staff_set_welcome_offer', { p: p }).then(function(r){
       btn.disabled = false;
       if (r.error) { woEl('woMsg').innerHTML = '<div class="msg error">' + esc(r.error.message) + '</div>'; return; }
-      wo.d = r.data; wo.on = !!r.data.on; woPreview();
+      wo.d = r.data; wo.on = !!r.data.on; woFillRules(); woPreview();
+      loadPromotionsTable();   // the code's minimum / last day changed too
       woEl('woMsg').innerHTML = '<div class="msg ok">' + (wo.on ? 'Saved. The website shows \u201c' + esc(r.data.live.text || '') + ' \u00b7 ' + esc(r.data.live.code || '') + '\u201d.' : 'Saved. The welcome offer is hidden.') + '</div>';
     });
   }
   (function(){
     woEl('woOn').onclick = function(){ wo.on = !wo.on; woPreview(); };
-    woEl('woCode').addEventListener('change', woPreview);
+    woEl('woCode').addEventListener('change', function(){ woFillRules(); woPreview(); });
     woEl('woText').addEventListener('input', woPreview);
+    ['woMin', 'woEnds'].forEach(function(id){ woEl(id).addEventListener('input', woPreview); });
+    woEl('woOnce').addEventListener('change', woPreview);
     woEl('woSave').onclick = woSave;
   })();
 
@@ -7676,6 +7718,9 @@
 
   function loadPromotions(){
     woLoad();   // the welcome offer's code list follows the promo codes
+    loadPromotionsTable();
+  }
+  function loadPromotionsTable(){
     sb.from('promo_codes').select('*').order('created_at', {ascending:false}).then(function(res){
       var tbody = document.getElementById('promoCodesBody');
       if (res.error) {
