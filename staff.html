@@ -1059,6 +1059,21 @@
   .cf-ans-group dt{ color:var(--muted, #6e6e73); }
   .cf-ans-group dd{ margin:0; font-weight:600; }
   .cf-ans-group dd.flag{ color:#b3261e; }
+  /* Welcome offer */
+  .wo-top{ display:flex; align-items:flex-start; justify-content:space-between; gap:16px; }
+  .wo-body{ margin-top:16px; }
+  .wo-card.is-off .wo-body .row2, .wo-card.is-off .wo-prev-wrap{ opacity:.5; }
+  .wo-prev-wrap{ display:flex; align-items:center; gap:12px; margin:4px 0 10px; }
+  .wo-prev-lbl{ font-size:11.5px; font-weight:600; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); }
+  .wo-prev{ display:inline-flex; align-items:center; gap:8px; height:36px; padding:0 8px 0 14px; border-radius:999px; background:#fff; box-shadow:0 0 0 1px rgba(0,0,0,.06), 0 8px 24px rgba(0,0,0,.14); font-size:13px; font-weight:600; color:var(--ink); white-space:nowrap; }
+  .wo-pct{ color:#d62d20; }
+  .wo-sep{ width:1px; height:14px; background:rgba(0,0,0,.15); }
+  .wo-code{ font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12.5px; letter-spacing:.06em; }
+  .wo-x{ color:var(--muted); font-size:17px; padding:0 4px; }
+  .wo-note{ font-size:13px; color:var(--muted); margin:0 0 12px; line-height:1.5; }
+  .wo-note b{ color:var(--ink); }
+  .wo-note.bad{ color:#8a5a00; }
+
   /* Menu */
   .mn-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; }
   .mn-head .page-head{ margin-bottom:0; }
@@ -2441,6 +2456,29 @@
 
   <!-- PROMOTIONS -->
   <div class="tab-panel hidden" id="panelPromotions">
+    <div class="card wo-card" id="woCard">
+      <div class="wo-top">
+        <div>
+          <h2>Welcome offer</h2>
+          <p class="hint" style="margin-bottom:0">The small pill that floats on the website. Tapping it saves the code, and checkout applies it.</p>
+        </div>
+        <button type="button" class="switch" role="switch" aria-checked="false" aria-label="Show the welcome offer on the website" id="woOn" disabled></button>
+      </div>
+      <div class="wo-body">
+        <div class="row2">
+          <div><label for="woCode">Promo code</label><select id="woCode"></select></div>
+          <div><label for="woText">Offer words</label><input type="text" id="woText" maxlength="28" placeholder="10% off"></div>
+        </div>
+        <div class="wo-prev-wrap">
+          <span class="wo-prev-lbl">Preview</span>
+          <span class="wo-prev"><span class="wo-pct" id="woPrevText">10% off</span><span class="wo-sep"></span><span class="wo-code" id="woPrevCode">WELCOME10</span><span class="wo-x">&times;</span></span>
+        </div>
+        <p class="wo-note" id="woNote"></p>
+        <div id="woMsg"></div>
+        <button type="button" class="btn-primary btn-small" id="woSave" style="width:auto">Save welcome offer</button>
+      </div>
+    </div>
+
     <div class="card">
       <h2>Add a promo code</h2>
       <p class="hint">Customers enter this code at checkout on the website.</p>
@@ -3054,6 +3092,7 @@
         setInterval(loadPinLockStatus, 30000);
         loadKitchenAnalytics('today');
         loadPromotions();
+        document.querySelector('.nav-link[data-tab="promotions"]').addEventListener('click', woLoad);
         loadSoldOut();
         setInterval(loadSoldOut, 60000);
         document.getElementById('tabAdsBtn').classList.remove('hidden');
@@ -4031,6 +4070,59 @@
   document.querySelectorAll('.nav-link[data-tab]').forEach(function(btn){
     btn.addEventListener('click', function(){ showTab(btn.dataset.tab); });
   });
+
+  // ---------------- WELCOME OFFER (welcome-offer.sql) ----------------
+  var wo = { d:null, on:false };
+  function woEl(id){ return document.getElementById(id); }
+  function woCodeInfo(){ var c = woEl('woCode').value; return ((wo.d && wo.d.codes) || []).find(function(x){ return x.code === c; }) || null; }
+  function woPreview(){
+    var info = woCodeInfo(), words = woEl('woText').value.trim();
+    woEl('woText').placeholder = info ? info.auto : '10% off';
+    woEl('woPrevText').textContent = words || (info ? info.auto : '');
+    woEl('woPrevCode').textContent = woEl('woCode').value || '';
+    woEl('woOn').setAttribute('aria-checked', wo.on ? 'true' : 'false');
+    woEl('woCard').classList.toggle('is-off', !wo.on);
+    var n = woEl('woNote'), live = wo.d && wo.d.live;
+    n.classList.remove('bad');
+    if (!info) { n.textContent = 'Add a promo code below first, then pick it here.'; return; }
+    var bits = [];
+    if (info.min) bits.push('orders of $' + Number(info.min).toFixed(2) + ' or more');
+    if (info.once) bits.push('once per customer');
+    if (!info.ok) { n.classList.add('bad'); n.innerHTML = '<b>' + esc(info.code) + '</b> is turned off, expired or used up, so the pill won\u2019t show. Fix it in the list below or pick another code.'; return; }
+    n.innerHTML = (wo.on ? (live && live.on ? 'Showing on the website now. ' : 'Will show after you save. ') : 'Hidden from the website. ') +
+      (bits.length ? 'Code rules: ' + esc(bits.join(', ')) + '.' : '') + ' People who closed an older offer will see a new code again.';
+  }
+  function woLoad(){
+    sb.rpc('staff_get_welcome_offer').then(function(r){
+      if (r.error) {
+        var m = /does not exist|schema cache/i.test(r.error.message) ? 'Run welcome-offer.sql in Supabase \u2192 SQL Editor to customize the welcome offer.' : r.error.message;
+        woEl('woMsg').innerHTML = '<div class="msg error">' + esc(m) + '</div>'; return;
+      }
+      wo.d = r.data; wo.on = !!r.data.on;
+      var codes = r.data.codes || [], cur = String(r.data.code || '').toUpperCase();
+      if (cur && !codes.some(function(c){ return c.code === cur; })) codes = [{ code: cur, auto: '', ok: false }].concat(codes);
+      woEl('woCode').innerHTML = codes.map(function(c){ return '<option value="' + esc(c.code) + '"' + (c.code === cur ? ' selected' : '') + '>' + esc(c.code) + (c.auto ? ' \u2014 ' + esc(c.auto) : '') + (c.ok ? '' : ' (not active)') + '</option>'; }).join('');
+      woEl('woText').value = r.data.headline || '';
+      woEl('woOn').disabled = false;
+      woEl('woMsg').innerHTML = '';
+      woPreview();
+    });
+  }
+  function woSave(){
+    var btn = woEl('woSave'); btn.disabled = true;
+    sb.rpc('staff_set_welcome_offer', { p: { on: wo.on, code: woEl('woCode').value, headline: woEl('woText').value.trim() } }).then(function(r){
+      btn.disabled = false;
+      if (r.error) { woEl('woMsg').innerHTML = '<div class="msg error">' + esc(r.error.message) + '</div>'; return; }
+      wo.d = r.data; wo.on = !!r.data.on; woPreview();
+      woEl('woMsg').innerHTML = '<div class="msg ok">' + (wo.on ? 'Saved. The website shows \u201c' + esc(r.data.live.text || '') + ' \u00b7 ' + esc(r.data.live.code || '') + '\u201d.' : 'Saved. The welcome offer is hidden.') + '</div>';
+    });
+  }
+  (function(){
+    woEl('woOn').onclick = function(){ wo.on = !wo.on; woPreview(); };
+    woEl('woCode').addEventListener('change', woPreview);
+    woEl('woText').addEventListener('input', woPreview);
+    woEl('woSave').onclick = woSave;
+  })();
 
   // ---------------- MENU (menu-studio.sql) ----------------
   // One list + one edit panel. Prices and on/off change right in the list;
@@ -7583,6 +7675,7 @@
   });
 
   function loadPromotions(){
+    woLoad();   // the welcome offer's code list follows the promo codes
     sb.from('promo_codes').select('*').order('created_at', {ascending:false}).then(function(res){
       var tbody = document.getElementById('promoCodesBody');
       if (res.error) {
