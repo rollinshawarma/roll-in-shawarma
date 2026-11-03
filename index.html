@@ -1322,7 +1322,7 @@ body.onloc-live #annbar{ display:none !important; }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
 <script src="deals.js?v=20261022"></script>
-<script src="ingredients.js"></script>
+<script src="ingredients.js?v=20261103"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js" integrity="sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k" crossorigin="anonymous"></script>
 <!-- Meta Pixel -->
 <script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
@@ -3589,10 +3589,10 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       var addBtn = e.target.closest('[data-addon]');
       if (addBtn && window.RollinIngredients) {
         var RA = window.RollinIngredients, key = addBtn.getAttribute('data-addon'), it = itemsById[wsSheet.itemId];
-        wsSheet.added = RA.cleanAdd(it, RA.toggle(wsSheet.added, key));
+        wsSheet.added = RA.cleanAdd(it, RA.addStep(wsSheet.added, addBtn));
         wsEl('wsIng').innerHTML = RA.chipsHtml(it, wsSheet.removed, wsSheet.added);
         wsEl('wsAddons').innerHTML = RA.addonsHtml(it, wsSheet.added);
-        var back = wsEl('wsSheetBody').querySelector('[data-addon="' + key + '"]'); if (back) back.focus();
+        RA.addFocus(wsEl('wsSheetBody'), addBtn);
         wsUpdateCta();
         return;
       }
