@@ -584,6 +584,8 @@
   /* ---- Secret menu (Platinum) ---- */
   .sec-secret .section-title::after{ content:"\2726  Platinum"; display:inline-block; vertical-align:middle; margin-left:10px; font-size:11px; font-weight:800; letter-spacing:.12em;
     text-transform:uppercase; padding:4px 9px; border-radius:999px; color:#1b1a1f; background:linear-gradient(135deg, #f4f4f6, #b9bcc6 50%, #e9eaee); }
+  .onloc-pick{ background:rgba(31,138,76,.1); color:#146c3a; border-radius:12px; padding:12px 14px; font-size:14.5px; line-height:1.45; margin:0; }
+  .onloc-pick b{ color:inherit; }
 </style>
 </head>
 <body>
@@ -980,6 +982,32 @@
         return true;
       }, function(){ $('menuState').innerHTML = 'We couldn&rsquo;t load the menu. Check your connection and try again.'; return false; });
     }
+    // ---- On Location (Staff portal / kitchen tablet): while a stop is running,
+    // orders are picked up at the truck window there. Drive-up parking spots
+    // only exist at our usual lot, so that choice is hidden. The checkout
+    // makes the same call on the server.
+    var onLocNow = null;
+    function applyOnLocation(st){
+      var now = Date.now();
+      onLocNow = null;
+      (st && Array.isArray(st.popups) ? st.popups : []).forEach(function(p){
+        var a = Date.parse(p.from), b = Date.parse(p.to);
+        if (!onLocNow && a <= now && now < b - 15 * 60000) onLocNow = p;
+      });
+      if (!onLocNow || doorProg) return;
+      if ($('topMode')) $('topMode').textContent = 'On location';
+      pickupMethod = 'window';
+      document.querySelectorAll('[data-pickup]').forEach(function(x){ x.setAttribute('aria-pressed', x.getAttribute('data-pickup') === 'window' ? 'true' : 'false'); });
+      var sec = $('pickupSec'); if (!sec) return;
+      var seg = sec.querySelector('.seg'); if (seg) seg.classList.add('hidden');
+      $('curbsideDetails').classList.add('hidden');
+      if (!$('onLocPick')) {
+        var n = document.createElement('p'); n.id = 'onLocPick'; n.className = 'onloc-pick';
+        n.innerHTML = '&#128205; We&rsquo;re on location at <b>' + escHtml(onLocNow.name || 'our event stop') + '</b>. Pick up at the truck window &mdash; we&rsquo;ll call your name.';
+        seg ? seg.parentNode.insertBefore(n, seg) : sec.appendChild(n);
+      }
+    }
+
     // ---- Drive-up scan: menu only while the truck is at its usual spot ----
     // driveup-gate.sql decides (calendar event now = away; else standard
     // hours or kitchen board open). The checkout asks the same question.
@@ -1015,6 +1043,7 @@
       var os = sbShared.rpc('get_ordering_status').then(function(r){ return r && !r.error ? r.data : null; }, function(){ return null; });
       return Promise.all([sbShared.rpc('get_driveup_status'), os]).then(function(rs){
         var res = rs[0], st = rs[1];
+        applyOnLocation(st);
         var du = res && !res.error ? res.data : null;
         if (st && st.manual) {
           var ul = '';
@@ -2401,6 +2430,7 @@
 
       $('reviewOrderBtn').innerHTML = 'Review order <span class="cta-amt">' + money(t.total) + '</span>';
       var spotText = doorProg ? (doorRunOk() ? 'Delivery ' + doorLabel(doorRun) + ' to ' + doorProg.place : 'Pick a delivery time')
+        : onLocNow ? 'At the truck window, ' + (onLocNow.name || 'on location')
         : pickupMethod === 'curbside' ? (arriveMode === 'on_the_way' ? 'Drive-up, on the way' : parkingSpot ? 'Drive-up, spot ' + parkingSpot : 'Drive-up') : 'At the window';
       if (pickupMethod === 'curbside') {
         // Car only shows here if they chose to add it.
