@@ -2489,14 +2489,34 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     });
   }
 
-  // ---- WELCOME10 pill ----
+  // ---- Welcome offer pill (Staff portal -> Promo codes -> Welcome offer) ----
+  // Which code it offers, its words and on/off come from get_welcome_offer.
+  // Closing or using it hides it for good -- per code, so a new offer shows again.
   (function(){
-    var CODE = 'WELCOME10', KEY = 'rollin_welcome10';
     var el = document.getElementById('welcomePromo');
-    function get(){ try { return localStorage.getItem(KEY) || ''; } catch (e) { return ''; } }
-    function set(v){ try { localStorage.setItem(KEY, v); } catch (e) {} }
+    var CODE = 'WELCOME10', KEY = '';
+    function keyFor(c){ return c === 'WELCOME10' ? 'rollin_welcome10' : 'rollin_welcome_' + c; }
+    function get(){ try { return KEY ? localStorage.getItem(KEY) || '' : ''; } catch (e) { return ''; } }
+    function set(v){ try { if (KEY) localStorage.setItem(KEY, v); } catch (e) {} }
     window.rollinWelcome = { CODE: CODE, saved: function(){ return get() === 'saved'; }, used: function(){ set('used'); } };
-    if (!el || get()) return;
+    if (!el) return;
+    function start(offer){
+      CODE = offer.code; KEY = keyFor(CODE); window.rollinWelcome.CODE = CODE;
+      if (get()) return;
+      el.querySelector('.wp-pct').textContent = offer.text;
+      el.querySelector('.wp-code').textContent = CODE;
+      el.querySelector('.wp-main').setAttribute('aria-label', 'Get ' + offer.text + ' your order with code ' + CODE);
+      run();
+    }
+    // Settings not set up yet (welcome-offer.sql not run): keep the original 10% off WELCOME10.
+    var asked = typeof sbShared !== 'undefined' ? sbShared.rpc('get_welcome_offer') : null;
+    if (!asked) return start({ code: 'WELCOME10', text: '10% off' });
+    asked.then(function(r){
+      if (r && r.error) return start({ code: 'WELCOME10', text: '10% off' });
+      var d = r && r.data;
+      if (d && d.on && /^[A-Z0-9_-]{1,40}$/i.test(String(d.code || ''))) start({ code: String(d.code).toUpperCase(), text: String(d.text || 'Save').slice(0, 28) });
+    }, function(){});
+    function run(){
     el.hidden = false;
     var hero = document.querySelector('.hero'), footer = document.querySelector('footer');
     var lastY = window.scrollY, rest = null, done = false;
@@ -2526,6 +2546,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       setTimeout(function(){ el.hidden = true; }, 300);
     });
     setTimeout(function(){ show(true); }, 1200);
+    }
   })();
 
   // ---- Floating Order buttons ----
@@ -4266,7 +4287,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
           var d = result.data || {};
           window.__rollinLastErr = result.ok ? null : (d.code || 'ERROR');
           if (result.ok && (d.url || d.paid)) {
-            if (body.promoCode && String(body.promoCode).toUpperCase() === 'WELCOME10' && window.rollinWelcome) window.rollinWelcome.used();
+            if (body.promoCode && window.rollinWelcome && String(body.promoCode).toUpperCase() === window.rollinWelcome.CODE) window.rollinWelcome.used();
             return d;
           }
           if ((d.code === 'CLOSED' || d.code === 'BAD_PICKUP_TIME' || d.code === 'OTHER_DAY') && window.rollinPickup) { window.rollinPickup.forceSchedule(); showCoStep('details'); }
