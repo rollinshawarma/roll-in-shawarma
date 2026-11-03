@@ -11,7 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
 <script src="deals.js?v=20261022"></script>
-<script src="ingredients.js"></script>
+<script src="ingredients.js?v=20261103"></script>
 <script src="spot-picker.js"></script>
 <style>
   :root{
@@ -878,6 +878,23 @@
     'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_'
   );
 
+  // Google sign-in: check first that Google is switched on in Supabase, so a
+  // customer never lands on a raw "provider is not enabled" error page.
+  window.rollinGoogle = function(client, opts){
+    var url = 'https://njcmcaoyzujijiyfardx.supabase.co', key = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
+    var go = function(){
+      return client.auth.signInWithOAuth({ provider: 'google', options: Object.assign({}, opts.options, { skipBrowserRedirect: true }) }).then(function(res){
+        if (res && res.error) return res;
+        if (res && res.data && res.data.url) location.assign(res.data.url);
+        return { data: res && res.data, error: null };
+      });
+    };
+    return fetch(url + '/auth/v1/settings', { headers: { apikey: key } }).then(function(r){ return r.ok ? r.json() : null; }).then(function(st){
+      if (st && st.external && st.external.google === false) return { data: null, error: { message: 'provider is not enabled' } };
+      return go();
+    }, go);
+  };
+
   // Photo fallback: dish photo first (item-<name>.jpg, same as the
   // kiosk); if a dish has no photo yet, show its category photo
   // instead of an empty square; if that's missing too, remove it.
@@ -1590,7 +1607,7 @@
       saveCart();
       try { sessionStorage.setItem('rollinDuGoogle', '1'); } catch (e) {}
       var back = location.href.split('#')[0];
-      sbShared.auth.signInWithOAuth({ provider: 'google', options: { redirectTo: back, queryParams: { prompt: 'select_account' } } }).then(function(res){
+      window.rollinGoogle(sbShared, { provider: 'google', options: { redirectTo: back, queryParams: { prompt: 'select_account' } } }).then(function(res){
         if (res && res.error) {
           btn.disabled = false; msg.className = 'apply-msg bad';
           msg.textContent = /provider is not enabled|Unsupported provider/i.test(res.error.message || '') ? 'Google sign-in isn’t switched on yet. Use your Member ID for now.' : res.error.message;
@@ -2004,10 +2021,10 @@
       var ad = e.target.closest('[data-addon]');
       if (ad && window.RollinIngredients) {
         var RA = window.RollinIngredients, key = ad.getAttribute('data-addon'), it = itemsById[sheet.itemId];
-        sheet.added = RA.cleanAdd(it, RA.toggle(sheet.added, key));
+        sheet.added = RA.cleanAdd(it, RA.addStep(sheet.added, ad));
         $('itemIng').innerHTML = RA.chipsHtml(it, sheet.removed, sheet.added);
         $('itemAddons').innerHTML = RA.addonsHtml(it, sheet.added);
-        var back = $('itemBody').querySelector('[data-addon="' + key + '"]'); if (back) back.focus();
+        RA.addFocus($('itemBody'), ad);
         updateItemCta();
         return;
       }
