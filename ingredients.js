@@ -32,12 +32,19 @@
     double_protein: { label: 'Double protein', price: 3.50, img: 'ing-chicken.webp' },
     extra_falafel:  { label: 'Extra falafel',  price: 2.00, img: 'ing-falafel.svg', hq: 'ing-falafel-hq' },
     add_cucumber:   { label: 'Cucumbers',      price: 0.50, img: 'ing-cucumber.webp' },
-    add_tomato:     { label: 'Tomatoes',       price: 0.50, img: 'ing-tomato.webp' }
+    add_tomato:     { label: 'Tomatoes',       price: 0.50, img: 'ing-tomato.webp' },
+    // White sauce: "Extra" on items that already come with it, "White sauce" on the rest.
+    extra_white:    { label: 'Extra white sauce', price: 1.39, img: 'ing-white-sauce.svg' },
+    add_white:      { label: 'White sauce',       price: 1.39, img: 'ing-white-sauce.svg' }
   };
   var ADDON_SETS = {
-    bowl: ['extra_sauce', 'double_protein'],
-    veggie_bowl: ['extra_sauce', 'extra_falafel'],
-    shawarma: ['add_cucumber', 'add_tomato']
+    bowl: ['extra_white', 'double_protein'],
+    veggie_bowl: ['extra_white', 'extra_falafel'],
+    shawarma: ['add_cucumber', 'add_tomato', 'extra_white'],
+    falafel: ['extra_white'],
+    loaded: ['extra_white'],
+    frankie: ['add_white'],
+    taco: ['add_white']
   };
   var NOTE_MAX = 140;
   function setFor(item){
@@ -81,7 +88,7 @@
     return allowed.filter(function(k){ return keys.indexOf(k) !== -1; });
   }
   function addPrice(keys){ return Math.round((keys || []).reduce(function(s, k){ return s + (ADDONS[k] ? ADDONS[k].price : 0); }, 0) * 100) / 100; }
-  function addLabel(k){ return '+ ' + (k === 'extra_sauce' || k === 'double_protein' || k === 'extra_falafel' ? ADDONS[k].label : 'Add ' + ADDONS[k].label.toLowerCase()); }
+  function addLabel(k){ return '+ ' + (k === 'extra_sauce' || k === 'double_protein' || k === 'extra_falafel' || k === 'extra_white' ? ADDONS[k].label : 'Add ' + ADDONS[k].label.toLowerCase()); }
   function addNote(keys){ return (keys || []).filter(function(k){ return ADDONS[k]; }).map(addLabel).join(', '); }
   function cleanNote(s){ return String(s || '').replace(/[\u0000-\u001f\u007f]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, NOTE_MAX); }
   // Everything that makes a cart line different from a plain one.
