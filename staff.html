@@ -459,6 +459,7 @@
   .sp-gps{ width:auto; justify-self:start; }
   .sp-gps.ok{ border-color:#1f8a4c; color:#146c3a; }
   .sp-gps-msg{ font-size:12.5px; color:var(--muted); margin-top:-6px; }
+  .sp-repeat{ margin-bottom:14px; } .sp-repeat select{ max-width:320px; }
   .sp-inline{ display:flex; gap:8px; } .sp-inline select{ flex:1; min-width:0; } .sp-inline input{ flex:1.4; min-width:0; }
   .sp-sum{ background:#f5f5f7; border-radius:12px; padding:10px 12px; font-size:14px; }
   .sp-form .btn-approve{ width:100%; }
@@ -2329,10 +2330,12 @@
         <span class="sp-gps-msg" id="spGpsMsg"></span>
         <div class="row2 sp-times">
           <div><label for="spStart">Starts</label>
-            <div class="sp-inline"><select id="spStartPick"><option value="now">Now</option><option value="later">Later</option></select><input type="datetime-local" id="spStart" class="hidden"></div></div>
+            <div class="sp-inline"><select id="spStartPick"><option value="now">Now</option><option value="later">Schedule a date</option></select><input type="datetime-local" id="spStart" class="hidden"></div></div>
           <div><label for="spDur">How long</label>
             <div class="sp-inline"><select id="spDur"><option value="60">1 hour</option><option value="120" selected>2 hours</option><option value="180">3 hours</option><option value="240">4 hours</option><option value="360">6 hours</option><option value="until">Until…</option></select><input type="datetime-local" id="spEnd" class="hidden"></div></div>
         </div>
+        <div class="sp-repeat hidden" id="spRepeatWrap"><label for="spRepeat">Repeat</label>
+          <select id="spRepeat"><option value="1">Just this date</option><option value="2">Every week, 2 weeks</option><option value="3">Every week, 3 weeks</option><option value="4">Every week, 4 weeks</option><option value="6">Every week, 6 weeks</option><option value="8">Every week, 8 weeks</option><option value="12">Every week, 12 weeks</option></select></div>
         <div><label for="spNote">Note for customers <small>(optional)</small></label><input type="text" id="spNote" maxlength="200" placeholder="e.g. Find us by the main stage"></div>
         <div class="sp-sum" id="spSum"></div>
         <div id="spMsg"></div>
@@ -3989,7 +3992,12 @@
   function spPaintSum(){
     var pl = spPlan(), name = document.getElementById('spName').value.trim(), el = document.getElementById('spSum');
     if ((document.getElementById('spStartPick').value === 'later' && !pl.start) || !pl.end) { el.textContent = 'Choose the times.'; return; }
-    el.innerHTML = 'Website orders <b>on</b> ' + (pl.start ? 'from ' + esc(spTime(pl.start)) : '<b>now</b>') + ' until <b>' + esc(spTime(pl.end)) + '</b>' + (name ? ' for pickup at <b>' + esc(name) + '</b>' : '') + '. Then back to normal hours.';
+    var rw = pl.start ? Number(document.getElementById('spRepeat').value) || 1 : 1;
+    el.innerHTML = 'Website orders <b>on</b> ' + (pl.start ? 'from ' + esc(spTime(pl.start)) : '<b>now</b>') + ' until <b>' + esc(spTime(pl.end)) + '</b>' + (name ? ' for pickup at <b>' + esc(name) + '</b>' : '') + '. Then back to normal hours.' +
+      (rw > 1 ? ' <b>Same time every ' + esc(new Date(pl.start).toLocaleDateString('en-US', { timeZone: 'America/New_York', weekday: 'long' })) + ' for ' + rw + ' weeks.</b>' : '') +
+      (pl.start ? ' It shows on the website calendar now.' : '');
+    var live = sp.list && (sp.list.current || []).some(function(x){ return Date.parse(x.from) <= Date.now(); });
+    document.getElementById('spGo').textContent = pl.start ? (rw > 1 ? 'Schedule ' + rw + ' weeks' : 'Schedule it') : (live ? 'Plan another location' : 'Turn on On Location ordering');
   }
   function spRender(d){
     sp.list = d;
@@ -4019,7 +4027,8 @@
   (function spWire(){
     var g = function(id){ return document.getElementById(id); };
     if (!g('spCard')) return;
-    g('spStartPick').addEventListener('change', function(){ var later = this.value === 'later'; g('spStart').classList.toggle('hidden', !later); if (later && !g('spStart').value) g('spStart').value = spLocalInput(Date.now() + 3600000 - (Date.now() % 900000)); spPaintSum(); });
+    g('spRepeat').addEventListener('change', spPaintSum);
+    g('spStartPick').addEventListener('change', function(){ var later = this.value === 'later'; g('spStart').classList.toggle('hidden', !later); g('spRepeatWrap').classList.toggle('hidden', !later); if (!later) g('spRepeat').value = '1'; if (later && !g('spStart').value) g('spStart').value = spLocalInput(Date.now() + 3600000 - (Date.now() % 900000)); spPaintSum(); });
     g('spDur').addEventListener('change', function(){ var u = this.value === 'until'; g('spEnd').classList.toggle('hidden', !u); if (u && !g('spEnd').value) g('spEnd').value = spLocalInput((spPlan().start ? Date.parse(spPlan().start) : Date.now()) + 3 * 3600000 - (Date.now() % 900000)); spPaintSum(); });
     ['spName', 'spStart', 'spEnd'].forEach(function(id){ g(id).addEventListener('input', spPaintSum); });
     g('spGps').addEventListener('click', function(){
@@ -4042,12 +4051,15 @@
       if ((g('spStartPick').value === 'later' && !pl.start) || !pl.end) { showMsg('spMsg', 'Choose the times.', 'error'); return; }
       sp.busy = true;
       sb.rpc('staff_popup_save', { p: { location_name: name, address: g('spAddr').value, note: g('spNote').value, starts_at: pl.start || '', ends_at: pl.end,
-        lat: sp.lat, lng: sp.lng, accuracy: sp.acc, set_truck_location: sp.lat != null && !pl.start } }).then(function(res){
+        lat: sp.lat, lng: sp.lng, accuracy: sp.acc, set_truck_location: sp.lat != null && !pl.start, repeat_weeks: pl.start ? Number(g('spRepeat').value) || 1 : 1 } }).then(function(res){
         sp.busy = false;
         if (res.error) { showMsg('spMsg', res.error.message, 'error'); return; }
+        var made = res.data && res.data.made, skipped = (res.data && res.data.skipped) || [];
         spRender(res.data); g('spForm').reset(); sp.lat = sp.lng = sp.acc = null; g('spGps').classList.remove('ok'); g('spGps').textContent = '📍 Use my current location'; g('spGpsMsg').textContent = '';
-        g('spStart').classList.add('hidden'); g('spEnd').classList.add('hidden'); spPaintSum();
-        showMsg('spMsg', pl.start ? 'Scheduled. Website orders turn on at ' + spTime(pl.start) + '.' : 'On Location ordering is on until ' + spTime(pl.end) + '.', 'ok');
+        g('spStart').classList.add('hidden'); g('spEnd').classList.add('hidden'); g('spRepeatWrap').classList.add('hidden'); spPaintSum();
+        if (made && made.length > 1) showMsg('spMsg', 'Scheduled ' + made.length + ' weeks: ' + made.map(function(t){ return new Date(t).toLocaleDateString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric' }); }).join(', ') + '.' +
+          (skipped.length ? ' Skipped ' + skipped.map(function(x){ return new Date(x.from).toLocaleDateString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric' }); }).join(', ') + ' (another stop is booked then).' : '') + ' They show on the website calendar.', skipped.length ? 'error' : 'ok');
+        else showMsg('spMsg', pl.start ? 'Scheduled. Website orders turn on at ' + spTime(pl.start) + ', and it shows on the website calendar.' : 'On Location ordering is on until ' + spTime(pl.end) + '.', 'ok');
       }, function(){ sp.busy = false; showMsg('spMsg', 'No connection. Try again.', 'error'); });
     });
     g('spList').addEventListener('click', function(e){
