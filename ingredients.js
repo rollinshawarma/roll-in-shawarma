@@ -88,14 +88,41 @@
     if (!s || (item && item.category === 'Deal Selections')) return [];
     return ADDON_SETS[s] ? ADDON_SETS[s].filter(function(k){ return ADDONS[k]; }) : [];
   }
+  // Paid add-ons can be taken more than once (2x white sauce): the list
+  // repeats the key, up to ADD_MAX of each. The checkout caps it the same way.
+  var ADD_MAX = 5;
+  function addCount(keys, k){ return (keys || []).filter(function(x){ return x === k; }).length; }
   function cleanAdd(item, keys){
-    var allowed = addonsFor(item);
+    var allowed = addonsFor(item), out = [];
     keys = Array.isArray(keys) ? keys : [];
-    return allowed.filter(function(k){ return keys.indexOf(k) !== -1; });
+    allowed.forEach(function(k){ for (var n = Math.min(ADD_MAX, addCount(keys, k)); n > 0; n--) out.push(k); });
+    return out;
+  }
+  // Click on an add-on: the row or chip toggles; "+" / "−" add or take one.
+  function addStep(keys, el){
+    keys = (keys || []).slice();
+    var k = el.getAttribute('data-addon'), step = el.getAttribute('data-addon-step'), at = keys.indexOf(k);
+    if (step === '1') { if (addCount(keys, k) < ADD_MAX) keys.push(k); }
+    else if (step === '-1') { if (at !== -1) keys.splice(at, 1); }
+    else if (at !== -1) keys = keys.filter(function(x){ return x !== k; });
+    else keys.push(k);
+    return keys;
+  }
+  // After redrawing, put focus back on the same control (or the row).
+  function addFocus(box, el){
+    if (!box || !el) return;
+    var k = el.getAttribute('data-addon'), step = el.getAttribute('data-addon-step');
+    var t = (step && box.querySelector('[data-addon="' + k + '"][data-addon-step="' + step + '"]:not(:disabled)')) ||
+      box.querySelector('[data-addon="' + k + '"][data-addon-step="1"]:not(:disabled)') || box.querySelector('[data-addon="' + k + '"]');
+    if (t) t.focus();
   }
   function addPrice(keys){ return Math.round((keys || []).reduce(function(s, k){ return s + (ADDONS[k] ? ADDONS[k].price : 0); }, 0) * 100) / 100; }
   function addLabel(k){ var a = ADDONS[k]; if (a.ticket) return a.ticket; return '+ ' + (k === 'extra_sauce' || k === 'double_protein' || k === 'extra_falafel' || k === 'extra_white' ? a.label : 'Add ' + a.label.toLowerCase()); }
-  function addNote(keys){ return (keys || []).filter(function(k){ return ADDONS[k]; }).map(addLabel).join(', '); }
+  function addNote(keys){
+    var seen = [];
+    (keys || []).forEach(function(k){ if (ADDONS[k] && seen.indexOf(k) === -1) seen.push(k); });
+    return seen.map(function(k){ var n = addCount(keys, k); return addLabel(k) + (n > 1 ? ' \u00d7' + n : ''); }).join(', ');
+  }
   function cleanNote(s){ return String(s || '').replace(/[\u0000-\u001f\u007f]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, NOTE_MAX); }
   // Everything that makes a cart line different from a plain one.
   function custom(item, c){
@@ -120,13 +147,24 @@
       '<div class="ing-head"><span class="ing-title">Add-ons</span><span class="ing-hint">Optional</span></div>' +
       '<div class="ing-add-list" role="group" aria-label="Add-ons">' +
       list.map(function(k){
-        var on = added.indexOf(k) !== -1, a = ADDONS[k];
-        return '<button type="button" class="ing-add' + (on ? ' is-on' : '') + '" data-addon="' + k + '" aria-pressed="' + on + '" aria-label="' + esc(a.label) + ', add ' + money(a.price) + (on ? ', added' : '') + '">' +
+        var n = addCount(added, k), a = ADDONS[k];
+        if (!n) return '<button type="button" class="ing-add" data-addon="' + k + '" aria-label="' + esc(a.label) + ', add ' + money(a.price) + '">' +
           '<span class="ing-add-pic">' + picHtml(a) + '</span>' +
           '<span class="ing-add-name">' + esc(a.label) + '</span>' +
           '<span class="ing-add-price">+' + money(a.price) + '</span>' +
-          '<span class="ing-add-tick" aria-hidden="true">' + (on ? '\u2713' : '+') + '</span>' +
+          '<span class="ing-add-tick" aria-hidden="true">+</span>' +
         '</button>';
+        // Added: a "− 2 +" stepper so customers can take more than one.
+        return '<div class="ing-add is-on" role="group" aria-label="' + esc(a.label) + '">' +
+          '<span class="ing-add-pic">' + picHtml(a) + '</span>' +
+          '<span class="ing-add-name">' + esc(a.label) + (n > 1 ? '<small class="ing-add-each">' + money(a.price) + ' each</small>' : '') + '</span>' +
+          '<span class="ing-add-price">+' + money(a.price * n) + '</span>' +
+          '<span class="ing-step">' +
+            '<button type="button" class="ing-step-btn" data-addon="' + k + '" data-addon-step="-1" aria-label="' + (n === 1 ? 'Remove ' + esc(a.label) : 'One less ' + esc(a.label)) + '">' + (n === 1 ? '\u2715' : '\u2212') + '</button>' +
+            '<span class="ing-step-n" aria-live="polite" aria-label="' + n + ' added">' + n + '</span>' +
+            '<button type="button" class="ing-step-btn" data-addon="' + k + '" data-addon-step="1" aria-label="One more ' + esc(a.label) + '"' + (n >= ADD_MAX ? ' disabled' : '') + '>+</button>' +
+          '</span>' +
+        '</div>';
       }).join('') + '</div></div>';
   }
   function noteHtml(value){
@@ -150,6 +188,13 @@
       '.ing-add-price{color:var(--ing-muted,#6e6e73);font-weight:600;font-size:.95em}' +
       '.ing-add-tick{width:30px;height:30px;border-radius:50%;display:flex;align-items:center;justify-content:center;flex:none;font-weight:800;border:1.5px solid var(--ing-line,#e3e3e8);color:var(--ing-ink,#1d1d1f)}' +
       '.ing-add.is-on .ing-add-tick{background:var(--ing-accent,#d62d20);border-color:var(--ing-accent,#d62d20);color:var(--ing-accent-ink,#fff)}' +
+      'div.ing-add{cursor:default}' +
+      '.ing-add-each{display:block;font-weight:500;font-size:.82em;color:var(--ing-muted,#6e6e73)}' +
+      '.ing-step{display:flex;align-items:center;gap:4px;flex:none}' +
+      '.ing-step-btn{width:36px;height:36px;min-width:36px;min-height:36px;padding:0;border-radius:50%;border:1.5px solid var(--ing-accent,#d62d20);background:var(--ing-card,#fff);color:var(--ing-accent,#d62d20);font:inherit;font-size:18px;font-weight:800;line-height:1;display:flex;align-items:center;justify-content:center;cursor:pointer;-webkit-tap-highlight-color:transparent}' +
+      '.ing-step-btn[data-addon-step="1"]{background:var(--ing-accent,#d62d20);color:var(--ing-accent-ink,#fff)}' +
+      '.ing-step-btn:disabled{opacity:.35;cursor:not-allowed}' +
+      '.ing-step-n{min-width:24px;text-align:center;font-weight:800;font-variant-numeric:tabular-nums}' +
       '.ing-chip.is-extra .ing-pic{box-shadow:inset 0 0 0 1.5px var(--ing-line,#e3e3e8);background:transparent;border:1.5px dashed var(--ing-line,#c7c7cc);box-sizing:border-box}' +
       '.ing-chip.is-extra .ing-badge{background:var(--ing-card,#fff);color:var(--ing-ink,#1d1d1f);box-shadow:0 0 0 1.5px var(--ing-line,#c7c7cc);width:auto;padding:0 6px;border-radius:11px;right:auto;left:calc(50% + 10px);font-size:11px}' +
       '.ing-chip.is-extra.is-added .ing-pic{border-style:solid;border-color:var(--ing-accent,#d62d20)}' +
@@ -234,7 +279,7 @@
     ING: ING, included: included, clean: clean, note: note, noLabel: noLabel,
     chipsHtml: chipsHtml, toggle: toggle,
     ready: function(){ return optionsReady; }, reload: loadOptions, apply: applyOptions,
-    ADDONS: ADDONS, addonsFor: addonsFor, cleanAdd: cleanAdd, addPrice: addPrice, addNote: addNote,
+    ADDONS: ADDONS, addonsFor: addonsFor, cleanAdd: cleanAdd, addPrice: addPrice, addNote: addNote, addStep: addStep, addFocus: addFocus, addCount: addCount, ADD_MAX: ADD_MAX,
     addonsHtml: addonsHtml, noteHtml: noteHtml, cleanNote: cleanNote, custom: custom, lineKey: lineKey, summary: summary,
     // True when the item has anything to customize (included, add-ons).
     customizable: function(item){ return included(item).length > 0 || addonsFor(item).length > 0; },
