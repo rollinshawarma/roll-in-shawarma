@@ -3180,8 +3180,6 @@
       document.getElementById('todayDate').textContent = dateStr;
       document.getElementById('homeWhoName').textContent = currentEmployee.name;
       document.getElementById('homeDate').textContent = dateStr;
-      loadSiteBanner();
-      document.getElementById('tabBannerBtn').classList.remove('hidden');
       loadMyWeek();
       document.querySelector('.nav-link[data-tab="clock"]').addEventListener('click', loadMyWeek);
       loadSupplies();
@@ -3215,6 +3213,9 @@
         loadKitchenAnalytics('today');
         loadPromotions();
         document.querySelector('.nav-link[data-tab="promotions"]').addEventListener('click', woLoad);
+        // Website banner: managers and admins only (security-pack-3.sql enforces it on the server too).
+        loadSiteBanner();
+        document.getElementById('tabBannerBtn').classList.remove('hidden');
         document.getElementById('tabHiringBtn').classList.remove('hidden');
         document.querySelector('.nav-link[data-tab="hiring"]').addEventListener('click', hrLoad);
         hrLoad();
