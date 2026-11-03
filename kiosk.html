@@ -15,7 +15,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
 <script src="deals.js?v=20261022"></script>
-<script src="ingredients.js"></script>
+<script src="ingredients.js?v=20261103"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js" integrity="sha384-0RsG1yo/crf/1Qc14sho26SXXOTngNCjgJw7fuvXBt9W/OChF/Ijx+aUuBDqQwEk" crossorigin="anonymous"></script>
 <style>
   :root{
@@ -2255,7 +2255,7 @@
       }
       var item = itemsById[ingPending.itemId];
       if (chip) ingPending.removed = RI.clean(item, RI.toggle(ingPending.removed, chip.getAttribute('data-ing')));
-      else if (ad) ingPending.added = RI.cleanAdd(item, RI.toggle(ingPending.added, ad.getAttribute('data-addon')));
+      else if (ad) ingPending.added = RI.cleanAdd(item, RI.addStep(ingPending.added, ad));
       else return;
       renderIngChips();
     });
