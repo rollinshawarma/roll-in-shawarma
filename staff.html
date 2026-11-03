@@ -1059,87 +1059,111 @@
   .cf-ans-group dt{ color:var(--muted, #6e6e73); }
   .cf-ans-group dd{ margin:0; font-weight:600; }
   .cf-ans-group dd.flag{ color:#b3261e; }
-  /* Menu studio */
-  .mn-sync{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; background:#fff; border:1px solid #e6e6eb; border-radius:14px; padding:12px 14px; margin-bottom:12px; font-size:14px; }
-  .mn-sync.need{ border-color:#f2c46b; background:#fff8ea; }
-  .mn-sync b{ font-weight:700; }
-  .mn-sync > span:first-child{ flex:1 1 320px; }
-  .mn-sync .sp{ display:none; }
-  .mn-sync button{ width:auto; }
-  .mn-tabs{ margin-bottom:12px; flex-wrap:wrap; }
-  .mn-bar{ display:flex; align-items:flex-start; gap:10px; justify-content:space-between; margin-bottom:12px; }
-  .mn-bar > button{ width:auto; flex:none; }
-  .mn-cats{ display:flex; flex-wrap:wrap; gap:6px; }
-  .mn-cats button{ width:auto; min-height:0; padding:7px 12px; border-radius:999px; background:#fff; border:1px solid #e3e3e8; color:var(--ink); font-size:13px; font-weight:600; }
+  /* Menu */
+  .mn-head{ display:flex; align-items:flex-start; justify-content:space-between; gap:12px; flex-wrap:wrap; }
+  .mn-head .page-head{ margin-bottom:0; }
+  .mn-head .hint{ margin-bottom:12px; }
+  .mn-head-acts{ margin-top:22px; }
+  .mn-head-acts{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .mn-head-acts button{ width:auto; }
+  .mn-sq{ font-size:12.5px; font-weight:600; color:var(--muted); padding:6px 10px; border-radius:999px; background:#f2f2f6; white-space:nowrap; }
+  .mn-sq.ok{ color:#146c3a; background:rgba(31,138,76,.1); }
+  .mn-sq.bad{ color:#8a5a00; background:#fff3d6; cursor:pointer; }
+  .mn-tools{ display:flex; gap:8px; align-items:center; margin-bottom:10px; flex-wrap:wrap; }
+  .mn-tools input{ min-width:200px; }
+  .mn-tools input{ margin:0; flex:1; }
+  .mn-tools button{ width:auto; flex:none; }
+  .mn-tools button[aria-pressed="true"]{ background:#1d1d1f; color:#fff; border-color:#1d1d1f; }
+  .mn-cats{ display:flex; gap:6px; overflow-x:auto; padding-bottom:4px; margin-bottom:6px; scrollbar-width:none; }
+  .mn-cats::-webkit-scrollbar{ display:none; }
+  .mn-cats button{ width:auto; flex:none; min-height:0; padding:7px 13px; border-radius:999px; background:#fff; border:1px solid #e3e3e8; color:var(--ink); font-size:13px; font-weight:600; }
   .mn-cats button.on{ background:#1d1d1f; color:#fff; border-color:#1d1d1f; }
-  .mn-cat-h{ font-family:var(--display); font-size:20px; font-weight:700; margin:18px 0 8px; display:flex; align-items:center; gap:8px; }
-  .mn-cat-h small{ font-family:inherit; font-size:12.5px; color:var(--muted); font-weight:500; }
-  .mn-row{ display:grid; grid-template-columns:auto 52px minmax(0, 1fr) auto auto; gap:12px; align-items:center; background:#fff; border:1px solid #e6e6eb; border-radius:14px; padding:8px 12px 8px 8px; margin-bottom:6px; }
-  .mn-row.off{ opacity:.6; }
-  .mn-thumb{ width:52px; height:52px; border-radius:10px; background:#f2f2f6; overflow:hidden; }
+  .mn-cat-h{ font-family:var(--display); font-size:19px; font-weight:700; color:var(--ink); margin:18px 0 8px; }
+  .mn-rows{ background:#fff; border:1px solid #e6e6eb; border-radius:16px; overflow:hidden; }
+  .mn-item{ display:flex; align-items:center; gap:12px; padding:10px 14px 10px 10px; border-bottom:1px solid #eeeef2; }
+  .mn-item:last-child{ border-bottom:0; }
+  .mn-open{ flex:1; min-width:0; display:flex; align-items:center; gap:12px; background:none; border:0; padding:0; text-align:left; justify-content:flex-start; color:var(--ink); font-weight:400; border-radius:10px; }
+  .mn-open:hover{ transform:none; }
+  .mn-open:hover .mn-nm{ text-decoration:underline; }
+  .mn-thumb{ width:52px; height:52px; border-radius:10px; background:#f2f2f6; overflow:hidden; flex:none; }
   .mn-thumb img{ width:100%; height:100%; object-fit:cover; display:block; }
-  .mn-nm{ font-weight:600; font-size:15px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .mn-sub{ font-size:12.5px; color:var(--muted); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
-  .mn-tags{ display:flex; gap:4px; flex-wrap:wrap; margin-top:4px; }
-  .mn-tags .ad-chip{ margin:0; font-size:11px; padding:2px 8px; }
-  .mn-price{ font-weight:700; font-variant-numeric:tabular-nums; text-align:right; }
-  .mn-row .btn-ghost{ width:auto; }
-  .mn-mv{ display:flex; flex-direction:column; gap:2px; }
-  .mn-mv button{ width:26px; height:20px; padding:0; min-height:0; border-radius:6px; background:#f2f2f6; border:0; color:var(--ink); font-size:10px; }
+  .mn-txt{ min-width:0; }
+  .mn-nm{ font-weight:600; font-size:15px; }
+  .mn-nm small{ color:var(--muted); font-weight:500; font-size:13px; }
+  .mn-sum{ font-size:12.5px; color:var(--muted); margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .mn-tag{ display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px; margin-left:6px; vertical-align:1px; }
+  .mn-tag.out{ background:#fdecea; color:#b3261e; }
+  .mn-tag.sec{ background:#efe7ff; color:#5b2bb5; }
+  .mn-item.is-out .mn-nm, .mn-item.is-out .mn-thumb{ opacity:.55; }
+  .mn-money{ display:flex; align-items:center; gap:4px; }
+  .mn-money span{ color:var(--muted); font-weight:600; }
+  .mn-money input{ margin:0; }
+  .mn-item .mn-money{ width:104px; flex:none; }
+  .mn-item .mn-money input{ text-align:right; padding:8px 10px; font-weight:700; font-variant-numeric:tabular-nums; }
+  .mn-item .switch{ transform:scale(.85); }
+  .mn-mv{ display:flex; gap:4px; flex:none; }
+  .mn-mv button{ width:36px; height:36px; padding:0; min-height:0; border-radius:10px; background:#f2f2f6; border:0; color:var(--ink); font-size:12px; }
   .mn-mv button:disabled{ opacity:.25; }
-  .mn-edit{ padding:18px; border:2px solid #1d1d1f; }
-  .mn-edit-head{ display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; }
-  .mn-edit-head h3{ margin:0; font-size:18px; }
-  .mn-edit-head button{ width:auto; }
-  .mn-edit-grid{ display:grid; grid-template-columns:200px minmax(0, 1fr); gap:18px; }
-  .mn-photo{ display:flex; flex-direction:column; gap:8px; }
-  .mn-photo-box{ width:100%; aspect-ratio:1; border-radius:14px; background:#f2f2f6 center/cover no-repeat; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:13px; border:1px dashed #d2d2d7; }
-  .mn-photo-box span{ background:rgba(255,255,255,.85); border-radius:999px; padding:3px 10px; font-size:12px; }
-  .mn-photo-box span:empty{ display:none; }
-  .mn-photo input[type=text]{ margin:0; font-size:13px; }
-  .mn-up{ text-align:center; cursor:pointer; width:100%; }
-  .mn-fields input, .mn-fields textarea{ margin-bottom:0; }
-  .mn-fields .row2{ row-gap:12px; }
-  .mn-fields textarea{ width:100%; font:inherit; font-size:15px; padding:10px 12px; border:1px solid var(--line); border-radius:10px; resize:vertical; }
-  .mn-money2{ display:grid; grid-template-columns:1fr 1fr; gap:10px; }
-  .mn-checks{ display:flex; flex-wrap:wrap; gap:10px 20px; margin-top:12px; }
-  .mn-checks small{ font-weight:400; color:var(--muted); }
-  .mn-opts{ margin-top:12px; font-size:13px; color:var(--muted); background:#f7f7f9; border-radius:10px; padding:10px 12px; }
-  .mn-opts:empty{ display:none; }
-  .mn-edit-acts{ display:flex; align-items:center; gap:16px; margin-top:14px; }
-  .mn-edit-acts .btn-primary{ width:auto; padding-left:24px; padding-right:24px; }
-  .mn-edit-acts .iv-link, .mn-group-acts .iv-link{ background:none; border:0; width:auto; min-height:0; padding:4px; font-size:13.5px; font-weight:600; color:var(--muted); }
-  .mn-edit-acts .iv-link.danger{ color:#c4271b; }
-  .mn-add-row{ display:flex; gap:8px; align-items:center; padding:12px; }
-  .mn-add-row input[type=text]{ flex:1; margin:0; }
-  .mn-add-row select{ margin:0; width:auto; }
-  .mn-add-row button{ width:auto; }
-  .mn-arow{ display:grid; grid-template-columns:40px minmax(0, 1.2fr) 110px minmax(0, 1.3fr) 150px auto; gap:8px; align-items:center; background:#fff; border:1px solid #e6e6eb; border-radius:14px; padding:8px 12px; margin-bottom:6px; }
-  .mn-arow.off{ opacity:.55; }
-  .mn-arow input, .mn-arow select{ margin:0; min-height:38px; padding:7px 10px; font-size:14px; }
-  .mn-arow .mn-used{ grid-column:2 / -1; font-size:12px; color:var(--muted); margin-top:-2px; }
-  .mn-pic{ width:36px; height:36px; border-radius:50%; background:#f2f2f6; display:flex; align-items:center; justify-content:center; overflow:hidden; }
-  .mn-pic img{ width:120%; height:auto; }
-  .mn-irow{ grid-template-columns:40px minmax(0, 1fr) 190px auto; }
-  .mn-group{ background:#fff; border:1px solid #e6e6eb; border-radius:16px; padding:16px; margin-bottom:12px; }
-  .mn-group.off{ opacity:.6; }
-  .mn-group-top{ display:grid; grid-template-columns:minmax(0, 1.2fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1fr) auto; gap:8px; align-items:end; }
-  .mn-group-top input, .mn-group-top select{ margin:0; }
-  .mn-group-top label{ font-size:12px; }
-  .mn-applies{ font-size:12.5px; color:var(--muted); margin:8px 0 10px; }
-  .mn-applies b{ color:var(--ink); font-weight:600; }
-  .mn-chipset{ margin-top:8px; }
-  .mn-chipset .lbl{ font-size:12px; font-weight:700; color:var(--muted); text-transform:uppercase; letter-spacing:.05em; margin-bottom:6px; }
-  .mn-chipset .chips{ display:flex; flex-wrap:wrap; gap:6px; }
-  .mn-chipset .chips button{ width:auto; min-height:0; padding:6px 11px; border-radius:999px; background:#fff; border:1.5px dashed #c7c7cc; color:var(--muted); font-size:13px; font-weight:600; }
-  .mn-chipset .chips button.on{ border-style:solid; border-color:#1f8a4c; background:rgba(31,138,76,.1); color:#146c3a; }
-  .mn-group-acts{ display:flex; gap:12px; align-items:center; margin-top:12px; }
-  .mn-group-acts button{ width:auto; }
-  @media (max-width:760px){
-    .mn-edit-grid{ grid-template-columns:1fr; } .mn-photo{ flex-direction:row; flex-wrap:wrap; } .mn-photo-box{ width:110px; } .mn-photo input[type=text]{ flex:1; min-width:160px; }
-    .mn-row{ grid-template-columns:auto 44px minmax(0, 1fr) auto; } .mn-row .btn-ghost{ grid-column:3 / -1; justify-self:start; } .mn-thumb{ width:44px; height:44px; }
-    .mn-arow, .mn-irow{ grid-template-columns:40px 1fr 1fr; } .mn-arow > input:first-of-type{ grid-column:2 / -1; } .mn-arow .mn-used{ grid-column:1 / -1; }
-    .mn-group-top{ grid-template-columns:1fr 1fr; } .mn-bar{ flex-direction:column; }
+  .mn-restore{ width:auto; flex:none; }
+  .mn-scrim{ position:fixed; inset:0; background:rgba(0,0,0,.35); z-index:900; }
+  .mn-drawer, .mn-modal{ position:fixed; z-index:901; background:#fff; display:flex; flex-direction:column; box-shadow:0 10px 40px rgba(0,0,0,.25); }
+  .mn-drawer{ top:0; right:0; bottom:0; width:min(480px, 100vw); }
+  .mn-drawer form{ display:flex; flex-direction:column; height:100%; min-height:0; }
+  .mn-modal{ top:50%; left:50%; transform:translate(-50%, -50%); width:min(560px, calc(100vw - 24px)); max-height:calc(100vh - 40px); border-radius:18px; }
+  .mn-dh{ display:flex; align-items:center; justify-content:space-between; padding:16px 18px; border-bottom:1px solid #eeeef2; }
+  .mn-dh h3{ margin:0; font-size:18px; color:var(--ink); }
+  .mn-x{ width:36px; height:36px; padding:0; min-height:0; border-radius:50%; background:#f2f2f6; color:var(--ink); font-size:22px; font-weight:400; }
+  .mn-db{ flex:1; overflow-y:auto; padding:16px 18px; }
+  .mn-db h4{ font-size:15px; margin:20px 0 4px; color:var(--ink); }
+  .mn-df{ display:flex; align-items:center; gap:8px; padding:12px 18px; border-top:1px solid #eeeef2; }
+  .mn-df .sp{ flex:1; }
+  .mn-df button{ width:auto; }
+  .mn-df .btn-primary{ padding-left:26px; padding-right:26px; }
+  .mn-link{ background:none; border:0; width:auto; min-height:0; padding:4px 0; font-size:13px; font-weight:600; color:var(--muted); text-decoration:underline; }
+  .mn-link:hover{ transform:none; }
+  .mn-link.danger{ color:#c4271b; }
+  .mn-ph-row{ display:flex; gap:14px; align-items:center; margin-bottom:16px; }
+  .mn-ph{ width:96px; height:96px; border-radius:14px; background:#f2f2f6; overflow:hidden; flex:none; }
+  .mn-ph img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .mn-ph-acts{ display:flex; flex-direction:column; align-items:flex-start; gap:6px; }
+  .mn-ph-acts small{ font-size:12px; color:var(--muted); }
+  .mn-up{ cursor:pointer; width:auto; }
+  .mn-2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  .mn-2 select{ min-height:44px; margin-bottom:14px; }
+  .mn-2 .mn-money{ margin-bottom:14px; }
+  .mn-seg{ display:inline-flex; background:#e9e9ee; border-radius:999px; padding:3px; }
+  .mn-seg button{ width:auto; background:none; border:0; color:#3a3a3c; padding:8px 16px; border-radius:999px; font-size:13.5px; font-weight:600; min-height:0; }
+  .mn-seg button.on{ background:#fff; color:var(--ink); box-shadow:0 1px 3px rgba(0,0,0,.12); }
+  .mn-seg button.on[data-v="0"]{ color:#b3261e; }
+  .mn-sub{ font-size:13px; font-weight:700; color:var(--ink); margin:12px 0 6px; }
+  .mn-sub small{ font-weight:400; color:var(--muted); margin-left:6px; }
+  .mn-chips{ display:flex; flex-wrap:wrap; gap:6px; }
+  .mn-chips button{ width:auto; min-height:0; padding:7px 12px; border-radius:999px; background:#fff; border:1.5px solid #d8d8de; color:#6e6e73; font-size:13px; font-weight:600; }
+  .mn-chips button:hover{ transform:none; border-color:#a1a1a6; }
+  .mn-chips button.on{ border-color:#1f8a4c; background:rgba(31,138,76,.1); color:#146c3a; }
+  .mn-chips button.on::before{ content:"\2713"; margin-right:2px; }
+  .mn-chips button.new{ border-style:dashed; color:var(--ink); }
+  .mn-chips form{ display:flex; gap:6px; align-items:center; flex-wrap:wrap; }
+  .mn-chips form input{ margin:0; width:150px; padding:7px 10px; font-size:13px; }
+  .mn-chips form .mn-money input{ width:70px; }
+  .mn-chips form button{ padding:7px 12px; }
+  .mn-shared{ margin-top:12px; white-space:normal; font-weight:500; line-height:1.4; align-items:flex-start; }
+  .mn-more{ margin-top:18px; border-top:1px solid #eeeef2; padding-top:12px; }
+  .mn-more summary{ cursor:pointer; font-size:13.5px; font-weight:600; color:var(--ink); margin-bottom:12px; }
+  .mn-xrow{ display:flex; align-items:center; gap:8px; padding:8px 0; border-bottom:1px solid #f0f0f3; }
+  .mn-xrow input[type=text]{ flex:1; margin:0; padding:8px 10px; }
+  .mn-xrow .mn-money{ width:96px; flex:none; }
+  .mn-xrow .mn-money input{ text-align:right; padding:8px 10px; }
+  .mn-xrow.off input{ opacity:.5; }
+  .mn-xrow .switch{ transform:scale(.8); }
+  @media (max-width:600px){
+    .mn-item{ flex-wrap:wrap; gap:8px 10px; }
+    .mn-open{ flex:1 1 100%; }
+    .mn-item .mn-money{ margin-left:62px; }
+    .mn-item .switch{ margin-left:auto; }
+    .mn-drawer{ width:100vw; }
+    .mn-2{ grid-template-columns:1fr; gap:0; }
+    .mn-head-acts{ margin-top:0; margin-bottom:12px; } .mn-tools input{ flex-basis:100%; } .mn-tools #mnAddBtn{ margin-left:auto; }
   }
 </style>
 </head>
@@ -1602,85 +1626,97 @@
     <div id="cfList"><p class="hint">Loading&hellip;</p></div>
   </div>
 
-<!-- MENU STUDIO (menu-studio.sql) -->
+<!-- MENU (menu-studio.sql) -->
   <div class="tab-panel hidden" id="panelMenustudio">
-    <div class="page-head">
-      <h2>Menu</h2>
-      <p class="hint">Change the menu without code. Items, prices, photos, add-ons and what&rsquo;s included show on the website, drive-up QR page and kiosk right away, and the checkout charges these prices. Sold out stays in its own tab.</p>
-    </div>
-    <div class="mn-sync" id="mnSync"></div>
-    <div class="mn-tabs sc-range" id="mnTabs" role="tablist">
-      <button type="button" data-v="items" class="on">Items</button>
-      <button type="button" data-v="addons">Add-ons</button>
-      <button type="button" data-v="groups">Item types</button>
-      <button type="button" data-v="ings">Ingredients</button>
-    </div>
-    <div id="mnMsg"></div>
-
-    <div id="mnItems">
-      <div class="mn-bar"><div class="mn-cats" id="mnCats"></div><button type="button" class="btn-primary btn-small" id="mnNewItem">+ New item</button></div>
-      <div class="card mn-edit hidden" id="mnEdit">
-        <div class="mn-edit-head"><h3 id="mnEditTitle">New item</h3><button type="button" class="btn-ghost btn-small" id="mnEditClose">Close</button></div>
-        <form id="mnItemForm" autocomplete="off">
-          <div class="mn-edit-grid">
-            <div class="mn-photo">
-              <div class="mn-photo-box" id="mnPhotoBox"><span>No photo</span></div>
-              <label class="btn-ghost btn-small mn-up">Upload photo<input type="file" id="mnPhotoFile" accept="image/jpeg,image/png,image/webp" hidden></label>
-              <input type="text" id="mnPhoto" placeholder="or a link / file name (menu-bowl.jpg)" maxlength="400" aria-label="Photo link">
-            </div>
-            <div class="mn-fields">
-              <div class="row2">
-                <div><label for="mnCat">Category *</label><input type="text" id="mnCat" list="mnCatList" maxlength="40"><datalist id="mnCatList"></datalist></div>
-                <div><label for="mnName">Name *</label><input type="text" id="mnName" maxlength="80"></div>
-                <div><label for="mnVar">Size / option <small>(optional)</small></label><input type="text" id="mnVar" maxlength="40" placeholder="e.g. Large"></div>
-                <div class="mn-money2">
-                  <div><label for="mnPrice">Price ($) *</label><input type="number" id="mnPrice" min="0" step="0.01"></div>
-                  <div><label for="mnCombo">Combo add ($)</label><input type="number" id="mnCombo" min="0" step="0.01" placeholder="none"></div>
-                </div>
-              </div>
-              <label for="mnDesc" style="margin-top:12px">Description</label>
-              <textarea id="mnDesc" rows="2" maxlength="400" placeholder="What's in it, in one or two lines"></textarea>
-              <div class="mn-checks">
-                <label class="iv-chk"><input type="checkbox" id="mnAvail" checked> Available now <small>(untick = sold out)</small></label>
-                <label class="iv-chk"><input type="checkbox" id="mnSecret"> Secret menu (Platinum members only)</label>
-              </div>
-              <div class="mn-opts" id="mnOptsNote"></div>
-            </div>
-          </div>
-          <div id="mnEditMsg"></div>
-          <div class="mn-edit-acts">
-            <button type="submit" class="btn-primary btn-small" id="mnSave">Save item</button>
-            <button type="button" class="iv-link danger" id="mnArchive">Hide from menu</button>
-          </div>
-        </form>
+    <div class="mn-head">
+      <div class="page-head">
+        <h2>Menu</h2>
+        <p class="hint">Changes show on the website, drive-up QR page and kiosk right away.</p>
       </div>
-      <div id="mnList"><p class="hint">Loading&hellip;</p></div>
+      <div class="mn-head-acts">
+        <span class="mn-sq" id="mnSq" aria-live="polite"></span>
+      </div>
     </div>
+    <div class="mn-tools">
+      <input type="search" id="mnSearch" placeholder="Search the menu" aria-label="Search the menu">
+      <button type="button" class="btn-ghost btn-small" id="mnReorder" aria-pressed="false">Reorder</button>
+      <button type="button" class="btn-ghost btn-small" id="mnExtrasBtn">Extras &amp; prices</button>
+      <button type="button" class="btn-primary btn-small" id="mnAddBtn">+ Add item</button>
+    </div>
+    <div class="mn-cats" id="mnCats"></div>
+    <div id="mnMsg"></div>
+    <div id="mnList"><p class="hint">Loading&hellip;</p></div>
 
-    <div id="mnAddons" class="hidden">
-      <p class="hint">Paid extras customers can add. The price here is what the checkout charges. Pick which items offer each one in <b>Item types</b>.</p>
-      <form class="card mn-add-row" id="mnNewAddon" autocomplete="off">
-        <input type="text" id="mnAName" placeholder="New add-on, e.g. Garlic sauce" maxlength="40" aria-label="Add-on name">
-        <div class="iv-money"><span>$</span><input type="number" id="mnAPrice" min="0" step="0.01" placeholder="0.00" aria-label="Price"></div>
-        <button type="submit" class="btn-primary btn-small">Add</button>
+    <div class="mn-scrim hidden" id="mnScrim"></div>
+
+    <aside class="mn-drawer hidden" id="mnDrawer" role="dialog" aria-modal="true" aria-labelledby="mnDTitle">
+      <form id="mnForm" autocomplete="off" novalidate>
+        <header class="mn-dh"><h3 id="mnDTitle">Edit item</h3><button type="button" class="mn-x" data-close aria-label="Close">&times;</button></header>
+        <div class="mn-db">
+          <div class="mn-ph-row">
+            <div class="mn-ph" id="mnPh"><img id="mnPhImg" alt=""></div>
+            <div class="mn-ph-acts">
+              <label class="btn-ghost btn-small mn-up">Change photo<input type="file" id="mnFile" accept="image/jpeg,image/png,image/webp" hidden></label>
+              <button type="button" class="mn-link hidden" id="mnPhReset">Use the standard photo</button>
+              <small id="mnPhNote"></small>
+            </div>
+          </div>
+          <label for="mnName">Name</label>
+          <input type="text" id="mnName" maxlength="80">
+          <div class="mn-2">
+            <div>
+              <label for="mnPrice">Price</label>
+              <div class="mn-money"><span>$</span><input type="number" id="mnPrice" min="0" step="0.01" inputmode="decimal"></div>
+            </div>
+            <div>
+              <label for="mnCat">Category</label>
+              <select id="mnCat"></select>
+              <input type="text" id="mnCatNew" class="hidden" placeholder="New category name" maxlength="40" aria-label="New category name">
+            </div>
+          </div>
+          <label for="mnDesc">Description</label>
+          <textarea id="mnDesc" rows="2" maxlength="400" placeholder="One or two lines about the dish"></textarea>
+          <div class="mn-seg" id="mnAvail" role="group" aria-label="Availability"><button type="button" data-v="1">On sale</button><button type="button" data-v="0">Sold out</button></div>
+
+          <div id="mnChoices">
+            <h4>What customers can change</h4>
+            <div class="mn-sub">Comes with <small>Customers can take these off</small></div>
+            <div class="mn-chips" id="mnIng"></div>
+            <div class="mn-sub">Extras <small>Paid add-ons for this item</small></div>
+            <div class="mn-chips" id="mnExt"></div>
+            <label class="iv-chk mn-shared hidden" id="mnSharedWrap"><input type="checkbox" id="mnShared" checked> <span id="mnSharedTxt"></span></label>
+          </div>
+
+          <details class="mn-more">
+            <summary>More options</summary>
+            <div class="mn-2">
+              <div><label for="mnVar">Size name</label><input type="text" id="mnVar" maxlength="40" placeholder="e.g. Large"></div>
+              <div><label for="mnCombo">Combo add price</label><div class="mn-money"><span>$</span><input type="number" id="mnCombo" min="0" step="0.01" placeholder="No combo"></div></div>
+            </div>
+            <label class="iv-chk"><input type="checkbox" id="mnSecret"> Secret menu (Platinum members only)</label>
+          </details>
+          <div id="mnFMsg"></div>
+        </div>
+        <footer class="mn-df">
+          <button type="button" class="mn-link danger" id="mnRemove">Remove from menu</button>
+          <span class="sp"></span>
+          <button type="button" class="btn-ghost btn-small" data-close>Cancel</button>
+          <button type="submit" class="btn-primary btn-small" id="mnSave">Save</button>
+        </footer>
       </form>
-      <div id="mnAddonList"></div>
-    </div>
+    </aside>
 
-    <div id="mnGroups" class="hidden">
-      <p class="hint">Each item type sets what&rsquo;s included (customers can take it off) and which add-ons it offers, for all items in a category, or only the ones with a word in their name.</p>
-      <button type="button" class="btn-primary btn-small" id="mnNewGroup" style="width:auto;margin-bottom:12px">+ New item type</button>
-      <div id="mnGroupList"></div>
-    </div>
-
-    <div id="mnIngs" class="hidden">
-      <p class="hint">Ingredients customers can take off (&ldquo;No onions&rdquo;). Pick which items include each one in <b>Item types</b>.</p>
-      <form class="card mn-add-row" id="mnNewIng" autocomplete="off">
-        <input type="text" id="mnIName" placeholder="New ingredient, e.g. Garlic mayo" maxlength="40" aria-label="Ingredient name">
-        <select id="mnIImg" aria-label="Picture"></select>
-        <button type="submit" class="btn-primary btn-small">Add</button>
-      </form>
-      <div id="mnIngList"></div>
+    <div class="mn-modal hidden" id="mnExtras" role="dialog" aria-modal="true" aria-labelledby="mnXTitle">
+      <header class="mn-dh"><h3 id="mnXTitle">Extras &amp; prices</h3><button type="button" class="mn-x" data-xclose aria-label="Close">&times;</button></header>
+      <div class="mn-db">
+        <p class="hint">The price here is what customers pay, everywhere. Switch one off to stop offering it.</p>
+        <div id="mnXList"></div>
+        <h4>Comes-with items</h4>
+        <p class="hint">The things customers can take off, like &ldquo;No onions&rdquo;.</p>
+        <div id="mnIList"></div>
+        <div id="mnXMsg"></div>
+      </div>
+      <footer class="mn-df"><span class="sp"></span><button type="button" class="btn-primary btn-small" data-xclose>Done</button></footer>
     </div>
   </div>
 
@@ -3994,337 +4030,323 @@
     btn.addEventListener('click', function(){ showTab(btn.dataset.tab); });
   });
 
-  // ---------------- MENU STUDIO (menu-studio.sql) ----------------
-  var mn = { d:null, view:'items', cat:'', editId:null, loaded:false, busy:false };
-  var MN_PICS = ['ing-cheese.webp','ing-chicken.webp','ing-cilantro.svg','ing-cucumber.webp','ing-falafel.svg','ing-fries.webp','ing-lettuce.webp','ing-onion.webp','ing-peppers.webp','ing-pickle.svg','ing-salad.webp','ing-tomato.webp','ing-white-sauce.svg'];
-  function mnMsg(el, text, ok){ el = typeof el === 'string' ? document.getElementById(el) : el; el.innerHTML = text ? '<div class="msg ' + (ok ? 'ok' : 'error') + '">' + esc(text) + '</div>' : ''; }
-  function mnErr(e){ var m = (e && (e.message || e.error_description)) || String(e || 'Something went wrong'); if (/menu_admin_|function .* does not exist|schema cache/i.test(m)) m = 'The Menu tools aren’t set up yet. Run menu-studio.sql in Supabase → SQL Editor.'; return m; }
-  function mnRpc(fn, args){
-    return sb.rpc(fn, args || {}).then(function(r){ if (r.error) throw r.error; mn.d = r.data; mnRender(); return r.data; });
-  }
-  function mnLoad(){
-    return mnRpc('menu_admin_get').then(function(){ mn.loaded = true; mnMsg('mnMsg', ''); }, function(e){ mnMsg('mnMsg', mnErr(e)); document.getElementById('mnList').innerHTML = ''; });
-  }
-  function mnMoney(n){ return '$' + Number(n || 0).toFixed(2); }
-  function mnImgSrc(s){ return s || ''; }
-  // The photo the website shows when no photo is set: item-<name>.jpg, else the category photo.
+  // ---------------- MENU (menu-studio.sql) ----------------
+  // One list + one edit panel. Prices and on/off change right in the list;
+  // tap an item for its photo, details and "Comes with" / "Extras" chips.
+  // Square is synced automatically a few seconds after item changes.
+  var mn = { d:null, cat:'', q:'', reorder:false, item:null, group:null, ing:[], ext:[], avail:true, photo:'', sq:'', sqTimer:null, sqBusy:false };
   var MN_CAT_PICS = { 'Shawarma':'menu-shawarma.jpg', 'Frankie Rolls':'menu-frankie.jpg', 'Bowls':'menu-bowl.jpg', 'Tacos':'menu-tacos.jpg', 'Loaded Fries':'menu-fries.jpg', 'Sides':'menu-samosas.jpg', 'Kulfi Ice Cream':'item-almond-kulfi.jpg', 'Drinks':'menu-falooda.jpg' };
+  var MN_NO_CHOICES = /^(Deal Selections|Combo Add-ons)$/;
+  function mnEl(id){ return document.getElementById(id); }
+  function mnMsg(el, text, ok){ el = typeof el === 'string' ? mnEl(el) : el; if (!el) return; el.innerHTML = text ? '<div class="msg ' + (ok ? 'ok' : 'error') + '">' + esc(text) + '</div>' : ''; if (ok && text) { clearTimeout(el._t); el._t = setTimeout(function(){ el.innerHTML = ''; }, 4000); } }
+  function mnErr(e){ var m = (e && (e.message || e.error_description)) || String(e || 'Something went wrong'); if (/menu_admin_|does not exist|schema cache/i.test(m)) m = 'The Menu tools aren’t set up yet. Run menu-studio.sql in Supabase → SQL Editor.'; return m; }
+  function mnRpc(fn, args){ return sb.rpc(fn, args || {}).then(function(r){ if (r.error) throw r.error; mn.d = r.data; return r.data; }); }
+  function mnLoad(){ return mnRpc('menu_admin_get').then(function(){ mnRender(); mnSqShow(); }, function(e){ mnMsg('mnMsg', mnErr(e)); mnEl('mnList').innerHTML = ''; }); }
   function mnSlug(n){ return String(n || '').toLowerCase().replace(/[()]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
-  function mnThumb(i){
-    var src = i.image_url || ('item-' + mnSlug(i.name) + '.jpg'), fb = MN_CAT_PICS[i.category] || '';
-    return '<div class="mn-thumb"><img src="' + esc(src) + '" alt="" loading="lazy" data-fb="' + esc(fb) + '" onerror="mnImgErr(this)"></div>';
-  }
-  window.mnImgErr = function(img){ var fb = img.getAttribute('data-fb'); if (fb && img.getAttribute('src') !== fb) { img.removeAttribute('data-fb'); img.src = fb; } else { img.onerror = null; img.remove(); } };
+  function mnStdPhoto(name){ return 'item-' + mnSlug(name) + '.jpg'; }
+  window.mnImgErr = function(img){ var fb = img.getAttribute('data-fb'); if (fb && img.getAttribute('src') !== fb) { img.removeAttribute('data-fb'); img.src = fb; } else { img.onerror = null; img.style.visibility = 'hidden'; } };
+  function mnImg(src, cat){ return '<img src="' + esc(src) + '" alt="" loading="lazy" data-fb="' + esc(MN_CAT_PICS[cat] || '') + '" onerror="mnImgErr(this)">'; }
   function mnCats(){ var seen = {}, out = []; (mn.d.items || []).forEach(function(i){ if (!i.archived && !seen[i.category]) { seen[i.category] = 1; out.push(i.category); } }); return out; }
-  function mnGroupFor(item){
-    var n = String(item.name || '').toLowerCase(), c = String(item.category || '').toLowerCase();
-    var gs = (mn.d.groups || []).filter(function(g){ return g.active !== false; }).sort(function(a, b){ return (a.name_has ? 0 : 1) - (b.name_has ? 0 : 1); });
-    for (var i = 0; i < gs.length; i++) { var g = gs[i];
-      if (String(g.category || '').toLowerCase() !== c) continue;
-      if (g.name_has && n.indexOf(String(g.name_has).toLowerCase()) === -1) continue;
-      if (g.name_not && n.indexOf(String(g.name_not).toLowerCase()) !== -1) continue;
-      return g; }
-    return null;
+  function mnActiveGroups(){ return (mn.d.groups || []).filter(function(g){ return g.active !== false; }).sort(function(a, b){ return (a.name_has ? 0 : 1) - (b.name_has ? 0 : 1); }); }
+  function mnGroupFor(cat, name){
+    var n = String(name || '').toLowerCase(), c = String(cat || '').toLowerCase();
+    return mnActiveGroups().find(function(g){ return String(g.category || '').toLowerCase() === c && (!g.name_has || n.indexOf(String(g.name_has).toLowerCase()) !== -1) && (!g.name_not || n.indexOf(String(g.name_not).toLowerCase()) === -1); }) || null;
   }
-  function mnLabel(list, key){ var x = (list || []).find(function(o){ return o.key === key; }); return x ? x.label : key; }
+  function mnGroupNames(g){ var out = []; (mn.d.items || []).forEach(function(i){ if (!i.archived && (mnGroupFor(i.category, i.name) || {}).key === g.key && out.indexOf(i.name) === -1) out.push(i.name); }); return out; }
+  function mnLabel(list, key){ var x = (list || []).find(function(o){ return o.key === key; }); return x ? x.label : ''; }
+  function mnPrice(n){ return Number(n || 0).toFixed(2); }
 
+  // ---- list
   function mnRender(){
     if (!mn.d) return;
-    var need = mn.d.needs_sync || 0, s = document.getElementById('mnSync');
-    s.className = 'mn-sync' + (need ? ' need' : '');
-    s.innerHTML = need
-      ? '<span>⚠️ <b>' + need + ' item' + (need === 1 ? '' : 's') + '</b> changed since the last Square sync. The website already charges the new prices; sync so Square reports and the card reader match.</span><span class="sp"></span><button type="button" class="btn-primary btn-small" id="mnSyncBtn">Sync to Square</button>'
-      : '<span>✅ Square is up to date with this menu.</span><span class="sp"></span><button type="button" class="btn-ghost btn-small" id="mnSyncBtn">Sync again</button>';
-    document.getElementById('mnSyncBtn').onclick = mnSync;
-    var b = document.getElementById('navMenuBadge'); b.textContent = need || ''; b.classList.toggle('hidden', !need);
-    if (mn.view === 'items') mnRenderItems();
-    if (mn.view === 'addons') mnRenderAddons();
-    if (mn.view === 'groups') mnRenderGroups();
-    if (mn.view === 'ings') mnRenderIngs();
+    var cats = mnCats(), items = mn.d.items || [], removed = items.filter(function(i){ return i.archived; });
+    if (mn.cat && mn.cat !== '__removed' && cats.indexOf(mn.cat) === -1) mn.cat = '';
+    if (mn.cat === '__removed' && !removed.length) mn.cat = '';
+    var c = mnEl('mnCats');
+    c.innerHTML = '<button type="button" data-c=""' + (!mn.cat ? ' class="on"' : '') + '>All</button>' + cats.map(function(x){ return '<button type="button" data-c="' + esc(x) + '"' + (mn.cat === x ? ' class="on"' : '') + '>' + esc(x) + '</button>'; }).join('') +
+      (removed.length ? '<button type="button" data-c="__removed"' + (mn.cat === '__removed' ? ' class="on"' : '') + '>Removed (' + removed.length + ')</button>' : '');
+    c.querySelectorAll('button').forEach(function(b){ b.onclick = function(){ mn.cat = b.dataset.c; mnRender(); }; });
+    var q = mn.q.toLowerCase(), html = '';
+    var sections = mn.cat === '__removed' ? ['__removed'] : mn.cat ? [mn.cat] : cats;
+    sections.forEach(function(cat){
+      var rows = cat === '__removed' ? removed : items.filter(function(i){ return !i.archived && i.category === cat; });
+      if (q) rows = rows.filter(function(i){ return (i.name + ' ' + (i.variant_name || '') + ' ' + (i.description || '')).toLowerCase().indexOf(q) !== -1; });
+      if (!rows.length) return;
+      html += '<div class="mn-cat-h">' + (cat === '__removed' ? 'Removed from the menu' : esc(cat)) + '</div><div class="mn-rows">';
+      rows.forEach(function(i, ix){ html += mnRow(i, cat === '__removed', ix, rows.length); });
+      html += '</div>';
+    });
+    var list = mnEl('mnList');
+    list.innerHTML = html || '<p class="hint">' + (q ? 'Nothing matches “' + esc(mn.q) + '”.' : 'No items yet. Tap <b>+ Add item</b>.') + '</p>';
+    list.querySelectorAll('.mn-item').forEach(mnWireRow);
+  }
+  function mnSummary(i){
+    if (MN_NO_CHOICES.test(i.category)) return i.description || '';
+    var g = mnGroupFor(i.category, i.name), parts = [];
+    if (g && g.ingredients.length) parts.push('Comes with ' + g.ingredients.map(function(k){ return mnLabel(mn.d.ingredients, k); }).filter(Boolean).join(', ').toLowerCase());
+    if (g && g.addons.length) parts.push(g.addons.length + ' extra' + (g.addons.length === 1 ? '' : 's'));
+    return parts.length ? parts.join(' · ') : (i.description || '');
+  }
+  function mnRow(i, isRemoved, ix, n){
+    var left = mn.reorder && !isRemoved && !mn.q
+      ? '<div class="mn-mv"><button type="button" data-mv="-1" aria-label="Move ' + esc(i.name) + ' up"' + (ix === 0 ? ' disabled' : '') + '>▲</button><button type="button" data-mv="1" aria-label="Move ' + esc(i.name) + ' down"' + (ix === n - 1 ? ' disabled' : '') + '>▼</button></div>' : '';
+    var tags = (!i.is_available && !isRemoved ? '<span class="mn-tag out">Sold out</span>' : '') + (i.platinum_only ? '<span class="mn-tag sec">Secret</span>' : '');
+    var right = isRemoved ? '<button type="button" class="btn-ghost btn-small mn-restore" data-restore>Put back</button>'
+      : mn.reorder ? '' : '<div class="mn-money"><span>$</span><input type="number" min="0" step="0.01" inputmode="decimal" value="' + mnPrice(i.price) + '" data-price aria-label="Price of ' + esc(i.name) + '"></div>' +
+        '<button type="button" class="switch" role="switch" data-avail aria-checked="' + (i.is_available ? 'true' : 'false') + '" aria-label="' + esc(i.name) + ' on sale"></button>';
+    return '<div class="mn-item' + (!i.is_available ? ' is-out' : '') + '" data-id="' + i.id + '">' + left +
+      '<button type="button" class="mn-open" data-open><span class="mn-thumb">' + mnImg(i.image_url || mnStdPhoto(i.name), i.category) + '</span>' +
+      '<span class="mn-txt"><div class="mn-nm">' + esc(i.name) + (i.variant_name ? ' <small>· ' + esc(i.variant_name) + '</small>' : '') + tags + '</div>' +
+      '<div class="mn-sum">' + esc(mnSummary(i)) + '</div></span></button>' + right + '</div>';
+  }
+  function mnItemPayload(i, over){
+    var p = { id:i.id, category:i.category, name:i.name, variant_name:i.variant_name || '', description:i.description || '', price:String(i.price),
+      combo_upcharge: i.combo_upcharge == null ? '' : String(i.combo_upcharge), image_url:i.image_url || '', is_available:!!i.is_available, platinum_only:!!i.platinum_only };
+    Object.keys(over || {}).forEach(function(k){ p[k] = over[k]; });
+    return p;
+  }
+  function mnWireRow(r){
+    var id = r.dataset.id, i = mn.d.items.find(function(x){ return x.id === id; });
+    r.querySelector('[data-open]').onclick = function(){ mnOpen(i); };
+    r.querySelectorAll('[data-mv]').forEach(function(b){ b.onclick = function(){ mnMove(i, +b.dataset.mv); }; });
+    var pr = r.querySelector('[data-price]');
+    if (pr) pr.addEventListener('change', function(){
+      var v = parseFloat(pr.value);
+      if (isNaN(v) || v < 0) { pr.value = mnPrice(i.price); return mnMsg('mnMsg', 'Enter a price for ' + i.name + '.'); }
+      if (Math.abs(v - Number(i.price)) < 0.005) { pr.value = mnPrice(i.price); return; }
+      pr.disabled = true;
+      mnRpc('menu_admin_save_item', { p: mnItemPayload(i, { price:String(v) }) }).then(function(){ mnRender(); mnMsg('mnMsg', i.name + ' is now $' + mnPrice(v) + '.', true); mnSqQueue(); },
+        function(e){ pr.disabled = false; pr.value = mnPrice(i.price); mnMsg('mnMsg', mnErr(e)); });
+    });
+    var sw = r.querySelector('[data-avail]');
+    if (sw) sw.onclick = function(){
+      var on = sw.getAttribute('aria-checked') !== 'true'; sw.setAttribute('aria-checked', on ? 'true' : 'false'); sw.disabled = true;
+      mnRpc('menu_admin_save_item', { p: mnItemPayload(i, { is_available:on }) }).then(function(){ mnRender(); mnMsg('mnMsg', i.name + (on ? ' is on sale.' : ' is sold out.'), true); },
+        function(e){ sw.disabled = false; sw.setAttribute('aria-checked', on ? 'false' : 'true'); mnMsg('mnMsg', mnErr(e)); });
+    };
+    var rs = r.querySelector('[data-restore]');
+    if (rs) rs.onclick = function(){ rs.disabled = true; mnRpc('menu_admin_archive', { p_id:id, p_archived:false }).then(function(){ mnRender(); mnMsg('mnMsg', i.name + ' is back on the menu.', true); mnSqQueue(); }, function(e){ rs.disabled = false; mnMsg('mnMsg', mnErr(e)); }); };
+  }
+  function mnMove(i, dir){
+    var rows = mn.d.items.filter(function(x){ return !x.archived && x.category === i.category; });
+    var ix = rows.indexOf(i), to = ix + dir; if (to < 0 || to >= rows.length) return;
+    rows.splice(ix, 1); rows.splice(to, 0, i);
+    mnRpc('menu_admin_order', { p_ids: rows.map(function(r){ return r.id; }) }).then(mnRender, function(e){ mnMsg('mnMsg', mnErr(e)); });
   }
 
-  // ---- Items
-  function mnRenderItems(){
-    var cats = mnCats(), items = mn.d.items || [];
-    var hidden = items.filter(function(i){ return i.archived; });
-    if (mn.cat && mn.cat !== '__hidden' && cats.indexOf(mn.cat) === -1) mn.cat = '';
-    var cb = '<button type="button" data-c=""' + (mn.cat === '' ? ' class="on"' : '') + '>All</button>' + cats.map(function(c){
-      return '<button type="button" data-c="' + esc(c) + '"' + (mn.cat === c ? ' class="on"' : '') + '>' + esc(c) + '</button>'; }).join('') +
-      (hidden.length ? '<button type="button" data-c="__hidden"' + (mn.cat === '__hidden' ? ' class="on"' : '') + '>Hidden (' + hidden.length + ')</button>' : '');
-    var catsEl = document.getElementById('mnCats'); catsEl.innerHTML = cb;
-    catsEl.querySelectorAll('button').forEach(function(x){ x.onclick = function(){ mn.cat = x.dataset.c; mnRenderItems(); }; });
-    document.getElementById('mnCatList').innerHTML = cats.map(function(c){ return '<option value="' + esc(c) + '">'; }).join('');
-    var html = '';
-    var show = mn.cat === '__hidden' ? ['__hidden'] : (mn.cat ? [mn.cat] : cats);
-    show.forEach(function(c){
-      var rows = c === '__hidden' ? hidden : items.filter(function(i){ return !i.archived && i.category === c; });
-      if (!rows.length) return;
-      html += '<div class="mn-cat-h">' + (c === '__hidden' ? 'Hidden from the menu' : esc(c)) + ' <small>' + rows.length + ' item' + (rows.length === 1 ? '' : 's') + '</small></div>';
-      rows.forEach(function(i, ix){
-        var tags = [];
-        if (!i.is_available && !i.archived) tags.push('<span class="ad-chip" style="background:#fdecea;color:#b3261e">Sold out</span>');
-        if (i.platinum_only) tags.push('<span class="ad-chip" style="background:#efe7ff;color:#5b2bb5">Secret menu</span>');
-        if (i.combo_upcharge != null) tags.push('<span class="ad-chip">Combo +' + mnMoney(i.combo_upcharge) + '</span>');
-        if (!i.archived && !i.square_synced && Number(i.price) > 0) tags.push('<span class="ad-chip" style="background:#fff3d6;color:#8a5a00">Not in Square yet</span>');
-        var g = c === '__hidden' ? null : mnGroupFor(i);
-        if (g) tags.push('<span class="ad-chip">' + esc(g.label) + '</span>');
-        html += '<div class="mn-row' + (i.archived || !i.is_available ? ' off' : '') + '" data-id="' + i.id + '">' +
-          (c === '__hidden' ? '<span></span>' : '<div class="mn-mv"><button type="button" data-mv="-1" aria-label="Move up"' + (ix === 0 ? ' disabled' : '') + '>▲</button><button type="button" data-mv="1" aria-label="Move down"' + (ix === rows.length - 1 ? ' disabled' : '') + '>▼</button></div>') +
-          mnThumb(i) +
-          '<div style="min-width:0"><div class="mn-nm">' + esc(i.name) + (i.variant_name ? ' <span style="color:var(--muted);font-weight:500">· ' + esc(i.variant_name) + '</span>' : '') + '</div>' +
-          (i.description ? '<div class="mn-sub">' + esc(i.description) + '</div>' : '') + (tags.length ? '<div class="mn-tags">' + tags.join('') + '</div>' : '') + '</div>' +
-          '<div class="mn-price">' + mnMoney(i.price) + '</div>' +
-          (c === '__hidden' ? '<button type="button" class="btn-ghost btn-small" data-restore="1">Put back</button>' : '<button type="button" class="btn-ghost btn-small" data-edit="1">Edit</button>') + '</div>';
-      });
+  // ---- edit panel
+  function mnShowPanel(id, show){
+    mnEl(id).classList.toggle('hidden', !show);
+    mnEl('mnScrim').classList.toggle('hidden', !show && mnEl('mnDrawer').classList.contains('hidden') && mnEl('mnExtras').classList.contains('hidden'));
+    document.body.style.overflow = show ? 'hidden' : '';
+  }
+  function mnCloseAll(){ ['mnDrawer', 'mnExtras'].forEach(function(id){ mnEl(id).classList.add('hidden'); }); mnEl('mnScrim').classList.add('hidden'); document.body.style.overflow = ''; }
+  function mnPhotoShow(){
+    var name = mnEl('mnName').value.trim(), cat = mnCatValue(), img = mnEl('mnPhImg');
+    img.style.visibility = ''; img.setAttribute('data-fb', MN_CAT_PICS[cat] || ''); img.onerror = function(){ mnImgErr(img); };
+    img.src = mn.photo || (name ? mnStdPhoto(name) : (MN_CAT_PICS[cat] || ''));
+    if (!img.getAttribute('src')) img.style.visibility = 'hidden';
+    mnEl('mnPhReset').classList.toggle('hidden', !mn.photo);
+    mnEl('mnPhNote').textContent = mn.photo ? 'Your own photo' : 'Standard photo';
+  }
+  function mnCatValue(){ var s = mnEl('mnCat').value; return s === '__new' ? mnEl('mnCatNew').value.trim() : s; }
+  function mnSetAvail(on){ mn.avail = on; mnEl('mnAvail').querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', (b.dataset.v === '1') === on); }); }
+  function mnOpen(i){
+    mn.item = i || null;
+    var cats = mnCats(), cat = i ? i.category : (mn.cat && mn.cat !== '__removed' ? mn.cat : (cats[0] || ''));
+    mnEl('mnDTitle').textContent = i ? i.name : 'Add an item';
+    mnEl('mnCat').innerHTML = cats.map(function(c){ return '<option' + (c === cat ? ' selected' : '') + '>' + esc(c) + '</option>'; }).join('') + '<option value="__new">+ New category…</option>';
+    mnEl('mnCatNew').classList.add('hidden'); mnEl('mnCatNew').value = '';
+    if (!cats.length) { mnEl('mnCat').value = '__new'; mnEl('mnCatNew').classList.remove('hidden'); }
+    mnEl('mnName').value = i ? i.name : '';
+    mnEl('mnPrice').value = i ? mnPrice(i.price) : '';
+    mnEl('mnDesc').value = i && i.description || '';
+    mnEl('mnVar').value = i && i.variant_name || '';
+    mnEl('mnCombo').value = i && i.combo_upcharge != null ? mnPrice(i.combo_upcharge) : '';
+    mnEl('mnSecret').checked = !!(i && i.platinum_only);
+    mnEl('mnRemove').classList.toggle('hidden', !i || i.archived);
+    mn.photo = i && i.image_url || '';
+    mnSetAvail(i ? !!i.is_available : true);
+    mnEl('mnSave').textContent = i ? 'Save' : 'Add to menu';
+    mnMsg('mnFMsg', '');
+    mnPhotoShow();
+    mnLoadChoices(true);
+    mnShowPanel('mnDrawer', true);
+    setTimeout(function(){ mnEl(i ? 'mnPrice' : 'mnName').focus(); }, 60);
+  }
+  // Choices come from the item type that covers this item (shared by similar items).
+  function mnLoadChoices(reset){
+    var cat = mnCatValue(), name = mnEl('mnName').value.trim();
+    var hide = MN_NO_CHOICES.test(cat);
+    mnEl('mnChoices').classList.toggle('hidden', hide);
+    var g = mnGroupFor(cat, name);
+    if (reset || (g && g.key) !== (mn.group && mn.group.key)) { mn.group = g; mn.ing = g ? g.ingredients.slice() : []; mn.ext = g ? g.addons.slice() : []; }
+    mnChips();
+  }
+  function mnChips(){
+    var ings = (mn.d.ingredients || []).filter(function(x){ return x.active !== false || mn.ing.indexOf(x.key) !== -1; });
+    var exts = (mn.d.addons || []).filter(function(x){ return x.active || mn.ext.indexOf(x.key) !== -1; });
+    mnEl('mnIng').innerHTML = ings.map(function(x){ return '<button type="button" data-k="' + esc(x.key) + '" aria-pressed="' + (mn.ing.indexOf(x.key) !== -1) + '" class="' + (mn.ing.indexOf(x.key) !== -1 ? 'on' : '') + '">' + esc(x.label) + '</button>'; }).join('') + '<button type="button" class="new" data-new>+ New</button>';
+    mnEl('mnExt').innerHTML = exts.map(function(x){ return '<button type="button" data-k="' + esc(x.key) + '" aria-pressed="' + (mn.ext.indexOf(x.key) !== -1) + '" class="' + (mn.ext.indexOf(x.key) !== -1 ? 'on' : '') + '">' + esc(x.label) + ' $' + (x.price_cents / 100).toFixed(2) + '</button>'; }).join('') + '<button type="button" class="new" data-new>+ New extra</button>';
+    [['mnIng', 'ing'], ['mnExt', 'ext']].forEach(function(p){
+      mnEl(p[0]).querySelectorAll('button[data-k]').forEach(function(b){ b.onclick = function(){
+        var arr = mn[p[1]], k = b.dataset.k, at = arr.indexOf(k);
+        if (at === -1) arr.push(k); else arr.splice(at, 1);
+        b.classList.toggle('on', at === -1); b.setAttribute('aria-pressed', at === -1);
+      }; });
+      mnEl(p[0]).querySelector('[data-new]').onclick = function(){ mnNewChip(p[1]); };
     });
-    var list = document.getElementById('mnList');
-    list.innerHTML = html || '<p class="hint">No items yet. Tap <b>+ New item</b>.</p>';
-    list.querySelectorAll('.mn-row').forEach(function(r){
-      var id = r.dataset.id;
-      r.querySelectorAll('[data-mv]').forEach(function(btn){ btn.onclick = function(){ mnMove(id, +btn.dataset.mv); }; });
-      var e = r.querySelector('[data-edit]'); if (e) e.onclick = function(){ mnOpenItem(id); };
-      var p = r.querySelector('[data-restore]'); if (p) p.onclick = function(){ p.disabled = true; mnRpc('menu_admin_archive', { p_id:id, p_archived:false }).then(function(){ mnMsg('mnMsg', 'Back on the menu.', true); }, function(er){ p.disabled = false; mnMsg('mnMsg', mnErr(er)); }); };
+    var name = mnEl('mnName').value.trim(), others = mn.group ? mnGroupNames(mn.group).filter(function(n){ return n !== name && (!mn.item || n !== mn.item.name); }) : [];
+    mnEl('mnSharedWrap').classList.toggle('hidden', !others.length);
+    if (others.length) mnEl('mnSharedTxt').textContent = 'Same choices for ' + others.slice(0, 4).join(', ') + (others.length > 4 ? ' and ' + (others.length - 4) + ' more' : '') + ' (untick to change only this item)';
+  }
+  function mnNewChip(which){
+    var box = mnEl(which === 'ing' ? 'mnIng' : 'mnExt'), btn = box.querySelector('[data-new]');
+    var f = document.createElement('form'); f.className = 'mn-newchip';
+    f.innerHTML = '<input type="text" maxlength="40" placeholder="' + (which === 'ing' ? 'e.g. Garlic mayo' : 'e.g. Garlic sauce') + '" aria-label="Name">' +
+      (which === 'ext' ? '<div class="mn-money"><span>$</span><input type="number" min="0" step="0.01" placeholder="0.00" aria-label="Price"></div>' : '') +
+      '<button type="submit" class="btn-primary btn-small">Add</button>';
+    btn.replaceWith(f); f.querySelector('input').focus();
+    f.onsubmit = function(ev){
+      ev.preventDefault(); ev.stopPropagation();
+      var name = f.querySelector('input').value.trim(); if (!name) return;
+      var fn, p;
+      if (which === 'ing') { fn = 'menu_admin_save_ingredient'; p = { label:name }; }
+      else { var pr = parseFloat(f.querySelector('input[type=number]').value); if (isNaN(pr) || pr < 0) return mnMsg('mnFMsg', 'Enter the extra’s price.'); fn = 'menu_admin_save_addon'; p = { label:name, price_cents:Math.round(pr * 100), ticket:'+ ' + name, active:true }; }
+      var before = (which === 'ing' ? mn.d.ingredients : mn.d.addons).map(function(x){ return x.key; });
+      f.querySelector('button').disabled = true;
+      mnRpc(fn, { p:p }).then(function(){
+        var added = (which === 'ing' ? mn.d.ingredients : mn.d.addons).find(function(x){ return before.indexOf(x.key) === -1; });
+        if (added) mn[which].push(added.key);
+        mnChips(); mnMsg('mnFMsg', '');
+      }, function(e){ f.querySelector('button').disabled = false; mnMsg('mnFMsg', mnErr(e)); });
+    };
+  }
+  function mnSame(a, b){ return a.length === b.length && a.every(function(x, i){ return x === b[i]; }); }
+  function mnSaveChoices(cat, name){
+    if (MN_NO_CHOICES.test(cat)) return Promise.resolve();
+    var g = mn.group;
+    if (g && mnSame(g.ingredients, mn.ing) && mnSame(g.addons, mn.ext) && (mnGroupFor(cat, name) || {}).key === g.key) return Promise.resolve();
+    if (!g && !mn.ing.length && !mn.ext.length) return Promise.resolve();
+    var shared = !mnEl('mnSharedWrap').classList.contains('hidden') && mnEl('mnShared').checked;
+    var onlyMine = g && !shared && mnGroupNames(g).filter(function(n){ return n !== name; }).length > 0;
+    if (g && !onlyMine) return mnRpc('menu_admin_save_group', { p:{ key:g.key, label:g.label, category:g.category, name_has:g.name_has || '', name_not:g.name_not || '', ingredients:mn.ing, addons:mn.ext, active:true } });
+    // New choices just for this item, or the first ones for a category.
+    var catHasGroup = (mn.d.groups || []).some(function(x){ return String(x.category).toLowerCase() === cat.toLowerCase(); });
+    var p = catHasGroup || onlyMine ? { label:name, category:cat, name_has:name.toLowerCase(), ingredients:mn.ing, addons:mn.ext } : { label:cat, category:cat, ingredients:mn.ing, addons:mn.ext };
+    return mnRpc('menu_admin_save_group', { p:p }).catch(function(e){
+      if (!/already exists/.test(String(e && e.message))) throw e;
+      p.label = p.label + ' ' + Math.random().toString(36).slice(2, 5);
+      return mnRpc('menu_admin_save_group', { p:p });
     });
   }
-  function mnMove(id, dir){
-    var item = mn.d.items.find(function(i){ return i.id === id; }); if (!item) return;
-    var rows = mn.d.items.filter(function(i){ return !i.archived && i.category === item.category; });
-    var ix = rows.indexOf(item), to = ix + dir; if (to < 0 || to >= rows.length) return;
-    rows.splice(ix, 1); rows.splice(to, 0, item);
-    mnRpc('menu_admin_order', { p_ids: rows.map(function(r){ return r.id; }) }).catch(function(e){ mnMsg('mnMsg', mnErr(e)); });
-  }
-  function mnPhoto(v){
-    var box = document.getElementById('mnPhotoBox');
-    var dflt = !v && document.getElementById('mnName').value.trim();
-    box.style.backgroundImage = v ? 'url("' + String(mnImgSrc(v)).replace(/"/g, '%22') + '")'
-      : dflt ? 'url("item-' + mnSlug(dflt) + '.jpg"), url("' + (MN_CAT_PICS[document.getElementById('mnCat').value.trim()] || 'x.jpg') + '")' : '';
-    box.classList.toggle('has', !!v);
-    box.querySelector('span').textContent = v ? '' : dflt ? 'Website photo' : 'No photo';
-  }
-  function mnOpenItem(id){
-    var i = id ? mn.d.items.find(function(x){ return x.id === id; }) : null;
-    mn.editId = i ? i.id : null;
-    document.getElementById('mnEditTitle').textContent = i ? 'Edit ' + i.name : 'New item';
-    document.getElementById('mnCat').value = i ? i.category : (mn.cat && mn.cat !== '__hidden' ? mn.cat : '');
-    document.getElementById('mnName').value = i ? i.name : '';
-    document.getElementById('mnVar').value = i && i.variant_name || '';
-    document.getElementById('mnPrice').value = i ? Number(i.price).toFixed(2) : '';
-    document.getElementById('mnCombo').value = i && i.combo_upcharge != null ? Number(i.combo_upcharge).toFixed(2) : '';
-    document.getElementById('mnDesc').value = i && i.description || '';
-    document.getElementById('mnAvail').checked = i ? !!i.is_available : true;
-    document.getElementById('mnSecret').checked = i ? !!i.platinum_only : false;
-    document.getElementById('mnPhoto').value = i && i.image_url || '';
-    mnPhoto(i && i.image_url || '');
-    document.getElementById('mnArchive').classList.toggle('hidden', !i);
-    mnOptsNote();
-    mnMsg('mnEditMsg', '');
-    var ed = document.getElementById('mnEdit'); ed.classList.remove('hidden');
-    ed.scrollIntoView({ behavior:'smooth', block:'start' });
-    setTimeout(function(){ document.getElementById(i ? 'mnPrice' : 'mnCat').focus({ preventScroll:true }); }, 250);
-  }
-  function mnOptsNote(){
-    var g = mnGroupFor({ category: document.getElementById('mnCat').value.trim(), name: document.getElementById('mnName').value.trim() });
-    var el = document.getElementById('mnOptsNote');
-    if (!g) { el.innerHTML = document.getElementById('mnName').value.trim() ? 'No item type matches, so customers won’t see “Take off” or add-on choices for it. Add one in <b>Item types</b> if needed.' : ''; return; }
-    el.innerHTML = 'Item type <b>' + esc(g.label) + '</b>: includes ' + (g.ingredients && g.ingredients.length ? g.ingredients.map(function(k){ return esc(mnLabel(mn.d.ingredients, k)); }).join(', ') : 'nothing listed') +
-      '; add-ons ' + (g.addons && g.addons.length ? g.addons.map(function(k){ var a = mn.d.addons.find(function(x){ return x.key === k; }); return esc(a ? a.label + ' +$' + (a.price_cents / 100).toFixed(2) : k); }).join(', ') : 'none') + '.';
-  }
-  function mnSaveItem(ev){
+  function mnSave(ev){
     ev.preventDefault();
-    var btn = document.getElementById('mnSave'); if (btn.disabled) return;
-    var price = document.getElementById('mnPrice').value, combo = document.getElementById('mnCombo').value;
-    var p = { id: mn.editId || '', category: document.getElementById('mnCat').value.trim(), name: document.getElementById('mnName').value.trim(),
-      variant_name: document.getElementById('mnVar').value.trim(), description: document.getElementById('mnDesc').value.trim(),
-      price: price === '' ? '' : String(price), combo_upcharge: combo === '' ? '' : String(combo),
-      image_url: document.getElementById('mnPhoto').value.trim(), is_available: document.getElementById('mnAvail').checked, platinum_only: document.getElementById('mnSecret').checked };
-    if (!p.category) return mnMsg('mnEditMsg', 'Choose a category.');
-    if (!p.name) return mnMsg('mnEditMsg', 'Give the item a name.');
-    if (p.price === '' || isNaN(+p.price) || +p.price < 0) return mnMsg('mnEditMsg', 'Enter a price.');
+    var btn = mnEl('mnSave'); if (btn.disabled) return;
+    var cat = mnCatValue(), name = mnEl('mnName').value.trim(), price = mnEl('mnPrice').value, combo = mnEl('mnCombo').value;
+    if (!name) return mnMsg('mnFMsg', 'Give the item a name.');
+    if (price === '' || isNaN(+price) || +price < 0) return mnMsg('mnFMsg', 'Enter a price.');
+    if (!cat) return mnMsg('mnFMsg', 'Choose a category.');
+    var p = { id: mn.item ? mn.item.id : '', category:cat, name:name, variant_name:mnEl('mnVar').value.trim(), description:mnEl('mnDesc').value.trim(),
+      price:String(price), combo_upcharge: combo === '' ? '' : String(combo), image_url:mn.photo, is_available:mn.avail, platinum_only:mnEl('mnSecret').checked };
+    var isNew = !mn.item;
     btn.disabled = true; btn.textContent = 'Saving…';
-    var wasNew = !mn.editId;
-    mnRpc('menu_admin_save_item', { p: p }).then(function(){
-      btn.disabled = false; btn.textContent = 'Save item';
-      document.getElementById('mnEdit').classList.add('hidden'); mn.editId = null;
-      mn.cat = p.category;
-      mnRenderItems();
-      mnMsg('mnMsg', (wasNew ? 'Added ' : 'Saved ') + p.name + '. It’s live on the website, drive-up page and kiosk.', true);
-    }, function(e){ btn.disabled = false; btn.textContent = 'Save item'; mnMsg('mnEditMsg', mnErr(e)); });
+    mnRpc('menu_admin_save_item', { p:p }).then(function(){ return mnSaveChoices(cat, name); }).then(function(){
+      btn.disabled = false; mnCloseAll(); mn.cat = mn.cat && mn.cat !== cat ? cat : mn.cat; mnRender();
+      mnMsg('mnMsg', (isNew ? name + ' is on the menu.' : 'Saved ' + name + '.'), true); mnSqQueue();
+    }).catch(function(e){ btn.disabled = false; btn.textContent = isNew ? 'Add to menu' : 'Save'; mnMsg('mnFMsg', mnErr(e)); });
   }
   function mnUpload(file){
     if (!file) return;
-    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return mnMsg('mnEditMsg', 'Use a JPG, PNG or WebP photo.');
-    if (file.size > 5 * 1024 * 1024) return mnMsg('mnEditMsg', 'That photo is over 5 MB. Use a smaller one.');
-    mnMsg('mnEditMsg', '');
-    var box = document.getElementById('mnPhotoBox'); box.classList.add('has'); box.style.opacity = '.5';
+    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return mnMsg('mnFMsg', 'Use a JPG, PNG or WebP photo.');
+    if (file.size > 5 * 1024 * 1024) return mnMsg('mnFMsg', 'That photo is over 5 MB. Use a smaller one.');
+    var ph = mnEl('mnPh'); ph.style.opacity = '.4'; mnEl('mnPhNote').textContent = 'Uploading…';
     var ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg';
     var path = 'items/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.' + ext;
-    sb.storage.from('menu-photos').upload(path, file, { contentType: file.type, upsert:false, cacheControl:'31536000' }).then(function(r){
-      box.style.opacity = '';
-      if (r.error) throw r.error;
-      var url = sb.storage.from('menu-photos').getPublicUrl(path).data.publicUrl;
-      document.getElementById('mnPhoto').value = url; mnPhoto(url);
-      mnMsg('mnEditMsg', 'Photo uploaded. Tap Save item to use it.', true);
-    }).catch(function(e){ box.style.opacity = ''; mnPhoto(document.getElementById('mnPhoto').value.trim()); mnMsg('mnEditMsg', 'Couldn’t upload the photo: ' + mnErr(e)); });
+    sb.storage.from('menu-photos').upload(path, file, { contentType:file.type, upsert:false, cacheControl:'31536000' }).then(function(r){
+      ph.style.opacity = ''; if (r.error) throw r.error;
+      mn.photo = sb.storage.from('menu-photos').getPublicUrl(path).data.publicUrl; mnPhotoShow(); mnMsg('mnFMsg', '');
+    }).catch(function(e){ ph.style.opacity = ''; mnPhotoShow(); mnMsg('mnFMsg', 'Couldn’t upload the photo: ' + mnErr(e)); });
   }
 
-  // ---- Add-ons
-  function mnUsedBy(field, key){ return (mn.d.groups || []).filter(function(g){ return (g[field] || []).indexOf(key) !== -1; }).map(function(g){ return g.label; }); }
-  function mnPicOpts(sel){ return '<option value="">No picture</option>' + MN_PICS.map(function(p){ return '<option value="' + p + '"' + (p === sel ? ' selected' : '') + '>' + p.replace(/^ing-|\.(webp|svg)$/g, '').replace(/-/g, ' ') + '</option>'; }).join('') + (sel && MN_PICS.indexOf(sel) === -1 ? '<option value="' + esc(sel) + '" selected>' + esc(sel) + '</option>' : ''); }
-  function mnPic(img){ return '<div class="mn-pic">' + (img ? '<img src="' + esc(img) + '" alt="" onerror="this.remove()">' : '') + '</div>'; }
-  function mnRenderAddons(){
-    var html = (mn.d.addons || []).map(function(a){
-      var used = mnUsedBy('addons', a.key);
-      return '<div class="mn-arow' + (a.active ? '' : ' off') + '" data-k="' + esc(a.key) + '">' + mnPic(a.img) +
-        '<input type="text" data-f="label" value="' + esc(a.label) + '" maxlength="40" aria-label="Name">' +
-        '<div class="iv-money" style="width:auto"><span>$</span><input type="number" data-f="price" min="0" step="0.01" value="' + (a.price_cents / 100).toFixed(2) + '" aria-label="Price"></div>' +
-        '<input type="text" data-f="ticket" value="' + esc(a.ticket || '') + '" maxlength="60" placeholder="Kitchen ticket text, e.g. + White sauce" aria-label="Kitchen ticket text">' +
-        '<select data-f="img" aria-label="Picture">' + mnPicOpts(a.img) + '</select>' +
-        '<label class="iv-chk"><input type="checkbox" data-f="active"' + (a.active ? ' checked' : '') + '> On</label>' +
-        '<div class="mn-used">' + (used.length ? 'Offered on: ' + used.map(esc).join(', ') : 'Not offered on any item type yet') + '</div></div>';
+  // ---- Extras & prices
+  function mnExtrasRender(){
+    mnEl('mnXList').innerHTML = (mn.d.addons || []).map(function(a){
+      return '<div class="mn-xrow' + (a.active ? '' : ' off') + '" data-k="' + esc(a.key) + '"><input type="text" data-f="label" value="' + esc(a.label) + '" maxlength="40" aria-label="Extra name">' +
+        '<div class="mn-money"><span>$</span><input type="number" data-f="price" min="0" step="0.01" value="' + (a.price_cents / 100).toFixed(2) + '" aria-label="Price of ' + esc(a.label) + '"></div>' +
+        '<button type="button" class="switch" role="switch" data-f="active" aria-checked="' + (a.active ? 'true' : 'false') + '" aria-label="Offer ' + esc(a.label) + '"></button></div>';
+    }).join('') || '<p class="hint">No extras yet. Add one from an item’s Extras.</p>';
+    mnEl('mnIList').innerHTML = (mn.d.ingredients || []).map(function(x){
+      return '<div class="mn-xrow' + (x.active === false ? ' off' : '') + '" data-k="' + esc(x.key) + '"><input type="text" data-f="label" value="' + esc(x.label) + '" maxlength="40" aria-label="Name">' +
+        '<button type="button" class="switch" role="switch" data-f="active" aria-checked="' + (x.active === false ? 'false' : 'true') + '" aria-label="Use ' + esc(x.label) + '"></button></div>';
     }).join('');
-    var el = document.getElementById('mnAddonList'); el.innerHTML = html || '<p class="hint">No add-ons yet.</p>';
-    el.querySelectorAll('.mn-arow').forEach(function(r){
-      r.querySelectorAll('[data-f]').forEach(function(inp){ inp.addEventListener('change', function(){ mnSaveAddonRow(r); }); });
-    });
+    mnEl('mnXList').querySelectorAll('.mn-xrow').forEach(function(r){ mnWireX(r, true); });
+    mnEl('mnIList').querySelectorAll('.mn-xrow').forEach(function(r){ mnWireX(r, false); });
   }
-  function mnSaveAddonRow(r){
-    var g = function(f){ return r.querySelector('[data-f="' + f + '"]'); };
-    var price = parseFloat(g('price').value);
-    if (isNaN(price) || price < 0) return mnMsg('mnMsg', 'Enter a price for the add-on.');
-    var p = { key: r.dataset.k, label: g('label').value.trim(), price_cents: Math.round(price * 100), ticket: g('ticket').value.trim(), img: g('img').value, active: g('active').checked };
-    r.style.opacity = '.6';
-    mnRpc('menu_admin_save_addon', { p: p }).then(function(){ mnMsg('mnMsg', 'Saved ' + p.label + '.', true); }, function(e){ r.style.opacity = ''; mnMsg('mnMsg', mnErr(e)); });
-  }
-
-  // ---- Ingredients
-  function mnRenderIngs(){
-    document.getElementById('mnIImg').innerHTML = mnPicOpts('');
-    var html = (mn.d.ingredients || []).map(function(i){
-      var used = mnUsedBy('ingredients', i.key);
-      return '<div class="mn-arow mn-irow' + (i.active === false ? ' off' : '') + '" data-k="' + esc(i.key) + '">' + mnPic(i.img) +
-        '<input type="text" data-f="label" value="' + esc(i.label) + '" maxlength="40" aria-label="Name">' +
-        '<select data-f="img" aria-label="Picture">' + mnPicOpts(i.img) + '</select>' +
-        '<label class="iv-chk"><input type="checkbox" data-f="active"' + (i.active === false ? '' : ' checked') + '> On</label>' +
-        '<div class="mn-used">' + (used.length ? 'Included in: ' + used.map(esc).join(', ') : 'Not in any item type yet') + '</div></div>';
-    }).join('');
-    var el = document.getElementById('mnIngList'); el.innerHTML = html || '<p class="hint">No ingredients yet.</p>';
-    el.querySelectorAll('.mn-arow').forEach(function(r){
-      r.querySelectorAll('[data-f]').forEach(function(inp){ inp.addEventListener('change', function(){
-        var g = function(f){ return r.querySelector('[data-f="' + f + '"]'); };
-        var p = { key: r.dataset.k, label: g('label').value.trim(), img: g('img').value, active: g('active').checked };
-        r.style.opacity = '.6';
-        mnRpc('menu_admin_save_ingredient', { p: p }).then(function(){ mnMsg('mnMsg', 'Saved ' + p.label + '.', true); }, function(e){ r.style.opacity = ''; mnMsg('mnMsg', mnErr(e)); });
-      }); });
-    });
-  }
-
-  // ---- Item types
-  function mnGroupCard(g, isNew){
-    var cats = mnCats();
-    var ing = g.ingredients || [], add = g.addons || [];
-    return '<div class="mn-group' + (g.active === false ? ' off' : '') + '" data-k="' + esc(g.key || '') + '">' +
-      '<div class="mn-group-top">' +
-        '<div><label>Name</label><input type="text" data-f="label" value="' + esc(g.label || '') + '" maxlength="40" placeholder="e.g. Wraps"></div>' +
-        '<div><label>Menu category</label><select data-f="category">' + (g.category && cats.indexOf(g.category) === -1 ? '<option>' + esc(g.category) + '</option>' : '') + '<option value="">Choose…</option>' + cats.map(function(c){ return '<option' + (c === g.category ? ' selected' : '') + '>' + esc(c) + '</option>'; }).join('') + '</select></div>' +
-        '<div><label>Only names with</label><input type="text" data-f="name_has" value="' + esc(g.name_has || '') + '" maxlength="30" placeholder="any"></div>' +
-        '<div><label>Skip names with</label><input type="text" data-f="name_not" value="' + esc(g.name_not || '') + '" maxlength="30" placeholder="none"></div>' +
-        (isNew ? '<span></span>' : '<label class="iv-chk"><input type="checkbox" data-f="active"' + (g.active === false ? '' : ' checked') + '> On</label>') +
-      '</div>' +
-      '<div class="mn-applies"></div>' +
-      '<div class="mn-chipset"><div class="lbl">Included (customers can take off)</div><div class="chips" data-set="ingredients">' +
-        (mn.d.ingredients || []).filter(function(i){ return i.active !== false || ing.indexOf(i.key) !== -1; }).map(function(i){ return '<button type="button" data-v="' + esc(i.key) + '" class="' + (ing.indexOf(i.key) !== -1 ? 'on' : '') + '">' + esc(i.label) + '</button>'; }).join('') + '</div></div>' +
-      '<div class="mn-chipset"><div class="lbl">Add-ons offered</div><div class="chips" data-set="addons">' +
-        (mn.d.addons || []).filter(function(a){ return a.active || add.indexOf(a.key) !== -1; }).map(function(a){ return '<button type="button" data-v="' + esc(a.key) + '" class="' + (add.indexOf(a.key) !== -1 ? 'on' : '') + '">' + esc(a.label) + ' +$' + (a.price_cents / 100).toFixed(2) + '</button>'; }).join('') + '</div></div>' +
-      '<div class="mn-gmsg"></div>' +
-      '<div class="mn-group-acts"><button type="button" class="btn-primary btn-small" data-save="1">' + (isNew ? 'Add item type' : 'Save') + '</button>' + (isNew ? '<button type="button" class="iv-link" data-cancel="1">Cancel</button>' : '') + '</div></div>';
-  }
-  function mnWireGroup(card){
-    var g = function(f){ return card.querySelector('[data-f="' + f + '"]'); };
-    function applies(){
-      var cat = g('category').value, has = g('name_has').value.trim().toLowerCase(), not = g('name_not').value.trim().toLowerCase();
-      var names = (mn.d.items || []).filter(function(i){ var n = i.name.toLowerCase(); return !i.archived && i.category === cat && (!has || n.indexOf(has) !== -1) && (!not || n.indexOf(not) === -1); })
-        .map(function(i){ return i.name; }).filter(function(n, ix, a){ return a.indexOf(n) === ix; });
-      card.querySelector('.mn-applies').innerHTML = !cat ? 'Choose a menu category.' : names.length ? 'Applies to ' + names.length + ': <b>' + names.slice(0, 8).map(esc).join(', ') + (names.length > 8 ? '…' : '') + '</b>' : 'No items match yet.';
+  function mnWireX(r, isExtra){
+    function save(){
+      var g = function(f){ return r.querySelector('[data-f="' + f + '"]'); };
+      var label = g('label').value.trim(), on = g('active').getAttribute('aria-checked') === 'true';
+      if (!label) return mnMsg('mnXMsg', 'Give it a name.');
+      var p = { key:r.dataset.k, label:label, active:on }, fn = 'menu_admin_save_ingredient';
+      var cur = (isExtra ? mn.d.addons : mn.d.ingredients).find(function(x){ return x.key === r.dataset.k; }) || {};
+      p.img = cur.img || '';
+      if (isExtra) {
+        var pr = parseFloat(g('price').value); if (isNaN(pr) || pr < 0) return mnMsg('mnXMsg', 'Enter a price.');
+        fn = 'menu_admin_save_addon'; p.price_cents = Math.round(pr * 100); p.ticket = cur.ticket || ('+ ' + label);
+        if (cur.label && cur.ticket === '+ ' + cur.label) p.ticket = '+ ' + label;
+      }
+      r.style.opacity = '.6';
+      mnRpc(fn, { p:p }).then(function(){ mnExtrasRender(); mnRender(); mnMsg('mnXMsg', 'Saved ' + label + '.', true); }, function(e){ r.style.opacity = ''; mnMsg('mnXMsg', mnErr(e)); });
     }
-    ['category', 'name_has', 'name_not'].forEach(function(f){ g(f).addEventListener('input', applies); g(f).addEventListener('change', applies); });
-    applies();
-    card.querySelectorAll('.chips button').forEach(function(b){ b.onclick = function(){ b.classList.toggle('on'); }; });
-    var cancel = card.querySelector('[data-cancel]'); if (cancel) cancel.onclick = function(){ card.remove(); };
-    card.querySelector('[data-save]').onclick = function(){
-      var btn = this, msg = card.querySelector('.mn-gmsg');
-      var pick = function(set){ return Array.prototype.map.call(card.querySelectorAll('[data-set="' + set + '"] button.on'), function(x){ return x.dataset.v; }); };
-      var p = { key: card.dataset.k, label: g('label').value.trim(), category: g('category').value, name_has: g('name_has').value.trim(), name_not: g('name_not').value.trim(),
-        ingredients: pick('ingredients'), addons: pick('addons') };
-      if (g('active')) p.active = g('active').checked;
-      if (!p.label) return mnMsg(msg, 'Give the item type a name.');
-      if (!p.category) return mnMsg(msg, 'Choose the menu category it covers.');
-      btn.disabled = true;
-      mnRpc('menu_admin_save_group', { p: p }).then(function(){ mnMsg('mnMsg', 'Saved ' + p.label + '. Customers see the new choices within a few minutes.', true); }, function(e){ btn.disabled = false; mnMsg(msg, mnErr(e)); });
-    };
-  }
-  function mnRenderGroups(){
-    var el = document.getElementById('mnGroupList');
-    el.innerHTML = (mn.d.groups || []).map(function(g){ return mnGroupCard(g, false); }).join('') || '<p class="hint">No item types yet.</p>';
-    el.querySelectorAll('.mn-group').forEach(mnWireGroup);
+    r.querySelectorAll('input').forEach(function(inp){ inp.addEventListener('change', save); });
+    r.querySelector('[data-f="active"]').onclick = function(){ var s = this; s.setAttribute('aria-checked', s.getAttribute('aria-checked') === 'true' ? 'false' : 'true'); save(); };
   }
 
-  function mnSync(){
-    var btn = document.getElementById('mnSyncBtn'); btn.disabled = true; btn.textContent = 'Syncing…';
-    sb.functions.invoke('sync-menu-catalog', { body: {} }).then(function(r){
+  // ---- Square: synced automatically after item changes
+  function mnSqShow(){
+    var el = mnEl('mnSq'), need = mn.d ? mn.d.needs_sync || 0 : 0;
+    el.onclick = null; el.removeAttribute('title'); el.removeAttribute('role');
+    if (mn.sqBusy) { el.className = 'mn-sq'; el.textContent = 'Square: updating…'; }
+    else if (mn.sq) { el.className = 'mn-sq bad'; el.textContent = 'Square: not updated · Retry'; el.title = mn.sq; el.setAttribute('role', 'button'); el.onclick = mnSqRun; }
+    else if (need) { el.className = 'mn-sq bad'; el.textContent = 'Square: ' + need + ' to update · Update'; el.setAttribute('role', 'button'); el.onclick = mnSqRun; }
+    else { el.className = 'mn-sq ok'; el.textContent = 'Square ✓ up to date'; }
+    var b = mnEl('navMenuBadge'); if (b) b.classList.add('hidden');
+  }
+  function mnSqQueue(){ if (!mn.d || !mn.d.needs_sync) return mnSqShow(); clearTimeout(mn.sqTimer); mn.sqTimer = setTimeout(mnSqRun, 3000); mnSqShow(); }
+  function mnSqRun(){
+    if (mn.sqBusy) return; clearTimeout(mn.sqTimer); mn.sqBusy = true; mn.sq = ''; mnSqShow();
+    sb.functions.invoke('sync-menu-catalog', { body:{} }).then(function(r){
       if (r.error) { var ctx = r.error.context; return (ctx && ctx.json ? ctx.json().catch(function(){ return {}; }) : Promise.resolve({})).then(function(j){ throw new Error(j.error ? (typeof j.error === 'string' ? j.error : JSON.stringify(j.error)) : r.error.message); }); }
       if (r.data && r.data.error) throw new Error(typeof r.data.error === 'string' ? r.data.error : JSON.stringify(r.data.error));
-      return mnLoad().then(function(){ mnMsg('mnMsg', 'Synced ' + ((r.data && r.data.itemsSynced) || 0) + ' items to Square.', true); });
-    }).catch(function(e){
+      return mnRpc('menu_admin_get');
+    }).then(function(){ mn.sqBusy = false; mnSqShow(); }).catch(function(e){
       var m = String(e && e.message || e);
-      if (/Failed to send|not found|NOT_FOUND/i.test(m)) m = 'Couldn’t reach the sync-menu-catalog function. Redeploy it from sync-menu-catalog.ts.';
-      if (/Not allowed/i.test(m)) m = 'Square sync is for managers. Redeploy sync-menu-catalog from the new sync-menu-catalog.ts so managers can run it.';
-      mnMsg('mnMsg', 'Square sync failed: ' + m);
-      var b = document.getElementById('mnSyncBtn'); if (b) { b.disabled = false; b.textContent = 'Sync to Square'; }
+      if (/Failed to send|not found|NOT_FOUND|Not allowed/i.test(m)) m = 'Redeploy the sync-menu-catalog function from sync-menu-catalog.ts so managers can update Square.';
+      mn.sqBusy = false; mn.sq = m; mnSqShow();
     });
   }
 
   (function mnInit(){
-    document.querySelectorAll('#mnTabs button').forEach(function(b){ b.onclick = function(){
-      mn.view = b.dataset.v;
-      document.querySelectorAll('#mnTabs button').forEach(function(x){ x.classList.toggle('on', x === b); });
-      ['items', 'addons', 'groups', 'ings'].forEach(function(v){ document.getElementById('mn' + v.charAt(0).toUpperCase() + v.slice(1)).classList.toggle('hidden', v !== mn.view); });
-      mnMsg('mnMsg', ''); mnRender();
-    }; });
-    document.getElementById('mnNewItem').onclick = function(){ mnOpenItem(null); };
-    document.getElementById('mnEditClose').onclick = function(){ document.getElementById('mnEdit').classList.add('hidden'); mn.editId = null; };
-    document.getElementById('mnItemForm').addEventListener('submit', mnSaveItem);
-    ['mnCat', 'mnName'].forEach(function(id){ document.getElementById(id).addEventListener('input', mnOptsNote); document.getElementById(id).addEventListener('change', function(){ mnPhoto(document.getElementById('mnPhoto').value.trim()); }); });
-    document.getElementById('mnPhoto').addEventListener('change', function(){ mnPhoto(this.value.trim()); });
-    document.getElementById('mnPhotoFile').addEventListener('change', function(){ mnUpload(this.files[0]); this.value = ''; });
-    document.getElementById('mnArchive').onclick = function(){
-      var id = mn.editId, i = mn.d.items.find(function(x){ return x.id === id; }); if (!i) return;
-      if (!confirm('Hide ' + i.name + ' from the menu? It stays in old orders and reports, and you can put it back from Hidden.')) return;
-      mnRpc('menu_admin_archive', { p_id:id, p_archived:true }).then(function(){ document.getElementById('mnEdit').classList.add('hidden'); mn.editId = null; mnMsg('mnMsg', i.name + ' is hidden from the menu.', true); }, function(e){ mnMsg('mnEditMsg', mnErr(e)); });
+    mnEl('mnAddBtn').onclick = function(){ mnOpen(null); };
+    mnEl('mnSearch').addEventListener('input', function(){ mn.q = this.value.trim(); mnRender(); });
+    mnEl('mnReorder').onclick = function(){ mn.reorder = !mn.reorder; this.setAttribute('aria-pressed', mn.reorder); this.textContent = mn.reorder ? 'Done' : 'Reorder'; mnRender(); };
+    mnEl('mnForm').addEventListener('submit', mnSave);
+    document.querySelectorAll('#mnDrawer [data-close], #mnExtras [data-xclose]').forEach(function(b){ b.onclick = mnCloseAll; });
+    mnEl('mnScrim').onclick = mnCloseAll;
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !mnEl('mnScrim').classList.contains('hidden')) mnCloseAll(); });
+    mnEl('mnAvail').querySelectorAll('button').forEach(function(b){ b.onclick = function(){ mnSetAvail(b.dataset.v === '1'); }; });
+    mnEl('mnCat').addEventListener('change', function(){ var nw = this.value === '__new'; mnEl('mnCatNew').classList.toggle('hidden', !nw); if (nw) mnEl('mnCatNew').focus(); mnLoadChoices(false); mnPhotoShow(); });
+    mnEl('mnCatNew').addEventListener('input', function(){ mnLoadChoices(false); });
+    mnEl('mnName').addEventListener('change', function(){ mnLoadChoices(false); mnPhotoShow(); });
+    mnEl('mnFile').addEventListener('change', function(){ mnUpload(this.files[0]); this.value = ''; });
+    mnEl('mnPhReset').onclick = function(){ mn.photo = ''; mnPhotoShow(); };
+    mnEl('mnRemove').onclick = function(){
+      var i = mn.item; if (!i) return;
+      if (!confirm('Remove ' + i.name + ' from the menu? It stays in past orders, and you can put it back from “Removed”.')) return;
+      mnRpc('menu_admin_archive', { p_id:i.id, p_archived:true }).then(function(){ mnCloseAll(); mnRender(); mnMsg('mnMsg', i.name + ' was removed from the menu.', true); mnSqShow(); }, function(e){ mnMsg('mnFMsg', mnErr(e)); });
     };
-    document.getElementById('mnNewAddon').addEventListener('submit', function(ev){
-      ev.preventDefault();
-      var name = document.getElementById('mnAName').value.trim(), price = parseFloat(document.getElementById('mnAPrice').value);
-      if (!name) return mnMsg('mnMsg', 'Give the add-on a name.');
-      if (isNaN(price) || price < 0) return mnMsg('mnMsg', 'Enter the add-on price.');
-      mnRpc('menu_admin_save_addon', { p: { label:name, price_cents:Math.round(price * 100), ticket:'+ ' + name, active:true } }).then(function(){
-        document.getElementById('mnAName').value = ''; document.getElementById('mnAPrice').value = '';
-        mnMsg('mnMsg', 'Added ' + name + '. Now pick which items offer it in Item types.', true);
-      }, function(e){ mnMsg('mnMsg', mnErr(e)); });
-    });
-    document.getElementById('mnNewIng').addEventListener('submit', function(ev){
-      ev.preventDefault();
-      var name = document.getElementById('mnIName').value.trim();
-      if (!name) return mnMsg('mnMsg', 'Give the ingredient a name.');
-      mnRpc('menu_admin_save_ingredient', { p: { label:name, img:document.getElementById('mnIImg').value } }).then(function(){
-        document.getElementById('mnIName').value = '';
-        mnMsg('mnMsg', 'Added ' + name + '. Now pick which items include it in Item types.', true);
-      }, function(e){ mnMsg('mnMsg', mnErr(e)); });
-    });
-    document.getElementById('mnNewGroup').onclick = function(){
-      var el = document.getElementById('mnGroupList'); if (el.querySelector('.mn-group[data-k=""]')) return;
-      var tmp = document.createElement('div'); tmp.innerHTML = mnGroupCard({ label:'', category:'', ingredients:[], addons:[] }, true);
-      var card = tmp.firstChild; el.insertBefore(card, el.firstChild); mnWireGroup(card); card.querySelector('[data-f="label"]').focus();
-    };
+    mnEl('mnExtrasBtn').onclick = function(){ if (!mn.d) return; mnMsg('mnXMsg', ''); mnExtrasRender(); mnShowPanel('mnExtras', true); };
   })();
 
   // ---------------- CLOCK ACTIONS (single set of controls, lives on Home) ----------------
