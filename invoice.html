@@ -104,6 +104,33 @@
   .msg h1{ font-size:22px; color:var(--ink); margin-bottom:8px; }
 
   .paybar{ display:none; }
+  /* Pay on this page (Square's secure card box) */
+  .ps{ position:fixed; inset:0; z-index:50; background:rgba(0,0,0,.45); display:flex; align-items:center; justify-content:center; padding:16px; }
+  .ps.hidden{ display:none; }
+  .ps-box{ background:#fff; border-radius:16px; width:100%; max-width:440px; max-height:calc(100vh - 32px); overflow-y:auto; padding:22px 22px 18px; box-shadow:0 20px 60px rgba(0,0,0,.3); }
+  .ps-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; }
+  .ps-top h2{ margin:0; font-size:17px; color:var(--ink); }
+  .ps-top small{ display:block; color:var(--muted); font-size:13px; margin-top:2px; }
+  .ps-x{ width:34px; height:34px; border-radius:50%; border:0; background:#f2f2f6; font-size:20px; line-height:1; cursor:pointer; color:var(--ink); flex:none; }
+  .ps-amt{ font-size:32px; font-weight:800; color:var(--ink); margin:14px 0 16px; letter-spacing:-.5px; }
+  .ps-wal > div{ min-height:48px; margin-bottom:10px; }
+  .ps-wal .hidden{ display:none; }
+  #psApple{ -webkit-appearance:-apple-pay-button; -apple-pay-button-type:plain; -apple-pay-button-style:black; height:48px; border-radius:10px; cursor:pointer; }
+  .ps-or{ display:flex; align-items:center; gap:10px; color:var(--muted); font-size:12.5px; margin:4px 0 12px; }
+  .ps-or::before, .ps-or::after{ content:""; flex:1; height:1px; background:var(--line); }
+  .ps-or.hidden{ display:none; }
+  #psCard{ min-height:90px; }
+  .ps-loading{ color:var(--muted); font-size:13px; padding:12px 0; }
+  .ps-pay{ width:100%; min-height:50px; border:0; border-radius:10px; background:var(--brand); color:#fff; font:inherit; font-size:16px; font-weight:700; cursor:pointer; margin-top:6px; }
+  .ps-pay:disabled{ opacity:.5; cursor:not-allowed; }
+  .ps-msg{ color:#c4271b; font-weight:600; font-size:13.5px; min-height:1px; margin:10px 0 0; }
+  .ps-foot{ color:var(--muted); font-size:12px; margin:12px 0 0; line-height:1.45; }
+  .ps-alt{ display:inline-block; margin-top:8px; color:var(--muted); font-size:12.5px; }
+  .ps-alt.hidden{ display:none; }
+  .ps-done{ text-align:center; padding:10px 0 4px; }
+  .ps-done .ok{ width:56px; height:56px; border-radius:50%; background:var(--green); color:#fff; font-size:28px; font-weight:800; display:flex; align-items:center; justify-content:center; margin:0 auto 10px; }
+  .ps-done h3{ margin:0; color:var(--ink); }
+  .ps-done p{ color:var(--text); margin:6px 0 0; }
 
   @media (max-width:760px){
     .bar{ padding:12px 14px 10px; }
@@ -167,7 +194,7 @@
     <div class="who"><span id="barNo">Invoice</span><small id="barFrom"></small></div>
     <div class="sp"></div>
     <button type="button" class="btn-line" id="printBtn">Download PDF</button>
-    <a class="btn-pay hidden hide-s" id="barPay" href="#" rel="noopener">Pay now</a>
+    <a class="btn-pay hidden hide-s" id="barPay" href="#pay" rel="noopener">Pay now</a>
   </div>
   <div class="banner hidden" id="banner"></div>
 
@@ -207,8 +234,8 @@
           <h3>Pay online</h3>
           <div class="online">
             <div class="qr" id="qr" aria-hidden="true"></div>
-            <div><p>Card, Apple Pay or Google Pay through our secure Square checkout.</p>
-              <a class="btn-pay" id="payBtn" href="#" rel="noopener">Pay now</a>
+            <div><p>Card, Apple Pay or Google Pay, right here. Secured by Square.</p>
+              <a class="btn-pay" id="payBtn" href="#pay" rel="noopener">Pay now</a>
               <div class="url" id="payUrl"></div></div>
           </div>
         </div>
@@ -219,7 +246,24 @@
     </div>
     <div class="foot" id="foot"></div>
   </div>
-  <div class="paybar hidden" id="paybar"><a class="btn-pay" id="paybarBtn" href="#" rel="noopener">Pay</a></div>
+  <div class="paybar hidden" id="paybar"><a class="btn-pay" id="paybarBtn" href="#pay" rel="noopener">Pay</a></div>
+</div>
+
+<div class="ps hidden" id="ps" role="dialog" aria-modal="true" aria-labelledby="psTitle">
+  <div class="ps-box">
+    <div class="ps-top"><div><h2 id="psTitle">Pay invoice</h2><small id="psWho"></small></div><button type="button" class="ps-x" id="psX" aria-label="Close">&times;</button></div>
+    <div id="psForm">
+      <div class="ps-amt" id="psAmt"></div>
+      <div class="ps-wal"><div id="psApple" class="hidden" role="button" tabindex="0" aria-label="Pay with Apple Pay"></div><div id="psGoogle" class="hidden"></div></div>
+      <div class="ps-or hidden" id="psOr">or pay with card</div>
+      <div id="psCard"><div class="ps-loading">Loading secure card form&hellip;</div></div>
+      <button type="button" class="ps-pay" id="psPay" disabled>Pay</button>
+      <p class="ps-msg" id="psMsg" role="alert"></p>
+      <p class="ps-foot">&#128274; Secured by Square. Your card number goes straight to Square, never to us.</p>
+      <a class="ps-alt hidden" id="psAlt" href="#" rel="noopener">Having trouble? Pay on Square&rsquo;s page instead</a>
+    </div>
+    <div class="ps-done hidden" id="psDone" tabindex="-1"><div class="ok" aria-hidden="true">&check;</div><h3>Payment received</h3><p id="psDoneTxt">Thank you! A receipt is on its way.</p></div>
+  </div>
 </div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcode-generator/1.4.4/qrcode.min.js" defer></script>
@@ -318,16 +362,19 @@
     $('notes').textContent = v.notes || '';
     $('terms').textContent = b.terms || '';
     // how to pay
-    var payable = v.status === 'sent' && v.pay_url;
+    var payable = v.status === 'sent' && (v.can_pay || v.pay_url);
+    CUR = v;
     $('payrow').classList.toggle('hidden', v.status !== 'sent');
     $('payOnline').classList.toggle('hidden', !payable);
     if (payable) {
-      ['payBtn', 'barPay', 'paybarBtn'].forEach(function(id){ $(id).href = v.pay_url; });
+      ['payBtn', 'barPay', 'paybarBtn'].forEach(function(id){ $(id).href = '#pay'; });
       $('payBtn').textContent = 'Pay ' + money(v.total_cents);
       $('paybarBtn').textContent = 'Pay ' + money(v.total_cents);
       $('barPay').textContent = 'Pay ' + money(v.total_cents);
-      $('payUrl').textContent = 'Or scan the code with your phone';
-      var tryQr = function(n){ if (typeof window.qrcode === 'function' || n > 20) drawQr(v.pay_url); else setTimeout(function(){ tryQr(n + 1); }, 150); };
+      $('payUrl').textContent = 'Or scan the code to pay on your phone';
+      // Printed copies: the code opens this invoice page, where they can pay.
+      var PAGE = location.origin + location.pathname + '?i=' + encodeURIComponent(T);
+      var tryQr = function(n){ if (typeof window.qrcode === 'function' || n > 20) drawQr(PAGE); else setTimeout(function(){ tryQr(n + 1); }, 150); };
       tryQr(0);
     }
     $('barPay').classList.toggle('hidden', !payable);
@@ -347,18 +394,98 @@
     if (v.status === 'paid') { stamp.className = 'stamp paid'; stamp.textContent = 'PAID'; banner.className = 'banner paid'; banner.textContent = '✓ Paid in full. Thank you for your business!'; }
     else if (v.status === 'void') { stamp.className = 'stamp void'; stamp.textContent = 'VOID'; banner.className = 'banner void'; banner.textContent = 'This invoice was canceled, so there’s nothing to pay.'; }
     else if (overdue) { stamp.className = 'stamp late'; stamp.textContent = 'PAST DUE'; }
-    if (v.status === 'sent' && !v.pay_url) { banner.className = 'banner wait'; banner.textContent = 'We’re updating this invoice. Please check back shortly, or call ' + (b.phone || 'us') + '.'; }
+    if (v.status === 'sent' && !payable) { banner.className = 'banner wait'; banner.textContent = 'We’re updating this invoice. Please check back shortly, or call ' + (b.phone || 'us') + '.'; }
     // footer
     var foot = $('foot'); foot.textContent = '';
     var l = el('div'); l.appendChild(el('b', null, (b.legal_name || b.business_name || '') )); if (b.tax_id) l.appendChild(document.createTextNode(' · Tax ID ' + b.tax_id)); foot.appendChild(l);
     var r = el('div', null, 'Questions? ' + [b.phone, b.email].filter(Boolean).join(' · ')); foot.appendChild(r);
     $('loading').classList.add('hidden'); $('inv').classList.remove('hidden');
   }
+  // ---------- Pay on this page ----------
+  var SQ_APP = 'sq0idp-6truvfPUiZyRoli_quQVJg', SQ_LOC = 'LSGMC1VJ71JNG';
+  var CUR = null, sqP = null, card = null, apple = null, google = null, sdk = null, busy = false, lastFocus = null;
+  function loadSdk(){
+    if (window.Square) return Promise.resolve();
+    if (!sdk) sdk = new Promise(function(ok, bad){ var s = document.createElement('script'); s.src = 'https://web.squarecdn.com/v1/square.js'; s.onload = ok; s.onerror = function(){ sdk = null; bad(new Error('sdk')); }; document.head.appendChild(s); });
+    return sdk;
+  }
+  function payFn(body, i){
+    i = i || 0; var names = ['invoice', 'Invoice'];
+    return fetch(FN + names[i], { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KEY, 'apikey': KEY }, body: JSON.stringify(body) })
+      .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(d){
+        if (r.status === 404 && d && d.code === 'NOT_FOUND' && i + 1 < names.length) return payFn(body, i + 1);
+        return { ok: r.ok, d: d }; }); });
+  }
+  function psMsg(t){ $('psMsg').textContent = t || ''; }
+  function psBusy(on, label){ busy = on; $('psPay').disabled = on || !card; $('psPay').textContent = on ? (label || 'Processing…') : 'Pay ' + money(CUR.total_cents); }
+  function closeSheet(){ $('ps').classList.add('hidden'); document.body.style.overflow = ''; if (lastFocus) try { lastFocus.focus(); } catch (e) {} }
+  function showAlt(){ if (CUR && CUR.pay_url) { $('psAlt').href = CUR.pay_url; $('psAlt').classList.remove('hidden'); } }
+  function charge(tokenRes){
+    if (!tokenRes || tokenRes.status !== 'OK' || !tokenRes.token) {
+      psBusy(false);
+      var d = tokenRes && tokenRes.errors && tokenRes.errors[0] && tokenRes.errors[0].message;
+      if (tokenRes && tokenRes.status !== 'Cancel') psMsg(d || 'Please check your card details.');
+      return;
+    }
+    psBusy(true, 'Paying…');
+    payFn({ action: 'pay', token: T, sourceId: tokenRes.token }).then(function(r){
+      if (r.ok && r.d && r.d.paid) {
+        $('psForm').classList.add('hidden'); $('psDone').classList.remove('hidden');
+        $('psDoneTxt').textContent = r.d.already ? 'This invoice is already paid. Thank you!' : 'Thank you! We received ' + money(r.d.amount_cents || CUR.total_cents) + ' for ' + CUR.number + '.';
+        $('psDone').focus();
+        go();
+        return;
+      }
+      psBusy(false); psMsg((r.d && r.d.error) || 'Your payment didn’t go through. You haven’t been charged.'); showAlt();
+    }, function(){ psBusy(false); psMsg('No connection. You haven’t been charged. Please try again.'); showAlt(); });
+  }
+  function setupPay(){
+    return loadSdk().then(function(){
+      if (!sqP) sqP = window.Square.payments(SQ_APP, SQ_LOC);
+      var req = sqP.paymentRequest({ countryCode: 'US', currencyCode: 'USD', total: { amount: (CUR.total_cents / 100).toFixed(2), label: 'Roll-In Shawarma ' + CUR.number } });
+      var a = sqP.applePay(req).then(function(ap){ apple = ap; $('psApple').classList.remove('hidden'); }).catch(function(){});
+      var g = sqP.googlePay(req).then(function(gp){ google = gp; return gp.attach('#psGoogle', { buttonColor: 'black', buttonType: 'plain', buttonSizeMode: 'fill' }).then(function(){ $('psGoogle').classList.remove('hidden'); }); }).catch(function(){});
+      var c = (card ? Promise.resolve(card) : sqP.card().then(function(cd){ return cd.attach('#psCard').then(function(){ var l = $('psCard').querySelector('.ps-loading'); if (l) l.remove(); card = cd; }); }));
+      return Promise.all([a, g, c]).then(function(){
+        if (apple) $('psGoogle').classList.add('hidden');
+        $('psOr').classList.toggle('hidden', !apple && !google);
+        psBusy(false);
+      });
+    }).catch(function(){
+      $('psCard').innerHTML = '<div class="ps-loading">The card form couldn’t load here.</div>';
+      psMsg(''); showAlt();
+      if (CUR && CUR.pay_url) $('psAlt').textContent = 'Pay on Square’s secure page';
+    });
+  }
+  function openSheet(e){
+    if (e) e.preventDefault();
+    if (!CUR || CUR.status !== 'sent') return;
+    lastFocus = document.activeElement;
+    $('psTitle').textContent = 'Pay invoice ' + CUR.number;
+    $('psWho').textContent = CUR.company || CUR.customer_name || '';
+    $('psAmt').textContent = money(CUR.total_cents);
+    $('psForm').classList.remove('hidden'); $('psDone').classList.add('hidden'); psMsg('');
+    $('ps').classList.remove('hidden'); document.body.style.overflow = 'hidden';
+    $('psX').focus();
+    if (!card) setupPay(); else psBusy(false);
+  }
+  ['payBtn', 'barPay', 'paybarBtn'].forEach(function(id){ $(id).addEventListener('click', openSheet); });
+  $('psX').addEventListener('click', closeSheet);
+  $('ps').addEventListener('click', function(e){ if (e.target === $('ps') && !busy) closeSheet(); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !$('ps').classList.contains('hidden') && !busy) closeSheet(); });
+  $('psPay').addEventListener('click', function(){ if (busy || !card) return; psMsg(''); psBusy(true, 'Checking card…'); card.tokenize().then(charge, function(){ psBusy(false); psMsg('Please check your card details.'); }); });
+  function wallet(m){ if (busy || !m) return; psMsg(''); var t = m.tokenize(); t.then(charge, function(){}); }
+  $('psApple').addEventListener('click', function(){ wallet(apple); });
+  $('psApple').addEventListener('keydown', function(e){ if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); wallet(apple); } });
+  $('psGoogle').addEventListener('click', function(){ wallet(google); });
+  var wantPay = /#pay\b/.test(location.hash);
+
   var tries = 0;
   function go(){
     fetchInv().then(function(r){
       if (!r.ok) { gone('We couldn’t find this invoice', (r.d && r.d.error) || null); return; }
       render(r.d);
+      if (wantPay) { wantPay = false; if (r.d.status === 'sent') setTimeout(openSheet, 300); }
       // Back from Square: the payment can take a few seconds to show.
       if (justPaid && r.d.status === 'sent' && tries < 6) {
         tries++;
