@@ -838,6 +838,8 @@
 .wp.show{ opacity:1; transform:translate(-50%, 0); pointer-events:auto; }
 .wp-main{ display:flex; align-items:center; gap:8px; height:100%; padding:0 6px 0 14px; font-size:13px; font-weight:600; color:var(--ink); background:none; border:0; cursor:pointer; white-space:nowrap; }
 .wp-pct{ color:var(--accent); }
+.wp-min{ color:var(--muted); font-weight:500; font-size:12px; margin-left:-3px; }
+.wp-min[hidden]{ display:none; }
 .wp-sep{ width:1px; height:14px; background:rgba(0,0,0,.15); }
 .wp-code{ font-family:ui-monospace, SFMono-Regular, Menlo, monospace; font-size:12.5px; letter-spacing:.06em; }
 .wp-x{ width:26px; height:26px; border-radius:50%; border:0; background:none; color:var(--muted); font-size:17px; line-height:1; cursor:pointer; }
@@ -2121,7 +2123,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
 
 <div id="welcomePromo" class="wp" hidden>
   <button type="button" class="wp-main" id="welcomePromoBtn" aria-label="Get 10% off your order with code WELCOME10">
-    <span class="wp-pct">10% off</span><span class="wp-sep" aria-hidden="true"></span><span class="wp-code">WELCOME10</span>
+    <span class="wp-pct">10% off</span><span class="wp-min" hidden></span><span class="wp-sep" aria-hidden="true"></span><span class="wp-code">WELCOME10</span>
   </button>
   <button type="button" class="wp-x" id="welcomePromoX" aria-label="No thanks">&times;</button>
 </div>
@@ -2501,11 +2503,13 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     window.rollinWelcome = { CODE: CODE, saved: function(){ return get() === 'saved'; }, used: function(){ set('used'); } };
     if (!el) return;
     function start(offer){
-      CODE = offer.code; KEY = keyFor(CODE); window.rollinWelcome.CODE = CODE;
+      CODE = offer.code; KEY = keyFor(CODE); window.rollinWelcome.CODE = CODE; window.rollinWelcome.min = offer.min || 0;
       if (get()) return;
+      var minTxt = offer.min ? '$' + (offer.min % 1 ? offer.min.toFixed(2) : offer.min) + '+ orders' : '';
       el.querySelector('.wp-pct').textContent = offer.text;
+      var mEl = el.querySelector('.wp-min'); if (mEl) { mEl.textContent = minTxt; mEl.hidden = !minTxt; }
       el.querySelector('.wp-code').textContent = CODE;
-      el.querySelector('.wp-main').setAttribute('aria-label', 'Get ' + offer.text + ' your order with code ' + CODE);
+      el.querySelector('.wp-main').setAttribute('aria-label', 'Get ' + offer.text + (minTxt ? ' on ' + minTxt : '') + ' with code ' + CODE);
       run();
     }
     // Settings not set up yet (welcome-offer.sql not run): keep the original 10% off WELCOME10.
@@ -2514,7 +2518,8 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     asked.then(function(r){
       if (r && r.error) return start({ code: 'WELCOME10', text: '10% off' });
       var d = r && r.data;
-      if (d && d.on && /^[A-Z0-9_-]{1,40}$/i.test(String(d.code || ''))) start({ code: String(d.code).toUpperCase(), text: String(d.text || 'Save').slice(0, 28) });
+      var mn = Number(d && d.min);
+      if (d && d.on && /^[A-Z0-9_-]{1,40}$/i.test(String(d.code || ''))) start({ code: String(d.code).toUpperCase(), text: String(d.text || 'Save').slice(0, 28), min: mn > 0 && mn <= 1000 ? Math.round(mn * 100) / 100 : 0 });
     }, function(){});
     function run(){
     el.hidden = false;
@@ -3950,9 +3955,15 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
 
       refreshCheckoutBreakdown();
       prepareWallets();
-      if (window.rollinWelcome && window.rollinWelcome.saved() && !hasCatering && cart.length) {
+      if (window.rollinWelcome && window.rollinWelcome.saved() && !hasCatering && cart.length && !appliedPromo) {
+        var wMin = window.rollinWelcome.min || 0, wSub = cartTotal();
         document.getElementById('promoCodeInput').value = window.rollinWelcome.CODE;
-        document.getElementById('promoApplyBtn').click();
+        if (wMin && wSub < wMin) {
+          // Under the code's minimum: say how much more instead of an error.
+          var pm = document.getElementById('promoMsg');
+          pm.textContent = 'Add $' + (wMin - wSub).toFixed(2) + ' more to use ' + window.rollinWelcome.CODE + ' (orders of $' + wMin.toFixed(2) + ' or more).';
+          pm.className = 'promo-msg';
+        } else document.getElementById('promoApplyBtn').click();
       }
     }
 
