@@ -1208,6 +1208,9 @@ body.ev-tab-mode #rewardSection, body.ev-tab-mode #coPointsLine{ display:none !i
 /* ---- On Location (popup-ordering.sql): the truck is serving somewhere else ---- */
 body.onloc-live #annbar{ display:none !important; }
 body.onloc-now .drive-up-only{ display:none !important; }
+.cal-event-card.cal-onloc{ border-left:4px solid #1f8a4c; }
+.cal-onloc-order{ font-weight:700; color:#146c3a; }
+.cal-onloc-note{ font-size:12.5px; color:var(--muted); }
 #onLocStrip{ background:#0b6b35; color:#fff; font-size:14px; }
 #onLocStrip .wrap{ display:flex; align-items:center; justify-content:center; gap:6px 16px; flex-wrap:wrap; padding:9px 16px; text-align:center; }
 #onLocStrip .ol-dot{ width:8px; height:8px; border-radius:50%; background:#7dffa8; animation:olPulse 1.8s infinite; flex:none; }
@@ -4870,13 +4873,15 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
           var mapLink = ev.map_query
             ? '<a href="https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(ev.map_query) + '" target="_blank" rel="noopener">Get Directions</a>'
             : '';
-          return '<div class="cal-event-card">' +
+          var soon = ev.onloc && Date.parse(ev.from) - Date.now() < 7 * 864e5;
+          var orderBtn = soon ? '<br><a href="#menu" class="cal-onloc-order">Order ahead for pickup here</a>' : (ev.onloc ? '<br><span class="cal-onloc-note">Online ordering for pickup here opens a week before.</span>' : '');
+          return '<div class="cal-event-card' + (ev.onloc ? ' cal-onloc' : '') + '">' +
             '<h4>' + escHtml(ev.title) + '</h4>' +
             '<div class="cal-event-meta">' +
               '<b>' + when + '</b>' + (timeRange ? ' &middot; ' + timeRange : '') + '<br>' +
               escHtml(ev.location) +
               (ev.description ? '<br>' + escHtml(ev.description) : '') +
-              (mapLink ? '<br>' + mapLink : '') +
+              (mapLink ? '<br>' + mapLink : '') + orderBtn +
             '</div>' +
           '</div>';
         }).join('');
@@ -4962,10 +4967,24 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       renderGrid();
     });
 
+    // On Location stops (Staff portal -> Store hours -> On Location) show on the
+    // calendar too, as event cards for that day.
+    var calEvents = [], calStops = [];
+    function nyParts(iso){ var o = {}; new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', year: 'numeric', month: '2-digit', day: '2-digit', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(iso)).forEach(function(x){ o[x.type] = x.value; }); return { d: o.year + '-' + o.month + '-' + o.day, t: (o.hour === '24' ? '00' : o.hour) + ':' + o.minute + ':00' }; }
+    function mergeCal(){ allEvents = calEvents.concat(calStops).sort(function(a, b){ return a.start_date < b.start_date ? -1 : a.start_date > b.start_date ? 1 : String(a.start_time || '') < String(b.start_time || '') ? -1 : 1; }); renderGrid(); if (selectedDateStr) renderDetail(selectedDateStr); }
+    sbShared.rpc('get_onlocation_schedule').then(function(r){
+      if (!r || r.error || !Array.isArray(r.data)) return;
+      calStops = r.data.map(function(p){
+        var a = nyParts(p.from), b = nyParts(p.to);
+        return { onloc: true, title: '\uD83D\uDE9A On Location: ' + p.name, start_date: a.d, end_date: b.d, start_time: a.t, end_time: b.t,
+          location: p.address || p.name, description: p.note || '', map_query: p.address || p.name, from: p.from };
+      });
+      mergeCal();
+    }, function(){});
     // only fetch events that haven't fully passed yet
     sb.from('events').select('*').eq('status', 'confirmed').gte('end_date', todayStr).order('start_date').then(function(res){
       if (res.error) return;
-      allEvents = res.data;
+      calEvents = res.data || []; allEvents = calEvents.concat(calStops);
       renderGrid();
       selectedDateStr = todayStr;
       renderGrid();
