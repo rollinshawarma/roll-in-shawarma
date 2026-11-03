@@ -16,6 +16,8 @@
     cilantro:    { label: 'Cilantro',     img: 'ing-cilantro.svg', hq: 'ing-cilantro-hq' },
     lettuce:     { label: 'Lettuce',      img: 'ing-lettuce.webp' }
   };
+  // Built-in lists = the fallback. The live ones come from the staff portal
+  // (Menu tab, menu-studio.sql) through get_menu_options() as the page loads.
   var SETS = {
     shawarma: ['fries', 'pickle', 'white_sauce'],
     falafel:  ['fries', 'pickle', 'white_sauce', 'cucumber', 'tomato'],
@@ -28,7 +30,6 @@
   // until tapped); the rest are listed under Add-ons. Prices are checked
   // and charged by the server (same list in create-order-checkout).
   var ADDONS = {
-    extra_sauce:    { label: 'Extra sauce',    price: 1.00, img: 'ing-white-sauce.svg', where: 'included' },
     double_protein: { label: 'Double protein', price: 3.50, img: 'ing-chicken.webp' },
     extra_falafel:  { label: 'Extra falafel',  price: 2.00, img: 'ing-falafel.svg', hq: 'ing-falafel-hq' },
     add_cucumber:   { label: 'Cucumbers',      price: 0.50, img: 'ing-cucumber.webp' },
@@ -46,27 +47,34 @@
     frankie: ['add_white'],
     taco: ['add_white']
   };
+  // Item types: which menu items each list applies to (category + optional word in the name).
+  var GROUPS = [
+    { key: 'shawarma', category: 'Shawarma', name_not: 'falafel' }, { key: 'falafel', category: 'Shawarma', name_has: 'falafel' },
+    { key: 'frankie', category: 'Frankie Rolls' }, { key: 'bowl', category: 'Bowls', name_not: 'veggie' }, { key: 'veggie_bowl', category: 'Bowls', name_has: 'veggie' },
+    { key: 'loaded', category: 'Loaded Fries' }, { key: 'taco', category: 'Tacos' }
+  ];
+  SETS.veggie_bowl = SETS.bowl.slice();
   var NOTE_MAX = 140;
   function setFor(item){
     if (!item) return null;
     var cat = item.category || '', name = item.name || '';
     // Deal picks ($0 "Deal Selections" items) get the same choices as the dish.
     if (cat === 'Deal Selections') {
-      if (/shawarma/i.test(name)) return /falafel/i.test(name) ? 'falafel' : 'shawarma';
-      if (/frankie/i.test(name)) return 'frankie';
-      if (/bowl/i.test(name)) return 'bowl';
-      if (/^loaded fries/i.test(name)) return 'loaded';
-      if (/tacos?$/i.test(name)) return 'taco';
-      return null;
+      var k = /shawarma/i.test(name) ? (/falafel/i.test(name) ? 'falafel' : 'shawarma') : /frankie/i.test(name) ? 'frankie' : /bowl/i.test(name) ? 'bowl'
+        : /^loaded fries/i.test(name) ? 'loaded' : /tacos?$/i.test(name) ? 'taco' : null;
+      return k && SETS[k] ? k : null;
     }
-    if (cat === 'Shawarma') return /falafel/i.test(name) ? 'falafel' : 'shawarma';
-    if (cat === 'Frankie Rolls') return 'frankie';
-    if (cat === 'Bowls') return 'bowl';
-    if (cat === 'Loaded Fries') return 'loaded';
-    if (cat === 'Tacos') return 'taco';
+    var n = name.toLowerCase(), c = cat.toLowerCase();
+    for (var i = 0; i < GROUPS.length; i++) {
+      var g = GROUPS[i];
+      if (String(g.category || '').toLowerCase() !== c) continue;
+      if (g.name_has && n.indexOf(String(g.name_has).toLowerCase()) === -1) continue;
+      if (g.name_not && n.indexOf(String(g.name_not).toLowerCase()) !== -1) continue;
+      return g.key;
+    }
     return null;
   }
-  function included(item){ var s = setFor(item); return s ? SETS[s].slice() : []; }
+  function included(item){ var s = setFor(item); return s && SETS[s] ? SETS[s].filter(function(k){ return ING[k]; }) : []; }
   // Only real, allowed removals, in menu order, no repeats.
   function clean(item, keys){
     var allowed = included(item);
@@ -78,9 +86,7 @@
   function addonsFor(item){
     var s = setFor(item);
     if (!s || (item && item.category === 'Deal Selections')) return [];
-    // The Veggie Bowl gets extra falafel instead of double protein.
-    if (s === 'bowl' && /veggie/i.test(item.name || '')) s = 'veggie_bowl';
-    return ADDON_SETS[s] ? ADDON_SETS[s].slice() : [];
+    return ADDON_SETS[s] ? ADDON_SETS[s].filter(function(k){ return ADDONS[k]; }) : [];
   }
   function cleanAdd(item, keys){
     var allowed = addonsFor(item);
@@ -88,7 +94,7 @@
     return allowed.filter(function(k){ return keys.indexOf(k) !== -1; });
   }
   function addPrice(keys){ return Math.round((keys || []).reduce(function(s, k){ return s + (ADDONS[k] ? ADDONS[k].price : 0); }, 0) * 100) / 100; }
-  function addLabel(k){ return '+ ' + (k === 'extra_sauce' || k === 'double_protein' || k === 'extra_falafel' || k === 'extra_white' ? ADDONS[k].label : 'Add ' + ADDONS[k].label.toLowerCase()); }
+  function addLabel(k){ var a = ADDONS[k]; if (a.ticket) return a.ticket; return '+ ' + (k === 'extra_sauce' || k === 'double_protein' || k === 'extra_falafel' || k === 'extra_white' ? a.label : 'Add ' + a.label.toLowerCase()); }
   function addNote(keys){ return (keys || []).filter(function(k){ return ADDONS[k]; }).map(addLabel).join(', '); }
   function cleanNote(s){ return String(s || '').replace(/[\u0000-\u001f\u007f]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, NOTE_MAX); }
   // Everything that makes a cart line different from a plain one.
@@ -198,9 +204,36 @@
     if (i === -1) removed.push(k); else removed.splice(i, 1);
     return removed;
   }
+  // ---- Live lists from the staff portal (Menu tab) ----
+  // Replaces the built-in lists in place, then tells the page ("rollin:options")
+  // so an open item can redraw. The checkout checks every choice and price again.
+  var SB_URL = 'https://njcmcaoyzujijiyfardx.supabase.co', SB_KEY = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
+  function applyOptions(d){
+    if (!d || !Array.isArray(d.groups)) return false;
+    var ing = {}, add = {}, sets = {}, asets = {}, groups = [];
+    Object.keys(d.ingredients || {}).forEach(function(k){ var v = d.ingredients[k] || {}; ing[k] = { label: String(v.label || k), img: v.img || 'ing-white-sauce.svg', hq: ING[k] && ING[k].img === v.img ? ING[k].hq : undefined }; });
+    Object.keys(d.addons || {}).forEach(function(k){ var v = d.addons[k] || {}, c = Number(v.cents);
+      if (!(c >= 0)) return;
+      add[k] = { label: String(v.label || k), price: Math.round(c) / 100, img: v.img || 'ing-white-sauce.svg', hq: ADDONS[k] && ADDONS[k].img === v.img ? ADDONS[k].hq : undefined, ticket: v.ticket || null, where: v.included_grid ? 'included' : undefined }; });
+    d.groups.forEach(function(g){ if (!g || !g.key) return; groups.push({ key: String(g.key), category: g.category || '', name_has: g.name_has || null, name_not: g.name_not || null });
+      sets[g.key] = (g.ingredients || []).map(String); asets[g.key] = (g.addons || []).map(String); });
+    [[ING, ing], [SETS, sets], [ADDONS, add], [ADDON_SETS, asets]].forEach(function(p){ Object.keys(p[0]).forEach(function(k){ delete p[0][k]; }); Object.keys(p[1]).forEach(function(k){ p[0][k] = p[1][k]; }); });
+    GROUPS.length = 0; groups.filter(function(g){ return g.name_has; }).concat(groups.filter(function(g){ return !g.name_has; })).forEach(function(g){ GROUPS.push(g); });
+    return true;
+  }
+  var optionsReady = false;
+  function loadOptions(){
+    if (typeof fetch !== 'function') return;
+    fetch(SB_URL + '/rest/v1/rpc/get_menu_options', { method: 'POST', headers: { 'Content-Type': 'application/json', apikey: SB_KEY, Authorization: 'Bearer ' + SB_KEY }, body: '{}' })
+      .then(function(r){ return r.ok ? r.json() : null; })
+      .then(function(d){ if (applyOptions(d)) { optionsReady = true; try { document.dispatchEvent(new Event('rollin:options')); } catch (e) {} } }, function(){});
+  }
+  loadOptions();
+  setInterval(loadOptions, 5 * 60000);
   window.RollinIngredients = {
     ING: ING, included: included, clean: clean, note: note, noLabel: noLabel,
     chipsHtml: chipsHtml, toggle: toggle,
+    ready: function(){ return optionsReady; }, reload: loadOptions, apply: applyOptions,
     ADDONS: ADDONS, addonsFor: addonsFor, cleanAdd: cleanAdd, addPrice: addPrice, addNote: addNote,
     addonsHtml: addonsHtml, noteHtml: noteHtml, cleanNote: cleanNote, custom: custom, lineKey: lineKey, summary: summary,
     // True when the item has anything to customize (included, add-ons).
