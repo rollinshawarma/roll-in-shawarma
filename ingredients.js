@@ -35,8 +35,9 @@
     add_cucumber:   { label: 'Cucumbers',      price: 0.50, img: 'ing-cucumber.webp' },
     add_tomato:     { label: 'Tomatoes',       price: 0.50, img: 'ing-tomato.webp' },
     // White sauce: "Extra" on items that already come with it, "White sauce" on the rest.
-    extra_white:    { label: 'Extra white sauce', price: 1.39, img: 'ing-white-sauce.svg' },
-    add_white:      { label: 'White sauce',       price: 1.39, img: 'ing-white-sauce.svg' }
+    // max: how many a customer can add to one item (1 = on/off).
+    extra_white:    { label: 'Extra white sauce', price: 1.39, img: 'ing-white-sauce.svg', max: 5 },
+    add_white:      { label: 'White sauce',       price: 1.39, img: 'ing-white-sauce.svg', max: 5 }
   };
   var ADDON_SETS = {
     bowl: ['extra_white', 'double_protein'],
@@ -88,21 +89,23 @@
     if (!s || (item && item.category === 'Deal Selections')) return [];
     return ADDON_SETS[s] ? ADDON_SETS[s].filter(function(k){ return ADDONS[k]; }) : [];
   }
-  // Paid add-ons can be taken more than once (2x white sauce): the list
-  // repeats the key, up to ADD_MAX of each. The checkout caps it the same way.
+  // Some add-ons can be taken more than once (2x white sauce): the list
+  // repeats the key, up to that add-on's max (set in the staff portal).
+  // The checkout caps it the same way.
   var ADD_MAX = 5;
+  function addMax(k){ var m = ADDONS[k] && ADDONS[k].max; return m >= 1 ? Math.min(ADD_MAX, m) : 1; }
   function addCount(keys, k){ return (keys || []).filter(function(x){ return x === k; }).length; }
   function cleanAdd(item, keys){
     var allowed = addonsFor(item), out = [];
     keys = Array.isArray(keys) ? keys : [];
-    allowed.forEach(function(k){ for (var n = Math.min(ADD_MAX, addCount(keys, k)); n > 0; n--) out.push(k); });
+    allowed.forEach(function(k){ for (var n = Math.min(addMax(k), addCount(keys, k)); n > 0; n--) out.push(k); });
     return out;
   }
   // Click on an add-on: the row or chip toggles; "+" / "−" add or take one.
   function addStep(keys, el){
     keys = (keys || []).slice();
     var k = el.getAttribute('data-addon'), step = el.getAttribute('data-addon-step'), at = keys.indexOf(k);
-    if (step === '1') { if (addCount(keys, k) < ADD_MAX) keys.push(k); }
+    if (step === '1') { if (addCount(keys, k) < addMax(k)) keys.push(k); }
     else if (step === '-1') { if (at !== -1) keys.splice(at, 1); }
     else if (at !== -1) keys = keys.filter(function(x){ return x !== k; });
     else keys.push(k);
@@ -148,6 +151,13 @@
       '<div class="ing-add-list" role="group" aria-label="Add-ons">' +
       list.map(function(k){
         var n = addCount(added, k), a = ADDONS[k];
+        // Once-only add-ons (veggies, double protein): a simple on/off row.
+        if (addMax(k) === 1) return '<button type="button" class="ing-add' + (n ? ' is-on' : '') + '" data-addon="' + k + '" aria-pressed="' + !!n + '" aria-label="' + esc(a.label) + ', add ' + money(a.price) + (n ? ', added' : '') + '">' +
+          '<span class="ing-add-pic">' + picHtml(a) + '</span>' +
+          '<span class="ing-add-name">' + esc(a.label) + '</span>' +
+          '<span class="ing-add-price">+' + money(a.price) + '</span>' +
+          '<span class="ing-add-tick" aria-hidden="true">' + (n ? '\u2713' : '+') + '</span>' +
+        '</button>';
         if (!n) return '<button type="button" class="ing-add" data-addon="' + k + '" aria-label="' + esc(a.label) + ', add ' + money(a.price) + '">' +
           '<span class="ing-add-pic">' + picHtml(a) + '</span>' +
           '<span class="ing-add-name">' + esc(a.label) + '</span>' +
@@ -162,7 +172,7 @@
           '<span class="ing-step">' +
             '<button type="button" class="ing-step-btn" data-addon="' + k + '" data-addon-step="-1" aria-label="' + (n === 1 ? 'Remove ' + esc(a.label) : 'One less ' + esc(a.label)) + '">' + (n === 1 ? '\u2715' : '\u2212') + '</button>' +
             '<span class="ing-step-n" aria-live="polite" aria-label="' + n + ' added">' + n + '</span>' +
-            '<button type="button" class="ing-step-btn" data-addon="' + k + '" data-addon-step="1" aria-label="One more ' + esc(a.label) + '"' + (n >= ADD_MAX ? ' disabled' : '') + '>+</button>' +
+            '<button type="button" class="ing-step-btn" data-addon="' + k + '" data-addon-step="1" aria-label="One more ' + esc(a.label) + '"' + (n >= addMax(k) ? ' disabled' : '') + '>+</button>' +
           '</span>' +
         '</div>';
       }).join('') + '</div></div>';
@@ -259,7 +269,7 @@
     Object.keys(d.ingredients || {}).forEach(function(k){ var v = d.ingredients[k] || {}; ing[k] = { label: String(v.label || k), img: v.img || 'ing-white-sauce.svg', hq: ING[k] && ING[k].img === v.img ? ING[k].hq : undefined }; });
     Object.keys(d.addons || {}).forEach(function(k){ var v = d.addons[k] || {}, c = Number(v.cents);
       if (!(c >= 0)) return;
-      add[k] = { label: String(v.label || k), price: Math.round(c) / 100, img: v.img || 'ing-white-sauce.svg', hq: ADDONS[k] && ADDONS[k].img === v.img ? ADDONS[k].hq : undefined, ticket: v.ticket || null, where: v.included_grid ? 'included' : undefined }; });
+      add[k] = { label: String(v.label || k), price: Math.round(c) / 100, img: v.img || 'ing-white-sauce.svg', hq: ADDONS[k] && ADDONS[k].img === v.img ? ADDONS[k].hq : undefined, ticket: v.ticket || null, where: v.included_grid ? 'included' : undefined, max: Number(v.max) >= 1 ? Math.min(ADD_MAX, Math.round(Number(v.max))) : 1 }; });
     d.groups.forEach(function(g){ if (!g || !g.key) return; groups.push({ key: String(g.key), category: g.category || '', name_has: g.name_has || null, name_not: g.name_not || null });
       sets[g.key] = (g.ingredients || []).map(String); asets[g.key] = (g.addons || []).map(String); });
     [[ING, ing], [SETS, sets], [ADDONS, add], [ADDON_SETS, asets]].forEach(function(p){ Object.keys(p[0]).forEach(function(k){ delete p[0][k]; }); Object.keys(p[1]).forEach(function(k){ p[0][k] = p[1][k]; }); });
@@ -279,7 +289,7 @@
     ING: ING, included: included, clean: clean, note: note, noLabel: noLabel,
     chipsHtml: chipsHtml, toggle: toggle,
     ready: function(){ return optionsReady; }, reload: loadOptions, apply: applyOptions,
-    ADDONS: ADDONS, addonsFor: addonsFor, cleanAdd: cleanAdd, addPrice: addPrice, addNote: addNote, addStep: addStep, addFocus: addFocus, addCount: addCount, ADD_MAX: ADD_MAX,
+    ADDONS: ADDONS, addonsFor: addonsFor, cleanAdd: cleanAdd, addPrice: addPrice, addNote: addNote, addStep: addStep, addFocus: addFocus, addCount: addCount, addMax: addMax, ADD_MAX: ADD_MAX,
     addonsHtml: addonsHtml, noteHtml: noteHtml, cleanNote: cleanNote, custom: custom, lineKey: lineKey, summary: summary,
     // True when the item has anything to customize (included, add-ons).
     customizable: function(item){ return included(item).length > 0 || addonsFor(item).length > 0; },
