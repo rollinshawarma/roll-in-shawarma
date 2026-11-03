@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Jobs — Roll-In Shawarma</title>
+<meta name="description" content="Work at Roll-In Shawarma, a halal food truck in Green, Ohio. See open positions and apply in two minutes.">
+<link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{ --ink:#1d1d1f; --muted:#6e6e73; --line:#e3e3e8; --panel:#f5f5f7; --red:#d62d20; --green:#1f8a4c; --display:"Barlow Condensed", "Inter", sans-serif; }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ overflow-x:hidden; }
+  body{ background:#fff; color:var(--ink); font-family:"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; line-height:1.5; -webkit-font-smoothing:antialiased; }
+  a{ color:inherit; }
+  .top{ position:sticky; top:0; z-index:5; background:rgba(255,255,255,.92); -webkit-backdrop-filter:saturate(180%) blur(14px); backdrop-filter:saturate(180%) blur(14px); border-bottom:1px solid var(--line); }
+  .top .in{ max-width:880px; margin:0 auto; padding:10px 16px; display:flex; align-items:center; justify-content:space-between; gap:12px; }
+  .brand{ display:flex; align-items:center; gap:10px; font-weight:800; font-size:17px; text-decoration:none; }
+  .brand img{ width:32px; height:32px; border-radius:50%; }
+  .top .order{ background:var(--ink); color:#fff; text-decoration:none; font-weight:700; font-size:14px; padding:8px 16px; border-radius:999px; }
+  main{ max-width:880px; margin:0 auto; padding:0 16px 64px; }
+  .hero{ padding:44px 0 28px; }
+  .eyebrow{ display:inline-flex; align-items:center; gap:8px; font-size:12.5px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:var(--red); background:rgba(214,45,32,.08); padding:6px 12px; border-radius:999px; }
+  .eyebrow::before{ content:""; width:8px; height:8px; border-radius:50%; background:var(--red); animation:pulse 1.6s ease-in-out infinite; }
+  @keyframes pulse{ 50%{ opacity:.35; } }
+  @media (prefers-reduced-motion:reduce){ .eyebrow::before{ animation:none; } }
+  h1{ font-family:var(--display); font-size:clamp(44px, 9vw, 72px); line-height:.95; letter-spacing:-.01em; margin:16px 0 12px; text-transform:uppercase; }
+  .intro{ font-size:18px; color:#424245; max-width:620px; }
+  .perks{ display:flex; flex-wrap:wrap; gap:8px; margin-top:18px; }
+  .perks span{ font-size:13.5px; font-weight:600; background:var(--panel); padding:7px 12px; border-radius:999px; }
+  h2{ font-family:var(--display); font-size:32px; text-transform:uppercase; margin:28px 0 14px; letter-spacing:.01em; }
+  .jobs{ display:grid; gap:12px; }
+  .job{ border:1px solid var(--line); border-radius:18px; padding:20px; background:#fff; }
+  .job-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; flex-wrap:wrap; }
+  .job h3{ font-size:20px; font-weight:800; letter-spacing:-.01em; }
+  .tags{ display:flex; flex-wrap:wrap; gap:6px; margin-top:6px; }
+  .tag{ font-size:12.5px; font-weight:600; padding:4px 10px; border-radius:999px; background:var(--panel); color:#3a3a3c; }
+  .tag.pay{ background:rgba(31,138,76,.1); color:#146c3a; }
+  .job p{ margin-top:10px; color:#424245; white-space:pre-line; }
+  .btn{ display:inline-flex; align-items:center; justify-content:center; gap:6px; min-height:44px; padding:0 20px; border-radius:999px; border:0; background:var(--ink); color:#fff; font:inherit; font-weight:700; font-size:15px; cursor:pointer; text-decoration:none; }
+  .btn:disabled{ opacity:.5; cursor:not-allowed; }
+  .btn.ghost{ background:#fff; color:var(--ink); border:1.5px solid var(--line); }
+  .closed, .loading{ border:1px dashed var(--line); border-radius:18px; padding:28px 20px; text-align:center; color:var(--muted); }
+  .closed b{ display:block; color:var(--ink); font-size:18px; margin-bottom:4px; }
+  .closed .btn{ margin-top:14px; }
+  form{ border:1px solid var(--line); border-radius:20px; padding:22px; background:var(--panel); scroll-margin-top:72px; }
+  .f2{ display:grid; grid-template-columns:1fr 1fr; gap:12px; }
+  label, .lbl{ display:block; font-size:13.5px; font-weight:700; margin:14px 0 6px; }
+  label small, .lbl small{ font-weight:400; color:var(--muted); }
+  input[type=text], input[type=tel], input[type=email], input[type=date], select, textarea{ width:100%; font:inherit; font-size:16px; padding:11px 13px; border:1.5px solid var(--line); border-radius:12px; background:#fff; color:var(--ink); }
+  input:focus, select:focus, textarea:focus{ outline:none; border-color:var(--ink); }
+  textarea{ resize:vertical; min-height:80px; }
+  .chips{ display:flex; flex-wrap:wrap; gap:8px; }
+  .chip{ position:relative; }
+  .chip input{ position:absolute; opacity:0; inset:0; cursor:pointer; }
+  .chip span{ display:inline-flex; align-items:center; min-height:40px; padding:0 14px; border-radius:999px; border:1.5px solid var(--line); background:#fff; font-weight:600; font-size:14px; }
+  .chip input:checked + span{ background:var(--ink); border-color:var(--ink); color:#fff; }
+  .chip input:focus-visible + span{ outline:2px solid var(--red); outline-offset:2px; }
+  .yn{ display:flex; gap:8px; }
+  .check{ display:flex; gap:10px; align-items:flex-start; font-weight:500; font-size:14px; margin-top:16px; cursor:pointer; }
+  .check input{ width:20px; height:20px; margin-top:1px; accent-color:var(--ink); flex:none; }
+  .hp{ position:absolute; left:-9999px; width:1px; height:1px; overflow:hidden; }
+  .err{ color:var(--red); font-weight:600; font-size:14px; margin-top:12px; min-height:1px; }
+  .actions{ margin-top:18px; display:flex; align-items:center; gap:12px; flex-wrap:wrap; }
+  .fine{ font-size:12.5px; color:var(--muted); margin-top:12px; }
+  .done{ text-align:center; padding:36px 20px; border-radius:20px; background:rgba(31,138,76,.08); }
+  .done .ok{ width:56px; height:56px; border-radius:50%; background:var(--green); color:#fff; display:flex; align-items:center; justify-content:center; margin:0 auto 12px; font-size:28px; font-weight:800; }
+  .done h3{ font-size:22px; }
+  .done p{ color:#424245; margin-top:6px; }
+  .done .btn{ margin-top:16px; }
+  footer{ border-top:1px solid var(--line); padding:20px 16px; text-align:center; font-size:13px; color:var(--muted); }
+  .hidden{ display:none !important; }
+  @media (max-width:600px){ .f2{ grid-template-columns:1fr; gap:0; } form{ padding:18px 16px; } .hero{ padding-top:28px; } }
+</style>
+</head>
+<body>
+<header class="top"><div class="in">
+  <a class="brand" href="index.html"><img src="logo.jpg" alt="">Roll&#8209;In Shawarma</a>
+  <a class="order" href="index.html#menu">Order food</a>
+</div></header>
+
+<main>
+  <section class="hero">
+    <span class="eyebrow" id="eyebrow">Now hiring</span>
+    <h1 id="headline">Join the Roll-In crew</h1>
+    <p class="intro" id="intro">We&rsquo;re a small, fast, friendly food truck team in Green, Ohio.</p>
+    <div class="perks hidden" id="perks" aria-label="Why work with us"></div>
+  </section>
+
+  <div id="loading" class="loading">Loading open positions&hellip;</div>
+
+  <div id="closed" class="closed hidden">
+    <b>We&rsquo;re not hiring right now</b>
+    Thanks for your interest! Follow us on Instagram to hear when we are.
+    <div><a class="btn ghost" href="index.html">Back to the menu</a></div>
+  </div>
+
+  <section id="openSec" class="hidden">
+    <h2>Open positions</h2>
+    <div class="jobs" id="jobs"></div>
+
+    <h2 id="applyH">Apply in 2 minutes</h2>
+    <form id="apply" novalidate autocomplete="on" aria-labelledby="applyH">
+      <label for="aPos">Position</label>
+      <select id="aPos" required></select>
+      <div class="f2">
+        <div><label for="aName">Your name</label><input type="text" id="aName" autocomplete="name" maxlength="80" required></div>
+        <div><label for="aPhone">Phone</label><input type="tel" id="aPhone" autocomplete="tel" inputmode="tel" maxlength="20" placeholder="(330) 555-0123" required></div>
+      </div>
+      <label for="aEmail">Email <small>(optional)</small></label>
+      <input type="email" id="aEmail" autocomplete="email" maxlength="120">
+
+      <div class="lbl" id="daysL">Days you can work</div>
+      <div class="chips" role="group" aria-labelledby="daysL" id="aDays"></div>
+      <div class="lbl" id="timesL">Times <small>(pick any)</small></div>
+      <div class="chips" role="group" aria-labelledby="timesL" id="aTimes"></div>
+
+      <div class="f2">
+        <div><label for="aStart">Earliest start date <small>(optional)</small></label><input type="date" id="aStart"></div>
+        <div>
+          <div class="lbl" id="o16L">Are you at least 16?</div>
+          <div class="yn chips" role="radiogroup" aria-labelledby="o16L">
+            <label class="chip"><input type="radio" name="o16" value="true"><span>Yes</span></label>
+            <label class="chip"><input type="radio" name="o16" value="false"><span>No</span></label>
+          </div>
+        </div>
+      </div>
+      <div class="lbl" id="fhL">Do you have a food handler card? <small>(not required)</small></div>
+      <div class="yn chips" role="radiogroup" aria-labelledby="fhL">
+        <label class="chip"><input type="radio" name="fh" value="true"><span>Yes</span></label>
+        <label class="chip"><input type="radio" name="fh" value="false"><span>No</span></label>
+      </div>
+      <label for="aExp">Any food or customer service experience? <small>(optional)</small></label>
+      <textarea id="aExp" maxlength="600" placeholder="e.g. 1 year at a pizza shop, cashier at Target"></textarea>
+      <label for="aNote">Anything else we should know? <small>(optional)</small></label>
+      <textarea id="aNote" maxlength="600"></textarea>
+      <div class="hp" aria-hidden="true"><label for="aWeb">Website</label><input type="text" id="aWeb" tabindex="-1" autocomplete="off"></div>
+      <label class="check"><input type="checkbox" id="aText" checked> It&rsquo;s OK to text me about this job.</label>
+      <div class="err" id="aErr" role="alert"></div>
+      <div class="actions"><button type="submit" class="btn" id="aSend">Send application</button></div>
+      <p class="fine">We only use your details to contact you about this job, and we delete applications after 6 months. See our <a href="privacy.html">privacy policy</a>.</p>
+    </form>
+    <div id="done" class="done hidden" tabindex="-1">
+      <div class="ok" aria-hidden="true">&check;</div>
+      <h3>Thanks! We got your application.</h3>
+      <p id="doneTxt">We&rsquo;ll reach out soon.</p>
+      <a class="btn ghost" href="index.html">Back to the menu</a>
+    </div>
+  </section>
+</main>
+<footer>&copy; Roll-In Shawarma &middot; Green, Ohio &middot; <a href="tel:+13305875203">(330) 587-5203</a> &middot; <a href="privacy.html">Privacy</a></footer>
+
+<script>
+(function(){
+  var URL = 'https://njcmcaoyzujijiyfardx.supabase.co/rest/v1/rpc/', KEY = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); }
+  function rpc(fn, body){
+    return fetch(URL + fn, { method:'POST', headers:{ 'Content-Type':'application/json', apikey:KEY, Authorization:'Bearer ' + KEY }, body: JSON.stringify(body || {}) })
+      .then(function(r){ return r.json().then(function(j){ if (!r.ok) throw new Error((j && (j.message || j.error)) || 'Something went wrong'); return j; }); });
+  }
+  var DAYS = ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'], TIMES = ['Mornings','Afternoons','Evenings'];
+  $('aDays').innerHTML = DAYS.map(function(d){ return '<label class="chip"><input type="checkbox" value="' + d + '"><span>' + d + '</span></label>'; }).join('');
+  $('aTimes').innerHTML = TIMES.map(function(t){ return '<label class="chip"><input type="checkbox" value="' + t + '"><span>' + t + '</span></label>'; }).join('');
+  var today = new Date(); $('aStart').min = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+
+  rpc('get_hiring').then(function(d){
+    $('loading').classList.add('hidden');
+    if (d.headline) { $('headline').textContent = d.headline; document.title = d.headline + ' — Roll-In Shawarma'; }
+    if (d.intro) $('intro').textContent = d.intro;
+    var perks = String(d.perks || '').split(',').map(function(x){ return x.trim(); }).filter(Boolean).slice(0, 8);
+    if (perks.length) { $('perks').innerHTML = perks.map(function(x){ return '<span>' + esc(x) + '</span>'; }).join(''); $('perks').classList.remove('hidden'); }
+    var list = Array.isArray(d.positions) ? d.positions : [];
+    if (!d.on || !list.length) { $('closed').classList.remove('hidden'); $('eyebrow').textContent = 'Careers'; return; }
+    $('openSec').classList.remove('hidden');
+    $('jobs').innerHTML = list.map(function(j){
+      return '<article class="job"><div class="job-top"><div><h3>' + esc(j.title) + '</h3><div class="tags"><span class="tag">' + esc(j.type) + '</span>' +
+        (j.pay ? '<span class="tag pay">' + esc(j.pay) + '</span>' : '') + (j.schedule ? '<span class="tag">' + esc(j.schedule) + '</span>' : '') + '</div></div>' +
+        '<a class="btn" href="#apply" data-pick="' + esc(j.id) + '">Apply</a></div>' + (j.description ? '<p>' + esc(j.description) + '</p>' : '') + '</article>';
+    }).join('');
+    $('aPos').innerHTML = (list.length > 1 ? '<option value="">Choose a position</option>' : '') + list.map(function(j){ return '<option value="' + esc(j.id) + '">' + esc(j.title) + '</option>'; }).join('');
+    var want = new URLSearchParams(location.search).get('position');
+    if (want && list.some(function(j){ return j.id === want; })) $('aPos').value = want;
+    $('jobs').addEventListener('click', function(e){
+      var b = e.target.closest('[data-pick]'); if (!b) return;
+      e.preventDefault(); $('aPos').value = b.getAttribute('data-pick');
+      $('apply').scrollIntoView({ behavior:'smooth', block:'start' }); setTimeout(function(){ $('aName').focus({ preventScroll:true }); }, 400);
+    });
+  }).catch(function(){
+    $('loading').classList.add('hidden'); $('closed').classList.remove('hidden'); $('eyebrow').textContent = 'Careers';
+  });
+
+  function picked(id){ return Array.prototype.map.call($(id).querySelectorAll('input:checked'), function(i){ return i.value; }); }
+  function radio(name){ var r = document.querySelector('input[name="' + name + '"]:checked'); return r ? r.value === 'true' : null; }
+  function fail(msg, focusId){ $('aErr').textContent = msg; if (focusId) $(focusId).focus(); return false; }
+  $('apply').addEventListener('submit', function(e){
+    e.preventDefault(); $('aErr').textContent = '';
+    var phone = $('aPhone').value.replace(/\D/g, '');
+    if (!$('aPos').value) return fail('Pick a position.', 'aPos');
+    if ($('aName').value.trim().length < 2) return fail('Please enter your name.', 'aName');
+    if (!(phone.length === 10 || (phone.length === 11 && phone[0] === '1'))) return fail('Please enter a 10-digit phone number.', 'aPhone');
+    var email = $('aEmail').value.trim();
+    if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return fail('That email doesn’t look right.', 'aEmail');
+    if (!picked('aDays').length) return fail('Pick the days you can work.', null);
+    if (radio('o16') === null) return fail('Please tell us if you are at least 16.', null);
+    var btn = $('aSend'); btn.disabled = true; btn.textContent = 'Sending…';
+    rpc('submit_job_application', { p: {
+      position_id: $('aPos').value, name: $('aName').value.trim(), phone: $('aPhone').value, email: email,
+      days: picked('aDays'), times: picked('aTimes'), start_date: $('aStart').value, over_16: radio('o16'), food_handler: radio('fh'),
+      experience: $('aExp').value.trim(), note: $('aNote').value.trim(), text_ok: $('aText').checked, website: $('aWeb').value
+    } }).then(function(r){
+      $('apply').classList.add('hidden'); $('done').classList.remove('hidden');
+      $('doneTxt').textContent = 'We’ll reach out soon about ' + (r && r.position ? r.position : 'the job') + '. Come say hi at the truck any time!';
+      $('done').focus(); $('done').scrollIntoView({ block:'center' });
+    }).catch(function(err){
+      btn.disabled = false; btn.textContent = 'Send application';
+      fail(String(err.message || err).replace(/^.*?ERROR:\s*/, ''));
+    });
+  });
+})();
+</script>
+</body>
+</html>
