@@ -1059,6 +1059,46 @@
   .cf-ans-group dt{ color:var(--muted, #6e6e73); }
   .cf-ans-group dd{ margin:0; font-weight:600; }
   .cf-ans-group dd.flag{ color:#b3261e; }
+  /* Hiring */
+  .hr-card h3{ margin:0; font-size:18px; color:var(--ink); }
+  .hr-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; margin-bottom:12px; }
+  .hr-links{ display:flex; flex-wrap:wrap; gap:8px; margin:6px 0 4px; }
+  .hr-links .btn-ghost, .hr-links .hr-a{ width:auto; text-decoration:none; display:inline-flex; align-items:center; }
+  .hr-words{ margin-top:14px; border-top:1px solid var(--line); padding-top:12px; }
+  .hr-words summary{ cursor:pointer; font-weight:600; font-size:14px; color:var(--ink); margin-bottom:10px; }
+  .hr-words label small, .hr-pos-edit label small{ text-transform:none; letter-spacing:0; font-weight:400; }
+  .hr-pos-edit{ background:#f7f7f9; border-radius:14px; padding:14px; margin-bottom:12px; }
+  .hr-pos-edit textarea{ margin-bottom:10px; }
+  .hr-acts{ display:flex; align-items:center; gap:8px; }
+  .hr-acts .sp{ flex:1; }
+  .hr-link{ background:none; border:0; width:auto; min-height:0; padding:4px; font-size:13px; font-weight:600; color:var(--muted); text-decoration:underline; }
+  .hr-link:hover{ transform:none; }
+  .hr-link.danger{ color:#c4271b; }
+  .hr-pos{ display:flex; align-items:center; gap:12px; padding:12px 0; border-top:1px solid #eeeef2; }
+  .hr-pos:first-child{ border-top:0; }
+  .hr-pos.closed .hr-pos-main{ opacity:.55; }
+  .hr-pos-main{ flex:1; min-width:0; }
+  .hr-pos-main b{ font-size:15px; color:var(--ink); }
+  .hr-pos-main small{ display:block; font-size:12.5px; color:var(--muted); margin-top:2px; }
+  .hr-pos .btn-ghost{ width:auto; }
+  .hr-pos .switch{ transform:scale(.85); }
+  .hr-fpos{ width:auto; max-width:200px; }
+  .hr-filter{ flex-wrap:wrap; }
+  .hr-app{ border:1px solid #e6e6eb; border-radius:14px; padding:14px; margin-top:10px; background:#fff; }
+  .hr-app.is-new{ border-color:#1d1d1f; }
+  .hr-app-top{ display:flex; justify-content:space-between; gap:10px; align-items:flex-start; flex-wrap:wrap; }
+  .hr-app-top b{ font-size:16px; color:var(--ink); }
+  .hr-app-top small{ display:block; font-size:12.5px; color:var(--muted); }
+  .hr-new{ display:inline-block; font-size:11px; font-weight:800; background:#d62d20; color:#fff; padding:2px 7px; border-radius:999px; margin-left:6px; vertical-align:2px; }
+  .hr-status{ width:auto; min-width:150px; }
+  .hr-facts{ display:grid; grid-template-columns:repeat(auto-fill, minmax(170px, 1fr)); gap:6px 14px; margin:10px 0; font-size:13.5px; color:var(--cream); }
+  .hr-facts span{ display:block; font-size:11px; font-weight:700; text-transform:uppercase; letter-spacing:.05em; color:var(--muted); }
+  .hr-text{ font-size:13.5px; color:var(--cream); margin:6px 0; white-space:pre-line; }
+  .hr-text span{ font-weight:700; color:var(--ink); }
+  .hr-app-acts{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-top:10px; }
+  .hr-app-acts a, .hr-app-acts button{ width:auto; text-decoration:none; display:inline-flex; align-items:center; }
+  .hr-app textarea{ margin:10px 0 0; min-height:44px; font-size:13.5px; }
+  @media (max-width:600px){ .hr-pos{ flex-wrap:wrap; } .hr-pos-main{ flex-basis:100%; } .hr-top{ flex-wrap:wrap; } .hr-fpos{ max-width:100%; } }
   /* Welcome offer */
   .wo-top{ display:flex; align-items:flex-start; justify-content:space-between; gap:16px; }
   .wo-body{ margin-top:16px; }
@@ -1265,6 +1305,7 @@
       <div class="nav-section-label">Website</div>
       <button class="nav-link hidden" data-tab="storehours" id="tabStoreHoursBtn"><svg class="icon"><use href="#ic-clock"/></svg>Store hours<span class="nav-badge hidden" id="navHoursBadge"></span></button>
       <button class="nav-link hidden" data-tab="banner" id="tabBannerBtn"><svg class="icon"><use href="#ic-megaphone"/></svg>Banner</button>
+      <button class="nav-link hidden" data-tab="hiring" id="tabHiringBtn"><svg class="icon"><use href="#ic-users"/></svg>Hiring<span class="nav-badge hidden" id="navHireBadge"></span></button>
       <button class="nav-link hidden" data-tab="promotions" id="tabPromotionsBtn"><svg class="icon"><use href="#ic-tag"/></svg>Promo codes</button>
       <button class="nav-link hidden" data-tab="events" id="tabEventsBtn"><svg class="icon"><use href="#ic-calendar"/></svg>Events</button>
       <button class="nav-link hidden" data-tab="catering" id="tabCateringBtn"><svg class="icon"><use href="#ic-gift"/></svg>Catering<span class="nav-badge hidden" id="navCaterBadge"></span></button>
@@ -1744,6 +1785,69 @@
         <div id="mnXMsg"></div>
       </div>
       <footer class="mn-df"><span class="sp"></span><button type="button" class="btn-primary btn-small" data-xclose>Done</button></footer>
+    </div>
+  </div>
+
+<!-- HIRING (hiring.sql) -->
+  <div class="tab-panel hidden" id="panelHiring">
+    <div class="page-head">
+      <h2>Hiring</h2>
+      <p class="hint">Post open jobs on the website and keep track of everyone who applies. Only managers see this tab.</p>
+    </div>
+    <div id="hrMsg"></div>
+
+    <div class="card hr-card" id="hrPage">
+      <div class="hr-top">
+        <div>
+          <h3>Jobs page</h3>
+          <p class="hint" id="hrPageState" style="margin-bottom:0">Loading&hellip;</p>
+        </div>
+        <button type="button" class="switch" role="switch" aria-checked="false" aria-label="Show jobs on the website" id="hrOn" disabled></button>
+      </div>
+      <div class="hr-links">
+        <a href="jobs.html" target="_blank" rel="noopener" class="btn-ghost btn-small hr-a">Open jobs page &#8599;</a>
+        <button type="button" class="btn-ghost btn-small" id="hrCopy">Copy link</button>
+        <button type="button" class="btn-ghost btn-small" id="hrSign">Print &ldquo;Now hiring&rdquo; sign</button>
+      </div>
+      <details class="hr-words">
+        <summary>Page words</summary>
+        <label for="hrHead">Headline</label>
+        <input type="text" id="hrHead" maxlength="60">
+        <label for="hrIntro">About working here</label>
+        <textarea id="hrIntro" rows="2" maxlength="400"></textarea>
+        <label for="hrPerks">Perks <small>(comma between each, optional)</small></label>
+        <input type="text" id="hrPerks" maxlength="200" placeholder="e.g. Free meal every shift, Flexible schedule, Tips">
+        <button type="button" class="btn-primary btn-small" id="hrSaveWords" style="width:auto">Save page words</button>
+      </details>
+    </div>
+
+    <div class="card hr-card">
+      <div class="hr-top"><h3>Positions</h3><button type="button" class="btn-primary btn-small" id="hrAddPos" style="width:auto">+ Add position</button></div>
+      <form class="hr-pos-edit hidden" id="hrPosForm" autocomplete="off">
+        <div class="row2">
+          <div><label for="hrPTitle">Title</label><input type="text" id="hrPTitle" maxlength="60" placeholder="e.g. Line cook"></div>
+          <div><label for="hrPType">Type</label><select id="hrPType"><option>Part-time</option><option>Full-time</option><option>Seasonal</option><option>Weekends</option></select></div>
+          <div><label for="hrPPay">Pay <small>(optional)</small></label><input type="text" id="hrPPay" maxlength="60" placeholder="e.g. $13–$15/hr + tips"></div>
+          <div><label for="hrPSched">Schedule <small>(optional)</small></label><input type="text" id="hrPSched" maxlength="80" placeholder="e.g. Evenings 4–9 PM, some weekends"></div>
+        </div>
+        <label for="hrPDesc">What they&rsquo;ll do <small>(optional)</small></label>
+        <textarea id="hrPDesc" rows="3" maxlength="800" placeholder="Take orders at the window, roll wraps, keep the truck clean. We train you."></textarea>
+        <div id="hrPMsg"></div>
+        <div class="hr-acts">
+          <button type="submit" class="btn-primary btn-small" id="hrPSave" style="width:auto">Save position</button>
+          <button type="button" class="btn-ghost btn-small" id="hrPCancel">Cancel</button>
+          <span class="sp"></span>
+          <button type="button" class="hr-link danger hidden" id="hrPDel">Delete position</button>
+        </div>
+      </form>
+      <div id="hrPosList"></div>
+    </div>
+
+    <div class="card hr-card">
+      <div class="hr-top"><h3>Applications</h3><select id="hrFPos" aria-label="Filter by position" class="hr-fpos"></select></div>
+      <div class="sc-range hr-filter" id="hrFilter" role="group" aria-label="Show"></div>
+      <div id="hrApps"><p class="hint">Loading&hellip;</p></div>
+      <p class="hint" style="margin:12px 0 0">Applications are deleted after 6 months.</p>
     </div>
   </div>
 
@@ -3111,6 +3215,11 @@
         loadKitchenAnalytics('today');
         loadPromotions();
         document.querySelector('.nav-link[data-tab="promotions"]').addEventListener('click', woLoad);
+        document.getElementById('tabHiringBtn').classList.remove('hidden');
+        document.querySelector('.nav-link[data-tab="hiring"]').addEventListener('click', hrLoad);
+        hrLoad();
+        setInterval(function(){ if (document.getElementById('panelHiring').classList.contains('hidden')) hrLoad(); }, 300000);
+        if (location.hash === '#hiring') setTimeout(function(){ showTab('hiring'); }, 0);
         loadSoldOut();
         setInterval(loadSoldOut, 60000);
         document.getElementById('tabAdsBtn').classList.remove('hidden');
@@ -4088,6 +4197,152 @@
   document.querySelectorAll('.nav-link[data-tab]').forEach(function(btn){
     btn.addEventListener('click', function(){ showTab(btn.dataset.tab); });
   });
+
+  // ---------------- HIRING (hiring.sql) ----------------
+  var hr = { d:null, filter:'new', pos:'', editId:null, cleaned:false };
+  var HR_STATUS = [['new', 'New'], ['contacted', 'Contacted'], ['interview', 'Interview'], ['hired', 'Hired'], ['not_a_fit', 'Not a fit']];
+  var HR_SITE = 'https://rollinshawarma.com/jobs.html';
+  function hrEl(id){ return document.getElementById(id); }
+  function hrMsg(id, text, ok){ var el = hrEl(id); if (!el) return; el.innerHTML = text ? '<div class="msg ' + (ok ? 'ok' : 'error') + '">' + esc(text) + '</div>' : ''; if (ok && text) { clearTimeout(el._t); el._t = setTimeout(function(){ el.innerHTML = ''; }, 4000); } }
+  function hrErr(e){ var m = (e && e.message) || String(e); return /does not exist|schema cache/i.test(m) ? 'Run hiring.sql in Supabase → SQL Editor to turn on the Hiring tab.' : m; }
+  function hrRpc(fn, args){ return sb.rpc(fn, args || {}).then(function(r){ if (r.error) throw r.error; hr.d = r.data; hrRender(); return r.data; }); }
+  function hrLoad(){
+    var pre = hr.cleaned ? Promise.resolve() : sb.rpc('hiring_cleanup').then(function(){ hr.cleaned = true; }, function(){});
+    return pre.then(function(){ return hrRpc('staff_hiring_get'); }).catch(function(e){ hrMsg('hrMsg', hrErr(e)); hrEl('hrApps').innerHTML = ''; hrEl('hrPageState').textContent = ''; });
+  }
+  function hrPhone(p){ p = String(p || ''); return p.length === 10 ? '(' + p.slice(0, 3) + ') ' + p.slice(3, 6) + '-' + p.slice(6) : p; }
+  function hrAgo(t){ var d = new Date(t), days = Math.floor((Date.now() - d) / 864e5); return days < 1 ? 'today' : days === 1 ? 'yesterday' : days < 7 ? days + ' days ago' : d.toLocaleDateString('en-US', { month:'short', day:'numeric' }); }
+  function hrRender(){
+    var d = hr.d; if (!d) return;
+    var open = (d.positions || []).filter(function(p){ return p.is_open; });
+    hrEl('hrOn').disabled = false; hrEl('hrOn').setAttribute('aria-checked', d.on ? 'true' : 'false');
+    hrEl('hrPageState').innerHTML = d.on ? 'On: the website shows <b>We&rsquo;re hiring</b> and ' + open.length + ' open position' + (open.length === 1 ? '' : 's') + '.'
+      : open.length ? 'Off: the website doesn&rsquo;t show any jobs. Switch on to post your ' + open.length + ' open position' + (open.length === 1 ? '' : 's') + '.' : 'Off. Add a position below, then switch this on.';
+    if (document.activeElement !== hrEl('hrHead')) hrEl('hrHead').value = d.headline || '';
+    if (document.activeElement !== hrEl('hrIntro')) hrEl('hrIntro').value = d.intro || '';
+    if (document.activeElement !== hrEl('hrPerks')) hrEl('hrPerks').value = d.perks || '';
+    var b = hrEl('navHireBadge'); if (b) { b.textContent = d.new_count || ''; b.classList.toggle('hidden', !d.new_count); }
+    // positions
+    hrEl('hrPosList').innerHTML = (d.positions || []).map(function(p){
+      return '<div class="hr-pos' + (p.is_open ? '' : ' closed') + '" data-id="' + p.id + '"><div class="hr-pos-main"><b>' + esc(p.title) + '</b>' +
+        '<small>' + esc([p.job_type, p.pay, p.schedule].filter(Boolean).join(' · ')) + '</small>' +
+        '<small>' + (p.apps ? p.apps + ' application' + (p.apps === 1 ? '' : 's') + (p.new ? ' · <b style="color:#d62d20">' + p.new + ' new</b>' : '') : 'No applications yet') + (p.is_open ? '' : ' · Closed') + '</small></div>' +
+        '<button type="button" class="switch" role="switch" aria-checked="' + (p.is_open ? 'true' : 'false') + '" aria-label="' + esc(p.title) + ' open" data-open></button>' +
+        '<button type="button" class="btn-ghost btn-small" data-edit>Edit</button></div>';
+    }).join('') || '<p class="hint" style="margin:0">No positions yet. Tap <b>+ Add position</b>.</p>';
+    hrEl('hrPosList').querySelectorAll('.hr-pos').forEach(function(row){
+      var p = d.positions.find(function(x){ return x.id === row.dataset.id; });
+      row.querySelector('[data-edit]').onclick = function(){ hrOpenPos(p); };
+      row.querySelector('[data-open]').onclick = function(){
+        this.disabled = true;
+        hrRpc('staff_position_save', { p: { id:p.id, title:p.title, job_type:p.job_type, pay:p.pay || '', schedule:p.schedule || '', description:p.description || '', is_open:!p.is_open } })
+          .then(function(){ hrMsg('hrMsg', p.title + (p.is_open ? ' is closed' : ' is open again') + '.', true); }, function(e){ hrMsg('hrMsg', hrErr(e)); hrRender(); });
+      };
+    });
+    // filters
+    var apps = d.applications || [], counts = {};
+    apps.forEach(function(a){ counts[a.status] = (counts[a.status] || 0) + 1; });
+    hrEl('hrFilter').innerHTML = [['all', 'All']].concat(HR_STATUS).map(function(s){
+      var n = s[0] === 'all' ? apps.length : (counts[s[0]] || 0);
+      return '<button type="button" data-f="' + s[0] + '"' + (hr.filter === s[0] ? ' class="on"' : '') + '>' + s[1] + (n ? ' (' + n + ')' : '') + '</button>';
+    }).join('');
+    hrEl('hrFilter').querySelectorAll('button').forEach(function(x){ x.onclick = function(){ hr.filter = x.dataset.f; hrRender(); }; });
+    var titles = []; apps.forEach(function(a){ if (a.position_title && titles.indexOf(a.position_title) === -1) titles.push(a.position_title); });
+    hrEl('hrFPos').innerHTML = '<option value="">All positions</option>' + titles.map(function(t){ return '<option' + (t === hr.pos ? ' selected' : '') + '>' + esc(t) + '</option>'; }).join('');
+    hrEl('hrFPos').classList.toggle('hidden', titles.length < 2);
+    var list = apps.filter(function(a){ return (hr.filter === 'all' || a.status === hr.filter) && (!hr.pos || a.position_title === hr.pos); });
+    hrEl('hrApps').innerHTML = list.map(hrAppHtml).join('') || '<p class="hint" style="margin:8px 0 0">' + (apps.length ? 'Nothing here.' : 'No applications yet. Turn the jobs page on and share the link or print the sign.') + '</p>';
+    hrEl('hrApps').querySelectorAll('.hr-app').forEach(hrWireApp);
+  }
+  function hrAppHtml(a){
+    var first = String(a.name || '').split(' ')[0];
+    var sms = 'Hi ' + first + ', this is Roll-In Shawarma about your application for ' + (a.position_title || 'the job') + '. ';
+    return '<div class="hr-app' + (a.status === 'new' ? ' is-new' : '') + '" data-id="' + a.id + '">' +
+      '<div class="hr-app-top"><div><b>' + esc(a.name) + '</b>' + (a.status === 'new' ? '<span class="hr-new">NEW</span>' : '') +
+        '<small>' + esc(a.position_title || 'Position removed') + ' · applied ' + hrAgo(a.created_at) + (a.updated_by && a.status !== 'new' ? ' · updated by ' + esc(a.updated_by) : '') + '</small></div>' +
+        '<select class="hr-status" data-status aria-label="Status for ' + esc(a.name) + '">' + HR_STATUS.map(function(s){ return '<option value="' + s[0] + '"' + (s[0] === a.status ? ' selected' : '') + '>' + s[1] + '</option>'; }).join('') + '</select></div>' +
+      '<div class="hr-facts">' +
+        '<div><span>Can work</span>' + esc((a.days || []).join(', ') || '—') + (a.times && a.times.length ? ' · ' + esc(a.times.join(', ').toLowerCase()) : '') + '</div>' +
+        '<div><span>Can start</span>' + (a.start_date ? new Date(a.start_date + 'T12:00:00').toLocaleDateString('en-US', { month:'short', day:'numeric' }) : 'Not said') + '</div>' +
+        '<div><span>16 or older</span>' + (a.over_16 ? 'Yes' : '<b style="color:#c4271b">No</b> (work permit needed)') + '</div>' +
+        '<div><span>Food handler card</span>' + (a.food_handler === true ? 'Yes' : a.food_handler === false ? 'No' : 'Not said') + '</div>' +
+      '</div>' +
+      (a.experience ? '<p class="hr-text"><span>Experience:</span> ' + esc(a.experience) + '</p>' : '') +
+      (a.note ? '<p class="hr-text"><span>Note:</span> ' + esc(a.note) + '</p>' : '') +
+      '<div class="hr-app-acts">' +
+        '<a class="btn-ghost btn-small" href="tel:+1' + esc(a.phone) + '">Call ' + esc(hrPhone(a.phone)) + '</a>' +
+        (a.text_ok ? '<a class="btn-ghost btn-small" href="sms:+1' + esc(a.phone) + '?&body=' + encodeURIComponent(sms) + '">Text</a>' : '<span class="hint" style="margin:0">No texts, please call</span>') +
+        (a.email ? '<a class="btn-ghost btn-small" href="mailto:' + esc(a.email) + '?subject=' + encodeURIComponent('Your application at Roll-In Shawarma') + '">Email</a>' : '') +
+        '<span style="flex:1"></span><button type="button" class="hr-link danger" data-del>Delete</button>' +
+      '</div>' +
+      '<textarea data-note rows="1" maxlength="600" placeholder="Notes for the team (interview time, how it went…)" aria-label="Notes about ' + esc(a.name) + '">' + esc(a.staff_note || '') + '</textarea>' +
+    '</div>';
+  }
+  function hrWireApp(card){
+    var id = card.dataset.id, a = hr.d.applications.find(function(x){ return x.id === id; });
+    card.querySelector('[data-status]').onchange = function(){
+      var s = this.value;
+      hrRpc('staff_application_update', { p: { id:id, status:s } }).then(function(){ hrMsg('hrMsg', a.name + ': ' + HR_STATUS.find(function(x){ return x[0] === s; })[1] + '.' + (s === 'hired' ? ' Add them in Employees when they start.' : ''), true); }, function(e){ hrMsg('hrMsg', hrErr(e)); });
+    };
+    var n = card.querySelector('[data-note]');
+    n.addEventListener('change', function(){ sb.rpc('staff_application_update', { p: { id:id, staff_note:n.value } }).then(function(r){ if (r.error) return hrMsg('hrMsg', hrErr(r.error)); hr.d = r.data; hrMsg('hrMsg', 'Note saved.', true); }); });
+    card.querySelector('[data-del]').onclick = function(){
+      if (!confirm('Delete ' + a.name + '’s application? This can’t be undone.')) return;
+      hrRpc('staff_application_update', { p: { id:id, delete:true } }).then(function(){ hrMsg('hrMsg', 'Deleted.', true); }, function(e){ hrMsg('hrMsg', hrErr(e)); });
+    };
+  }
+  function hrOpenPos(p){
+    hr.editId = p ? p.id : null;
+    hrEl('hrPTitle').value = p ? p.title : ''; hrEl('hrPType').value = p ? p.job_type : 'Part-time';
+    hrEl('hrPPay').value = p && p.pay || ''; hrEl('hrPSched').value = p && p.schedule || ''; hrEl('hrPDesc').value = p && p.description || '';
+    hrEl('hrPDel').classList.toggle('hidden', !p); hrMsg('hrPMsg', '');
+    hrEl('hrPosForm').classList.remove('hidden'); hrEl('hrPTitle').focus();
+  }
+  function hrSignPrint(){
+    var draw = function(){
+      var q = qrcode(0, 'M'); q.addData(HR_SITE); q.make();
+      var open = (hr.d && hr.d.positions || []).filter(function(p){ return p.is_open; }).map(function(p){ return p.title; });
+      var w = window.open('', '_blank'); if (!w) return;
+      w.document.write('<!doctype html><title>Now hiring sign</title><style>body{font:20px Arial,sans-serif;text-align:center;margin:40px;color:#1d1d1f}h1{font-size:72px;margin:0 0 4px;letter-spacing:-1px}h2{font-size:28px;font-weight:600;margin:0 0 26px;color:#444}.qr{width:340px;height:340px;margin:0 auto 18px}.qr svg{width:100%;height:100%}p{font-size:24px;margin:8px 0}.u{font-size:18px;color:#666}</style>' +
+        '<h1>NOW HIRING</h1><h2>Roll-In Shawarma</h2>' + (open.length ? '<p><b>' + esc(open.join(' · ')) + '</b></p>' : '') +
+        '<div class="qr">' + q.createSvgTag({ scalable:true, margin:2 }) + '</div><p><b>Scan to apply</b> in 2 minutes</p><p class="u">rollinshawarma.com/jobs.html</p>');
+      w.document.close(); w.focus(); w.print();
+    };
+    if (window.qrcode) return draw();
+    var s = document.createElement('script'); s.src = 'qrcode-generator.js?v=1.4.4'; s.onload = draw;
+    s.onerror = function(){ var t = document.createElement('script'); t.src = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js'; t.onload = draw; document.head.appendChild(t); };
+    document.head.appendChild(s);
+  }
+  (function(){
+    hrEl('hrOn').onclick = function(){
+      var on = this.getAttribute('aria-checked') !== 'true', sw = this; sw.disabled = true;
+      hrRpc('staff_hiring_save', { p: { on:on, headline:hrEl('hrHead').value, intro:hrEl('hrIntro').value } })
+        .then(function(){ hrMsg('hrMsg', on ? 'Hiring is on. The website shows your open jobs.' : 'Hiring is off. Jobs are hidden from the website.', true); }, function(e){ sw.disabled = false; hrMsg('hrMsg', hrErr(e)); });
+    };
+    hrEl('hrSaveWords').onclick = function(){
+      hrRpc('staff_hiring_save', { p: { on:!!(hr.d && hr.d.on), headline:hrEl('hrHead').value, intro:hrEl('hrIntro').value, perks:hrEl('hrPerks').value } })
+        .then(function(){ hrMsg('hrMsg', 'Page words saved.', true); }, function(e){ hrMsg('hrMsg', hrErr(e)); });
+    };
+    hrEl('hrCopy').onclick = function(){ var b = this; (navigator.clipboard ? navigator.clipboard.writeText(HR_SITE) : Promise.reject()).then(function(){ b.textContent = 'Copied!'; setTimeout(function(){ b.textContent = 'Copy link'; }, 1500); }, function(){ prompt('Copy this link:', HR_SITE); }); };
+    hrEl('hrSign').onclick = hrSignPrint;
+    hrEl('hrAddPos').onclick = function(){ hrOpenPos(null); };
+    hrEl('hrPCancel').onclick = function(){ hrEl('hrPosForm').classList.add('hidden'); };
+    hrEl('hrFPos').onchange = function(){ hr.pos = this.value; hrRender(); };
+    hrEl('hrPosForm').addEventListener('submit', function(ev){
+      ev.preventDefault();
+      var p = { id: hr.editId || '', title: hrEl('hrPTitle').value, job_type: hrEl('hrPType').value, pay: hrEl('hrPPay').value, schedule: hrEl('hrPSched').value, description: hrEl('hrPDesc').value };
+      if (!hr.editId) p.is_open = true;
+      hrEl('hrPSave').disabled = true;
+      hrRpc('staff_position_save', { p:p }).then(function(){
+        hrEl('hrPSave').disabled = false; hrEl('hrPosForm').classList.add('hidden');
+        hrMsg('hrMsg', 'Saved ' + p.title.trim() + '.' + (hr.d.on ? '' : ' Switch the jobs page on to post it.'), true);
+      }, function(e){ hrEl('hrPSave').disabled = false; hrMsg('hrPMsg', hrErr(e)); });
+    });
+    hrEl('hrPDel').onclick = function(){
+      if (!confirm('Delete this position? Applications for it are kept.')) return;
+      hrRpc('staff_position_save', { p: { id:hr.editId, delete:true } }).then(function(){ hrEl('hrPosForm').classList.add('hidden'); hrMsg('hrMsg', 'Position deleted.', true); }, function(e){ hrMsg('hrPMsg', hrErr(e)); });
+    };
+  })();
 
   // ---------------- WELCOME OFFER (welcome-offer.sql) ----------------
   var wo = { d:null, on:false };
