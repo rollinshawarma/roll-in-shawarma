@@ -613,6 +613,45 @@
     .kh{ flex-wrap:wrap !important; }
   }
   .kh-tools button{ margin:0 !important; min-height:44px; }
+  /* ---- Grouped tools: Orders and Truck (one line on every tablet) ---- */
+  .kh-tools .kh-grouped{ display:none !important; }   /* the real buttons, used from the slide */
+  .kh-grp{ position:relative; display:inline-flex; align-items:center; gap:6px; font-size:15px; font-weight:700; padding:9px 15px; border:1px solid var(--line); border-radius:100px; color:var(--cream); white-space:nowrap; background:transparent; }
+  .kh-grp[aria-expanded="true"]{ background:#f5f5f7; color:#1d1d1f !important; border-color:#f5f5f7; }
+  /* Narrow (portrait) tablets: stay on one line by getting more compact. */
+  @media (max-width:980px){ .kh{ flex-wrap:nowrap !important; } }
+  .kh.c1 .kh-grp .gl{ display:none; }
+  .kh.c1 .kh-grp, .kh.c1 .kh-tools > button{ padding-left:9px !important; padding-right:9px !important; }
+  .kh.c2 .st-tabs .st-tab{ padding-left:6px !important; padding-right:6px !important; font-size:13px !important; }
+  .kh.c2 #calEventName{ max-width:70px; }
+  .kh.c2 #boardClock{ font-size:17px !important; }
+  .kh.c3 .kh-tools > button, .kh.c3 .kh-grp{ font-size:12.5px !important; padding-left:7px !important; padding-right:7px !important; }
+  .kh.c4 #suppliesBtn .gl{ display:none; }
+  .kh.c5 .kh-id{ display:none !important; }
+  .kh.c3 .st-tabs .st-tab{ font-size:12px !important; padding-left:5px !important; padding-right:5px !important; }
+  .grp-badge{ min-width:22px; height:22px; padding:0 6px; border-radius:11px; background:#ff453a; color:#fff; font-size:13px; font-weight:800; display:inline-flex; align-items:center; justify-content:center; }
+  .grp-badge.zero{ display:none; }
+  .grp-scrim{ position:fixed; inset:0; z-index:58; background:rgba(0,0,0,.35); }
+  .grp-scrim.hidden{ display:none; }
+  .grp-slide{ position:fixed; z-index:59; top:0; right:0; bottom:0; width:min(440px, 92vw); background:#1c1c1e; border-left:1px solid #3a3a3c; box-shadow:-18px 0 40px rgba(0,0,0,.5);
+    transform:translateX(105%); transition:transform .25s ease; display:flex; flex-direction:column; }
+  .grp-slide.open{ transform:translateX(0); }
+  @media (prefers-reduced-motion: reduce){ .grp-slide{ transition:none; } }
+  .grp-head{ display:flex; align-items:center; justify-content:space-between; padding:18px 18px 10px; }
+  .grp-head b{ font-size:22px; color:#fff; }
+  .grp-head button{ width:48px; height:48px; border-radius:50%; border:0; background:#2c2c2e; color:#fff; font-size:26px; line-height:1; }
+  .grp-rows{ flex:1; overflow-y:auto; -webkit-overflow-scrolling:touch; padding:4px 14px 20px; display:flex; flex-direction:column; gap:10px; }
+  .grp-row{ display:flex; align-items:center; gap:14px; width:100%; min-height:72px; padding:12px 16px; border-radius:16px; border:2px solid transparent; background:#2c2c2e; color:#fff; text-align:left; font:inherit; }
+  .grp-row:active{ border-color:var(--gold, #f7ad28); }
+  .grp-row .ic{ font-size:26px; width:34px; text-align:center; flex:none; }
+  .grp-row .tx{ flex:1; min-width:0; }
+  .grp-row .tx b{ display:block; font-size:19px; }
+  .grp-row .tx small{ display:block; font-size:14px; color:#aeaeb2; margin-top:2px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+  .grp-row .nw{ width:12px; height:12px; border-radius:50%; background:#ff453a; flex:none; }
+  .grp-row.attn{ border-color:rgba(255,69,58,.6); }
+  .grp-row.on{ border-color:#30d158; }
+  /* The info line a tool opens under the header: tap it to hide it. */
+  #kioskHealthPanel .recall-panel-head, #spotsPanel .recall-panel-head, #scheduledPanel .recall-panel-head, #recallPanel .recall-panel-head{ cursor:pointer; }
+  #kioskHealthPanel .recall-panel-head > span::after, #spotsPanel .recall-panel-head > span::after, #scheduledPanel .recall-panel-head > span::after, #recallPanel .recall-panel-head > span::after{ content:"  \00b7  tap to hide"; font-size:13px; font-weight:600; color:#8e8e93; }
   .kh .kh-lock{ color:var(--muted) !important; border:1px solid var(--line) !important; border-radius:100px; padding:9px 15px !important; font-size:15px !important; font-weight:700; }
 
   /* ---------- Sub Station v2: order tickets, fryer items blink red ---------- */
@@ -993,6 +1032,8 @@
     </nav>
     <div class="kh-tools">
       <button type="button" id="pauseOnlineBtn" title="Pause or resume online orders: website, drive-up and Next Door. The kiosk keeps going. (Needs your PIN)">&#9208; Pause</button>
+      <button type="button" class="kh-grp" id="grpOrders" data-grp="orders" aria-haspopup="dialog" aria-controls="grpSlide" aria-label="Orders">&#129534;<span class="gl"> Orders</span><span class="grp-badge zero" id="grpOrdersN">0</span></button>
+      <button type="button" class="kh-grp" id="grpTruck" data-grp="truck" aria-haspopup="dialog" aria-controls="grpSlide" aria-label="Truck">&#128666;<span class="gl"> Truck</span><span class="grp-badge zero" id="grpTruckN">0</span></button>
       <button type="button" id="popupBtn" title="On Location: take website orders for an event or catering away from the usual spot (needs your PIN)">&#128666; On Location</button>
       <button type="button" id="kioskHealthBtn" class="hidden" title="Kiosk tablets and card machine"><span class="kk-dot" id="kioskHealthDot"></span>Kiosk</button>
       <button type="button" id="viewToggleBtn" title="Switch between item prep and whole tickets">&#9638; Tickets</button>
@@ -1000,10 +1041,17 @@
       <button type="button" id="spotsBtn" title="Parking spots in use" aria-label="Parking spots">&#127359;<span class="dots" id="spotsDots">&#9675;&#9675;&#9675;&#9675;&#9675;</span></button>
       <button type="button" id="truckLocBtn" title="Save where the truck is parked (for drive-up check-ins)">&#128205; Location</button>
       <button type="button" id="recallBtn" title="Recall: bring back an order marked done" aria-label="Recall">&#8634;</button>
-      <button type="button" id="suppliesBtn" title="Supplies to restock">&#128230; Supplies<span class="nd-count zero" id="suppliesCount">0</span></button>
+      <button type="button" id="suppliesBtn" title="Supplies to restock" aria-label="Supplies">&#128230;<span class="gl"> Supplies</span><span class="nd-count zero" id="suppliesCount">0</span></button>
       <button type="button" id="lockBtn" class="kh-lock" title="Lock the board" aria-label="Lock">&#128274;</button>
     </div>
   </div>
+  <!-- Grouped tools slide in from the right (like the kiosk's flavor picker). -->
+  <div class="grp-scrim hidden" id="grpScrim"></div>
+  <div class="grp-slide" id="grpSlide" role="dialog" aria-modal="true" aria-labelledby="grpTitle" aria-hidden="true">
+    <div class="grp-head"><b id="grpTitle">Orders</b><button type="button" id="grpClose" aria-label="Close">&times;</button></div>
+    <div class="grp-rows" id="grpRows"></div>
+  </div>
+
   <div id="boardErrorBanner" class="hidden"></div>
   <div id="squareSyncBanner" class="hidden" role="alert"></div>
   <div id="canceledOrdersBanner" class="hidden"></div>
@@ -3804,6 +3852,105 @@
     load();
     setInterval(function(){ if (st.ready && $('suppliesModal').classList.contains('hidden')) load(); }, 60000);
   })();
+
+
+
+// ---- Kitchen header groups: Orders and Truck ----
+// The real buttons stay (hidden) and do the work; each group opens a slide
+// of big options. A red number on the group = options with something new.
+(function(){
+  function $(id){ return document.getElementById(id); }
+  var slide = $('grpSlide'), rows = $('grpRows'), scrim = $('grpScrim');
+  if (!slide || !$('grpOrders')) return;
+  ['viewToggleBtn', 'scheduledBtn', 'recallBtn', 'popupBtn', 'spotsBtn', 'truckLocBtn', 'kioskHealthBtn'].forEach(function(id){ var b = $(id); if (b) b.classList.add('kh-grouped'); });
+  function txt(id){ var b = $(id); return b ? b.textContent.replace(/\s+/g, ' ').trim() : ''; }
+  function num(id){ var e = $(id); var n = e ? parseInt(e.textContent, 10) : 0; return isFinite(n) ? n : 0; }
+  function shown(id){ var b = $(id); return !!b && !b.classList.contains('hidden'); }
+  var OPTIONS = {
+    orders: { title: 'Orders', items: [
+      function(){ var n = num('scheduledCount'); return { key: 'scheduledBtn', ic: '⏰', label: 'Scheduled orders', sub: n ? n + ' coming up' : 'None coming up', attn: n > 0 }; },
+      function(){ return { key: 'recallBtn', ic: '↺', label: 'Recall an order', sub: 'Bring back one marked done (last 30 min)' }; },
+      function(){ var t = txt('viewToggleBtn').replace(/^[^A-Za-z]+/, ''); return { key: 'viewToggleBtn', ic: '▦', label: 'Switch view', sub: 'Tap for: ' + (t || 'Tickets') }; }
+    ] },
+    truck: { title: 'Truck', items: [
+      function(){ var b = $('popupBtn'), on = b && b.classList.contains('is-on'), soon = b && b.classList.contains('is-soon');
+        var t = txt('popupBtn').replace(/^\W+/, '').replace(/^On Location\s*·?\s*/i, '');
+        return { key: 'popupBtn', ic: '🚚', label: 'On Location', sub: on ? 'On now · ' + t : soon ? 'Scheduled · ' + t : 'Take orders at an event (needs your PIN)', attn: false, on: on || soon }; },
+      function(){ var d = ($('spotsDots') || {}).textContent || '', used = (d.match(/●/g) || []).length;
+        return { key: 'spotsBtn', ic: '🅿️', label: 'Parking spots', sub: used ? used + ' of 5 in use' : 'All 5 free', attn: used > 0 }; },
+      function(){ if (!shown('kioskHealthBtn')) return null; var dot = $('kioskHealthDot'), bad = dot && /\b(bad|warn)\b/.test(dot.className);
+        return { key: 'kioskHealthBtn', ic: '🖥️', label: 'Kiosk & card machine', sub: bad ? 'Needs a look' : 'All good', attn: !!bad }; },
+      function(){ var b = $('truckLocBtn'), need = b && b.classList.contains('needs');
+        return { key: 'truckLocBtn', ic: '📍', label: 'Truck location', sub: need ? 'Update it (the truck moved?)' : 'Saved · tap to update', attn: !!need }; }
+    ] }
+  };
+  var openGrp = null;
+  function list(g){ return OPTIONS[g].items.map(function(f){ return f(); }).filter(Boolean); }
+  function badges(){
+    ['orders', 'truck'].forEach(function(g){
+      var n = list(g).filter(function(o){ return o.attn || o.on; }).length, el = $(g === 'orders' ? 'grpOrdersN' : 'grpTruckN');
+      el.textContent = n; el.classList.toggle('zero', !n);
+    });
+    if (openGrp) paint(openGrp);
+  }
+  function esc(v){ return String(v).replace(/[&<>"]/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' }[c]; }); }
+  function paint(g){
+    $('grpTitle').textContent = OPTIONS[g].title;
+    rows.innerHTML = list(g).map(function(o){
+      return '<button type="button" class="grp-row' + (o.attn ? ' attn' : '') + (o.on ? ' on' : '') + '" data-key="' + o.key + '"><span class="ic" aria-hidden="true">' + o.ic + '</span>' +
+        '<span class="tx"><b>' + esc(o.label) + '</b><small>' + esc(o.sub) + '</small></span>' + (o.attn ? '<span class="nw" aria-label="new"></span>' : '') + '</button>';
+    }).join('');
+  }
+  function open(g){
+    openGrp = g; paint(g);
+    document.querySelectorAll('.kh-grp').forEach(function(b){ b.setAttribute('aria-expanded', b.getAttribute('data-grp') === g ? 'true' : 'false'); });
+    scrim.classList.remove('hidden'); slide.classList.add('open'); slide.setAttribute('aria-hidden', 'false');
+    setTimeout(function(){ $('grpClose').focus(); }, 50);
+  }
+  function close(){
+    openGrp = null; scrim.classList.add('hidden'); slide.classList.remove('open'); slide.setAttribute('aria-hidden', 'true');
+    document.querySelectorAll('.kh-grp').forEach(function(b){ b.setAttribute('aria-expanded', 'false'); });
+  }
+  document.querySelectorAll('.kh-grp').forEach(function(b){ b.addEventListener('click', function(){ openGrp === b.getAttribute('data-grp') ? close() : open(b.getAttribute('data-grp')); }); });
+  $('grpClose').addEventListener('click', close); scrim.addEventListener('click', close);
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && openGrp) close(); });
+  // Picking an option: close the slide, then do what the real button does
+  // (its info line opens under the header).
+  rows.addEventListener('click', function(e){
+    var r = e.target.closest('.grp-row'); if (!r) return;
+    var b = $(r.getAttribute('data-key')); close();
+    if (b) setTimeout(function(){ b.click(); badges(); }, 180);
+  });
+  // Tapping an info line hides it (buttons inside it still work).
+  [['kioskHealthPanel', 'kioskHealthCloseBtn'], ['spotsPanel', 'spotsCloseBtn'], ['scheduledPanel', 'scheduledCloseBtn'], ['recallPanel', 'recallCloseBtn']].forEach(function(p){
+    var panel = $(p[0]), x = $(p[1]); if (!panel || !x) return;
+    panel.addEventListener('click', function(e){
+      if (e.target === x || e.target.closest('button, a, input, select, textarea, label') && e.target.closest('button, a, input, select, textarea, label') !== x) return;
+      x.click();
+    });
+  });
+  // Keep the red numbers current as the real buttons change.
+  var mo = new MutationObserver(function(){ clearTimeout(mo.t); mo.t = setTimeout(badges, 60); });
+  ['scheduledBtn', 'popupBtn', 'spotsBtn', 'truckLocBtn', 'kioskHealthBtn', 'viewToggleBtn'].forEach(function(id){ var b = $(id); if (b) mo.observe(b, { attributes: true, childList: true, subtree: true, characterData: true }); });
+  badges();
+  // One line always: get more compact step by step until the header fits.
+  var head = $('boardHeader');
+  function fitBar(){
+    if (!head || !head.offsetWidth) return;
+    head.classList.remove('c1', 'c2', 'c3', 'c4', 'c5');
+    ['c1', 'c2', 'c3', 'c4', 'c5'].forEach(function(c){ if (head.scrollWidth > head.clientWidth + 1) head.classList.add(c); });
+  }
+  window.addEventListener('resize', fitBar);
+  window.addEventListener('orientationchange', function(){ setTimeout(fitBar, 300); });
+  var board = $('board');
+  if (board) new MutationObserver(function(){ if (!board.classList.contains('hidden')) fitBar(); }).observe(board, { attributes: true, attributeFilter: ['class'] });
+  var tabs = head && head.querySelector('.st-tabs');
+  if (tabs) new MutationObserver(function(){ clearTimeout(fitBar.t); fitBar.t = setTimeout(fitBar, 50); }).observe(tabs, { attributes: true, subtree: true, childList: true, characterData: true });
+  var tools = head && head.querySelector('.kh-tools');
+  if (tools) new MutationObserver(function(){ clearTimeout(fitBar.u); fitBar.u = setTimeout(fitBar, 80); }).observe(tools, { childList: true, subtree: true, characterData: true });
+  fitBar(); setTimeout(fitBar, 600);
+  window.rollinGroups = { open: open, close: close, refresh: badges, fit: fitBar };
+})();
 </script>
 </body>
 </html>
