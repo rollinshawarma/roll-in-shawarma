@@ -832,7 +832,7 @@
         </div>
         <div class="apply-msg" id="memberMsg" aria-live="polite"></div>
       </div>
-      <div class="field">
+      <div class="field" id="promoField">
         <label for="promoCode">Promo code <small>(optional)</small></label>
         <div class="apply-row">
           <input type="text" id="promoCode" placeholder="Enter code" autocomplete="off" autocapitalize="characters">
@@ -995,6 +995,9 @@
         if (!onLocNow && a <= now && now < b - 15 * 60000) onLocNow = p;
       });
       if (!onLocNow || doorProg) return;
+      // No coupons On Location.
+      if ($('promoField')) $('promoField').classList.add('hidden');
+      if (appliedPromo) { appliedPromo = null; if ($('promoCode')) $('promoCode').value = ''; }
       if ($('topMode')) $('topMode').textContent = 'On location';
       pickupMethod = 'window';
       document.querySelectorAll('[data-pickup]').forEach(function(x){ x.setAttribute('aria-pressed', x.getAttribute('data-pickup') === 'window' ? 'true' : 'false'); });
@@ -2601,7 +2604,7 @@
         carModel: carModelValue,
         carColor: pickupMethod === 'curbside' ? selectedCarColor : null,
         memberCode: appliedMember || undefined,
-        promoCode: appliedPromo ? appliedPromo.code : undefined,
+        promoCode: appliedPromo && !onLocNow ? appliedPromo.code : undefined,
         tipAmount: selectedTip || 0,
         rewardIds: (function(){ var ids = computeTotals(0).rewardIds; return ids.length ? ids : undefined; })()
       };
