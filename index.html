@@ -160,6 +160,14 @@
   .open-status{ display:inline-flex; align-items:center; gap:8px; margin-top:18px; font-size:15px; font-weight:500; color:rgba(255,255,255,.92); min-height:22px; }
   .open-status::before{ content:""; width:9px; height:9px; border-radius:50%; background:#ff453a; flex:none; }
   .open-status.is-open::before{ background:#30d158; animation:openPulse 1.6s ease-in-out infinite; }
+  .open-status.is-soon::before{ background:#ffd479; }
+  .hours-onloc-label{ color:#0b6b35; }
+  .hours-row.hours-onloc span:first-child small, .hours-row.hours-onloc span:last-child small{ display:block; font-size:13px; font-weight:400; color:var(--muted, #6b6259); white-space:normal; }
+  .hours-row.hours-onloc span:first-child::after{ content:none !important; }
+  .hours-row.hours-onloc .ol-d{ font-style:normal; }
+  .hours-row.hours-onloc.is-today .ol-d::after, .hours-row.hours-onloc.is-live .ol-d::after{ content:"Today"; margin-left:8px; font-size:11px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#fff; background:#0b6b35; padding:2px 7px; border-radius:999px; vertical-align:2px; }
+  .hours-row.hours-onloc.is-live .ol-d::after{ content:"Now"; }
+  .hours-row.onloc-day span:last-child{ color:#0b6b35; font-weight:600; }
   @keyframes openPulse{
     0%, 100%{ opacity:1; box-shadow:0 0 0 0 rgba(48,209,88,.6); }
     50%{ opacity:.35; box-shadow:0 0 0 6px rgba(48,209,88,0); }
@@ -5437,6 +5445,13 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         return (parseInt(o.hour, 10) % 24) * 60 + parseInt(o.minute, 10);
       } catch (e) { var d = new Date(); return d.getHours() * 60 + d.getMinutes(); }
     }
+    // On Location stops (Staff portal -> Store hours -> On Location).
+    function olStops(){ try { return (window.rollinPopups && window.rollinPopups()) || []; } catch (e) { return []; } }
+    function olClock(ms){ var d = new Date(ms), o = {}; new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }).formatToParts(d).forEach(function(x){ o[x.type] = x.value; }); return o.hour + (o.minute === '00' ? '' : ':' + o.minute) + ' ' + o.dayPeriod; }
+    function olMins(ms){ var o = {}; new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: '2-digit', minute: '2-digit', hourCycle: 'h23' }).formatToParts(new Date(ms)).forEach(function(x){ o[x.type] = x.value; }); return (+o.hour % 24) * 60 + +o.minute; }
+    function olDate(ms){ return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date(ms)); }
+    function olRange(p){ var a = olClock(p.from), b = olClock(p.to); return a.slice(-2) === b.slice(-2) ? a.slice(0, -3) + ' \u2013 ' + b : a + ' \u2013 ' + b; }
+    function olDay(ms){ var ds = olDate(ms), t = H.today(); if (ds === t) return 'today'; if (ds === H.addDays(t, 1)) return 'tomorrow'; var k = 0; for (var x = t; x < ds && k < 9; k++) x = H.addDays(x, 1); return k < 7 ? H.DAYS[H.dowOf(ds)] : H.label(ds); }
     // Hours card: weekly rows (grouped), then any special dates coming up.
     function paintCard(){
       var box = document.querySelector('.business-hours');
@@ -5451,6 +5466,14 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
             var nt = u.note ? '<small>' + esc(u.note) + '</small>' : '';
             return '<div class="hours-row hours-special" data-date="' + u.ds + '"><span>' + esc(H.label(u.ds)) + '</span>' +
               (u.h ? '<span>' + esc(H.range(u.h)) + nt + '</span>' : '<span class="hours-closed">Closed' + nt + '</span>') + '</div>';
+          }).join('');
+        }
+        var stops = olStops().filter(function(p){ return p.to > Date.now(); });
+        if (stops.length) {
+          html += '<div class="business-hours-label hours-special-label hours-onloc-label">&#128666; On Location</div>' + stops.map(function(p){
+            var ds = olDate(p.from), live = p.from <= Date.now();
+            return '<div class="hours-row hours-onloc' + (live ? ' is-live' : '') + '" data-onloc-date="' + ds + '"><span><em class="ol-d">' + esc(live ? 'Right now' : H.label(ds)) + '</em><small>' + esc(p.name) + '</small></span>' +
+              '<span>' + esc(olRange(p)) + (p.address ? '<small>' + esc(p.address) + '</small>' : '') + '</span></div>';
           }).join('');
         }
         box.innerHTML = html;
@@ -5469,7 +5492,15 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     function render(){
       var el = document.getElementById('openStatus'), t = H.today(), a = H.at(t), n = nowMins(), dow = H.dowOf(t);
       document.querySelectorAll('.business-hours .hours-row').forEach(function(r){
+        var od = r.getAttribute('data-onloc-date');
+        if (od) { r.classList.toggle('is-today', od === t && !r.classList.contains('is-live')); return; }
         var dd = r.getAttribute('data-date'), days = r.getAttribute('data-days');
+        var isT = dd ? dd === t : (!a.special && days && days.split(',').indexOf(String(dow)) >= 0);
+        var stopT = isT && olStops().some(function(p){ return p.to > Date.now() && olDate(p.from) === t; });
+        var last = r.lastElementChild;
+        if (last && last.getAttribute('data-was') == null) last.setAttribute('data-was', last.innerHTML);
+        if (last && last.classList.contains('hours-closed')) last.innerHTML = stopT ? '&#128666; On Location today' : last.getAttribute('data-was');
+        r.classList.toggle('onloc-day', !!stopT && !!last && last.classList.contains('hours-closed'));
         // A special date today highlights its own row instead of the weekday's.
         r.classList.toggle('is-today', dd ? dd === t : (!a.special && days && days.split(',').indexOf(String(dow)) >= 0));
       });
@@ -5480,11 +5511,27 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       var pop = window.rollinPopupNow && window.rollinPopupNow();
       if (pop) {
         el.classList.add('is-open');
-        el.textContent = 'On location now at ' + pop.name + ' \u00b7 until ' + new Date(pop.to).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' });
+        el.textContent = 'On Location now at ' + pop.name + ' \u00b7 until ' + new Date(pop.to).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' });
         return;
       }
+      el.classList.remove('is-soon');
       el.classList.toggle('is-open', isOpen);
       var why = a.special && a.note ? ' (' + a.note + ')' : '';
+      // Not open at the standard spot: an On Location stop later today, or
+      // one sooner than the next regular opening, is what we show.
+      var nowMs = Date.now(), nextStop = olStops().filter(function(p){ return p.from > nowMs; })[0];
+      if (!isOpen && nextStop) {
+        var sd = olDate(nextStop.from), sm = olMins(nextStop.from);
+        var nxReg = h && n < h[0] ? { ds: t, m: h[0] } : (function(){ var x = H.nextOpen(H.addDays(t, 1)); return x ? { ds: x.ds, m: x.h[0] } : null; })();
+        // A stop today always shows; a later one only if it comes before our next regular opening.
+        if (sd === t || !nxReg || sd < nxReg.ds || (sd === nxReg.ds && sm <= nxReg.m)) {
+          el.classList.add('is-soon');
+          el.textContent = sd === t
+            ? 'On Location today at ' + nextStop.name + ' \u00b7 ' + olRange(nextStop)
+            : (!h && a.special ? 'Closed today' : 'Closed now') + ' \u00b7 next: On Location ' + olDay(nextStop.from) + ' at ' + nextStop.name + ', ' + olClock(nextStop.from);
+          return;
+        }
+      }
       if (isOpen) {
         el.textContent = 'Open now · until ' + H.fmt(h[1]) + why;
       } else if (h && n < h[0]) {
@@ -5498,7 +5545,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     function all(){ paintCard(); render(); }
     all();
     H.onChange(all);
-    document.addEventListener('rollin:popups', render);
+    document.addEventListener('rollin:popups', all);
     setInterval(render, 60000);
   })();
 
@@ -5629,6 +5676,8 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     function popupSlot(ms){ for (var i = 0; i < popups.length; i++) if (ms >= popups[i].from && ms <= popups[i].to - BUFFER * 60000) return popups[i]; return null; }
     function popupNow(){ return popupAt(Date.now()); }
     window.rollinPopupNow = function(){ return popupNow(); };
+    // Upcoming stops (next 8 days) for the hours status and hours card.
+    window.rollinPopups = function(){ return popups.slice().sort(function(a, b){ return a.from - b.from; }); };
     function blockAt(ms){ for (var i = 0; i < blocks.length; i++) if (ms >= blocks[i][0] && ms < blocks[i][1]) return blocks[i]; return null; }
     // A calendar event today (online-pause.sql): the truck is at the event,
     // so the whole day's online ordering is off. [from, to, event name]
@@ -5804,7 +5853,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       }
       el.className = live ? '' : 'soon';
       el.innerHTML = '<div class="wrap"><span class="ol-dot"></span><span>' +
-        (live ? '&#128666; We’re on location at <b>' + pEsc(pp.name) + '</b> until ' + clockOf(pp.to) : '&#128666; On location today ' + clockOf(pp.from) + ' – ' + clockOf(pp.to) + ' at <b>' + pEsc(pp.name) + '</b>') +
+        (live ? '&#128666; We’re On Location at <b>' + pEsc(pp.name) + '</b> until ' + clockOf(pp.to) : '&#128666; On Location today ' + clockOf(pp.from) + ' – ' + clockOf(pp.to) + ' at <b>' + pEsc(pp.name) + '</b>') +
         '</span><a href="#wsMenu" data-onloc-order>' + (live ? 'Order now' : 'Order ahead') + '</a>' + (pp.map ? '<a href="' + pEsc(pp.map) + '" target="_blank" rel="noopener">Directions</a>' : '') + '</div>';
     }
     document.addEventListener('click', function(e){
