@@ -1362,7 +1362,7 @@ body.onloc-now .drive-up-only{ display:none !important; }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
 <script src="deals.js?v=20261022"></script>
-<script src="ingredients.js?v=20261103"></script>
+<script src="ingredients.js?v=20261105"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js" integrity="sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k" crossorigin="anonymous"></script>
 <!-- Meta Pixel -->
 <script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
@@ -3355,6 +3355,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         if (cu.remove.length) nl.remove = cu.remove;
         if (cu.add.length) nl.add = cu.add;
         if (cu.note) nl.note = cu.note;
+        if (cu.spice) nl.spice = cu.spice;
         nl.unitPrice = Math.round((Number(item.price) + addOnPrice(nl)) * 100) / 100;
         cart.push(nl);
       }
@@ -3612,6 +3613,8 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       if (window.RollinIngredients) {
         wsSheet.removed = window.RollinIngredients.clean(item, wsSheet.removed);
         wsSheet.added = window.RollinIngredients.cleanAdd(item, wsSheet.added);
+        wsSheet.spice = window.RollinIngredients.cleanSpice(item, wsSheet.spice);
+        html += '<div id="wsSpice">' + window.RollinIngredients.spiceHtml(item, wsSheet.spice) + '</div>';
         html += '<div id="wsIng">' + window.RollinIngredients.chipsHtml(item, wsSheet.removed, wsSheet.added) + '</div>';
         html += '<div id="wsAddons">' + window.RollinIngredients.addonsHtml(item, wsSheet.added) + '</div>';
       }
@@ -3657,6 +3660,8 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       }
     });
     wsEl('wsSheetBody').addEventListener('click', function(e){
+      var sp = e.target.closest('[data-spice]');
+      if (sp && window.RollinIngredients) { wsSheet.spice = window.RollinIngredients.spicePick(sp); return; }
       var chip = e.target.closest('[data-ing]');
       if (chip && window.RollinIngredients) {
         var RI = window.RollinIngredients;
@@ -3686,7 +3691,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       if (this.disabled) return;
       var item = itemsById[wsSheet.itemId];
       var fries = wsComboAddons['Combo Fries'], drink = wsSheet.drink ? wsComboAddons['Combo ' + wsSheet.drink] : null;
-      var cust = window.RollinIngredients ? window.RollinIngredients.custom(item, { remove: wsSheet.removed, add: wsSheet.added, note: wsNoteOk(item) ? wsSheet.note : '' }) : null;
+      var cust = window.RollinIngredients ? window.RollinIngredients.custom(item, { remove: wsSheet.removed, add: wsSheet.added, note: wsNoteOk(item) ? wsSheet.note : '', spice: wsSheet.spice }) : null;
       var rmv = cust ? cust.remove : [];
       for (var k = 0; k < wsSheet.qty; k++) {
         wsAddRaw(item.id, cust);
@@ -4369,7 +4374,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       return {
         totals: totals,
         payload: {
-          items: cart.map(function(c){ var o = { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name }; if (c.remove && c.remove.length) o.remove = c.remove; if (c.add && c.add.length) o.add = c.add; if (c.note) o.note = c.note; return o; }),
+          items: cart.map(function(c){ var o = { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name }; if (c.remove && c.remove.length) o.remove = c.remove; if (c.add && c.add.length) o.add = c.add; if (c.note) o.note = c.note; if (c.spice) o.spice = c.spice; return o; }),
           giftCards: giftCardCart.map(function(g){ return { amount: g.amount, recipientName: g.recipientName, recipientEmail: g.recipientEmail, message: g.message }; }),
           customerName: name,
           customerEmail: email || undefined,
