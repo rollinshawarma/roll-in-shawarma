@@ -38,7 +38,7 @@
     // max: how many a customer can add to one item (1 = on/off).
     extra_white:    { label: 'Extra white sauce', price: 1.39, img: 'ing-white-sauce.svg', max: 5 },
     add_white:      { label: 'White sauce',       price: 1.39, img: 'ing-white-sauce.svg', max: 5 },
-    spicy_sauce:    { label: 'Signature Spicy Sauce', price: 1.39, img: 'ing-spicy-sauce.svg', max: 5, ticket: '+ Signature spicy sauce' }
+    spicy_sauce:    { label: 'Signature Spicy Sauce', price: 1.39, img: 'ing-spicy-sauce.svg?v=2', max: 5, ticket: '+ Signature spicy sauce' }
   };
   var ADDON_SETS = {
     bowl: ['extra_white', 'spicy_sauce', 'double_protein'],
@@ -50,10 +50,9 @@
     taco: ['add_white', 'spicy_sauce']
   };
   // Spice level: which item types ask for it (portal: Menu -> item -> Spice level),
-  // the choices, and the one picked to start. The checkout checks it again.
+  // and the choices (nothing picked to start). The checkout checks it again.
   var SPICE = { shawarma: true, falafel: true, bowl: true, veggie_bowl: true };
   var SPICE_LEVELS = [{ key: 'mild', label: 'Mild' }, { key: 'medium', label: 'Medium' }, { key: 'spicy', label: 'Spicy' }];
-  var SPICE_DEFAULT = { key: 'medium' };
   // Item types: which menu items each list applies to (category + optional word in the name).
   var GROUPS = [
     { key: 'shawarma', category: 'Shawarma', name_not: 'falafel' }, { key: 'falafel', category: 'Shawarma', name_has: 'falafel' },
@@ -101,17 +100,19 @@
     return !!(s && SPICE[s] && SPICE_LEVELS.length && !(item && item.category === 'Deal Selections'));
   }
   function spiceLevel(k){ for (var i = 0; i < SPICE_LEVELS.length; i++) if (SPICE_LEVELS[i].key === k) return SPICE_LEVELS[i]; return null; }
+  // Nothing is picked to start: the customer has to choose one ('' until then).
   function cleanSpice(item, k){
     if (!hasSpice(item)) return '';
-    return spiceLevel(k) ? k : (spiceLevel(SPICE_DEFAULT.key) ? SPICE_DEFAULT.key : SPICE_LEVELS[0].key);
+    return spiceLevel(k) ? k : '';
   }
+  function needsSpice(item, k){ return hasSpice(item) && !spiceLevel(k); }
   function spiceText(k){ var l = spiceLevel(k); return l ? '\ud83c\udf36 ' + l.label : ''; }
   // "Spice level" row of buttons; [data-spice] buttons. spicePick() marks the tapped one.
   function spiceHtml(item, level){
     if (!hasSpice(item)) return '';
     level = cleanSpice(item, level);
     return '<div class="ing-block ing-spice-block">' +
-      '<div class="ing-head"><span class="ing-title">Spice level</span><span class="ing-hint">Pick one</span></div>' +
+      '<div class="ing-head"><span class="ing-title">Spice level</span><span class="ing-hint ing-spice-req">Required</span></div>' +
       '<div class="ing-spice" role="radiogroup" aria-label="Spice level">' +
       SPICE_LEVELS.map(function(l, i){
         var on = l.key === level;
@@ -122,6 +123,7 @@
   function spicePick(el){
     var box = el && el.closest ? el.closest('.ing-spice') : null, k = el ? el.getAttribute('data-spice') : '';
     if (box) box.querySelectorAll('[data-spice]').forEach(function(b){ var on = b === el; b.classList.toggle('is-on', on); b.setAttribute('aria-checked', on ? 'true' : 'false'); });
+    var blk = box && box.closest('.ing-spice-block'); if (blk) blk.classList.remove('need');
     return k;
   }
   // Some add-ons can be taken more than once (2x white sauce): the list
@@ -249,7 +251,13 @@
       '.ing-spice{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}' +
       '.ing-spice-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:62px;padding:8px 6px;border-radius:14px;border:1.5px solid var(--ing-line,#e3e3e8);background:var(--ing-card,#fff);color:var(--ing-ink,#1d1d1f);font:inherit;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent}' +
       '.ing-spice-peps{font-size:15px;line-height:1;letter-spacing:-2px}' +
-      '.ing-spice-btn.is-on{border-color:var(--ing-accent,#d62d20);background:var(--ing-accent,#d62d20);color:var(--ing-accent-ink,#fff)}' +
+      // Picked: Mild light orange, Medium orange, Spicy red.
+      '.ing-spice-btn.is-on{border-color:#ffb867;background:#ffd3a1;color:#5a2e00}' +
+      '.ing-spice-btn.ing-spice-medium.is-on{border-color:#f57c00;background:#f57c00;color:#fff}' +
+      '.ing-spice-btn.ing-spice-spicy.is-on{border-color:#d62d20;background:#d62d20;color:#fff}' +
+      '.ing-spice-req{font-weight:700}' +
+      '.ing-spice-block.need .ing-spice-btn{border-color:#d62d20}' +
+      '.ing-spice-block.need .ing-spice-req{color:#d62d20}' +
       '.ing-note-label{display:block}' +
       '.ing-note-label .ing-title{margin-right:8px}' +
       '.ing-note{display:block;width:100%;box-sizing:border-box;margin-top:10px;padding:10px 12px;border-radius:12px;border:1.5px solid var(--ing-line,#e3e3e8);background:var(--ing-card,#fff);color:var(--ing-ink,#1d1d1f);font:inherit;font-size:16px;resize:vertical;min-height:52px}' +
@@ -320,7 +328,6 @@
       var lv = d.spice_levels.filter(function(l){ return l && /^[a-z0-9_]{1,20}$/.test(String(l.key || '')); }).map(function(l){ return { key: String(l.key), label: String(l.label || l.key).slice(0, 20) }; });
       if (lv.length) { SPICE_LEVELS.length = 0; lv.forEach(function(l){ SPICE_LEVELS.push(l); }); }
     }
-    if (d.spice_default) SPICE_DEFAULT.key = String(d.spice_default);
     [[ING, ing], [SETS, sets], [ADDONS, add], [ADDON_SETS, asets]].forEach(function(p){ Object.keys(p[0]).forEach(function(k){ delete p[0][k]; }); Object.keys(p[1]).forEach(function(k){ p[0][k] = p[1][k]; }); });
     GROUPS.length = 0; groups.filter(function(g){ return g.name_has; }).concat(groups.filter(function(g){ return !g.name_has; })).forEach(function(g){ GROUPS.push(g); });
     return true;
@@ -340,7 +347,9 @@
     ready: function(){ return optionsReady; }, reload: loadOptions, apply: applyOptions,
     ADDONS: ADDONS, addonsFor: addonsFor, cleanAdd: cleanAdd, addPrice: addPrice, addNote: addNote, addStep: addStep, addFocus: addFocus, addCount: addCount, addMax: addMax, ADD_MAX: ADD_MAX,
     addonsHtml: addonsHtml, noteHtml: noteHtml, cleanNote: cleanNote, custom: custom, lineKey: lineKey, summary: summary,
-    hasSpice: hasSpice, cleanSpice: cleanSpice, spiceHtml: spiceHtml, spicePick: spicePick, spiceText: spiceText, SPICE_LEVELS: SPICE_LEVELS,
+    hasSpice: hasSpice, cleanSpice: cleanSpice, needsSpice: needsSpice,
+    // Shows "Required" in red on the spice row and scrolls to it.
+    askSpice: function(root){ var b = root && root.querySelector('.ing-spice-block'); if (!b) return; b.classList.add('need'); try { b.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {} }, spiceHtml: spiceHtml, spicePick: spicePick, spiceText: spiceText, SPICE_LEVELS: SPICE_LEVELS,
     // True when the item has anything to customize (included, add-ons, spice).
     customizable: function(item){ return included(item).length > 0 || addonsFor(item).length > 0 || hasSpice(item); },
     key: function(keys){ return (keys || []).join(','); }
