@@ -1008,6 +1008,26 @@
       }
     }
 
+    // ---- On Location day: a scan of the truck's QR code opens the website
+    // (pickup at the truck window), not the drive-up page. From 2 hours before
+    // the stop starts until it ends. Any other time this page works as usual.
+    // Next Door links, Google sign-in returns and ?stay=1 are never sent away.
+    function goToWebsiteForOnLocation(st){
+      try {
+        if (DOOR_CODE) return false;
+        var q = location.search + location.hash;
+        if (/[?&#](stay=1|code=|access_token=|error=|error_description=)/.test(q)) return false;
+        var now = Date.now(), stop = null;
+        (st && Array.isArray(st.popups) ? st.popups : []).forEach(function(p){
+          var a = Date.parse(p.from), b = Date.parse(p.to);
+          if (!stop && a - 2 * 3600000 <= now && now < b) stop = p;
+        });
+        if (!stop) return false;
+        document.documentElement.style.visibility = 'hidden';
+        location.replace('index.html?from=qr#menu');
+        return true;
+      } catch (e) { return false; }
+    }
     // ---- Drive-up scan: menu only while the truck is at its usual spot ----
     // driveup-gate.sql decides (calendar event now = away; else standard
     // hours or kitchen board open). The checkout asks the same question.
@@ -1043,6 +1063,7 @@
       var os = sbShared.rpc('get_ordering_status').then(function(r){ return r && !r.error ? r.data : null; }, function(){ return null; });
       return Promise.all([sbShared.rpc('get_driveup_status'), os]).then(function(rs){
         var res = rs[0], st = rs[1];
+        if (goToWebsiteForOnLocation(st)) return false;
         applyOnLocation(st);
         var du = res && !res.error ? res.data : null;
         if (st && st.manual) {
