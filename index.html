@@ -1362,7 +1362,7 @@ body.onloc-now .drive-up-only{ display:none !important; }
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
 <script src="deals.js?v=20261022"></script>
-<script src="ingredients.js?v=20261105"></script>
+<script src="ingredients.js?v=20261105b"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js" integrity="sha384-8FWZA6BGMXhsfO+BLtrJK0We6gg5o1JyO8xQm6peWDEUs17ACA5ziE/NIAkl9z2k" crossorigin="anonymous"></script>
 <!-- Meta Pixel -->
 <script>!function(f,b,e,v,n,t,s){if(f.fbq)return;n=f.fbq=function(){n.callMethod?n.callMethod.apply(n,arguments):n.queue.push(arguments)};if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';n.queue=[];t=b.createElement(e);t.async=!0;t.src=v;s=b.getElementsByTagName(e)[0];s.parentNode.insertBefore(t,s)}(window,document,'script','https://connect.facebook.net/en_US/fbevents.js');
@@ -3499,6 +3499,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     menuContainer.addEventListener('click', function(e){
       var t = e.target.closest('[data-ws-add],[data-ws-inc],[data-ws-dec],[data-ws-open]');
       if (!t || t.disabled) return;
+      if (t.hasAttribute('data-ws-add') && wsSpiceSheet(t.getAttribute('data-ws-add'))) return;
       if (t.hasAttribute('data-ws-add')) { addOne(t.getAttribute('data-ws-add')); wsToast('Added ' + itemsById[t.getAttribute('data-ws-add')].name); }
       else if (t.hasAttribute('data-ws-inc')) addOne(t.getAttribute('data-ws-inc'));
       else if (t.hasAttribute('data-ws-dec')) removeOne(t.getAttribute('data-ws-dec'));
@@ -3570,6 +3571,14 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     var wsSheet = { group: null, itemId: null, qty: 1, combo: false, drink: null }, wsLastFocus = null;
     function wsComboDrinks(){ return WS_DRINKS.filter(function(n){ return wsAvail(wsComboAddons['Combo ' + n]); }); }
     function wsComboOk(item){ return !!(item && item.combo_upcharge && wsAvail(wsComboAddons['Combo Fries']) && wsComboDrinks().length); }
+    // Items that ask for a spice level open their window instead of a quick add.
+    function wsSpiceSheet(itemId){
+      var RI = window.RollinIngredients, it = itemsById[itemId];
+      if (!RI || !it || !RI.hasSpice(it)) return false;
+      var key = Object.keys(wsGroups).filter(function(k){ return wsGroups[k].items.some(function(i){ return i.id === itemId; }); })[0];
+      if (!key) return false;
+      wsOpenSheet(key); return true;
+    }
     function wsOpenSheet(key){
       var g = wsGroups[key]; if (!g) return;
       var first = g.items.filter(wsAvail)[0]; if (!first) return;
@@ -3661,7 +3670,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     });
     wsEl('wsSheetBody').addEventListener('click', function(e){
       var sp = e.target.closest('[data-spice]');
-      if (sp && window.RollinIngredients) { wsSheet.spice = window.RollinIngredients.spicePick(sp); return; }
+      if (sp && window.RollinIngredients) { wsSheet.spice = window.RollinIngredients.spicePick(sp); if (/spice/i.test(wsEl('wsHint').textContent)) wsEl('wsHint').textContent = ''; return; }
       var chip = e.target.closest('[data-ing]');
       if (chip && window.RollinIngredients) {
         var RI = window.RollinIngredients;
@@ -3690,6 +3699,11 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     wsEl('wsAddBtn').addEventListener('click', function(){
       if (this.disabled) return;
       var item = itemsById[wsSheet.itemId];
+      if (window.RollinIngredients && window.RollinIngredients.needsSpice(item, wsSheet.spice)) {
+        window.RollinIngredients.askSpice(wsEl('wsSheetBody'));
+        wsEl('wsHint').textContent = 'Choose a spice level: Mild, Medium or Spicy.';
+        return;
+      }
       var fries = wsComboAddons['Combo Fries'], drink = wsSheet.drink ? wsComboAddons['Combo ' + wsSheet.drink] : null;
       var cust = window.RollinIngredients ? window.RollinIngredients.custom(item, { remove: wsSheet.removed, add: wsSheet.added, note: wsNoteOk(item) ? wsSheet.note : '', spice: wsSheet.spice }) : null;
       var rmv = cust ? cust.remove : [];
