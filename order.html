@@ -11,7 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
 <script src="deals.js?v=20261022"></script>
-<script src="ingredients.js?v=20261105"></script>
+<script src="ingredients.js?v=20261105b"></script>
 <script src="spot-picker.js"></script>
 <style>
   :root{
@@ -1499,6 +1499,7 @@
     $('menu').addEventListener('click', function(e){
       var t = e.target.closest('[data-add],[data-inc],[data-dec],[data-open]');
       if (!t || t.disabled) return;
+      if (t.hasAttribute('data-add') && spiceSheet(t.getAttribute('data-add'))) return;
       if (t.hasAttribute('data-add')) { addOne(t.getAttribute('data-add')); toast('Added ' + itemsById[t.getAttribute('data-add')].name); }
       else if (t.hasAttribute('data-inc')) addOne(t.getAttribute('data-inc'));
       else if (t.hasAttribute('data-dec')) removeOne(t.getAttribute('data-dec'));
@@ -1936,7 +1937,8 @@
       try {
         localStorage.setItem(STORE_KEY, JSON.stringify({
           savedAt: Date.now(),
-          lines: cart.filter(function(c){ return !c.deal && !c.dealOf; }).map(function(c){ return { id: c.menu_item_id, qty: c.quantity }; })
+          // Keeps each line's choices (spice, removals, add-ons, note) too.
+          lines: cart.filter(function(c){ return !c.deal && !c.dealOf; }).map(function(c){ var o = { id: c.menu_item_id, qty: c.quantity }; if (c.remove && c.remove.length) o.remove = c.remove; if (c.add && c.add.length) o.add = c.add; if (c.note) o.note = c.note; if (c.spice) o.spice = c.spice; return o; })
         }));
       } catch(e){}
     }
@@ -1951,7 +1953,8 @@
           var item = itemsById[l.id];
           if (!item || !isAvailable(item)) return;
           var q = Math.max(1, Math.min(MAX_QTY, parseInt(l.qty, 10) || 1));
-          cart.push({ menu_item_id: item.id, name: itemLabel(item), unitPrice: Number(item.price), quantity: q });
+          var cu = (l.remove && l.remove.length) || (l.add && l.add.length) || l.note || l.spice ? { remove: l.remove || [], add: l.add || [], note: l.note || '', spice: l.spice || '' } : null;
+          for (var k = 0; k < q; k++) addOneRaw(item.id, cu);
         });
         syncCombos();
       } catch(e){}
@@ -1995,6 +1998,14 @@
     }
     function comboDrinks(){
       return COMBO_DRINK_NAMES.filter(function(n){ var d = comboAddonsByName['Combo ' + n]; return d && isAvailable(d); });
+    }
+    // Items that ask for a spice level open their window instead of a quick add.
+    function spiceSheet(itemId){
+      var RI = window.RollinIngredients, it = itemsById[itemId];
+      if (!RI || !it || !RI.hasSpice(it)) return false;
+      var key = Object.keys(groupsByKey).filter(function(k){ return groupsByKey[k].items.some(function(i){ return i.id === itemId; }); })[0];
+      if (!key) return false;
+      openItemSheet(key); return true;
     }
     function openItemSheet(key){
       var g = groupsByKey[key];
@@ -2127,6 +2138,11 @@
     $('itemAddBtn').addEventListener('click', function(){
       if (this.disabled) return;
       var item = itemsById[sheet.itemId];
+      if (window.RollinIngredients && window.RollinIngredients.needsSpice(item, sheet.spice)) {
+        window.RollinIngredients.askSpice($('itemBody'));
+        toast('Choose a spice level: Mild, Medium or Spicy.');
+        return;
+      }
       var fries = comboAddonsByName['Combo Fries'];
       var drink = sheet.drink ? comboAddonsByName['Combo ' + sheet.drink] : null;
       var cust = window.RollinIngredients ? window.RollinIngredients.custom(item, { remove: sheet.removed, add: sheet.added, note: noteOk(item) ? sheet.note : '', spice: sheet.spice }) : null;
@@ -2226,6 +2242,7 @@
       if (rm) { removeDeal(rm.getAttribute('data-deal-rm')); renderCart(); return; }
       var t = e.target.closest('[data-add],[data-inc],[data-dec]');
       if (!t) return;
+      if (t.hasAttribute('data-add') && spiceSheet(t.getAttribute('data-add'))) return;
       if (t.hasAttribute('data-add')) { addOne(t.getAttribute('data-add')); toast('Added ' + itemsById[t.getAttribute('data-add')].name); }
       else if (t.hasAttribute('data-inc')) addOne(t.getAttribute('data-inc'), t.getAttribute('data-rm') || '');
       else removeOne(t.getAttribute('data-dec'), t.getAttribute('data-rm') || '');
