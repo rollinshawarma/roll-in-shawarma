@@ -183,11 +183,17 @@
   /* Room for a two-line status is reserved up front: iPhone Safari draws the
      hero text over the background video as its own layer and didn't grow
      that layer when the status got longer, which cut off the bottom. */
-  .os-slot{ min-height:84px; display:flex; justify-content:center; align-items:flex-start; }
-  .hero-inner > div:first-child{ transform:translateZ(0); }
+  /* Takes the space between the tagline and the Order buttons and sits the
+     pill a third of the way down it (closer to the tagline). */
+  .os-slot{ flex:1 1 auto; min-height:96px; display:flex; flex-direction:column; align-items:center; transform:translateZ(0); }
+  .os-slot::before{ content:""; flex:1 1 0; }
+  .os-slot::after{ content:""; flex:2 1 0; }
+  .os-slot .open-status{ margin-top:0; }
   .open-status .os-t{ display:block; min-width:0; overflow-wrap:anywhere; line-height:1.3; }
-  .open-status .os-t small{ display:block; font-size:13px; font-weight:500; opacity:.85; margin-top:1px; }
-  .open-status.two-line{ border-radius:18px !important; padding-top:8px !important; padding-bottom:8px !important; }
+  .open-status .os-t small{ display:block; font-size:clamp(15px, 1.5vw, 17px); font-weight:500; opacity:.88; margin-top:2px; }
+  .hero .open-status{ font-size:clamp(17px, 1.9vw, 21px); padding-top:9px; padding-bottom:9px; }
+  .hero .open-status::before, .open-status.two-line .os-t::before{ width:10px; height:10px; }
+  .open-status.two-line{ border-radius:20px !important; padding-top:10px !important; padding-bottom:10px !important; }
   .hero-ctas{ display:flex; gap:14px; width:100%; max-width:580px; }
   .hero-ctas .btn{ flex:1 1 0; height:52px; }
   @media (max-width:560px){
@@ -1444,8 +1450,9 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     <div>
       <h1>Roll-In Shawarma</h1>
       <p class="hero-sub">We roll it. You love it.</p>
-      <div class="os-slot"><p class="open-status" id="openStatus" aria-live="polite"></p></div>
     </div>
+    <!-- Halfway between the tagline and the Order buttons (hero-inner spreads its 3 parts evenly). -->
+    <div class="os-slot"><p class="open-status" id="openStatus" aria-live="polite"></p></div>
     <div class="hero-ctas">
       <a class="btn btn-accent" href="#menu">Order Pickup</a>
       <a class="btn btn-white drive-up-only" href="order.html?ahead=1">Drive Up</a>
@@ -5508,7 +5515,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     function render(){
       var el = document.getElementById('openStatus');
       // Text sits in its own span (iPhone Safari clipped long wrapped text); the place goes on a second line.
-      function say(main, sub){ if (!el) return; el.classList.toggle('two-line', !!sub); el.innerHTML = '<span class="os-t">' + esc(main) + (sub ? '<small>' + esc(sub) + '</small>' : '') + '</span>'; var box = el.parentNode && el.parentNode.parentNode; if (box && box.style) { box.style.transform = 'translateZ(0) scale(1.0001)'; requestAnimationFrame(function(){ box.style.transform = ''; }); } }
+      function say(main, sub){ if (!el) return; el.classList.toggle('two-line', !!sub); el.innerHTML = '<span class="os-t">' + esc(main) + (sub ? '<small>' + esc(sub) + '</small>' : '') + '</span>'; var box = el.parentNode; if (box && box.style) { box.style.transform = 'translateZ(0) scale(1.0001)'; requestAnimationFrame(function(){ box.style.transform = ''; }); } }
       var t = H.today(), a = H.at(t), n = nowMins(), dow = H.dowOf(t);
       document.querySelectorAll('.business-hours .hours-row').forEach(function(r){
         var od = r.getAttribute('data-onloc-date');
