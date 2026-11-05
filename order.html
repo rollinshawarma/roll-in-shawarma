@@ -507,7 +507,13 @@
   .fr-note{ margin:10px 0 0; padding:10px 12px; border-radius:12px; background:rgba(255,169,77,.14); color:var(--gold, #ffa94d); font-size:14px; line-height:1.4; }
   .du-note{ display:block; margin-top:6px; color:var(--gold, #ffa94d); }
   .du-hours td{ padding:3px 10px; text-align:left; }
-  .du-hours td:first-child{ font-weight:700; }
+  .du-hours td:first-child{ font-weight:700; vertical-align:top; }
+  .du-ol{ margin:14px auto 0; max-width:340px; padding:12px 14px; border-radius:14px; background:rgba(48,209,88,.12); border:1px solid rgba(48,209,88,.45); line-height:1.45; color:#fff !important; }
+  .du-ol b{ color:#fff !important; }
+  .du-ol-addr{ display:block; font-size:14px; opacity:.85; }
+  .du-ol-links{ display:flex; justify-content:center; gap:16px; flex-wrap:wrap; margin-top:8px; }
+  .du-ol-link, #menuState .du-ol-link{ color:#7dffa8 !important; font-weight:700; text-decoration:underline; }
+  .du-ol-row{ display:block; color:#7dffa8; font-size:13px; font-weight:600; }
   .du-hours tr.du-today td{ color:var(--white, #fff); font-weight:800; }
   .du-hours tr.du-today td:first-child{ color:var(--gold, #ffa94d); }
   .door-strip{ background:#1d1d1f; color:#fff; padding:14px 16px 12px; }
@@ -1034,7 +1040,25 @@
     // ---- Drive-up scan: menu only while the truck is at its usual spot ----
     // driveup-gate.sql decides (calendar event now = away; else standard
     // hours or kitchen board open). The checkout asks the same question.
-    function driveupMessage(du){
+    // On Location stops (next 8 days) for the closed message and hours table.
+    function olFmt(ms){ var o = {}; new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }).formatToParts(new Date(ms)).forEach(function(x){ o[x.type] = x.value; }); return { t: o.hour + (o.minute === '00' ? '' : ':' + o.minute), ap: o.dayPeriod }; }
+    function olRange(p){ var a = olFmt(Date.parse(p.from)), b = olFmt(Date.parse(p.to)); return (a.ap === b.ap ? a.t : a.t + ' ' + a.ap) + ' \u2013 ' + b.t + ' ' + b.ap; }
+    function olDay(ms){ return new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short' }).format(new Date(ms)); }
+    function olDate(ms){ return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date(ms)); }
+    function olPlace(p){ return '<b>' + escHtml(p.name || 'our event stop') + '</b>' + (p.address ? '<span class="du-ol-addr">' + escHtml(p.address) + '</span>' : ''); }
+    function olMap(p){ var q = p.map || (p.lat != null && p.lng != null ? 'https://maps.google.com/?q=' + p.lat + ',' + p.lng : p.address ? 'https://maps.google.com/?q=' + encodeURIComponent(p.address) : ''); return q ? '<a class="du-ol-link" href="' + escHtml(q) + '" target="_blank" rel="noopener">Directions</a>' : ''; }
+    function driveupMessage(du, stops){
+      stops = (stops || []).filter(function(p){ return Date.parse(p.to) > Date.now(); }).sort(function(a, b){ return Date.parse(a.from) - Date.parse(b.from); });
+      var today = olDate(Date.now()), stopToday = stops.filter(function(p){ return olDate(Date.parse(p.from)) === today; })[0];
+      var olHead = '';
+      if (stopToday) {
+        olHead = '<div class="du-ol">&#128666; <b>Today we&rsquo;re On Location</b> &middot; ' + escHtml(olRange(stopToday)) + '<br>' + olPlace(stopToday) +
+          '<span class="du-ol-links"><a class="du-ol-link" href="index.html#menu">Order ahead for pickup there</a>' + olMap(stopToday) + '</span></div>';
+      } else if (stops[0]) {
+        var n = stops[0];
+        olHead = '<div class="du-ol">&#128666; <b>Next: On Location ' + escHtml(olDay(Date.parse(n.from))) + '</b> &middot; ' + escHtml(olRange(n)) + '<br>' + olPlace(n) +
+          '<span class="du-ol-links"><a class="du-ol-link" href="index.html#menu">Order ahead</a>' + olMap(n) + '</span></div>';
+      }
       if (du.reason === 'paused') {
         return '<b>We\u2019ve paused ordering for a few minutes.</b><br>' + (du.untilLabel ? 'We\u2019ll be back by ' + escHtml(du.untilLabel) + '. ' : '') + 'Sorry! This page will open again on its own.' +
           '<br><button type="button" class="du-browse-btn" id="duBrowseBtn">See the menu</button>';
@@ -1042,6 +1066,7 @@
       var ev = du.event, map = ev && ev.map ? 'https://maps.google.com/?q=' + encodeURIComponent(ev.map) : '';
       if (du.reason === 'away' && ev) {
         var when = ev.from && ev.until ? ev.from + ' \u2013 ' + ev.until : ev.until ? 'until ' + ev.until : ev.from ? 'from ' + ev.from : '';
+        if (stopToday) return olHead + '<br>Drive-up at our usual spot is off today.' + '<br><button type="button" class="du-browse-btn" id="duBrowseBtn">See the menu</button>';
         return '<b>Today we&rsquo;re at ' + escHtml(ev.title) + '</b><br>' + escHtml(ev.location || '') + (when ? ' &middot; ' + escHtml(when) : '') +
           '<br>Drive-up ordering is off today while we&rsquo;re there. Come see us!' +
           (map ? '<br><a href="' + escHtml(map) + '" target="_blank" rel="noopener">Directions</a>' : '') +
@@ -1054,9 +1079,13 @@
       if (ti > 0) hrs = hrs.slice(ti).concat(hrs.slice(0, ti));
       var rows = hrs.map(function(h, i){
         var isToday = ti >= 0 && i === 0;
-        return '<tr' + (isToday ? ' class="du-today"' : '') + '><td>' + (isToday ? 'Today (' + escHtml(h.day) + ')' : escHtml(h.day)) + '</td><td>' + escHtml(h.hours) + '</td></tr>';
+        // On Location that day (within the next week): its time and place under the regular hours.
+        var dayStops = stops.filter(function(p){ var ms = Date.parse(p.from); return olDay(ms).slice(0, 3) === String(h.day).slice(0, 3) && ms - Date.now() < 7 * 86400000; });
+        var ol = dayStops.map(function(p){ return '<span class="du-ol-row">&#128666; On Location ' + escHtml(olRange(p)) + ' &middot; ' + escHtml(p.name || '') + '</span>'; }).join('');
+        var hoursTxt = dayStops.length && /closed/i.test(String(h.hours)) ? '' : escHtml(h.hours);
+        return '<tr' + (isToday ? ' class="du-today"' : '') + '><td>' + (isToday ? 'Today (' + escHtml(h.day) + ')' : escHtml(h.day)) + '</td><td>' + hoursTxt + ol + '</td></tr>';
       }).join('');
-      return '<b>Drive-up ordering is closed right now.</b>' + (du.note ? '<span class="du-note">' + escHtml(du.note) + '</span>' : '') + (du.opens ? '<br>It opens ' + escHtml(du.opens) + '.' : '') +
+      return '<b>Drive-up ordering is closed right now.</b>' + (du.note ? '<span class="du-note">' + escHtml(du.note) + '</span>' : '') + (du.opens ? '<br>It opens ' + escHtml(du.opens) + '.' : '') + olHead +
         (rows ? '<table class="du-hours" aria-label="Drive-up hours">' + rows + '</table>' : '') +
         '<button type="button" class="du-browse-btn" id="duBrowseBtn">See the menu</button>';
     }
@@ -1076,7 +1105,7 @@
         }
         if (!du || typeof du.open !== 'boolean' || du.open) { try { sessionStorage.removeItem('duBrowse'); } catch (e) {} return true; }   // not set up yet: the checkout still checks
         $('menuState').classList.remove('hidden');
-        $('menuState').innerHTML = driveupMessage(du);
+        $('menuState').innerHTML = driveupMessage(du, st && Array.isArray(st.popups) ? st.popups : []);
         if ($('orderBar')) $('orderBar').classList.add('hidden');
         document.body.classList.add('driveup-closed');
         // Opens by itself when the truck is back / hours start.
