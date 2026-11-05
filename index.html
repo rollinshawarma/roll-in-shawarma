@@ -174,6 +174,11 @@
   }
   .open-status:empty{ visibility:hidden; }
   .open-status{ max-width:100%; height:auto; text-align:left; }
+  /* Room for a two-line status is reserved up front: iPhone Safari draws the
+     hero text over the background video as its own layer and didn't grow
+     that layer when the status got longer, which cut off the bottom. */
+  .os-slot{ min-height:84px; display:flex; justify-content:center; align-items:flex-start; }
+  .hero-inner > div:first-child{ transform:translateZ(0); }
   .open-status .os-t{ display:block; min-width:0; overflow-wrap:anywhere; line-height:1.3; }
   .open-status .os-t small{ display:block; font-size:13px; font-weight:500; opacity:.85; margin-top:1px; }
   .open-status.two-line{ border-radius:18px !important; padding-top:8px !important; padding-bottom:8px !important; }
@@ -1433,7 +1438,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     <div>
       <h1>Roll-In Shawarma</h1>
       <p class="hero-sub">We roll it. You love it.</p>
-      <p class="open-status" id="openStatus" aria-live="polite"></p>
+      <div class="os-slot"><p class="open-status" id="openStatus" aria-live="polite"></p></div>
     </div>
     <div class="hero-ctas">
       <a class="btn btn-accent" href="#menu">Order Pickup</a>
@@ -5497,7 +5502,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     function render(){
       var el = document.getElementById('openStatus');
       // Text sits in its own span (iPhone Safari clipped long wrapped text); the place goes on a second line.
-      function say(main, sub){ if (!el) return; el.classList.toggle('two-line', !!sub); el.innerHTML = '<span class="os-t">' + esc(main) + (sub ? '<small>' + esc(sub) + '</small>' : '') + '</span>'; }
+      function say(main, sub){ if (!el) return; el.classList.toggle('two-line', !!sub); el.innerHTML = '<span class="os-t">' + esc(main) + (sub ? '<small>' + esc(sub) + '</small>' : '') + '</span>'; var box = el.parentNode && el.parentNode.parentNode; if (box && box.style) { box.style.transform = 'translateZ(0) scale(1.0001)'; requestAnimationFrame(function(){ box.style.transform = ''; }); } }
       var t = H.today(), a = H.at(t), n = nowMins(), dow = H.dowOf(t);
       document.querySelectorAll('.business-hours .hours-row').forEach(function(r){
         var od = r.getAttribute('data-onloc-date');
