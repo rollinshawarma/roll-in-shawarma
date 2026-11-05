@@ -15,7 +15,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
 <script src="deals.js?v=20261022"></script>
-<script src="ingredients.js?v=20261103"></script>
+<script src="ingredients.js?v=20261105"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js" integrity="sha384-0RsG1yo/crf/1Qc14sho26SXXOTngNCjgJw7fuvXBt9W/OChF/Ijx+aUuBDqQwEk" crossorigin="anonymous"></script>
 <style>
   :root{
@@ -2225,7 +2225,8 @@
         return;
       }
       var item = itemsById[ingPending.itemId];
-      box.innerHTML = RI.chipsHtml(item, ingPending.removed, ingPending.added) + RI.addonsHtml(item, ingPending.added) + RI.noteHtml(ingPending.note);
+      ingPending.spice = RI.cleanSpice(item, ingPending.spice);
+      box.innerHTML = RI.spiceHtml(item, ingPending.spice) + RI.chipsHtml(item, ingPending.removed, ingPending.added) + RI.addonsHtml(item, ingPending.added) + RI.noteHtml(ingPending.note);
       document.getElementById('ingModalPrice').textContent = '$' + (Number(item.price) + RI.addPrice(ingPending.added)).toFixed(2);
     }
     function openIngredients(itemId){
@@ -2245,7 +2246,8 @@
     function addWithChoices(itemId){ if (hasIngredients(itemId)) openIngredients(itemId); else addOne(itemId); }
     document.getElementById('ingModalChips').addEventListener('click', function(e){
       if (!ingPending) return;
-      var RI = RIK(), chip = e.target.closest('[data-ing]'), ad = e.target.closest('[data-addon]');
+      var RI = RIK(), chip = e.target.closest('[data-ing]'), ad = e.target.closest('[data-addon]'), sp = e.target.closest('[data-spice]');
+      if (sp && !ingPending.deal) { ingPending.spice = RI.spicePick(sp); return; }
       if (ingPending.deal) {
         if (!chip) return;
         var box = chip.closest('.kd-unit'), u = ingPending.units[+box.getAttribute('data-unit')];
@@ -2280,7 +2282,7 @@
       if (!ingPending) return;
       var p = ingPending; closeIngredients();
       if (p.deal) { finishDeal(p.deal, p.units); return; }
-      addOne(p.itemId, RIK().custom(itemsById[p.itemId], { remove: p.removed, add: p.added, note: p.note }));
+      addOne(p.itemId, RIK().custom(itemsById[p.itemId], { remove: p.removed, add: p.added, note: p.note, spice: p.spice }));
     });
 
     // One combo allowed per qualifying entree in the cart -- not just
@@ -2386,6 +2388,7 @@
         if (cu && cu.remove.length) nl.remove = cu.remove;
         if (cu && cu.add.length) nl.add = cu.add;
         if (cu && cu.note) nl.note = cu.note;
+        if (cu && cu.spice) nl.spice = cu.spice;
         nl.unitPrice = Math.round((Number(item.price) + addOnPrice(nl)) * 100) / 100;
         cart.push(nl);
       }
@@ -2936,6 +2939,7 @@
         if (c.remove && c.remove.length) o.remove = c.remove;
         if (c.add && c.add.length) o.add = c.add;
         if (c.note) o.note = c.note;
+        if (c.spice) o.spice = c.spice;
         return o;
       });
       var name = document.getElementById('kioskName').value.trim();
@@ -3009,6 +3013,7 @@
         if (c.remove && c.remove.length) o.remove = c.remove;
         if (c.add && c.add.length) o.add = c.add;
         if (c.note) o.note = c.note;
+        if (c.spice) o.spice = c.spice;
         return o;
       });
 
@@ -3146,6 +3151,7 @@
         if (c.remove && c.remove.length) o.remove = c.remove;
         if (c.add && c.add.length) o.add = c.add;
         if (c.note) o.note = c.note;
+        if (c.spice) o.spice = c.spice;
         return o;
       });
       var bodyStr = JSON.stringify({
@@ -3563,6 +3569,7 @@
         if (c.remove && c.remove.length) o.remove = c.remove;
         if (c.add && c.add.length) o.add = c.add;
         if (c.note) o.note = c.note;
+        if (c.spice) o.spice = c.spice;
         return o;
       });
 
