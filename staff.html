@@ -1214,6 +1214,8 @@
   .mn-chips form .mn-money input{ width:70px; }
   .mn-chips form button{ padding:7px 12px; }
   .mn-shared{ margin-top:12px; white-space:normal; font-weight:500; line-height:1.4; align-items:flex-start; }
+  .mn-spice{ margin-top:12px; white-space:normal; font-weight:600; line-height:1.4; align-items:flex-start; }
+  .mn-spice small{ display:block; font-weight:400; color:var(--muted, #6b6259); }
   .mn-more{ margin-top:18px; border-top:1px solid #eeeef2; padding-top:12px; }
   .mn-more summary{ cursor:pointer; font-size:13.5px; font-weight:600; color:var(--ink); margin-bottom:12px; }
   .mn-xrow{ display:flex; align-items:center; gap:8px; padding:8px 0; border-bottom:1px solid #f0f0f3; }
@@ -1753,6 +1755,7 @@
             <div class="mn-chips" id="mnIng"></div>
             <div class="mn-sub">Extras <small>Paid add-ons for this item</small></div>
             <div class="mn-chips" id="mnExt"></div>
+            <label class="iv-chk mn-spice"><input type="checkbox" id="mnSpice"> <span>&#127798; Ask for spice level <small>(Mild, Medium, Spicy &middot; Medium is picked to start)</small></span></label>
             <label class="iv-chk mn-shared hidden" id="mnSharedWrap"><input type="checkbox" id="mnShared" checked> <span id="mnSharedTxt"></span></label>
           </div>
 
@@ -4584,7 +4587,8 @@
     var hide = MN_NO_CHOICES.test(cat);
     mnEl('mnChoices').classList.toggle('hidden', hide);
     var g = mnGroupFor(cat, name);
-    if (reset || (g && g.key) !== (mn.group && mn.group.key)) { mn.group = g; mn.ing = g ? g.ingredients.slice() : []; mn.ext = g ? g.addons.slice() : []; }
+    if (reset || (g && g.key) !== (mn.group && mn.group.key)) { mn.group = g; mn.ing = g ? g.ingredients.slice() : []; mn.ext = g ? g.addons.slice() : []; mn.spice = !!(g && g.spice); }
+    mnEl('mnSpice').checked = !!mn.spice;
     mnChips();
   }
   function mnChips(){
@@ -4630,14 +4634,15 @@
   function mnSaveChoices(cat, name){
     if (MN_NO_CHOICES.test(cat)) return Promise.resolve();
     var g = mn.group;
-    if (g && mnSame(g.ingredients, mn.ing) && mnSame(g.addons, mn.ext) && (mnGroupFor(cat, name) || {}).key === g.key) return Promise.resolve();
-    if (!g && !mn.ing.length && !mn.ext.length) return Promise.resolve();
+    mn.spice = mnEl('mnSpice').checked;
+    if (g && mnSame(g.ingredients, mn.ing) && mnSame(g.addons, mn.ext) && !!g.spice === mn.spice && (mnGroupFor(cat, name) || {}).key === g.key) return Promise.resolve();
+    if (!g && !mn.ing.length && !mn.ext.length && !mn.spice) return Promise.resolve();
     var shared = !mnEl('mnSharedWrap').classList.contains('hidden') && mnEl('mnShared').checked;
     var onlyMine = g && !shared && mnGroupNames(g).filter(function(n){ return n !== name; }).length > 0;
-    if (g && !onlyMine) return mnRpc('menu_admin_save_group', { p:{ key:g.key, label:g.label, category:g.category, name_has:g.name_has || '', name_not:g.name_not || '', ingredients:mn.ing, addons:mn.ext, active:true } });
+    if (g && !onlyMine) return mnRpc('menu_admin_save_group', { p:{ key:g.key, label:g.label, category:g.category, name_has:g.name_has || '', name_not:g.name_not || '', ingredients:mn.ing, addons:mn.ext, spice:mn.spice, active:true } });
     // New choices just for this item, or the first ones for a category.
     var catHasGroup = (mn.d.groups || []).some(function(x){ return String(x.category).toLowerCase() === cat.toLowerCase(); });
-    var p = catHasGroup || onlyMine ? { label:name, category:cat, name_has:name.toLowerCase(), ingredients:mn.ing, addons:mn.ext } : { label:cat, category:cat, ingredients:mn.ing, addons:mn.ext };
+    var p = catHasGroup || onlyMine ? { label:name, category:cat, name_has:name.toLowerCase(), ingredients:mn.ing, addons:mn.ext, spice:mn.spice } : { label:cat, category:cat, ingredients:mn.ing, addons:mn.ext, spice:mn.spice };
     return mnRpc('menu_admin_save_group', { p:p }).catch(function(e){
       if (!/already exists/.test(String(e && e.message))) throw e;
       p.label = p.label + ' ' + Math.random().toString(36).slice(2, 5);
