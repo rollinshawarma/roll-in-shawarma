@@ -815,6 +815,11 @@
   /* ---- Platinum secret menu items ---- */
   .plat-tag{ display:inline-block; margin-right:6px; padding:1px 8px; border-radius:999px; font-size:.78em; font-weight:800; letter-spacing:.08em;
     color:#1b1a1f; background:linear-gradient(135deg, #f4f4f6, #b9bcc6 50%, #e9eaee); vertical-align:middle; }
+  /* Spice level tag (Mild / Medium / Spicy) on kitchen tickets */
+  .kds-spice{ display:inline-block; padding:1px 7px; margin-right:4px; border-radius:6px; font-weight:900; font-size:.95em; letter-spacing:.02em; color:#000; background:#ffd479; white-space:nowrap; }
+  .kds-spice-mild{ background:#9be7a6; }
+  .kds-spice-medium{ background:#ffd479; }
+  .kds-spice-spicy{ background:#ff453a; color:#fff; }
 </style>
 </head>
 <body>
@@ -1369,6 +1374,13 @@
   // customizations/modifiers in red -- without needing a schema
   // change or touching item_name's role as the grouping key
   // everything else (including kds_start_prep) relies on.
+  // Customer notes with the spice level ("🌶 Spicy, No onions") as a colored tag.
+  function kdsNoteHtml(text){
+    return escHtml(text).replace(/\uD83C\uDF36 ([A-Za-z][A-Za-z ]{0,19}?)(?=,|$)/g, function(_, lv){
+      var k = lv.toLowerCase().replace(/[^a-z]/g, '');
+      return '<b class="kds-spice kds-spice-' + k + '">\uD83C\uDF36 ' + lv.toUpperCase() + '</b>';
+    });
+  }
   function renderItemNameHtml(rawName){
     var beforeModifiers = rawName;
     var modifierText = null;
@@ -1398,7 +1410,7 @@
 
     var html = escHtml(baseName);
     if (variationText) html += '<span class="item-variation">' + escHtml(variationText) + '</span>';
-    if (modifierText) html += '<span class="item-modifier">' + escHtml(modifierText) + '</span>';
+    if (modifierText) html += '<span class="item-modifier">' + kdsNoteHtml(modifierText) + '</span>';
     return html;
   }
 
@@ -2291,7 +2303,7 @@
         var box = document.createElement('div');
         box.className = 'item-box ' + boxClass + (shouldFlash ? ' flash' : '');
         var noteMap = (byItem[name].notes || {})[statusKey] || {};
-        var noteHtml = Object.keys(noteMap).map(function(n){ return '<span class="item-modifier">' + noteMap[n] + '\u00d7 ' + escHtml(n) + '</span>'; }).join('');
+        var noteHtml = Object.keys(noteMap).map(function(n){ return '<span class="item-modifier">' + noteMap[n] + '\u00d7 ' + kdsNoteHtml(n) + '</span>'; }).join('');
         box.innerHTML = '<span class="nm">' + renderItemNameHtml(name) + noteHtml + '</span><span class="cnt">x' + count + '</span>';
         if (makeHandler) box.addEventListener('click', makeHandler(name));
         col.appendChild(box);
@@ -3369,7 +3381,7 @@
           var tag = g.fry ? (g.status === 'queued' ? 'TAP TO DROP' : g.status === 'prepping' ? 'IN FRYER · TAP WHEN DONE' : '✓ DONE') : (g.status === 'ready' ? '✓' : '');
           var tap = g.fry && g.status !== 'ready';
           return '<li class="' + cls + '"' + (tap ? ' data-unit="' + g.ids[0] + '" data-name="' + escHtml(g.name) + '" data-status="' + g.status + '" role="button" tabindex="0"' : '') + '>' +
-            '<span class="q">' + g.ids.length + '×</span><span class="n">' + renderItemNameHtml(g.name) + (g.note ? '<small>' + escHtml(g.note) + '</small>' : '') +
+            '<span class="q">' + g.ids.length + '×</span><span class="n">' + renderItemNameHtml(g.name) + (g.note ? '<small>' + kdsNoteHtml(g.note) + '</small>' : '') +
             (tag && g.fry ? '<span class="t">' + tag + '</span>' : '') + '</span>' + (tag && !g.fry ? '<span class="t">' + tag + '</span>' : '') + '</li>';
         }).join('');
         return '<article class="ft ' + state + '" data-order="' + o.id + '">' +
