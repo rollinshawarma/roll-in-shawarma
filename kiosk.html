@@ -15,7 +15,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
 <script src="deals.js?v=20261022"></script>
-<script src="ingredients.js?v=20261105"></script>
+<script src="ingredients.js?v=20261105b"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js" integrity="sha384-0RsG1yo/crf/1Qc14sho26SXXOTngNCjgJw7fuvXBt9W/OChF/Ijx+aUuBDqQwEk" crossorigin="anonymous"></script>
 <style>
   :root{
@@ -2280,9 +2280,11 @@
     document.getElementById('ingModal').addEventListener('click', function(e){ if (e.target === this) closeIngredients(); });
     document.getElementById('ingModalAdd').addEventListener('click', function(){
       if (!ingPending) return;
+      if (!ingPending.deal && RIK().needsSpice(itemsById[ingPending.itemId], ingPending.spice)) { RIK().askSpice(document.getElementById('ingModalChips')); return; }
       var p = ingPending; closeIngredients();
       if (p.deal) { finishDeal(p.deal, p.units); return; }
       addOne(p.itemId, RIK().custom(itemsById[p.itemId], { remove: p.removed, add: p.added, note: p.note, spice: p.spice }));
+      if (p.after) p.after();
     });
 
     // One combo allowed per qualifying entree in the cart -- not just
@@ -3463,8 +3465,11 @@
       document.getElementById('grabSheet').classList.add('hidden');
       var it = grabPick; grabPick = null;
       goToOrderScreen();
+      var drinkName = b.getAttribute('data-drink');
+      // Spice items: the customer picks the spice level first; the drink is added with the item.
+      if (RIK() && RIK().hasSpice(it)) { openIngredients(it.id); if (ingPending) ingPending.after = function(){ addComboAddon(drinkName); }; return; }
       addOne(it.id);
-      addComboAddon(b.getAttribute('data-drink'));
+      addComboAddon(drinkName);
     });
     document.getElementById('grabCancel').addEventListener('click', function(){ grabPick = null; document.getElementById('grabSheet').classList.add('hidden'); });
     ['grabSheet', 'upsellSheet'].forEach(function(id){
