@@ -11,7 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
 <script src="deals.js?v=20261022"></script>
-<script src="ingredients.js?v=20261103"></script>
+<script src="ingredients.js?v=20261105"></script>
 <script src="spot-picker.js"></script>
 <style>
   :root{
@@ -1437,7 +1437,7 @@
       if (!e.target.closest || !e.target.closest('#reorderBtn')) return;
       var lines = reorderLines(), n = 0;
       lines.forEach(function(l){
-        var custom = (l.remove && l.remove.length) || (l.add && l.add.length) || l.note ? { remove: l.remove || [], add: l.add || [], note: l.note || '' } : null;
+        var custom = (l.remove && l.remove.length) || (l.add && l.add.length) || l.note || l.spice ? { remove: l.remove || [], add: l.add || [], note: l.note || '', spice: l.spice || '' } : null;
         for (var k = 0; k < l.qty; k++) { addOneRaw(l.id, custom); n++; }
       });
       if (!n) return;
@@ -1447,7 +1447,7 @@
     function saveReorder(){
       try {
         var lines = cart.filter(function(c){ var it = itemsById[c.menu_item_id]; return it && !c.deal && !c.dealOf && it.category !== 'Combo Add-ons' && it.category !== 'Deal Selections' && it.category !== 'Deals'; })
-          .map(function(c){ return { id: c.menu_item_id, qty: c.quantity, remove: c.remove || [], add: c.add || [], note: c.note || '' }; });
+          .map(function(c){ return { id: c.menu_item_id, qty: c.quantity, remove: c.remove || [], add: c.add || [], note: c.note || '', spice: c.spice || '' }; });
         if (lines.length) localStorage.setItem(REORDER_KEY, JSON.stringify({ savedAt: Date.now(), lines: lines.slice(0, 20) }));
       } catch (e) {}
     }
@@ -1766,6 +1766,7 @@
         if (cu.remove.length) nl.remove = cu.remove;
         if (cu.add.length) nl.add = cu.add;
         if (cu.note) nl.note = cu.note;
+        if (cu.spice) nl.spice = cu.spice;
         nl.unitPrice = Math.round((Number(item.price) + addOnPrice(nl)) * 100) / 100;
         cart.push(nl);
       }
@@ -2030,6 +2031,8 @@
       if (window.RollinIngredients) {
         sheet.removed = window.RollinIngredients.clean(item, sheet.removed);
         sheet.added = window.RollinIngredients.cleanAdd(item, sheet.added);
+        sheet.spice = window.RollinIngredients.cleanSpice(item, sheet.spice);
+        html += '<div id="itemSpice">' + window.RollinIngredients.spiceHtml(item, sheet.spice) + '</div>';
         html += '<div id="itemIng">' + window.RollinIngredients.chipsHtml(item, sheet.removed, sheet.added) + '</div>';
         html += '<div id="itemAddons">' + window.RollinIngredients.addonsHtml(item, sheet.added) + '</div>';
       }
@@ -2092,6 +2095,8 @@
       }
     });
     $('itemBody').addEventListener('click', function(e){
+      var sp = e.target.closest('[data-spice]');
+      if (sp && window.RollinIngredients) { sheet.spice = window.RollinIngredients.spicePick(sp); return; }
       var ing = e.target.closest('[data-ing]');
       if (ing && window.RollinIngredients) {
         var RI = window.RollinIngredients, k = ing.getAttribute('data-ing');
@@ -2124,7 +2129,7 @@
       var item = itemsById[sheet.itemId];
       var fries = comboAddonsByName['Combo Fries'];
       var drink = sheet.drink ? comboAddonsByName['Combo ' + sheet.drink] : null;
-      var cust = window.RollinIngredients ? window.RollinIngredients.custom(item, { remove: sheet.removed, add: sheet.added, note: noteOk(item) ? sheet.note : '' }) : null;
+      var cust = window.RollinIngredients ? window.RollinIngredients.custom(item, { remove: sheet.removed, add: sheet.added, note: noteOk(item) ? sheet.note : '', spice: sheet.spice }) : null;
       for (var k = 0; k < sheet.qty; k++) {
         addOneRaw(item.id, cust);
         if (sheet.combo && fries && drink) { addOneRaw(fries.id); addOneRaw(drink.id); }
@@ -2619,7 +2624,7 @@
         carModelValue = $('carModel').value.trim() || null;
       }
       return {
-        items: cart.map(function(c){ var o = { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name }; if (c.remove && c.remove.length) o.remove = c.remove; if (c.add && c.add.length) o.add = c.add; if (c.note) o.note = c.note; return o; }),
+        items: cart.map(function(c){ var o = { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name }; if (c.remove && c.remove.length) o.remove = c.remove; if (c.add && c.add.length) o.add = c.add; if (c.note) o.note = c.note; if (c.spice) o.spice = c.spice; return o; }),
         customerName: $('custName').value.trim(),
         customerEmail: $('custEmail').value.trim() || undefined,
         customerPhone: $('custPhone').value.trim() || undefined,
