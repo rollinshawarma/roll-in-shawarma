@@ -173,7 +173,13 @@
     50%{ opacity:.35; box-shadow:0 0 0 6px rgba(48,209,88,0); }
   }
   .open-status:empty{ visibility:hidden; }
-  .open-status{ max-width:100%; height:auto; text-align:left; }
+  .open-status{ max-width:100%; height:auto; text-align:center; }
+  /* Two lines: both centered, with the dot sitting in front of the first line. */
+  .open-status.two-line::before{ display:none; }
+  .open-status.two-line .os-t::before{ content:""; display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:8px; vertical-align:1px; background:#ff453a; }
+  .open-status.two-line.is-soon .os-t::before{ background:#ffd479; }
+  .open-status.two-line.is-open .os-t::before{ background:#30d158; animation:openPulse 1.6s ease-in-out infinite; }
+  .open-status.two-line{ padding-left:18px !important; padding-right:18px !important; }
   /* Room for a two-line status is reserved up front: iPhone Safari draws the
      hero text over the background video as its own layer and didn't grow
      that layer when the status got longer, which cut off the bottom. */
