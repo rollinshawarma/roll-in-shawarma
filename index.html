@@ -173,6 +173,10 @@
     50%{ opacity:.35; box-shadow:0 0 0 6px rgba(48,209,88,0); }
   }
   .open-status:empty{ visibility:hidden; }
+  .open-status{ max-width:100%; height:auto; text-align:left; }
+  .open-status .os-t{ display:block; min-width:0; overflow-wrap:anywhere; line-height:1.3; }
+  .open-status .os-t small{ display:block; font-size:13px; font-weight:500; opacity:.85; margin-top:1px; }
+  .open-status.two-line{ border-radius:18px !important; padding-top:8px !important; padding-bottom:8px !important; }
   .hero-ctas{ display:flex; gap:14px; width:100%; max-width:580px; }
   .hero-ctas .btn{ flex:1 1 0; height:52px; }
   @media (max-width:560px){
@@ -1222,6 +1226,7 @@ body.onloc-now .drive-up-only{ display:none !important; }
 #onLocStrip{ background:#0b6b35; color:#fff; font-size:14px; }
 #onLocStrip .wrap{ display:flex; align-items:center; justify-content:center; gap:6px 16px; flex-wrap:wrap; padding:9px 16px; text-align:center; }
 #onLocStrip .ol-dot{ width:8px; height:8px; border-radius:50%; background:#7dffa8; animation:olPulse 1.8s infinite; flex:none; }
+@media (max-width:560px){ #onLocStrip .ol-dot{ display:none; } }
 #onLocStrip.soon{ background:#7a4d00; } #onLocStrip.soon .ol-dot{ background:#ffd479; animation:none; }
 #onLocStrip b{ font-weight:700; }
 #onLocStrip a{ color:#fff; font-weight:600; text-decoration:underline; text-underline-offset:3px; white-space:nowrap; }
@@ -5490,7 +5495,10 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       }
     }
     function render(){
-      var el = document.getElementById('openStatus'), t = H.today(), a = H.at(t), n = nowMins(), dow = H.dowOf(t);
+      var el = document.getElementById('openStatus');
+      // Text sits in its own span (iPhone Safari clipped long wrapped text); the place goes on a second line.
+      function say(main, sub){ if (!el) return; el.classList.toggle('two-line', !!sub); el.innerHTML = '<span class="os-t">' + esc(main) + (sub ? '<small>' + esc(sub) + '</small>' : '') + '</span>'; }
+      var t = H.today(), a = H.at(t), n = nowMins(), dow = H.dowOf(t);
       document.querySelectorAll('.business-hours .hours-row').forEach(function(r){
         var od = r.getAttribute('data-onloc-date');
         if (od) { r.classList.toggle('is-today', od === t && !r.classList.contains('is-live')); return; }
@@ -5511,7 +5519,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       var pop = window.rollinPopupNow && window.rollinPopupNow();
       if (pop) {
         el.classList.add('is-open');
-        el.textContent = 'On Location now at ' + pop.name + ' \u00b7 until ' + new Date(pop.to).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' });
+        say('On Location now \u00b7 until ' + new Date(pop.to).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }), pop.name);
         return;
       }
       el.classList.remove('is-soon');
@@ -5526,20 +5534,19 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         // A stop today always shows; a later one only if it comes before our next regular opening.
         if (sd === t || !nxReg || sd < nxReg.ds || (sd === nxReg.ds && sm <= nxReg.m)) {
           el.classList.add('is-soon');
-          el.textContent = sd === t
-            ? 'On Location today at ' + nextStop.name + ' \u00b7 ' + olRange(nextStop)
-            : (!h && a.special ? 'Closed today' : 'Closed now') + ' \u00b7 next: On Location ' + olDay(nextStop.from) + ' at ' + nextStop.name + ', ' + olClock(nextStop.from);
+          if (sd === t) say('On Location today \u00b7 ' + olRange(nextStop), nextStop.name);
+          else say((!h && a.special ? 'Closed today' : 'Closed now') + ' \u00b7 next: On Location ' + olDay(nextStop.from) + ', ' + olClock(nextStop.from), nextStop.name);
           return;
         }
       }
       if (isOpen) {
-        el.textContent = 'Open now · until ' + H.fmt(h[1]) + why;
+        say('Open now · until ' + H.fmt(h[1]) + why);
       } else if (h && n < h[0]) {
-        el.textContent = 'Opens today at ' + H.fmt(h[0]) + why;
+        say('Opens today at ' + H.fmt(h[0]) + why);
       } else {
         var nx = H.nextOpen(H.addDays(t, 1));
         var pre = !h && a.special ? 'Closed today' + why : 'Closed now';
-        el.textContent = nx ? pre + ' · opens ' + (nx.k === 0 ? 'tomorrow' : nx.k < 6 ? H.DAYS[H.dowOf(nx.ds)] : H.label(nx.ds)) + ' at ' + H.fmt(nx.h[0]) : pre;
+        say(nx ? pre + ' · opens ' + (nx.k === 0 ? 'tomorrow' : nx.k < 6 ? H.DAYS[H.dowOf(nx.ds)] : H.label(nx.ds)) + ' at ' + H.fmt(nx.h[0]) : pre);
       }
     }
     function all(){ paintCard(); render(); }
