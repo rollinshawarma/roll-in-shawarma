@@ -2255,6 +2255,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         </div>
         <div id="promoMsg" class="promo-msg"></div>
       </div>
+      <p id="promoOnLocNote" class="promo-msg hidden">Promo codes can&rsquo;t be used on On Location orders.</p>
 
       <p id="firstRollNote" class="first-roll-note hidden" role="status"></p>
       <div id="rewardSection" class="rw-co hidden">
@@ -2577,6 +2578,8 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     var lastY = window.scrollY, rest = null, done = false;
     function eligible(){
       if (done) return false;
+      // No coupons On Location, so don't offer one while the truck is out.
+      if (document.body.classList.contains('onloc-now')) return false;
       var pastHero = hero && hero.offsetParent !== null ? hero.getBoundingClientRect().bottom < 0 : window.scrollY > 300;
       var beforeFooter = !footer || footer.getBoundingClientRect().top > window.innerHeight - 40;
       return pastHero && beforeFooter;
@@ -3972,6 +3975,24 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       });
     }
 
+    // On Location orders take no coupons (promo codes or the welcome offer).
+    // The pickup picker calls this whenever the chosen time is (or stops being) at a stop.
+    var onLocPickup = false;
+    window.rollinOnLocPromo = function(on){
+      onLocPickup = !!on;
+      var sec = document.getElementById('promoSection'), note = document.getElementById('promoOnLocNote');
+      if (note) note.classList.toggle('hidden', !onLocPickup);
+      if (!sec) return;
+      if (onLocPickup) {
+        sec.classList.add('hidden');
+        if (appliedPromo) {
+          appliedPromo = null;
+          document.getElementById('promoCodeInput').value = '';
+          document.getElementById('promoMsg').textContent = '';
+          refreshCheckoutBreakdown();
+        }
+      } else sec.classList.toggle('hidden', cartHasCateringItem());
+    };
     function showCheckoutView(){
       itemsView.classList.add('hidden');
       checkoutView.classList.remove('hidden');
@@ -4005,7 +4026,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
 
       refreshCheckoutBreakdown();
       prepareWallets();
-      if (window.rollinWelcome && window.rollinWelcome.saved() && !hasCatering && cart.length && !appliedPromo) {
+      if (!onLocPickup && window.rollinWelcome && window.rollinWelcome.saved() && !hasCatering && cart.length && !appliedPromo) {
         var wMin = window.rollinWelcome.min || 0, wSub = cartTotal();
         document.getElementById('promoCodeInput').value = window.rollinWelcome.CODE;
         if (wMin && wSub < wMin) {
@@ -4091,6 +4112,11 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
 
         if (!code) {
           msgEl.textContent = 'Enter a code first.';
+          msgEl.className = 'promo-msg error';
+          return;
+        }
+        if (onLocPickup) {
+          msgEl.textContent = "Promo codes can't be used on On Location orders.";
           msgEl.className = 'promo-msg error';
           return;
         }
@@ -4350,7 +4376,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
           customerPhone: document.getElementById('cartCustomerPhone').value.trim(),
           notes: document.getElementById('cartCustomerNotes').value.trim(),
           pickupDate: document.getElementById('cartPickupDate').value || undefined,
-          promoCode: appliedPromo ? appliedPromo.code : undefined,
+          promoCode: appliedPromo && !onLocPickup ? appliedPromo.code : undefined,
           scheduledPickupAt: scheduledPickupAt || undefined,
           tipAmount: totals.tip || undefined,
           rewardIds: totals.rewardIds && totals.rewardIds.length ? totals.rewardIds : undefined,
@@ -5799,6 +5825,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       document.getElementById('pmNote').classList.toggle('hidden', !!p || method !== 'curbside');
       document.getElementById('pmCarWrap').classList.toggle('hidden', !!p || method !== 'curbside');
       var lbl = sec.querySelector('.pickup-time-label'); if (lbl) lbl.classList.toggle('hidden', !!p);
+      if (window.rollinOnLocPromo) window.rollinOnLocPromo(!!p);
       if (!p) { popShown = null; return; }
       if (popShown !== p.id) { popOk.checked = false; popShown = p.id; popBox.classList.remove('need'); }
       document.getElementById('ptPopupName').textContent = p.name;
