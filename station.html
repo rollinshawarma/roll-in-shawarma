@@ -821,11 +821,36 @@
   .kds-spice-medium{ background:#f57c00; color:#fff; }
   .kds-spice-spicy{ background:#d62d20; color:#fff; }
   /* ---- Customer info (managers): badges on order cards + slide ---- */
-  .cust-badge{ display:inline-flex; align-items:center; gap:4px; margin:0 6px; padding:3px 10px; border-radius:999px; border:0; font:inherit; font-size:13px; font-weight:800; white-space:nowrap; cursor:pointer;
-    background:#3a3a3c; color:#fff; min-height:0; }
-  .cust-badge.first{ background:#0a84ff; }
-  .cust-badge.regular{ background:#f7ad28; color:#1c1c1e; }
-  .cust-badge.member{ box-shadow:inset 0 0 0 2px #bf5af2; }
+  /* Customer strip: one tidy row under the order header (tap for details).
+     Tier first (NEW / 2ND VISIT / REGULAR / VIP), then member + usual spice,
+     "Details ›" pinned right. Same 28px height for every piece. */
+  .ci-strip{ display:flex; align-items:center; gap:6px; width:100%; margin:-2px 0 10px; padding:5px 10px 5px 5px; min-height:0;
+    border-radius:12px; border:1px solid rgba(255,255,255,.10); background:rgba(255,255,255,.05); color:inherit; font:inherit; text-align:left; cursor:pointer; overflow:hidden; }
+  .ci-strip:active{ background:rgba(255,255,255,.10); }
+  .ci-tier, .ci-chip{ display:inline-flex; align-items:center; gap:5px; height:28px; padding:0 10px; border-radius:8px; flex:none;
+    font-size:12px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; line-height:1; white-space:nowrap; font-variant-numeric:tabular-nums; }
+  .ci-tier{ background:#3a3a3c; color:#fff; }
+  .ci-tier.t-new{ background:#0a84ff; color:#fff; }
+  .ci-tier.t-regular{ background:#f7ad28; color:#1c1c1e; }
+  .ci-tier.t-vip{ background:linear-gradient(135deg, #ffd479, #f7ad28 55%, #ff9f0a); color:#1c1c1e; box-shadow:inset 0 0 0 1px rgba(255,255,255,.35); }
+  .ci-chip{ background:transparent; border:1px solid rgba(255,255,255,.22); color:#e5e5ea; font-weight:700; }
+  .ci-chip.c-member{ border-color:#bf5af2; color:#e0c3ff; }
+  .ci-chip.c-mild{ background:#ffd3a1; border-color:#ffd3a1; color:#5a2e00; }
+  .ci-chip.c-medium{ background:#f57c00; border-color:#f57c00; color:#fff; }
+  .ci-chip.c-spicy{ background:#d62d20; border-color:#d62d20; color:#fff; }
+  .ci-go{ margin-left:auto; flex:none; width:28px; height:28px; border-radius:50%; display:inline-flex; align-items:center; justify-content:center;
+    background:rgba(255,255,255,.10); color:#d1d1d6; font-size:18px; font-weight:800; line-height:1; }
+  body.tickets-mode .order-card .ci-strip{ background:#f5f5f7; border-color:#e5e5ea; }
+  body.tickets-mode .order-card .ci-strip:active{ background:#ebebf0; }
+  body.tickets-mode .order-card .ci-tier{ background:#e5e5ea; color:#1d1d1f; }
+  body.tickets-mode .order-card .ci-tier.t-new{ background:#0a84ff; color:#fff; }
+  body.tickets-mode .order-card .ci-tier.t-regular{ background:#f7ad28; color:#1c1c1e; }
+  body.tickets-mode .order-card .ci-tier.t-vip{ background:linear-gradient(135deg, #ffd479, #f7ad28 55%, #ff9f0a); color:#1c1c1e; }
+  body.tickets-mode .order-card .ci-chip{ border-color:#d1d1d6; color:#3a3a3c; }
+  body.tickets-mode .order-card .ci-chip.c-member{ border-color:#bf5af2; color:#8e44c9; }
+  body.tickets-mode .order-card .ci-chip.c-mild{ color:#5a2e00; }
+  body.tickets-mode .order-card .ci-chip.c-medium, body.tickets-mode .order-card .ci-chip.c-spicy{ color:#fff; }
+  body.tickets-mode .order-card .ci-go{ background:#e5e5ea; color:#3a3a3c; }
   .ci-pin{ position:fixed; z-index:60; top:50%; left:50%; transform:translate(-50%, -50%); width:min(380px, 92vw); background:#1c1c1e; border:1px solid #3a3a3c; border-radius:22px; padding:22px; color:#fff; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,.6); }
   .ci-pin.hidden{ display:none; }
   .ci-pin b{ font-size:21px; }
@@ -4050,13 +4075,21 @@
     if (was && !st.on) closeCard();
   }
   function flash(t){ var b = $('boardErrorBanner'); if (!b) return; b.textContent = t; b.classList.remove('hidden'); setTimeout(function(){ if (b.textContent === t) b.classList.add('hidden'); }, 5000); }
+  // Tier: NEW (1st) / 2ND VISIT (2-4) / REGULAR (5-9) / VIP (10+).
+  function tier(v){
+    if (v <= 1) return { c: 't-new', t: 'New' };
+    if (v >= 10) return { c: 't-vip', t: '★★ VIP · ' + nth(v) };
+    if (v >= 5) return { c: 't-regular', t: '★ Regular · ' + nth(v) };
+    return { c: '', t: nth(v) + ' visit' };
+  }
   function badgeHtml(id){
     var b = cache[id]; if (!b) return '';
-    var first = b.visit <= 1, reg = b.visit >= 5;
-    var label = first ? '🆕 First order' : (reg ? '⭐ ' : '') + nth(b.visit) + ' visit';
-    if (b.member) label += ' · 💎';
-    if (b.spice && !first) label += ' · 🌶 ' + b.spice;
-    return '<button type="button" class="cust-badge' + (first ? ' first' : reg ? ' regular' : '') + (b.member ? ' member' : '') + '" data-ci-order="' + esc(id) + '" title="Customer info">' + esc(label) + '</button>';
+    var t = tier(b.visit), sp = String(b.spice || '').toLowerCase();
+    return '<button type="button" class="ci-strip cust-badge" data-ci-order="' + esc(id) + '" aria-label="Customer info: ' + esc(t.t) + '">' +
+      '<span class="ci-tier ' + t.c + '">' + esc(t.t) + '</span>' +
+      (b.member ? '<span class="ci-chip c-member">💎 Member</span>' : '') +
+      (b.spice && b.visit > 1 ? '<span class="ci-chip c-' + esc(sp) + '">🌶 ' + esc(b.spice) + '</span>' : '') +
+      '<span class="ci-go" aria-hidden="true">›</span></button>';
   }
   function decorate(box){
     lastBox = box || lastBox; if (!lastBox) return;
@@ -4067,8 +4100,8 @@
       if (old) old.remove();
       if (!st.on) return;
       if (cache[id] === undefined) { if (!pending[id]) need.push(id); return; }
-      var h = badgeHtml(id), nm = c.querySelector('.order-name');
-      if (h && nm) nm.insertAdjacentHTML('afterend', h);
+      var h = badgeHtml(id), head = c.querySelector('.order-card-head');
+      if (h && head) head.insertAdjacentHTML('afterend', h);
     });
     if (st.on && need.length && !missing) { clearTimeout(fetchT); fetchT = setTimeout(function(){ fetchBadges(need.slice(0, 60)); }, 150); }
   }
@@ -4118,7 +4151,7 @@
       if (!c.found) { $('ciBody').innerHTML = '<div class="ci-note">No name, phone or email on this order, so there’s no history.</div>'; return; }
       var initials = String(c.name || '?').trim().split(/\s+/).map(function(w){ return w.charAt(0); }).join('').slice(0, 2).toUpperCase();
       var tags = [];
-      tags.push(c.visit <= 1 ? '🆕 First order, welcome them!' : (c.visit >= 5 ? '⭐ Regular · ' : '') + nth(c.visit) + ' visit');
+      tags.push(c.visit <= 1 ? '🆕 First order, welcome them!' : (c.visit >= 10 ? '★★ VIP · ' : c.visit >= 5 ? '★ Regular · ' : '') + nth(c.visit) + ' visit');
       if (c.member) tags.push('💎 Rewards member');
       if (c.spice) tags.push('🌶 Usually ' + c.spice);
       $('ciTitle').textContent = c.name || 'Customer';
