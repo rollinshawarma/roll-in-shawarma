@@ -1456,7 +1456,7 @@
     return escHtml(text).replace(/\uD83C\uDF36 ([A-Za-z][A-Za-z ]{0,19}?)(?=,|$)/g, function(_, lv){
       var k = lv.toLowerCase().replace(/[^a-z]/g, '');
       return '<b class="kds-spice kds-spice-' + k + '">\uD83C\uDF36 ' + lv.toUpperCase() + '</b>';
-    });
+    }).replace(/(<\/b>), /g, '$1 ');
   }
   function renderItemNameHtml(rawName){
     var beforeModifiers = rawName;
