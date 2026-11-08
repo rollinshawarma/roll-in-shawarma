@@ -829,6 +829,13 @@
 
   #kioskOffline{ position:fixed; inset:0; z-index:150; background:#fff; display:flex; align-items:center; justify-content:center; padding:40px; text-align:center; }
   #kioskOffline.hidden{ display:none; }
+  #kioskClosed{ position:fixed; inset:0; z-index:149; background:#fff; display:flex; align-items:center; justify-content:center; padding:40px; text-align:center; }
+  #kioskClosed.hidden{ display:none; }
+  #kioskClosed h2{ font-family:var(--display); font-size:52px; color:var(--white); line-height:1.05; margin-bottom:16px; }
+  #kioskClosed p{ font-size:22px; color:var(--cream); margin-bottom:18px; }
+  #kioskClosed .kc-reason{ font-size:24px; font-weight:700; color:var(--white); background:#fff4d6; border-radius:16px; padding:12px 20px; }
+  #kioskClosed .kc-reason.hidden{ display:none; }
+  .kc-icon{ background:#fff1e0; color:#c25e00; }
   .ko-card{ max-width:620px; display:flex; flex-direction:column; align-items:center; }
   .ko-icon{ width:110px; height:110px; border-radius:30px; background:#fde7e5; color:#d62d20; display:flex; align-items:center; justify-content:center; margin-bottom:24px; }
   .ko-icon svg{ width:62px; height:62px; }
@@ -1008,6 +1015,16 @@
   <span id="secretNoteText">The secret menu is open. Don&rsquo;t tell anyone.</span>
 </div>
 
+<!-- Kitchen turned kiosk orders off (kiosk-ordering-switch.sql) -->
+<div id="kioskClosed" class="hidden" role="alert" aria-live="assertive">
+  <div class="ko-card">
+    <div class="ko-icon kc-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="12" rx="2"></rect><line x1="8" y1="20" x2="16" y2="20"></line><line x1="12" y1="16" x2="12" y2="20"></line><line x1="9" y1="8" x2="15" y2="12"></line><line x1="15" y1="8" x2="9" y2="12"></line></svg></div>
+    <h2>We are not accepting orders from the kiosk at the moment.</h2>
+    <p class="kc-reason hidden" id="kioskClosedReason"></p>
+    <p>Sorry about that! Please see our team at the window.</p>
+    <div class="ko-wait"><span class="spin"></span> This screen goes away by itself when the kiosk is back on.</div>
+  </div>
+</div>
 <div id="kioskOffline" class="hidden" role="alert" aria-live="assertive">
   <div class="ko-card">
     <div class="ko-icon" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 8.8a15 15 0 0 1 20 0"></path><path d="M5 12.5a10 10 0 0 1 14 0"></path><path d="M8.5 16.1a5 5 0 0 1 7 0"></path><line x1="12" y1="20" x2="12.01" y2="20"></line><line x1="3" y1="3" x2="21" y2="21"></line></svg></div>
@@ -3340,13 +3357,37 @@
     function kioskBusyPaying(){
       return ['scanToPayScreen', 'terminalPayScreen', 'orderConfirmedScreen'].some(function(id){ var el = document.getElementById(id); return el && !el.classList.contains('hidden'); });
     }
+    // Kitchen tablet switch: off = "We are not accepting orders from the kiosk
+    // at the moment." Checked with the wait time (every 20 seconds); a checkout
+    // refused with KIOSK_OFF shows it right away. Never covers a payment in progress.
+    var kioskAccepting = true;
+    function setKioskAccepting(on, reason){
+      kioskAccepting = on;
+      var r = document.getElementById('kioskClosedReason');
+      if (r) { r.textContent = reason || ''; r.classList.toggle('hidden', on || !reason); }
+      document.getElementById('kioskClosed').classList.toggle('hidden', on || kioskBusyPaying());
+    }
+    (function(){
+      var f = window.fetch;
+      if (!f) return;
+      window.fetch = function(){
+        return f.apply(this, arguments).then(function(res){
+          try {
+            if (res && res.status === 409 && /functions\/v1\//.test(String(res.url || ''))) {
+              res.clone().json().then(function(d){ if (d && d.code === 'KIOSK_OFF') { setKioskAccepting(false, null); setTimeout(checkKioskInfo, 3000); } }, function(){});
+            }
+          } catch (e) {}
+          return res;
+        });
+      };
+    })();
     function setKioskOnline(on){
       kioskOnline = on;
       var ov = document.getElementById('kioskOffline');
       var show = !on && !kioskBusyPaying();
       ov.classList.toggle('hidden', !show);
       clearTimeout(infoTimer);
-      infoTimer = setTimeout(checkKioskInfo, on ? 30000 : 8000);
+      infoTimer = setTimeout(checkKioskInfo, on ? 20000 : 8000);
     }
     function checkKioskInfo(){
       clearTimeout(infoTimer);
@@ -3365,6 +3406,7 @@
         infoFails = 0;
         var d = (res && res.data) || {};
         kioskWaitMin = d.wait_min ? Number(d.wait_min) : null;
+        setKioskAccepting(d.accepting !== false, d.off_reason);
         kioskEventTitle = d.event_title || null;
         paintInfo();
         setKioskOnline(true);
