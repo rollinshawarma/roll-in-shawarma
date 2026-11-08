@@ -1235,6 +1235,59 @@
     .mn-2{ grid-template-columns:1fr; gap:0; }
     .mn-head-acts{ margin-top:0; margin-bottom:12px; } .mn-tools input{ flex-basis:100%; } .mn-tools #mnAddBtn{ margin-left:auto; }
   }
+  /* ---- Customers: order history (customer-orders.sql) ---- */
+  .cu-views{ margin-bottom:16px; flex-wrap:wrap; }
+  .cu-bar{ display:grid; grid-template-columns:minmax(200px, 2fr) repeat(3, minmax(130px, 1fr)); gap:8px; margin-bottom:10px; }
+  .cu-bar input, .cu-bar select{ margin:0; min-height:44px; }
+  .cu-dates{ display:flex; gap:12px; flex-wrap:wrap; margin-bottom:10px; }
+  .cu-dates label{ display:flex; align-items:center; gap:6px; font-size:13px; font-weight:600; margin:0; }
+  .cu-dates input{ margin:0; width:auto; }
+  .cu-stats{ display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; margin:6px 0 12px; }
+  .cu-stat{ background:#f5f5f7; border-radius:12px; padding:10px 12px; }
+  .cu-stat b{ display:block; font-size:19px; color:var(--ink); }
+  .cu-stat span{ font-size:12px; color:var(--muted); }
+  .cu-list{ display:flex; flex-direction:column; gap:8px; }
+  .cu-row{ border:1px solid #e6e6eb; border-radius:14px; background:#fff; overflow:hidden; }
+  .cu-head{ display:grid; grid-template-columns:auto 1fr auto; gap:4px 12px; align-items:center; width:100%; padding:11px 14px; background:none; border:0; text-align:left; color:var(--ink); font:inherit; cursor:pointer; min-height:0; }
+  .cu-head:hover{ transform:none; background:#fafafc; }
+  .cu-when{ font-size:12px; color:var(--muted); line-height:1.3; min-width:74px; }
+  .cu-when b{ display:block; font-size:13px; color:var(--ink); }
+  .cu-mid{ min-width:0; }
+  .cu-who{ font-weight:700; }
+  .cu-name{ background:none; border:0; padding:0; min-height:0; width:auto; font:inherit; font-weight:700; color:var(--ink); text-decoration:underline; text-decoration-color:#c7c7cc; text-underline-offset:3px; cursor:pointer; }
+  .cu-name:hover{ transform:none; text-decoration-color:var(--ink); }
+  .cu-sum{ font-size:13px; color:var(--muted); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .cu-right{ text-align:right; }
+  .cu-total{ font-weight:800; font-size:15px; }
+  .cu-chip{ display:inline-block; font-size:11px; font-weight:700; padding:2px 8px; border-radius:999px; background:#f0f0f4; color:#3a3a3c; margin:2px 4px 0 0; white-space:nowrap; }
+  .cu-chip.s-canceled, .cu-chip.s-refunded{ background:#fde8e6; color:#b3261e; }
+  .cu-chip.s-unpaid{ background:#fff4d6; color:#7a5300; }
+  .cu-chip.src{ background:#eef4ff; color:#1d4ed8; }
+  .cu-chip.mem{ background:#fff1e0; color:#9a4d00; }
+  .cu-body{ display:none; padding:4px 14px 12px; border-top:1px solid #f0f0f3; font-size:14px; }
+  .cu-row.open .cu-body{ display:block; }
+  .cu-it{ display:flex; justify-content:space-between; gap:10px; padding:6px 0; border-bottom:1px dashed #eeeef2; }
+  .cu-it small{ display:block; color:var(--muted); font-size:12px; }
+  .cu-meta{ display:flex; flex-wrap:wrap; gap:6px 14px; margin-top:8px; font-size:13px; color:var(--muted); }
+  .cu-meta b{ color:var(--ink); }
+  .cu-more{ display:flex; justify-content:space-between; align-items:center; gap:8px; margin-top:12px; }
+  .cu-more button{ width:auto; }
+  .cu-empty{ text-align:center; color:var(--muted); padding:22px 10px; }
+  .cu-person .cu-head{ grid-template-columns:auto 1fr auto; }
+  .cu-av{ width:40px; height:40px; border-radius:50%; background:#1d1d1f; color:#fff; display:flex; align-items:center; justify-content:center; font-weight:800; font-size:15px; }
+  .cu-p-top{ display:flex; gap:12px; align-items:center; margin-bottom:12px; }
+  .cu-p-top .cu-av{ width:52px; height:52px; font-size:20px; }
+  .cu-p-top h4{ margin:0; font-size:18px; }
+  .cu-acts{ display:flex; gap:8px; flex-wrap:wrap; margin:6px 0 14px; }
+  .cu-acts a{ display:inline-flex; align-items:center; gap:6px; padding:8px 14px; border-radius:999px; background:#f2f2f6; color:var(--ink); font-weight:600; font-size:13px; text-decoration:none; }
+  .cu-fav{ display:flex; justify-content:space-between; padding:7px 0; border-bottom:1px solid #f0f0f3; font-size:14px; }
+  .cu-insight{ display:flex; flex-wrap:wrap; gap:6px; margin:4px 0 6px; }
+  @media (max-width: 760px){
+    .cu-bar{ grid-template-columns:1fr 1fr; }
+    .cu-bar input{ grid-column:1 / -1; }
+    .cu-stats{ grid-template-columns:1fr 1fr; }
+    .cu-when{ min-width:62px; }
+  }
 </style>
 </head>
 <body>
@@ -2839,6 +2892,70 @@
   <!-- ADMIN TAB -->
   <!-- CUSTOMER INFO -->
   <div class="tab-panel hidden" id="panelCustomerInfo">
+    <div class="sc-range cu-views" id="cuViews" role="tablist" aria-label="Customers">
+      <button type="button" class="on" data-v="orders">Order history</button>
+      <button type="button" data-v="people">Customers</button>
+      <button type="button" class="hidden" data-v="members" id="cuMembersBtn">Members &amp; signups</button>
+    </div>
+
+    <!-- Order history (customer-orders.sql) -->
+    <div class="card" id="cuOrdersCard">
+      <h2>Order history</h2>
+      <p class="hint">Every order from the website, QR page, kiosk and delivery apps. Search by name, phone, email or order #. Tap an order to see what they got, or a name to see that customer.</p>
+      <div id="cuMsg"></div>
+      <div class="cu-bar">
+        <input type="search" id="cuQ" placeholder="Search name, phone, email or order #" autocomplete="off" aria-label="Search orders">
+        <select id="cuRange" aria-label="When">
+          <option value="0">Today</option><option value="7">Last 7 days</option><option value="30" selected>Last 30 days</option>
+          <option value="90">Last 90 days</option><option value="365">Last 12 months</option><option value="all">All time</option><option value="custom">Pick dates&hellip;</option>
+        </select>
+        <select id="cuSource" aria-label="Where">
+          <option value="">All sources</option><option value="website">Website</option><option value="qr">QR / drive-up</option><option value="kiosk">Kiosk</option>
+          <option value="doordash">DoorDash</option><option value="ubereats">Uber Eats</option><option value="grubhub">Grubhub</option><option value="pos">Square POS</option>
+        </select>
+        <select id="cuState" aria-label="Status">
+          <option value="done">Paid orders</option><option value="canceled">Canceled</option><option value="refunded">Refunded</option><option value="unpaid">Started, not paid</option><option value="all">Everything</option>
+        </select>
+      </div>
+      <div class="cu-dates hidden" id="cuDates">
+        <label>From <input type="date" id="cuFrom"></label>
+        <label>To <input type="date" id="cuTo"></label>
+      </div>
+      <div class="cu-stats" id="cuStats"></div>
+      <div id="cuList" class="cu-list"></div>
+      <div class="cu-more">
+        <button type="button" class="btn-secondary btn-small hidden" id="cuMore">Show more</button>
+        <button type="button" class="btn-export btn-small" id="cuExport"><svg class="icon" style="width:13px;height:13px;"><use href="#ic-download"/></svg>Export CSV</button>
+      </div>
+    </div>
+
+    <!-- Customers ranked -->
+    <div class="card hidden" id="cuPeopleCard">
+      <h2>Customers</h2>
+      <p class="hint">Everyone who's ordered, grouped by email (or phone, or name). Paid orders only. Tap someone to see their history.</p>
+      <div id="cpMsg"></div>
+      <div class="cu-bar">
+        <input type="search" id="cpQ" placeholder="Search name, phone or email" autocomplete="off" aria-label="Search customers">
+        <select id="cpDays" aria-label="Period">
+          <option value="30">Last 30 days</option><option value="90">Last 90 days</option><option value="365">Last 12 months</option><option value="0" selected>All time</option>
+        </select>
+        <select id="cpSort" aria-label="Sort">
+          <option value="spent">Top spenders</option><option value="orders">Most orders</option><option value="recent">Most recent</option>
+        </select>
+      </div>
+      <div class="cu-stats" id="cpStats"></div>
+      <div id="cpList" class="cu-list"></div>
+      <div class="cu-more"><button type="button" class="btn-secondary btn-small hidden" id="cpMore">Show more</button></div>
+    </div>
+
+    <!-- One customer -->
+    <div class="mn-scrim hidden" id="cuScrim"></div>
+    <aside class="mn-drawer hidden" id="cuDrawer" role="dialog" aria-modal="true" aria-labelledby="cuDTitle">
+      <header class="mn-dh"><h3 id="cuDTitle">Customer</h3><button type="button" class="mn-x" id="cuDClose" aria-label="Close">&times;</button></header>
+      <div class="mn-db" id="cuDBody"></div>
+    </aside>
+
+    <div id="cuMembersWrap" class="hidden">
     <div class="card">
       <h2>Members</h2>
       <p class="hint">Everyone who's signed up as a member on the website. Birthdays are month/day only &mdash; no year is ever collected.</p>
@@ -2864,6 +2981,7 @@
           <tbody id="signupsBody"></tbody>
         </table>
       </div>
+    </div>
     </div>
   </div>
 
@@ -3195,6 +3313,9 @@
       var isAdmin = currentEmployee.role === 'admin';
 
       if (isManager) {
+        // Customers -> Order history / Customers: managers and admins (customer-orders.sql).
+        document.getElementById('tabCustomerInfoBtn').classList.remove('hidden');
+        cuInit();
         document.getElementById('tabApproveBtn').classList.remove('hidden');
         document.getElementById('tabPerksBtn').classList.remove('hidden');
         document.getElementById('tabSoldoutBtn').classList.remove('hidden');
@@ -3279,6 +3400,7 @@
       if (isAdmin) {
         document.getElementById('tabAdminBtn').classList.remove('hidden');
         document.getElementById('tabCustomerInfoBtn').classList.remove('hidden');
+        document.getElementById('cuMembersBtn').classList.remove('hidden');
         document.getElementById('uploadForOwnerRow').classList.remove('hidden');
         loadAdmin();
         loadCustomerInfo();
@@ -8529,6 +8651,198 @@
         '</tr>';
       }).join('');
     });
+  }
+
+  // ---------------- CUSTOMERS: ORDER HISTORY (customer-orders.sql) ----------------
+  var cu = { inited:false, view:'orders', orders:[], count:0, off:0, people:[], pcount:0, poff:0, seq:0, pseq:0, t:null, pt:null };
+  var CU_SRC = { website:'Website', qr:'QR / drive-up', driveup:'Drive-up', kiosk:'Kiosk', doordash:'DoorDash', ubereats:'Uber Eats', grubhub:'Grubhub', pos:'Square POS' };
+  var CU_STATE = { done:'Paid', canceled:'Canceled', refunded:'Refunded', unpaid:'Not paid' };
+  var CU_METHOD = { window:'Pickup', driveup:'Drive-up', curbside:'Drive-up', delivery:'Delivery', dinein:'Dine-in' };
+  function cuEl(id){ return document.getElementById(id); }
+  function cuMoney(n){ n = Number(n) || 0; return '$' + n.toFixed(2); }
+  function cuNY(d, o){ try { return new Date(d).toLocaleString('en-US', Object.assign({ timeZone:'America/New_York' }, o)); } catch (e) { return ''; } }
+  function cuYmd(d){ return new Intl.DateTimeFormat('en-CA', { timeZone:'America/New_York' }).format(d); }
+  function cuPhone(p){ p = String(p || ''); return p.length === 10 ? '(' + p.slice(0, 3) + ') ' + p.slice(3, 6) + '-' + p.slice(6) : p; }
+  function cuInitials(n){ n = String(n || '?').trim(); var w = n.split(/\s+/); return ((w[0] || '?').charAt(0) + (w.length > 1 ? w[w.length - 1].charAt(0) : '')).toUpperCase(); }
+  function cuErr(e){ var m = (e && e.message) || String(e); return /does not exist|schema cache|Could not find the function/i.test(m) ? 'Run customer-orders.sql in Supabase → SQL Editor to turn on order history.' : m; }
+  function cuMsg(id, t){ cuEl(id).innerHTML = t ? '<div class="msg error">' + esc(t) + '</div>' : ''; }
+  // Spice level in an item note as a colored chip (Mild light orange, Medium orange, Spicy red).
+  function cuSpiceHtml(note){
+    return esc(note).replace(/🌶 ([A-Za-z]+)/g, function(_, lv){
+      return '<b class="cu-chip" style="background:' + ({ Mild:'#ffd3a1', Medium:'#f57c00', Spicy:'#d62d20' }[lv] || '#f0f0f4') + ';color:' + (lv === 'Mild' ? '#5a2e00' : '#fff') + '">🌶 ' + esc(lv) + '</b>';
+    });
+  }
+  function cuFilters(){
+    var r = cuEl('cuRange').value, p = { q: cuEl('cuQ').value.trim(), source: cuEl('cuSource').value, state: cuEl('cuState').value };
+    if (r === 'custom') { if (cuEl('cuFrom').value) p.from = cuEl('cuFrom').value; if (cuEl('cuTo').value) p.to = cuEl('cuTo').value; }
+    else if (r !== 'all') p.from = cuYmd(r === '0' ? new Date() : new Date(Date.now() - Number(r) * 86400000));
+    return p;
+  }
+  function cuOrderHtml(o, withName){
+    var items = o.items || [];
+    var sum = items.map(function(i){ return (i.qty > 1 ? i.qty + '× ' : '') + i.name; }).join(', ') || 'No item list';
+    var who = o.name ? (o.key && withName !== false ? '<button type="button" class="cu-name" data-key="' + esc(o.key) + '">' + esc(o.name) + '</button>' : '<span class="cu-who">' + esc(o.name) + '</span>')
+                     : '<span class="cu-who" style="color:var(--muted)">Walk-in</span>';
+    var chips = '<span class="cu-chip src">' + esc(CU_SRC[o.source] || o.source) + '</span>' +
+      (o.state !== 'done' ? '<span class="cu-chip s-' + esc(o.state) + '">' + esc(CU_STATE[o.state] || o.state) + '</span>' : '') +
+      (o.refunded > 0 && o.state === 'done' ? '<span class="cu-chip s-refunded">' + cuMoney(o.refunded) + ' refunded</span>' : '');
+    var body = items.map(function(i){
+      return '<div class="cu-it"><span>' + (i.qty > 1 ? '<b>' + i.qty + '×</b> ' : '') + esc(i.name) + (i.note ? '<small>' + cuSpiceHtml(i.note) + '</small>' : '') + '</span><span>' + cuMoney(i.price) + '</span></div>';
+    }).join('') || '<div class="cu-it"><span>No items saved for this order.</span></div>';
+    var meta = [];
+    if (o.method) meta.push('<span>' + esc(CU_METHOD[o.method] || o.method) + '</span>');
+    if (o.location) meta.push('<span>🚚 ' + esc(o.location) + '</span>');
+    if (o.scheduled) meta.push('<span>Pickup <b>' + esc(cuNY(o.scheduled, { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' })) + '</b></span>');
+    if (o.discount > 0) meta.push('<span>Saved <b>' + cuMoney(o.discount) + '</b>' + (o.promo ? ' (' + esc(o.promo) + ')' : '') + '</span>');
+    else if (o.promo) meta.push('<span>Promo <b>' + esc(o.promo) + '</b></span>');
+    if (o.tip > 0) meta.push('<span>Tip <b>' + cuMoney(o.tip) + '</b></span>');
+    if (o.phone) meta.push('<a href="tel:' + esc(o.phone) + '">' + esc(cuPhone(o.phone)) + '</a>');
+    if (o.email) meta.push('<a href="mailto:' + esc(o.email) + '">' + esc(o.email) + '</a>');
+    if (o.notes) meta.push('<span>Note: ' + esc(o.notes) + '</span>');
+    return '<div class="cu-row" data-id="' + esc(o.id) + '">' +
+      '<div class="cu-head" role="button" tabindex="0" aria-expanded="false">' +
+        '<span class="cu-when"><b>' + esc(cuNY(o.at, { month:'short', day:'numeric' })) + '</b>' + esc(cuNY(o.at, { hour:'numeric', minute:'2-digit' })) + '</span>' +
+        '<span class="cu-mid">' + who + ' <span class="cu-sum">#' + esc(o.ref) + '</span><div class="cu-sum">' + esc(sum) + '</div><div>' + chips + '</div></span>' +
+        '<span class="cu-right"><span class="cu-total">' + cuMoney(o.total) + '</span></span>' +
+      '</div><div class="cu-body">' + body + (meta.length ? '<div class="cu-meta">' + meta.join('') + '</div>' : '') + '</div></div>';
+  }
+  function cuBindList(box){
+    box.onclick = function(e){
+      var nm = e.target.closest('.cu-name, [data-person]');
+      if (nm) { e.stopPropagation(); cuOpenPerson(nm.getAttribute('data-key')); return; }
+      if (e.target.closest('a')) return;
+      var h = e.target.closest('.cu-head'); if (!h) return;
+      var row = h.parentNode; row.classList.toggle('open'); h.setAttribute('aria-expanded', row.classList.contains('open') ? 'true' : 'false');
+    };
+    box.onkeydown = function(e){ if ((e.key === 'Enter' || e.key === ' ') && e.target.classList.contains('cu-head')) { e.preventDefault(); e.target.click(); } };
+  }
+  function cuLoad(more){
+    var p = cuFilters(), seq = ++cu.seq;
+    p.limit = 50; p.offset = more ? cu.off : 0;
+    if (!more) { cuEl('cuList').innerHTML = '<div class="cu-empty">Loading…</div>'; cuEl('cuStats').innerHTML = ''; }
+    cuMsg('cuMsg', '');
+    sb.rpc('staff_order_history', { p: p }).then(function(r){
+      if (seq !== cu.seq) return;
+      if (r.error) { cuMsg('cuMsg', cuErr(r.error)); cuEl('cuList').innerHTML = ''; return; }
+      var d = r.data || {};
+      cu.orders = more ? cu.orders.concat(d.orders || []) : (d.orders || []);
+      cu.count = d.count || 0; cu.off = cu.orders.length;
+      cuEl('cuStats').innerHTML =
+        '<div class="cu-stat"><b>' + cu.count + '</b><span>' + (p.state === 'done' ? 'paid orders' : 'orders') + '</span></div>' +
+        '<div class="cu-stat"><b>' + cuMoney(d.sales) + '</b><span>sales (after refunds)</span></div>' +
+        '<div class="cu-stat"><b>' + cuMoney(d.avg) + '</b><span>average order</span></div>' +
+        '<div class="cu-stat"><b>' + (d.customers || 0) + '</b><span>customers</span></div>';
+      cuEl('cuList').innerHTML = cu.orders.length ? cu.orders.map(function(o){ return cuOrderHtml(o); }).join('') : '<div class="cu-empty">No orders match. Try a longer date range or a different search.</div>';
+      cuEl('cuMore').classList.toggle('hidden', cu.orders.length >= cu.count);
+      cuEl('cuMore').textContent = 'Show more (' + (cu.count - cu.orders.length) + ' left)';
+    });
+  }
+  function cuPeopleLoad(more){
+    var seq = ++cu.pseq, p = { q: cuEl('cpQ').value.trim(), days: Number(cuEl('cpDays').value), sort: cuEl('cpSort').value, limit: 50, offset: more ? cu.poff : 0 };
+    if (!more) cuEl('cpList').innerHTML = '<div class="cu-empty">Loading…</div>';
+    cuMsg('cpMsg', '');
+    sb.rpc('staff_customer_list', { p: p }).then(function(r){
+      if (seq !== cu.pseq) return;
+      if (r.error) { cuMsg('cpMsg', cuErr(r.error)); cuEl('cpList').innerHTML = ''; return; }
+      var d = r.data || {};
+      cu.people = more ? cu.people.concat(d.customers || []) : (d.customers || []);
+      cu.pcount = d.count || 0; cu.poff = cu.people.length;
+      cuEl('cpStats').innerHTML = '<div class="cu-stat"><b>' + cu.pcount + '</b><span>customers</span></div>' +
+        '<div class="cu-stat"><b>' + (d.repeat || 0) + '</b><span>came back (2+ orders)</span></div>' +
+        '<div class="cu-stat"><b>' + (cu.pcount ? Math.round((d.repeat || 0) * 100 / cu.pcount) : 0) + '%</b><span>repeat rate</span></div>';
+      cuEl('cpList').innerHTML = cu.people.length ? cu.people.map(function(c){
+        var contact = [c.phone ? cuPhone(c.phone) : '', c.email || ''].filter(Boolean).join(' · ');
+        return '<div class="cu-row cu-person"><div class="cu-head" role="button" tabindex="0" data-person data-key="' + esc(c.key) + '">' +
+          '<span class="cu-av">' + esc(cuInitials(c.name)) + '</span>' +
+          '<span class="cu-mid"><span class="cu-who">' + esc(c.name || 'No name') + '</span>' + (c.member ? ' <span class="cu-chip mem">Member</span>' : '') +
+            '<div class="cu-sum">' + esc(contact || 'No contact saved') + '</div>' +
+            '<div class="cu-sum">' + c.orders + ' order' + (c.orders === 1 ? '' : 's') + ' · last ' + esc(cuNY(c.last, { month:'short', day:'numeric', year:'numeric' })) + (c.favorite ? ' · loves ' + esc(c.favorite) : '') + '</div></span>' +
+          '<span class="cu-right"><span class="cu-total">' + cuMoney(c.spent) + '</span><div class="cu-sum">avg ' + cuMoney(c.avg) + '</div></span></div></div>';
+      }).join('') : '<div class="cu-empty">No customers match.</div>';
+      cuEl('cpMore').classList.toggle('hidden', cu.people.length >= cu.pcount);
+      cuEl('cpMore').textContent = 'Show more (' + (cu.pcount - cu.people.length) + ' left)';
+    });
+  }
+  function cuOpenPerson(key){
+    if (!key) return;
+    cuEl('cuDTitle').textContent = 'Customer';
+    cuEl('cuDBody').innerHTML = '<div class="cu-empty">Loading…</div>';
+    cuEl('cuScrim').classList.remove('hidden'); cuEl('cuDrawer').classList.remove('hidden');
+    document.body.style.overflow = 'hidden';
+    sb.rpc('staff_customer_profile', { p: { key: key } }).then(function(r){
+      if (r.error) { cuEl('cuDBody').innerHTML = '<div class="msg error">' + esc(cuErr(r.error)) + '</div>'; return; }
+      var c = r.data || {};
+      cuEl('cuDTitle').textContent = c.name || 'Customer';
+      var acts = (c.phone ? '<a href="tel:' + esc(c.phone) + '">📞 Call</a><a href="sms:' + esc(c.phone) + '">💬 Text</a>' : '') + (c.email ? '<a href="mailto:' + esc(c.email) + '">✉️ Email</a>' : '');
+      var srcs = Object.keys(c.sources || {}).sort(function(a, b){ return c.sources[b] - c.sources[a]; }).map(function(k){ return '<span class="cu-chip src">' + esc(CU_SRC[k] || k) + ' ×' + c.sources[k] + '</span>'; }).join('');
+      var ins = [];
+      if (c.spice) ins.push(cuSpiceHtml('🌶 ' + c.spice).replace('</b>', ' usually</b>'));
+      if (c.day) ins.push('<span class="cu-chip">Usually orders on ' + esc(c.day) + '</span>');
+      if (c.member) ins.push('<span class="cu-chip mem">Rewards member' + (c.member.since ? ' since ' + esc(cuNY(c.member.since, { month:'short', year:'numeric' })) : '') + '</span>');
+      if (c.canceled) ins.push('<span class="cu-chip s-canceled">' + c.canceled + ' canceled / refunded</span>');
+      cuEl('cuDBody').innerHTML =
+        '<div class="cu-p-top"><span class="cu-av">' + esc(cuInitials(c.name)) + '</span><div><h4>' + esc(c.name || 'No name') + '</h4>' +
+          '<div class="cu-sum">' + esc([c.phone ? cuPhone(c.phone) : '', c.email || ''].filter(Boolean).join(' · ') || 'No contact saved') + '</div></div></div>' +
+        (acts ? '<div class="cu-acts">' + acts + '</div>' : '') +
+        '<div class="cu-stats" style="grid-template-columns:repeat(2,1fr)">' +
+          '<div class="cu-stat"><b>' + (c.orders || 0) + '</b><span>paid orders</span></div>' +
+          '<div class="cu-stat"><b>' + cuMoney(c.spent) + '</b><span>spent in total</span></div>' +
+          '<div class="cu-stat"><b>' + cuMoney(c.avg) + '</b><span>average order</span></div>' +
+          '<div class="cu-stat"><b>' + (c.last ? esc(cuNY(c.last, { month:'short', day:'numeric' })) : '—') + '</b><span>last order' + (c.first ? ' · first ' + esc(cuNY(c.first, { month:'short', day:'numeric', year:'numeric' })) : '') + '</span></div>' +
+        '</div>' +
+        (ins.length ? '<div class="cu-insight">' + ins.join('') + '</div>' : '') +
+        (srcs ? '<div class="cu-insight">' + srcs + '</div>' : '') +
+        ((c.tips > 0 || c.saved > 0) ? '<div class="cu-meta">' + (c.tips > 0 ? '<span>Tipped <b>' + cuMoney(c.tips) + '</b></span>' : '') + (c.saved > 0 ? '<span>Saved with deals <b>' + cuMoney(c.saved) + '</b></span>' : '') + '</div>' : '') +
+        ((c.favorites || []).length ? '<h4>Favorites</h4>' + c.favorites.map(function(f){ return '<div class="cu-fav"><span>' + esc(f.name) + '</span><b>×' + f.qty + '</b></div>'; }).join('') : '') +
+        '<h4>Orders</h4><div class="cu-list" id="cuDOrders">' + ((c.history || []).map(function(o){ return cuOrderHtml(o, false); }).join('') || '<div class="cu-empty">No orders.</div>') + '</div>' +
+        ((c.history || []).length >= 100 ? '<p class="hint">Showing the latest 100 orders.</p>' : '');
+      cuBindList(cuEl('cuDOrders'));
+    });
+  }
+  function cuClosePerson(){ cuEl('cuScrim').classList.add('hidden'); cuEl('cuDrawer').classList.add('hidden'); document.body.style.overflow = ''; }
+  function cuShow(v){
+    cu.view = v;
+    cuEl('cuViews').querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', b.dataset.v === v); });
+    cuEl('cuOrdersCard').classList.toggle('hidden', v !== 'orders');
+    cuEl('cuPeopleCard').classList.toggle('hidden', v !== 'people');
+    cuEl('cuMembersWrap').classList.toggle('hidden', v !== 'members');
+    if (v === 'people' && !cu.people.length) cuPeopleLoad(false);
+  }
+  function cuInit(){
+    if (cu.inited) return; cu.inited = true;
+    cuEl('cuTo').value = cuYmd(new Date()); cuEl('cuFrom').value = cuYmd(new Date(Date.now() - 30 * 86400000));
+    cuEl('cuViews').querySelectorAll('button').forEach(function(b){ b.onclick = function(){ cuShow(b.dataset.v); }; });
+    cuEl('cuQ').addEventListener('input', function(){ clearTimeout(cu.t); cu.t = setTimeout(function(){ cuLoad(false); }, 300); });
+    ['cuSource', 'cuState', 'cuFrom', 'cuTo'].forEach(function(id){ cuEl(id).addEventListener('change', function(){ cuLoad(false); }); });
+    cuEl('cuRange').addEventListener('change', function(){ cuEl('cuDates').classList.toggle('hidden', this.value !== 'custom'); cuLoad(false); });
+    cuEl('cuMore').onclick = function(){ cuLoad(true); };
+    cuEl('cpQ').addEventListener('input', function(){ clearTimeout(cu.pt); cu.pt = setTimeout(function(){ cuPeopleLoad(false); }, 300); });
+    ['cpDays', 'cpSort'].forEach(function(id){ cuEl(id).addEventListener('change', function(){ cuPeopleLoad(false); }); });
+    cuEl('cpMore').onclick = function(){ cuPeopleLoad(true); };
+    cuBindList(cuEl('cuList')); cuBindList(cuEl('cpList'));
+    cuEl('cuDClose').onclick = cuClosePerson; cuEl('cuScrim').onclick = cuClosePerson;
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !cuEl('cuDrawer').classList.contains('hidden')) cuClosePerson(); });
+    cuEl('cuExport').onclick = function(){
+      // Up to 1,000 orders matching the current search and filters.
+      var p = cuFilters(), all = [], btn = this; p.limit = 200; btn.disabled = true;
+      (function page(off){
+        p.offset = off;
+        sb.rpc('staff_order_history', { p: p }).then(function(r){
+          if (r.error) { btn.disabled = false; cuMsg('cuMsg', cuErr(r.error)); return; }
+          all = all.concat(r.data.orders || []);
+          if (all.length < r.data.count && all.length < 1000 && (r.data.orders || []).length) return page(all.length);
+          var rows = [['Date', 'Time', 'Order #', 'Customer', 'Phone', 'Email', 'Source', 'Status', 'Items', 'Total', 'Refunded', 'Tip', 'Discount', 'Promo']];
+          all.forEach(function(o){
+            rows.push([cuNY(o.at, { year:'numeric', month:'2-digit', day:'2-digit' }), cuNY(o.at, { hour:'numeric', minute:'2-digit' }), o.ref, o.name || '', o.phone || '', o.email || '',
+              CU_SRC[o.source] || o.source, CU_STATE[o.state] || o.state,
+              (o.items || []).map(function(i){ return (i.qty > 1 ? i.qty + 'x ' : '') + i.name + (i.note ? ' (' + i.note + ')' : ''); }).join('; '),
+              Number(o.total).toFixed(2), Number(o.refunded || 0).toFixed(2), Number(o.tip || 0).toFixed(2), Number(o.discount || 0).toFixed(2), o.promo || '']);
+          });
+          downloadCSV('orders-' + cuYmd(new Date()) + '.csv', rows); btn.disabled = false;
+        });
+      })(0);
+    };
+    cuLoad(false);
   }
 
   // ---------------- ADMIN TAB ----------------
