@@ -820,6 +820,42 @@
   .kds-spice-mild{ background:#ffd3a1; color:#5a2e00; }
   .kds-spice-medium{ background:#f57c00; color:#fff; }
   .kds-spice-spicy{ background:#d62d20; color:#fff; }
+  /* ---- Customer info (managers): badges on order cards + slide ---- */
+  .cust-badge{ display:inline-flex; align-items:center; gap:4px; margin:0 6px; padding:3px 10px; border-radius:999px; border:0; font:inherit; font-size:13px; font-weight:800; white-space:nowrap; cursor:pointer;
+    background:#3a3a3c; color:#fff; min-height:0; }
+  .cust-badge.first{ background:#0a84ff; }
+  .cust-badge.regular{ background:#f7ad28; color:#1c1c1e; }
+  .cust-badge.member{ box-shadow:inset 0 0 0 2px #bf5af2; }
+  .ci-pin{ position:fixed; z-index:60; top:50%; left:50%; transform:translate(-50%, -50%); width:min(380px, 92vw); background:#1c1c1e; border:1px solid #3a3a3c; border-radius:22px; padding:22px; color:#fff; text-align:center; box-shadow:0 20px 60px rgba(0,0,0,.6); }
+  .ci-pin.hidden{ display:none; }
+  .ci-pin b{ font-size:21px; }
+  .ci-pin p{ color:#aeaeb2; font-size:14px; margin:8px 0 14px; }
+  .ci-dots{ display:flex; justify-content:center; gap:12px; margin-bottom:8px; }
+  .ci-dots i{ width:14px; height:14px; border-radius:50%; border:2px solid #8e8e93; }
+  .ci-dots i.f{ background:#fff; border-color:#fff; }
+  .ci-err{ min-height:20px; color:#ff453a; font-weight:700; font-size:14px; margin-bottom:6px; }
+  .ci-pad{ display:grid; grid-template-columns:repeat(3, 1fr); gap:10px; }
+  .ci-pad button{ height:62px; border-radius:16px; border:0; background:#2c2c2e; color:#fff; font-size:24px; font-weight:700; }
+  .ci-pad button:active{ background:#48484a; }
+  .ci-cancel{ margin-top:12px; width:100%; height:48px; border-radius:14px; border:1px solid #3a3a3c; background:none; color:#aeaeb2; font-size:16px; font-weight:700; }
+  .ci-body{ color:#fff; gap:12px; }
+  .ci-who{ display:flex; align-items:center; gap:12px; }
+  .ci-av{ width:52px; height:52px; border-radius:50%; background:#f7ad28; color:#1c1c1e; display:flex; align-items:center; justify-content:center; font-weight:900; font-size:20px; flex:none; }
+  .ci-who b{ font-size:22px; display:block; }
+  .ci-who small{ color:#aeaeb2; font-size:14px; }
+  .ci-tags{ display:flex; flex-wrap:wrap; gap:6px; }
+  .ci-tags span{ padding:4px 10px; border-radius:999px; background:#2c2c2e; font-size:14px; font-weight:700; }
+  .ci-grid{ display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+  .ci-grid div{ background:#2c2c2e; border-radius:14px; padding:10px 12px; }
+  .ci-grid b{ display:block; font-size:20px; }
+  .ci-grid small{ color:#aeaeb2; font-size:13px; }
+  .ci-sec{ font-size:13px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; color:#8e8e93; margin-top:4px; }
+  .ci-line{ display:flex; justify-content:space-between; gap:10px; padding:9px 0; border-bottom:1px solid #2c2c2e; font-size:15px; }
+  .ci-line small{ display:block; color:#aeaeb2; font-size:13px; }
+  .ci-call{ display:flex; gap:8px; }
+  .ci-call a{ flex:1; text-align:center; padding:12px; border-radius:14px; background:#30d158; color:#000; font-weight:800; text-decoration:none; font-size:16px; }
+  .ci-call a.sms{ background:#2c2c2e; color:#fff; }
+  .ci-note{ color:#aeaeb2; font-size:13px; }
 </style>
 </head>
 <body>
@@ -1046,6 +1082,7 @@
       <button type="button" id="spotsBtn" title="Parking spots in use" aria-label="Parking spots">&#127359;<span class="dots" id="spotsDots">&#9675;&#9675;&#9675;&#9675;&#9675;</span></button>
       <button type="button" id="truckLocBtn" title="Save where the truck is parked (for drive-up check-ins)">&#128205; Location</button>
       <button type="button" id="recallBtn" title="Recall: bring back an order marked done" aria-label="Recall">&#8634;</button>
+      <button type="button" id="custInfoBtn" class="kh-grouped" title="Customer info (managers)" aria-label="Customer info">&#128100;</button>
       <button type="button" id="suppliesBtn" title="Supplies to restock" aria-label="Supplies">&#128230;<span class="gl"> Supplies</span><span class="nd-count zero" id="suppliesCount">0</span></button>
       <button type="button" id="lockBtn" class="kh-lock" title="Lock the board" aria-label="Lock">&#128274;</button>
     </div>
@@ -1055,6 +1092,21 @@
   <div class="grp-slide" id="grpSlide" role="dialog" aria-modal="true" aria-labelledby="grpTitle" aria-hidden="true">
     <div class="grp-head"><b id="grpTitle">Orders</b><button type="button" id="grpClose" aria-label="Close">&times;</button></div>
     <div class="grp-rows" id="grpRows"></div>
+  </div>
+
+  <!-- Customer info (kitchen-customer-info.sql): manager PIN, then a slide per customer -->
+  <div class="grp-scrim hidden" id="ciScrim"></div>
+  <div class="ci-pin hidden" id="ciPin" role="dialog" aria-modal="true" aria-labelledby="ciPinTitle">
+    <b id="ciPinTitle">&#128100; Customer info</b>
+    <p>Manager or admin PIN. Shows visit counts and regulars on the order cards for 15 minutes.</p>
+    <div class="ci-dots" id="ciDots"><i></i><i></i><i></i><i></i></div>
+    <div class="ci-err" id="ciErr" role="alert"></div>
+    <div class="ci-pad" id="ciPad"></div>
+    <button type="button" class="ci-cancel" id="ciCancel">Cancel</button>
+  </div>
+  <div class="grp-slide" id="ciSlide" role="dialog" aria-modal="true" aria-labelledby="ciTitle" aria-hidden="true">
+    <div class="grp-head"><b id="ciTitle">Customer</b><button type="button" id="ciClose" aria-label="Close">&times;</button></div>
+    <div class="grp-rows ci-body" id="ciBody"></div>
   </div>
 
   <div id="boardErrorBanner" class="hidden"></div>
@@ -3096,6 +3148,7 @@
         listEl.innerHTML = ''; wrap.forEach(function(c){ listEl.appendChild(c); c.scrollTop = tkScroll[c.getAttribute('data-col')] || 0; });
       }
 
+      if (window.kdsCust) window.kdsCust.decorate(listEl);
       listEl.querySelectorAll('.pull-prep-btn').forEach(function(btn){
         btn.addEventListener('click', function(){
           btn.disabled = true; btn.textContent = 'Pulling\u2026';
@@ -3882,7 +3935,10 @@
     orders: { title: 'Orders', items: [
       function(){ var n = num('scheduledCount'); return { key: 'scheduledBtn', ic: '⏰', label: 'Scheduled orders', sub: n ? n + ' coming up' : 'None coming up', attn: n > 0 }; },
       function(){ return { key: 'recallBtn', ic: '↺', label: 'Recall an order', sub: 'Bring back one marked done (last 30 min)' }; },
-      function(){ var t = txt('viewToggleBtn').replace(/^[^A-Za-z]+/, ''); return { key: 'viewToggleBtn', ic: '▦', label: 'Switch view', sub: 'Tap for: ' + (t || 'Tickets') }; }
+      function(){ var t = txt('viewToggleBtn').replace(/^[^A-Za-z]+/, ''); return { key: 'viewToggleBtn', ic: '▦', label: 'Switch view', sub: 'Tap for: ' + (t || 'Tickets') }; },
+      function(){ var st = window.kdsCust ? window.kdsCust.state() : { on: false };
+        return { key: 'custInfoBtn', ic: '👤', label: 'Customer info', on: !!st.on,
+          sub: st.on ? (st.always ? 'On (manager tablet)' : 'On · ' + st.by + ' · ' + st.left + ' min left · tap to turn off') : 'Managers: regulars & visit counts (PIN)' }; }
     ] },
     truck: { title: 'Truck', items: [
       function(){ var b = $('popupBtn'), on = b && b.classList.contains('is-on'), soon = b && b.classList.contains('is-soon');
@@ -3943,7 +3999,7 @@
   });
   // Keep the red numbers current as the real buttons change.
   var mo = new MutationObserver(function(){ clearTimeout(mo.t); mo.t = setTimeout(badges, 60); });
-  ['scheduledBtn', 'popupBtn', 'spotsBtn', 'truckLocBtn', 'kioskHealthBtn', 'viewToggleBtn'].forEach(function(id){ var b = $(id); if (b) mo.observe(b, { attributes: true, childList: true, subtree: true, characterData: true }); });
+  ['scheduledBtn', 'popupBtn', 'spotsBtn', 'truckLocBtn', 'kioskHealthBtn', 'viewToggleBtn', 'custInfoBtn'].forEach(function(id){ var b = $(id); if (b) mo.observe(b, { attributes: true, childList: true, subtree: true, characterData: true }); });
   badges();
   // One line always: get more compact step by step until the header fits.
   var head = $('boardHeader');
@@ -3962,6 +4018,141 @@
   if (tools) new MutationObserver(function(){ clearTimeout(fitBar.u); fitBar.u = setTimeout(fitBar, 80); }).observe(tools, { childList: true, subtree: true, characterData: true });
   fitBar(); setTimeout(fitBar, 600);
   window.rollinGroups = { open: open, close: close, refresh: badges, fit: fitBar };
+})();
+
+// ---------- Customer info for managers (kitchen-customer-info.sql) ----------
+// Orders -> Customer info -> manager PIN: for 15 minutes each order card shows
+// "First order" / "6th visit" / "Member"; tap it for that customer. The server
+// keeps the 15 minutes (the tablet never stores the PIN).
+(function(){
+  if (typeof sb === 'undefined' || !document.getElementById('custInfoBtn')) return;
+  function $(id){ return document.getElementById(id); }
+  function esc(v){ return String(v == null ? '' : v).replace(/[&<>"']/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  var st = { on: false }, cache = {}, pending = {}, missing = false, pin = '', timer = null, lastBox = null, fetchT = null;
+  function nth(n){ var s = ['th', 'st', 'nd', 'rd'], v = n % 100; return n + (s[(v - 20) % 10] || s[v] || s[0]); }
+  function money(n){ return '$' + (Number(n) || 0).toFixed(2); }
+  function day(d){ try { return new Date(d).toLocaleDateString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric' }); } catch (e) { return ''; } }
+  function phoneFmt(p){ p = String(p || ''); return p.length === 10 ? '(' + p.slice(0, 3) + ') ' + p.slice(3, 6) + '-' + p.slice(6) : p; }
+  function minsLeft(){ return st.until ? Math.max(0, Math.ceil((Date.parse(st.until) - Date.now()) / 60000)) : 0; }
+  function setState(s){
+    var was = st.on;
+    st = s && s.on ? { on: true, by: s.by || '', until: s.until || null, always: !!s.always } : { on: false };
+    if (!st.on) { cache = {}; pending = {}; }
+    $('custInfoBtn').setAttribute('data-on', st.on ? '1' : '0');
+    $('custInfoBtn').title = st.on ? 'Customer info: on' : 'Customer info (managers)';
+    clearInterval(timer);
+    if (st.on && !st.always) timer = setInterval(function(){
+      if (minsLeft() <= 0) { setState(null); flash('Customer info turned off (15 minutes are up).'); }
+      else $('custInfoBtn').setAttribute('data-left', String(minsLeft()));
+    }, 20000);
+    if (lastBox) decorate(lastBox);
+    if (window.rollinGroups) window.rollinGroups.refresh();
+    if (was && !st.on) closeCard();
+  }
+  function flash(t){ var b = $('boardErrorBanner'); if (!b) return; b.textContent = t; b.classList.remove('hidden'); setTimeout(function(){ if (b.textContent === t) b.classList.add('hidden'); }, 5000); }
+  function badgeHtml(id){
+    var b = cache[id]; if (!b) return '';
+    var first = b.visit <= 1, reg = b.visit >= 5;
+    var label = first ? '🆕 First order' : (reg ? '⭐ ' : '') + nth(b.visit) + ' visit';
+    if (b.member) label += ' · 💎';
+    if (b.spice && !first) label += ' · 🌶 ' + b.spice;
+    return '<button type="button" class="cust-badge' + (first ? ' first' : reg ? ' regular' : '') + (b.member ? ' member' : '') + '" data-ci-order="' + esc(id) + '" title="Customer info">' + esc(label) + '</button>';
+  }
+  function decorate(box){
+    lastBox = box || lastBox; if (!lastBox) return;
+    var cards = lastBox.querySelectorAll('.order-card[data-order-id]');
+    var need = [];
+    cards.forEach(function(c){
+      var id = c.getAttribute('data-order-id'), old = c.querySelector('.cust-badge');
+      if (old) old.remove();
+      if (!st.on) return;
+      if (cache[id] === undefined) { if (!pending[id]) need.push(id); return; }
+      var h = badgeHtml(id), nm = c.querySelector('.order-name');
+      if (h && nm) nm.insertAdjacentHTML('afterend', h);
+    });
+    if (st.on && need.length && !missing) { clearTimeout(fetchT); fetchT = setTimeout(function(){ fetchBadges(need.slice(0, 60)); }, 150); }
+  }
+  function fetchBadges(ids){
+    ids.forEach(function(id){ pending[id] = true; });
+    sb.rpc('kds_customer_badges', { p_order_ids: ids }).then(function(r){
+      ids.forEach(function(id){ delete pending[id]; });
+      if (r.error) { if (/does not exist|schema cache|Could not find/i.test(r.error.message || '')) missing = true; return; }
+      var d = r.data || {};
+      if (!d.on) { setState(null); return; }
+      ids.forEach(function(id){ cache[id] = (d.badges || {})[id] || null; });
+      decorate();
+    }, function(){ ids.forEach(function(id){ delete pending[id]; }); });
+  }
+  // ---- PIN pad ----
+  function dots(){ $('ciDots').innerHTML = [0, 1, 2, 3].concat(pin.length > 4 ? [4, 5, 6, 7].slice(0, pin.length - 4) : []).map(function(i){ return '<i' + (i < pin.length ? ' class="f"' : '') + '></i>'; }).join(''); }
+  function openPin(){
+    pin = ''; dots(); $('ciErr').textContent = '';
+    $('ciPad').innerHTML = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '⌫', '0', 'OK'].map(function(k){ return '<button type="button" data-k="' + k + '">' + k + '</button>'; }).join('');
+    $('ciScrim').classList.remove('hidden'); $('ciPin').classList.remove('hidden');
+  }
+  function closePin(){ $('ciPin').classList.add('hidden'); if (!$('ciSlide').classList.contains('open')) $('ciScrim').classList.add('hidden'); pin = ''; }
+  function submitPin(){
+    if (pin.length < 4) { $('ciErr').textContent = 'Enter your PIN'; return; }
+    var p = pin; pin = ''; dots(); $('ciErr').textContent = 'Checking…';
+    sb.rpc('kds_manager_unlock', { p_pin: p }).then(function(r){
+      if (r.error) { $('ciErr').textContent = /does not exist|schema cache|Could not find/i.test(r.error.message || '') ? 'Run kitchen-customer-info.sql in Supabase first.' : r.error.message; return; }
+      if (!r.data || !r.data.ok) { $('ciErr').textContent = (r.data && r.data.error) || 'Wrong PIN'; return; }
+      closePin(); setState(r.data); flash('👤 Customer info on for 15 minutes (' + r.data.by + ').');
+    }, function(){ $('ciErr').textContent = 'No connection. Try again.'; });
+  }
+  $('ciPad').addEventListener('click', function(e){
+    var b = e.target.closest('button'); if (!b) return; var k = b.getAttribute('data-k');
+    if (k === '⌫') pin = pin.slice(0, -1); else if (k === 'OK') return submitPin(); else if (pin.length < 8) pin += k;
+    $('ciErr').textContent = ''; dots();
+  });
+  $('ciCancel').addEventListener('click', closePin);
+  // ---- Customer slide ----
+  function closeCard(){ $('ciSlide').classList.remove('open'); $('ciSlide').setAttribute('aria-hidden', 'true'); if ($('ciPin').classList.contains('hidden')) $('ciScrim').classList.add('hidden'); }
+  function openCard(orderId){
+    $('ciTitle').textContent = 'Customer'; $('ciBody').innerHTML = '<div class="ci-note">Loading…</div>';
+    $('ciScrim').classList.remove('hidden'); $('ciSlide').classList.add('open'); $('ciSlide').setAttribute('aria-hidden', 'false');
+    sb.rpc('kds_customer_card', { p_order_id: orderId }).then(function(r){
+      if (r.error) { $('ciBody').innerHTML = '<div class="ci-note">' + esc(r.error.message) + '</div>'; return; }
+      var c = r.data || {};
+      if (!c.on) { setState(null); closeCard(); return; }
+      if (!c.found) { $('ciBody').innerHTML = '<div class="ci-note">No name, phone or email on this order, so there’s no history.</div>'; return; }
+      var initials = String(c.name || '?').trim().split(/\s+/).map(function(w){ return w.charAt(0); }).join('').slice(0, 2).toUpperCase();
+      var tags = [];
+      tags.push(c.visit <= 1 ? '🆕 First order, welcome them!' : (c.visit >= 5 ? '⭐ Regular · ' : '') + nth(c.visit) + ' visit');
+      if (c.member) tags.push('💎 Rewards member');
+      if (c.spice) tags.push('🌶 Usually ' + c.spice);
+      $('ciTitle').textContent = c.name || 'Customer';
+      $('ciBody').innerHTML =
+        '<div class="ci-who"><span class="ci-av">' + esc(initials) + '</span><div><b>' + esc(c.name || 'No name') + '</b><small>' + esc(c.phone ? phoneFmt(c.phone) : '') + '</small></div></div>' +
+        '<div class="ci-tags">' + tags.map(function(t){ return '<span>' + esc(t) + '</span>'; }).join('') + '</div>' +
+        (c.phone ? '<div class="ci-call"><a href="tel:' + esc(c.phone) + '">📞 Call</a><a class="sms" href="sms:' + esc(c.phone) + '">💬 Text</a></div>' : '') +
+        '<div class="ci-grid"><div><b>' + (c.orders || 0) + '</b><small>paid orders</small></div><div><b>' + money(c.spent) + '</b><small>spent with us</small></div>' +
+          '<div><b>' + money(c.avg) + '</b><small>average order</small></div><div><b>' + (c.last_before ? esc(day(c.last_before)) : '—') + '</b><small>last visit' + (c.first ? ' · first ' + esc(day(c.first)) : '') + '</small></div></div>' +
+        ((c.favorites || []).length ? '<div class="ci-sec">Usually gets</div>' + c.favorites.map(function(f){ return '<div class="ci-line"><span>' + esc(f.name) + '</span><b>×' + f.qty + '</b></div>'; }).join('') : '') +
+        ((c.recent || []).length ? '<div class="ci-sec">Last orders</div>' + c.recent.map(function(o){ return '<div class="ci-line"><span>' + esc(o.items || 'Order') + '<small>' + esc(day(o.at)) + ' · #' + esc(o.ref) + '</small></span><b>' + money(o.total) + '</b></div>'; }).join('') : '') +
+        '<div class="ci-note">Shown by ' + esc(c.by) + (c.always ? '' : ' · turns off in ' + minsLeft() + ' min') + '. Full history: staff portal → Customers.</div>';
+    });
+  }
+  $('ciClose').addEventListener('click', closeCard);
+  $('ciScrim').addEventListener('click', function(){ closeCard(); closePin(); });
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') { closeCard(); closePin(); } });
+  document.addEventListener('click', function(e){
+    var b = e.target.closest('.cust-badge'); if (!b) return;
+    e.preventDefault(); e.stopPropagation(); openCard(b.getAttribute('data-ci-order'));
+  }, true);
+  // The (hidden) header button: off -> PIN pad; on -> turn off.
+  $('custInfoBtn').addEventListener('click', function(){
+    if (!st.on) return openPin();
+    if (st.always) { flash('This tablet is signed in as a manager, so customer info stays on.'); return; }
+    sb.rpc('kds_manager_lock').then(function(){ setState(null); flash('Customer info turned off.'); });
+  });
+  // Locking the board turns it off too.
+  var lk = $('lockBtn'); if (lk) lk.addEventListener('click', function(){ if (st.on && !st.always) sb.rpc('kds_manager_lock').then(function(){ setState(null); }); });
+  // Already on (unlocked a few minutes ago, or a manager-signed tablet)?
+  function check(){ sb.rpc('kds_manager_state').then(function(r){ if (!r.error) setState(r.data); else if (/does not exist|schema cache|Could not find/i.test(r.error.message || '')) missing = true; }, function(){}); }
+  setTimeout(check, 1500);
+  setInterval(function(){ if (st.on) check(); }, 120000);
+  window.kdsCust = { state: function(){ return { on: st.on, by: st.by, always: st.always, left: minsLeft() }; }, decorate: decorate, open: openCard, check: check };
 })();
 </script>
 </body>
