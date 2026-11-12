@@ -1245,6 +1245,17 @@
   .mn-l-acts{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
   .mn-l-acts button{ width:auto; }
   .mn-tag.soon{ background:#fff1d6; color:#8a5a00; }
+  /* Banner tab: "Coming soon" promo switch (new-menu-launch.sql) */
+  .sp-top{ display:flex; gap:16px; align-items:flex-start; justify-content:space-between; }
+  .sp-top h2{ margin-bottom:4px; }
+  .sp-top .switch{ margin-top:4px; }
+  .sp-preview{ margin-top:14px; display:flex; gap:12px; align-items:center; padding:12px 14px; border-radius:14px; background:linear-gradient(105deg, #2b1608, #5a2e10); color:#fbeedb; }
+  .sp-preview.off{ filter:grayscale(1); opacity:.55; }
+  .sp-preview .k{ display:inline-block; background:#f2a20c; color:#2b1300; font-size:10.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; padding:3px 8px; border-radius:999px; }
+  .sp-preview b{ display:block; font-size:18px; font-weight:800; text-transform:uppercase; letter-spacing:.01em; margin-top:5px; color:#fff; }
+  .sp-preview small{ display:block; font-size:12.5px; color:#ead2b0; margin-top:2px; }
+  .sp-acts{ margin-top:12px; }
+  .sp-acts button{ width:auto; }
   .mn-l-teaser{ margin-top:12px; padding:12px; border-radius:12px; background:#fff; border:1px solid #f0e6d2; }
   .mn-l-th{ display:flex; gap:12px; align-items:center; }
   .mn-l-th > div{ flex:1; min-width:0; }
@@ -1508,6 +1519,18 @@
 
   <!-- WEBSITE BANNER -->
   <div class="tab-panel hidden" id="panelBanner">
+    <div class="card sp-card" id="soonPromoCard">
+      <div class="sp-top">
+        <div>
+          <h2>&ldquo;Coming soon&rdquo; promo</h2>
+          <p class="hint" id="soonPromoState" style="margin:0">Loading&hellip;</p>
+        </div>
+        <button type="button" class="switch" role="switch" id="soonPromoSw" aria-checked="false" aria-label="Show the Coming soon promo on the website" disabled></button>
+      </div>
+      <div class="sp-preview hidden" id="soonPromoPreview"></div>
+      <div class="sp-acts"><button type="button" class="btn-ghost btn-small" id="soonPromoEdit">Change wording or countdown</button></div>
+      <div id="soonPromoMsg"></div>
+    </div>
     <div class="card">
       <h2>Website banner</h2>
       <p class="hint">Shows as a banner at the top of the main website. Leave it off when there's nothing to announce.</p>
@@ -3414,6 +3437,7 @@
         document.querySelector('.nav-link[data-tab="promotions"]').addEventListener('click', woLoad);
         // Website banner: managers and admins only (security-pack-3.sql enforces it on the server too).
         loadSiteBanner();
+        soonLoad(); document.querySelector('.nav-link[data-tab="banner"]').addEventListener('click', soonLoad);
         document.getElementById('tabBannerBtn').classList.remove('hidden');
         document.getElementById('tabHiringBtn').classList.remove('hidden');
         document.querySelector('.nav-link[data-tab="hiring"]').addEventListener('click', hrLoad);
@@ -4971,7 +4995,7 @@
     function teaser(p, ok){
       sb.rpc('staff_menu_launch_teaser', { p_key:l.key, p:p }).then(function(r){
         if (r.error) throw r.error;
-        mn.launch = r.data || []; mnLaunchRender(); mnMsg('mnMsg', ok, true);
+        mn.launch = r.data || []; mnLaunchRender(); mnMsg('mnMsg', ok, true); soonP.l = mn.launch[0] || soonP.l; soonRender();
       }).catch(function(e){ mnLaunchRender(); mnMsg('mnMsg', mnErr(e)); });
     }
     var tsw = mnEl('mnTeaserSw');
@@ -5004,6 +5028,52 @@
       }).catch(function(e){ sw.disabled = false; mnMsg('mnMsg', mnErr(e)); });
     };
   }
+
+  // ---- Banner tab: on/off switch for the website's "Coming soon" promo.
+  // Same setting as Menu -> New menu ("Coming soon" on the website).
+  var soonP = { l: null };
+  function soonMsg(t, ok){ mnMsg('soonPromoMsg', t, ok); }
+  function soonRender(){
+    var l = soonP.l, sw = mnEl('soonPromoSw'), st = mnEl('soonPromoState'), pv = mnEl('soonPromoPreview');
+    if (!sw) return;
+    if (!l) { sw.disabled = true; pv.classList.add('hidden'); return; }
+    var on = l.teaser_on !== false;
+    sw.disabled = !!l.live; sw.setAttribute('aria-checked', on && !l.live ? 'true' : 'false');
+    var days = '';
+    if (l.teaser_date) { var ms = Date.UTC(+l.teaser_date.slice(0, 4), +l.teaser_date.slice(5, 7) - 1, +l.teaser_date.slice(8, 10), 5) - Date.now(); if (ms > 0) days = Math.ceil(ms / 86400000) + ' days to go \u00b7 '; }
+    st.innerHTML = l.live ? 'The new menu is <b>live</b>, so the promo is off. It only shows before launch.'
+      : on ? '<b>On:</b> showing above the menu on the website until you launch the new menu.'
+      : '<b>Off:</b> hidden from the website. Switch on to show it above the menu.';
+    pv.classList.remove('hidden'); pv.classList.toggle('off', !on || !!l.live);
+    pv.innerHTML = '<div><span class="k">Coming ' + esc(l.teaser_when || 'soon') + '</span><b>' + esc(l.teaser_title || 'New on the menu') + '</b>' +
+      '<small>' + esc(days) + 'Platters \u00b7 Wings \u00b7 Burritos \u00b7 Desserts \u00b7 photo slider</small></div>';
+  }
+  function soonLoad(){
+    return sb.rpc('staff_menu_launch_get').then(function(r){
+      if (r.error) {
+        soonP.l = null; soonRender();
+        mnEl('soonPromoState').innerHTML = /does not exist|schema cache|Could not find/i.test(r.error.message || '')
+          ? 'Not set up yet: run <b>menu-studio.sql</b>, then <b>new-menu-launch.sql</b> in Supabase.' : esc(r.error.message || 'Couldn\u2019t load it.');
+        return;
+      }
+      soonP.l = (r.data || [])[0] || null; soonRender();
+      if (!soonP.l) mnEl('soonPromoState').textContent = 'There\u2019s no upcoming menu to promote.';
+    }, function(){});
+  }
+  (function(){
+    var sw = mnEl('soonPromoSw'); if (!sw) return;
+    sw.addEventListener('click', function(){
+      if (!soonP.l || sw.disabled) return;
+      var on = sw.getAttribute('aria-checked') !== 'true'; sw.disabled = true;
+      sb.rpc('staff_menu_launch_teaser', { p_key: soonP.l.key, p: { on: on } }).then(function(r){
+        if (r.error) throw r.error;
+        soonP.l = (r.data || [])[0] || soonP.l; soonRender();
+        if (mn.launch) { mn.launch = r.data || mn.launch; mnLaunchRender(); }
+        soonMsg(on ? 'The Coming soon promo is on the website.' : 'The Coming soon promo is hidden from the website.', true);
+      }).catch(function(e){ soonRender(); soonMsg(mnErr(e)); });
+    });
+    mnEl('soonPromoEdit').addEventListener('click', function(){ showTab('menustudio'); if (typeof mnLoad === 'function') mnLoad(); setTimeout(function(){ var t = mnEl('mnTeaserWhen'); if (t) { t.scrollIntoView({ block: 'center' }); t.focus(); } }, 900); });
+  })();
 
   // ---- Platter choices editor
   function mnPicksOpen(){ mnPicksRender(); mnMsg('mnPMsg', ''); mnShowPanel('mnPicks', true); }
