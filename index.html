@@ -1110,15 +1110,15 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
 /* ---- New menu "Coming soon" card: Taco Tuesday card's size and place. The
    photo slider fills the card; the text sits on top of it
    (new-menu-launch.sql; hides itself at launch) ---- */
-.sc{ position:relative; display:grid; grid-template-columns:1fr auto; align-items:center; gap:10px 20px; max-width:760px; min-height:156px; margin:0 auto 24px; padding:18px 22px; border-radius:22px; text-align:left;
+.sc{ position:relative; display:grid; grid-template-columns:1fr auto; align-items:center; gap:10px 20px; max-width:880px; min-height:220px; margin:0 auto 24px; padding:24px 28px; border-radius:22px; text-align:left;
   background:#2b1608; color:#fbeedb; box-shadow:0 10px 26px rgba(43,22,8,.22); overflow:hidden; isolation:isolate; }
 .sc-slides{ position:absolute; inset:0; z-index:-1; background:#3a1d0a; }
 .sc-slides::after{ content:""; position:absolute; inset:0; pointer-events:none;
-  background:linear-gradient(90deg, rgba(22,11,4,.92) 0%, rgba(22,11,4,.78) 38%, rgba(22,11,4,.25) 68%, rgba(22,11,4,.05) 100%); }
+  background:linear-gradient(90deg, rgba(22,11,4,.88) 0%, rgba(22,11,4,.62) 30%, rgba(22,11,4,.12) 56%, rgba(22,11,4,0) 100%); }
 .sc-slide{ position:absolute; inset:0; margin:0; opacity:0; transition:opacity .9s ease; }
 .sc-slide.on{ opacity:1; }
-.sc-slide img{ width:100%; height:100%; object-fit:cover; object-position:50% 50%; transform:scale(1.02); transition:transform 3.4s ease-out; }
-.sc-slide.on img{ transform:scale(1.08); }
+.sc-slide img{ width:100%; height:100%; object-fit:cover; object-position:50% 50%; transform:scale(1); transition:transform 3.4s ease-out; }
+.sc-slide.on img{ transform:scale(1.04); }
 .sc-slide figcaption{ position:absolute; z-index:1; right:16px; bottom:12px; padding:5px 11px; border-radius:999px; background:rgba(0,0,0,.55); -webkit-backdrop-filter:blur(6px); backdrop-filter:blur(6px);
   font:700 13px/1.2 "Inter",sans-serif; color:#fff; }
 .sc-slide figcaption i{ display:inline-block; margin-left:6px; padding:1px 5px; border-radius:4px; background:#1f9a3a; font:800 9.5px/1.3 "Inter",sans-serif; font-style:normal; letter-spacing:.06em; vertical-align:1px; }
@@ -1127,11 +1127,11 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
 .sc-dots b.on{ background:#fff; width:14px; border-radius:3px; }
 .sc-body{ min-width:0; text-shadow:0 1px 12px rgba(0,0,0,.45); }
 .sc-kicker{ display:inline-block; background:#f2a20c; color:#2b1300; font-size:11.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; padding:4px 9px; border-radius:999px; text-shadow:none; }
-.sc-title{ font-family:"Barlow Condensed","Inter",sans-serif; font-size:36px; line-height:1; font-weight:800; letter-spacing:.01em; color:#fff; margin:8px 0 4px; text-transform:uppercase; }
+.sc-title{ font-family:"Barlow Condensed","Inter",sans-serif; font-size:40px; line-height:1; font-weight:800; letter-spacing:.01em; color:#fff; margin:8px 0 4px; text-transform:uppercase; }
 .sc-deal{ margin:0; font-size:15px; font-weight:600; color:#ffe2bb; }
 .sc-note{ margin:5px 0 0; font-size:13px; color:#ead2b0; }
 .sc-note b{ color:#fff; font-variant-numeric:tabular-nums; }
-.sc-go{ align-self:end; margin-bottom:34px; background:#f2a20c; color:#2b1300; border:0; border-radius:999px; padding:13px 20px; font:700 15px/1 "Inter",sans-serif; white-space:nowrap; cursor:pointer; box-shadow:0 6px 18px rgba(0,0,0,.3); }
+.sc-go{ align-self:end; margin-bottom:40px; background:#f2a20c; color:#2b1300; border:0; border-radius:999px; padding:13px 20px; font:700 15px/1 "Inter",sans-serif; white-space:nowrap; cursor:pointer; box-shadow:0 6px 18px rgba(0,0,0,.3); }
 .sc-go:hover{ background:#ffb52e; }
 .sc.sc-nophoto{ background:linear-gradient(105deg, #2b1608 0%, #4a250d 100%); }
 .sc.sc-nophoto .sc-go{ align-self:center; margin-bottom:0; }
