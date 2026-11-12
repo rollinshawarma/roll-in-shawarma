@@ -62,14 +62,14 @@
   // Choices customers must pick (Platters: 1 base + 2 entrées). From the
   // database (portal: Menu -> Platter choices); these are the starting ones.
   var CHOICE_SETS = {
-    platter_base: { title: 'Choose your base', pick: 1, options: [{ key: 'white_jeera_rice', label: 'White Jeera Rice', veg: true, cents: 0, img: 'pick-jeera-rice.svg' }] },
+    platter_base: { title: 'Choose your base', pick: 1, options: [{ key: 'white_jeera_rice', label: 'White Jeera Rice', veg: true, cents: 0, img: 'pick-white-jeera-rice.jpg' }] },
     platter_entrees: { title: 'Choose two entrées', pick: 2, options: [
-      { key: 'chana_masala', label: 'Chana Masala', veg: true, cents: 0, img: 'pick-chana-masala.svg' },
-      { key: 'butter_paneer', label: 'Butter Paneer', veg: true, cents: 0, img: 'pick-butter-paneer.svg' },
-      { key: 'paneer_tikka', label: 'Paneer Tikka', veg: true, cents: 0, img: 'pick-paneer-tikka.svg' },
-      { key: 'butter_chicken', label: 'Butter Chicken', veg: false, cents: 0, img: 'pick-butter-chicken.svg' },
-      { key: 'tikka_chicken', label: 'Tikka Chicken', veg: false, cents: 0, img: 'pick-tikka-chicken.svg' },
-      { key: 'spicy_chicken_curry', label: 'Spicy Chicken Curry', veg: false, cents: 0, img: 'pick-spicy-chicken-curry.svg' }] }
+      { key: 'chana_masala', label: 'Chana Masala', veg: true, cents: 0, img: 'pick-chana-masala.jpg' },
+      { key: 'butter_paneer', label: 'Butter Paneer', veg: true, cents: 0, img: 'pick-butter-paneer.jpg' },
+      { key: 'paneer_tikka', label: 'Paneer Tikka', veg: true, cents: 0, img: 'pick-paneer-tikka.jpg' },
+      { key: 'butter_chicken', label: 'Butter Chicken', veg: false, cents: 0, img: 'pick-butter-chicken.jpg' },
+      { key: 'tikka_chicken', label: 'Tikka Chicken', veg: false, cents: 0, img: 'pick-tikka-chicken.jpg' },
+      { key: 'spicy_chicken_curry', label: 'Spicy Chicken Curry', veg: false, cents: 0, img: 'pick-spicy-chicken-curry.jpg' }] }
   };
   var GROUP_CHOICES = { platter: ['platter_base', 'platter_entrees'] };
   SETS.veggie_bowl = SETS.bowl.slice();
@@ -227,7 +227,7 @@
         cs.options.map(function(o){
           var n = mine.indexOf(o.key) + 1;
           return '<button type="button" class="ing-pick' + (n ? ' is-on' : '') + '" data-pick-set="' + esc(set) + '" data-pick="' + esc(o.key) + '" aria-pressed="' + (n ? 'true' : 'false') + '">' +
-            '<span class="ing-pick-img"><img src="' + esc(o.img || 'item-platter.svg') + '" alt="" loading="lazy">' + (cs.pick > 1 ? '<b class="ing-pick-n">' + (n || '') + '</b>' : '<b class="ing-pick-n">\u2713</b>') + '</span>' +
+            '<span class="ing-pick-img"><img src="' + esc(o.img || 'item-build-your-platter.jpg') + '" alt="" loading="lazy" onerror="this.style.visibility=\'hidden\'">' + (cs.pick > 1 ? '<b class="ing-pick-n">' + (n || '') + '</b>' : '<b class="ing-pick-n">\u2713</b>') + '</span>' +
             '<span class="ing-pick-name">' + esc(o.label) + '</span>' +
             '<span class="ing-pick-meta">' + (o.veg ? VEG_BADGE : '') + (Number(o.cents) > 0 ? '<span class="ing-pick-price">+' + money(o.cents / 100) + '</span>' : '') + '</span>' +
           '</button>';
