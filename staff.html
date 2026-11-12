@@ -1225,6 +1225,50 @@
   .mn-xrow.off input{ opacity:.5; }
   .mn-xrow .switch{ transform:scale(.8); }
   .mn-multi{ font-size:12.5px; flex:none; }
+  /* ---- New menu launch (new-menu-launch.sql) ---- */
+  .mn-launch{ border:1.5px solid #e6dcc8; background:linear-gradient(135deg,#fffaf0,#fff); border-radius:16px; padding:14px 16px; margin-bottom:14px; }
+  .mn-launch.live{ border-color:#9fd8b3; background:linear-gradient(135deg,#effaf3,#fff); }
+  .mn-l-top{ display:flex; gap:12px; align-items:flex-start; }
+  .mn-l-top > div{ flex:1; min-width:0; }
+  .mn-l-kicker{ display:inline-block; font-size:11px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; padding:2px 8px; border-radius:999px; background:#fff1d6; color:#8a5a00; }
+  .mn-launch.live .mn-l-kicker{ background:#d9f3e2; color:#146c3a; }
+  .mn-l-top h3{ margin:6px 0 2px; font-size:17px; }
+  .mn-l-top p{ margin:0; }
+  .mn-l-sw{ display:flex; flex-direction:column; align-items:center; gap:4px; font-size:11.5px; font-weight:700; color:var(--muted); flex:none; }
+  .mn-l-list{ margin-top:10px; }
+  .mn-l-list summary{ cursor:pointer; font-size:13.5px; font-weight:600; }
+  .mn-l-row{ display:flex; align-items:center; gap:10px; padding:8px 0; border-bottom:1px solid #f0ece4; }
+  .mn-l-row .mn-thumb{ width:40px; height:40px; }
+  .mn-l-row .t{ flex:1; min-width:0; font-size:14px; }
+  .mn-l-row .t small{ display:block; color:var(--muted); font-size:12.5px; }
+  .mn-l-row button{ width:auto; min-height:0; padding:6px 12px; }
+  .mn-l-acts{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+  .mn-l-acts button{ width:auto; }
+  .mn-tag.soon{ background:#fff1d6; color:#8a5a00; }
+  /* Platter choices editor */
+  .mn-pset{ border:1px solid #ececf0; border-radius:14px; padding:10px 12px; margin-bottom:12px; }
+  .mn-pset.off{ opacity:.7; }
+  .mn-pset-h{ display:flex; gap:8px; align-items:center; }
+  .mn-pset-h input[type=text]{ flex:1; margin:0; padding:8px 10px; font-weight:700; }
+  .mn-pset-h select{ width:auto; margin:0; padding:8px; }
+  .mn-pset-h .switch{ transform:scale(.8); }
+  .mn-prow{ display:flex; gap:8px; align-items:center; padding:7px 0; border-bottom:1px solid #f4f4f6; }
+  .mn-prow:last-child{ border-bottom:0; }
+  .mn-prow.off > *:not(.switch){ opacity:.5; }
+  .mn-prow input[type=text]{ flex:1; margin:0; padding:8px 10px; min-width:0; }
+  .mn-prow .mn-money{ width:104px; flex:none; }
+  .mn-prow .mn-money input{ text-align:right; padding:8px 6px; min-width:0; }
+  .mn-prow .switch{ transform:scale(.8); }
+  .mn-pthumb{ width:42px; height:42px; min-height:0 !important; padding:0; border:0; border-radius:10px; overflow:hidden; background:#f5f1ea; flex:none; cursor:pointer; position:relative; display:block; margin:0; }
+  .mn-pthumb img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .mn-pthumb::after{ content:"\270E"; position:absolute; right:1px; bottom:1px; font-size:10px; background:#fff; border-radius:4px; padding:0 2px; color:#333; }
+  .mn-vegchk{ font-size:12.5px; flex:none; color:#1b7a2e; font-weight:700; }
+  .mn-padd{ display:flex; gap:8px; align-items:center; margin-top:8px; flex-wrap:wrap; }
+  .mn-padd input[type=text]{ flex:1; min-width:140px; margin:0; padding:8px 10px; }
+  .mn-padd .mn-money{ width:104px; } .mn-padd .mn-money input{ padding:8px 6px; text-align:right; min-width:0; }
+  .mn-padd button{ width:auto; }
+  .mn-pick-hint{ font-size:12px; color:var(--muted); margin:4px 0 0; }
+  @media (max-width:600px){ .mn-prow{ flex-wrap:wrap; } .mn-prow input[type=text]{ flex-basis:calc(100% - 60px); } }
   @media (max-width:600px){ .mn-xrow{ flex-wrap:wrap; } .mn-xrow input[type=text]{ flex-basis:100%; } }
   @media (max-width:600px){
     .mn-item{ flex-wrap:wrap; gap:8px 10px; }
@@ -1761,10 +1805,12 @@
         <span class="mn-sq" id="mnSq" aria-live="polite"></span>
       </div>
     </div>
+    <div class="mn-launch hidden" id="mnLaunch" aria-live="polite"></div>
     <div class="mn-tools">
       <input type="search" id="mnSearch" placeholder="Search the menu" aria-label="Search the menu">
       <button type="button" class="btn-ghost btn-small" id="mnReorder" aria-pressed="false">Reorder</button>
       <button type="button" class="btn-ghost btn-small" id="mnExtrasBtn">Extras &amp; prices</button>
+      <button type="button" class="btn-ghost btn-small" id="mnPicksBtn">Platter choices</button>
       <button type="button" class="btn-primary btn-small" id="mnAddBtn">+ Add item</button>
     </div>
     <div class="mn-cats" id="mnCats"></div>
@@ -1808,6 +1854,10 @@
             <div class="mn-chips" id="mnIng"></div>
             <div class="mn-sub">Extras <small>Paid add-ons for this item</small></div>
             <div class="mn-chips" id="mnExt"></div>
+            <div id="mnPickWrap">
+              <div class="mn-sub">Customers pick <small>Required choices, like a platter&rsquo;s base and two entr&eacute;es</small></div>
+              <div class="mn-chips" id="mnPick"></div>
+            </div>
             <label class="iv-chk mn-spice"><input type="checkbox" id="mnSpice"> <span>&#127798; Ask for spice level <small>(Mild, Medium, Spicy &middot; customers must pick one)</small></span></label>
             <label class="iv-chk mn-shared hidden" id="mnSharedWrap"><input type="checkbox" id="mnShared" checked> <span id="mnSharedTxt"></span></label>
           </div>
@@ -1842,6 +1892,18 @@
         <div id="mnXMsg"></div>
       </div>
       <footer class="mn-df"><span class="sp"></span><button type="button" class="btn-primary btn-small" data-xclose>Done</button></footer>
+    </div>
+
+    <div class="mn-modal hidden" id="mnPicks" role="dialog" aria-modal="true" aria-labelledby="mnPTitle">
+      <header class="mn-dh"><h3 id="mnPTitle">Platter choices</h3><button type="button" class="mn-x" data-pclose aria-label="Close">&times;</button></header>
+      <div class="mn-db">
+        <p class="hint">What customers choose on a platter. Tick <b>Veg</b> to show the green Veg badge. An extra price is added when that one is picked (leave $0.00 for no charge). Switch one off to stop offering it. Tap a photo to change it.</p>
+        <div id="mnPList"></div>
+        <form class="mn-padd" id="mnPNewSet"><input type="text" maxlength="40" placeholder="New choice, e.g. Choose a drink" aria-label="New choice title"><select aria-label="How many to pick"><option value="1">Pick 1</option><option value="2">Pick 2</option><option value="3">Pick 3</option></select><button type="submit" class="btn-ghost btn-small">+ Add</button></form>
+        <input type="file" id="mnPFile" accept="image/jpeg,image/png,image/webp" hidden>
+        <div id="mnPMsg"></div>
+      </div>
+      <footer class="mn-df"><span class="sp"></span><button type="button" class="btn-primary btn-small" data-pclose>Done</button></footer>
     </div>
   </div>
 
@@ -4564,13 +4626,14 @@
   // tap an item for its photo, details and "Comes with" / "Extras" chips.
   // Square is synced automatically a few seconds after item changes.
   var mn = { d:null, cat:'', q:'', reorder:false, item:null, group:null, ing:[], ext:[], avail:true, photo:'', sq:'', sqTimer:null, sqBusy:false };
-  var MN_CAT_PICS = { 'Shawarma':'menu-shawarma.jpg', 'Frankie Rolls':'menu-frankie.jpg', 'Bowls':'menu-bowl.jpg', 'Tacos':'menu-tacos.jpg', 'Loaded Fries':'menu-fries.jpg', 'Sides':'menu-samosas.jpg', 'Kulfi Ice Cream':'item-almond-kulfi.jpg', 'Drinks':'menu-falooda.jpg' };
+  var MN_CAT_PICS = { 'Shawarma':'menu-shawarma.jpg', 'Frankie Rolls':'menu-frankie.jpg', 'Bowls':'menu-bowl.jpg', 'Tacos':'menu-tacos.jpg', 'Loaded Fries':'menu-fries.jpg', 'Sides':'menu-samosas.jpg', 'Kulfi Ice Cream':'item-almond-kulfi.jpg', 'Drinks':'menu-falooda.jpg',
+    'Platters':'item-platter.svg', 'Desserts':'item-gulab-jamun.svg', 'Wings & Burritos':'menu-wings-burritos.svg', 'Secret Menu':'secret-menu.svg' };
   var MN_NO_CHOICES = /^(Deal Selections|Combo Add-ons)$/;
   function mnEl(id){ return document.getElementById(id); }
   function mnMsg(el, text, ok){ el = typeof el === 'string' ? mnEl(el) : el; if (!el) return; el.innerHTML = text ? '<div class="msg ' + (ok ? 'ok' : 'error') + '">' + esc(text) + '</div>' : ''; if (ok && text) { clearTimeout(el._t); el._t = setTimeout(function(){ el.innerHTML = ''; }, 4000); } }
   function mnErr(e){ var m = (e && (e.message || e.error_description)) || String(e || 'Something went wrong'); if (/menu_admin_|does not exist|schema cache/i.test(m)) m = 'The Menu tools aren’t set up yet. Run menu-studio.sql in Supabase → SQL Editor.'; return m; }
   function mnRpc(fn, args){ return sb.rpc(fn, args || {}).then(function(r){ if (r.error) throw r.error; mn.d = r.data; return r.data; }); }
-  function mnLoad(){ return mnRpc('menu_admin_get').then(function(){ mnRender(); mnSqShow(); }, function(e){ mnMsg('mnMsg', mnErr(e)); mnEl('mnList').innerHTML = ''; }); }
+  function mnLoad(){ mnLaunchLoad(); return mnRpc('menu_admin_get').then(function(){ mnRender(); mnSqShow(); }, function(e){ mnMsg('mnMsg', mnErr(e)); mnEl('mnList').innerHTML = ''; }); }
   function mnSlug(n){ return String(n || '').toLowerCase().replace(/[()]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
   function mnStdPhoto(name){ return 'item-' + mnSlug(name) + '.jpg'; }
   window.mnImgErr = function(img){ var fb = img.getAttribute('data-fb'); if (fb && img.getAttribute('src') !== fb) { img.removeAttribute('data-fb'); img.src = fb; } else { img.onerror = null; img.style.visibility = 'hidden'; } };
@@ -4588,7 +4651,7 @@
   // ---- list
   function mnRender(){
     if (!mn.d) return;
-    var cats = mnCats(), items = mn.d.items || [], removed = items.filter(function(i){ return i.archived; });
+    var cats = mnCats(), items = mn.d.items || [], soon = mnSoon(), removed = items.filter(function(i){ return i.archived && !soon[i.id]; });
     if (mn.cat && mn.cat !== '__removed' && cats.indexOf(mn.cat) === -1) mn.cat = '';
     if (mn.cat === '__removed' && !removed.length) mn.cat = '';
     var c = mnEl('mnCats');
@@ -4612,6 +4675,7 @@
   function mnSummary(i){
     if (MN_NO_CHOICES.test(i.category)) return i.description || '';
     var g = mnGroupFor(i.category, i.name), parts = [];
+    (g && g.choices || []).forEach(function(k){ var cs = mnSet(k); if (cs) parts.push(cs.title + ' (' + (cs.options || []).filter(function(o){ return o.active; }).length + ' options)'); });
     if (g && g.ingredients.length) parts.push('Comes with ' + g.ingredients.map(function(k){ return mnLabel(mn.d.ingredients, k); }).filter(Boolean).join(', ').toLowerCase());
     if (g && g.addons.length) parts.push(g.addons.length + ' extra' + (g.addons.length === 1 ? '' : 's'));
     return parts.length ? parts.join(' · ') : (i.description || '');
@@ -4619,7 +4683,8 @@
   function mnRow(i, isRemoved, ix, n){
     var left = mn.reorder && !isRemoved && !mn.q
       ? '<div class="mn-mv"><button type="button" data-mv="-1" aria-label="Move ' + esc(i.name) + ' up"' + (ix === 0 ? ' disabled' : '') + '>▲</button><button type="button" data-mv="1" aria-label="Move ' + esc(i.name) + ' down"' + (ix === n - 1 ? ' disabled' : '') + '>▼</button></div>' : '';
-    var tags = (!i.is_available && !isRemoved ? '<span class="mn-tag out">Sold out</span>' : '') + (i.platinum_only ? '<span class="mn-tag sec">Secret</span>' : '');
+    var soon = mnSoon()[i.id];
+    var tags = (!i.is_available && !isRemoved ? '<span class="mn-tag out">Sold out</span>' : '') + (i.platinum_only ? '<span class="mn-tag sec">Secret</span>' : '') + (soon ? '<span class="mn-tag soon" title="' + esc(soon) + '">Changes at launch</span>' : '');
     var right = isRemoved ? '<button type="button" class="btn-ghost btn-small mn-restore" data-restore>Put back</button>'
       : mn.reorder ? '' : '<div class="mn-money"><span>$</span><input type="number" min="0" step="0.01" inputmode="decimal" value="' + mnPrice(i.price) + '" data-price aria-label="Price of ' + esc(i.name) + '"></div>' +
         '<button type="button" class="switch" role="switch" data-avail aria-checked="' + (i.is_available ? 'true' : 'false') + '" aria-label="' + esc(i.name) + ' on sale"></button>';
@@ -4666,10 +4731,10 @@
   // ---- edit panel
   function mnShowPanel(id, show){
     mnEl(id).classList.toggle('hidden', !show);
-    mnEl('mnScrim').classList.toggle('hidden', !show && mnEl('mnDrawer').classList.contains('hidden') && mnEl('mnExtras').classList.contains('hidden'));
+    mnEl('mnScrim').classList.toggle('hidden', !show && mnEl('mnDrawer').classList.contains('hidden') && mnEl('mnExtras').classList.contains('hidden') && mnEl('mnPicks').classList.contains('hidden'));
     document.body.style.overflow = show ? 'hidden' : '';
   }
-  function mnCloseAll(){ ['mnDrawer', 'mnExtras'].forEach(function(id){ mnEl(id).classList.add('hidden'); }); mnEl('mnScrim').classList.add('hidden'); document.body.style.overflow = ''; }
+  function mnCloseAll(){ ['mnDrawer', 'mnExtras', 'mnPicks'].forEach(function(id){ mnEl(id).classList.add('hidden'); }); mnEl('mnScrim').classList.add('hidden'); document.body.style.overflow = ''; }
   function mnPhotoShow(){
     var name = mnEl('mnName').value.trim(), cat = mnCatValue(), img = mnEl('mnPhImg');
     img.style.visibility = ''; img.setAttribute('data-fb', MN_CAT_PICS[cat] || ''); img.onerror = function(){ mnImgErr(img); };
@@ -4683,6 +4748,7 @@
   function mnOpen(i){
     mn.item = i || null;
     var cats = mnCats(), cat = i ? i.category : (mn.cat && mn.cat !== '__removed' ? mn.cat : (cats[0] || ''));
+    if (cat && cats.indexOf(cat) === -1) cats = cats.concat([cat]);   // hidden until launch (Platters, Desserts)
     mnEl('mnDTitle').textContent = i ? i.name : 'Add an item';
     mnEl('mnCat').innerHTML = cats.map(function(c){ return '<option' + (c === cat ? ' selected' : '') + '>' + esc(c) + '</option>'; }).join('') + '<option value="__new">+ New category…</option>';
     mnEl('mnCatNew').classList.add('hidden'); mnEl('mnCatNew').value = '';
@@ -4709,7 +4775,7 @@
     var hide = MN_NO_CHOICES.test(cat);
     mnEl('mnChoices').classList.toggle('hidden', hide);
     var g = mnGroupFor(cat, name);
-    if (reset || (g && g.key) !== (mn.group && mn.group.key)) { mn.group = g; mn.ing = g ? g.ingredients.slice() : []; mn.ext = g ? g.addons.slice() : []; mn.spice = !!(g && g.spice); }
+    if (reset || (g && g.key) !== (mn.group && mn.group.key)) { mn.group = g; mn.ing = g ? g.ingredients.slice() : []; mn.ext = g ? g.addons.slice() : []; mn.spice = !!(g && g.spice); mn.pick = g && g.choices ? g.choices.slice() : []; }
     mnEl('mnSpice').checked = !!mn.spice;
     mnChips();
   }
@@ -4726,6 +4792,15 @@
       }; });
       mnEl(p[0]).querySelector('[data-new]').onclick = function(){ mnNewChip(p[1]); };
     });
+    var sets = mn.d.choice_sets || [];
+    mnEl('mnPickWrap').classList.toggle('hidden', !sets.length);
+    mnEl('mnPick').innerHTML = sets.map(function(cs){ var on = mn.pick.indexOf(cs.key) !== -1; return '<button type="button" data-k="' + esc(cs.key) + '" aria-pressed="' + on + '" class="' + (on ? 'on' : '') + '">' + esc(cs.title) + ' \u00b7 pick ' + cs.pick + (cs.active ? '' : ' (off)') + '</button>'; }).join('') + '<button type="button" class="new" data-edit>Edit choices</button>';
+    mnEl('mnPick').querySelectorAll('button[data-k]').forEach(function(b){ b.onclick = function(){
+      var k = b.dataset.k, at = mn.pick.indexOf(k);
+      if (at === -1) mn.pick.push(k); else mn.pick.splice(at, 1);
+      b.classList.toggle('on', at === -1); b.setAttribute('aria-pressed', at === -1);
+    }; });
+    mnEl('mnPick').querySelector('[data-edit]').onclick = mnPicksOpen;
     var name = mnEl('mnName').value.trim(), others = mn.group ? mnGroupNames(mn.group).filter(function(n){ return n !== name && (!mn.item || n !== mn.item.name); }) : [];
     mnEl('mnSharedWrap').classList.toggle('hidden', !others.length);
     if (others.length) mnEl('mnSharedTxt').textContent = 'Same choices for ' + others.slice(0, 4).join(', ') + (others.length > 4 ? ' and ' + (others.length - 4) + ' more' : '') + ' (untick to change only this item)';
@@ -4757,14 +4832,15 @@
     if (MN_NO_CHOICES.test(cat)) return Promise.resolve();
     var g = mn.group;
     mn.spice = mnEl('mnSpice').checked;
-    if (g && mnSame(g.ingredients, mn.ing) && mnSame(g.addons, mn.ext) && !!g.spice === mn.spice && (mnGroupFor(cat, name) || {}).key === g.key) return Promise.resolve();
-    if (!g && !mn.ing.length && !mn.ext.length && !mn.spice) return Promise.resolve();
+    mn.pick = mn.pick || [];
+    if (g && mnSame(g.ingredients, mn.ing) && mnSame(g.addons, mn.ext) && !!g.spice === mn.spice && mnSame(g.choices || [], mn.pick) && (mnGroupFor(cat, name) || {}).key === g.key) return Promise.resolve();
+    if (!g && !mn.ing.length && !mn.ext.length && !mn.spice && !mn.pick.length) return Promise.resolve();
     var shared = !mnEl('mnSharedWrap').classList.contains('hidden') && mnEl('mnShared').checked;
     var onlyMine = g && !shared && mnGroupNames(g).filter(function(n){ return n !== name; }).length > 0;
-    if (g && !onlyMine) return mnRpc('menu_admin_save_group', { p:{ key:g.key, label:g.label, category:g.category, name_has:g.name_has || '', name_not:g.name_not || '', ingredients:mn.ing, addons:mn.ext, spice:mn.spice, active:true } });
+    if (g && !onlyMine) return mnRpc('menu_admin_save_group', { p:{ key:g.key, label:g.label, category:g.category, name_has:g.name_has || '', name_not:g.name_not || '', ingredients:mn.ing, addons:mn.ext, spice:mn.spice, choices:mn.pick, active:true } });
     // New choices just for this item, or the first ones for a category.
     var catHasGroup = (mn.d.groups || []).some(function(x){ return String(x.category).toLowerCase() === cat.toLowerCase(); });
-    var p = catHasGroup || onlyMine ? { label:name, category:cat, name_has:name.toLowerCase(), ingredients:mn.ing, addons:mn.ext, spice:mn.spice } : { label:cat, category:cat, ingredients:mn.ing, addons:mn.ext, spice:mn.spice };
+    var p = catHasGroup || onlyMine ? { label:name, category:cat, name_has:name.toLowerCase(), ingredients:mn.ing, addons:mn.ext, spice:mn.spice, choices:mn.pick } : { label:cat, category:cat, ingredients:mn.ing, addons:mn.ext, spice:mn.spice, choices:mn.pick };
     return mnRpc('menu_admin_save_group', { p:p }).catch(function(e){
       if (!/already exists/.test(String(e && e.message))) throw e;
       p.label = p.label + ' ' + Math.random().toString(36).slice(2, 5);
@@ -4836,6 +4912,134 @@
     r.querySelector('[data-f="active"]').onclick = function(){ var s = this; s.setAttribute('aria-checked', s.getAttribute('aria-checked') === 'true' ? 'false' : 'true'); save(); };
   }
 
+  // ---- New menu launch (new-menu-launch.sql): hidden until a manager turns it on
+  function mnSet(k){ return (mn.d && mn.d.choice_sets || []).find(function(c){ return c.key === k; }) || null; }
+  // Items a not-yet-live launch will change: {id: "what changes"}.
+  function mnSoon(){ var out = {}; (mn.launch || []).forEach(function(l){ if (!l.live) (l.changes || []).forEach(function(c){ out[c.id] = c.what; }); }); return out; }
+  function mnLaunchLoad(){
+    return sb.rpc('staff_menu_launch_get').then(function(r){
+      if (r.error) { mn.launch = null; mnLaunchRender(); return; }   // not set up yet: no card
+      mn.launch = r.data || []; mnLaunchRender(); if (mn.d) mnRender();
+    }, function(){ mn.launch = null; mnLaunchRender(); });
+  }
+  function mnWhen(t){ try { return new Date(t).toLocaleString([], { month:'short', day:'numeric', hour:'numeric', minute:'2-digit' }); } catch (e) { return ''; } }
+  function mnLaunchRender(){
+    var box = mnEl('mnLaunch'), list = mn.launch || [];
+    box.classList.toggle('hidden', !list.length);
+    if (!list.length) { box.innerHTML = ''; return; }
+    var l = list[0];
+    box.classList.toggle('live', !!l.live);
+    var items = (mn.d && mn.d.items) || [];
+    box.innerHTML = '<div class="mn-l-top"><div><span class="mn-l-kicker">' + (l.live ? 'New menu \u00b7 Live' : 'New menu \u00b7 Coming soon') + '</span>' +
+      '<h3>' + esc(l.title) + '</h3><p class="hint">' + (l.live
+        ? 'Showing on the website, QR page and kiosk' + (l.by ? ' \u00b7 turned on by ' + esc(l.by) + (l.at ? ', ' + esc(mnWhen(l.at)) : '') : '') + '. Switch off to hide it again: everything goes back exactly as it was.'
+        : 'Ready but hidden from customers' + (l.by ? ' \u00b7 last switched by ' + esc(l.by) + (l.at ? ', ' + esc(mnWhen(l.at)) : '') : '') + '. Set prices and photos below, then switch it on when you&rsquo;re ready.') + '</p></div>' +
+      '<label class="mn-l-sw"><button type="button" class="switch" role="switch" id="mnLaunchSw" aria-checked="' + (l.live ? 'true' : 'false') + '" aria-label="Show the new menu to customers"></button>' + (l.live ? 'On' : 'Off') + '</label></div>' +
+      '<details class="mn-l-list"' + (l.live ? '' : ' open') + '><summary>What changes (' + (l.changes || []).length + ')</summary>' +
+      (l.changes || []).map(function(c){
+        var it = items.find(function(x){ return x.id === c.id; }) || {};
+        return '<div class="mn-l-row"><span class="mn-thumb">' + mnImg(it.image_url || mnStdPhoto(c.name), it.category || '') + '</span><div class="t">' + esc(c.name) +
+          '<small>' + esc(c.what) + ' \u00b7 $' + mnPrice(c.price) + '</small></div><button type="button" class="btn-ghost btn-small" data-edit="' + esc(c.id) + '">Edit</button></div>';
+      }).join('') + '</details>' +
+      '<div class="mn-l-acts"><button type="button" class="btn-ghost btn-small" data-picks>Platter choices</button></div>';
+    box.querySelectorAll('[data-edit]').forEach(function(b){ b.onclick = function(){ var it = items.find(function(x){ return x.id === b.dataset.edit; }); if (it) mnOpen(it); }; });
+    box.querySelector('[data-picks]').onclick = mnPicksOpen;
+    mnEl('mnLaunchSw').onclick = function(){
+      var sw = this, on = !l.live;
+      var msg = on ? 'Show the new menu now?\n\n\u2022 Platters and Desserts appear\n\u2022 Falooda moves from Drinks to Desserts\n\u2022 Secret menu items join the regular menu (the Platinum secret menu teaser turns off)\n\nCustomers see it within a minute.'
+        : 'Hide the new menu again?\n\nEverything goes back exactly as it was before launch.';
+      if (!window.confirm(msg)) return;
+      sw.disabled = true;
+      sb.rpc('staff_menu_launch_set', { p_key:l.key, p_live:on }).then(function(r){
+        sw.disabled = false;
+        if (r.error) throw r.error;
+        mn.launch = r.data || []; mnLaunchRender();
+        mnMsg('mnMsg', on ? 'The new menu is live.' : 'The new menu is hidden again.', true);
+        return mnRpc('menu_admin_get').then(function(){ mnRender(); mnSqQueue(); });
+      }).catch(function(e){ sw.disabled = false; mnMsg('mnMsg', mnErr(e)); });
+    };
+  }
+
+  // ---- Platter choices editor
+  function mnPicksOpen(){ mnPicksRender(); mnMsg('mnPMsg', ''); mnShowPanel('mnPicks', true); }
+  function mnPicksRender(){
+    var sets = mn.d && mn.d.choice_sets || [];
+    mnEl('mnPList').innerHTML = sets.map(function(cs){
+      return '<section class="mn-pset' + (cs.active ? '' : ' off') + '" data-set="' + esc(cs.key) + '">' +
+        '<div class="mn-pset-h"><input type="text" data-f="title" value="' + esc(cs.title) + '" maxlength="40" aria-label="Choice title">' +
+        '<select data-f="pick" aria-label="How many customers pick">' + [1, 2, 3, 4, 5].map(function(n){ return '<option value="' + n + '"' + (n === cs.pick ? ' selected' : '') + '>Pick ' + n + '</option>'; }).join('') + '</select>' +
+        '<button type="button" class="switch" role="switch" data-f="active" aria-checked="' + (cs.active ? 'true' : 'false') + '" aria-label="Ask for ' + esc(cs.title) + '"></button></div>' +
+        (cs.options || []).map(function(o){
+          return '<div class="mn-prow' + (o.active ? '' : ' off') + '" data-k="' + esc(o.key) + '">' +
+            '<button type="button" class="mn-pthumb" data-f="photo" aria-label="Change the photo of ' + esc(o.label) + '">' + (o.img ? '<img src="' + esc(o.img) + '" alt="" loading="lazy">' : '') + '</button>' +
+            '<input type="text" data-f="label" value="' + esc(o.label) + '" maxlength="40" aria-label="Name">' +
+            '<label class="iv-chk mn-vegchk"><input type="checkbox" data-f="veg"' + (o.veg ? ' checked' : '') + '> Veg</label>' +
+            '<div class="mn-money"><span>+$</span><input type="number" data-f="price" min="0" step="0.01" value="' + (o.price_cents / 100).toFixed(2) + '" aria-label="Extra price for ' + esc(o.label) + '"></div>' +
+            '<button type="button" class="switch" role="switch" data-f="active" aria-checked="' + (o.active ? 'true' : 'false') + '" aria-label="Offer ' + esc(o.label) + '"></button></div>';
+        }).join('') +
+        '<form class="mn-padd" data-add><input type="text" maxlength="40" placeholder="Add an option, e.g. Dal Makhani" aria-label="New option name"><label class="iv-chk mn-vegchk"><input type="checkbox"> Veg</label>' +
+        '<div class="mn-money"><span>+$</span><input type="number" min="0" step="0.01" placeholder="0.00" aria-label="Extra price"></div><button type="submit" class="btn-ghost btn-small">+ Add</button></form>' +
+        (cs.active && (cs.options || []).filter(function(o){ return o.active; }).length < cs.pick ? '<p class="mn-pick-hint" style="color:#b3261e">Switch on at least ' + cs.pick + ' options, or customers can&rsquo;t finish.</p>' : '') +
+      '</section>';
+    }).join('') || '<p class="hint">No choices yet. Run new-menu-launch.sql to add the platter&rsquo;s base and entr&eacute;es.</p>';
+    mnEl('mnPList').querySelectorAll('.mn-pset').forEach(mnWireSet);
+  }
+  function mnPSave(fn, p, okText){
+    return mnRpc(fn, { p:p }).then(function(){ mnPicksRender(); mnRender(); mnMsg('mnPMsg', okText, true); }, function(e){ mnPicksRender(); mnMsg('mnPMsg', mnErr(e)); });
+  }
+  function mnWireSet(sec){
+    var key = sec.dataset.set, cs = mnSet(key);
+    var g = function(f){ return sec.querySelector('.mn-pset-h [data-f="' + f + '"]'); };
+    function saveSet(active){
+      var title = g('title').value.trim(); if (!title) return mnMsg('mnPMsg', 'Give the choice a title.');
+      mnPSave('menu_admin_save_choice_set', { key:key, title:title, pick:+g('pick').value, active:active }, 'Saved ' + title + '.');
+    }
+    g('title').addEventListener('change', function(){ saveSet(cs.active); });
+    g('pick').addEventListener('change', function(){ saveSet(cs.active); });
+    g('active').onclick = function(){ saveSet(!cs.active); };
+    sec.querySelectorAll('.mn-prow').forEach(function(r){
+      var o = (cs.options || []).find(function(x){ return x.key === r.dataset.k; });
+      var f = function(n){ return r.querySelector('[data-f="' + n + '"]'); };
+      function saveOpt(over){
+        var label = f('label').value.trim(), pr = parseFloat(f('price').value);
+        if (!label) return mnMsg('mnPMsg', 'Give it a name.');
+        if (isNaN(pr) || pr < 0 || pr > 100) return mnMsg('mnPMsg', 'Enter an extra price from $0 to $100.');
+        var p = { key:o.key, set_key:key, label:label, veg:f('veg').checked, price_cents:Math.round(pr * 100), img:o.img || '', active:o.active };
+        Object.keys(over || {}).forEach(function(k){ p[k] = over[k]; });
+        r.style.opacity = '.6';
+        mnPSave('menu_admin_save_choice', p, 'Saved ' + label + '.');
+      }
+      r.querySelectorAll('input').forEach(function(inp){ inp.addEventListener('change', function(){ saveOpt(); }); });
+      f('active').onclick = function(){ saveOpt({ active:!o.active }); };
+      f('photo').onclick = function(){
+        var fi = mnEl('mnPFile'); fi.value = '';
+        fi.onchange = function(){ mnPUpload(fi.files[0], function(url){ saveOpt({ img:url }); }); };
+        fi.click();
+      };
+    });
+    var add = sec.querySelector('[data-add]');
+    add.onsubmit = function(ev){
+      ev.preventDefault();
+      var ins = add.querySelectorAll('input'), label = ins[0].value.trim(), pr = parseFloat(ins[2].value || '0');
+      if (!label) return mnMsg('mnPMsg', 'Type the option&rsquo;s name.'.replace('&rsquo;', '\u2019'));
+      if (isNaN(pr) || pr < 0 || pr > 100) return mnMsg('mnPMsg', 'Enter an extra price from $0 to $100.');
+      add.querySelector('button').disabled = true;
+      mnPSave('menu_admin_save_choice', { set_key:key, label:label, veg:ins[1].checked, price_cents:Math.round(pr * 100), img:'item-platter.svg', active:true }, label + ' added. Tap its photo to change it.');
+    };
+  }
+  function mnPUpload(file, done){
+    if (!file) return;
+    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return mnMsg('mnPMsg', 'Use a JPG, PNG or WebP photo.');
+    if (file.size > 5 * 1024 * 1024) return mnMsg('mnPMsg', 'That photo is over 5 MB. Use a smaller one.');
+    mnMsg('mnPMsg', 'Uploading\u2026', true);
+    var ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg';
+    var path = 'picks/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.' + ext;
+    sb.storage.from('menu-photos').upload(path, file, { contentType:file.type, upsert:false, cacheControl:'31536000' }).then(function(r){
+      if (r.error) throw r.error;
+      done(sb.storage.from('menu-photos').getPublicUrl(path).data.publicUrl);
+    }).catch(function(e){ mnMsg('mnPMsg', 'Couldn\u2019t upload the photo: ' + mnErr(e)); });
+  }
+
   // ---- Square: synced automatically after item changes
   function mnSqShow(){
     var el = mnEl('mnSq'), need = mn.d ? mn.d.needs_sync || 0 : 0;
@@ -4866,6 +5070,15 @@
     mnEl('mnReorder').onclick = function(){ mn.reorder = !mn.reorder; this.setAttribute('aria-pressed', mn.reorder); this.textContent = mn.reorder ? 'Done' : 'Reorder'; mnRender(); };
     mnEl('mnForm').addEventListener('submit', mnSave);
     document.querySelectorAll('#mnDrawer [data-close], #mnExtras [data-xclose]').forEach(function(b){ b.onclick = mnCloseAll; });
+    // Platter choices: closing returns to the item panel if it was open.
+    document.querySelectorAll('#mnPicks [data-pclose]').forEach(function(b){ b.onclick = function(){ mnEl('mnPicks').classList.add('hidden'); if (mnEl('mnDrawer').classList.contains('hidden')) mnCloseAll(); else mnLoadChoices(false); }; });
+    mnEl('mnPicksBtn').onclick = function(){ if (mn.d) mnPicksOpen(); };
+    mnEl('mnPNewSet').onsubmit = function(ev){
+      ev.preventDefault();
+      var t = this.querySelector('input').value.trim(); if (!t) return;
+      mnPSave('menu_admin_save_choice_set', { title:t, pick:+this.querySelector('select').value, active:true }, t + ' added. Add its options below, then tick it on an item.');
+      this.querySelector('input').value = '';
+    };
     mnEl('mnScrim').onclick = mnCloseAll;
     document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !mnEl('mnScrim').classList.contains('hidden')) mnCloseAll(); });
     mnEl('mnAvail').querySelectorAll('button').forEach(function(b){ b.onclick = function(){ mnSetAvail(b.dataset.v === '1'); }; });
