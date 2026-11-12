@@ -3856,9 +3856,10 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       var box = document.getElementById('soonBanner'); if (!box || !sbShared.rpc) return;
       var SLIDES = [
         ['menu-platters.jpg', 'Build Your Platter', 0], ['pick-butter-chicken.jpg', 'Butter Chicken', 0], ['pick-paneer-tikka.jpg', 'Paneer Tikka', 1],
-        ['menu-wings.jpg', 'Wings · 4 flavors', 0], ['pick-chana-masala.jpg', 'Chana Masala', 1], ['pick-tikka-chicken.jpg', 'Tikka Chicken', 0],
-        ['menu-burritos.jpg', 'Cali Burritos', 0], ['pick-butter-paneer.jpg', 'Butter Paneer', 1], ['pick-spicy-chicken-curry.jpg', 'Spicy Chicken Curry', 0],
-        ['menu-desserts.jpg', 'Gulab Jamun & Ice Cream', 1]
+        ['menu-wings.jpg', 'Wings · Tikka', 0, 'item-wings-tikka.jpg'], ['pick-chana-masala.jpg', 'Chana Masala', 1], ['pick-tikka-chicken.jpg', 'Tikka Chicken', 0],
+        ['menu-burritos.jpg', 'Cali Burrito · Tandoori', 0, 'item-cali-burrito-tandoori.jpg'], ['pick-butter-paneer.jpg', 'Butter Paneer', 1], ['pick-spicy-chicken-curry.jpg', 'Spicy Chicken Curry', 0],
+        ['menu-desserts.jpg', 'Gulab Jamun & Ice Cream', 1],
+        ['item-wings-butter-chicken.jpg', 'Wings · Butter Chicken', 0], ['item-cali-burrito-signature.jpg', 'Cali Burrito · Signature', 0]
       ];
       // Launch day at midnight, Ohio time (EST in late November).
       function target(d){ var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(d || '')); return m ? Date.UTC(+m[1], +m[2] - 1, +m[3], 5, 0, 0) : null; }
@@ -3868,7 +3869,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         var when = String(t.when || '').trim(), at = target(t.date);
         box.innerHTML =
           '<div class="sc-slides" aria-live="off">' + SLIDES.map(function(x, i){
-            return '<figure class="sc-slide' + (i ? '' : ' on') + '"><img src="' + x[0] + '" alt="" ' + (i > 1 ? 'loading="lazy" ' : '') + 'onerror="window.__scDrop && window.__scDrop(this)">' +
+            return '<figure class="sc-slide' + (i ? '' : ' on') + '"><img src="' + x[0] + '" alt="" ' + (x[3] ? 'data-alt="' + x[3] + '" ' : '') + (i > 1 ? 'loading="lazy" ' : '') + 'onerror="window.__scDrop && window.__scDrop(this)">' +
               '<figcaption>' + escHtml(x[1]) + (x[2] ? '<i>VEG</i>' : '') + '</figcaption></figure>';
           }).join('') + '<div class="sc-dots" aria-hidden="true"></div></div>' +
           '<div class="sc-body"><span class="sc-kicker">Coming ' + escHtml(when || 'soon') + '</span>' +
@@ -3886,6 +3887,8 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         function paintDots(){ var n = slides().length; dots.innerHTML = n > 1 ? new Array(n + 1).join('<b></b>') : ''; dots.querySelectorAll('b').forEach(function(b, i){ b.classList.toggle('on', i === cur); }); }
         function show(i){ var sl = slides(); if (!sl.length) return; cur = (i + sl.length) % sl.length; sl.forEach(function(x, k){ x.classList.toggle('on', k === cur); }); paintDots(); }
         window.__scDrop = function(img){
+          // Section photo not uploaded? Use the flavor photo instead.
+          var alt = img.getAttribute('data-alt'); if (alt) { img.removeAttribute('data-alt'); img.src = alt; return; }
           var f = img.closest('.sc-slide'), sl = slides(), i = sl.indexOf(f); if (!f) return;
           var wasOn = f.classList.contains('on'); f.remove();
           if (!slides().length) { box.classList.add('sc-nophoto'); wrap.remove(); return; }
