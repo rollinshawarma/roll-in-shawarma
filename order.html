@@ -11,7 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
 <script src="deals.js?v=20261022"></script>
-<script src="ingredients.js?v=20261105b"></script>
+<script src="ingredients.js?v=20261112a"></script>
 <script src="spot-picker.js"></script>
 <style>
   :root{
@@ -1140,7 +1140,8 @@
       'Shawarma': 'menu-shawarma.jpg', 'Frankie Rolls': 'menu-frankie.jpg',
       'Bowls': 'menu-bowl.jpg', 'Tacos': 'menu-tacos.jpg',
       'Loaded Fries': 'menu-fries.jpg', 'Sides': 'menu-samosas.jpg',
-      'Kulfi Ice Cream': 'item-almond-kulfi.jpg', 'Drinks': 'menu-falooda.jpg'
+      'Kulfi Ice Cream': 'item-almond-kulfi.jpg', 'Drinks': 'menu-falooda.jpg',
+      'Platters': 'item-platter.svg', 'Desserts': 'item-gulab-jamun.svg', 'Wings & Burritos': 'menu-wings-burritos.svg'
     };
     // Same wording as the main website's menu.
     var CATEGORY_DESCRIPTIONS = {
@@ -1148,14 +1149,17 @@
       'Shawarma': 'Marinated chicken or falafel, white sauce, fries & pickled cucumber',
       'Frankie Rolls': 'Marinated chicken or paneer, fresh veggies, cilantro & lime',
       'Bowls': 'Flavored rice, cucumber, peppers, lettuce, tomato & sauce',
-      'Sides': 'Regular / Large where noted'
+      'Sides': 'Regular / Large where noted',
+      'Platters': 'White jeera rice with your choice of two entr\u00e9es',
+      'Desserts': 'Sweet endings: falooda, gulab jamun & more',
+      'Wings & Burritos': 'From the secret menu, now for everyone'
     };
     // Cut-out photos for the category list (same as the website).
     var CATEGORY_CUTOUTS = {
       'Shawarma': 'shawarma-wrap.webp', 'Frankie Rolls': 'tikka-wrap.webp',
       'Bowls': 'bowl.webp', 'Tacos': 'tacos.webp', 'Loaded Fries': 'loaded-fries.webp'
     };
-    var UPSELL_CATEGORIES = ['Sides', 'Kulfi Ice Cream', 'Drinks'];
+    var UPSELL_CATEGORIES = ['Sides', 'Kulfi Ice Cream', 'Desserts', 'Drinks'];
     var COMBO_DRINK_NAMES = ['Coke', 'Diet Coke', 'Coke Zero', 'Sprite', 'Root Beer', 'Water'];
     var STORE_KEY = 'rollin_qr_cart_v1';
     var STORE_TTL_MS = 3 * 60 * 60 * 1000;
@@ -1437,7 +1441,7 @@
       if (!e.target.closest || !e.target.closest('#reorderBtn')) return;
       var lines = reorderLines(), n = 0;
       lines.forEach(function(l){
-        var custom = (l.remove && l.remove.length) || (l.add && l.add.length) || l.note || l.spice ? { remove: l.remove || [], add: l.add || [], note: l.note || '', spice: l.spice || '' } : null;
+        var custom = (l.remove && l.remove.length) || (l.add && l.add.length) || l.note || l.spice || l.pick ? { remove: l.remove || [], add: l.add || [], note: l.note || '', spice: l.spice || '', pick: l.pick || null } : null;
         for (var k = 0; k < l.qty; k++) { addOneRaw(l.id, custom); n++; }
       });
       if (!n) return;
@@ -1447,7 +1451,7 @@
     function saveReorder(){
       try {
         var lines = cart.filter(function(c){ var it = itemsById[c.menu_item_id]; return it && !c.deal && !c.dealOf && it.category !== 'Combo Add-ons' && it.category !== 'Deal Selections' && it.category !== 'Deals'; })
-          .map(function(c){ return { id: c.menu_item_id, qty: c.quantity, remove: c.remove || [], add: c.add || [], note: c.note || '', spice: c.spice || '' }; });
+          .map(function(c){ return { id: c.menu_item_id, qty: c.quantity, remove: c.remove || [], add: c.add || [], note: c.note || '', spice: c.spice || '', pick: c.pick || null }; });
         if (lines.length) localStorage.setItem(REORDER_KEY, JSON.stringify({ savedAt: Date.now(), lines: lines.slice(0, 20) }));
       } catch (e) {}
     }
@@ -1565,7 +1569,7 @@
     // A line differs by what was taken off, paid add-ons and the note.
     function rmKey(c){ return window.RollinIngredients ? window.RollinIngredients.lineKey(c) : (c.remove || []).join(','); }
     var PLAIN_KEY = window.RollinIngredients ? window.RollinIngredients.lineKey({}) : '';
-    function addOnPrice(c){ return window.RollinIngredients && c.add && c.add.length ? window.RollinIngredients.addPrice(c.add) : 0; }
+    function addOnPrice(c){ var RI = window.RollinIngredients; return RI ? (c.add && c.add.length ? RI.addPrice(c.add) : 0) + (c.pick && RI.pickPrice ? RI.pickPrice(c.pick) : 0) : 0; }
     function findLine(itemId, rm){ rm = rm || PLAIN_KEY; return cart.find(function(c){ return c.menu_item_id === itemId && !c.deal && !c.dealOf && rmKey(c) === rm; }); }
     function qtyOfItem(itemId){ return cart.reduce(function(s, c){ return s + (c.menu_item_id === itemId && !c.deal && !c.dealOf ? c.quantity : 0); }, 0); }
     function ingNote(c){ return window.RollinIngredients ? window.RollinIngredients.summary(c) : ''; }
@@ -1768,6 +1772,7 @@
         if (cu.add.length) nl.add = cu.add;
         if (cu.note) nl.note = cu.note;
         if (cu.spice) nl.spice = cu.spice;
+        if (cu.pick) nl.pick = cu.pick;
         nl.unitPrice = Math.round((Number(item.price) + addOnPrice(nl)) * 100) / 100;
         cart.push(nl);
       }
@@ -1938,7 +1943,7 @@
         localStorage.setItem(STORE_KEY, JSON.stringify({
           savedAt: Date.now(),
           // Keeps each line's choices (spice, removals, add-ons, note) too.
-          lines: cart.filter(function(c){ return !c.deal && !c.dealOf; }).map(function(c){ var o = { id: c.menu_item_id, qty: c.quantity }; if (c.remove && c.remove.length) o.remove = c.remove; if (c.add && c.add.length) o.add = c.add; if (c.note) o.note = c.note; if (c.spice) o.spice = c.spice; return o; })
+          lines: cart.filter(function(c){ return !c.deal && !c.dealOf; }).map(function(c){ var o = { id: c.menu_item_id, qty: c.quantity }; if (c.remove && c.remove.length) o.remove = c.remove; if (c.add && c.add.length) o.add = c.add; if (c.note) o.note = c.note; if (c.spice) o.spice = c.spice; if (c.pick) o.pick = c.pick; return o; })
         }));
       } catch(e){}
     }
@@ -1953,7 +1958,7 @@
           var item = itemsById[l.id];
           if (!item || !isAvailable(item)) return;
           var q = Math.max(1, Math.min(MAX_QTY, parseInt(l.qty, 10) || 1));
-          var cu = (l.remove && l.remove.length) || (l.add && l.add.length) || l.note || l.spice ? { remove: l.remove || [], add: l.add || [], note: l.note || '', spice: l.spice || '' } : null;
+          var cu = (l.remove && l.remove.length) || (l.add && l.add.length) || l.note || l.spice || l.pick ? { remove: l.remove || [], add: l.add || [], note: l.note || '', spice: l.spice || '', pick: l.pick || null } : null;
           for (var k = 0; k < q; k++) addOneRaw(item.id, cu);
         });
         syncCombos();
@@ -2002,7 +2007,7 @@
     // Items that ask for a spice level open their window instead of a quick add.
     function spiceSheet(itemId){
       var RI = window.RollinIngredients, it = itemsById[itemId];
-      if (!RI || !it || !RI.hasSpice(it)) return false;
+      if (!RI || !it || !(RI.mustOpen ? RI.mustOpen(it) : RI.hasSpice(it))) return false;
       var key = Object.keys(groupsByKey).filter(function(k){ return groupsByKey[k].items.some(function(i){ return i.id === itemId; }); })[0];
       if (!key) return false;
       openItemSheet(key); return true;
@@ -2012,7 +2017,7 @@
       if (!g) return;
       var firstAvail = g.items.filter(isAvailable)[0];
       if (!firstAvail) return;
-      sheet = { group: g, itemId: firstAvail.id, qty: 1, combo: false, drink: null, removed: [], added: [], note: '' };
+      sheet = { group: g, itemId: firstAvail.id, qty: 1, combo: false, drink: null, removed: [], added: [], note: '', pick: {} };
       renderItemSheet();
       openSheet($('itemSheet'));
     }
@@ -2027,7 +2032,7 @@
 
       if (g.items.length > 1) {
         var anyPriceDiff = g.items.some(function(i){ return Number(i.price) !== Number(g.items[0].price); });
-        html += '<fieldset class="opt-group"><legend>' + (g.cat === 'Bowls' || g.cat === 'Shawarma' || g.cat === 'Frankie Rolls' ? 'Choose your protein' : g.cat === 'Secret Menu' ? 'Choose your flavor' : 'Choose one') + ' <small>Required</small></legend>' +
+        html += '<fieldset class="opt-group"><legend>' + (g.cat === 'Bowls' || g.cat === 'Shawarma' || g.cat === 'Frankie Rolls' ? 'Choose your protein' : (g.cat === 'Secret Menu' || g.cat === 'Wings & Burritos') && /wings/i.test(g.name) ? 'Choose your flavor' : 'Choose one') + ' <small>Required</small></legend>' +
           g.items.map(function(i){
             var avail = isAvailable(i);
             return '<label class="opt' + (avail ? '' : ' is-disabled') + '">' +
@@ -2043,6 +2048,7 @@
         sheet.removed = window.RollinIngredients.clean(item, sheet.removed);
         sheet.added = window.RollinIngredients.cleanAdd(item, sheet.added);
         sheet.spice = window.RollinIngredients.cleanSpice(item, sheet.spice);
+        if (window.RollinIngredients.picksHtml) { sheet.pick = window.RollinIngredients.cleanPicks(item, sheet.pick) || {}; html += '<div id="itemPicks">' + window.RollinIngredients.picksHtml(item, sheet.pick) + '</div>'; }
         html += '<div id="itemSpice">' + window.RollinIngredients.spiceHtml(item, sheet.spice) + '</div>';
         html += '<div id="itemIng">' + window.RollinIngredients.chipsHtml(item, sheet.removed, sheet.added) + '</div>';
         html += '<div id="itemAddons">' + window.RollinIngredients.addonsHtml(item, sheet.added) + '</div>';
@@ -2070,7 +2076,7 @@
     function itemUnitTotal(){
       var item = itemsById[sheet.itemId];
       var RI = window.RollinIngredients;
-      return Number(item.price) + (sheet.combo ? comboPriceFor() : 0) + (RI ? RI.addPrice(RI.cleanAdd(item, sheet.added)) : 0);
+      return Number(item.price) + (sheet.combo ? comboPriceFor() : 0) + (RI ? RI.addPrice(RI.cleanAdd(item, sheet.added)) : 0) + (RI && RI.pickPrice ? RI.pickPrice(RI.cleanPicks(item, sheet.pick)) : 0);
     }
     // What a combo actually costs = the fries line + the chosen drink line.
     function comboPriceFor(){
@@ -2108,6 +2114,8 @@
     $('itemBody').addEventListener('click', function(e){
       var sp = e.target.closest('[data-spice]');
       if (sp && window.RollinIngredients) { sheet.spice = window.RollinIngredients.spicePick(sp); return; }
+      var pk = e.target.closest('[data-pick]');
+      if (pk && window.RollinIngredients) { sheet.pick = window.RollinIngredients.pickTap(itemsById[sheet.itemId], sheet.pick, pk); updateItemCta(); return; }
       var ing = e.target.closest('[data-ing]');
       if (ing && window.RollinIngredients) {
         var RI = window.RollinIngredients, k = ing.getAttribute('data-ing');
@@ -2138,6 +2146,8 @@
     $('itemAddBtn').addEventListener('click', function(){
       if (this.disabled) return;
       var item = itemsById[sheet.itemId];
+      var needPick = window.RollinIngredients && window.RollinIngredients.askPicks ? window.RollinIngredients.askPicks($('itemBody'), item, sheet.pick) : '';
+      if (needPick) { toast(needPick + ' to continue.'); return; }
       if (window.RollinIngredients && window.RollinIngredients.needsSpice(item, sheet.spice)) {
         window.RollinIngredients.askSpice($('itemBody'));
         toast('Choose a spice level: Mild, Medium or Spicy.');
@@ -2145,7 +2155,7 @@
       }
       var fries = comboAddonsByName['Combo Fries'];
       var drink = sheet.drink ? comboAddonsByName['Combo ' + sheet.drink] : null;
-      var cust = window.RollinIngredients ? window.RollinIngredients.custom(item, { remove: sheet.removed, add: sheet.added, note: noteOk(item) ? sheet.note : '', spice: sheet.spice }) : null;
+      var cust = window.RollinIngredients ? window.RollinIngredients.custom(item, { remove: sheet.removed, add: sheet.added, note: noteOk(item) ? sheet.note : '', spice: sheet.spice, pick: sheet.pick }) : null;
       for (var k = 0; k < sheet.qty; k++) {
         addOneRaw(item.id, cust);
         if (sheet.combo && fries && drink) { addOneRaw(fries.id); addOneRaw(drink.id); }
@@ -2641,7 +2651,7 @@
         carModelValue = $('carModel').value.trim() || null;
       }
       return {
-        items: cart.map(function(c){ var o = { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name }; if (c.remove && c.remove.length) o.remove = c.remove; if (c.add && c.add.length) o.add = c.add; if (c.note) o.note = c.note; if (c.spice) o.spice = c.spice; return o; }),
+        items: cart.map(function(c){ var o = { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name }; if (c.remove && c.remove.length) o.remove = c.remove; if (c.add && c.add.length) o.add = c.add; if (c.note) o.note = c.note; if (c.spice) o.spice = c.spice; if (c.pick) o.pick = c.pick; return o; }),
         customerName: $('custName').value.trim(),
         customerEmail: $('custEmail').value.trim() || undefined,
         customerPhone: $('custPhone').value.trim() || undefined,
