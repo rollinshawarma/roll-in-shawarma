@@ -1110,7 +1110,7 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
 /* ---- New menu "Coming soon" card: Taco Tuesday card's size and place. The
    photo slider fills the card; the text sits on top of it
    (new-menu-launch.sql; hides itself at launch) ---- */
-.sc{ position:relative; display:grid; grid-template-columns:1fr auto; align-items:center; gap:10px 20px; max-width:880px; min-height:220px; margin:0 auto 24px; padding:24px 28px; border-radius:22px; text-align:left;
+.sc{ position:relative; display:grid; grid-template-columns:1fr; align-items:center; gap:10px 20px; max-width:880px; min-height:220px; margin:0 auto 24px; padding:24px 28px; border-radius:22px; text-align:left;
   background:#2b1608; color:#fbeedb; box-shadow:0 10px 26px rgba(43,22,8,.22); overflow:hidden; isolation:isolate; }
 .sc-slides{ position:absolute; inset:0; z-index:-1; background:#3a1d0a; }
 .sc-slides::after{ content:""; position:absolute; inset:0; pointer-events:none;
@@ -1139,8 +1139,8 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
 @media (max-width:560px){
   .sc{ grid-template-columns:1fr; min-height:0; padding:16px 16px 14px; gap:12px; }
   .sc-slides::after{ background:linear-gradient(180deg, rgba(22,11,4,.86) 0%, rgba(22,11,4,.6) 48%, rgba(22,11,4,.2) 72%, rgba(22,11,4,.75) 100%); }
-  .sc-slide figcaption{ right:auto; left:14px; bottom:74px; font-size:12px; }
-  .sc-body{ padding-bottom:58px; }
+  .sc-slide figcaption{ font-size:12px; right:12px; bottom:10px; }
+  .sc-body{ padding-bottom:84px; }
   .sc-kicker{ font-size:10.5px; }
   .sc-title{ font-size:clamp(24px, 7.4vw, 30px); }
   .sc-deal{ font-size:13.5px; }
@@ -3875,12 +3875,8 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
           '<div class="sc-body"><span class="sc-kicker">Coming ' + escHtml(when || 'soon') + '</span>' +
           '<h3 class="sc-title">' + escHtml(t.title || 'New on the menu') + '</h3>' +
           '<p class="sc-deal">Platters · Wings · Burritos · Desserts</p>' +
-          '<p class="sc-note" data-sc-count></p></div>' +
-          '<button type="button" class="sc-go" data-soon-go>Get first taste <span aria-hidden="true">→</span></button>';
+          '<p class="sc-note" data-sc-count></p></div>';
         box.hidden = false;
-        box.querySelector('[data-soon-go]').addEventListener('click', function(){
-          var d = document.getElementById('deals'); if (d) d.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        });
         // Slider: a new dish every 2.8 s; pauses while the pointer is on it.
         var wrap = box.querySelector('.sc-slides'), dots = box.querySelector('.sc-dots'), cur = 0, hold = false;
         function slides(){ return Array.prototype.slice.call(wrap.querySelectorAll('.sc-slide')); }
@@ -3901,11 +3897,11 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         // "10 days to go · Mon, Nov 23" under the dishes.
         var cnt = box.querySelector('[data-sc-count]');
         function count(){
-          if (!at) { cnt.textContent = 'Rewards members hear first, the day it drops.'; return; }
+          if (!at) { cnt.textContent = 'At the truck, online and at the kiosk.'; return; }
           var ms = at - Date.now(), day = '';
           var wk = '';
           try { day = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric' }).format(new Date(at)); wk = new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short' }).format(new Date(at)); } catch (e) {}
-          if (ms <= 0) { cnt.innerHTML = '<b>Any day now.</b> Rewards members hear first.'; return; }
+          if (ms <= 0) { cnt.innerHTML = '<b>Any day now.</b>'; return; }
           var d = Math.floor(ms / 86400000), h = Math.floor(ms % 86400000 / 3600000);
           cnt.innerHTML = '<b>' + (d ? d + (d === 1 ? ' day ' : ' days ') : '') + h + (h === 1 ? ' hr' : ' hrs') + '</b> to go' + (day ? ' · <span class="sc-day-w">' + escHtml(wk) + ', </span>' + escHtml(day) : '');
         }
