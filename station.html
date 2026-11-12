@@ -376,6 +376,17 @@
   #fryerToLunchBtn{ font-size:14px; font-weight:700; padding:8px 14px; border:1px solid var(--line); border-radius:100px; }
   #viewToggleBtn{ color:#ffd479 !important; border-color:rgba(255,212,121,.55) !important; }
   body.tickets-mode #itemPanel{ display:none; }
+  /* Item totals (optional, Orders -> Item totals): one line, every item still to make, no extras. */
+  #itemTotals{ display:none; }
+  body.tickets-mode.totals-on #itemTotals{ display:flex; align-items:center; gap:10px; margin:10px 16px 0; padding:10px 14px; border-radius:12px; background:#2c2c2e; color:#fff;
+    font-family:var(--kds-font); white-space:nowrap; overflow-x:auto; scrollbar-width:none; -webkit-overflow-scrolling:touch; flex:none; }
+  #itemTotals::-webkit-scrollbar{ display:none; }
+  #itemTotals .it-h{ font-size:13px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; color:#ffd479; flex:none; }
+  #itemTotals .it-i{ font-size:20px; font-weight:700; flex:none; }
+  #itemTotals .it-i b{ display:inline-block; min-width:30px; text-align:center; padding:1px 8px; margin-right:6px; border-radius:8px; background:#ffd479; color:#1c1c1e; font-weight:900; }
+  #itemTotals .it-i.drink b{ background:#64d2ff; }
+  #itemTotals .it-sep{ color:#636366; flex:none; }
+  #itemTotals .it-none{ font-size:17px; color:#aeaeb2; }
   body.tickets-mode #queuePanel > .panel-head{ display:none; }
   body.tickets-mode #queueList{ flex-direction:row; gap:14px; padding:14px 16px; overflow:hidden; }
   .tk-col{ flex:1; min-width:0; display:flex; flex-direction:column; gap:12px; overflow-y:auto; padding-bottom:20px; }
@@ -1130,6 +1141,7 @@
       <button type="button" id="spotsBtn" title="Parking spots in use" aria-label="Parking spots">&#127359;<span class="dots" id="spotsDots">&#9675;&#9675;&#9675;&#9675;&#9675;</span></button>
       <button type="button" id="truckLocBtn" title="Save where the truck is parked (for drive-up check-ins)">&#128205; Location</button>
       <button type="button" id="recallBtn" title="Recall: bring back an order marked done" aria-label="Recall">&#8634;</button>
+      <button type="button" id="itemTotalsBtn" class="kh-grouped" title="Item totals on / off" aria-label="Item totals">&#931;</button>
       <button type="button" id="custInfoBtn" class="kh-grouped" title="Customer info (managers)" aria-label="Customer info">&#128100;</button>
       <button type="button" id="kioskOrdersBtn" class="kh-grouped" title="Kiosk orders on / off" aria-label="Kiosk orders">&#128421;</button>
       <button type="button" id="suppliesBtn" title="Supplies to restock" aria-label="Supplies">&#128230;<span class="gl"> Supplies</span><span class="nd-count zero" id="suppliesCount">0</span></button>
@@ -1215,6 +1227,7 @@
     </div>
     <div id="queuePanel">
       <div class="panel-head">Order Queue &mdash; First In, First Out</div>
+      <div id="itemTotals" aria-live="polite" aria-label="Items to make"></div>
       <div id="queueList"></div>
     </div>
   </div>
@@ -2073,17 +2086,17 @@
       if (save) { try { localStorage.setItem(VIEW_KEY, v); } catch(e){} }
       if (window.__kdsMainRefresh && !board.classList.contains('hidden')) window.__kdsMainRefresh();
     }
-    var savedView = null; try { savedView = localStorage.getItem(VIEW_KEY); } catch(e){}
-    setView(savedView || 'items', false);
+    // The Items view is retired (Nov 2026): the board always shows Tickets.
+    // Item totals (Orders -> Item totals) gives the per-item counts instead.
+    setView('tickets', false);
     document.getElementById('viewToggleBtn').addEventListener('click', function(){
-      setView(document.body.classList.contains('tickets-mode') ? 'items' : 'tickets', true);
+      setView('tickets', false);
     });
     window.__kdsLoadViewSettings = function(){
       sb.rpc('kds_event_settings_get').then(function(res){
         if (!res || res.error || !res.data) return;
         window.__kdsTags = res.data;
-        var mine = null; try { mine = localStorage.getItem(VIEW_KEY); } catch(e){}
-        setView(mine || res.data.main_view || 'items', false);
+        setView('tickets', false);
       }).catch(function(){});
     };
 
@@ -3123,6 +3136,7 @@
       });
 
       chimeOnArrivals(byOrder);
+      if (window.kdsTotals) window.kdsTotals.render(orderIds.map(function(id){ return byOrder[id]; }));
       if (!orderIds.length) {
         listEl.innerHTML = '<div class="queue-empty-hint">No active orders right now.</div>';
         return;
@@ -3999,7 +4013,9 @@
     orders: { title: 'Orders', items: [
       function(){ var n = num('scheduledCount'); return { key: 'scheduledBtn', ic: '⏰', label: 'Scheduled orders', sub: n ? n + ' coming up' : 'None coming up', attn: n > 0 }; },
       function(){ return { key: 'recallBtn', ic: '↺', label: 'Recall an order', sub: 'Bring back one marked done (last 30 min)' }; },
-      function(){ var t = txt('viewToggleBtn').replace(/^[^A-Za-z]+/, ''); return { key: 'viewToggleBtn', ic: '▦', label: 'Switch view', sub: 'Tap for: ' + (t || 'Tickets') }; },
+      function(){ var on = document.body.classList.contains('totals-on');
+        return { key: 'itemTotalsBtn', ic: 'Σ', label: 'Item totals: ' + (on ? 'ON' : 'OFF'), on: on,
+          sub: on ? 'Showing a count of every item to make, above the tickets · tap to hide' : 'Show one line with each item and how many to make' }; },
       function(){ var st = window.kdsCust ? window.kdsCust.state() : { on: false };
         return { key: 'custInfoBtn', ic: '👤', label: 'Customer info', on: !!st.on,
           sub: st.on ? (st.always ? 'On (manager tablet)' : 'On · ' + st.by + ' · ' + st.left + ' min left · tap to turn off') : 'Managers: regulars & visit counts (PIN)' }; }
@@ -4066,7 +4082,7 @@
   });
   // Keep the red numbers current as the real buttons change.
   var mo = new MutationObserver(function(){ clearTimeout(mo.t); mo.t = setTimeout(badges, 60); });
-  ['scheduledBtn', 'popupBtn', 'spotsBtn', 'truckLocBtn', 'kioskHealthBtn', 'viewToggleBtn', 'custInfoBtn', 'kioskOrdersBtn'].forEach(function(id){ var b = $(id); if (b) mo.observe(b, { attributes: true, childList: true, subtree: true, characterData: true }); });
+  ['scheduledBtn', 'popupBtn', 'spotsBtn', 'truckLocBtn', 'kioskHealthBtn', 'viewToggleBtn', 'itemTotalsBtn', 'custInfoBtn', 'kioskOrdersBtn'].forEach(function(id){ var b = $(id); if (b) mo.observe(b, { attributes: true, childList: true, subtree: true, characterData: true }); });
   badges();
   // One line always: get more compact step by step until the header fits.
   var head = $('boardHeader');
@@ -4302,6 +4318,48 @@
     state: function(){ return st ? { accepting: st.accepting !== false, by: st.by || '', since: st.at && !st.accepting ? clock(st.at) : '', reason: st.reason || '' } : (missing ? null : { accepting: true, by: '', since: '' }); },
     load: load, open: openSheet
   };
+})();
+</script>
+
+<script>
+// ---- Item totals (Orders -> Item totals): one line above the tickets with
+// every item still to make on active orders, e.g. "4 Chicken Shawarma · 2
+// Build Your Platter". Just the item name and count: no spice, picks, add-ons
+// or notes. Ready items aren't counted. On/off is remembered on this tablet.
+(function(){
+  var KEY = 'kdsItemTotals', box = document.getElementById('itemTotals'), btn = document.getElementById('itemTotalsBtn');
+  if (!box || !btn) return;
+  var last = [];
+  function esc(s){ return String(s).replace(/[&<>"]/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' }[c]; }); }
+  // "✦ Wings - Tikka // 🌶 Spicy, + Extra white sauce" -> "Wings - Tikka"
+  function bare(n){ return String(n || '').split(' // ')[0].replace(/^\u2726\s*/, '').replace(/\s*\((?:No |Note:|\+ ).*\)\s*$/, '').trim(); }
+  function on(){ return document.body.classList.contains('totals-on'); }
+  function set(v, save){
+    document.body.classList.toggle('totals-on', !!v);
+    btn.setAttribute('data-on', v ? '1' : '0');
+    if (save) { try { localStorage.setItem(KEY, v ? '1' : '0'); } catch (e) {} }
+    paint();
+    if (window.rollinGroups) window.rollinGroups.refresh();
+  }
+  function paint(){
+    if (!on()) { box.innerHTML = ''; return; }
+    var g = {}, keys = [];
+    last.forEach(function(o){ (o.items || []).forEach(function(i){
+      if (i.status === 'ready') return;
+      var n = bare(i.name); if (!n) return;
+      if (!g[n]) { g[n] = { n: 0, drink: !!i.drink, first: keys.length }; keys.push(n); }
+      g[n].n++;
+    }); });
+    // Food first (most first), then drinks.
+    keys.sort(function(a, b){ return (g[a].drink - g[b].drink) || (g[b].n - g[a].n) || (g[a].first - g[b].first); });
+    box.innerHTML = '<span class="it-h">To make</span>' + (keys.length ? keys.map(function(k, ix){
+      return (ix ? '<span class="it-sep">\u00b7</span>' : '') + '<span class="it-i' + (g[k].drink ? ' drink' : '') + '"><b>' + g[k].n + '</b>' + esc(k) + '</span>';
+    }).join('') : '<span class="it-none">Nothing to make right now</span>');
+  }
+  window.kdsTotals = { render: function(orders){ last = orders || []; paint(); }, on: on, set: set };
+  btn.addEventListener('click', function(){ set(!on(), true); });
+  var saved = null; try { saved = localStorage.getItem(KEY); } catch (e) {}
+  set(saved === '1', false);
 })();
 </script>
 </body>
