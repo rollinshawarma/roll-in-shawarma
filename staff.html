@@ -1250,7 +1250,8 @@
   .mn-l-th > div{ flex:1; min-width:0; }
   .mn-l-th small{ display:block; color:var(--muted); font-size:12.5px; margin-top:2px; }
   .mn-l-th .switch{ transform:scale(.85); }
-  .mn-l-tf{ display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-top:10px; }
+  .mn-l-tf{ display:grid; grid-template-columns:1fr 1fr 1fr; gap:10px; margin-top:10px; }
+  .mn-l-tf small{ display:block; font-weight:400; color:var(--muted); font-size:11.5px; margin-top:3px; }
   .mn-l-tf[hidden]{ display:none; }
   .mn-l-tf label{ font-size:12.5px; font-weight:700; color:var(--ink); margin:0; }
   .mn-l-tf input{ margin:4px 0 0; padding:8px 10px; }
@@ -4962,7 +4963,8 @@
       (l.live ? '' : '<div class="mn-l-teaser"><div class="mn-l-th"><div><b>&ldquo;Coming soon&rdquo; on the website</b><small>A card in the menu section until you launch. It disappears by itself when the new menu goes live.</small></div>' +
         '<button type="button" class="switch" role="switch" id="mnTeaserSw" aria-checked="' + (l.teaser_on !== false ? 'true' : 'false') + '" aria-label="Show Coming soon on the website"></button></div>' +
         '<div class="mn-l-tf"' + (l.teaser_on !== false ? '' : ' hidden') + '><label>Coming<input type="text" id="mnTeaserWhen" maxlength="40" value="' + esc(l.teaser_when || '') + '" placeholder="Thanksgiving week"></label>' +
-        '<label>Headline<input type="text" id="mnTeaserTitle" maxlength="40" value="' + esc(l.teaser_title || '') + '" placeholder="New on the menu"></label></div></div>') +
+        '<label>Headline<input type="text" id="mnTeaserTitle" maxlength="40" value="' + esc(l.teaser_title || '') + '" placeholder="New on the menu"></label>' +
+        '<label>Countdown to<input type="date" id="mnTeaserDate" value="' + esc(l.teaser_date || '') + '"><small>Leave empty for no countdown.</small></label></div></div>') +
       '<div class="mn-l-acts"><button type="button" class="btn-ghost btn-small" data-picks>Platter choices</button></div>';
     box.querySelectorAll('[data-edit]').forEach(function(b){ b.onclick = function(){ var it = items.find(function(x){ return x.id === b.dataset.edit; }); if (it) mnOpen(it); }; });
     box.querySelector('[data-picks]').onclick = mnPicksOpen;
@@ -4975,6 +4977,10 @@
     var tsw = mnEl('mnTeaserSw');
     if (tsw) {
       tsw.onclick = function(){ var on = tsw.getAttribute('aria-checked') !== 'true'; tsw.disabled = true; teaser({ on:on }, on ? 'The Coming soon card is on the website.' : 'The Coming soon card is hidden.'); };
+      mnEl('mnTeaserDate').addEventListener('change', function(){
+        var d = mnEl('mnTeaserDate').value;
+        teaser({ date:d }, d ? 'The countdown now runs to ' + d + '.' : 'Countdown removed.');
+      });
       ['mnTeaserWhen', 'mnTeaserTitle'].forEach(function(id){
         mnEl(id).addEventListener('change', function(){
           var w = mnEl('mnTeaserWhen').value.trim(), t = mnEl('mnTeaserTitle').value.trim();
