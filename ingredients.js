@@ -57,9 +57,23 @@
   var GROUPS = [
     { key: 'shawarma', category: 'Shawarma', name_not: 'falafel' }, { key: 'falafel', category: 'Shawarma', name_has: 'falafel' },
     { key: 'frankie', category: 'Frankie Rolls' }, { key: 'bowl', category: 'Bowls', name_not: 'veggie' }, { key: 'veggie_bowl', category: 'Bowls', name_has: 'veggie' },
-    { key: 'loaded', category: 'Loaded Fries' }, { key: 'taco', category: 'Tacos' }
+    { key: 'loaded', category: 'Loaded Fries' }, { key: 'taco', category: 'Tacos' }, { key: 'platter', category: 'Platters' }
   ];
+  // Choices customers must pick (Platters: 1 base + 2 entrées). From the
+  // database (portal: Menu -> Platter choices); these are the starting ones.
+  var CHOICE_SETS = {
+    platter_base: { title: 'Choose your base', pick: 1, options: [{ key: 'white_jeera_rice', label: 'White Jeera Rice', veg: true, cents: 0, img: 'pick-jeera-rice.svg' }] },
+    platter_entrees: { title: 'Choose two entrées', pick: 2, options: [
+      { key: 'chana_masala', label: 'Chana Masala', veg: true, cents: 0, img: 'pick-chana-masala.svg' },
+      { key: 'butter_paneer', label: 'Butter Paneer', veg: true, cents: 0, img: 'pick-butter-paneer.svg' },
+      { key: 'paneer_tikka', label: 'Paneer Tikka', veg: true, cents: 0, img: 'pick-paneer-tikka.svg' },
+      { key: 'butter_chicken', label: 'Butter Chicken', veg: false, cents: 0, img: 'pick-butter-chicken.svg' },
+      { key: 'tikka_chicken', label: 'Tikka Chicken', veg: false, cents: 0, img: 'pick-tikka-chicken.svg' },
+      { key: 'spicy_chicken_curry', label: 'Spicy Chicken Curry', veg: false, cents: 0, img: 'pick-spicy-chicken-curry.svg' }] }
+  };
+  var GROUP_CHOICES = { platter: ['platter_base', 'platter_entrees'] };
   SETS.veggie_bowl = SETS.bowl.slice();
+  SETS.platter = []; ADDON_SETS.platter = [];
   var NOTE_MAX = 140;
   function setFor(item){
     if (!item) return null;
@@ -164,18 +178,114 @@
     return seen.map(function(k){ var n = addCount(keys, k); return addLabel(k) + (n > 1 ? ' \u00d7' + n : ''); }).join(', ');
   }
   function cleanNote(s){ return String(s || '').replace(/[\u0000-\u001f\u007f]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, NOTE_MAX); }
+  // ---- Choices to pick (Platters) ----
+  function choicesFor(item){
+    var s = setFor(item);
+    if (!s || (item && item.category === 'Deal Selections')) return [];
+    return (GROUP_CHOICES[s] || []).filter(function(k){ return CHOICE_SETS[k] && CHOICE_SETS[k].options.length; });
+  }
+  function choiceOpt(set, k){ var cs = CHOICE_SETS[set]; if (!cs) return null; for (var i = 0; i < cs.options.length; i++) if (cs.options[i].key === k) return cs.options[i]; return null; }
+  // {set: [keys]} with only real, switched-on choices, no repeats, at most "pick" each.
+  function cleanPicks(item, p){
+    var out = {}, any = false;
+    choicesFor(item).forEach(function(set){
+      var seen = [], cs = CHOICE_SETS[set];
+      // Only one way to choose (one base on offer): it's picked already.
+      if (cs.options.length === cs.pick) seen = cs.options.map(function(o){ return o.key; });
+      ((p && p[set]) || []).forEach(function(k){ if (choiceOpt(set, k) && seen.indexOf(k) === -1 && seen.length < CHOICE_SETS[set].pick) seen.push(k); });
+      if (seen.length) { out[set] = seen; any = true; }
+    });
+    return any ? out : null;
+  }
+  // Title of the first choice not fully picked yet ('' when all done).
+  function needsPicks(item, p){
+    var c = cleanPicks(item, p) || {}, sets = choicesFor(item);
+    for (var i = 0; i < sets.length; i++) if ((c[sets[i]] || []).length < CHOICE_SETS[sets[i]].pick) return CHOICE_SETS[sets[i]].title;
+    return '';
+  }
+  function pickPrice(p){
+    var t = 0;
+    Object.keys(p || {}).forEach(function(set){ (p[set] || []).forEach(function(k){ var o = choiceOpt(set, k); if (o) t += (Number(o.cents) || 0) / 100; }); });
+    return Math.round(t * 100) / 100;
+  }
+  function pickText(p){
+    if (!p) return '';
+    return Object.keys(p).filter(function(set){ return CHOICE_SETS[set]; }).map(function(set){
+      return (p[set] || []).map(function(k){ var o = choiceOpt(set, k); return o ? o.label + (o.veg ? ' (Veg)' : '') : ''; }).filter(Boolean).join(' + ');
+    }).filter(Boolean).join(' · ');
+  }
+  var VEG_BADGE = '<span class="ing-veg" title="Vegetarian"><i></i>Veg</span>';
+  // The pick blocks: tiles with photo, name, Veg badge, +price. [data-pick-set][data-pick]
+  function picksHtml(item, p){
+    var sets = choicesFor(item); if (!sets.length) return '';
+    var c = cleanPicks(item, p) || {};
+    return sets.map(function(set){
+      var cs = CHOICE_SETS[set], mine = c[set] || [];
+      return '<div class="ing-block ing-pick-block" data-pick-block="' + esc(set) + '">' +
+        '<div class="ing-head"><span class="ing-title">' + esc(cs.title) + '</span><span class="ing-hint ing-pick-hint">' + pickHint(cs, mine.length) + '</span></div>' +
+        '<div class="ing-pick-grid" role="group" aria-label="' + esc(cs.title) + '">' +
+        cs.options.map(function(o){
+          var n = mine.indexOf(o.key) + 1;
+          return '<button type="button" class="ing-pick' + (n ? ' is-on' : '') + '" data-pick-set="' + esc(set) + '" data-pick="' + esc(o.key) + '" aria-pressed="' + (n ? 'true' : 'false') + '">' +
+            '<span class="ing-pick-img"><img src="' + esc(o.img || 'item-platter.svg') + '" alt="" loading="lazy">' + (cs.pick > 1 ? '<b class="ing-pick-n">' + (n || '') + '</b>' : '<b class="ing-pick-n">\u2713</b>') + '</span>' +
+            '<span class="ing-pick-name">' + esc(o.label) + '</span>' +
+            '<span class="ing-pick-meta">' + (o.veg ? VEG_BADGE : '') + (Number(o.cents) > 0 ? '<span class="ing-pick-price">+' + money(o.cents / 100) + '</span>' : '') + '</span>' +
+          '</button>';
+        }).join('') + '</div></div>';
+    }).join('');
+  }
+  function pickHint(cs, n){ return cs.pick === 1 ? (n ? 'Picked' : 'Pick 1 \u00b7 Required') : n + ' of ' + cs.pick + ' picked' + (n < cs.pick ? ' \u00b7 Required' : ''); }
+  // Tap a tile: returns the new picks and updates the tiles in place.
+  // Pick 1: replaces. Pick 2+: adds until full; when full, tap a picked one to change.
+  function pickTap(item, p, el){
+    var set = el.getAttribute('data-pick-set'), k = el.getAttribute('data-pick'), cs = CHOICE_SETS[set];
+    var c = cleanPicks(item, p) || {}, mine = (c[set] || []).slice(), i = mine.indexOf(k), full = false;
+    if (!cs) return c;
+    if (i >= 0) mine.splice(i, 1);
+    else if (cs.pick === 1) mine = [k];
+    else if (mine.length < cs.pick) mine.push(k);
+    else full = true;
+    c[set] = mine;
+    var blk = el.closest('[data-pick-block]');
+    if (blk) {
+      blk.querySelectorAll('[data-pick]').forEach(function(b){
+        var n = mine.indexOf(b.getAttribute('data-pick')) + 1;
+        b.classList.toggle('is-on', !!n); b.setAttribute('aria-pressed', n ? 'true' : 'false');
+        var nb = b.querySelector('.ing-pick-n'); if (nb && cs.pick > 1) nb.textContent = n ? String(n) : '';
+      });
+      var h = blk.querySelector('.ing-pick-hint');
+      if (h) h.textContent = full ? 'You picked ' + cs.pick + '. Tap one to change it.' : pickHint(cs, mine.length);
+      blk.classList.toggle('need', false); blk.classList.toggle('full', full);
+      if (full) setTimeout(function(){ blk.classList.remove('full'); }, 600);
+    }
+    return c;
+  }
+  // Red "Required" on the first unpicked block, scrolled into view.
+  function askPicks(root, item, p){
+    var c = cleanPicks(item, p) || {}, sets = choicesFor(item);
+    for (var i = 0; i < sets.length; i++) {
+      if ((c[sets[i]] || []).length < CHOICE_SETS[sets[i]].pick) {
+        var b = root && root.querySelector('[data-pick-block="' + sets[i] + '"]');
+        if (b) { b.classList.add('need'); try { b.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {} }
+        return CHOICE_SETS[sets[i]].title;
+      }
+    }
+    return '';
+  }
   // Everything that makes a cart line different from a plain one.
   function custom(item, c){
     c = c || {};
     var o = { remove: clean(item, c.remove), add: cleanAdd(item, c.add), note: cleanNote(c.note) };
     var sp = cleanSpice(item, c.spice); if (sp) o.spice = sp;
+    var pk = cleanPicks(item, c.pick); if (pk) o.pick = pk;
     return o;
   }
-  function lineKey(c){ return [(c && c.remove || []).join(','), (c && c.add || []).join(','), cleanNote(c && c.note)].join('|') + (c && c.spice ? '|' + c.spice : ''); }
+  function pickKey(p){ return p ? Object.keys(p).sort().map(function(s){ return s + ':' + (p[s] || []).join('+'); }).join(';') : ''; }
+  function lineKey(c){ return [(c && c.remove || []).join(','), (c && c.add || []).join(','), cleanNote(c && c.note)].join('|') + (c && c.spice ? '|' + c.spice : '') + (c && c.pick ? '|' + pickKey(c.pick) : ''); }
   // One line for the cart / review: "No onions, + Extra sauce. Note: extra crispy"
   function summary(c){
     if (!c) return '';
-    var parts = [spiceText(c.spice), note(c.remove), addNote(c.add)].filter(Boolean).join(', ');
+    var parts = [pickText(c.pick), spiceText(c.spice), note(c.remove), addNote(c.add)].filter(Boolean).join(', ');
     var n = cleanNote(c.note);
     return parts + (n ? (parts ? '. ' : '') + 'Note: ' + n : '');
   }
@@ -249,6 +359,23 @@
       '.ing-chip.is-extra.is-added .ing-pic{border-style:solid;border-color:var(--ing-accent,#d62d20)}' +
       '.ing-chip.is-extra.is-added .ing-badge{background:var(--ing-accent,#d62d20);color:var(--ing-accent-ink,#fff);box-shadow:none}' +
       '.ing-spice{display:grid;grid-template-columns:repeat(3,1fr);gap:8px}' +
+      // Pick tiles (Platters): photo, name, Veg badge; number shows pick order.
+      '.ing-pick-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}' +
+      '.ing-pick{position:relative;display:flex;flex-direction:column;align-items:center;gap:4px;padding:8px 6px 10px;border-radius:16px;border:2px solid var(--ing-line,#e3e3e8);background:var(--ing-card,#fff);color:var(--ing-ink,#1d1d1f);font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent;text-align:center}' +
+      '.ing-pick.is-on{border-color:var(--ing-accent,#d62d20);box-shadow:0 0 0 2px var(--ing-accent,#d62d20) inset}' +
+      '.ing-pick-img{position:relative;width:100%;aspect-ratio:1;border-radius:12px;overflow:hidden;background:#f5f1ea}' +
+      '.ing-pick-img img{width:100%;height:100%;object-fit:cover;display:block}' +
+      '.ing-pick-n{position:absolute;top:6px;right:6px;width:26px;height:26px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:14px;font-weight:800;background:var(--ing-accent,#d62d20);color:#fff;opacity:0;transform:scale(.6);transition:.15s}' +
+      '.ing-pick.is-on .ing-pick-n{opacity:1;transform:scale(1)}' +
+      '.ing-pick-name{font-weight:700;font-size:14px;line-height:1.2}' +
+      '.ing-pick-meta{display:flex;gap:6px;align-items:center;justify-content:center;min-height:20px;flex-wrap:wrap}' +
+      '.ing-pick-price{font-size:12px;font-weight:700;color:var(--ing-muted,#6e6e73)}' +
+      '.ing-veg{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#1b7a2e;border:1.5px solid #1b7a2e;border-radius:6px;padding:1px 5px 1px 4px;background:#effaf0;line-height:1.4}' +
+      '.ing-veg i{width:8px;height:8px;border-radius:50%;background:#1b9a36;display:inline-block}' +
+      '.ing-pick-block.need .ing-pick-hint{color:#d62d20;font-weight:800}' +
+      '.ing-pick-block.need .ing-pick{border-color:#f1a39c}' +
+      '.ing-pick-block.full .ing-pick-hint{color:#d62d20;font-weight:800}' +
+      '@media (max-width:420px){.ing-pick-grid{grid-template-columns:repeat(2,1fr)}}' +
       '.ing-spice-btn{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;min-height:62px;padding:8px 6px;border-radius:14px;border:1.5px solid var(--ing-line,#e3e3e8);background:var(--ing-card,#fff);color:var(--ing-ink,#1d1d1f);font:inherit;font-weight:700;cursor:pointer;-webkit-tap-highlight-color:transparent}' +
       '.ing-spice-peps{font-size:15px;line-height:1;letter-spacing:-2px}' +
       // Picked: Mild light orange, Medium orange, Spicy red.
@@ -314,13 +441,22 @@
   var SB_URL = 'https://njcmcaoyzujijiyfardx.supabase.co', SB_KEY = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
   function applyOptions(d){
     if (!d || !Array.isArray(d.groups)) return false;
-    var ing = {}, add = {}, sets = {}, asets = {}, groups = [], spice = {};
+    var ing = {}, add = {}, sets = {}, asets = {}, groups = [], spice = {}, gch = {};
     Object.keys(d.ingredients || {}).forEach(function(k){ var v = d.ingredients[k] || {}; ing[k] = { label: String(v.label || k), img: v.img || 'ing-white-sauce.svg', hq: ING[k] && ING[k].img === v.img ? ING[k].hq : undefined }; });
     Object.keys(d.addons || {}).forEach(function(k){ var v = d.addons[k] || {}, c = Number(v.cents);
       if (!(c >= 0)) return;
       add[k] = { label: String(v.label || k), price: Math.round(c) / 100, img: v.img || 'ing-white-sauce.svg', hq: ADDONS[k] && ADDONS[k].img === v.img ? ADDONS[k].hq : undefined, ticket: v.ticket || null, where: v.included_grid ? 'included' : undefined, max: Number(v.max) >= 1 ? Math.min(ADD_MAX, Math.round(Number(v.max))) : 1 }; });
     d.groups.forEach(function(g){ if (!g || !g.key) return; groups.push({ key: String(g.key), category: g.category || '', name_has: g.name_has || null, name_not: g.name_not || null });
-      sets[g.key] = (g.ingredients || []).map(String); asets[g.key] = (g.addons || []).map(String); if (g.spice === true) spice[g.key] = true; });
+      sets[g.key] = (g.ingredients || []).map(String); asets[g.key] = (g.addons || []).map(String); if (g.spice === true) spice[g.key] = true;
+      if (Array.isArray(g.choices)) gch[g.key] = g.choices.map(String); });
+    if (d.choice_sets && typeof d.choice_sets === 'object') {
+      Object.keys(CHOICE_SETS).forEach(function(k){ delete CHOICE_SETS[k]; });
+      Object.keys(d.choice_sets).forEach(function(k){ var v = d.choice_sets[k] || {};
+        CHOICE_SETS[k] = { title: String(v.title || k), pick: Math.max(1, Math.min(5, Number(v.pick) || 1)),
+          options: (v.options || []).filter(function(o){ return o && o.key; }).map(function(o){ return { key: String(o.key), label: String(o.label || o.key), veg: o.veg === true, cents: Math.max(0, Number(o.cents) || 0), img: o.img || null }; }) }; });
+      Object.keys(GROUP_CHOICES).forEach(function(k){ delete GROUP_CHOICES[k]; });
+      Object.keys(gch).forEach(function(k){ GROUP_CHOICES[k] = gch[k]; });
+    }
     // Older database (spice not set up yet): keep the built-in spice list.
     var hasSpiceCol = d.groups.some(function(g){ return g && typeof g.spice === 'boolean'; });
     if (hasSpiceCol) { Object.keys(SPICE).forEach(function(k){ delete SPICE[k]; }); Object.keys(spice).forEach(function(k){ SPICE[k] = true; }); }
@@ -348,10 +484,15 @@
     ADDONS: ADDONS, addonsFor: addonsFor, cleanAdd: cleanAdd, addPrice: addPrice, addNote: addNote, addStep: addStep, addFocus: addFocus, addCount: addCount, addMax: addMax, ADD_MAX: ADD_MAX,
     addonsHtml: addonsHtml, noteHtml: noteHtml, cleanNote: cleanNote, custom: custom, lineKey: lineKey, summary: summary,
     hasSpice: hasSpice, cleanSpice: cleanSpice, needsSpice: needsSpice,
+    // Platter choices
+    choicesFor: choicesFor, picksHtml: picksHtml, pickTap: pickTap, cleanPicks: cleanPicks, needsPicks: needsPicks, askPicks: askPicks,
+    pickPrice: pickPrice, pickText: pickText, CHOICE_SETS: CHOICE_SETS, VEG_BADGE: VEG_BADGE,
+    // Must open the item window before adding (spice level or choices to pick).
+    mustOpen: function(item){ return hasSpice(item) || choicesFor(item).length > 0; },
     // Shows "Required" in red on the spice row and scrolls to it.
     askSpice: function(root){ var b = root && root.querySelector('.ing-spice-block'); if (!b) return; b.classList.add('need'); try { b.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {} }, spiceHtml: spiceHtml, spicePick: spicePick, spiceText: spiceText, SPICE_LEVELS: SPICE_LEVELS,
     // True when the item has anything to customize (included, add-ons, spice).
-    customizable: function(item){ return included(item).length > 0 || addonsFor(item).length > 0 || hasSpice(item); },
+    customizable: function(item){ return included(item).length > 0 || addonsFor(item).length > 0 || hasSpice(item) || choicesFor(item).length > 0; },
     key: function(keys){ return (keys || []).join(','); }
   };
 })();
