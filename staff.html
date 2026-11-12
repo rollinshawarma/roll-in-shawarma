@@ -2228,9 +2228,8 @@
       <p class="hint">How event orders show in the kitchen. Open it at the station: <b>Corporate Lunch</b>. Each order is one ticket: <b>Fire</b> starts it, <b>Ready</b> prints it on the Square printer, <b>Picked up</b> clears it.</p>
       <div class="lb-set">
         <div class="lb-form">
-          <label for="lbMainView">Main station opens in</label>
-          <select id="lbMainView"><option value="items">Items view (item prep columns)</option><option value="tickets">Tickets view (whole orders, one tap each)</option></select>
-          <p class="hint" style="margin-top:-4px">Each kitchen screen can still switch with its Tickets / Items button; that choice is remembered on the screen.</p>
+          <!-- The kitchen always shows the Tickets view now (Items view retired, Nov 2026). -->
+          <select id="lbMainView" hidden aria-hidden="true"><option value="tickets">Tickets view</option></select>
           <label for="lbMain">Where event orders show</label>
           <select id="lbMain"><option value="0">Only on the Corporate Lunch board (recommended)</option><option value="1">Corporate Lunch board and the main / sub stations</option></select>
           <div class="ad-pair">
@@ -4627,7 +4626,7 @@
   // Square is synced automatically a few seconds after item changes.
   var mn = { d:null, cat:'', q:'', reorder:false, item:null, group:null, ing:[], ext:[], avail:true, photo:'', sq:'', sqTimer:null, sqBusy:false };
   var MN_CAT_PICS = { 'Shawarma':'menu-shawarma.jpg', 'Frankie Rolls':'menu-frankie.jpg', 'Bowls':'menu-bowl.jpg', 'Tacos':'menu-tacos.jpg', 'Loaded Fries':'menu-fries.jpg', 'Sides':'menu-samosas.jpg', 'Kulfi Ice Cream':'item-almond-kulfi.jpg', 'Drinks':'menu-falooda.jpg',
-    'Platters':'item-platter.svg', 'Desserts':'item-gulab-jamun.svg', 'Wings & Burritos':'menu-wings-burritos.svg', 'Secret Menu':'secret-menu.svg' };
+    'Platters':'menu-platters.jpg', 'Desserts':'menu-desserts.jpg', 'Wings & Burritos':'menu-wings-burritos.jpg', 'Secret Menu':'secret-menu.svg' };
   var MN_NO_CHOICES = /^(Deal Selections|Combo Add-ons)$/;
   function mnEl(id){ return document.getElementById(id); }
   function mnMsg(el, text, ok){ el = typeof el === 'string' ? mnEl(el) : el; if (!el) return; el.innerHTML = text ? '<div class="msg ' + (ok ? 'ok' : 'error') + '">' + esc(text) + '</div>' : ''; if (ok && text) { clearTimeout(el._t); el._t = setTimeout(function(){ el.innerHTML = ''; }, 4000); } }
@@ -5024,7 +5023,7 @@
       if (!label) return mnMsg('mnPMsg', 'Type the option&rsquo;s name.'.replace('&rsquo;', '\u2019'));
       if (isNaN(pr) || pr < 0 || pr > 100) return mnMsg('mnPMsg', 'Enter an extra price from $0 to $100.');
       add.querySelector('button').disabled = true;
-      mnPSave('menu_admin_save_choice', { set_key:key, label:label, veg:ins[1].checked, price_cents:Math.round(pr * 100), img:'item-platter.svg', active:true }, label + ' added. Tap its photo to change it.');
+      mnPSave('menu_admin_save_choice', { set_key:key, label:label, veg:ins[1].checked, price_cents:Math.round(pr * 100), img:'item-build-your-platter.jpg', active:true }, label + ' added. Tap its photo to change it.');
     };
   }
   function mnPUpload(file, done){
@@ -7495,7 +7494,7 @@
   }
   function lbFill(s){
     var g = function(id){ return document.getElementById(id); };
-    g('lbMainView').value = s.main_view === 'tickets' ? 'tickets' : 'items';
+    g('lbMainView').value = 'tickets';
     g('lbMain').value = s.also_main ? '1' : '0'; g('lbCols').value = s.columns || 'three'; g('lbSize').value = s.ticket_size || 'regular';
     g('lbTarget').value = s.target_min || 10; g('lbTagFryer').value = s.tag_fryer || 'Fryer'; g('lbTagLine').value = s.tag_line || 'Line'; g('lbTagWindow').value = s.tag_window || 'Window';
     g('lbWords').value = s.fryer_words || '';
