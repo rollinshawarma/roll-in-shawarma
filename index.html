@@ -254,6 +254,9 @@
   .ws-step button{ width:38px; height:42px; font-size:20px; color:#fff; }
   .ws-step span{ min-width:24px; text-align:center; font-weight:700; font-size:15px; }
   .ws-soldout{ display:inline-block; font-size:13px; font-weight:600; color:var(--muted); background:var(--panel); padding:6px 10px; border-radius:999px; }
+  .ws-soon{ display:inline-block; font-size:12.5px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:#7a4a00; background:#ffe9bf; padding:6px 11px; border-radius:999px; }
+  .ws-tile.is-soon .ws-photo img{ filter:grayscale(.85); opacity:.6; }
+  .mn-meta.is-soon{ color:#a86400; font-weight:700; }
   .ws-tile.is-soldout .ws-photo img{ filter:grayscale(1); opacity:.45; }
   .ws-tile.is-soldout .ws-name, .ws-tile.is-soldout .ws-price{ color:var(--muted); }
   .ws-tile.is-soldout .ws-open{ cursor:default; }
@@ -3344,7 +3347,9 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     var wsSections = [], wsGroups = {}, wsComboAddons = {};
     function wsEl(id){ return document.getElementById(id); }
     function wsMoney(n){ return '$' + Number(n).toFixed(2); }
-    function wsAvail(i){ return !!i && i.is_available !== false; }
+    // "Coming soon" items (new-menu-launch.sql) show greyed out and can't be ordered yet.
+    function wsAvail(i){ return !!i && i.is_available !== false && i.coming_soon !== true; }
+    function wsSoon(g){ return g.items.every(function(i){ return i.coming_soon === true; }); }
     function wsSlug(n){ return String(n).toLowerCase().replace(/[()]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
     // Secret menu code names (secret-menu.sql): the dish's code name, real name under it.
     function wsTitle(g){
@@ -3483,7 +3488,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         var n = sec.groups.length;
         return '<button type="button" class="mn-row' + (sec.cat === 'Secret Menu' ? ' mn-secret' : '') + '" data-ws-cat="' + i + '">' +
           '<span class="mn-thumb' + (cut ? '' : ' is-photo') + '">' + (img ? '<img src="' + escHtml(img) + '" alt="" loading="lazy" onerror="this.remove()">' : '') + '</span>' +
-          '<span class="mn-name">' + escHtml(sec.cat) + (wsTacoDay && sec.cat === 'Tacos' && window.RollinDeals ? '<span class="mn-deal">' + wsMoney(window.RollinDeals.tacoPrice) + ' today</span>' : '') + '<span class="mn-meta">' + n + (n === 1 ? ' item' : ' items') + '</span></span>' +
+          '<span class="mn-name">' + escHtml(sec.cat) + (wsTacoDay && sec.cat === 'Tacos' && window.RollinDeals ? '<span class="mn-deal">' + wsMoney(window.RollinDeals.tacoPrice) + ' today</span>' : '') + (sec.groups.every(wsSoon) ? '<span class="mn-meta is-soon">Coming soon \u00b7 ' + n + (n === 1 ? ' item' : ' items') + '</span>' : '<span class="mn-meta">' + n + (n === 1 ? ' item' : ' items') + '</span>') + '</span>' +
           '<svg class="mn-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"></polyline></svg>' +
         '</button>';
       }).join('');
@@ -3514,11 +3519,11 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       return (g.items.length > 1 && min !== max ? 'From ' : '') + wsMoney(min);
     }
     function wsTileHtml(g){
-      var soldOut = !g.items.some(wsAvail);
+      var soldOut = !g.items.some(wsAvail), soon = wsSoon(g);
       var price = wsGroupPrice(g);
-      return '<article class="ws-tile' + (soldOut ? ' is-soldout' : '') + '" data-ws-group="' + escHtml(g.key) + '">' +
+      return '<article class="ws-tile' + (soldOut ? ' is-soldout' : '') + (soon ? ' is-soon' : '') + '" data-ws-group="' + escHtml(g.key) + '">' +
         '<button type="button" class="ws-open" data-ws-open="' + escHtml(g.key) + '"' + (soldOut ? ' disabled' : '') +
-          ' aria-label="' + escHtml(g.name + ', ' + price.replace(/<[^>]+>/g, '') + (soldOut ? ', sold out' : ', see details')) + '">' +
+          ' aria-label="' + escHtml(g.name + ', ' + price.replace(/<[^>]+>/g, '') + (soon ? ', coming soon' : soldOut ? ', sold out' : ', see details')) + '">' +
           '<span class="ws-photo">' + wsPhoto(g.items[0], g.cat, g.name) + '</span>' +
           '<span class="ws-body"><span class="ws-name">' + wsTitle(g) + '</span>' +
           (g.items[0].description ? '<span class="ws-blurb">' + escHtml(g.items[0].description) + '</span>' : '') +
@@ -3529,6 +3534,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       '</article>';
     }
     function wsActionHtml(g){
+      if (wsSoon(g)) return '<span class="ws-soon">Coming soon</span>';
       if (!g.items.some(wsAvail)) return '<span class="ws-soldout">Sold out</span>';
       if (g.items.length > 1) {
         var qty = g.items.reduce(function(sum, i){ return sum + qtyOfItem(i.id); }, 0);
