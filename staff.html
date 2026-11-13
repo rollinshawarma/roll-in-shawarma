@@ -4670,7 +4670,7 @@
   // Square is synced automatically a few seconds after item changes.
   var mn = { d:null, cat:'', q:'', reorder:false, item:null, group:null, ing:[], ext:[], avail:true, photo:'', sq:'', sqTimer:null, sqBusy:false };
   var MN_CAT_PICS = { 'Shawarma':'menu-shawarma.jpg', 'Frankie Rolls':'menu-frankie.jpg', 'Bowls':'menu-bowl.jpg', 'Tacos':'menu-tacos.jpg', 'Loaded Fries':'menu-fries.jpg', 'Sides':'menu-samosas.jpg', 'Kulfi Ice Cream':'item-almond-kulfi.jpg', 'Drinks':'menu-falooda.jpg',
-    'Platters':'menu-platters.jpg', 'Desserts':'menu-desserts.jpg', 'Wings':'menu-wings.jpg', 'Burritos':'menu-burritos.jpg', 'Secret Menu':'secret-menu.svg' };
+    'Platters':'menu-platters.jpg', 'Desserts':'menu-desserts.jpg', 'Wings':'item-wings-tandoori.jpg', 'Burritos':'item-cali-burrito-butter-chicken.jpg', 'Secret Menu':'secret-menu.svg' };
   var MN_NO_CHOICES = /^(Deal Selections|Combo Add-ons)$/;
   function mnEl(id){ return document.getElementById(id); }
   function mnMsg(el, text, ok){ el = typeof el === 'string' ? mnEl(el) : el; if (!el) return; el.innerHTML = text ? '<div class="msg ' + (ok ? 'ok' : 'error') + '">' + esc(text) + '</div>' : ''; if (ok && text) { clearTimeout(el._t); el._t = setTimeout(function(){ el.innerHTML = ''; }, 4000); } }
