@@ -1245,6 +1245,15 @@
   .mn-l-acts{ display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
   .mn-l-acts button{ width:auto; }
   .mn-tag.soon{ background:#fff1d6; color:#8a5a00; }
+  .mn-tag.cs{ background:#ffe9bf; color:#7a4a00; }
+  .mn-launch.soon{ border-color:#f1c56b; background:linear-gradient(135deg,#fff6e3,#fff); }
+  .mn-launch.soon .mn-l-kicker{ background:#ffe1a3; color:#7a4a00; }
+  .mn-l-modes{ display:flex; margin-top:12px; padding:4px; gap:4px; border-radius:14px; background:#f1eee8; }
+  .mn-l-modes button{ flex:1; width:auto; min-height:0; padding:10px 8px; border:0; border-radius:10px; background:transparent; color:#555; font-weight:700; font-size:14px; }
+  .mn-l-modes button.on{ background:#fff; color:#1d1d1f; box-shadow:0 1px 3px rgba(0,0,0,.12); }
+  .mn-l-modes button.on.m-soon{ background:#9a9a9f; color:#fff; }
+  .mn-l-modes button.on.m-live{ background:#1f8a4c; color:#fff; }
+  .mn-l-modes button:disabled{ opacity:.6; }
   /* Banner tab: "Coming soon" promo switch (new-menu-launch.sql) */
   .sp-top{ display:flex; gap:16px; align-items:flex-start; justify-content:space-between; }
   .sp-top h2{ margin-bottom:4px; }
@@ -4718,7 +4727,7 @@
     var left = mn.reorder && !isRemoved && !mn.q
       ? '<div class="mn-mv"><button type="button" data-mv="-1" aria-label="Move ' + esc(i.name) + ' up"' + (ix === 0 ? ' disabled' : '') + '>▲</button><button type="button" data-mv="1" aria-label="Move ' + esc(i.name) + ' down"' + (ix === n - 1 ? ' disabled' : '') + '>▼</button></div>' : '';
     var soon = mnSoon()[i.id];
-    var tags = (!i.is_available && !isRemoved ? '<span class="mn-tag out">Sold out</span>' : '') + (i.platinum_only ? '<span class="mn-tag sec">Secret</span>' : '') + (soon ? '<span class="mn-tag soon" title="' + esc(soon) + '">Changes at launch</span>' : '');
+    var tags = (!i.is_available && !isRemoved ? '<span class="mn-tag out">Sold out</span>' : '') + (i.platinum_only ? '<span class="mn-tag sec">Secret</span>' : '') + (i.coming_soon ? '<span class="mn-tag cs">Coming soon</span>' : soon ? '<span class="mn-tag soon" title="' + esc(soon) + '">Changes at launch</span>' : '');
     var right = isRemoved ? '<button type="button" class="btn-ghost btn-small mn-restore" data-restore>Put back</button>'
       : mn.reorder ? '' : '<div class="mn-money"><span>$</span><input type="number" min="0" step="0.01" inputmode="decimal" value="' + mnPrice(i.price) + '" data-price aria-label="Price of ' + esc(i.name) + '"></div>' +
         '<button type="button" class="switch" role="switch" data-avail aria-checked="' + (i.is_available ? 'true' : 'false') + '" aria-label="' + esc(i.name) + ' on sale"></button>';
@@ -4970,15 +4979,20 @@
     }
     box.classList.toggle('hidden', !list.length);
     if (!list.length) { box.innerHTML = ''; return; }
-    var l = list[0];
-    box.classList.toggle('live', !!l.live);
+    var l = list[0], mode = l.mode || (l.live ? 'live' : l.preview ? 'soon' : 'hidden');
+    box.classList.toggle('live', mode === 'live'); box.classList.toggle('soon', mode === 'soon');
     var items = (mn.d && mn.d.items) || [];
-    box.innerHTML = '<div class="mn-l-top"><div><span class="mn-l-kicker">' + (l.live ? 'New menu \u00b7 Live' : 'New menu \u00b7 Coming soon') + '</span>' +
-      '<h3>' + esc(l.title) + '</h3><p class="hint">' + (l.live
-        ? 'Showing on the website, QR page and kiosk' + (l.by ? ' \u00b7 turned on by ' + esc(l.by) + (l.at ? ', ' + esc(mnWhen(l.at)) : '') : '') + '. Switch off to hide it again: everything goes back exactly as it was.'
-        : 'Ready but hidden from customers' + (l.by ? ' \u00b7 last switched by ' + esc(l.by) + (l.at ? ', ' + esc(mnWhen(l.at)) : '') : '') + '. Set prices and photos below, then switch it on when you&rsquo;re ready.') + '</p></div>' +
-      '<label class="mn-l-sw"><button type="button" class="switch" role="switch" id="mnLaunchSw" aria-checked="' + (l.live ? 'true' : 'false') + '" aria-label="Show the new menu to customers"></button>' + (l.live ? 'On' : 'Off') + '</label></div>' +
-      '<details class="mn-l-list"' + (l.live ? '' : ' open') + '><summary>What changes (' + (l.changes || []).length + ')</summary>' +
+    var who = l.by ? ' \u00b7 ' + esc(l.by) + (l.at ? ', ' + esc(mnWhen(l.at)) : '') : '';
+    var MODES = [['hidden', 'Hidden'], ['soon', 'Coming soon'], ['live', 'Live']];
+    box.innerHTML = '<div class="mn-l-top"><div><span class="mn-l-kicker">New menu \u00b7 ' + (mode === 'live' ? 'Live' : mode === 'soon' ? 'Coming soon' : 'Hidden') + '</span>' +
+      '<h3>' + esc(l.title) + '</h3><p class="hint">' + (
+        mode === 'live' ? 'Customers can order it on the website, QR page and kiosk' + who + '.'
+        : mode === 'soon' ? 'On the website and QR page now, <b>greyed out with &ldquo;Coming soon&rdquo;</b>. Nobody can order these yet (not on the kiosk either)' + who + '. Tap <b>Live</b> on launch day.'
+        : 'Ready but hidden from customers' + who + '. Tap <b>Coming soon</b> to show it greyed out, or <b>Live</b> to launch.') + '</p></div></div>' +
+      '<div class="mn-l-modes" role="radiogroup" aria-label="New menu on the website">' + MODES.map(function(m){
+        return '<button type="button" role="radio" data-mode="' + m[0] + '" aria-checked="' + (mode === m[0]) + '" class="' + (mode === m[0] ? 'on m-' + m[0] : '') + '">' + m[1] + '</button>';
+      }).join('') + '</div>' +
+      '<details class="mn-l-list"' + (mode === 'hidden' ? ' open' : '') + '><summary>What changes (' + (l.changes || []).length + ')</summary>' +
       (l.changes || []).map(function(c){
         var it = items.find(function(x){ return x.id === c.id; }) || {};
         return '<div class="mn-l-row"><span class="mn-thumb">' + mnImg(it.image_url || mnStdPhoto(c.name), it.category || '') + '</span><div class="t">' + esc(c.name) +
@@ -5013,20 +5027,23 @@
         });
       });
     }
-    mnEl('mnLaunchSw').onclick = function(){
-      var sw = this, on = !l.live;
-      var msg = on ? 'Show the new menu now?\n\n\u2022 Platters and Desserts appear\n\u2022 Falooda moves from Drinks to Desserts\n\u2022 Secret menu items join the regular menu (the Platinum secret menu teaser turns off)\n\nCustomers see it within a minute.'
-        : 'Hide the new menu again?\n\nEverything goes back exactly as it was before launch.';
+    box.querySelectorAll('[data-mode]').forEach(function(b){ b.onclick = function(){
+      var to = b.dataset.mode; if (to === mode) return;
+      var msg = to === 'live' ? 'Launch the new menu now?\n\n\u2022 Platters, Wings, Burritos and Desserts can be ordered (website, QR page and kiosk)\n\u2022 Falooda is in Desserts\n\u2022 The Platinum secret menu teaser turns off (those items are now regular)\n\u2022 The website\u2019s Coming soon card goes away\n\nCustomers see it within a minute.'
+        : to === 'soon' ? 'Show the new menu as Coming soon?\n\n\u2022 Platters, Wings, Burritos and Desserts appear on the website and QR page, greyed out with \u201cComing soon\u201d\n\u2022 Nobody can order them yet, and they stay off the kiosk\n\u2022 Falooda moves to Desserts (still orderable)\n\u2022 The Platinum secret menu teaser turns off'
+        : 'Hide the new menu again?\n\nEverything goes back exactly as it was before.';
       if (!window.confirm(msg)) return;
-      sw.disabled = true;
-      sb.rpc('staff_menu_launch_set', { p_key:l.key, p_live:on }).then(function(r){
-        sw.disabled = false;
+      box.querySelectorAll('[data-mode]').forEach(function(x){ x.disabled = true; });
+      sb.rpc('staff_menu_launch_mode', { p_key:l.key, p_mode:to }).then(function(r){
+        if (r.error && /staff_menu_launch_mode|schema cache|does not exist/i.test(r.error.message || '') && to !== 'soon') return sb.rpc('staff_menu_launch_set', { p_key:l.key, p_live: to === 'live' });
+        return r;
+      }).then(function(r){
         if (r.error) throw r.error;
-        mn.launch = r.data || []; mnLaunchRender();
-        mnMsg('mnMsg', on ? 'The new menu is live.' : 'The new menu is hidden again.', true);
-        return mnRpc('menu_admin_get').then(function(){ mnRender(); mnSqQueue(); });
-      }).catch(function(e){ sw.disabled = false; mnMsg('mnMsg', mnErr(e)); });
-    };
+        mn.launch = r.data || []; mnLaunchRender(); soonP.l = mn.launch[0] || soonP.l; soonRender();
+        mnMsg('mnMsg', to === 'live' ? 'The new menu is live.' : to === 'soon' ? 'The new menu shows as Coming soon (greyed out).' : 'The new menu is hidden again.', true);
+        return mnRpc('menu_admin_get').then(function(){ mnRender(); if (to === 'live') mnSqQueue(); });
+      }).catch(function(e){ mnLaunchRender(); mnMsg('mnMsg', /staff_menu_launch_mode/.test(String(e && e.message)) ? 'Run the latest new-menu-launch.sql in Supabase first.' : mnErr(e)); });
+    }; });
   }
 
   // ---- Banner tab: on/off switch for the website's "Coming soon" promo.
@@ -5042,6 +5059,7 @@
     var days = '';
     if (l.teaser_date) { var ms = Date.UTC(+l.teaser_date.slice(0, 4), +l.teaser_date.slice(5, 7) - 1, +l.teaser_date.slice(8, 10), 5) - Date.now(); if (ms > 0) days = Math.ceil(ms / 86400000) + ' days to go \u00b7 '; }
     st.innerHTML = l.live ? 'The new menu is <b>live</b>, so the promo is off. It only shows before launch.'
+      : on && l.preview ? '<b>On:</b> showing above the menu. The new sections are also on the menu, greyed out with &ldquo;Coming soon&rdquo;.'
       : on ? '<b>On:</b> showing above the menu on the website until you launch the new menu.'
       : '<b>Off:</b> hidden from the website. Switch on to show it above the menu.';
     pv.classList.remove('hidden'); pv.classList.toggle('off', !on || !!l.live);
