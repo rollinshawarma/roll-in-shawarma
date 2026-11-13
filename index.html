@@ -397,6 +397,8 @@
   .tile.nt-tile.wide .tile-img img{ height:400px; }
   .tile.nt-tile.fit .tile-img img{ object-fit:contain; background:transparent; }
   .tile.nt-tile:hover .tile-img img{ transform:scale(1.02); }
+  /* Platter: the whole photo fills the tile; it's blurred and dimmed behind the text. */
+  .tile.nt-tile.cream{ background:#f6ecdc; }
   .nt-soon-note{ font-size:14px; font-weight:700; color:#8a5a00; background:#ffe9bf; padding:9px 16px; border-radius:999px; }
   .tile.dark .nt-soon-note{ background:#3a2a10; color:#ffd479; }
   @media (max-width:760px){
@@ -1072,6 +1074,7 @@ body:has(.cart-drawer:not(.hidden)) .wp, body:has(.ws-sheet:not([hidden])) .wp, 
 .cart-upsell.ups-sweet::before{ background:linear-gradient(100deg, rgba(28,12,30,0.94) 0%, rgba(28,12,30,0.80) 46%, rgba(28,12,30,0.30) 78%, rgba(28,12,30,0.10) 100%); }
 .cart-upsell.ups-photo > *:not(.ups-x){ position:relative; }
 .cart-upsell.ups-photo .ups-x{ z-index:1; color:rgba(255,255,255,0.85); }
+.cart-upsell .ups-chip.ups-chip-new{ background:#f2a20c; color:#2b1300; border-color:#f2a20c; font-weight:700; }
 .cart-upsell.ups-photo .ups-x:hover{ background:rgba(255,255,255,0.15); }
 .ups-meal-tag{ display:inline-block; font:700 11px/1 inherit; letter-spacing:.12em; text-transform:uppercase; color:#ffc76b; margin-bottom:6px; }
 .ups-sweet .ups-meal-tag{ color:#f5b8e8; }
@@ -1580,13 +1583,13 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     <p>Curry platters, wings and Cali burritos, with something sweet to finish.</p>
   </div>
   <div class="tiles">
-    <article class="tile wide dark nt-tile" data-new-cat="Platters">
+    <article class="tile wide nt-tile cream" data-new-cat="Platters">
       <span class="nt-badge"></span>
       <h3>Build Your Platter</h3>
       <p>Jeera rice with any two curries, like butter chicken, paneer tikka or chana masala. Add naan for a second base.</p>
       <p class="tile-price" data-nt-price="Platters">Two curries over jeera rice, $12.99</p>
       <div class="tile-ctas">
-        <a class="btn btn-white btn-sm" href="#menu" data-order-cat="Platters">Order now</a>
+        <a class="btn btn-dark btn-sm" href="#menu" data-order-cat="Platters">Order now</a>
         <a class="link link-more" href="#menu" data-order-cat="Platters">See options</a>
       </div>
       <div class="tile-img"><img src="item-build-your-platter.jpg" alt="A platter of jeera rice with two curries" loading="lazy" onerror="this.parentNode.remove()"></div>
@@ -3188,10 +3191,12 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       }
       var hasSweet = cart.some(function(l){ var it = itemsById[l.menu_item_id]; return it && (it.category === 'Kulfi Ice Cream' || it.category === 'Desserts'); });
       if (!upsDismissed.sweet && !hasSweet && cartTotal() >= 8) {
-        var kulfi = Object.keys(itemsById).map(function(k){ return itemsById[k]; })
-          .filter(function(it){ return it.category === 'Kulfi Ice Cream' && wsAvail(it); })
+        // Gulab jamun first (when it's on the menu and orderable), then the kulfis.
+        var all = Object.keys(itemsById).map(function(k){ return itemsById[k]; });
+        var gulab = all.filter(function(it){ return /gulab jamun/i.test(it.name) && wsAvail(it); });
+        var kulfi = all.filter(function(it){ return it.category === 'Kulfi Ice Cream' && wsAvail(it); })
           .sort(function(a, b){ return (a.display_order || 0) - (b.display_order || 0); });
-        if (kulfi.length) return { kind: 'sweet', items: kulfi };
+        if (gulab.length || kulfi.length) return { kind: 'sweet', items: gulab.slice(0, 1).concat(kulfi), gulab: gulab.length > 0 };
       }
       return null;
     }
@@ -3217,12 +3222,16 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
           }).join('') + '</div>';
       } else if (p.kind === 'sweet') {
         // Background photo: upload something-sweet.jpg (kulfi) next to index.html.
-        var from = Math.min.apply(null, p.items.map(function(it){ return Number(it.price); }));
+        var prices = p.items.map(function(it){ return Number(it.price); }), from = Math.min.apply(null, prices), to = Math.max.apply(null, prices);
         html = '<span class="ups-meal-tag">Dessert</span>' +
-          '<div class="ups-meal-head"><b>Something sweet?</b><span class="ups-meal-price">$' + from.toFixed(2) + '</span></div>' +
-          '<span class="ups-meal-sub">Creamy kulfi, the best way to finish.</span>' +
-          '<span class="ups-meal-pick">Pick a flavor</span>' +
-          '<div class="ups-chips">' + p.items.map(function(it){ return '<button type="button" class="ups-chip" data-ups-add="' + escHtml(String(it.id)) + '">' + escHtml(it.name.replace(/\s*Kulfi$/i, '')) + '</button>'; }).join('') + '</div>';
+          '<div class="ups-meal-head"><b>Something sweet?</b><span class="ups-meal-price">' + (to > from ? 'from ' : '') + '$' + from.toFixed(2) + '</span></div>' +
+          '<span class="ups-meal-sub">' + (p.gulab ? 'Warm gulab jamun with ice cream, or a creamy kulfi.' : 'Creamy kulfi, the best way to finish.') + '</span>' +
+          '<span class="ups-meal-pick">Pick one</span>' +
+          '<div class="ups-chips">' + p.items.map(function(it){
+            var gj = /gulab jamun/i.test(it.name);
+            return '<button type="button" class="ups-chip' + (gj ? ' ups-chip-new' : '') + '" data-ups-add="' + escHtml(String(it.id)) + '">' +
+              escHtml(gj ? 'Gulab Jamun + Ice Cream \u00b7 $' + Number(it.price).toFixed(2) : it.name.replace(/\s*Kulfi$/i, '')) + '</button>';
+          }).join('') + '</div>';
       } else {
         var member = document.body.classList.contains('member-mode');
         html = '<b>Feeding a group?</b><span>' + (member ? 'Our group deals bundle 4 or more items for less.' : 'Members get group deals like the Family Deal. Joining is free and takes a minute.') + '</span>' +
@@ -3407,7 +3416,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       'Shawarma': 'menu-shawarma.jpg', 'Frankie Rolls': 'menu-frankie.jpg',
       'Bowls': 'menu-bowl.jpg', 'Tacos': 'menu-tacos.jpg',
       'Loaded Fries': 'item-tandoori-chicken-loaded-fries.jpg', 'Sides': 'menu-samosas.jpg',
-      'Kulfi Ice Cream': 'item-almond-kulfi.jpg', 'Drinks': 'item-mango-lassi.jpg',
+      'Kulfi Ice Cream': 'item-almond-kulfi.jpg', 'Drinks': 'item-sharbat-soda.jpg',
       'Platters': 'menu-platters.jpg', 'Desserts': 'menu-desserts.jpg', 'Wings': 'item-wings-tandoori.jpg', 'Burritos': 'item-cali-burrito-butter-chicken.jpg'
     };
     // Transparent cut-out photos for the category list (Chick-fil-A style);
