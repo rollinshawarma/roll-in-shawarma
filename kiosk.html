@@ -1394,6 +1394,8 @@
         // same rule as the website, QR page and checkout server).
         kioskTacoDay = window.RollinDeals ? window.RollinDeals.applyTacoPricing(res.data) : null;
         kioskSecret.concat(res.data).forEach(function(item){
+          // "Coming soon" items (new-menu-launch.sql) stay off the kiosk until launch.
+          if (item.coming_soon === true) return;
           itemsById[item.id] = item;
           if (item.category === 'Combo Add-ons') comboAddonsByName[item.name] = item;
           if (item.category === 'Deals') dealsByName[item.name] = item;
