@@ -62,8 +62,9 @@
   // Choices customers must pick (Platters: 1 base + 2 entrées). From the
   // database (portal: Menu -> Platter choices); these are the starting ones.
   var CHOICE_SETS = {
-    platter_base: { title: 'Choose your base', pick: 1, options: [
-      { key: 'white_jeera_rice', label: 'White Jeera Rice', veg: false, cents: 0, img: 'pick-white-jeera-rice.jpg' },
+    platter_base: { title: 'Your base', pick: 1, options: [{ key: 'white_jeera_rice', label: 'White Jeera Rice', veg: false, cents: 0, img: 'pick-white-jeera-rice.jpg' }] },
+    // Optional extra: customers may skip it.
+    platter_naan: { title: 'Add a second base', pick: 1, optional: true, options: [
       { key: 'tandoori_naan', label: 'Tandoori Naan (2)', veg: false, cents: 399, img: 'pick-tandoori-naan.jpg' },
       { key: 'garlic_naan', label: 'Garlic Naan (2)', veg: false, cents: 499, img: 'pick-garlic-naan.jpg' }] },
     platter_entrees: { title: 'Choose two entrées', pick: 2, options: [
@@ -74,7 +75,7 @@
       { key: 'tikka_chicken', label: 'Tikka Chicken', veg: false, cents: 0, img: 'pick-tikka-chicken.jpg' },
       { key: 'spicy_chicken_curry', label: 'Spicy Chicken Curry', veg: false, cents: 0, img: 'pick-spicy-chicken-curry.jpg' }] }
   };
-  var GROUP_CHOICES = { platter: ['platter_base', 'platter_entrees'] };
+  var GROUP_CHOICES = { platter: ['platter_base', 'platter_naan', 'platter_entrees'] };
   SETS.veggie_bowl = SETS.bowl.slice();
   SETS.platter = []; ADDON_SETS.platter = [];
   var NOTE_MAX = 140;
@@ -194,7 +195,7 @@
     choicesFor(item).forEach(function(set){
       var seen = [], cs = CHOICE_SETS[set];
       // Only one way to choose (one base on offer): it's picked already.
-      if (cs.options.length === cs.pick) seen = cs.options.map(function(o){ return o.key; });
+      if (cs.options.length === cs.pick && !cs.optional) seen = cs.options.map(function(o){ return o.key; });
       ((p && p[set]) || []).forEach(function(k){ if (choiceOpt(set, k) && seen.indexOf(k) === -1 && seen.length < CHOICE_SETS[set].pick) seen.push(k); });
       if (seen.length) { out[set] = seen; any = true; }
     });
@@ -203,7 +204,7 @@
   // Title of the first choice not fully picked yet ('' when all done).
   function needsPicks(item, p){
     var c = cleanPicks(item, p) || {}, sets = choicesFor(item);
-    for (var i = 0; i < sets.length; i++) if ((c[sets[i]] || []).length < CHOICE_SETS[sets[i]].pick) return CHOICE_SETS[sets[i]].title;
+    for (var i = 0; i < sets.length; i++) if (!CHOICE_SETS[sets[i]].optional && (c[sets[i]] || []).length < CHOICE_SETS[sets[i]].pick) return CHOICE_SETS[sets[i]].title;
     return '';
   }
   function pickPrice(p){
@@ -224,7 +225,8 @@
     var c = cleanPicks(item, p) || {};
     return sets.map(function(set){
       var cs = CHOICE_SETS[set], mine = c[set] || [];
-      return '<div class="ing-block ing-pick-block" data-pick-block="' + esc(set) + '">' +
+      var fixed = cs.options.length === cs.pick && !cs.optional;
+      return '<div class="ing-block ing-pick-block' + (fixed ? ' is-fixed' : '') + (cs.optional ? ' is-optional' : '') + '" data-pick-block="' + esc(set) + '">' +
         '<div class="ing-head"><span class="ing-title">' + esc(cs.title) + '</span><span class="ing-hint ing-pick-hint">' + pickHint(cs, mine.length) + '</span></div>' +
         '<div class="ing-pick-grid" role="group" aria-label="' + esc(cs.title) + '">' +
         cs.options.map(function(o){
@@ -237,13 +239,17 @@
         }).join('') + '</div></div>';
     }).join('');
   }
-  function pickHint(cs, n){ return cs.pick === 1 ? (n ? 'Picked' : 'Pick 1 \u00b7 Required') : n + ' of ' + cs.pick + ' picked' + (n < cs.pick ? ' \u00b7 Required' : ''); }
+  function pickHint(cs, n){
+    if (cs.optional) return n ? 'Added \u00b7 tap again to remove' : 'Optional';
+    if (cs.options.length === cs.pick) return 'Included';
+    return cs.pick === 1 ? (n ? 'Picked' : 'Pick 1 \u00b7 Required') : n + ' of ' + cs.pick + ' picked' + (n < cs.pick ? ' \u00b7 Required' : ''); }
   // Tap a tile: returns the new picks and updates the tiles in place.
   // Pick 1: replaces. Pick 2+: adds until full; when full, tap a picked one to change.
   function pickTap(item, p, el){
     var set = el.getAttribute('data-pick-set'), k = el.getAttribute('data-pick'), cs = CHOICE_SETS[set];
     var c = cleanPicks(item, p) || {}, mine = (c[set] || []).slice(), i = mine.indexOf(k), full = false;
     if (!cs) return c;
+    if (cs.options.length === cs.pick && !cs.optional) return c;   // always included (jeera rice)
     if (i >= 0) mine.splice(i, 1);
     else if (cs.pick === 1) mine = [k];
     else if (mine.length < cs.pick) mine.push(k);
@@ -267,7 +273,7 @@
   function askPicks(root, item, p){
     var c = cleanPicks(item, p) || {}, sets = choicesFor(item);
     for (var i = 0; i < sets.length; i++) {
-      if ((c[sets[i]] || []).length < CHOICE_SETS[sets[i]].pick) {
+      if (!CHOICE_SETS[sets[i]].optional && (c[sets[i]] || []).length < CHOICE_SETS[sets[i]].pick) {
         var b = root && root.querySelector('[data-pick-block="' + sets[i] + '"]');
         if (b) { b.classList.add('need'); try { b.scrollIntoView({ behavior: 'smooth', block: 'center' }); } catch (e) {} }
         return CHOICE_SETS[sets[i]].title;
@@ -376,6 +382,9 @@
       '.ing-veg{display:inline-flex;align-items:center;gap:4px;font-size:11px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:#1b7a2e;border:1.5px solid #1b7a2e;border-radius:6px;padding:1px 5px 1px 4px;background:#effaf0;line-height:1.4}' +
       '.ing-veg i{width:8px;height:8px;border-radius:50%;background:#1b9a36;display:inline-block}' +
       '.ing-pick-block.need .ing-pick-hint{color:#d62d20;font-weight:800}' +
+      '.ing-pick-block.is-fixed .ing-pick{cursor:default}' +
+      '.ing-pick-block.is-fixed .ing-pick-grid{grid-template-columns:repeat(3,1fr)}' +
+      '.ing-pick-block.is-optional .ing-pick-hint{color:#1b7a2e}' +
       '.ing-pick-block.need .ing-pick{border-color:#f1a39c}' +
       '.ing-pick-block.full .ing-pick-hint{color:#d62d20;font-weight:800}' +
       '@media (max-width:420px){.ing-pick-grid{grid-template-columns:repeat(2,1fr)}}' +
@@ -455,7 +464,7 @@
     if (d.choice_sets && typeof d.choice_sets === 'object') {
       Object.keys(CHOICE_SETS).forEach(function(k){ delete CHOICE_SETS[k]; });
       Object.keys(d.choice_sets).forEach(function(k){ var v = d.choice_sets[k] || {};
-        CHOICE_SETS[k] = { title: String(v.title || k), pick: Math.max(1, Math.min(5, Number(v.pick) || 1)),
+        CHOICE_SETS[k] = { title: String(v.title || k), pick: Math.max(1, Math.min(5, Number(v.pick) || 1)), optional: v.optional === true,
           options: (v.options || []).filter(function(o){ return o && o.key; }).map(function(o){ return { key: String(o.key), label: String(o.label || o.key), veg: o.veg === true, cents: Math.max(0, Number(o.cents) || 0), img: o.img || null }; }) }; });
       Object.keys(GROUP_CHOICES).forEach(function(k){ delete GROUP_CHOICES[k]; });
       Object.keys(gch).forEach(function(k){ GROUP_CHOICES[k] = gch[k]; });
