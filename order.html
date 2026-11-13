@@ -11,7 +11,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
 <script src="deals.js?v=20261022"></script>
-<script src="ingredients.js?v=20261112a"></script>
+<script src="ingredients.js?v=20261113a"></script>
 <script src="spot-picker.js"></script>
 <style>
   :root{
@@ -448,6 +448,9 @@
   #itemSheet .sheet-scroll{ padding:0 20px 18px; }
   #itemSheet .sheet-photo{ margin:0 -20px 20px; border-radius:0; aspect-ratio:16/10; }
   #itemSheet .sheet-photo img{ width:100%; height:100%; max-height:none; object-fit:cover; object-position:50% 0; }
+  /* Wings: the whole photo, nothing cut off. */
+  .tile-photo img.fit-all, #itemSheet .sheet-photo img.fit-all{ object-fit:contain; object-position:50% 50%; }
+  .tile-photo:has(img.fit-all), #itemSheet .sheet-photo:has(img.fit-all){ background:#f4efe7; }
   .item-title{ font-size:30px; font-weight:800; margin-top:0; }
   .item-price{ font-family:var(--body); font-size:17px; font-weight:500; color:var(--cream); margin-top:4px; }
   .item-desc{ font-size:15px; margin-top:10px; }
@@ -1143,7 +1146,7 @@
       'Bowls': 'menu-bowl.jpg', 'Tacos': 'menu-tacos.jpg',
       'Loaded Fries': 'menu-fries.jpg', 'Sides': 'menu-samosas.jpg',
       'Kulfi Ice Cream': 'item-almond-kulfi.jpg', 'Drinks': 'menu-falooda.jpg',
-      'Platters': 'menu-platters.jpg', 'Desserts': 'menu-desserts.jpg', 'Wings': 'menu-wings.jpg', 'Burritos': 'menu-burritos.jpg'
+      'Platters': 'menu-platters.jpg', 'Desserts': 'menu-desserts.jpg', 'Wings': 'item-wings-tandoori.jpg', 'Burritos': 'item-cali-burrito-butter-chicken.jpg'
     };
     // Same wording as the main website's menu.
     var CATEGORY_DESCRIPTIONS = {
@@ -1154,7 +1157,7 @@
       'Sides': 'Regular / Large where noted',
       'Platters': 'White jeera rice with your choice of two entr\u00e9es',
       'Desserts': 'Sweet endings: falooda, gulab jamun & more',
-      'Wings': '6 wings with our white sauce \u00b7 Tikka, Butter Chicken, Tandoori or Signature',
+      'Wings': '8 wings with our white sauce \u00b7 Tikka, Butter Chicken, Tandoori or Signature',
       'Burritos': 'Cali Burrito: chicken, crispy fries, cheese, pico & white sauce, rolled tight'
     };
     // Cut-out photos for the category list (same as the website).
@@ -1194,10 +1197,17 @@
       if (name === 'Combo Water') return 'item-water.jpg';
       return 'item-soda.jpg';
     }
+    // Tacos and Loaded Fries: one tile each with a flavor choice (like Wings).
+    // Each flavor keeps its own photo (item-butter-chicken-tacos.jpg ...).
+    var FLAVOR_CATS = { 'Tacos': 1, 'Loaded Fries': 1 };
+    function grpName(i){ return FLAVOR_CATS[i.category] && !i.variant_name ? i.category : i.name; }
+    function grpKey(i){ return i.category + '::' + grpName(i); }
+    function flavorOf(i){ return FLAVOR_CATS[i.category] && !i.variant_name ? (i.name.replace(/\s*(Loaded Fries|Tacos?)\s*$/i, '').trim() || i.name) : (i.variant_name || i.name); }
     function photoImg(item, cat, groupName){
+      if (FLAVOR_CATS[cat] && !item.variant_name) groupName = item.name;
       var src = item.image_url || (cat === 'Combo Add-ons' ? comboAddonPhoto(item.name) : ('item-' + slugify(groupName || item.name) + '.jpg'));
       var fb = CATEGORY_IMAGES[cat] || '';
-      return '<img src="' + escHtml(src) + '" alt="" loading="lazy" decoding="async" data-fallback="' + escHtml(fb) + '" onerror="rsImgFallback(this)">';
+      return '<img' + (cat === 'Wings' ? ' class="fit-all"' : '') + ' src="' + escHtml(src) + '" alt="" loading="lazy" decoding="async" data-fallback="' + escHtml(fb) + '" onerror="rsImgFallback(this)">';
     }
     function formatErrorMessage(err){
       if (!err) return null;
@@ -1306,9 +1316,9 @@
         if (HIDDEN_CATEGORIES[item.category]) return;
         if (!byCat[item.category]) { byCat[item.category] = { cat: item.category, groups: [] }; sections.push(byCat[item.category]); }
         // Items sharing a name are one dish with options (e.g. bowl proteins).
-        var key = item.category + '::' + item.name;
+        var key = grpKey(item);
         if (!groupsByKey[key]) {
-          groupsByKey[key] = { key: key, cat: item.category, name: item.name, items: [] };
+          groupsByKey[key] = { key: key, cat: item.category, name: grpName(item), items: [] };
           byCat[item.category].groups.push(groupsByKey[key]);
         }
         groupsByKey[key].items.push(item);
@@ -1400,7 +1410,7 @@
 
     function isVeg(name){ return /\(Veg\)|Veggie|Paneer|Falafel|Samosa/i.test(name); }
     // "Popular": best sellers first; anything sold out or missing is skipped.
-    var POPULAR = ['Chicken Shawarma', 'Butter Chicken Frankie', 'Loaded Fries', 'Chicken Tikka Tacos', 'Chicken Over Rice Bowl', 'Falafel Shawarma (Veg)', 'Mango Lassi', '2 Samosas'];
+    var POPULAR = ['Chicken Shawarma', 'Butter Chicken Frankie', 'Loaded Fries', 'Tacos', 'Chicken Over Rice Bowl', 'Falafel Shawarma (Veg)', 'Mango Lassi', '2 Samosas'];
     function popularGroups(){
       var byName = {};
       Object.keys(groupsByKey).forEach(function(k){ var g = groupsByKey[k]; if (!byName[g.name]) byName[g.name] = g; });
@@ -1470,7 +1480,7 @@
           ' aria-label="' + escHtml(g.name + ', ' + priceText.replace(/<[^>]+>/g, ' ') + (soldOut ? ', sold out' : ', see details')) + '">' +
           '<span class="tile-photo">' + photoImg(g.items[0], g.cat, g.name) + '</span>' +
           '<span class="tile-body">' +
-            '<span class="tile-name">' + (g.items[0].secret_name ? escHtml(g.items[0].secret_name) + '<span class="real-name">' + escHtml(g.name) + (/wings/i.test(g.name) ? ' \u00b7 6 pc' : '') + '</span>' : escHtml(g.name.replace(/\s*\(Veg\)\s*$/i, ''))) + (isVeg(g.name) ? ' <span class="veg-tag" title="Vegetarian">Veg</span>' : '') + '</span>' +
+            '<span class="tile-name">' + (g.items[0].secret_name ? escHtml(g.items[0].secret_name) + '<span class="real-name">' + escHtml(g.name) + (/wings/i.test(g.name) ? ' \u00b7 8 pc' : '') + '</span>' : escHtml(g.name.replace(/\s*\(Veg\)\s*$/i, ''))) + (isVeg(g.name) ? ' <span class="veg-tag" title="Vegetarian">Veg</span>' : '') + '</span>' +
             (g.items[0].description ? '<span class="tile-desc">' + escHtml(g.items[0].description) + '</span>' : '') +
             (sub ? '<span class="tile-sub">' + sub + '</span>' : '') +
             '<span class="tile-price">' + priceText + '</span>' +
@@ -2031,19 +2041,19 @@
       var g = sheet.group;
       var item = itemsById[sheet.itemId];
       var desc = item.description || CATEGORY_DESCRIPTIONS[g.cat] || '';
-      var html = '<div class="sheet-photo">' + photoImg(item.image_url ? item : g.items[0], g.cat, g.name) + '</div>' +
+      var html = '<div class="sheet-photo">' + photoImg(item.image_url || FLAVOR_CATS[g.cat] ? item : g.items[0], g.cat, g.name) + '</div>' +
         '<h2 class="item-title" id="itemTitle">' + (g.items[0].secret_name ? escHtml(g.items[0].secret_name) + '<span class="real-name">' + escHtml(g.name) + '</span>' : escHtml(g.name)) + '</h2>' +
         '<div class="item-price">' + money(item.price) + '</div>' +
         (desc ? '<p class="item-desc">' + escHtml(desc) + '</p>' : '');
 
       if (g.items.length > 1) {
         var anyPriceDiff = g.items.some(function(i){ return Number(i.price) !== Number(g.items[0].price); });
-        html += '<fieldset class="opt-group"><legend>' + (g.cat === 'Bowls' || g.cat === 'Shawarma' || g.cat === 'Frankie Rolls' ? 'Choose your protein' : (g.cat === 'Secret Menu' || g.cat === 'Wings' || g.cat === 'Burritos') && /wings|burrito/i.test(g.name) ? 'Choose your flavor' : 'Choose one') + ' <small>Required</small></legend>' +
+        html += '<fieldset class="opt-group"><legend>' + (g.cat === 'Bowls' || g.cat === 'Shawarma' || g.cat === 'Frankie Rolls' ? 'Choose your protein' : ((g.cat === 'Secret Menu' || g.cat === 'Wings' || g.cat === 'Burritos') && /wings|burrito/i.test(g.name)) || FLAVOR_CATS[g.cat] ? 'Choose your flavor' : 'Choose one') + ' <small>Required</small></legend>' +
           g.items.map(function(i){
             var avail = isAvailable(i);
             return '<label class="opt' + (avail ? '' : ' is-disabled') + '">' +
               '<input type="radio" name="itemOpt" value="' + i.id + '"' + (i.id === sheet.itemId ? ' checked' : '') + (avail ? '' : ' disabled') + '>' +
-              '<span class="opt-name">' + (i.secret_alias ? '<b>' + escHtml(i.secret_alias) + '</b> \u00b7 ' : '') + escHtml(i.variant_name || i.name) + '</span>' +
+              '<span class="opt-name">' + (i.secret_alias ? '<b>' + escHtml(i.secret_alias) + '</b> \u00b7 ' : '') + escHtml(flavorOf(i)) + '</span>' +
               '<span class="opt-price">' + (avail ? (anyPriceDiff ? money(i.price) : '') : 'Sold out') + '</span>' +
             '</label>';
           }).join('') +
@@ -2174,7 +2184,7 @@
 
     // Cart sheet
     function lineGroupPhoto(item){
-      var g = groupsByKey[item.category + '::' + item.name];
+      var g = groupsByKey[grpKey(item)];
       return photoImg(item, item.category, g ? g.name : item.name);
     }
     function renderCart(){
@@ -3003,7 +3013,7 @@
       if ((item.is_available !== false) === available) return;
       item.is_available = available;
 
-      var g = groupsByKey[item.category + '::' + item.name];
+      var g = groupsByKey[grpKey(item)];
       if (g) {
         var tile = document.querySelector('.tile[data-group="' + cssAttr(g.key) + '"]');
         if (tile) tile.outerHTML = tileHtml(g);
