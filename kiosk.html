@@ -15,7 +15,7 @@
 <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@600;700;800&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
 <script src="deals.js?v=20261022"></script>
-<script src="ingredients.js?v=20261112a"></script>
+<script src="ingredients.js?v=20261113a"></script>
 <script src="https://cdn.jsdelivr.net/npm/qrcode@1.4.4/build/qrcode.min.js" integrity="sha384-0RsG1yo/crf/1Qc14sho26SXXOTngNCjgJw7fuvXBt9W/OChF/Ijx+aUuBDqQwEk" crossorigin="anonymous"></script>
 <style>
   :root{
@@ -1915,7 +1915,7 @@
       'Secret Menu': 'secret-menu.svg',
       'Shawarma': 'shawarma-wrap.webp', 'Frankie Rolls': 'tikka-wrap.webp', 'Bowls': 'bowl.webp', 'Tacos': 'tacos.webp',
       'Loaded Fries': 'loaded-fries.webp', 'Sides': 'item-fries.jpg', 'Kulfi Ice Cream': 'item-almond-kulfi.jpg', 'Drinks': 'item-soda.jpg',
-      'Platters': 'menu-platters.jpg', 'Desserts': 'menu-desserts.jpg', 'Wings': 'menu-wings.jpg', 'Burritos': 'menu-burritos.jpg'
+      'Platters': 'menu-platters.jpg', 'Desserts': 'menu-desserts.jpg', 'Wings': 'item-wings-tandoori.jpg', 'Burritos': 'item-cali-burrito-butter-chicken.jpg'
     };
 
     // Only one category open at a time -- opening a new one collapses
@@ -1946,7 +1946,7 @@
       // different protein/style -- collapsed into one tile showing
       // every option directly, rather than one tile per distinctly-
       // named item or the same-name variant grouping used elsewhere.
-      var PROTEIN_CHOICE_CATEGORIES = ['Loaded Fries', 'Bowls'];
+      var PROTEIN_CHOICE_CATEGORIES = ['Loaded Fries', 'Bowls', 'Tacos'];
       var isProteinChoiceCategory = PROTEIN_CHOICE_CATEGORIES.indexOf(cat) !== -1 && items.length > 1;
 
       var groups = [];
@@ -2054,7 +2054,7 @@
         return '<div class="select-tile" data-select-group="' + groupKey + '">' +
             itemPhotoHtml(firstItem) +
             '<div class="item-tile-body">' +
-              '<div class="item-tile-name">' + (firstItem.secret_name ? escHtml(firstItem.secret_name) + '<span class="real-name">' + escHtml(group.name) + (/wings/i.test(group.name) ? ' \u00b7 6 pc' : '') + '</span>' : escHtml(group.name)) + '</div>' +
+              '<div class="item-tile-name">' + (firstItem.secret_name ? escHtml(firstItem.secret_name) + '<span class="real-name">' + escHtml(group.name) + (/wings/i.test(group.name) ? ' \u00b7 8 pc' : '') + '</span>' : escHtml(group.name)) + '</div>' +
               '<div class="item-tile-price">$' + Number(firstItem.price).toFixed(2) + '</div>' +
               '<div class="item-tile-badge-row" data-variant-group="' + groupKey + '"></div>' +
               selectTilePlusHtml(groupKey) +
