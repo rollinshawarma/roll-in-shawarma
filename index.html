@@ -380,6 +380,30 @@
   .tile-img img{ max-height:360px; width:auto; max-width:100%; object-fit:contain; transition:transform .6s ease; }
   .tile.wide .tile-img img{ max-height:440px; }
   .tile:hover .tile-img img{ transform:translateY(-6px); }
+  /* ---- New on the menu (photo tiles, new-menu-launch.sql) ---- */
+  #newdishes{ padding:clamp(48px, 7vw, 88px) 0 12px; }
+  .nt-head{ text-align:center; max-width:760px; margin:0 auto 28px; padding:0 20px; }
+  .nt-head .eyebrow{ color:var(--accent, #d62d20); }
+  .nt-head h2{ font-family:var(--display); font-size:clamp(40px, 6vw, 68px); font-weight:800; letter-spacing:-0.035em; line-height:1; margin-top:6px; }
+  .nt-head p{ font-size:clamp(17px, 1.8vw, 20px); color:var(--ink-2); margin-top:12px; }
+  .tile.nt-tile{ min-height:560px; }
+  .tile.nt-tile.wide{ min-height:620px; }
+  .tile.nt-tile.warm{ background:#fbf1e3; }
+  .nt-badge{ display:inline-flex; align-items:center; gap:6px; margin-bottom:12px; padding:5px 12px; border-radius:999px; background:#d62d20; color:#fff; font-size:12px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
+  .nt-badge.soon{ background:#f2a20c; color:#2b1300; }
+  .nt-badge:empty{ display:none; }
+  .tile.nt-tile .tile-img{ padding:28px 0 0; align-items:stretch; width:calc(100% + 48px); margin:0 -24px; }
+  .tile.nt-tile .tile-img img{ width:100%; max-width:none; height:320px; max-height:none; object-fit:cover; border-radius:22px 22px 0 0; }
+  .tile.nt-tile.wide .tile-img img{ height:400px; }
+  .tile.nt-tile.fit .tile-img img{ object-fit:contain; background:transparent; }
+  .tile.nt-tile:hover .tile-img img{ transform:scale(1.02); }
+  .nt-soon-note{ font-size:14px; font-weight:700; color:#8a5a00; background:#ffe9bf; padding:9px 16px; border-radius:999px; }
+  .tile.dark .nt-soon-note{ background:#3a2a10; color:#ffd479; }
+  @media (max-width:760px){
+    .tile.nt-tile, .tile.nt-tile.wide{ min-height:480px; }
+    .tile.nt-tile .tile-img img, .tile.nt-tile.wide .tile-img img{ height:260px; }
+  }
+
   @media (max-width:760px){
     .tiles{ grid-template-columns:1fr; }
     .tile, .tile.wide{ min-height:500px; padding-top:44px; }
@@ -1543,6 +1567,63 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       <a class="dp-pill" href="https://www.ubereats.com/store/roll-in-shawarma/7hTjb6vTRxuScZ_VzXq6aQ?diningMode=DELIVERY" target="_blank" rel="noopener"><i class="dp-dot" style="background:#06c167"><img src="logo-ubereats.png" alt="" onload="this.parentNode.classList.add('has-logo')" onerror="this.remove()"></i>Uber Eats</a>
       <a class="dp-pill" href="https://www.grubhub.com/restaurant/roll-in-shawarma-3554-s-arlington-rd-akron/15619752" target="_blank" rel="noopener"><i class="dp-dot" style="background:#ff8000"><img src="logo-grubhub.png" alt="" onload="this.parentNode.classList.add('has-logo')" onerror="this.remove()"></i>Grubhub</a>
     </div>
+  </div>
+</section>
+
+<!-- New on the menu: shows "Coming soon" before launch and "New" for 30
+     days after (Staff portal -> Menu -> New menu). Hidden when there's
+     nothing new to show. -->
+<section id="newdishes" class="member-hide" aria-label="New on the menu" hidden>
+  <div class="nt-head">
+    <span class="eyebrow">New on the menu</span>
+    <h2>Fresh off the truck.</h2>
+    <p>Curry platters, wings and Cali burritos, with something sweet to finish.</p>
+  </div>
+  <div class="tiles">
+    <article class="tile wide dark nt-tile" data-new-cat="Platters">
+      <span class="nt-badge"></span>
+      <h3>Build Your Platter</h3>
+      <p>Jeera rice with any two curries, like butter chicken, paneer tikka or chana masala. Add naan for a second base.</p>
+      <p class="tile-price" data-nt-price="Platters">Two curries over jeera rice, $12.99</p>
+      <div class="tile-ctas">
+        <a class="btn btn-white btn-sm" href="#menu" data-order-cat="Platters">Order now</a>
+        <a class="link link-more" href="#menu" data-order-cat="Platters">See options</a>
+      </div>
+      <div class="tile-img"><img src="item-build-your-platter.jpg" alt="A platter of jeera rice with two curries" loading="lazy" onerror="this.parentNode.remove()"></div>
+    </article>
+    <article class="tile nt-tile fit" data-new-cat="Wings">
+      <span class="nt-badge"></span>
+      <h3>Wings</h3>
+      <p>8 wings tossed in Tikka, Butter Chicken, Tandoori or our Signature sauce.</p>
+      <p class="tile-price" data-nt-price="Wings">Four flavors, $14.99</p>
+      <div class="tile-ctas">
+        <a class="btn btn-dark btn-sm" href="#menu" data-order-cat="Wings">Order now</a>
+        <a class="link link-more" href="#menu" data-order-cat="Wings">See options</a>
+      </div>
+      <div class="tile-img"><img src="item-wings-tandoori.jpg" alt="Tandoori chicken wings" loading="lazy" onerror="this.parentNode.remove()"></div>
+    </article>
+    <article class="tile nt-tile warm" data-new-cat="Burritos">
+      <span class="nt-badge"></span>
+      <h3>Cali Burrito</h3>
+      <p>Chicken, crispy fries, melted cheese, pico and white sauce, rolled up tight.</p>
+      <p class="tile-price" data-nt-price="Burritos">Four flavors, $13.99</p>
+      <div class="tile-ctas">
+        <a class="btn btn-dark btn-sm" href="#menu" data-order-cat="Burritos">Order now</a>
+        <a class="link link-more" href="#menu" data-order-cat="Burritos">See options</a>
+      </div>
+      <div class="tile-img"><img src="item-cali-burrito-butter-chicken.jpg" alt="Butter chicken Cali burrito" loading="lazy" onerror="this.parentNode.remove()"></div>
+    </article>
+    <article class="tile wide nt-tile" data-new-cat="Desserts">
+      <span class="nt-badge"></span>
+      <h3>Gulab Jamun &amp; Ice Cream</h3>
+      <p>Warm gulab jamun with a cold scoop of ice cream. Falooda lives here now too.</p>
+      <p class="tile-price" data-nt-price="Desserts">Desserts from $5.99</p>
+      <div class="tile-ctas">
+        <a class="btn btn-dark btn-sm" href="#menu" data-order-cat="Desserts">Order now</a>
+        <a class="link link-more" href="#menu" data-order-cat="Desserts">See options</a>
+      </div>
+      <div class="tile-img"><img src="item-gulab-jamun-with-ice-cream.jpg" alt="Gulab jamun with ice cream" loading="lazy" onerror="this.parentNode.remove()"></div>
+    </article>
   </div>
 </section>
 
@@ -3326,7 +3407,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       'Shawarma': 'menu-shawarma.jpg', 'Frankie Rolls': 'menu-frankie.jpg',
       'Bowls': 'menu-bowl.jpg', 'Tacos': 'menu-tacos.jpg',
       'Loaded Fries': 'item-tandoori-chicken-loaded-fries.jpg', 'Sides': 'menu-samosas.jpg',
-      'Kulfi Ice Cream': 'item-almond-kulfi.jpg', 'Drinks': 'menu-falooda.jpg',
+      'Kulfi Ice Cream': 'item-almond-kulfi.jpg', 'Drinks': 'item-mango-lassi.jpg',
       'Platters': 'menu-platters.jpg', 'Desserts': 'menu-desserts.jpg', 'Wings': 'item-wings-tandoori.jpg', 'Burritos': 'item-cali-burrito-butter-chicken.jpg'
     };
     // Transparent cut-out photos for the category list (Chick-fil-A style);
@@ -3499,7 +3580,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
           if (row) row.click();
         });
       }
-      setTimeout(function(){ if (window.__wsApplyNew) window.__wsApplyNew(); }, 0);
+      setTimeout(function(){ if (window.__wsApplyNew) window.__wsApplyNew(); if (window.__ntPaint) window.__ntPaint(); }, 0);
       wsEl('wsIndex').innerHTML = wsSections.map(function(sec, i){
         var cut = categoryCutouts[sec.cat], img = cut || categoryImages[sec.cat] || '';
         var n = sec.groups.length;
@@ -3886,6 +3967,35 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       ];
       // Launch day at midnight, Ohio time (EST in late November).
       function target(d){ var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(d || '')); return m ? Date.UTC(+m[1], +m[2] - 1, +m[3], 5, 0, 0) : null; }
+      // "New on the menu" tiles below the menu: Coming soon before launch,
+      // New for 30 days after, plain highlights after that; hidden if a
+      // section isn't on the menu at all.
+      window.__ntPaint = function(){
+        var sec = document.getElementById('newdishes'), t = window.__wsTeaser;
+        if (!sec || !t || !wsSections.length) return;
+        var soon = !t.live && t.show, isNew = !!t.live, any = false;
+        sec.querySelectorAll('[data-new-cat]').forEach(function(tile){
+          var cat = tile.getAttribute('data-new-cat'), s = wsSections.filter(function(x){ return x.cat === cat; })[0];
+          var orderable = !!(s && s.groups.some(function(g){ return g.items.some(wsAvail); }));
+          var show = soon || (s && s.groups.length);
+          tile.hidden = !show; if (show) any = true;
+          var b = tile.querySelector('.nt-badge');
+          b.className = 'nt-badge' + (soon ? ' soon' : '');
+          b.textContent = soon ? 'Coming ' + (String(t.when || '').trim() || 'soon') : isNew ? 'New' : '';
+          // Real price from the menu ("from $12.99").
+          var pr = tile.querySelector('[data-nt-price]');
+          if (pr && s) {
+            var prices = []; s.groups.forEach(function(g){ g.items.forEach(function(i){ if (i.coming_soon !== true || soon) prices.push(Number(i.price)); }); });
+            if (prices.length) { var min = Math.min.apply(null, prices); pr.textContent = pr.textContent.replace(/\$\d+(\.\d\d)?/, function(){ return wsMoney(min); }); }
+          }
+          var ctas = tile.querySelector('.tile-ctas');
+          if (!orderable) {
+            ctas.innerHTML = '<span class="nt-soon-note">' + (soon ? 'Coming ' + escHtml(String(t.when || '').trim() || 'soon') : 'Back soon') + '</span>' +
+              (s ? '<a class="link link-more" href="#menu" data-order-cat="' + escHtml(cat) + '">Take a look</a>' : '');
+          }
+        });
+        sec.hidden = !any;
+      };
       sbShared.rpc('get_menu_teaser').then(function(r){
         var t = r && !r.error && r.data;
         // After launch: a red "New" tag on the new dishes and sections (30 days).
@@ -3905,6 +4015,8 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
           };
           window.__wsApplyNew();
         }
+        window.__wsTeaser = t || {};
+        if (window.__ntPaint) window.__ntPaint();
         if (!t || !t.show) return;
         var live = !!t.live;
         var when = String(t.when || '').trim(), at = live ? null : target(t.date);
