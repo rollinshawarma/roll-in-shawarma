@@ -62,7 +62,10 @@
   // Choices customers must pick (Platters: 1 base + 2 entrées). From the
   // database (portal: Menu -> Platter choices); these are the starting ones.
   var CHOICE_SETS = {
-    platter_base: { title: 'Choose your base', pick: 1, options: [{ key: 'white_jeera_rice', label: 'White Jeera Rice', veg: true, cents: 0, img: 'pick-white-jeera-rice.jpg' }] },
+    platter_base: { title: 'Choose your base', pick: 1, options: [
+      { key: 'white_jeera_rice', label: 'White Jeera Rice', veg: false, cents: 0, img: 'pick-white-jeera-rice.jpg' },
+      { key: 'tandoori_naan', label: 'Tandoori Naan (2)', veg: false, cents: 399, img: 'pick-tandoori-naan.jpg' },
+      { key: 'garlic_naan', label: 'Garlic Naan (2)', veg: false, cents: 499, img: 'pick-garlic-naan.jpg' }] },
     platter_entrees: { title: 'Choose two entrées', pick: 2, options: [
       { key: 'chana_masala', label: 'Chana Masala', veg: true, cents: 0, img: 'pick-chana-masala.jpg' },
       { key: 'butter_paneer', label: 'Butter Paneer', veg: true, cents: 0, img: 'pick-butter-paneer.jpg' },
