@@ -566,6 +566,15 @@
   .qty-pill{ min-width:40px; height:40px; font-size:18px; color:var(--gold-ink); box-shadow:0 2px 8px rgba(0,0,0,.18); }
   .combo-tile{ border:2px solid var(--gold); background:#FFFBF2; }
   .combo-tile .item-tile-name{ color:var(--white); }
+  /* New dishes not orderable yet: greyed placeholder tiles (On hold / Coming soon). */
+  .item-tile.is-locked{ cursor:default; }
+  .item-tile.is-locked .item-tile-photo{ filter:grayscale(.85); opacity:.5; }
+  .item-tile.is-locked .item-tile-name, .item-tile.is-locked .item-tile-price{ color:var(--muted); }
+  .k-soon{ display:inline-flex; align-items:center; gap:6px; font-size:14px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:#7a4a00; background:#ffe9bf; padding:8px 14px; border-radius:999px; }
+  .k-soon.is-hold{ color:#4a4138; background:#ece6dc; }
+  .k-lock{ width:1em; height:1em; }
+  /* Newly launched dishes: red "New" tag for 30 days. */
+  .k-new{ display:inline-block; margin-left:8px; padding:2px 8px; border-radius:6px; background:#d62d20; color:#fff; font-size:12px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; vertical-align:3px; }
   .combo-tile-disabled{ background:var(--panel); border-color:var(--line); }
   /* options slide-over inside a card */
   .select-tile-overlay{ background:#fff; width:100%; }
@@ -1375,7 +1384,17 @@
         }, 700);
       }, function(){});
     }
+    // Newly launched dishes (get_menu_teaser new_ids) get a "New" tag.
+    var kioskNewIds = {};
+    function kioskNewTag(items){ return items.some(function(i){ return kioskNewIds[i.id]; }) ? '<span class="k-new">New</span>' : ''; }
     function loadMenu(){
+      try { sbShared.rpc('get_menu_teaser').then(function(r){
+        var t = r && !r.error && r.data, ids = {};
+        if (t && Array.isArray(t.new_ids)) t.new_ids.forEach(function(id){ ids[id] = 1; });
+        var changed = Object.keys(ids).sort().join() !== Object.keys(kioskNewIds).sort().join();
+        kioskNewIds = ids;
+        if (changed && expandedCategory && expandedCategory !== '__deals' && typeof renderCategoryContent === 'function') renderCategoryContent(expandedCategory);
+      }, function(){}); } catch (e) {}
       sbShared.from('menu_items').select('*').order('display_order').then(function(res){
         if (res.error || !res.data) return;
         // Reset first -- this function is called again each time a new
@@ -1393,9 +1412,17 @@
         // Taco Tuesday: every taco order is $6.99 (deals.js,
         // same rule as the website, QR page and checkout server).
         kioskTacoDay = window.RollinDeals ? window.RollinDeals.applyTacoPricing(res.data) : null;
+        var soonByCategory = {};
         kioskSecret.concat(res.data).forEach(function(item){
-          // "Coming soon" items (new-menu-launch.sql) stay off the kiosk until launch.
-          if (item.coming_soon === true) return;
+          // New dishes that are On hold or Coming soon (new-menu-launch.sql): a greyed
+          // placeholder tile with a lock or "Coming soon". Never in the cart, the
+          // upsells or the item list.
+          if (item.coming_soon === true) {
+            if (!soonByCategory[item.category]) soonByCategory[item.category] = [];
+            soonByCategory[item.category].push(item);
+            if (categoryOrder.indexOf(item.category) === -1) categoryOrder.push(item.category);
+            return;
+          }
           itemsById[item.id] = item;
           if (item.category === 'Combo Add-ons') comboAddonsByName[item.name] = item;
           if (item.category === 'Deals') dealsByName[item.name] = item;
@@ -1408,6 +1435,7 @@
           byCategory[item.category].push(item);
         });
         window.__kioskByCategory = byCategory;
+        window.__kioskSoon = soonByCategory;
         renderCategoryList();
         refreshDealsSection();
         paintGrabGo();
@@ -2023,7 +2051,7 @@
           return '<div class="select-tile" data-select-group="' + key + '">' +
             itemPhotoHtml({ image_url: firstItem.image_url, name: group.name }) +
             '<div class="item-tile-body">' +
-              '<div class="item-tile-name">' + escHtml(group.name) + '</div>' +
+              '<div class="item-tile-name">' + escHtml(group.name) + kioskNewTag(group.items.map(function(e){ return e.item; })) + '</div>' +
               '<div class="item-tile-price">$' + Number(firstItem.price).toFixed(2) + '</div>' +
               selectTilePlusHtml(key) +
             '</div>' +
@@ -2036,7 +2064,7 @@
           return '<div class="item-tile">' +
             itemPhotoHtml(item) +
             '<div class="item-tile-body">' +
-              '<div class="item-tile-name">' + (item.secret_name ? escHtml(item.secret_name) + '<span class="real-name">' + escHtml(label) + '</span>' : escHtml(label)) + '</div>' +
+              '<div class="item-tile-name">' + (item.secret_name ? escHtml(item.secret_name) + '<span class="real-name">' + escHtml(label) + '</span>' : escHtml(label)) + kioskNewTag([item]) + '</div>' +
               (item.description ? '<div class="item-tile-desc">' + escHtml(item.description) + '</div>' : '') +
               '<div class="item-tile-price">$' + Number(item.price).toFixed(2) + '</div>' +
               '<div class="item-tile-control"><div class="item-add-control" data-id="' + item.id + '"></div></div>' +
@@ -2054,7 +2082,7 @@
         return '<div class="select-tile" data-select-group="' + groupKey + '">' +
             itemPhotoHtml(firstItem) +
             '<div class="item-tile-body">' +
-              '<div class="item-tile-name">' + (firstItem.secret_name ? escHtml(firstItem.secret_name) + '<span class="real-name">' + escHtml(group.name) + (/wings/i.test(group.name) ? ' \u00b7 8 pc' : '') + '</span>' : escHtml(group.name)) + '</div>' +
+              '<div class="item-tile-name">' + (firstItem.secret_name ? escHtml(firstItem.secret_name) + '<span class="real-name">' + escHtml(group.name) + (/wings/i.test(group.name) ? ' \u00b7 8 pc' : '') + '</span>' : escHtml(group.name)) + kioskNewTag(group.items) + '</div>' +
               '<div class="item-tile-price">$' + Number(firstItem.price).toFixed(2) + '</div>' +
               '<div class="item-tile-badge-row" data-variant-group="' + groupKey + '"></div>' +
               selectTilePlusHtml(groupKey) +
@@ -2099,7 +2127,26 @@
           '</div>';
       }
 
-      contentEl.innerHTML = '<div class="items-grid">' + tilesHtml + comboHtml + '</div>';
+      // Placeholders for new dishes not orderable yet (one tile per dish name).
+      var soonGroups = [], soonByName = {};
+      ((window.__kioskSoon || {})[cat] || []).forEach(function(item){
+        if (!soonByName[item.name]) { soonByName[item.name] = { name: item.name, items: [] }; soonGroups.push(soonByName[item.name]); }
+        soonByName[item.name].items.push(item);
+      });
+      var soonHtml = soonGroups.map(function(sg){
+        var first = sg.items[0], hold = sg.items.every(function(i){ return i.on_hold === true; });
+        var min = Math.min.apply(null, sg.items.map(function(i){ return Number(i.price); }));
+        return '<div class="item-tile is-locked" aria-disabled="true">' +
+          itemPhotoHtml(first) +
+          '<div class="item-tile-body">' +
+            '<div class="item-tile-name">' + escHtml(sg.name) + '</div>' +
+            '<div class="item-tile-price">' + (sg.items.length > 1 ? 'From ' : '') + '$' + min.toFixed(2) + '</div>' +
+            '<div class="item-tile-control"><span class="k-soon' + (hold ? ' is-hold' : '') + '">' + (hold ? '<svg class="k-lock" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 7V5a3.5 3.5 0 0 1 7 0v2h.5A1 1 0 0 1 13 8v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1zm1.6 0h3.8V5a1.9 1.9 0 0 0-3.8 0z" fill="currentColor"/></svg>Coming later' : 'Coming soon') + '</span></div>' +
+          '</div>' +
+        '</div>';
+      }).join('');
+
+      contentEl.innerHTML = '<div class="items-grid">' + tilesHtml + soonHtml + comboHtml + '</div>';
 
       groups.forEach(function(group){
         if (group.items.length === 1 && !group.isProteinChoice) {
