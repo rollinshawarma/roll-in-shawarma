@@ -4,7 +4,7 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Roll-In Shawarma | Middle Eastern &amp; Indian Food Truck in Green, Ohio</title>
-<meta name="description" content="Fresh-carved shawarma, curry platters, wings, Cali burritos, frankie rolls, tacos, bowls &amp; loaded fries. A Middle Eastern &amp; Indian food truck based in Green, Ohio. Order online, or find us on the road.">
+<meta name="description" content="Fresh-carved shawarma, wings, Cali burritos, frankie rolls, tacos, bowls &amp; loaded fries. A Middle Eastern &amp; Indian food truck based in Green, Ohio. Order online, or find us on the road.">
 
 <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png">
 <link rel="icon" type="image/png" sizes="16x16" href="favicon-16.png">
@@ -19,7 +19,7 @@
 
 <meta property="og:type" content="website">
 <meta property="og:title" content="Roll-In Shawarma | We Roll It. You Love It.">
-<meta property="og:description" content="Fresh-carved shawarma, curry platters, wings, Cali burritos, frankie rolls, tacos, bowls &amp; loaded fries. A Middle Eastern &amp; Indian food truck based in Green, Ohio.">
+<meta property="og:description" content="Fresh-carved shawarma, wings, Cali burritos, frankie rolls, tacos, bowls &amp; loaded fries. A Middle Eastern &amp; Indian food truck based in Green, Ohio.">
 <meta property="og:image" content="https://rollinshawarma.com/og-image.jpg">
 <meta property="og:image:width" content="1200">
 <meta property="og:image:height" content="630">
@@ -260,6 +260,10 @@
   .sc.is-live{ cursor:pointer; }
   .ws-soon{ display:inline-block; font-size:12.5px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:#7a4a00; background:#ffe9bf; padding:6px 11px; border-radius:999px; }
   .ws-tile.is-soon .ws-photo img{ filter:grayscale(.85); opacity:.6; }
+  /* "On hold" (a placeholder): greyed out with a lock and "Coming later". */
+  .ws-soon.is-hold{ color:#4a4138; background:#ece6dc; }
+  .ws-lock{ width:.95em; height:.95em; vertical-align:-1px; margin-right:4px; }
+  .mn-meta.is-hold{ color:#6b5f52; }
   .mn-meta.is-soon{ color:#a86400; font-weight:700; }
   .ws-tile.is-soldout .ws-photo img{ filter:grayscale(1); opacity:.45; }
   .ws-tile.is-soldout .ws-name, .ws-tile.is-soldout .ws-price{ color:var(--muted); }
@@ -391,6 +395,8 @@
   .tile.nt-tile.warm{ background:#fbf1e3; }
   .nt-badge{ display:inline-flex; align-items:center; gap:6px; margin-bottom:12px; padding:5px 12px; border-radius:999px; background:#d62d20; color:#fff; font-size:12px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; }
   .nt-badge.soon{ background:#f2a20c; color:#2b1300; }
+  .nt-badge.hold{ background:#e4ddd1; color:#3f362c; }
+  .nt-soon-note.is-hold{ background:#ece6dc; color:#4a4138; }
   .nt-badge:empty{ display:none; }
   .tile.nt-tile .tile-img{ padding:28px 0 0; align-items:stretch; width:calc(100% + 48px); margin:0 -24px; }
   .tile.nt-tile .tile-img img{ width:100%; max-width:none; height:320px; max-height:none; object-fit:cover; border-radius:22px 22px 0 0; }
@@ -1547,7 +1553,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
   <div class="wrap">
     <div class="sec-head">
       <h2 class="h2">Menu</h2>
-      <p class="lead">Marinated chicken, falafel and paneer, rolled fresh at the window. Now with build-your-own curry platters, wings and Cali burritos. Make any wrap, taco or fries order a combo with fries and a drink for $3.99.</p>
+      <p class="lead">Marinated chicken, falafel and paneer, rolled fresh at the window. Now with wings and Cali burritos. Make any wrap, taco or fries order a combo with fries and a drink for $3.99.</p>
     </div>
 
     <div class="taco-banner hidden" id="tacoBanner" role="status"></div>
@@ -1580,7 +1586,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
   <div class="nt-head">
     <span class="eyebrow">New on the menu</span>
     <h2>Fresh off the truck.</h2>
-    <p>Curry platters, wings and Cali burritos, with something sweet to finish.</p>
+    <p>Wings and Cali burritos, with gulab jamun to finish.</p>
   </div>
   <div class="tiles">
     <article class="tile wide nt-tile cream" data-new-cat="Platters">
@@ -1619,7 +1625,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     <article class="tile wide nt-tile" data-new-cat="Desserts">
       <span class="nt-badge"></span>
       <h3>Gulab Jamun &amp; Ice Cream</h3>
-      <p>Warm gulab jamun with a cold scoop of ice cream. Falooda lives here now too.</p>
+      <p>Gulab jamun and a scoop of ice cream, both served cold. Falooda lives here now too.</p>
       <p class="tile-price" data-nt-price="Desserts">Desserts from $5.99</p>
       <div class="tile-ctas">
         <a class="btn btn-dark btn-sm" href="#menu" data-order-cat="Desserts">Order now</a>
@@ -3225,7 +3231,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         var prices = p.items.map(function(it){ return Number(it.price); }), from = Math.min.apply(null, prices), to = Math.max.apply(null, prices);
         html = '<span class="ups-meal-tag">Dessert</span>' +
           '<div class="ups-meal-head"><b>Something sweet?</b><span class="ups-meal-price">' + (to > from ? 'from ' : '') + '$' + from.toFixed(2) + '</span></div>' +
-          '<span class="ups-meal-sub">' + (p.gulab ? 'Warm gulab jamun with ice cream, or a creamy kulfi.' : 'Creamy kulfi, the best way to finish.') + '</span>' +
+          '<span class="ups-meal-sub">' + (p.gulab ? 'Cold gulab jamun with ice cream, or a creamy kulfi.' : 'Creamy kulfi, the best way to finish.') + '</span>' +
           '<span class="ups-meal-pick">Pick one</span>' +
           '<div class="ups-chips">' + p.items.map(function(it){
             var gj = /gulab jamun/i.test(it.name);
@@ -3447,6 +3453,9 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     // "Coming soon" items (new-menu-launch.sql) show greyed out and can't be ordered yet.
     function wsAvail(i){ return !!i && i.is_available !== false && i.coming_soon !== true; }
     function wsSoon(g){ return g.items.every(function(i){ return i.coming_soon === true; }); }
+    // "On hold" items (a placeholder) are coming_soon too, shown with a lock and "Coming later".
+    function wsHold(g){ return g.items.every(function(i){ return i.on_hold === true; }); }
+    var WS_LOCK = '<svg class="ws-lock" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 7V5a3.5 3.5 0 0 1 7 0v2h.5A1 1 0 0 1 13 8v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1zm1.6 0h3.8V5a1.9 1.9 0 0 0-3.8 0z" fill="currentColor"/></svg>';
     function wsSlug(n){ return String(n).toLowerCase().replace(/[()]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
     // Secret menu code names (secret-menu.sql): the dish's code name, real name under it.
     function wsTitle(g){
@@ -3595,7 +3604,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         var n = sec.groups.length;
         return '<button type="button" class="mn-row' + (sec.cat === 'Secret Menu' ? ' mn-secret' : '') + '" data-ws-cat="' + i + '">' +
           '<span class="mn-thumb' + (cut ? '' : ' is-photo') + '">' + (img ? '<img src="' + escHtml(img) + '" alt="" loading="lazy" onerror="this.remove()">' : '') + '</span>' +
-          '<span class="mn-name">' + escHtml(sec.cat) + (wsTacoDay && sec.cat === 'Tacos' && window.RollinDeals ? '<span class="mn-deal">' + wsMoney(window.RollinDeals.tacoPrice) + ' today</span>' : '') + (sec.groups.every(wsSoon) ? '<span class="mn-meta is-soon">Coming soon \u00b7 ' + n + (n === 1 ? ' item' : ' items') + '</span>' : '<span class="mn-meta">' + n + (n === 1 ? ' item' : ' items') + '</span>') + '</span>' +
+          '<span class="mn-name">' + escHtml(sec.cat) + (wsTacoDay && sec.cat === 'Tacos' && window.RollinDeals ? '<span class="mn-deal">' + wsMoney(window.RollinDeals.tacoPrice) + ' today</span>' : '') + (sec.groups.every(wsHold) ? '<span class="mn-meta is-soon is-hold">' + WS_LOCK + 'Coming later \u00b7 ' + n + (n === 1 ? ' item' : ' items') + '</span>' : sec.groups.every(wsSoon) ? '<span class="mn-meta is-soon">Coming soon \u00b7 ' + n + (n === 1 ? ' item' : ' items') + '</span>' : '<span class="mn-meta">' + n + (n === 1 ? ' item' : ' items') + '</span>') + '</span>' +
           '<svg class="mn-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"></polyline></svg>' +
         '</button>';
       }).join('');
@@ -3630,7 +3639,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       var price = wsGroupPrice(g);
       return '<article class="ws-tile' + (soldOut ? ' is-soldout' : '') + (soon ? ' is-soon' : '') + '" data-ws-group="' + escHtml(g.key) + '">' +
         '<button type="button" class="ws-open" data-ws-open="' + escHtml(g.key) + '"' + (soldOut ? ' disabled' : '') +
-          ' aria-label="' + escHtml(g.name + ', ' + price.replace(/<[^>]+>/g, '') + (soon ? ', coming soon' : soldOut ? ', sold out' : ', see details')) + '">' +
+          ' aria-label="' + escHtml(g.name + ', ' + price.replace(/<[^>]+>/g, '') + (soon ? (wsHold(g) ? ', coming later' : ', coming soon') : soldOut ? ', sold out' : ', see details')) + '">' +
           '<span class="ws-photo">' + wsPhoto(g.items[0], g.cat, g.name) + '</span>' +
           '<span class="ws-body"><span class="ws-name">' + wsTitle(g) + '</span>' +
           (g.items[0].description ? '<span class="ws-blurb">' + escHtml(g.items[0].description) + '</span>' : '') +
@@ -3641,6 +3650,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       '</article>';
     }
     function wsActionHtml(g){
+      if (wsHold(g)) return '<span class="ws-soon is-hold">' + WS_LOCK + 'Coming later</span>';
       if (wsSoon(g)) return '<span class="ws-soon">Coming soon</span>';
       if (!g.items.some(wsAvail)) return '<span class="ws-soldout">Sold out</span>';
       if (g.items.length > 1) {
@@ -3967,13 +3977,20 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     // A photo that isn't uploaded yet is skipped (no broken images).
     (function(){
       var box = document.getElementById('soonBanner'); if (!box || !sbShared.rpc) return;
+      // [photo, caption, veg, fallback photo, dish]. Only the dishes in that stage are shown
+      // (Coming soon before, Just landed after), so a dish On hold never appears here.
       var SLIDES = [
-        ['menu-platters.jpg', 'Build Your Platter', 0], ['pick-butter-chicken.jpg', 'Butter Chicken', 0], ['pick-paneer-tikka.jpg', 'Paneer Tikka', 1],
-        ['menu-wings.jpg', 'Wings · Tikka', 0, 'item-wings-tikka.jpg'], ['pick-chana-masala.jpg', 'Chana Masala', 1], ['pick-tikka-chicken.jpg', 'Tikka Chicken', 0],
-        ['menu-burritos.jpg', 'Cali Burrito · Tandoori', 0, 'item-cali-burrito-tandoori.jpg'], ['pick-butter-paneer.jpg', 'Butter Paneer', 1], ['pick-spicy-chicken-curry.jpg', 'Spicy Chicken Curry', 0],
-        ['menu-desserts.jpg', 'Gulab Jamun & Ice Cream', 1],
-        ['item-wings-butter-chicken.jpg', 'Wings · Butter Chicken', 0], ['item-cali-burrito-signature.jpg', 'Cali Burrito · Signature', 0]
+        ['menu-platters.jpg', 'Build Your Platter', 0, '', 'platter'], ['pick-butter-chicken.jpg', 'Butter Chicken', 0, '', 'platter'], ['pick-paneer-tikka.jpg', 'Paneer Tikka', 1, '', 'platter'],
+        ['menu-wings.jpg', 'Wings · Tikka', 0, 'item-wings-tikka.jpg', 'wings'], ['pick-chana-masala.jpg', 'Chana Masala', 1, '', 'platter'], ['pick-tikka-chicken.jpg', 'Tikka Chicken', 0, '', 'platter'],
+        ['menu-burritos.jpg', 'Cali Burrito · Tandoori', 0, 'item-cali-burrito-tandoori.jpg', 'burritos'], ['pick-butter-paneer.jpg', 'Butter Paneer', 1, '', 'platter'], ['pick-spicy-chicken-curry.jpg', 'Spicy Chicken Curry', 0, '', 'platter'],
+        ['menu-desserts.jpg', 'Gulab Jamun & Ice Cream', 1, 'item-gulab-jamun-with-ice-cream.jpg', 'desserts'],
+        ['item-wings-butter-chicken.jpg', 'Wings · Butter Chicken', 0, '', 'wings'], ['item-cali-burrito-signature.jpg', 'Cali Burrito · Signature', 0, '', 'burritos'],
+        ['item-wings-tandoori.jpg', 'Wings · Tandoori', 0, '', 'wings'], ['item-cali-burrito-butter-chicken.jpg', 'Cali Burrito · Butter Chicken', 0, '', 'burritos'],
+        ['item-wings-signature.jpg', 'Wings · Signature', 0, '', 'wings']
       ];
+      var NT_GRP = { 'Platters': 'platter', 'Wings': 'wings', 'Burritos': 'burritos', 'Desserts': 'desserts' };
+      var NT_LABEL = { platter: 'Platters', wings: 'Wings', burritos: 'Burritos', desserts: 'Desserts' };
+      var NT_CAT = { platter: 'Platters', wings: 'Wings', burritos: 'Burritos', desserts: 'Desserts' };
       // Launch day at midnight, Ohio time (EST in late November).
       function target(d){ var m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(String(d || '')); return m ? Date.UTC(+m[1], +m[2] - 1, +m[3], 5, 0, 0) : null; }
       // "New on the menu" tiles below the menu: Coming soon before launch,
@@ -3982,24 +3999,34 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       window.__ntPaint = function(){
         var sec = document.getElementById('newdishes'), t = window.__wsTeaser;
         if (!sec || !t || !wsSections.length) return;
-        var soon = !t.live && t.show, isNew = !!t.live, any = false;
+        var NEW = window.__wsNewIds || {}, when = String(t.when || '').trim(), any = false;
+        var staged = Array.isArray(t.soon) || Array.isArray(t.hold);
         sec.querySelectorAll('[data-new-cat]').forEach(function(tile){
-          var cat = tile.getAttribute('data-new-cat'), s = wsSections.filter(function(x){ return x.cat === cat; })[0];
-          var orderable = !!(s && s.groups.some(function(g){ return g.items.some(wsAvail); }));
-          var show = soon || (s && s.groups.length);
-          tile.hidden = !show; if (show) any = true;
+          var cat = tile.getAttribute('data-new-cat'), grp = NT_GRP[cat], s = wsSections.filter(function(x){ return x.cat === cat; })[0];
+          var items = []; if (s) s.groups.forEach(function(g){ items = items.concat(g.items); });
+          var orderable = items.some(wsAvail);
+          // This dish's stage: hold (On hold), soon (Coming soon), or on the menu.
+          var st = null;
+          if (items.length) st = items.every(function(i){ return i.on_hold === true; }) ? 'hold' : items.every(function(i){ return i.coming_soon === true; }) ? 'soon' : 'menu';
+          else if (staged) st = (t.soon || []).indexOf(grp) >= 0 ? 'soon' : (t.hold || []).indexOf(grp) >= 0 ? 'hold' : null;
+          else if (!t.live && t.show) st = 'soon';
+          tile.hidden = !st; if (st) any = true;
+          var isNew = st === 'menu' && items.some(function(i){ return NEW[i.id]; });
           var b = tile.querySelector('.nt-badge');
-          b.className = 'nt-badge' + (soon ? ' soon' : '');
-          b.textContent = soon ? 'Coming ' + (String(t.when || '').trim() || 'soon') : isNew ? 'New' : '';
+          b.className = 'nt-badge' + (st === 'soon' ? ' soon' : st === 'hold' ? ' hold' : '');
+          b.innerHTML = st === 'soon' ? 'Coming ' + escHtml(when || 'soon') : st === 'hold' ? WS_LOCK + 'Coming later' : isNew ? 'New' : '';
           // Real price from the menu ("from $12.99").
           var pr = tile.querySelector('[data-nt-price]');
-          if (pr && s) {
-            var prices = []; s.groups.forEach(function(g){ g.items.forEach(function(i){ if (i.coming_soon !== true || soon) prices.push(Number(i.price)); }); });
-            if (prices.length) { var min = Math.min.apply(null, prices); pr.textContent = pr.textContent.replace(/\$\d+(\.\d\d)?/, function(){ return wsMoney(min); }); }
+          if (pr && items.length) {
+            var pool = items.filter(wsAvail); if (!pool.length) pool = items;
+            var min = Math.min.apply(null, pool.map(function(i){ return Number(i.price); }));
+            pr.textContent = pr.textContent.replace(/\$\d+(\.\d\d)?/, function(){ return wsMoney(min); });
           }
           var ctas = tile.querySelector('.tile-ctas');
-          if (!orderable) {
-            ctas.innerHTML = '<span class="nt-soon-note">' + (soon ? 'Coming ' + escHtml(String(t.when || '').trim() || 'soon') : 'Back soon') + '</span>' +
+          if (!ctas.getAttribute('data-orig')) ctas.setAttribute('data-orig', ctas.innerHTML);
+          if (orderable) { ctas.innerHTML = ctas.getAttribute('data-orig'); }
+          else {
+            ctas.innerHTML = '<span class="nt-soon-note' + (st === 'hold' ? ' is-hold' : '') + '">' + (st === 'hold' ? WS_LOCK + 'Coming later' : st === 'soon' ? 'Coming ' + escHtml(when || 'soon') : 'Back soon') + '</span>' +
               (s ? '<a class="link link-more" href="#menu" data-order-cat="' + escHtml(cat) + '">Take a look</a>' : '');
           }
         });
@@ -4007,9 +4034,10 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       };
       sbShared.rpc('get_menu_teaser').then(function(r){
         var t = r && !r.error && r.data;
-        // After launch: a red "New" tag on the new dishes and sections (30 days).
-        if (t && t.live && Array.isArray(t.new_ids) && t.new_ids.length) {
-          var NEW = {}; t.new_ids.forEach(function(id){ NEW[id] = 1; });
+        // Dishes that are live: a red "New" tag on them and their sections (30 days),
+        // even while other new dishes are still Coming soon or On hold.
+        if (t && Array.isArray(t.new_ids) && t.new_ids.length) {
+          var NEW = {}; t.new_ids.forEach(function(id){ NEW[id] = 1; }); window.__wsNewIds = NEW;
           var tag = '<span class="ws-new">New</span>';
           window.__wsApplyNew = function(){
             document.querySelectorAll('.ws-tile[data-ws-group]').forEach(function(tl){
@@ -4018,7 +4046,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
             });
             document.querySelectorAll('#wsIndex [data-ws-cat]').forEach(function(row){
               var sec = wsSections[+row.getAttribute('data-ws-cat')], nm = row.querySelector('.mn-name');
-              if (sec && nm && !nm.querySelector('.ws-new') && sec.groups.length && sec.groups.every(function(g){ return g.items.some(function(i){ return NEW[i.id]; }); }))
+              if (sec && nm && !nm.querySelector('.ws-new') && sec.groups.length && sec.groups.some(function(g){ return g.items.some(function(i){ return NEW[i.id] && i.coming_soon !== true; }); }))
                 (nm.querySelector('.mn-meta') ? nm.querySelector('.mn-meta').insertAdjacentHTML('beforebegin', tag) : nm.insertAdjacentHTML('beforeend', tag));
             });
           };
@@ -4029,20 +4057,25 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         if (!t || !t.show) return;
         var live = !!t.live;
         var when = String(t.when || '').trim(), at = live ? null : target(t.date);
+        // Which dishes this card is about: the Coming soon ones before, the
+        // newly live ones after (older setups: all of them).
+        var dishes = live ? t.fresh : t.soon;
+        if (!Array.isArray(dishes) || !dishes.length) dishes = ['wings', 'burritos', 'desserts'];
+        var shown = SLIDES.filter(function(x){ return dishes.indexOf(x[4]) >= 0; });
         box.innerHTML =
-          '<div class="sc-slides" aria-live="off">' + SLIDES.map(function(x, i){
+          '<div class="sc-slides" aria-live="off">' + shown.map(function(x, i){
             return '<figure class="sc-slide' + (i ? '' : ' on') + '"><img src="' + x[0] + '" alt="" ' + (x[3] ? 'data-alt="' + x[3] + '" ' : '') + (i > 1 ? 'loading="lazy" ' : '') + 'onerror="window.__scDrop && window.__scDrop(this)">' +
               '<figcaption>' + escHtml(x[1]) + (x[2] ? '<i>VEG</i>' : '') + '</figcaption></figure>';
           }).join('') + '<div class="sc-dots" aria-hidden="true"></div></div>' +
           '<div class="sc-body"><span class="sc-kicker">' + (live ? 'Just landed \u00b7 Now serving' : 'Coming ' + escHtml(when || 'soon')) + '</span>' +
           '<h3 class="sc-title">' + escHtml(t.title || 'New on the menu') + '</h3>' +
-          '<p class="sc-deal">Platters · Wings · Burritos · Desserts</p>' +
+          '<p class="sc-deal">' + dishes.map(function(d){ return NT_LABEL[d] || d; }).join(' \u00b7 ') + '</p>' +
           '<p class="sc-note" data-sc-count></p></div>';
         box.hidden = false;
-        // After launch the card opens the Platters section.
+        // After launch the card opens the first new section.
         if (live) {
           box.classList.add('is-live'); box.setAttribute('role', 'link'); box.tabIndex = 0;
-          var go = function(){ var idx = -1; wsSections.forEach(function(sec, i){ if (sec.cat === 'Platters') idx = i; }); if (idx >= 0) wsShowCat(idx, { force: true }); };
+          var go = function(){ var idx = -1; wsSections.forEach(function(sec, i){ if (idx < 0 && sec.cat === NT_CAT[dishes[0]]) idx = i; }); if (idx >= 0) wsShowCat(idx, { force: true }); };
           box.addEventListener('click', go); box.addEventListener('keydown', function(e){ if (e.key === 'Enter') go(); });
         }
         // Slider: a new dish every 2.8 s; pauses while the pointer is on it.
