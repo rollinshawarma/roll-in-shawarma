@@ -1254,6 +1254,23 @@
   .mn-l-modes button.on.m-soon{ background:#9a9a9f; color:#fff; }
   .mn-l-modes button.on.m-live{ background:#1f8a4c; color:#fff; }
   .mn-l-modes button:disabled{ opacity:.6; }
+  .mn-l-modes button.on.m-hold{ background:#6b5f52; color:#fff; }
+  /* One stage per dish (Platter, Wings, Burritos, Gulab Jamun & Falooda). */
+  .mn-l-dish{ margin-top:12px; padding:10px 12px 12px; border-radius:12px; background:#fff; border:1px solid #eee6d8; }
+  .mn-l-dish-h{ display:flex; align-items:center; gap:10px; }
+  .mn-l-dish-h .mn-thumb{ width:40px; height:40px; flex:none; }
+  .mn-l-dish-h .t{ flex:1; min-width:0; font-size:15px; font-weight:700; }
+  .mn-l-dish-h .t small{ display:block; font-weight:400; color:var(--muted); font-size:12.5px; }
+  .mn-l-dish .mn-l-modes{ margin-top:8px; }
+  .mn-l-dish .mn-l-modes button{ font-size:13px; padding:9px 4px; }
+  .mn-l-st{ display:inline-block; font-size:10.5px; font-weight:800; letter-spacing:.06em; text-transform:uppercase; padding:2px 7px; border-radius:999px; margin-left:6px; vertical-align:2px; }
+  .mn-l-st.hidden-st{ background:#eee; color:#555; } .mn-l-st.hold{ background:#e7e0d6; color:#4a3f33; }
+  .mn-l-st.soon{ background:#ffe1a3; color:#7a4a00; } .mn-l-st.live{ background:#d9f3e2; color:#146c3a; }
+  .mn-l-st.locked{ background:#3a332b; color:#fff; display:inline-flex; align-items:center; white-space:nowrap; }
+  .mn-l-st.locked svg{ display:inline-block; flex:none; }
+  .mn-l-dish.is-locked{ background:#f7f5f1; border-style:dashed; }
+  .mn-l-dish.is-locked .mn-l-modes{ opacity:.45; }
+  .mn-l-lock{ width:auto; min-height:0; padding:7px 12px; font-size:13px; flex:none; }
   /* Banner tab: "Coming soon" promo switch (new-menu-launch.sql) */
   .sp-top{ display:flex; gap:16px; align-items:flex-start; justify-content:space-between; }
   .sp-top h2{ margin-bottom:4px; }
@@ -4727,7 +4744,7 @@
     var left = mn.reorder && !isRemoved && !mn.q
       ? '<div class="mn-mv"><button type="button" data-mv="-1" aria-label="Move ' + esc(i.name) + ' up"' + (ix === 0 ? ' disabled' : '') + '>▲</button><button type="button" data-mv="1" aria-label="Move ' + esc(i.name) + ' down"' + (ix === n - 1 ? ' disabled' : '') + '>▼</button></div>' : '';
     var soon = mnSoon()[i.id];
-    var tags = (!i.is_available && !isRemoved ? '<span class="mn-tag out">Sold out</span>' : '') + (i.platinum_only ? '<span class="mn-tag sec">Secret</span>' : '') + (i.coming_soon ? '<span class="mn-tag cs">Coming soon</span>' : soon ? '<span class="mn-tag soon" title="' + esc(soon) + '">Changes at launch</span>' : '');
+    var tags = (!i.is_available && !isRemoved ? '<span class="mn-tag out">Sold out</span>' : '') + (i.platinum_only ? '<span class="mn-tag sec">Secret</span>' : '') + (i.on_hold ? '<span class="mn-tag cs">On hold</span>' : i.coming_soon ? '<span class="mn-tag cs">Coming soon</span>' : soon ? '<span class="mn-tag soon" title="' + esc(soon) + '">Changes at launch</span>' : '');
     var right = isRemoved ? '<button type="button" class="btn-ghost btn-small mn-restore" data-restore>Put back</button>'
       : mn.reorder ? '' : '<div class="mn-money"><span>$</span><input type="number" min="0" step="0.01" inputmode="decimal" value="' + mnPrice(i.price) + '" data-price aria-label="Price of ' + esc(i.name) + '"></div>' +
         '<button type="button" class="switch" role="switch" data-avail aria-checked="' + (i.is_available ? 'true' : 'false') + '" aria-label="' + esc(i.name) + ' on sale"></button>';
@@ -4970,7 +4987,7 @@
   function mnLaunchRender(){
     var box = mnEl('mnLaunch'), list = mn.launch || [];
     if (!list.length && mn.launchErr && !/not authori[sz]ed|manager/i.test(mn.launchErr)) {
-      box.classList.remove('hidden', 'live');
+      box.classList.remove('hidden', 'live', 'soon');
       box.innerHTML = '<div class="mn-l-top"><div><span class="mn-l-kicker">New menu \u00b7 Not set up yet</span><h3>Platters, Desserts, Wings &amp; Burritos</h3>' +
         '<p class="hint">' + (/does not exist|schema cache|Could not find/i.test(mn.launchErr)
           ? 'The database part isn\u2019t installed. In Supabase \u2192 SQL Editor, run <b>menu-studio.sql</b>, then <b>new-menu-launch.sql</b>, then reload this page.'
@@ -4979,6 +4996,116 @@
     }
     box.classList.toggle('hidden', !list.length);
     if (!list.length) { box.innerHTML = ''; return; }
+    var l = list[0];
+    // Older new-menu-launch.sql: one switch for everything.
+    if (!Array.isArray(l.groups) || !l.groups.length) return mnLaunchRenderOld(box, list);
+    var items = (mn.d && mn.d.items) || [];
+    var G = l.groups, MODES = [['hidden', 'Hidden'], ['hold', 'On hold'], ['soon', 'Coming soon'], ['live', 'Live']];
+    var NAME = { hidden: 'Hidden', hold: 'On hold', soon: 'Coming soon', live: 'Live' };
+    var HELP = {
+      hidden: 'Not on the menu anywhere.',
+      hold: 'On the menu everywhere as a greyed-out placeholder with a lock and \u201cComing later\u201d. Nobody can order it.',
+      soon: 'On the menu everywhere, greyed out with \u201cComing soon\u201d (and in the website\u2019s Coming soon card). Nobody can order it.',
+      live: 'Customers can order it on the website, QR page and kiosk.'
+    };
+    var anyLive = G.some(function(g){ return g.mode === 'live'; }), allLive = G.every(function(g){ return g.mode === 'live'; });
+    var anySoon = G.some(function(g){ return g.mode === 'soon'; });
+    box.classList.toggle('live', allLive); box.classList.toggle('soon', !allLive && (anyLive || anySoon || G.some(function(g){ return g.mode === 'hold'; })));
+    var counts = {}; G.forEach(function(g){ var k = g.locked ? 'locked' : g.mode; counts[k] = (counts[k] || 0) + 1; });
+    NAME.locked = 'Locked';
+    var sum = ['live', 'soon', 'hold', 'hidden', 'locked'].filter(function(m){ return counts[m]; }).map(function(m){ return counts[m] + ' ' + NAME[m].toLowerCase(); }).join(' \u00b7 ');
+    function photo(g){
+      var c = (l.changes || []).filter(function(x){ return x.grp === g.grp; })[0], it = c && items.find(function(x){ return x.id === c.id; }) || {};
+      return mnImg(it.image_url || (c ? mnStdPhoto(c.name) : ''), it.category || '');
+    }
+    box.innerHTML = '<div class="mn-l-top"><div><span class="mn-l-kicker">New menu \u00b7 ' + esc(sum) + '</span>' +
+      '<h3>' + esc(l.title) + '</h3><p class="hint">Each dish has its own stage. <b>On hold</b> = placeholder with a lock; <b>Coming soon</b> = greyed out; <b>Live</b> = orderable, with a red \u201cNew\u201d tag for 30 days.</p></div></div>' +
+      G.map(function(g){
+        var n = (l.changes || []).filter(function(x){ return x.grp === g.grp; }).length;
+        var who = g.by ? ' \u00b7 ' + esc(g.by) + (g.at ? ', ' + esc(mnWhen(g.at)) : '') : '';
+        // Locked: hidden from customers and its stage can't change until a manager unlocks it.
+        var lk = g.locked === true;
+        return '<div class="mn-l-dish' + (lk ? ' is-locked' : '') + '" data-grp="' + esc(g.grp) + '"><div class="mn-l-dish-h"><span class="mn-thumb">' + photo(g) + '</span><div class="t">' + esc(g.title) +
+            (lk ? '<span class="mn-l-st locked"><svg viewBox="0 0 16 16" width="12" height="12" aria-hidden="true" style="vertical-align:-1px;margin-right:4px"><path d="M4.5 7V5a3.5 3.5 0 0 1 7 0v2h.5A1 1 0 0 1 13 8v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1zm1.6 0h3.8V5a1.9 1.9 0 0 0-3.8 0z" fill="currentColor"/></svg>Locked</span>' : '<span class="mn-l-st ' + (g.mode === 'hidden' ? 'hidden-st' : esc(g.mode)) + '">' + NAME[g.mode] + '</span>') +
+            '<small>' + (lk ? 'Placeholder: hidden from customers everywhere (website, QR page, kiosk). Tap <b>Unlock</b> when it\u2019s ready, then pick a stage.' : esc(HELP[g.mode])) + ' ' + n + (n === 1 ? ' item' : ' items') + who + '</small></div>' +
+            (lk ? '<button type="button" class="btn-ghost btn-small mn-l-lock" data-unlock>Unlock</button>'
+                : g.mode === 'hidden' ? '<button type="button" class="btn-ghost btn-small mn-l-lock" data-lock>Lock</button>' : '') + '</div>' +
+          '<div class="mn-l-modes" role="radiogroup" aria-label="' + esc(g.title) + ' stage">' + MODES.map(function(m){
+            return '<button type="button" role="radio" data-gmode="' + m[0] + '" aria-checked="' + (g.mode === m[0]) + '" class="' + (g.mode === m[0] ? 'on m-' + m[0] : '') + '"' + (lk ? ' disabled' : '') + '>' + m[1] + '</button>';
+          }).join('') + '</div></div>';
+      }).join('') +
+      '<details class="mn-l-list"><summary>What changes (' + (l.changes || []).length + ')</summary>' +
+      (l.changes || []).map(function(c){
+        var it = items.find(function(x){ return x.id === c.id; }) || {};
+        return '<div class="mn-l-row"><span class="mn-thumb">' + mnImg(it.image_url || mnStdPhoto(c.name), it.category || '') + '</span><div class="t">' + esc(c.name) +
+          '<small>' + esc(c.what) + ' \u00b7 $' + mnPrice(c.price) + '</small></div><button type="button" class="btn-ghost btn-small" data-edit="' + esc(c.id) + '">Edit</button></div>';
+      }).join('') + '</details>' +
+      (allLive ? '' : '<div class="mn-l-teaser"><div class="mn-l-th"><div><b>&ldquo;Coming soon&rdquo; card on the website</b><small>Shows above the menu while a dish is Coming soon (only those dishes). After the last one goes live it says &ldquo;Just landed&rdquo; for 14 days.</small></div>' +
+        '<button type="button" class="switch" role="switch" id="mnTeaserSw" aria-checked="' + (l.teaser_on !== false ? 'true' : 'false') + '" aria-label="Show Coming soon on the website"></button></div>' +
+        '<div class="mn-l-tf"' + (l.teaser_on !== false ? '' : ' hidden') + '><label>Coming<input type="text" id="mnTeaserWhen" maxlength="40" value="' + esc(l.teaser_when || '') + '" placeholder="Thanksgiving week"></label>' +
+        '<label>Headline<input type="text" id="mnTeaserTitle" maxlength="40" value="' + esc(l.teaser_title || '') + '" placeholder="New on the menu"></label>' +
+        '<label>Countdown to<input type="date" id="mnTeaserDate" value="' + esc(l.teaser_date || '') + '"><small>Leave empty for no countdown.</small></label></div></div>') +
+      '<div class="mn-l-acts"><button type="button" class="btn-ghost btn-small" data-picks>Platter choices</button></div>';
+    mnLaunchWire(box, l, items);
+    box.querySelectorAll('.mn-l-dish').forEach(function(row){
+      var g = G.filter(function(x){ return x.grp === row.dataset.grp; })[0];
+      var lb = row.querySelector('[data-lock], [data-unlock]');
+      if (lb && g) lb.onclick = function(){
+        var lock = lb.hasAttribute('data-lock');
+        if (!window.confirm(lock ? 'Lock ' + g.title + '?\n\nIt stays hidden from customers everywhere, and its stage can\u2019t be changed until someone unlocks it.'
+          : 'Unlock ' + g.title + '?\n\nIt stays hidden until you pick a stage (On hold, Coming soon or Live).')) return;
+        lb.disabled = true;
+        sb.rpc('staff_menu_launch_lock', { p_key:l.key, p_grp:g.grp, p_locked:lock }).then(function(r){
+          if (r.error) throw r.error;
+          mn.launch = r.data || []; mnLaunchRender(); soonP.l = mn.launch[0] || soonP.l; soonRender();
+          mnMsg('mnMsg', g.title + (lock ? ' is locked and hidden.' : ' is unlocked. Pick a stage when it\u2019s ready.'), true);
+          return mnRpc('menu_admin_get').then(function(){ mnRender(); });
+        }).catch(function(e){ mnLaunchRender(); mnMsg('mnMsg', /staff_menu_launch_lock|schema cache/.test(String(e && e.message)) ? 'Run the latest new-menu-launch.sql in Supabase first.' : mnErr(e)); });
+      };
+      row.querySelectorAll('[data-gmode]').forEach(function(b){ b.onclick = function(){
+        var to = b.dataset.gmode; if (!g || g.locked || to === g.mode) return;
+        var msg = to === 'live' ? 'Make ' + g.title + ' live?\n\nCustomers can order it on the website, QR page and kiosk, with a red \u201cNew\u201d tag for 30 days.'
+          : to === 'soon' ? 'Show ' + g.title + ' as Coming soon?\n\nIt shows greyed out with \u201cComing soon\u201d everywhere (and in the website\u2019s Coming soon card). Nobody can order it.'
+          : to === 'hold' ? 'Put ' + g.title + ' on hold?\n\nIt stays on the menu as a greyed-out placeholder with a lock and \u201cComing later\u201d. Nobody can order it.'
+          : 'Hide ' + g.title + '?\n\nIt goes back exactly as it was before the new menu.';
+        if (!window.confirm(msg)) return;
+        box.querySelectorAll('[data-gmode]').forEach(function(x){ x.disabled = true; });
+        sb.rpc('staff_menu_launch_group', { p_key:l.key, p_grp:g.grp, p_mode:to }).then(function(r){
+          if (r.error) throw r.error;
+          mn.launch = r.data || []; mnLaunchRender(); soonP.l = mn.launch[0] || soonP.l; soonRender();
+          mnMsg('mnMsg', g.title + ': ' + NAME[to] + '.', true);
+          return mnRpc('menu_admin_get').then(function(){ mnRender(); if (to !== 'hidden') mnSqQueue(); });
+        }).catch(function(e){ mnLaunchRender(); mnMsg('mnMsg', mnErr(e)); });
+      }; });
+    });
+  }
+  // Edit buttons, Platter choices and the Coming soon card settings (both versions).
+  function mnLaunchWire(box, l, items){
+    box.querySelectorAll('[data-edit]').forEach(function(b){ b.onclick = function(){ var it = items.find(function(x){ return x.id === b.dataset.edit; }); if (it) mnOpen(it); }; });
+    box.querySelector('[data-picks]').onclick = mnPicksOpen;
+    function teaser(p, ok){
+      sb.rpc('staff_menu_launch_teaser', { p_key:l.key, p:p }).then(function(r){
+        if (r.error) throw r.error;
+        mn.launch = r.data || []; mnLaunchRender(); mnMsg('mnMsg', ok, true); soonP.l = mn.launch[0] || soonP.l; soonRender();
+      }).catch(function(e){ mnLaunchRender(); mnMsg('mnMsg', mnErr(e)); });
+    }
+    var tsw = mnEl('mnTeaserSw');
+    if (tsw) {
+      tsw.onclick = function(){ var on = tsw.getAttribute('aria-checked') !== 'true'; tsw.disabled = true; teaser({ on:on }, on ? 'The Coming soon card is on the website.' : 'The Coming soon card is hidden.'); };
+      mnEl('mnTeaserDate').addEventListener('change', function(){
+        var d = mnEl('mnTeaserDate').value;
+        teaser({ date:d }, d ? 'The countdown now runs to ' + d + '.' : 'Countdown removed.');
+      });
+      ['mnTeaserWhen', 'mnTeaserTitle'].forEach(function(id){
+        mnEl(id).addEventListener('change', function(){
+          var w = mnEl('mnTeaserWhen').value.trim(), t = mnEl('mnTeaserTitle').value.trim();
+          if (!w || !t) return mnMsg('mnMsg', 'Fill in both: when it\u2019s coming and the headline.');
+          teaser({ when:w, title:t }, 'Saved. The website now says: Coming ' + w + ' \u00b7 ' + t + '.');
+        });
+      });
+    }
+  }
+  function mnLaunchRenderOld(box, list){
     var l = list[0], mode = l.mode || (l.live ? 'live' : l.preview ? 'soon' : 'hidden');
     box.classList.toggle('live', mode === 'live'); box.classList.toggle('soon', mode === 'soon');
     var items = (mn.d && mn.d.items) || [];
@@ -5004,29 +5131,7 @@
         '<label>Headline<input type="text" id="mnTeaserTitle" maxlength="40" value="' + esc(l.teaser_title || '') + '" placeholder="New on the menu"></label>' +
         '<label>Countdown to<input type="date" id="mnTeaserDate" value="' + esc(l.teaser_date || '') + '"><small>Leave empty for no countdown.</small></label></div></div>') +
       '<div class="mn-l-acts"><button type="button" class="btn-ghost btn-small" data-picks>Platter choices</button></div>';
-    box.querySelectorAll('[data-edit]').forEach(function(b){ b.onclick = function(){ var it = items.find(function(x){ return x.id === b.dataset.edit; }); if (it) mnOpen(it); }; });
-    box.querySelector('[data-picks]').onclick = mnPicksOpen;
-    function teaser(p, ok){
-      sb.rpc('staff_menu_launch_teaser', { p_key:l.key, p:p }).then(function(r){
-        if (r.error) throw r.error;
-        mn.launch = r.data || []; mnLaunchRender(); mnMsg('mnMsg', ok, true); soonP.l = mn.launch[0] || soonP.l; soonRender();
-      }).catch(function(e){ mnLaunchRender(); mnMsg('mnMsg', mnErr(e)); });
-    }
-    var tsw = mnEl('mnTeaserSw');
-    if (tsw) {
-      tsw.onclick = function(){ var on = tsw.getAttribute('aria-checked') !== 'true'; tsw.disabled = true; teaser({ on:on }, on ? 'The Coming soon card is on the website.' : 'The Coming soon card is hidden.'); };
-      mnEl('mnTeaserDate').addEventListener('change', function(){
-        var d = mnEl('mnTeaserDate').value;
-        teaser({ date:d }, d ? 'The countdown now runs to ' + d + '.' : 'Countdown removed.');
-      });
-      ['mnTeaserWhen', 'mnTeaserTitle'].forEach(function(id){
-        mnEl(id).addEventListener('change', function(){
-          var w = mnEl('mnTeaserWhen').value.trim(), t = mnEl('mnTeaserTitle').value.trim();
-          if (!w || !t) return mnMsg('mnMsg', 'Fill in both: when it\u2019s coming and the headline.');
-          teaser({ when:w, title:t }, 'Saved. The website now says: Coming ' + w + ' \u00b7 ' + t + '.');
-        });
-      });
-    }
+    mnLaunchWire(box, l, items);
     box.querySelectorAll('[data-mode]').forEach(function(b){ b.onclick = function(){
       var to = b.dataset.mode; if (to === mode) return;
       var msg = to === 'live' ? 'Launch the new menu now?\n\n\u2022 Platters, Wings, Burritos and Desserts can be ordered (website, QR page and kiosk)\n\u2022 Falooda is in Desserts\n\u2022 The Platinum secret menu teaser turns off (those items are now regular)\n\u2022 The website\u2019s Coming soon card goes away\n\nCustomers see it within a minute.'
@@ -5055,20 +5160,29 @@
     if (!sw) return;
     if (!l) { sw.disabled = true; pv.classList.add('hidden'); return; }
     var on = l.teaser_on !== false;
+    var G = Array.isArray(l.groups) && l.groups.length ? l.groups : null;
+    var LBL = { platter: 'Platters', wings: 'Wings', burritos: 'Burritos', desserts: 'Desserts' };
+    var soonG = G ? G.filter(function(g){ return g.mode === 'soon'; }) : [];
+    var lastLive = G ? G.reduce(function(m, g){ return g.mode === 'live' && g.live_at && (!m || g.live_at > m) ? g.live_at : m; }, null) : l.at;
+    // Dish stages: the card is "Coming soon" while a dish is Coming soon, else "Just landed" for 14 days.
+    var isLive = G ? !soonG.length && !!lastLive : !!l.live;
+    l = Object.assign({}, l, { live: isLive, preview: G ? soonG.length > 0 : l.preview, at: lastLive });
+    var dishes = G ? (soonG.length ? soonG : G.filter(function(g){ return g.mode === 'live'; })).map(function(g){ return LBL[g.grp] || g.title; }).join(' \u00b7 ') : 'Platters \u00b7 Wings \u00b7 Burritos \u00b7 Desserts';
     // After launch the card says "Just landed" for 14 days, then goes away by itself.
     var landedUntil = l.live && l.at ? new Date(new Date(l.at).getTime() + 14 * 86400000) : null;
     var landed = !!(landedUntil && landedUntil > new Date());
     sw.disabled = !!l.live && !landed; sw.setAttribute('aria-checked', on && (!l.live || landed) ? 'true' : 'false');
     var days = '';
     if (l.teaser_date) { var ms = Date.UTC(+l.teaser_date.slice(0, 4), +l.teaser_date.slice(5, 7) - 1, +l.teaser_date.slice(8, 10), 5) - Date.now(); if (ms > 0) days = Math.ceil(ms / 86400000) + ' days to go \u00b7 '; }
-    st.innerHTML = landed ? (on ? '<b>On:</b> &ldquo;Just landed &middot; Now serving&rdquo; card above the menu until ' + esc(landedUntil.toLocaleDateString([], { month:'short', day:'numeric' })) + '. Tapping it opens Platters.' : '<b>Off:</b> the &ldquo;Just landed&rdquo; card is hidden.')
+    st.innerHTML = landed ? (on ? '<b>On:</b> &ldquo;Just landed &middot; Now serving&rdquo; card above the menu until ' + esc(landedUntil.toLocaleDateString([], { month:'short', day:'numeric' })) + '. Tapping it opens the new dishes.' : '<b>Off:</b> the &ldquo;Just landed&rdquo; card is hidden.')
       : l.live ? 'The new menu has been <b>live</b> for over 2 weeks, so the promo is off.'
-      : on && l.preview ? '<b>On:</b> showing above the menu. The new sections are also on the menu, greyed out with &ldquo;Coming soon&rdquo;.'
+      : on && l.preview ? '<b>On:</b> showing above the menu (' + esc(dishes) + '). Those dishes are also on the menu, greyed out with &ldquo;Coming soon&rdquo;.'
+      : G && on ? '<b>On</b>, but no dish is Coming soon right now, so nothing shows. Set a dish to Coming soon in Menu \u2192 New menu.'
       : on ? '<b>On:</b> showing above the menu on the website until you launch the new menu.'
       : '<b>Off:</b> hidden from the website. Switch on to show it above the menu.';
     pv.classList.remove('hidden'); pv.classList.toggle('off', !on || (!!l.live && !landed));
     pv.innerHTML = '<div><span class="k">' + (l.live ? 'Just landed \u00b7 Now serving' : 'Coming ' + esc(l.teaser_when || 'soon')) + '</span><b>' + esc(l.teaser_title || 'New on the menu') + '</b>' +
-      '<small>' + esc(days) + 'Platters \u00b7 Wings \u00b7 Burritos \u00b7 Desserts \u00b7 photo slider</small></div>';
+      '<small>' + esc(days) + esc(dishes) + ' \u00b7 photo slider</small></div>';
   }
   function soonLoad(){
     return sb.rpc('staff_menu_launch_get').then(function(r){
