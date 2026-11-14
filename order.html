@@ -152,6 +152,11 @@
   .stepper span{ min-width:22px; text-align:center; font-family:var(--display); font-weight:800; font-size:20px; }
   .tile.is-soldout .tile-photo img{ filter:grayscale(1); opacity:0.35; }
   .soon-tag{ display:inline-block; font-size:12.5px; font-weight:800; letter-spacing:.05em; text-transform:uppercase; color:#7a4a00; background:#ffe9bf; padding:6px 11px; border-radius:999px; }
+  /* "On hold" (a placeholder): lock and "Coming later". */
+  .soon-tag.is-hold{ color:#4a4138; background:#ece6dc; }
+  .lock-ic{ width:.95em; height:.95em; vertical-align:-1px; margin-right:4px; }
+  /* Newly launched dishes: red "New" tag for 30 days. */
+  .new-tag{ display:inline-block; margin-left:6px; padding:2px 6px; border-radius:6px; background:#d62d20; color:#fff; font-size:10px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; vertical-align:2px; }
   .tile.is-soon .tile-photo img{ filter:grayscale(.85); opacity:.6; }
   .tile.is-soldout .tile-price{ color:var(--muted); }
   .soldout-tag{ position:absolute; left:8px; bottom:8px; background:var(--black); color:var(--cream); border:1px solid var(--line); font-size:12px; font-weight:700; padding:5px 10px; border-radius:100px; }
@@ -1191,6 +1196,11 @@
     // "Coming soon" items (new-menu-launch.sql) show greyed out and can't be ordered yet.
     function isAvailable(item){ return item && item.is_available !== false && item.coming_soon !== true; }
     function isSoon(g){ return g.items.every(function(i){ return i.coming_soon === true; }); }
+    function isHold(g){ return g.items.every(function(i){ return i.on_hold === true; }); }
+    var LOCK_IC = '<svg class="lock-ic" viewBox="0 0 16 16" aria-hidden="true"><path d="M4.5 7V5a3.5 3.5 0 0 1 7 0v2h.5A1 1 0 0 1 13 8v6a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V8a1 1 0 0 1 1-1zm1.6 0h3.8V5a1.9 1.9 0 0 0-3.8 0z" fill="currentColor"/></svg>';
+    // Newly launched dishes (get_menu_teaser new_ids): "New" for 30 days.
+    var NEW_IDS = {};
+    function isNewGroup(g){ return g.items.some(function(i){ return NEW_IDS[i.id]; }); }
     function itemLabel(item){ return item.name + (item.variant_name ? ' \u2013 ' + item.variant_name : ''); }
     function comboAddonPhoto(name){
       if (name === 'Combo Fries') return 'item-fries.jpg';
@@ -1236,10 +1246,19 @@
       // get_public_menu includes sold-out items so they can be shown
       // greyed out; if it isn't deployed yet, fall back to the table
       // (which only returns available items).
+      // Which dishes get a "New" tag (asked alongside the menu; never holds it up for long).
+      var newTags = new Promise(function(done){
+        setTimeout(done, 2500);
+        try { sbShared.rpc('get_menu_teaser').then(function(r){
+          var t = r && !r.error && r.data; NEW_IDS = {};
+          if (t && Array.isArray(t.new_ids)) t.new_ids.forEach(function(id){ NEW_IDS[id] = 1; });
+          done();
+        }, done); } catch (e) { done(); }
+      });
       sbShared.rpc('get_public_menu').then(function(res){
         if (res.error || !Array.isArray(res.data)) return sbShared.from('menu_items').select('*').order('display_order');
         return res;
-      }).then(function(res){
+      }).then(function(res){ return newTags.then(function(){ return res; }); }).then(function(res){
         if (res.error || !res.data) {
           $('menuState').innerHTML = 'We couldn&rsquo;t load the menu. Check your connection and try again.<br><button type="button" id="menuRetryBtn">Try again</button>';
           $('menuRetryBtn').addEventListener('click', loadMenu);
@@ -1362,7 +1381,7 @@
       var html = indexHtml + dealHtml +
         sections.map(function(s, i){
         return '<section class="section' + (s.cat === 'Secret Menu' ? ' sec-secret' : '') + '" id="sec-' + i + '" aria-labelledby="sec-' + i + '-t">' +
-          '<h2 class="section-title" id="sec-' + i + '-t">' + escHtml(s.cat) + (s.groups.length && s.groups.every(isSoon) ? ' <span class="soon-tag" style="vertical-align:middle;font-size:11px">Coming soon</span>' : '') + '</h2>' +
+          '<h2 class="section-title" id="sec-' + i + '-t">' + escHtml(s.cat) + (s.groups.length && s.groups.every(isHold) ? ' <span class="soon-tag is-hold" style="vertical-align:middle;font-size:11px">' + LOCK_IC + 'Coming later</span>' : s.groups.length && s.groups.every(isSoon) ? ' <span class="soon-tag" style="vertical-align:middle;font-size:11px">Coming soon</span>' : s.groups.length && s.groups.some(function(g){ return !isSoon(g) && isNewGroup(g); }) ? ' <span class="new-tag" style="vertical-align:middle">New</span>' : '') + '</h2>' +
           (s.cat === 'Secret Menu' ? '<div class="sec-stamp" aria-hidden="true">Classified \u00b7 Platinum eyes only</div>' : '') +
           (CATEGORY_DESCRIPTIONS[s.cat] ? '<p class="section-desc">' + escHtml(CATEGORY_DESCRIPTIONS[s.cat]) + '</p>' : '') +
           '<div class="grid">' + s.groups.map(tileHtml).join('') + '</div>' +
@@ -1477,10 +1496,10 @@
       var sub = g.items.length > 1 ? g.items.length + ' options' : '';
       return '<article class="tile' + (soldOut ? ' is-soldout' : '') + (soon ? ' is-soon' : '') + '" data-group="' + escHtml(g.key) + '">' +
         '<button type="button" class="tile-open" data-open="' + escHtml(g.key) + '"' + (soldOut ? ' disabled' : '') +
-          ' aria-label="' + escHtml(g.name + ', ' + priceText.replace(/<[^>]+>/g, ' ') + (soldOut ? ', sold out' : ', see details')) + '">' +
+          ' aria-label="' + escHtml(g.name + ', ' + priceText.replace(/<[^>]+>/g, ' ') + (soon ? (isHold(g) ? ', coming later' : ', coming soon') : soldOut ? ', sold out' : ', see details')) + '">' +
           '<span class="tile-photo">' + photoImg(g.items[0], g.cat, g.name) + '</span>' +
           '<span class="tile-body">' +
-            '<span class="tile-name">' + (g.items[0].secret_name ? escHtml(g.items[0].secret_name) + '<span class="real-name">' + escHtml(g.name) + (/wings/i.test(g.name) ? ' \u00b7 8 pc' : '') + '</span>' : escHtml(g.name.replace(/\s*\(Veg\)\s*$/i, ''))) + (isVeg(g.name) ? ' <span class="veg-tag" title="Vegetarian">Veg</span>' : '') + '</span>' +
+            '<span class="tile-name">' + (g.items[0].secret_name ? escHtml(g.items[0].secret_name) + '<span class="real-name">' + escHtml(g.name) + (/wings/i.test(g.name) ? ' \u00b7 8 pc' : '') + '</span>' : escHtml(g.name.replace(/\s*\(Veg\)\s*$/i, ''))) + (isVeg(g.name) ? ' <span class="veg-tag" title="Vegetarian">Veg</span>' : '') + (!soon && isNewGroup(g) ? '<span class="new-tag">New</span>' : '') + '</span>' +
             (g.items[0].description ? '<span class="tile-desc">' + escHtml(g.items[0].description) + '</span>' : '') +
             (sub ? '<span class="tile-sub">' + sub + '</span>' : '') +
             '<span class="tile-price">' + priceText + '</span>' +
@@ -1491,6 +1510,7 @@
     }
 
     function actionHtml(g){
+      if (isHold(g)) return '<span class="soon-tag is-hold">' + LOCK_IC + 'Coming later</span>';
       if (isSoon(g)) return '<span class="soon-tag">Coming soon</span>';
       if (!g.items.some(isAvailable)) return '<span class="soldout-tag">Sold out</span>';
       if (g.items.length > 1) {
