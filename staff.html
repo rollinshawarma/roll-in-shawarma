@@ -1922,6 +1922,7 @@
             <label class="iv-chk mn-shared hidden" id="mnSharedWrap"><input type="checkbox" id="mnShared" checked> <span id="mnSharedTxt"></span></label>
           </div>
 
+          <label class="iv-chk hidden" id="mnHalalRow"><input type="checkbox" id="mnHalal"> Halal <small style="font-weight:400;color:var(--muted)">(untick if this item isn&rsquo;t halal; customers can filter the menu to halal only)</small></label>
           <details class="mn-more">
             <summary>More options</summary>
             <div class="mn-2">
@@ -4693,7 +4694,9 @@
   function mnMsg(el, text, ok){ el = typeof el === 'string' ? mnEl(el) : el; if (!el) return; el.innerHTML = text ? '<div class="msg ' + (ok ? 'ok' : 'error') + '">' + esc(text) + '</div>' : ''; if (ok && text) { clearTimeout(el._t); el._t = setTimeout(function(){ el.innerHTML = ''; }, 4000); } }
   function mnErr(e){ var m = (e && (e.message || e.error_description)) || String(e || 'Something went wrong'); if (/menu_admin_|does not exist|schema cache/i.test(m)) m = 'The Menu tools aren’t set up yet. Run menu-studio.sql in Supabase → SQL Editor.'; return m; }
   function mnRpc(fn, args){ return sb.rpc(fn, args || {}).then(function(r){ if (r.error) throw r.error; mn.d = r.data; return r.data; }); }
-  function mnLoad(){ mnLaunchLoad(); return mnRpc('menu_admin_get').then(function(){ mnRender(); mnSqShow(); }, function(e){ mnMsg('mnMsg', mnErr(e)); mnEl('mnList').innerHTML = ''; }); }
+  // Halal yes/no per item (halal-filter.sql). Until that file is run, the checkbox stays hidden.
+  function mnHalalLoad(){ return sb.rpc('menu_admin_halal').then(function(r){ mn.halal = r.error ? null : (r.data || {}); if (mn.d && mn.d.items) mnRender(); }, function(){ mn.halal = null; }); }
+  function mnLoad(){ mnLaunchLoad(); mnHalalLoad(); return mnRpc('menu_admin_get').then(function(){ mnRender(); mnSqShow(); }, function(e){ mnMsg('mnMsg', mnErr(e)); mnEl('mnList').innerHTML = ''; }); }
   function mnSlug(n){ return String(n || '').toLowerCase().replace(/[()]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, ''); }
   function mnStdPhoto(name){ return 'item-' + mnSlug(name) + '.jpg'; }
   window.mnImgErr = function(img){ var fb = img.getAttribute('data-fb'); if (fb && img.getAttribute('src') !== fb) { img.removeAttribute('data-fb'); img.src = fb; } else { img.onerror = null; img.style.visibility = 'hidden'; } };
@@ -4744,7 +4747,7 @@
     var left = mn.reorder && !isRemoved && !mn.q
       ? '<div class="mn-mv"><button type="button" data-mv="-1" aria-label="Move ' + esc(i.name) + ' up"' + (ix === 0 ? ' disabled' : '') + '>▲</button><button type="button" data-mv="1" aria-label="Move ' + esc(i.name) + ' down"' + (ix === n - 1 ? ' disabled' : '') + '>▼</button></div>' : '';
     var soon = mnSoon()[i.id];
-    var tags = (!i.is_available && !isRemoved ? '<span class="mn-tag out">Sold out</span>' : '') + (i.platinum_only ? '<span class="mn-tag sec">Secret</span>' : '') + (i.on_hold ? '<span class="mn-tag cs">On hold</span>' : i.coming_soon ? '<span class="mn-tag cs">Coming soon</span>' : soon ? '<span class="mn-tag soon" title="' + esc(soon) + '">Changes at launch</span>' : '');
+    var tags = (!i.is_available && !isRemoved ? '<span class="mn-tag out">Sold out</span>' : '') + (i.platinum_only ? '<span class="mn-tag sec">Secret</span>' : '') + (mn.halal && mn.halal[i.id] === false ? '<span class="mn-tag cs">Not halal</span>' : '') + (i.on_hold ? '<span class="mn-tag cs">On hold</span>' : i.coming_soon ? '<span class="mn-tag cs">Coming soon</span>' : soon ? '<span class="mn-tag soon" title="' + esc(soon) + '">Changes at launch</span>' : '');
     var right = isRemoved ? '<button type="button" class="btn-ghost btn-small mn-restore" data-restore>Put back</button>'
       : mn.reorder ? '' : '<div class="mn-money"><span>$</span><input type="number" min="0" step="0.01" inputmode="decimal" value="' + mnPrice(i.price) + '" data-price aria-label="Price of ' + esc(i.name) + '"></div>' +
         '<button type="button" class="switch" role="switch" data-avail aria-checked="' + (i.is_available ? 'true' : 'false') + '" aria-label="' + esc(i.name) + ' on sale"></button>';
@@ -4819,6 +4822,8 @@
     mnEl('mnVar').value = i && i.variant_name || '';
     mnEl('mnCombo').value = i && i.combo_upcharge != null ? mnPrice(i.combo_upcharge) : '';
     mnEl('mnSecret').checked = !!(i && i.platinum_only);
+    mnEl('mnHalalRow').classList.toggle('hidden', !mn.halal);
+    mnEl('mnHalal').checked = !(i && mn.halal && mn.halal[i.id] === false);
     mnEl('mnRemove').classList.toggle('hidden', !i || i.archived);
     mn.photo = i && i.image_url || '';
     mnSetAvail(i ? !!i.is_available : true);
@@ -4918,7 +4923,14 @@
       price:String(price), combo_upcharge: combo === '' ? '' : String(combo), image_url:mn.photo, is_available:mn.avail, platinum_only:mnEl('mnSecret').checked };
     var isNew = !mn.item;
     btn.disabled = true; btn.textContent = 'Saving…';
+    var halal = mnEl('mnHalal').checked, vname = p.variant_name;
     mnRpc('menu_admin_save_item', { p:p }).then(function(){ return mnSaveChoices(cat, name); }).then(function(){
+      // Halal yes/no is saved separately (only when it changed, or for a new item that isn't halal).
+      if (!mn.halal) return;
+      var it = (mn.d.items || []).filter(function(x){ return p.id ? x.id === p.id : (!x.archived && x.category === cat && x.name === name && (x.variant_name || '') === vname); })[0];
+      if (!it || (mn.halal[it.id] !== false) === halal) return;
+      return sb.rpc('menu_admin_set_halal', { p_id: it.id, p_halal: halal }).then(function(r){ if (r.error) throw r.error; mn.halal = r.data || {}; });
+    }).then(function(){
       btn.disabled = false; mnCloseAll(); mn.cat = mn.cat && mn.cat !== cat ? cat : mn.cat; mnRender();
       mnMsg('mnMsg', (isNew ? name + ' is on the menu.' : 'Saved ' + name + '.'), true); mnSqQueue();
     }).catch(function(e){ btn.disabled = false; btn.textContent = isNew ? 'Add to menu' : 'Save'; mnMsg('mnFMsg', mnErr(e)); });
