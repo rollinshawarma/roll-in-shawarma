@@ -510,6 +510,10 @@
   .kh-brand img{ width:48px; height:48px; border-radius:50%; flex:none; }
   .kiosk-header h2{ font-family:var(--display); font-size:32px; font-weight:800; color:var(--white); white-space:nowrap; }
   .kh-actions{ display:flex; align-items:center; gap:10px; }
+  /* Halal filter (halal-filter.sql): hides the items that aren't halal for this order. */
+  #halalBtn{ color:var(--cream); border:2px solid var(--line); font-size:18px; font-weight:700; padding:12px 22px; border-radius:999px; min-height:56px; background:none; }
+  #halalBtn[aria-checked="true"]{ background:#2F8F5B; border-color:#2F8F5B; color:#fff; }
+  #halalBtn[aria-checked="true"]::before{ content:"\2713\00a0"; }
   #memberBtn{ background:#FFF6E6; color:var(--white); border:2px solid #F5C77A; font-size:18px; font-weight:800; padding:12px 22px; border-radius:999px; min-height:56px; white-space:nowrap; }
   #memberBtn.in{ background:var(--gold); border-color:var(--gold); color:var(--gold-ink); }
   #startOverBtn{ color:var(--cream); border:2px solid var(--line); font-size:18px; font-weight:700; padding:12px 22px; border-radius:999px; min-height:56px; }
@@ -1082,6 +1086,7 @@
     <div class="kh-brand"><img src="logo.jpg" alt=""><h2>Build Your Order</h2></div>
     <ol class="ksteps" aria-label="Steps"><li class="on">Order</li><li>Your name</li><li>Pay</li></ol>
     <div class="kh-actions">
+      <button type="button" id="halalBtn" class="hidden" role="switch" aria-checked="false">Halal only</button>
       <button type="button" id="memberBtn" class="hidden">Member check-in</button>
       <button type="button" id="startOverBtn">Start over</button>
     </div>
@@ -1413,7 +1418,12 @@
         // same rule as the website, QR page and checkout server).
         kioskTacoDay = window.RollinDeals ? window.RollinDeals.applyTacoPricing(res.data) : null;
         var soonByCategory = {};
+        // Halal filter: the button shows once the menu carries halal flags.
+        var hb = document.getElementById('halalBtn');
+        if (hb) hb.classList.toggle('hidden', !res.data.some(function(it){ return typeof it.halal === 'boolean'; }));
         kioskSecret.concat(res.data).forEach(function(item){
+          // Halal only: items that aren't halal stay off the screen for this order.
+          if (window.__kioskHalalOnly && item.halal === false) return;
           // New dishes that are On hold or Coming soon (new-menu-launch.sql): a greyed
           // placeholder tile with a lock or "Coming soon". Never in the cart, the
           // upsells or the item list.
@@ -2680,6 +2690,12 @@
     });
 
     document.getElementById('startOverBtn').addEventListener('click', function(){ window.location.reload(); });
+    // Halal only: per order (Start over resets it). Redraws the menu without the non-halal items.
+    document.getElementById('halalBtn').addEventListener('click', function(){
+      window.__kioskHalalOnly = !window.__kioskHalalOnly;
+      this.setAttribute('aria-checked', window.__kioskHalalOnly ? 'true' : 'false');
+      loadMenu();
+    });
     document.getElementById('memberBtn').addEventListener('click', function(){ if (memberVerified) openMemberDealsScreen(); else openMemberCheckIn(); });
     document.getElementById('proceedToCheckoutBtn').addEventListener('click', goToCheckoutScreen);
     document.getElementById('kioskBackBtn').addEventListener('click', function(){
