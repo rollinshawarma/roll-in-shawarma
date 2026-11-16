@@ -736,6 +736,23 @@
   .cm-slots{ display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
   .cm-slots span{ background:#f5f5f7; border-radius:8px; padding:4px 8px; font-size:13px; }
   .cm-slots span.has{ background:#e7f5ec; font-weight:700; }
+  .cmo-stats{ display:flex; flex-wrap:wrap; gap:8px 22px; margin:6px 0 14px; font-size:14px; color:var(--muted); }
+  .cmo-stats b{ display:block; font-size:22px; color:var(--text, #1d1d1f); }
+  .cmo-prep{ display:flex; flex-wrap:wrap; gap:6px; margin:0 0 16px; }
+  .cmo-prep span{ background:#f5f5f7; border-radius:8px; padding:5px 10px; font-size:13.5px; }
+  .cmo-prep b{ margin-right:4px; }
+  .cmo-slot{ font-size:13px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); margin:16px 0 6px; display:flex; justify-content:space-between; }
+  .cmo-row{ display:grid; grid-template-columns:minmax(150px, 1.1fr) 2fr auto; gap:6px 16px; padding:10px 0; border-top:1px solid #ececf0; font-size:14px; align-items:start; }
+  .cmo-row .who b{ display:block; }
+  .cmo-row .who small, .cmo-row .what small{ color:var(--muted); display:block; }
+  .cmo-row .amt{ text-align:right; white-space:nowrap; }
+  .cmo-row.off{ opacity:.5; }
+  .cmo-row.off .what{ text-decoration:line-through; }
+  .cmo-st{ display:inline-block; font-size:11px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; border-radius:6px; padding:2px 6px; margin-top:4px; background:#f0f0f3; color:#555; }
+  .cmo-st.paid{ background:#e8f0fe; color:#1a56c4; } .cmo-st.ready{ background:#fff4d6; color:#8a5a00; } .cmo-st.picked_up{ background:#e7f5ec; color:#1b7a3d; } .cmo-st.unpaid_cash{ background:#fdecea; color:#b3261e; }
+  .cmo-tools{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; margin-bottom:10px; }
+  .cmo-tools input{ max-width:240px; margin:0; }
+  @media (max-width:640px){ .cmo-row{ grid-template-columns:1fr auto; } .cmo-row .what{ grid-column:1 / -1; grid-row:2; } }
   @media (max-width:599px){ .nd-runs-head, .nd-day{ grid-template-columns:1fr 116px 116px; gap:6px; } .nd-runs-head input{ padding:0 6px; font-size:15px; } }
 
   /* ---- Stop scorecard ---- */
@@ -2425,6 +2442,7 @@
       <div class="ad-actions"><button type="button" class="btn-primary" id="cmSave">Save</button><button type="button" class="btn-export" id="cmClose">Close</button><button type="button" class="btn-export hidden" id="cmDelete">Delete event</button></div>
     </div>
     <div class="card hidden" id="cmShare"></div>
+    <div class="card hidden" id="cmOrders"></div>
   </div>
 
   <!-- STOP SCORECARD -->
@@ -7901,7 +7919,8 @@
             ' · ' + Number(d.orders) + ' order' + (Number(d.orders) === 1 ? '' : 's') + ', ' + scMoney(d.sales) + '</div>' +
           (Number(d.orders) > 0 ? '<div class="cm-slots" aria-label="Orders per pickup time">' + slots + '</div>' : '') +
           '<div class="ad-btns">' + (past ? '' : '<button type="button" class="nd-toggle ' + (d.active ? 'on' : 'off') + '" data-cm="toggle" data-id="' + esc(d.id) + '">' + (d.active ? '● On: tap to turn off' : '○ Off: tap to turn on') + '</button>') +
-            '<button type="button" class="btn-primary btn-small" data-cm="share" data-id="' + esc(d.id) + '">QR &amp; link</button>' +
+            '<button type="button" class="btn-primary btn-small" data-cm="orders" data-id="' + esc(d.id) + '">Pre-orders (' + Number(d.orders) + ')</button>' +
+            '<button type="button" class="btn-export btn-small" data-cm="share" data-id="' + esc(d.id) + '">QR &amp; link</button>' +
             '<button type="button" class="btn-export btn-small" data-cm="edit" data-id="' + esc(d.id) + '">Edit</button>' +
             '<button type="button" class="btn-export btn-small" data-cm="copy" data-id="' + esc(d.id) + '">Copy for a new date</button></div>' +
         '</div></div>';
@@ -8032,6 +8051,82 @@
       w.document.close(); w.focus(); w.print();
     }
   });
+  // ---- Pre-orders for one event ----
+  var CMO_ST = { paid:'Paid', ready:'Ready', picked_up:'Picked up', unpaid_cash:'Cash, not paid yet', canceled:'Canceled', refunded:'Refunded' };
+  var cmoData = null, cmoTimer = null;
+  function cmoMoney(n){ return '$' + Number(n || 0).toFixed(2); }
+  function cmoItems(o){ return (o.items || []).map(function(i){ return (i.qty > 1 ? i.qty + ' × ' : '') + i.name + (i.note ? ' (' + i.note + ')' : ''); }); }
+  function cmOrders(id, scroll){
+    var box = cmG('cmOrders');
+    if (scroll) { box.innerHTML = '<p class="hint">Loading pre-orders…</p>'; box.classList.remove('hidden'); box.scrollIntoView({ behavior:'smooth', block:'start' }); }
+    clearInterval(cmoTimer);
+    sb.rpc('community_event_orders', { p_id: id }).then(function(res){
+      if (res.error) { box.innerHTML = '<p class="hint">Couldn’t load the pre-orders: ' + esc(res.error.message) + '</p>'; return; }
+      cmoData = Array.isArray(res.data) ? res.data[0] : res.data;
+      cmoPaint();
+      // keep the list fresh while it's open
+      cmoTimer = setInterval(function(){ if (!box.classList.contains('hidden') && document.visibilityState === 'visible' && cmoData && cmoData.id === id) cmOrders(id); }, 60000);
+    });
+  }
+  function cmoPaint(){
+    var d = cmoData, box = cmG('cmOrders'), q = (cmG('cmoSearch') && cmG('cmoSearch').value || '').trim().toLowerCase();
+    var keepFocus = document.activeElement && document.activeElement.id === 'cmoSearch';
+    var list = (d.orders || []).filter(function(o){
+      return !q || [o.name, o.ref, o.phone, o.email].concat(cmoItems(o)).join(' ').toLowerCase().indexOf(q) >= 0;
+    });
+    var groups = [], by = {};
+    list.forEach(function(o){ var k = o.pickup_at; if (!by[k]) { by[k] = []; groups.push(k); } by[k].push(o); });
+    var rows = groups.map(function(k){
+      var g = by[k], live = g.filter(function(o){ return o.status !== 'canceled' && o.status !== 'refunded'; });
+      return '<div class="cmo-slot"><span>' + esc(cmClock(k)) + ' pickup</span><span>' + live.length + ' order' + (live.length === 1 ? '' : 's') + '</span></div>' +
+        g.map(function(o){
+          var off = o.status === 'canceled' || o.status === 'refunded';
+          return '<div class="cmo-row' + (off ? ' off' : '') + '"><div class="who"><b>' + esc(o.name || 'Guest') + '</b><small>#' + esc(o.ref || '') + (o.phone ? ' · ' + esc(o.phone) : '') + '</small>' +
+              (o.email ? '<small>' + esc(o.email) + '</small>' : '') + '<span class="cmo-st ' + esc(o.status) + '">' + esc(CMO_ST[o.status] || o.status) + '</span></div>' +
+            '<div class="what">' + cmoItems(o).map(esc).join('<br>') + (o.notes ? '<small>Note: ' + esc(o.notes) + '</small>' : '') +
+              '<small>Placed ' + esc(cmDay(o.placed_at)) + ', ' + esc(cmClock(o.placed_at)) + (o.pay === 'cash' ? ' · cash' : '') + '</small></div>' +
+            '<div class="amt">' + cmoMoney(o.total) + '</div></div>';
+        }).join('');
+    }).join('');
+    box.innerHTML = '<h2>' + esc(d.name) + ' · Pre-orders</h2>' +
+      '<p class="hint" style="margin-top:-4px">' + esc(cmDay(d.event_start, true)) + ', ' + esc(cmClock(d.event_start)) + ' – ' + esc(cmClock(d.event_end)) + ' · ' + esc(d.place) + '. Updates every minute.</p>' +
+      '<div class="cmo-stats"><span><b>' + d.count + '</b>orders</span><span><b>' + cmoMoney(d.sales) + '</b>sales</span><span><b>' + d.picked_up + '</b>picked up</span>' + (d.canceled ? '<span><b>' + d.canceled + '</b>canceled or refunded</span>' : '') + '</div>' +
+      (d.prep && d.prep.length ? '<div class="section-title" style="margin:0 0 6px">To make</div><div class="cmo-prep">' + d.prep.map(function(p){ return '<span><b>' + p.qty + '</b>' + esc(p.name) + '</span>'; }).join('') + '</div>' : '') +
+      '<div class="cmo-tools"><input type="search" id="cmoSearch" placeholder="Search name, phone, order #" value="' + esc(q) + '">' +
+        '<button type="button" class="btn-export btn-small" data-cmo="refresh">Refresh</button><button type="button" class="btn-export btn-small" data-cmo="csv">Download CSV</button>' +
+        '<button type="button" class="btn-export btn-small" data-cmo="print">Print list</button><button type="button" class="btn-export btn-small" data-cmo="close">Close</button></div>' +
+      (rows || '<p class="hint">' + (q ? 'No pre-orders match that search.' : 'No pre-orders yet. Share the QR code to get the first ones.') + '</p>');
+    if (keepFocus) { var i = cmG('cmoSearch'); i.focus(); i.setSelectionRange(i.value.length, i.value.length); }
+  }
+  cmG('cmOrders').addEventListener('input', function(e){ if (e.target.id === 'cmoSearch') cmoPaint(); });
+  cmG('cmOrders').addEventListener('click', function(e){
+    var b = e.target.closest('[data-cmo]'); if (!b || !cmoData) return;
+    var act = b.getAttribute('data-cmo'), d = cmoData;
+    if (act === 'close') { cmG('cmOrders').classList.add('hidden'); clearInterval(cmoTimer); return; }
+    if (act === 'refresh') return cmOrders(d.id);
+    if (act === 'csv') {
+      var cell = function(v){ v = v == null ? '' : String(v); if (/^[=+\-@\t\r]/.test(v)) v = "'" + v; return '"' + v.replace(/"/g, '""') + '"'; };
+      var lines = [['Pickup time', 'Order #', 'Name', 'Phone', 'Email', 'Items', 'Note', 'Total', 'Payment', 'Status', 'Placed'].map(cell).join(',')];
+      (d.orders || []).forEach(function(o){
+        lines.push([cmClock(o.pickup_at), o.ref, o.name, o.phone, o.email, cmoItems(o).join('; '), o.notes, Number(o.total || 0).toFixed(2), o.pay, CMO_ST[o.status] || o.status, cmDay(o.placed_at) + ' ' + cmClock(o.placed_at)].map(cell).join(','));
+      });
+      var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob(['﻿' + lines.join('\r\n')], { type:'text/csv' }));
+      a.download = d.name.replace(/[^A-Za-z0-9]+/g, '-') + '-preorders.csv'; document.body.appendChild(a); a.click(); a.remove(); return;
+    }
+    if (act === 'print') {
+      var w = window.open('', '_blank'); if (!w) return;
+      var live = (d.orders || []).filter(function(o){ return o.status !== 'canceled' && o.status !== 'refunded'; });
+      var by = {}, ks = []; live.forEach(function(o){ if (!by[o.pickup_at]) { by[o.pickup_at] = []; ks.push(o.pickup_at); } by[o.pickup_at].push(o); });
+      w.document.write('<!doctype html><title>' + esc(d.name) + ' pre-orders</title><style>body{font:14px Arial,sans-serif;margin:28px;color:#111}h1{font-size:22px;margin:0 0 4px}p{margin:0 0 14px;color:#555}h2{font-size:15px;margin:18px 0 6px;border-bottom:2px solid #111;padding-bottom:3px}table{width:100%;border-collapse:collapse}td{padding:6px 4px;border-bottom:1px solid #ddd;vertical-align:top}td.c{width:22px}td.c span{display:inline-block;width:14px;height:14px;border:1.5px solid #111}td.r{text-align:right;white-space:nowrap}.prep span{display:inline-block;margin:0 14px 4px 0}</style>' +
+        '<h1>' + esc(d.name) + ' · Pre-orders</h1><p>' + esc(cmDay(d.event_start, true)) + ', ' + esc(cmClock(d.event_start)) + ' – ' + esc(cmClock(d.event_end)) + ' · ' + esc(d.place) + ' · ' + live.length + ' orders · ' + cmoMoney(d.sales) + '</p>' +
+        (d.prep && d.prep.length ? '<div class="prep"><b>To make:</b> ' + d.prep.map(function(p){ return '<span>' + p.qty + ' × ' + esc(p.name) + '</span>'; }).join('') + '</div>' : '') +
+        ks.map(function(k){ return '<h2>' + esc(cmClock(k)) + ' pickup (' + by[k].length + ')</h2><table>' + by[k].map(function(o){
+          return '<tr><td class="c"><span></span></td><td><b>' + esc(o.name || 'Guest') + '</b><br>#' + esc(o.ref || '') + (o.phone ? ' · ' + esc(o.phone) : '') + '</td><td>' + cmoItems(o).map(esc).join('<br>') + (o.notes ? '<br><i>' + esc(o.notes) + '</i>' : '') + '</td><td class="r">' + cmoMoney(o.total) + (o.status === 'unpaid_cash' ? '<br><b>Collect cash</b>' : '') + '</td></tr>';
+        }).join('') + '</table>'; }).join(''));
+      w.document.close(); w.focus(); w.print();
+    }
+  });
+
   cmG('cmList').addEventListener('click', function(e){
     var b = e.target.closest('[data-cm]'); if (!b) return;
     var d = cmState.rows.find(function(x){ return x.id === b.getAttribute('data-id'); }); if (!d) return;
@@ -8039,6 +8134,7 @@
     if (act === 'edit') return cmOpen(d);
     if (act === 'copy') return cmOpen(d, true);
     if (act === 'share') return cmShare(d);
+    if (act === 'orders') return cmOrders(d.id, true);
     if (act === 'toggle') {
       if (!d.active && !(d.menu_item_ids || []).length) { showMsg('cmMsg', 'Pick the menu first (Edit).', 'error'); return; }
       b.disabled = true;
