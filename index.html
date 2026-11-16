@@ -1,4 +1,4 @@
-l<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -1564,6 +1564,12 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
 
     <div class="taco-banner hidden" id="tacoBanner" role="status"></div>
     <div class="sc" id="soonBanner" hidden aria-label="Coming soon to the menu"></div>
+
+    <!-- Halal filter (halal-filter.sql): hidden until the menu carries halal flags. -->
+    <div class="hl-bar" id="wsHalalBar" hidden>
+      <button type="button" class="hl-sw" id="wsHalalSw" role="switch" aria-checked="false"><i aria-hidden="true"></i><span>Halal only</span></button>
+      <span class="hl-note" id="wsHalalNote">Ask about our Halal options, or switch this on to see only halal items.</span>
+    </div>
 
     <div class="mn" id="wsMenu" data-view="index">
       <div class="mn-index" id="wsIndex" aria-label="Menu categories"></div>
@@ -3396,6 +3402,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
           var atMin = minQty && c.quantity <= minQty;
           return '<div class="cart-item-row">' +
             '<div class="cart-item-info"><div class="cart-item-name">' + escHtml(c.name) + '</div>' +
+            (wsHalalOn() && lineItem && lineItem.halal === false ? '<div class="cart-item-note hl-warn">Not halal</div>' : '') +
             (ingNote(c) ? '<div class="cart-item-note">' + escHtml(ingNote(c)) + '</div>' : '') +
             '<div class="cart-item-price">$' + c.unitPrice.toFixed(2) + ' each' + (minQty ? ' &middot; min ' + minQty : '') + '</div></div>' +
             '<div class="cart-item-qty">' +
@@ -3405,6 +3412,9 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
             '</div>' +
           '</div>';
         }).join('');
+        // Halal only is on but something in the order isn't halal: say so before checkout.
+        var notHalal = wsHalalOn() ? cart.filter(function(c){ var it = itemsById[c.menu_item_id]; return it && it.halal === false; }).length : 0;
+        if (notHalal) foodRowsHtml = '<div class="hl-cart-note" role="status"><b>Heads up:</b> ' + notHalal + (notHalal === 1 ? ' item' : ' items') + ' in your order ' + (notHalal === 1 ? 'isn\u2019t' : 'aren\u2019t') + ' halal (marked below).</div>' + foodRowsHtml;
 
         var giftRowsHtml = giftCardCart.map(function(g, idx){
           return '<div class="cart-item-row">' +
@@ -3494,6 +3504,13 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       return sn ? escHtml(sn) + '<span class="ws-real">' + escHtml(g.name) + ((g.cat === 'Secret Menu' || g.cat === 'Wings') && /wings/i.test(g.name) ? ' \u00b7 8 pc' : '') + '</span>' : escHtml(g.name);
     }
     function wsLabel(item){ return item.name + (item.variant_name ? ' \u2014 ' + item.variant_name : ''); }
+    // ---- Halal filter (halal-filter.sql). Each item carries halal true/false.
+    // "Halal only" hides the items that aren't halal; the choice is kept on this device
+    // (shared with the drive-up page). Halal items get a small "Halal" tag.
+    var WS_HALAL_KEY = 'rollin_halal_only', wsHasHalal = false, wsHalalHidden = {};
+    var WS_HALAL_NO_TAG = { 'Drinks': 1, 'Desserts': 1, 'Kulfi Ice Cream': 1, 'Sides': 1 };
+    function wsHalalOn(){ try { return wsHasHalal && localStorage.getItem(WS_HALAL_KEY) === '1'; } catch (e) { return false; } }
+    function wsHalalTag(g){ return wsHasHalal && !WS_HALAL_NO_TAG[g.cat] && g.items.every(function(i){ return i.halal === true; }) ? '<span class="hl-tag">Halal</span>' : ''; }
     function wsAttr(v){ return String(v).replace(/\\/g, '\\\\').replace(/"/g, '\\"'); }
     // Same photos as the kiosk: item-<name>.jpg; the category photo if a
     // dish has none yet; combo fries/drinks reuse the fries/soda photos.
@@ -3601,12 +3618,17 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         tb.innerHTML = wsTacoDay ? wsTacoHtml(items) : '';
       }
       var byCat = {};
+      wsHasHalal = items.some(function(it){ return typeof it.halal === 'boolean'; });
+      var halalOnly = wsHalalOn(); wsHalalHidden = {};
       items.forEach(function(item){
         // Unavailable catering items stay out entirely (as before).
         if (item.category === 'Catering' && !wsAvail(item)) return;
         itemsById[item.id] = item;
         if (item.category === 'Combo Add-ons') wsComboAddons[item.name] = item;
         if (WS_HIDDEN[item.category]) return;
+        // Halal only: items that aren't halal stay off the menu (still known to the cart).
+        if (halalOnly && item.halal === false) { if (!byCat[item.category]) wsHalalHidden[item.category] = 1; return; }
+        delete wsHalalHidden[item.category];
         if (!byCat[item.category]) { byCat[item.category] = { cat: item.category, groups: [] }; wsSections.push(byCat[item.category]); }
         var key = wsGrpKey(item);
         if (!wsGroups[key]) { wsGroups[key] = { key: key, cat: item.category, name: wsGrpName(item), items: [] }; byCat[item.category].groups.push(wsGroups[key]); }
@@ -3618,6 +3640,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       cart.forEach(function(c){ c.unitPrice = Math.round((Number(itemsById[c.menu_item_id].price) + addOnPrice(c)) * 100) / 100; });
       wsSyncCombos();
       saveCart();
+      wsHalalPaint();
 
       var tbGo = document.getElementById('tacoBanner');
       if (tbGo && !tbGo.__tcBound) {
@@ -3672,7 +3695,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         '<button type="button" class="ws-open" data-ws-open="' + escHtml(g.key) + '"' + (soldOut ? ' disabled' : '') +
           ' aria-label="' + escHtml(g.name + ', ' + price.replace(/<[^>]+>/g, '') + (soon ? (wsHold(g) ? ', coming later' : ', coming soon') : soldOut ? ', sold out' : ', see details')) + '">' +
           '<span class="ws-photo">' + wsPhoto(g.items[0], g.cat, g.name) + '</span>' +
-          '<span class="ws-body"><span class="ws-name">' + wsTitle(g) + '</span>' +
+          '<span class="ws-body"><span class="ws-name">' + wsTitle(g) + wsHalalTag(g) + '</span>' +
           (g.items[0].description ? '<span class="ws-blurb">' + escHtml(g.items[0].description) + '</span>' : '') +
           (g.items.length > 1 ? '<span class="ws-sub">' + g.items.length + ' options</span>' : '') +
           '<span class="ws-price">' + price + '</span></span>' +
@@ -3987,6 +4010,27 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     try { wsSecret = JSON.parse(localStorage.getItem('rollinSecretMenu') || '[]') || []; } catch (e) { wsSecret = []; }
     if (!Array.isArray(wsSecret)) wsSecret = [];
     function wsMenuWithSecret(){ return wsSecret.concat(wsBaseMenu || []); }
+    // The "Halal only" switch above the menu (shown once the menu carries halal flags).
+    function wsHalalPaint(){
+      var bar = document.getElementById('wsHalalBar'), sw = document.getElementById('wsHalalSw'); if (!bar || !sw) return;
+      var on = wsHalalOn(); bar.hidden = !wsHasHalal; sw.setAttribute('aria-checked', on ? 'true' : 'false');
+      document.body.classList.toggle('halal-only', on);
+      var n = Object.keys(wsHalalHidden).length, note = document.getElementById('wsHalalNote');
+      if (note) note.textContent = on ? 'Showing halal items only.' : 'Ask about our Halal options, or switch this on to see only halal items.';
+      // The "coming soon" card hides when every dish on it is filtered out.
+      var sc = document.getElementById('soonBanner'), deal = sc && sc.querySelector('.sc-deal');
+      if (sc) sc.classList.toggle('hl-hide', !!(on && deal && deal.textContent.split('\u00b7').every(function(x){ return wsHalalHidden[x.trim()]; })));
+      if (!sw.__bound) {
+        sw.__bound = true;
+        sw.addEventListener('click', function(){
+          var next = !wsHalalOn();
+          try { if (next) localStorage.setItem(WS_HALAL_KEY, '1'); else localStorage.removeItem(WS_HALAL_KEY); } catch (e) {}
+          if (wsBaseMenu) renderMenu(wsMenuWithSecret());
+          if (window.__ntPaint) window.__ntPaint();
+          if (typeof renderCartUI === 'function') renderCartUI();
+        });
+      }
+    }
     function wsSecretSig(list){ return list.map(function(i){ return i.id + ':' + i.price + ':' + i.is_available; }).join('|'); }
     window.__wsSetSecret = function(items){
       items = Array.isArray(items) ? items.filter(function(i){ return i && i.id; }) : [];
@@ -4041,6 +4085,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
           if (items.length) st = items.every(function(i){ return i.on_hold === true; }) ? 'hold' : items.every(function(i){ return i.coming_soon === true; }) ? 'soon' : 'menu';
           else if (staged) st = (t.soon || []).indexOf(grp) >= 0 ? 'soon' : (t.hold || []).indexOf(grp) >= 0 ? 'hold' : null;
           else if (!t.live && t.show) st = 'soon';
+          if (wsHalalHidden[cat]) st = null;                 // Halal only: nothing halal in this section
           tile.hidden = !st; if (st) any = true;
           var isNew = st === 'menu' && items.some(function(i){ return NEW[i.id]; });
           var b = tile.querySelector('.nt-badge');
@@ -7208,6 +7253,22 @@ body{ background:var(--bg); color:var(--ink); }
 .co-items{ border-color:var(--line); }
 .cart-upsell{ margin:0 16px 12px; }
 @media (max-width:640px){ .cart-drawer-panel{ border-radius:28px 28px 0 0; } }
+
+/* ---- Halal filter ---- */
+.hl-bar{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; max-width:880px; margin:0 auto 22px; }
+.hl-bar[hidden]{ display:none; }
+.hl-sw{ display:inline-flex; align-items:center; gap:10px; padding:8px 16px 8px 8px; border-radius:999px; background:#fff; box-shadow:var(--sh-1); font-weight:600; font-size:15px; color:var(--ink); cursor:pointer; transition:background .25s ease, color .25s ease; }
+.hl-sw i{ position:relative; width:42px; height:26px; border-radius:999px; background:#E3D6C1; transition:background .25s ease; flex:none; }
+.hl-sw i::after{ content:""; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.25); transition:transform .3s cubic-bezier(.34,1.56,.64,1); }
+.hl-sw[aria-checked="true"]{ background:var(--espresso); color:#FBF6EC; }
+.hl-sw[aria-checked="true"] i{ background:#2F8F5B; }
+.hl-sw[aria-checked="true"] i::after{ transform:translateX(16px); }
+.hl-note{ font-size:14px; color:var(--muted); }
+.hl-tag{ display:inline-block; margin-left:8px; padding:1px 7px; border-radius:6px; border:1.5px solid #2F8F5B; color:#2F8F5B; font-family:var(--body); font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; vertical-align:2px; }
+.hl-hide{ display:none !important; }
+.hl-warn{ color:#B4532A !important; font-weight:700; }
+.hl-cart-note{ background:var(--saffron-soft); color:#5A3A00; border-radius:16px; padding:12px 14px; margin:0 0 10px; font-size:14.5px; }
+@media (max-width:560px){ .hl-bar{ gap:8px; margin-bottom:16px; } .hl-note{ font-size:13px; } }
 
 /* ---- Halal line under the order buttons ---- */
 .hero-halal{ font-size:14.5px; font-weight:600; color:var(--muted); display:inline-flex; align-items:center; gap:9px; }
