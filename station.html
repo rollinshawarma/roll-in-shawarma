@@ -3610,7 +3610,7 @@
         var cook = o.fired_at && o.ready_at ? Date.parse(o.ready_at) - Date.parse(o.fired_at) : null;
         t = mmss(now() - Date.parse(o.ready_at || o.created_at)); pct = 100;
         st = '<span class="lt-st">' + (cook != null ? 'Made in ' + mmss(cook) : 'Ready') + '</span>';
-        btn = '<button type="button" class="lt-btn done" data-lt="done" data-id="' + o.id + '">' + (opt.doneLabel || 'Picked up') + '</button>';
+        btn = '<button type="button" class="lt-btn done" data-lt="done" data-id="' + o.id + '">' + (o.pickup ? 'Picked up' : (opt.doneLabel || 'Picked up')) + '</button>';
       }
       var items = (o.items || []).filter(function(it){ return c.show_drinks !== false || !it.drink; }).map(function(it){
         return '<li class="' + (it.done && o.stage !== 'ready' ? 'done' : '') + '"><span>' + it.qty + 'x ' + escHtml(it.name) +
@@ -3723,7 +3723,7 @@
       var key = b.getAttribute('data-run-done');
       var ids = (data.orders || []).filter(function(o){ return o.event_id === key && o.stage === 'ready'; }).map(function(o){ return o.id; });
       if (!ids.length) return;
-      b.disabled = true; b.textContent = 'Marking ' + ids.length + ' delivered\u2026';
+      b.disabled = true; b.textContent = 'Marking ' + ids.length + (b.hasAttribute('data-pickup') ? ' picked up\u2026' : ' delivered\u2026');
       var chain = Promise.resolve();
       ids.forEach(function(id){ chain = chain.then(function(){ return sb.rpc('kds_complete_order', { p_order_id: id }).then(function(res){ if (!res.error) authFetch({ orderId: id, action: 'complete' }).catch(function(){}); }); }); });
       chain.then(fetchBoard, function(){ err("Couldn't reach the server \u2014 check your connection."); fetchBoard(); });
@@ -3792,15 +3792,15 @@
   makeTicketBoard({
     prefix: 'door', rpc: 'get_kds_door_board', start: 'startDoorBoard', stop: 'stopDoorBoard',
     doneLabel: 'Delivered', emptyText: 'No Next Door orders to make right now.',
-    evLine: function(o){ return 'Delivery ' + escHtml(doorTime(o.run_at)) + ' \u00b7 ' + escHtml(o.event || ''); },
+    evLine: function(o){ return (o.pickup ? 'Pickup ' : 'Delivery ') + escHtml(doorTime(o.run_at)) + ' \u00b7 ' + escHtml(o.event || ''); },
     more: function(d){
       var later = (d.groups || []).filter(function(g){ return g.total > g.up; });
-      return later.map(function(g){ return '<div class="lb-more">' + (g.total - g.up) + ' more for the ' + escHtml(doorTime(g.run_at)) + ' run \u2014 they show at ' + escHtml(doorTime(g.shows_at)) + '</div>'; }).join('');
+      return later.map(function(g){ return '<div class="lb-more">' + (g.total - g.up) + ' more for the ' + escHtml(doorTime(g.run_at)) + (g.pickup ? ' pickup' : ' run') + ' \u2014 they show at ' + escHtml(doorTime(g.shows_at)) + '</div>'; }).join('');
     },
     chips: function(d, color){
       return (d.groups || []).map(function(g){
-        return '<div class="lb-ev" style="--ev:' + color(g.id) + '"><i></i><b>' + escHtml(doorTime(g.run_at)) + ' run \u00b7 ' + escHtml(g.place) + '</b><span>' + g.total + ' order' + (g.total === 1 ? '' : 's') + ' \u00b7 ' + g.ready + ' ready</span>' +
-          (g.ready ? '<button type="button" class="lb-run-done" data-run-done="' + escHtml(g.id) + '">Mark ' + g.ready + ' delivered</button>' : '') + '</div>';
+        return '<div class="lb-ev" style="--ev:' + color(g.id) + '"><i></i><b>' + escHtml(doorTime(g.run_at)) + (g.pickup ? ' pickup \u00b7 ' + escHtml(g.name) : ' run \u00b7 ' + escHtml(g.place)) + '</b><span>' + g.total + ' order' + (g.total === 1 ? '' : 's') + ' \u00b7 ' + g.ready + ' ready</span>' +
+          (g.ready ? '<button type="button" class="lb-run-done" data-run-done="' + escHtml(g.id) + '"' + (g.pickup ? ' data-pickup' : '') + '>Mark ' + g.ready + (g.pickup ? ' picked up' : ' delivered') + '</button>' : '') + '</div>';
       }).join('');
     }
   });
