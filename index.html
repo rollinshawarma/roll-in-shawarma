@@ -1648,7 +1648,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
   </div>
 </section>
 
-<!-- "Four ways": pins while the Cali Burrito flavors change as you scroll. Shown only when Burritos can be ordered. -->
+<!-- "Four ways": tap a flavor to see it. Shown only when Burritos can be ordered. -->
 <section id="flavors" class="fl-sec member-hide" aria-label="Cali Burrito, four ways" hidden>
   <div class="fl-pin">
     <div class="fl-copy">
@@ -1656,15 +1656,15 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       <h2 class="fl-title">One burrito, <em>four ways.</em></h2>
       <p class="fl-lead">Chicken, crispy fries, melted cheese, pico de gallo and white sauce, rolled up tight.</p>
       <ol class="fl-list">
-        <li class="on"><i>01</i>Tikka</li>
-        <li><i>02</i>Butter Chicken</li>
-        <li><i>03</i>Tandoori</li>
-        <li><i>04</i>Signature</li>
+        <li class="on"><button type="button" aria-pressed="true"><i>01</i>Tikka</button></li>
+        <li><button type="button" aria-pressed="false"><i>02</i>Butter Chicken</button></li>
+        <li><button type="button" aria-pressed="false"><i>03</i>Tandoori</button></li>
+        <li><button type="button" aria-pressed="false"><i>04</i>Signature</button></li>
       </ol>
       <a class="btn btn-accent" href="#menu" data-order-cat="Burritos">Order a Cali Burrito</a>
     </div>
     <div class="fl-photos">
-      <img src="item-cali-burrito-tikka.jpg" alt="Tikka Cali Burrito" loading="lazy">
+      <img class="on" src="item-cali-burrito-tikka.jpg" alt="Tikka Cali Burrito" loading="lazy">
       <img src="item-cali-burrito-butter-chicken.jpg" alt="Butter Chicken Cali Burrito" loading="lazy">
       <img src="item-cali-burrito-tandoori.jpg" alt="Tandoori Cali Burrito" loading="lazy">
       <img src="item-cali-burrito-signature.jpg" alt="Signature Cali Burrito" loading="lazy">
@@ -7141,8 +7141,9 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
   --accent:#B4532A; --accent-dark:#96421F; --gold:#E39B17; --saffron:#E39B17; --saffron-ink:#3a2600; --saffron-soft:#FDF0D5;
   --card:#FFFFFF; --espresso:#2A1F16;
   --display:"Fraunces", Georgia, "Times New Roman", serif;
-  --sh-1:0 1px 2px rgba(42,31,22,.05), 0 10px 26px -14px rgba(42,31,22,.22);
-  --sh-2:0 2px 6px rgba(42,31,22,.06), 0 30px 60px -28px rgba(42,31,22,.38);
+  /* Minimal: no drop shadows, just a hairline where a card needs an edge. */
+  --sh-1:0 0 0 1px rgba(42,31,22,.07);
+  --sh-2:0 0 0 1px rgba(42,31,22,.07);
 }
 html{ background:var(--bg); }
 body{ background:var(--bg); color:var(--ink); }
@@ -7168,7 +7169,7 @@ body{ background:var(--bg); color:var(--ink); }
 
 /* ---- top bar ---- */
 .gnav{ background:rgba(251,246,236,.84); border-bottom-color:rgba(42,31,22,.07); }
-.gnav.mo-scrolled{ background:rgba(251,246,236,.95); box-shadow:0 10px 30px -18px rgba(42,31,22,.4); }
+.gnav.mo-scrolled{ background:rgba(251,246,236,.96); }
 .nav-order{ background:var(--espresso); color:#FBF6EC; }
 .mobile-nav{ background:var(--bg); }
 
@@ -7194,7 +7195,7 @@ body{ background:var(--bg); color:var(--ink); }
 .mn-row[aria-current="true"]{ background:#fff; box-shadow:var(--sh-1); }
 .ws-tile{ border-bottom-color:var(--line); }
 .ws-photo{ background:var(--panel); }
-.ws-add{ background:var(--espresso); color:#FBF6EC; box-shadow:0 6px 14px -6px rgba(42,31,22,.55); }
+.ws-add{ background:var(--espresso); color:#FBF6EC; box-shadow:none; }
 .ws-sheet{ background:#fff; }
 .cart-fab-btn{ background:var(--espresso); }
 
@@ -7207,8 +7208,8 @@ body{ background:var(--bg); color:var(--ink); }
 .taco-banner.tc-on .tc-deal s{ color:var(--muted); }
 .taco-banner.tc-on .tc-deal b{ background:var(--saffron); color:#241A12; border-radius:999px; padding:3px 12px; }
 .taco-banner.tc-on .tc-note{ color:var(--muted); }
-.taco-banner.tc-on .tc-go{ background:var(--espresso); color:#FBF6EC; padding:15px 22px; transition:transform .25s cubic-bezier(.34,1.56,.64,1), background .2s ease; }
-.taco-banner.tc-on .tc-go:hover{ background:#3B2C20; transform:translateX(3px); }
+.taco-banner.tc-on .tc-go{ background:var(--espresso); color:#FBF6EC; padding:15px 22px; }
+.taco-banner.tc-on .tc-go:hover{ background:#3B2C20; }
 .taco-banner.tc-teaser{ background:#fff; color:var(--ink-2); box-shadow:var(--sh-1); border-radius:999px; max-width:max-content; padding:10px 20px; }
 .taco-banner.tc-teaser b{ color:var(--ink); }
 .mn-deal{ background:var(--saffron); color:#241A12; }
@@ -7224,9 +7225,9 @@ body{ background:var(--bg); color:var(--ink); }
 @media (max-width:560px){ .sc{ padding:20px; min-height:200px; } .sc-title{ font-size:32px; } .taco-banner.tc-on .tc-title{ font-size:30px; } }
 
 /* ---- cart and checkout ---- */
-.cart-drawer-overlay{ background:rgba(42,31,22,.38); -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px); }
-.cart-drawer-panel{ background:var(--bg); box-shadow:-30px 0 80px -30px rgba(42,31,22,.5); }
-.cart-drawer-header{ background:rgba(251,246,236,.92); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); border-bottom-color:transparent; padding:22px 24px 14px; }
+.cart-drawer-overlay{ background:rgba(42,31,22,.4); }
+.cart-drawer-panel{ background:var(--bg); box-shadow:none; }
+.cart-drawer-header{ background:var(--bg); border-bottom-color:transparent; padding:22px 24px 14px; }
 .cart-drawer-header h3{ font-size:30px; font-weight:500; letter-spacing:-.02em; }
 .cart-drawer-close{ background:#fff; box-shadow:var(--sh-1); }
 .cart-items-list{ padding:6px 16px 12px; }
@@ -7235,7 +7236,7 @@ body{ background:var(--bg); color:var(--ink); }
 .cart-item-qty{ background:var(--bg); border-color:transparent; }
 .cart-qty-btn:hover{ background:#fff; }
 .cart-empty-hint{ font-family:var(--display); font-style:italic; font-size:20px; }
-.cart-drawer-footer{ background:#fff; border-top:0; border-radius:26px 26px 0 0; box-shadow:0 -18px 40px -26px rgba(42,31,22,.45); padding-top:20px; }
+.cart-drawer-footer{ background:#fff; border-top:0; border-radius:26px 26px 0 0; box-shadow:0 0 0 1px rgba(42,31,22,.07); padding-top:20px; }
 .cart-breakdown-row{ color:var(--muted); font-size:14.5px; }
 .cart-total-row{ font-family:var(--display); font-size:26px; font-weight:500; letter-spacing:-.02em; margin:10px 0 16px; padding-top:10px; border-top:1px solid var(--line); }
 #cartCheckoutBtn, #cartPayNowBtn, #coContinueBtn{ height:56px; font-size:17px; }
@@ -7259,12 +7260,15 @@ body{ background:var(--bg); color:var(--ink); }
 .hl-bar[hidden]{ display:none; }
 .hl-sw{ display:inline-flex; align-items:center; gap:10px; padding:8px 16px 8px 8px; border-radius:999px; background:#fff; box-shadow:var(--sh-1); font-weight:600; font-size:15px; color:var(--ink); cursor:pointer; transition:background .25s ease, color .25s ease; }
 .hl-sw i{ position:relative; width:42px; height:26px; border-radius:999px; background:#E3D6C1; transition:background .25s ease; flex:none; }
-.hl-sw i::after{ content:""; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.25); transition:transform .3s cubic-bezier(.34,1.56,.64,1); }
+.hl-sw i::after{ content:""; position:absolute; top:3px; left:3px; width:20px; height:20px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.2); transition:transform .15s ease; }
 .hl-sw[aria-checked="true"]{ background:var(--espresso); color:#FBF6EC; }
 .hl-sw[aria-checked="true"] i{ background:#2F8F5B; }
 .hl-sw[aria-checked="true"] i::after{ transform:translateX(16px); }
 .hl-note{ font-size:14px; color:var(--muted); }
-.hl-tag{ display:inline-block; margin-left:8px; padding:1px 7px; border-radius:6px; border:1.5px solid #2F8F5B; color:#2F8F5B; font-family:var(--body); font-size:10.5px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; vertical-align:2px; }
+.hl-tag{ display:inline-block; margin-left:8px; color:#2F8F5B; font-family:var(--body); font-size:10.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; vertical-align:2px; }
+/* Quiet tags: plain small caps, no filled pills. */
+.ws-new{ background:none; color:var(--accent); padding:0; border-radius:0; font-family:var(--body); font-size:10.5px; font-weight:700; letter-spacing:.1em; }
+.mn-name .ws-new{ font-size:10px; }
 .hl-hide{ display:none !important; }
 .hl-warn{ color:#B4532A !important; font-weight:700; }
 .hl-cart-note{ background:var(--saffron-soft); color:#5A3A00; border-radius:16px; padding:12px 14px; margin:0 0 10px; font-size:14.5px; }
@@ -7275,200 +7279,24 @@ body{ background:var(--bg); color:var(--ink); }
 .hero-halal::before{ content:""; width:7px; height:7px; border-radius:50%; background:var(--saffron); }
 </style>
 <!-- =====================================================================
-     MOTION PASS (Nov 2026). Purely visual: nothing here changes ordering.
-     Real photos, text and interface only. Everything is switched off for
-     visitors who have "reduce motion" turned on, and if this script fails
-     the page simply shows without animation.
-     ===================================================================== -->
-<style>
-@media (prefers-reduced-motion: no-preference){
-  :root{ --mo-ease:cubic-bezier(.22,1,.36,1); --mo-spring:cubic-bezier(.34,1.56,.64,1); }
-
-  /* --- top of the page: photo eases in, words rise line by line --- */
-  .mo .hero-media{ animation:moHeroZoom 2.6s var(--mo-ease) both; transform-origin:50% 60%; will-change:transform; }
-  .mo .hero h1{ animation:moRiseClip 1.1s var(--mo-ease) .15s both; }
-  .mo .hero-sub{ animation:moRise .9s var(--mo-ease) .45s both; }
-  .mo .hero .os-slot{ animation:moRise .9s var(--mo-ease) .65s both; }
-  .mo .hero-ctas .btn{ animation:moRise .8s var(--mo-ease) both; }
-  .mo .hero-halal{ animation:moRise .8s var(--mo-ease) 1.15s both; }
-  .mo .hero-ctas .btn:nth-child(1){ animation-delay:.8s; } .mo .hero-ctas .btn:nth-child(2){ animation-delay:.9s; } .mo .hero-ctas .btn:nth-child(3){ animation-delay:1s; }
-  @keyframes moHeroZoom{ from{ transform:scale(1.14); filter:brightness(.7); } to{ transform:scale(1); filter:none; } }
-  @keyframes moRise{ from{ opacity:0; transform:translateY(26px); } to{ opacity:1; transform:none; } }
-  @keyframes moRiseClip{ from{ opacity:0; transform:translateY(60px); clip-path:inset(0 0 100% 0); } to{ opacity:1; transform:none; clip-path:inset(-20% -5% -20% -5%); } }
-
-  /* --- top bar: soft shadow once you scroll, and a thin progress line --- */
-  .gnav{ transition:box-shadow .35s ease, background .35s ease; }
-  .gnav.mo-scrolled{ background:rgba(255,255,255,.93); box-shadow:0 10px 30px -18px rgba(0,0,0,.35); }
-  .mo-progress{ position:absolute; left:0; right:0; bottom:-1px; height:2px; background:var(--accent); transform:scaleX(0); transform-origin:left; pointer-events:none; }
-
-  /* --- reveal as you scroll --- */
-  .mo-r{ opacity:0; transform:translateY(34px); }
-  .mo-r.mo-in{ opacity:1; transform:none; transition:opacity .9s var(--mo-ease), transform .9s var(--mo-ease); transition-delay:var(--mo-d, 0ms); }
-  /* signature tiles: the card settles, then its photo floats up into place */
-  .tile.mo-r{ transform:translateY(46px) scale(.975); }
-  .tile.mo-r .tile-img{ opacity:0; transform:translateY(70px) scale(.93); }
-  .tile.mo-r.mo-in .tile-img{ opacity:1; transform:none; transition:opacity 1s var(--mo-ease) .18s, transform 1.25s var(--mo-ease) .18s; }
-  .tile.mo-r h3, .tile.mo-r > p, .tile.mo-r .tile-ctas, .tile.mo-r .eyebrow{ opacity:0; transform:translateY(18px); }
-  .tile.mo-r.mo-in h3, .tile.mo-r.mo-in > p, .tile.mo-r.mo-in .tile-ctas, .tile.mo-r.mo-in .eyebrow{ opacity:1; transform:none; transition:opacity .8s var(--mo-ease), transform .8s var(--mo-ease); }
-  .tile.mo-r.mo-in h3{ transition-delay:.1s; } .tile.mo-r.mo-in > p{ transition-delay:.18s; } .tile.mo-r.mo-in .tile-ctas{ transition-delay:.28s; }
-  /* cut-out photos drift a little as you scroll and lift on hover */
-  .tile:not(.nt-tile) .tile-img img{ transform:translate3d(0, calc(var(--mo-py, 0px) + var(--mo-hv, 0px)), 0) scale(var(--mo-sc, 1)); transition:transform .7s var(--mo-ease); will-change:transform; }
-  .tile:not(.nt-tile):hover .tile-img img{ --mo-hv:-10px; --mo-sc:1.035; transform:translate3d(0, calc(var(--mo-py, 0px) + var(--mo-hv, 0px)), 0) scale(var(--mo-sc, 1)); }
-  .tile.nt-tile .tile-img img{ transition:transform 1.2s var(--mo-ease); }
-  .tile.nt-tile:hover .tile-img img{ transform:scale(1.045); }
-
-  /* --- menu: rows cascade in, sections glide when you switch --- */
-  .mo-first .mn-row{ animation:moRow .7s var(--mo-ease) both; }
-  .mo-first .mn-row:nth-child(1){ animation-delay:.02s; } .mo-first .mn-row:nth-child(2){ animation-delay:.06s; } .mo-first .mn-row:nth-child(3){ animation-delay:.1s; }
-  .mo-first .mn-row:nth-child(4){ animation-delay:.14s; } .mo-first .mn-row:nth-child(5){ animation-delay:.18s; } .mo-first .mn-row:nth-child(6){ animation-delay:.22s; }
-  .mo-first .mn-row:nth-child(7){ animation-delay:.26s; } .mo-first .mn-row:nth-child(8){ animation-delay:.3s; } .mo-first .mn-row:nth-child(9){ animation-delay:.34s; }
-  .mo-first .mn-row:nth-child(n+10){ animation-delay:.38s; }
-  @keyframes moRow{ from{ opacity:0; transform:translateX(-18px); } to{ opacity:1; transform:none; } }
-  .mn-row .mn-pic img, .mn-row img{ transition:transform .5s var(--mo-ease); }
-  .mn-row:hover img{ transform:scale(1.08) rotate(-2deg); }
-  .ws-sec.mo-sec-in{ animation:moSec .55s var(--mo-ease) both; }
-  .ws-sec.mo-sec-in .ws-tile{ animation:moRise .6s var(--mo-ease) both; }
-  .ws-sec.mo-sec-in .ws-tile:nth-child(2){ animation-delay:.05s; } .ws-sec.mo-sec-in .ws-tile:nth-child(3){ animation-delay:.1s; }
-  .ws-sec.mo-sec-in .ws-tile:nth-child(4){ animation-delay:.15s; } .ws-sec.mo-sec-in .ws-tile:nth-child(n+5){ animation-delay:.2s; }
-  @keyframes moSec{ from{ opacity:0; transform:translateY(16px); } to{ opacity:1; transform:none; } }
-
-  /* --- adding to the order --- */
-  .ws-add{ transition:transform .35s var(--mo-spring), background .2s ease; }
-  .ws-add:active{ transform:scale(.86); }
-  .ws-step, .ws-add .ws-count, .ws-add b{ animation:moPop .4s var(--mo-spring) both; }
-  @keyframes moPop{ from{ transform:scale(.5); opacity:0; } to{ transform:scale(1); opacity:1; } }
-  .cart-fab:not(.hidden){ animation:moFabIn .6s var(--mo-spring) both; }
-  @keyframes moFabIn{ from{ opacity:0; transform:translateY(46px) scale(.9); } to{ opacity:1; transform:none; } }
-  .cart-fab.mo-bump .cart-fab-btn{ animation:moBump .5s var(--mo-spring); }
-  .cart-fab.mo-bump .cart-fab-count{ animation:moPop .45s var(--mo-spring); }
-  @keyframes moBump{ 0%{ transform:scale(1); } 35%{ transform:scale(1.08); } 100%{ transform:scale(1); } }
-
-  /* --- item sheet: springs up; its photo eases in --- */
-  .ws-scrim:not([hidden]){ animation:moFade .3s ease both; }
-  @keyframes moFade{ from{ opacity:0; } to{ opacity:1; } }
-  .ws-sheet:not([hidden]){ animation:moSheetUp .5s var(--mo-ease) both; }
-  @keyframes moSheetUp{ from{ transform:translateY(100%); } to{ transform:none; } }
-  @media (min-width:700px){
-    .ws-sheet:not([hidden]){ animation:moSheetIn .45s var(--mo-ease) both; }
-    @keyframes moSheetIn{ from{ opacity:0; transform:translate(-50%, -46%) scale(.96); } to{ opacity:1; transform:translate(-50%, -50%) scale(1); } }
-  }
-
-  /* --- buttons feel pressed --- */
-  .btn:active, .nav-order:active{ transform:scale(.965); }
-  .link-more{ transition:letter-spacing .3s ease; }
-}
-</style>
-<script>
-(function(){
-  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  if (reduce || !('IntersectionObserver' in window)) return;
-  var root = document.documentElement; root.classList.add('mo');
-
-  // ---- reveal as you scroll ----
-  var picked = [];
-  function pick(sel){ document.querySelectorAll(sel).forEach(function(el){
-    if (el.closest('[role="dialog"], [role="alertdialog"], .mo-r, #wsMenu, .gnav, .hero')) return;
-    if (picked.some(function(p){ return p.contains(el) || el.contains(p); })) return;
-    picked.push(el);
-  }); }
-  pick('.tiles .tile');
-  pick('.sec-head > *, .nt-head > *');
-  pick('.story-photo, .story-copy > *, .visit-card, .review-note');
-  pick('.sec > .wrap > *');
-  var vh = window.innerHeight;
-  var io = new IntersectionObserver(function(es){
-    var n = 0;
-    es.forEach(function(e){
-      if (!e.isIntersecting) return;
-      e.target.style.setProperty('--mo-d', Math.min(n++, 5) * 90 + 'ms');
-      e.target.classList.add('mo-in'); io.unobserve(e.target);
-    });
-  }, { rootMargin:'0px 0px -8% 0px', threshold:0.06 });
-  picked.forEach(function(el){
-    // Anything already on screen when the page loads stays put (no flash).
-    if (el.getBoundingClientRect().top < vh * 0.9) return;
-    el.classList.add('mo-r'); io.observe(el);
-  });
-  // Safety net: if something is still hidden but on screen, show it.
-  setInterval(function(){
-    document.querySelectorAll('.mo-r:not(.mo-in)').forEach(function(el){
-      var r = el.getBoundingClientRect(); if (r.top < window.innerHeight && r.bottom > 0) el.classList.add('mo-in');
-    });
-  }, 1500);
-
-  // ---- scroll: top bar shadow, progress line, photo drift ----
-  var nav = document.querySelector('.gnav'), bar = null;
-  if (nav) { bar = document.createElement('i'); bar.className = 'mo-progress'; bar.setAttribute('aria-hidden', 'true'); nav.appendChild(bar); }
-  var heroMedia = document.querySelector('.hero-media'), heroInner = document.querySelector('.hero-inner'), hero = document.querySelector('.hero');
-  var drift = Array.prototype.slice.call(document.querySelectorAll('.tile:not(.nt-tile) .tile-img img'));
-  var ticking = false;
-  function onScroll(){
-    ticking = false;
-    var y = window.scrollY || 0, h = window.innerHeight;
-    if (nav) nav.classList.toggle('mo-scrolled', y > 12);
-    if (bar) { var max = document.documentElement.scrollHeight - h; bar.style.transform = 'scaleX(' + (max > 0 ? Math.min(y / max, 1) : 0) + ')'; }
-    if (hero && heroInner && y < hero.offsetHeight + 80) {
-      var k = Math.min(y / (hero.offsetHeight || 1), 1);
-      if (heroMedia) heroMedia.style.translate = '0 ' + (y * 0.22).toFixed(1) + 'px';
-      heroInner.style.opacity = (1 - k * 1.25).toFixed(3); heroInner.style.translate = '0 ' + (y * -0.08).toFixed(1) + 'px';
-    }
-    drift.forEach(function(img){
-      var t = img.closest('.tile'); if (!t) return;
-      var r = t.getBoundingClientRect(); if (r.bottom < -100 || r.top > h + 100) return;
-      var c = (r.top + r.height / 2 - h / 2) / h;            // -1 .. 1 around the middle of the screen
-      img.style.setProperty('--mo-py', (c * -26).toFixed(1) + 'px');
-    });
-  }
-  window.addEventListener('scroll', function(){ if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive:true });
-  onScroll();
-
-  // ---- menu: first cascade, and a glide when you switch sections ----
-  var menu = document.getElementById('wsMenu');
-  if (menu && 'MutationObserver' in window) {
-    var first = false;
-    new MutationObserver(function(muts){
-      if (!first && menu.querySelector('.mn-row')) {
-        first = true; var idx = document.getElementById('wsIndex');
-        if (idx) { idx.classList.add('mo-first'); setTimeout(function(){ idx.classList.remove('mo-first'); }, 1400); }
-      }
-      muts.forEach(function(m){
-        if (m.type !== 'attributes' || m.attributeName !== 'hidden') return;
-        var el = m.target; if (!el.classList || !el.classList.contains('ws-sec') || el.hidden) return;
-        el.classList.remove('mo-sec-in'); void el.offsetWidth; el.classList.add('mo-sec-in');
-        setTimeout(function(){ el.classList.remove('mo-sec-in'); }, 1000);
-      });
-    }).observe(menu, { childList:true, subtree:true, attributes:true, attributeFilter:['hidden'] });
-  }
-
-  // ---- the order button gives a little bounce when the count changes ----
-  var fab = document.getElementById('cartFab'), cnt = document.getElementById('cartFabCount');
-  if (fab && cnt && 'MutationObserver' in window) {
-    var last = cnt.textContent;
-    new MutationObserver(function(){
-      if (cnt.textContent === last) return; last = cnt.textContent;
-      fab.classList.remove('mo-bump'); void fab.offsetWidth; fab.classList.add('mo-bump');
-      setTimeout(function(){ fab.classList.remove('mo-bump'); }, 600);
-    }).observe(cnt, { childList:true, characterData:true, subtree:true });
-  }
-})();
-</script>
-<!-- =====================================================================
-     CINEMA (Nov 2026): food-first top section, the pinned "four ways"
-     burrito moment, word-by-word headings and the photo-to-sheet
-     transition. Visual only. With "reduce motion" on, everything is still.
+     LAYOUT + MOTION, minimal (Nov 16 2026). Replaces the earlier "motion
+     pass" and "cinema" blocks.
+     Rules: every tap responds at once; nothing in the menu is animated in;
+     feedback animations are 200 ms or less; no scroll-linked effects.
+     Visual only. With "reduce motion" on, nothing moves.
      ===================================================================== -->
 <style id="cinema">
 /* ---------- top section: words on the left, your food on the right ---------- */
 .hero{ display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 1.08fr); gap:0; padding:18px; height:calc(100svh - var(--nav-h) - 40px); min-height:600px; max-height:880px; color:var(--ink); background:var(--bg); overflow:hidden; }
 .hero::after{ display:none; }
-.hero-media{ position:relative; inset:auto; order:2; border-radius:36px; overflow:hidden; background:var(--panel); translate:none !important; animation:none !important; box-shadow:var(--sh-2); }
-.hero-inner{ order:1; height:auto; align-items:flex-start; justify-content:center; text-align:left; gap:26px; padding:24px clamp(20px, 4.6vw, 72px); translate:none !important; opacity:1 !important; }
+.hero-media{ position:relative; inset:auto; order:2; border-radius:32px; overflow:hidden; background:var(--panel); }
+.hero-inner{ order:1; height:auto; align-items:flex-start; justify-content:center; text-align:left; gap:26px; padding:24px clamp(20px, 4.6vw, 72px); }
 .hero-kick{ font-size:13px; font-weight:700; letter-spacing:.2em; text-transform:uppercase; color:var(--accent); margin-bottom:18px; }
 .hero h1{ font-family:var(--display); font-size:clamp(54px, 7vw, 108px); line-height:.98; font-weight:500; letter-spacing:-.035em; text-shadow:none; text-wrap:initial; }
 .hero h1 em{ display:block; font-style:italic; font-weight:400; color:var(--accent); }
 .hero-sub{ font-family:var(--display); font-style:italic; font-weight:400; font-size:clamp(22px, 2.3vw, 30px); color:var(--ink-2); text-shadow:none; margin-top:18px; }
 .hero .os-slot{ flex:none; min-height:0; align-items:flex-start; }
-.hero .open-status{ background:#fff; color:var(--ink); box-shadow:var(--sh-1); font-size:16px; }
+.hero .open-status{ background:#fff; color:var(--ink); box-shadow:none; border:1px solid var(--line); font-size:16px; }
 .hero-ctas{ max-width:560px; }
 .hero-ctas .btn{ box-shadow:none; }
 .hero-ctas .btn-white{ box-shadow:inset 0 0 0 1.5px var(--line); }
@@ -7476,243 +7304,162 @@ body{ background:var(--bg); color:var(--ink); }
 .hero-media::before{ content:""; position:absolute; z-index:4; left:0; right:0; top:0; height:110px; background:linear-gradient(180deg, rgba(20,14,9,.38), rgba(20,14,9,0)); pointer-events:none; }
 .hs-slide{ position:absolute; inset:0; margin:0; opacity:0; overflow:hidden; }
 .hs-slide.on{ opacity:1; z-index:1; }
-.hs-slide.in{ opacity:1; z-index:2; }
 .hs-slide img{ width:100%; height:100%; object-fit:cover; object-position:var(--pos, 50% 50%); display:block; }
-.hs-cap{ position:absolute; z-index:5; left:20px; bottom:20px; display:inline-flex; align-items:center; gap:12px; padding:12px 14px 12px 20px; border-radius:999px; background:rgba(255,255,255,.94); color:var(--ink); font-weight:600; font-size:17px; box-shadow:0 14px 34px -14px rgba(0,0,0,.5); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); }
-.hs-cap i{ width:34px; height:34px; border-radius:50%; background:var(--espresso); color:#FBF6EC; display:inline-flex; align-items:center; justify-content:center; font-style:normal; font-size:16px; transition:transform .35s cubic-bezier(.34,1.56,.64,1); }
-.hs-cap:hover i{ transform:translateX(4px); }
-.hs-cap span{ display:inline-block; }
+.hs-cap{ position:absolute; z-index:5; left:20px; bottom:20px; display:inline-flex; align-items:center; gap:12px; padding:12px 14px 12px 20px; border-radius:999px; background:#fff; color:var(--ink); font-weight:600; font-size:17px; }
+.hs-cap i{ width:34px; height:34px; border-radius:50%; background:var(--espresso); color:#FBF6EC; display:inline-flex; align-items:center; justify-content:center; font-style:normal; font-size:16px; }
 .hs-bars{ position:absolute; z-index:5; left:20px; right:20px; top:18px; display:flex; gap:6px; }
-.hs-bars b{ flex:1; height:3px; border-radius:3px; background:rgba(255,255,255,.45); overflow:hidden; box-shadow:0 0 0 .5px rgba(0,0,0,.08); }
+.hs-bars b{ flex:1; height:3px; border-radius:3px; background:rgba(255,255,255,.45); overflow:hidden; }
 .hs-bars b::after{ content:""; display:block; height:100%; background:#fff; transform-origin:left; transform:scaleX(0); }
 .hs-bars b.done::after{ transform:scaleX(1); }
 @media (max-width:899px){
   .hero{ grid-template-columns:1fr; height:auto; min-height:0; max-height:none; padding:12px 12px 0; }
-  .hero-media{ order:1; height:min(46svh, 420px); border-radius:28px; }
+  .hero-media{ order:1; height:min(46svh, 420px); border-radius:26px; }
   .hero-inner{ order:2; align-items:center; text-align:center; padding:28px 12px calc(28px + var(--safe-b)); gap:20px; }
   .hero h1{ font-size:clamp(46px, 13.5vw, 72px); }
   .hero .os-slot{ align-items:center; }
   .hero-kick{ margin-bottom:12px; }
 }
 
-/* ---------- "four ways": the burrito section pins while the flavors change ---------- */
+/* ---------- "four ways": tap a flavor to see it ---------- */
 .fl-sec{ background:var(--bg); }
 .fl-pin{ max-width:1180px; margin:0 auto; padding:clamp(48px, 7vw, 96px) 20px; display:grid; grid-template-columns:minmax(0, 5fr) minmax(0, 6fr); gap:clamp(24px, 5vw, 72px); align-items:center; }
 .fl-kick{ display:inline-flex; align-items:center; gap:10px; font-size:13px; font-weight:700; letter-spacing:.16em; text-transform:uppercase; color:var(--accent); }
-.fl-kick b{ background:#C8321F; color:#fff; padding:4px 10px; border-radius:999px; letter-spacing:.14em; font-size:11.5px; }
+.fl-kick b{ font-weight:700; }
+.fl-kick b::after{ content:"\00b7"; margin-left:10px; color:var(--muted); }
 .fl-title{ font-family:var(--display); font-weight:500; font-size:clamp(40px, 5.2vw, 68px); line-height:1.02; letter-spacing:-.03em; margin-top:14px; }
 .fl-title em{ font-style:italic; font-weight:400; color:var(--accent); display:block; }
 .fl-lead{ color:var(--ink-2); margin-top:16px; font-size:18px; max-width:440px; }
 .fl-list{ list-style:none; margin:28px 0 30px; padding:0; }
-.fl-list li{ display:flex; align-items:baseline; gap:16px; padding:13px 0; border-top:1px solid var(--line); font-family:var(--display); font-size:clamp(24px, 2.6vw, 32px); font-weight:500; letter-spacing:-.015em; color:#B9AC9A; transition:color .45s ease, padding-left .6s cubic-bezier(.22,1,.36,1); }
+.fl-list li{ border-top:1px solid var(--line); }
 .fl-list li:last-child{ border-bottom:1px solid var(--line); }
-.fl-list li i{ font-family:var(--body); font-style:normal; font-size:12px; font-weight:700; letter-spacing:.1em; color:inherit; width:22px; }
-.fl-list li.on{ color:var(--ink); padding-left:12px; }
-.fl-list li.on i{ color:var(--accent); }
-.fl-photos{ position:relative; aspect-ratio:5/4; border-radius:32px; overflow:hidden; background:#fff; box-shadow:var(--sh-2); }
-.fl-photos img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; }
-.fl-count{ position:absolute; z-index:6; right:18px; bottom:16px; font-size:13px; font-weight:700; letter-spacing:.1em; color:var(--ink); background:rgba(255,255,255,.9); padding:7px 12px; border-radius:999px; }
-/* Still version (reduce motion / no script): a simple 2 x 2 grid of the four photos. */
-html:not(.mo) .fl-photos{ aspect-ratio:auto; display:grid; grid-template-columns:1fr 1fr; gap:6px; background:transparent; box-shadow:none; }
-html:not(.mo) .fl-photos img{ position:static; aspect-ratio:5/4; border-radius:18px; }
-html:not(.mo) .fl-count{ display:none; }
-html:not(.mo) .fl-list li{ color:var(--ink); }
+.fl-list button{ display:flex; align-items:baseline; gap:16px; width:100%; padding:13px 0; text-align:left; font-family:var(--display); font-size:clamp(24px, 2.6vw, 32px); font-weight:500; letter-spacing:-.015em; color:#B9AC9A; cursor:pointer; transition:color .15s ease; }
+.fl-list button i{ font-family:var(--body); font-style:normal; font-size:12px; font-weight:700; letter-spacing:.1em; color:inherit; width:22px; }
+.fl-list li.on button{ color:var(--ink); }
+.fl-list li.on button i{ color:var(--accent); }
+.fl-photos{ position:relative; aspect-ratio:5/4; border-radius:28px; overflow:hidden; background:#fff; }
+.fl-photos img{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; display:block; opacity:0; }
+.fl-photos img.on{ opacity:1; }
+.fl-count{ display:none; }
 @media (max-width:860px){
-  .fl-pin{ grid-template-columns:1fr; gap:22px; padding:28px 16px 36px; }
-  .fl-photos{ order:-1; aspect-ratio:4/3; border-radius:24px; }
-  .fl-lead, .fl-copy .btn{ display:none; }
-  .fl-list{ margin:16px 0 20px; }
-  .fl-list li{ padding:9px 0; font-size:22px; }
+  .fl-pin{ grid-template-columns:1fr; gap:22px; padding:36px 16px 44px; }
+  .fl-photos{ order:-1; aspect-ratio:4/3; border-radius:22px; }
+  .fl-lead{ display:none; }
+  .fl-list{ margin:14px 0 22px; }
+  .fl-list button{ padding:10px 0; font-size:22px; }
   .fl-title{ font-size:clamp(34px, 9vw, 44px); margin-top:10px; }
 }
 
+/* ---------- top bar: a hairline once you scroll ---------- */
+.gnav.mo-scrolled{ box-shadow:0 1px 0 rgba(42,31,22,.1); }
+
 @media (prefers-reduced-motion: no-preference){
-  /* top section */
-  .mo .hero-media{ animation:ciMediaIn 1.3s cubic-bezier(.22,1,.36,1) .1s both !important; }
-  @keyframes ciMediaIn{ from{ clip-path:inset(100% 0 0 0 round 36px); } to{ clip-path:inset(0 0 0 0 round 36px); } }
-  .mo .hero-kick{ animation:moRise .8s var(--mo-ease) .1s both; }
-  .mo .hero h1{ animation:none; }
-  .hs-slide.on img{ animation:ciKen 9s linear both; }
-  .hs-slide.in{ animation:ciWipe 1.15s cubic-bezier(.7,0,.2,1) both; }
-  .hs-slide.in img{ animation:ciSettle 1.6s cubic-bezier(.22,1,.36,1) both; }
-  @keyframes ciKen{ from{ transform:scale(1.04); } to{ transform:scale(1.16) translate3d(0,-1.2%,0); } }
-  @keyframes ciWipe{ from{ clip-path:inset(0 0 0 100%); } to{ clip-path:inset(0 0 0 0); } }
-  @keyframes ciSettle{ from{ transform:scale(1.28) translate3d(6%,0,0); } to{ transform:scale(1.04); } }
-  .hs-bars b.run::after{ animation:ciBar var(--hs-d, 4.6s) linear both; }
+  /* Page load: the top section fades up once. */
+  .mo .hero-media{ animation:moFade .6s ease both; }
+  .mo .hero-kick, .mo .hero h1, .mo .hero-sub, .mo .hero .os-slot, .mo .hero-ctas, .mo .hero-halal{ animation:moRise .5s cubic-bezier(.2,.8,.2,1) both; }
+  .mo .hero h1{ animation-delay:.05s; } .mo .hero-sub{ animation-delay:.1s; } .mo .hero .os-slot{ animation-delay:.15s; } .mo .hero-ctas{ animation-delay:.2s; } .mo .hero-halal{ animation-delay:.25s; }
+  @keyframes moFade{ from{ opacity:0; } to{ opacity:1; } }
+  @keyframes moRise{ from{ opacity:0; transform:translateY(12px); } to{ opacity:1; transform:none; } }
+  /* Photos cross-fade. */
+  .hs-slide{ transition:opacity .7s ease; }
+  .fl-photos img{ transition:opacity .3s ease; }
+  .hs-bars b.run::after{ animation:ciBar var(--hs-d, 5s) linear both; }
   @keyframes ciBar{ to{ transform:scaleX(1); } }
-  .hs-cap.swap span{ animation:ciCap .55s cubic-bezier(.22,1,.36,1) both; }
-  @keyframes ciCap{ from{ opacity:0; transform:translateY(12px); } to{ opacity:1; transform:none; } }
-  .mo .hs-cap{ animation:moRise .8s var(--mo-ease) 1.1s both; }
-
-  /* word-by-word headings */
-  .mo-w{ display:inline-block; overflow:hidden; vertical-align:top; padding-bottom:.14em; margin-bottom:-.14em; }
-  .mo-w > span{ display:inline-block; transform:translateY(112%); }
-  .mo-in .mo-w > span, .mo-in.mo-split .mo-w > span{ transform:none; transition:transform .95s cubic-bezier(.22,1,.36,1); transition-delay:calc(var(--i, 0) * 55ms + var(--mo-d, 0ms)); }
-  .mo-r.mo-split, .tile.mo-r h3.mo-split{ opacity:1; transform:none; }
-
-  /* four ways: pinned on screens tall enough for it */
-  @media (min-height:560px){
-    .mo .fl-sec{ height:calc(100svh + 2100px); }
-    .mo .fl-pin{ position:sticky; top:var(--nav-h); height:calc(100svh - var(--nav-h)); padding-top:0; padding-bottom:0; align-content:center; }
+  /* Sections below the menu fade up once as they come into view. Nothing in the menu does. */
+  .mo-r{ opacity:0; transform:translateY(12px); }
+  .mo-r.mo-in{ opacity:1; transform:none; transition:opacity .45s ease, transform .45s cubic-bezier(.2,.8,.2,1); }
+  /* Feedback: quick and small. */
+  .btn:active, .nav-order:active, .ws-add:active{ transform:scale(.96); }
+  .ws-step, .ws-add .ws-count, .ws-add b{ animation:moPop .18s ease-out both; }
+  @keyframes moPop{ from{ transform:scale(.7); opacity:0; } to{ transform:scale(1); opacity:1; } }
+  .cart-fab:not(.hidden){ animation:moRise .22s ease-out both; }
+  .cart-fab.mo-bump .cart-fab-count{ animation:moPop .2s ease-out; }
+  /* Item sheet: in fast, then out of the way. */
+  .ws-scrim:not([hidden]){ animation:moFade .14s ease both; }
+  .ws-sheet:not([hidden]){ animation:moSheetUp .24s cubic-bezier(.2,.8,.2,1) both; }
+  @keyframes moSheetUp{ from{ transform:translateY(100%); } to{ transform:none; } }
+  @media (min-width:700px){
+    .ws-sheet:not([hidden]){ animation:moSheetIn .16s ease-out both; }
+    @keyframes moSheetIn{ from{ opacity:0; transform:translate(-50%, -49%); } to{ opacity:1; transform:translate(-50%, -50%); } }
   }
-  .fl-photos img{ will-change:clip-path, transform; }
-
-  /* photo flies from the menu into the item sheet */
-  .ws-sheet.mo-flip:not([hidden]){ animation:ciSheetFade .32s ease both; }
-  @keyframes ciSheetFade{ from{ opacity:0; } to{ opacity:1; } }
-  @media (max-width:699px){ .ws-sheet.mo-flip:not([hidden]){ animation:moSheetUp .42s var(--mo-ease) both; } }
-  .ci-fly{ position:fixed; z-index:470; overflow:hidden; pointer-events:none; will-change:left, top, width, height; box-shadow:0 30px 60px -30px rgba(0,0,0,.5); }
-  .ci-fly img{ width:100%; height:100%; object-fit:cover; object-position:50% 0; display:block; }
 }
 </style>
 <script>
 (function(){
   var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-  var root = document.documentElement;
+  var root = document.documentElement, hasIO = 'IntersectionObserver' in window;
+  if (!reduce && hasIO) root.classList.add('mo');
 
-  // ---------- which sections can be ordered right now (from the menu list) ----------
+  // Which sections can be ordered right now (read from the menu list).
   function menuCats(){
     var out = {}, rows = document.querySelectorAll('#wsIndex .mn-row');
     rows.forEach(function(r){ var n = r.querySelector('.mn-name'), t = n && n.firstChild && n.firstChild.nodeType === 3 ? n.firstChild.nodeValue.trim() : ''; if (t) out[t] = !r.querySelector('.is-soon'); });
     return rows.length ? out : null;
   }
+  function whenMenu(fn){ var n = 0, w = setInterval(function(){ var c = menuCats(); if (!c && ++n < 40) return; clearInterval(w); if (c) fn(c); }, 400); }
 
-  // ---------- top section slideshow ----------
+  // ---------- top section: photos cross-fade every 5 seconds ----------
   (function(){
     var box = document.getElementById('heroSlides'), cap = document.getElementById('hsCap'), bars = document.getElementById('hsBars');
     if (!box || !cap || !bars) return;
-    var all = Array.prototype.slice.call(box.querySelectorAll('.hs-slide')), slides = all.slice(), cur = 0, timer = 0, DUR = 4600, visible = true;
-    function paintBars(){ bars.innerHTML = slides.map(function(){ return '<b></b>'; }).join(''); }
-    function mark(){
-      var bs = bars.querySelectorAll('b');
-      bs.forEach(function(b, i){ b.className = i < cur ? 'done' : ''; });
-      if (bs[cur] && !reduce) { void bs[cur].offsetWidth; bs[cur].className = 'run'; }
-      var s = slides[cur], t = cap.querySelector('span');
-      t.textContent = s.getAttribute('data-name'); cap.setAttribute('data-order-cat', s.getAttribute('data-cat'));
-      cap.classList.remove('swap'); void cap.offsetWidth; cap.classList.add('swap');
+    var all = Array.prototype.slice.call(box.querySelectorAll('.hs-slide')), slides = all.slice(), cur = 0, timer = 0, DUR = 5000, visible = true;
+    function paint(){
+      all.forEach(function(s){ s.classList.toggle('on', s === slides[cur]); });
+      bars.innerHTML = slides.length > 1 ? slides.map(function(_, i){ return '<b class="' + (i < cur ? 'done' : i === cur && !reduce ? 'run' : '') + '"></b>'; }).join('') : '';
+      cap.querySelector('span').textContent = slides[cur].getAttribute('data-name'); cap.setAttribute('data-order-cat', slides[cur].getAttribute('data-cat'));
     }
-    function go(n){
-      if (slides.length < 2) return;
-      var prev = slides[cur]; cur = (n + slides.length) % slides.length; var next = slides[cur];
-      if (next === prev) return;
-      next.classList.add('in'); mark();
-      setTimeout(function(){ all.forEach(function(s){ s.classList.toggle('on', s === next); s.classList.remove('in'); }); }, 1200);
-    }
-    function play(){ clearInterval(timer); if (reduce || !visible || document.hidden || slides.length < 2) return; mark(); timer = setInterval(function(){ go(cur + 1); }, DUR); }
+    function play(){ clearInterval(timer); paint(); if (reduce || !visible || document.hidden || slides.length < 2) return; timer = setInterval(function(){ cur = (cur + 1) % slides.length; paint(); }, DUR); }
     bars.style.setProperty('--hs-d', DUR + 'ms');
-    paintBars(); play();
-    if ('IntersectionObserver' in window) new IntersectionObserver(function(es){ visible = es[0].isIntersecting; play(); }, { threshold:0.1 }).observe(box);
+    play();
+    if (hasIO) new IntersectionObserver(function(es){ visible = es[0].isIntersecting; play(); }, { threshold:0.1 }).observe(box);
     document.addEventListener('visibilitychange', play);
-    // Only show dishes people can order today (hidden / coming soon ones drop out).
-    var tries = 0, wait = setInterval(function(){
-      var cats = menuCats(); if (!cats && ++tries < 40) return; clearInterval(wait); if (!cats) return;
+    // Only dishes people can order today (hidden / coming soon ones drop out).
+    whenMenu(function(cats){
       var keep = all.filter(function(s){ return cats[s.getAttribute('data-cat')] === true; });
       if (!keep.length || keep.length === slides.length) return;
-      var showing = slides[cur]; slides = keep; cur = Math.max(slides.indexOf(showing), 0);
-      all.forEach(function(s){ s.classList.remove('in'); s.classList.toggle('on', s === slides[cur]); });
-      paintBars(); play(); if (reduce) mark();
-    }, 400);
+      var showing = slides[cur]; slides = keep; cur = Math.max(slides.indexOf(showing), 0); play();
+    });
   })();
 
-  // ---------- "four ways" shows only when Cali Burritos can be ordered ----------
+  // ---------- "four ways": tap a flavor; it also steps through by itself until you do ----------
   var fl = document.getElementById('flavors');
   if (fl) {
-    var n = 0, w = setInterval(function(){
-      var cats = menuCats(); if (!cats && ++n < 40) return; clearInterval(w);
-      fl.hidden = !(cats && cats['Burritos'] === true);
-      if (!fl.hidden) window.dispatchEvent(new Event('scroll'));
-    }, 400);
+    var imgs = fl.querySelectorAll('.fl-photos img'), lis = fl.querySelectorAll('.fl-list li'), at = 0, auto = 0, seen = false;
+    function show(i){ at = i; imgs.forEach(function(im, k){ im.classList.toggle('on', k === i); }); lis.forEach(function(li, k){ li.classList.toggle('on', k === i); var b = li.querySelector('button'); if (b) b.setAttribute('aria-pressed', k === i ? 'true' : 'false'); }); }
+    function stop(){ clearInterval(auto); auto = 0; }
+    lis.forEach(function(li, i){ var b = li.querySelector('button'); if (b) b.addEventListener('click', function(){ stop(); seen = true; show(i); }); });
+    show(0);
+    whenMenu(function(cats){ fl.hidden = cats['Burritos'] !== true; });
+    if (!reduce && hasIO) new IntersectionObserver(function(es){
+      stop(); if (es[0].isIntersecting && !seen) auto = setInterval(function(){ show((at + 1) % imgs.length); }, 2800);
+    }, { threshold:0.4 }).observe(fl);
   }
-  if (reduce || !root.classList.contains('mo')) return;
+  if (reduce || !hasIO) return;
 
-  // ---------- word-by-word headings ----------
-  function split(el){
-    if (el.classList.contains('mo-split')) return;
-    var i = 0;
-    (function walk(node){
-      Array.prototype.slice.call(node.childNodes).forEach(function(ch){
-        if (ch.nodeType === 3) {
-          var parts = ch.textContent.split(/(\s+)/), frag = document.createDocumentFragment();
-          parts.forEach(function(p){
-            if (!p) return;
-            if (/^\s+$/.test(p)) { frag.appendChild(document.createTextNode(' ')); return; }
-            var o = document.createElement('span'); o.className = 'mo-w'; var s = document.createElement('span'); s.textContent = p; s.style.setProperty('--i', i++); o.appendChild(s); frag.appendChild(o);
-          });
-          node.replaceChild(frag, ch);
-        } else if (ch.nodeType === 1 && ch.tagName !== 'BR' && !ch.classList.contains('mo-w')) walk(ch);
-      });
-    })(el);
-    el.classList.add('mo-split');
-  }
-  document.querySelectorAll('.sec-head .h2.mo-r, .nt-head .h2.mo-r, .story-copy .h2.mo-r, .tile.mo-r h3, .fl-title').forEach(split);
-  var h1 = document.querySelector('.hero h1');
-  if (h1) { split(h1); setTimeout(function(){ h1.classList.add('mo-in'); }, 250); }
-  var flt = document.querySelector('.fl-title');
-  if (flt && 'IntersectionObserver' in window) new IntersectionObserver(function(es, ob){ if (es[0].isIntersecting) { flt.classList.add('mo-in'); ob.disconnect(); } }, { threshold:0.3 }).observe(flt);
+  // ---------- sections fade up once (never the menu) ----------
+  var picked = [];
+  function pick(sel){ document.querySelectorAll(sel).forEach(function(el){
+    if (el.closest('[role="dialog"], [role="alertdialog"], #menu, .gnav, .hero')) return;
+    if (picked.some(function(p){ return p.contains(el) || el.contains(p); })) return;
+    picked.push(el);
+  }); }
+  pick('.tiles .tile'); pick('.sec-head, .nt-head, .fl-pin'); pick('.sec > .wrap > *');
+  var vh = window.innerHeight;
+  var io = new IntersectionObserver(function(es){ es.forEach(function(e){ if (e.isIntersecting) { e.target.classList.add('mo-in'); io.unobserve(e.target); } }); }, { rootMargin:'0px 0px -5% 0px', threshold:0.05 });
+  picked.forEach(function(el){ if (el.getBoundingClientRect().top < vh * 0.9) return; el.classList.add('mo-r'); io.observe(el); });
+  // Safety net: nothing on screen is ever left hidden.
+  setInterval(function(){ document.querySelectorAll('.mo-r:not(.mo-in)').forEach(function(el){ var r = el.getBoundingClientRect(); if (r.top < window.innerHeight && r.bottom > 0) el.classList.add('mo-in'); }); }, 1200);
 
-  // ---------- "four ways": scroll scrubs through the flavors ----------
-  if (fl) {
-    var imgs = Array.prototype.slice.call(fl.querySelectorAll('.fl-photos img')), lis = fl.querySelectorAll('.fl-list li'), cnt = fl.querySelector('.fl-count b');
-    var busy = false, lastOn = -1;
-    function ease(x){ return x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2; }
-    function scrub(){
-      busy = false; if (fl.hidden) return;
-      var r = fl.getBoundingClientRect(), vh = window.innerHeight, span = r.height - vh;
-      if (span <= 40) {                                    // not pinned (short screens): show all four as a timed loop
-        return;
-      }
-      var p = Math.min(Math.max((-r.top + 60) / span, 0), 1) * (imgs.length - 1);   // 0 .. 3
-      imgs.forEach(function(im, i){
-        var k = Math.min(Math.max(p - (i - 1), 0), 1), e = ease(k);                // 0 = waiting below, 1 = fully in
-        if (i === 0) { im.style.clipPath = 'none'; im.style.transform = 'scale(' + (1.04 + 0.05 * Math.min(p, 1)) + ')'; return; }
-        im.style.clipPath = e >= 1 ? 'none' : 'inset(' + ((1 - e) * 100) + '% 0 0 0)';
-        im.style.transform = 'scale(' + (1.22 - 0.18 * e + 0.05 * Math.min(Math.max(p - i, 0), 1)) + ')';
-      });
-      var on = Math.min(Math.round(p), imgs.length - 1);
-      if (on !== lastOn) { lastOn = on; lis.forEach(function(li, i){ li.classList.toggle('on', i === on); }); if (cnt) cnt.textContent = '0' + (on + 1); }
-    }
-    window.addEventListener('scroll', function(){ if (!busy) { busy = true; requestAnimationFrame(scrub); } }, { passive:true });
-    window.addEventListener('resize', scrub);
-    // Short screens (no pinning): cycle the four photos on a timer instead.
-    var loopI = 0;
-    setInterval(function(){
-      if (fl.hidden) return; var r = fl.getBoundingClientRect();
-      if (r.height - window.innerHeight > 40 || r.bottom < 0 || r.top > window.innerHeight) return;
-      loopI = (loopI + 1) % imgs.length;
-      imgs.forEach(function(im, i){ im.style.transition = 'clip-path 1s cubic-bezier(.7,0,.2,1)'; im.style.clipPath = i <= loopI ? 'inset(0 0 0 0)' : 'inset(100% 0 0 0)'; });
-      lis.forEach(function(li, i){ li.classList.toggle('on', i === loopI); }); if (cnt) cnt.textContent = '0' + (loopI + 1);
-    }, 2600);
-    scrub();
-  }
+  // ---------- top bar hairline once the page has scrolled (no scroll listener) ----------
+  var nav = document.querySelector('.gnav');
+  if (nav) { var mark = document.createElement('div'); mark.setAttribute('aria-hidden', 'true'); mark.style.cssText = 'position:absolute;top:0;left:0;width:1px;height:12px;pointer-events:none'; document.body.appendChild(mark);
+    new IntersectionObserver(function(es){ nav.classList.toggle('mo-scrolled', !es[0].isIntersecting); }).observe(mark); }
 
-  // ---------- dish photo flies from the menu into the item sheet ----------
-  var sheet = document.getElementById('wsSheet'), from = null;
-  if (sheet && 'MutationObserver' in window && Element.prototype.animate) {
-    document.addEventListener('click', function(e){
-      var t = e.target.closest && e.target.closest('[data-ws-open]'); from = null; sheet.classList.remove('mo-flip');
-      if (!t) return;
-      var tile = t.closest('.ws-tile'), img = tile && tile.querySelector('.ws-photo img');
-      if (!img || !img.complete || !img.naturalWidth) return;
-      from = { r: img.getBoundingClientRect(), src: img.currentSrc || img.src, at: Date.now() };
-      sheet.classList.add('mo-flip');
-    }, true);
-    new MutationObserver(function(){
-      if (sheet.hidden || !from || Date.now() - from.at > 800) { from = null; return; }
-      var f = from; from = null;
-      var target = sheet.querySelector('.ws-sheet-photo img'); if (!target) return;
-      requestAnimationFrame(function(){
-        var to = target.getBoundingClientRect(); if (!to.width || !to.height) return;
-        var fly = document.createElement('div'); fly.className = 'ci-fly';
-        var im = document.createElement('img'); im.src = f.src; im.alt = ''; fly.appendChild(im); document.body.appendChild(fly);
-        target.style.opacity = '0';
-        var a = fly.animate([
-          { left: f.r.left + 'px', top: f.r.top + 'px', width: f.r.width + 'px', height: f.r.height + 'px', borderRadius: '16px' },
-          { left: to.left + 'px', top: to.top + 'px', width: to.width + 'px', height: to.height + 'px', borderRadius: '24px 24px 0 0' }
-        ], { duration: 520, easing: 'cubic-bezier(.22,1,.36,1)', fill: 'forwards' });
-        var done = function(){ target.style.opacity = ''; if (fly.parentNode) fly.parentNode.removeChild(fly); };
-        a.onfinish = done; a.oncancel = done; setTimeout(done, 900);
-      });
-    }).observe(sheet, { attributes:true, attributeFilter:['hidden'] });
+  // ---------- the count on the order button pops when it changes ----------
+  var fab = document.getElementById('cartFab'), cnt = document.getElementById('cartFabCount');
+  if (fab && cnt && 'MutationObserver' in window) {
+    var last = cnt.textContent;
+    new MutationObserver(function(){ if (cnt.textContent === last) return; last = cnt.textContent; fab.classList.remove('mo-bump'); void fab.offsetWidth; fab.classList.add('mo-bump'); })
+      .observe(cnt, { childList:true, characterData:true, subtree:true });
   }
 })();
 </script>
