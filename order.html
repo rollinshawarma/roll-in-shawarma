@@ -949,6 +949,33 @@
   @media (prefers-reduced-motion: reduce){
     .rv{ opacity:1 !important; transform:none !important; }
   }
+
+  /* ---- Minimal motion (Nov 16): every tap responds at once. Menu cards no longer
+     animate in; sheets and checkout open fast; no hover spins or springy bounces. ---- */
+  .rv, .rv.in{ opacity:1 !important; transform:none !important; transition:none !important; }
+  .top, .du-hello, .du-headline, .du-step{ animation-duration:.35s; animation-delay:0s !important; }
+  .sheet:not(.hidden){ animation-duration:.24s; animation-timing-function:cubic-bezier(.2,.8,.2,1); }
+  @media (min-width:700px){ .sheet:not(.hidden){ animation-duration:.16s; } }
+  .checkout:not(.hidden){ animation-duration:.2s; }
+  .co-sec{ animation:none; }
+  .scrim{ animation-duration:.14s; -webkit-backdrop-filter:none; backdrop-filter:none; }
+  .qr-menu{ animation-duration:.2s; }
+  .order-bar:not(.hidden){ animation:duUp .2s ease-out both; }
+  .order-bar.bump button{ animation:none; }
+  .add-btn{ transition:transform .1s ease, background .15s ease; box-shadow:none; }
+  .add-btn:hover{ transform:none; }
+  .add-btn .add-count, .stepper, .stepper span, .drink-chip[aria-pressed="true"]::after{ animation-duration:.18s; animation-timing-function:ease-out; }
+  #itemSheet .sheet-photo img{ animation:none; }
+  .tile, .tile-photo img, .pop-photo img{ transition:none; }
+  .tile:hover{ transform:none; }
+  .tile:hover .tile-photo img, .pop-card:hover .pop-photo img{ transform:none; }
+  .toast{ transition:opacity .15s ease, transform .2s ease; }
+  /* Flatter: hairlines instead of drop shadows. */
+  :root{ --shadow-1:0 0 0 1px rgba(42,31,22,.07); --shadow-2:0 0 0 1px rgba(42,31,22,.07); }
+  .stepper, .order-bar button, .mini .tile-photo .add-btn{ box-shadow:none; }
+  .sheet{ box-shadow:0 0 0 1px rgba(42,31,22,.08); }
+  .halal-tag, .veg-tag{ border:0; padding:0; letter-spacing:.08em; }
+  .new-tag{ background:none; color:var(--accent); padding:0; letter-spacing:.1em; }
 </style>
 </head>
 <body>
