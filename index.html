@@ -1931,7 +1931,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
           <div class="stat"><b>SCPH</b><span>Licensed &amp; inspected</span></div>
         </div>
       </div>
-      <div class="story-photo"><img src="truck.webp" alt="Illustration of the Roll-In Shawarma food truck" loading="lazy"></div>
+      <div class="story-photo"><img src="hero-truck.jpg" alt="Illustration of the Roll-In Shawarma food truck" loading="lazy"></div>
     </div>
   </div>
 </section>
@@ -3419,9 +3419,9 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
 
     var categoryImages = {
       'Secret Menu': 'secret-menu.svg',
-      'Shawarma': 'menu-shawarma.jpg', 'Frankie Rolls': 'menu-frankie.jpg',
-      'Bowls': 'menu-bowl.jpg', 'Tacos': 'menu-tacos.jpg',
-      'Loaded Fries': 'item-tandoori-chicken-loaded-fries.jpg', 'Sides': 'menu-samosas.jpg',
+      'Shawarma': 'item-chicken-shawarma.jpg', 'Frankie Rolls': 'item-signature-chicken-frankie.jpg',
+      'Bowls': 'item-veggie-bow.jpg', 'Tacos': 'item-signature-chicken-tacos.jpg',
+      'Loaded Fries': 'item-tandoori-chicken-loaded-fries.jpg', 'Sides': 'item-2-samosas.jpg',
       'Kulfi Ice Cream': 'item-almond-kulfi.jpg', 'Drinks': 'item-sharbat-soda.jpg',
       'Platters': 'menu-platters.jpg', 'Desserts': 'menu-desserts.jpg', 'Wings': 'item-wings-tandoori.jpg', 'Burritos': 'item-cali-burrito-butter-chicken.jpg'
     };
@@ -7053,6 +7053,183 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     // No session on this device: forget any remembered secret menu.
     sb.auth.getSession().then(function(r){ if (!(r && r.data && r.data.session)) clear(); }, function(){});
   })();
+</script>
+<!-- =====================================================================
+     MOTION PASS (Nov 2026). Purely visual: nothing here changes ordering.
+     Real photos, text and interface only. Everything is switched off for
+     visitors who have "reduce motion" turned on, and if this script fails
+     the page simply shows without animation.
+     ===================================================================== -->
+<style>
+@media (prefers-reduced-motion: no-preference){
+  :root{ --mo-ease:cubic-bezier(.22,1,.36,1); --mo-spring:cubic-bezier(.34,1.56,.64,1); }
+
+  /* --- top of the page: photo eases in, words rise line by line --- */
+  .mo .hero-media{ animation:moHeroZoom 2.6s var(--mo-ease) both; transform-origin:50% 60%; will-change:transform; }
+  .mo .hero h1{ animation:moRiseClip 1.1s var(--mo-ease) .15s both; }
+  .mo .hero-sub{ animation:moRise .9s var(--mo-ease) .45s both; }
+  .mo .hero .os-slot{ animation:moRise .9s var(--mo-ease) .65s both; }
+  .mo .hero-ctas .btn{ animation:moRise .8s var(--mo-ease) both; }
+  .mo .hero-ctas .btn:nth-child(1){ animation-delay:.8s; } .mo .hero-ctas .btn:nth-child(2){ animation-delay:.9s; } .mo .hero-ctas .btn:nth-child(3){ animation-delay:1s; }
+  @keyframes moHeroZoom{ from{ transform:scale(1.14); filter:brightness(.7); } to{ transform:scale(1); filter:none; } }
+  @keyframes moRise{ from{ opacity:0; transform:translateY(26px); } to{ opacity:1; transform:none; } }
+  @keyframes moRiseClip{ from{ opacity:0; transform:translateY(60px); clip-path:inset(0 0 100% 0); } to{ opacity:1; transform:none; clip-path:inset(-20% -5% -20% -5%); } }
+
+  /* --- top bar: soft shadow once you scroll, and a thin progress line --- */
+  .gnav{ transition:box-shadow .35s ease, background .35s ease; }
+  .gnav.mo-scrolled{ background:rgba(255,255,255,.93); box-shadow:0 10px 30px -18px rgba(0,0,0,.35); }
+  .mo-progress{ position:absolute; left:0; right:0; bottom:-1px; height:2px; background:var(--accent); transform:scaleX(0); transform-origin:left; pointer-events:none; }
+
+  /* --- reveal as you scroll --- */
+  .mo-r{ opacity:0; transform:translateY(34px); }
+  .mo-r.mo-in{ opacity:1; transform:none; transition:opacity .9s var(--mo-ease), transform .9s var(--mo-ease); transition-delay:var(--mo-d, 0ms); }
+  /* signature tiles: the card settles, then its photo floats up into place */
+  .tile.mo-r{ transform:translateY(46px) scale(.975); }
+  .tile.mo-r .tile-img{ opacity:0; transform:translateY(70px) scale(.93); }
+  .tile.mo-r.mo-in .tile-img{ opacity:1; transform:none; transition:opacity 1s var(--mo-ease) .18s, transform 1.25s var(--mo-ease) .18s; }
+  .tile.mo-r h3, .tile.mo-r > p, .tile.mo-r .tile-ctas, .tile.mo-r .eyebrow{ opacity:0; transform:translateY(18px); }
+  .tile.mo-r.mo-in h3, .tile.mo-r.mo-in > p, .tile.mo-r.mo-in .tile-ctas, .tile.mo-r.mo-in .eyebrow{ opacity:1; transform:none; transition:opacity .8s var(--mo-ease), transform .8s var(--mo-ease); }
+  .tile.mo-r.mo-in h3{ transition-delay:.1s; } .tile.mo-r.mo-in > p{ transition-delay:.18s; } .tile.mo-r.mo-in .tile-ctas{ transition-delay:.28s; }
+  /* cut-out photos drift a little as you scroll and lift on hover */
+  .tile:not(.nt-tile) .tile-img img{ transform:translate3d(0, calc(var(--mo-py, 0px) + var(--mo-hv, 0px)), 0) scale(var(--mo-sc, 1)); transition:transform .7s var(--mo-ease); will-change:transform; }
+  .tile:not(.nt-tile):hover .tile-img img{ --mo-hv:-10px; --mo-sc:1.035; transform:translate3d(0, calc(var(--mo-py, 0px) + var(--mo-hv, 0px)), 0) scale(var(--mo-sc, 1)); }
+  .tile.nt-tile .tile-img img{ transition:transform 1.2s var(--mo-ease); }
+  .tile.nt-tile:hover .tile-img img{ transform:scale(1.045); }
+
+  /* --- menu: rows cascade in, sections glide when you switch --- */
+  .mo-first .mn-row{ animation:moRow .7s var(--mo-ease) both; }
+  .mo-first .mn-row:nth-child(1){ animation-delay:.02s; } .mo-first .mn-row:nth-child(2){ animation-delay:.06s; } .mo-first .mn-row:nth-child(3){ animation-delay:.1s; }
+  .mo-first .mn-row:nth-child(4){ animation-delay:.14s; } .mo-first .mn-row:nth-child(5){ animation-delay:.18s; } .mo-first .mn-row:nth-child(6){ animation-delay:.22s; }
+  .mo-first .mn-row:nth-child(7){ animation-delay:.26s; } .mo-first .mn-row:nth-child(8){ animation-delay:.3s; } .mo-first .mn-row:nth-child(9){ animation-delay:.34s; }
+  .mo-first .mn-row:nth-child(n+10){ animation-delay:.38s; }
+  @keyframes moRow{ from{ opacity:0; transform:translateX(-18px); } to{ opacity:1; transform:none; } }
+  .mn-row .mn-pic img, .mn-row img{ transition:transform .5s var(--mo-ease); }
+  .mn-row:hover img{ transform:scale(1.08) rotate(-2deg); }
+  .ws-sec.mo-sec-in{ animation:moSec .55s var(--mo-ease) both; }
+  .ws-sec.mo-sec-in .ws-tile{ animation:moRise .6s var(--mo-ease) both; }
+  .ws-sec.mo-sec-in .ws-tile:nth-child(2){ animation-delay:.05s; } .ws-sec.mo-sec-in .ws-tile:nth-child(3){ animation-delay:.1s; }
+  .ws-sec.mo-sec-in .ws-tile:nth-child(4){ animation-delay:.15s; } .ws-sec.mo-sec-in .ws-tile:nth-child(n+5){ animation-delay:.2s; }
+  @keyframes moSec{ from{ opacity:0; transform:translateY(16px); } to{ opacity:1; transform:none; } }
+
+  /* --- adding to the order --- */
+  .ws-add{ transition:transform .35s var(--mo-spring), background .2s ease; }
+  .ws-add:active{ transform:scale(.86); }
+  .ws-step, .ws-add .ws-count, .ws-add b{ animation:moPop .4s var(--mo-spring) both; }
+  @keyframes moPop{ from{ transform:scale(.5); opacity:0; } to{ transform:scale(1); opacity:1; } }
+  .cart-fab:not(.hidden){ animation:moFabIn .6s var(--mo-spring) both; }
+  @keyframes moFabIn{ from{ opacity:0; transform:translateY(46px) scale(.9); } to{ opacity:1; transform:none; } }
+  .cart-fab.mo-bump .cart-fab-btn{ animation:moBump .5s var(--mo-spring); }
+  .cart-fab.mo-bump .cart-fab-count{ animation:moPop .45s var(--mo-spring); }
+  @keyframes moBump{ 0%{ transform:scale(1); } 35%{ transform:scale(1.08); } 100%{ transform:scale(1); } }
+
+  /* --- item sheet: springs up; its photo eases in --- */
+  .ws-scrim:not([hidden]){ animation:moFade .3s ease both; }
+  @keyframes moFade{ from{ opacity:0; } to{ opacity:1; } }
+  .ws-sheet:not([hidden]){ animation:moSheetUp .5s var(--mo-ease) both; }
+  @keyframes moSheetUp{ from{ transform:translateY(100%); } to{ transform:none; } }
+  @media (min-width:700px){
+    .ws-sheet:not([hidden]){ animation:moSheetIn .45s var(--mo-ease) both; }
+    @keyframes moSheetIn{ from{ opacity:0; transform:translate(-50%, -46%) scale(.96); } to{ opacity:1; transform:translate(-50%, -50%) scale(1); } }
+  }
+
+  /* --- buttons feel pressed --- */
+  .btn:active, .nav-order:active{ transform:scale(.965); }
+  .link-more{ transition:letter-spacing .3s ease; }
+}
+</style>
+<script>
+(function(){
+  var reduce = window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  if (reduce || !('IntersectionObserver' in window)) return;
+  var root = document.documentElement; root.classList.add('mo');
+
+  // ---- reveal as you scroll ----
+  var picked = [];
+  function pick(sel){ document.querySelectorAll(sel).forEach(function(el){
+    if (el.closest('[role="dialog"], [role="alertdialog"], .mo-r, #wsMenu, .gnav, .hero')) return;
+    if (picked.some(function(p){ return p.contains(el) || el.contains(p); })) return;
+    picked.push(el);
+  }); }
+  pick('.tiles .tile');
+  pick('.sec-head > *, .nt-head > *');
+  pick('.story-photo, .story-copy > *, .visit-card, .review-note');
+  pick('.sec > .wrap > *');
+  var vh = window.innerHeight;
+  var io = new IntersectionObserver(function(es){
+    var n = 0;
+    es.forEach(function(e){
+      if (!e.isIntersecting) return;
+      e.target.style.setProperty('--mo-d', Math.min(n++, 5) * 90 + 'ms');
+      e.target.classList.add('mo-in'); io.unobserve(e.target);
+    });
+  }, { rootMargin:'0px 0px -8% 0px', threshold:0.06 });
+  picked.forEach(function(el){
+    // Anything already on screen when the page loads stays put (no flash).
+    if (el.getBoundingClientRect().top < vh * 0.9) return;
+    el.classList.add('mo-r'); io.observe(el);
+  });
+  // Safety net: if something is still hidden but on screen, show it.
+  setInterval(function(){
+    document.querySelectorAll('.mo-r:not(.mo-in)').forEach(function(el){
+      var r = el.getBoundingClientRect(); if (r.top < window.innerHeight && r.bottom > 0) el.classList.add('mo-in');
+    });
+  }, 1500);
+
+  // ---- scroll: top bar shadow, progress line, photo drift ----
+  var nav = document.querySelector('.gnav'), bar = null;
+  if (nav) { bar = document.createElement('i'); bar.className = 'mo-progress'; bar.setAttribute('aria-hidden', 'true'); nav.appendChild(bar); }
+  var heroMedia = document.querySelector('.hero-media'), heroInner = document.querySelector('.hero-inner'), hero = document.querySelector('.hero');
+  var drift = Array.prototype.slice.call(document.querySelectorAll('.tile:not(.nt-tile) .tile-img img'));
+  var ticking = false;
+  function onScroll(){
+    ticking = false;
+    var y = window.scrollY || 0, h = window.innerHeight;
+    if (nav) nav.classList.toggle('mo-scrolled', y > 12);
+    if (bar) { var max = document.documentElement.scrollHeight - h; bar.style.transform = 'scaleX(' + (max > 0 ? Math.min(y / max, 1) : 0) + ')'; }
+    if (hero && heroInner && y < hero.offsetHeight + 80) {
+      var k = Math.min(y / (hero.offsetHeight || 1), 1);
+      if (heroMedia) heroMedia.style.translate = '0 ' + (y * 0.22).toFixed(1) + 'px';
+      heroInner.style.opacity = (1 - k * 1.25).toFixed(3); heroInner.style.translate = '0 ' + (y * -0.08).toFixed(1) + 'px';
+    }
+    drift.forEach(function(img){
+      var t = img.closest('.tile'); if (!t) return;
+      var r = t.getBoundingClientRect(); if (r.bottom < -100 || r.top > h + 100) return;
+      var c = (r.top + r.height / 2 - h / 2) / h;            // -1 .. 1 around the middle of the screen
+      img.style.setProperty('--mo-py', (c * -26).toFixed(1) + 'px');
+    });
+  }
+  window.addEventListener('scroll', function(){ if (!ticking) { ticking = true; requestAnimationFrame(onScroll); } }, { passive:true });
+  onScroll();
+
+  // ---- menu: first cascade, and a glide when you switch sections ----
+  var menu = document.getElementById('wsMenu');
+  if (menu && 'MutationObserver' in window) {
+    var first = false;
+    new MutationObserver(function(muts){
+      if (!first && menu.querySelector('.mn-row')) {
+        first = true; var idx = document.getElementById('wsIndex');
+        if (idx) { idx.classList.add('mo-first'); setTimeout(function(){ idx.classList.remove('mo-first'); }, 1400); }
+      }
+      muts.forEach(function(m){
+        if (m.type !== 'attributes' || m.attributeName !== 'hidden') return;
+        var el = m.target; if (!el.classList || !el.classList.contains('ws-sec') || el.hidden) return;
+        el.classList.remove('mo-sec-in'); void el.offsetWidth; el.classList.add('mo-sec-in');
+        setTimeout(function(){ el.classList.remove('mo-sec-in'); }, 1000);
+      });
+    }).observe(menu, { childList:true, subtree:true, attributes:true, attributeFilter:['hidden'] });
+  }
+
+  // ---- the order button gives a little bounce when the count changes ----
+  var fab = document.getElementById('cartFab'), cnt = document.getElementById('cartFabCount');
+  if (fab && cnt && 'MutationObserver' in window) {
+    var last = cnt.textContent;
+    new MutationObserver(function(){
+      if (cnt.textContent === last) return; last = cnt.textContent;
+      fab.classList.remove('mo-bump'); void fab.offsetWidth; fab.classList.add('mo-bump');
+      setTimeout(function(){ fab.classList.remove('mo-bump'); }, 600);
+    }).observe(cnt, { childList:true, characterData:true, subtree:true });
+  }
+})();
 </script>
 </body>
 </html>
