@@ -1,4 +1,4 @@
-l<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -922,6 +922,18 @@ l<!DOCTYPE html>
 
   .halal-foot{ border-top:1px solid var(--line); color:var(--muted); }
 
+  /* ---- Halal filter ---- */
+  .hl-bar{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin:0 0 14px; }
+  .hl-sw{ display:inline-flex; align-items:center; gap:10px; padding:7px 15px 7px 7px; border-radius:999px; background:#fff; box-shadow:var(--shadow-1); font-weight:600; font-size:14.5px; color:var(--white); transition:background .25s ease, color .25s ease; }
+  .hl-sw i{ position:relative; width:40px; height:24px; border-radius:999px; background:#E3D6C1; transition:background .25s ease; flex:none; }
+  .hl-sw i::after{ content:""; position:absolute; top:3px; left:3px; width:18px; height:18px; border-radius:50%; background:#fff; box-shadow:0 1px 3px rgba(0,0,0,.25); transition:transform .3s var(--spring); }
+  .hl-sw[aria-checked="true"]{ background:var(--gold); color:var(--gold-ink); }
+  .hl-sw[aria-checked="true"] i{ background:var(--green); }
+  .hl-sw[aria-checked="true"] i::after{ transform:translateX(16px); }
+  .hl-note{ font-size:13px; color:var(--muted); }
+  .halal-tag{ display:inline-block; font-size:10px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--green); border:1.5px solid var(--green); border-radius:5px; padding:0 5px; vertical-align:2px; }
+  .hl-cart-note{ background:#FDF0D5; color:#5A3A00; border-radius:14px; padding:11px 13px; margin:0 0 10px; font-size:14px; }
+
   /* ---- motion ---- */
 
   @keyframes duUp{ from{ opacity:0; transform:translateY(14px); } to{ opacity:1; transform:none; } }
@@ -1666,8 +1678,22 @@ l<!DOCTYPE html>
     }
 
     var tacoDay = null, dealsByName = {}, dealPicksByName = {};
+    // ---- Halal filter (halal-filter.sql): each item carries halal true/false.
+    // "Halal only" hides the rest; the choice is kept on this device (shared with the website).
+    var HALAL_KEY = 'rollin_halal_only', hasHalal = false;
+    var HALAL_NO_TAG = { 'Drinks': 1, 'Desserts': 1, 'Kulfi Ice Cream': 1, 'Sides': 1 };
+    function halalOn(){ try { return hasHalal && localStorage.getItem(HALAL_KEY) === '1'; } catch (e) { return false; } }
+    function halalTag(g){ return hasHalal && !HALAL_NO_TAG[g.cat] && g.items.every(function(i){ return i.halal === true; }) ? ' <span class="halal-tag" title="Halal">Halal</span>' : ''; }
+    function halalBarHtml(){
+      if (!hasHalal) return '';
+      var on = halalOn();
+      return '<div class="hl-bar"><button type="button" class="hl-sw" data-halal-sw role="switch" aria-checked="' + on + '"><i aria-hidden="true"></i><span>Halal only</span></button>' +
+        '<span class="hl-note">' + (on ? 'Showing halal items only.' : 'Ask about our Halal options, or switch this on.') + '</span></div>';
+    }
     function buildMenu(rows){
       itemsById = {}; comboAddonsByName = {}; sections = []; groupsByKey = {};
+      hasHalal = rows.some(function(it){ return typeof it.halal === 'boolean'; });
+      var halalOnly = halalOn();
       tacoDay = window.RollinDeals ? window.RollinDeals.applyTacoPricing(rows) : null;
       dealsByName = {}; dealPicksByName = {};
       rows.forEach(function(it){
@@ -1679,6 +1705,7 @@ l<!DOCTYPE html>
         itemsById[item.id] = item;
         if (item.category === 'Combo Add-ons') comboAddonsByName[item.name] = item;
         if (HIDDEN_CATEGORIES[item.category]) return;
+        if (halalOnly && item.halal === false) return;          // Halal only: stays off the menu (the cart still knows it)
         if (!byCat[item.category]) { byCat[item.category] = { cat: item.category, groups: [] }; sections.push(byCat[item.category]); }
         // Items sharing a name are one dish with options (e.g. bowl proteins).
         var key = grpKey(item);
@@ -1719,7 +1746,7 @@ l<!DOCTYPE html>
           '<span class="mn-name">' + escHtml(name) + '<span class="mn-meta">' + n + (n === 1 ? ' item' : ' items') + '</span></span>' + chev + '</button>';
       }
       // Top of the menu: taco-day note, "Order again", "Popular".
-      var indexHtml = '<div class="mn-top section-lite" id="qrIndex">' +
+      var indexHtml = '<div class="mn-top section-lite" id="qrIndex">' + halalBarHtml() +
         (tacoDay ? '<div class="taco-banner">\uD83C\uDF2E Taco ' + tacoDay + ': every taco order is ' + money(window.RollinDeals.tacoPrice) + ' today<small>Already applied to the menu. No code needed.</small></div>' : '') +
         reorderHtml() + '</div>' + popularHtml();
 
@@ -1845,7 +1872,7 @@ l<!DOCTYPE html>
           ' aria-label="' + escHtml(g.name + ', ' + priceText.replace(/<[^>]+>/g, ' ') + (soon ? (isHold(g) ? ', coming later' : ', coming soon') : soldOut ? ', sold out' : ', see details')) + '">' +
           '<span class="tile-photo">' + photoImg(g.items[0], g.cat, g.name) + '</span>' +
           '<span class="tile-body">' +
-            '<span class="tile-name">' + (g.items[0].secret_name ? escHtml(g.items[0].secret_name) + '<span class="real-name">' + escHtml(g.name) + (/wings/i.test(g.name) ? ' \u00b7 8 pc' : '') + '</span>' : escHtml(g.name.replace(/\s*\(Veg\)\s*$/i, ''))) + (isVeg(g.name) ? ' <span class="veg-tag" title="Vegetarian">Veg</span>' : '') + (!soon && isNewGroup(g) ? '<span class="new-tag">New</span>' : '') + '</span>' +
+            '<span class="tile-name">' + (g.items[0].secret_name ? escHtml(g.items[0].secret_name) + '<span class="real-name">' + escHtml(g.name) + (/wings/i.test(g.name) ? ' \u00b7 8 pc' : '') + '</span>' : escHtml(g.name.replace(/\s*\(Veg\)\s*$/i, ''))) + (isVeg(g.name) ? ' <span class="veg-tag" title="Vegetarian">Veg</span>' : '') + halalTag(g) + (!soon && isNewGroup(g) ? '<span class="new-tag">New</span>' : '') + '</span>' +
             (g.items[0].description ? '<span class="tile-desc">' + escHtml(g.items[0].description) + '</span>' : '') +
             (sub ? '<span class="tile-sub">' + sub + '</span>' : '') +
             '<span class="tile-price">' + priceText + '</span>' +
@@ -1883,6 +1910,14 @@ l<!DOCTYPE html>
 
     // Menu clicks (delegated)
     $('menu').addEventListener('click', function(e){
+      // Halal only switch: remember the choice and redraw the menu.
+      var hs = e.target.closest('[data-halal-sw]');
+      if (hs) {
+        var next = !halalOn();
+        try { if (next) localStorage.setItem(HALAL_KEY, '1'); else localStorage.removeItem(HALAL_KEY); } catch (err) {}
+        if (qrBaseRows) { buildMenu(qrMenuRows()); renderMenu(); if (typeof refreshTileActions === 'function') refreshTileActions(); }
+        return;
+      }
       var t = e.target.closest('[data-add],[data-inc],[data-dec],[data-open]');
       if (!t || t.disabled) return;
       if (t.hasAttribute('data-add') && spiceSheet(t.getAttribute('data-add'))) return;
@@ -2585,6 +2620,7 @@ l<!DOCTYPE html>
           '<div class="line-photo">' + lineGroupPhoto(item) + '</div>' +
           '<div class="line-info"><div class="line-name">' + escHtml(item.name || c.name) + '</div>' +
             (item.variant_name ? '<div class="line-var">' + escHtml(item.variant_name) + '</div>' : '') +
+            (halalOn() && item.halal === false ? '<div class="line-note">Not halal</div>' : '') +
             (ingNote(c) ? '<div class="line-note">' + escHtml(ingNote(c)) + '</div>' : '') +
             '<div class="line-each">' + money(c.unitPrice) + ' each</div></div>' +
           '<div class="qty" role="group" aria-label="' + escHtml(c.name) + ' quantity">' +
