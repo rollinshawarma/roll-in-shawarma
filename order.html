@@ -923,6 +923,7 @@
   .halal-foot{ border-top:1px solid var(--line); color:var(--muted); }
 
   /* ---- motion ---- */
+
   @keyframes duUp{ from{ opacity:0; transform:translateY(14px); } to{ opacity:1; transform:none; } }
   @keyframes duDown{ from{ opacity:0; transform:translateY(-10px); } to{ opacity:1; transform:none; } }
   @keyframes duFade{ from{ opacity:0; } to{ opacity:1; } }
@@ -1492,9 +1493,9 @@
     if (DOOR_CODE) setInterval(function(){ if (doorProg) loadDoor(); }, 60000);   // cutoffs pass, runs fill up
     var CATEGORY_IMAGES = {
       'Secret Menu': 'secret-menu.svg',
-      'Shawarma': 'menu-shawarma.jpg', 'Frankie Rolls': 'menu-frankie.jpg',
-      'Bowls': 'menu-bowl.jpg', 'Tacos': 'menu-tacos.jpg',
-      'Loaded Fries': 'item-tandoori-chicken-loaded-fries.jpg', 'Sides': 'menu-samosas.jpg',
+      'Shawarma': 'item-chicken-shawarma.jpg', 'Frankie Rolls': 'item-signature-chicken-frankie.jpg',
+      'Bowls': 'item-veggie-bow.jpg', 'Tacos': 'item-signature-chicken-tacos.jpg',
+      'Loaded Fries': 'item-tandoori-chicken-loaded-fries.jpg', 'Sides': 'item-2-samosas.jpg',
       'Kulfi Ice Cream': 'item-almond-kulfi.jpg', 'Drinks': 'item-sharbat-soda.jpg',
       'Platters': 'menu-platters.jpg', 'Desserts': 'menu-desserts.jpg', 'Wings': 'item-wings-tandoori.jpg', 'Burritos': 'item-cali-burrito-butter-chicken.jpg'
     };
