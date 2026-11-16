@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+l<!DOCTYPE html>
 <html lang="en">
 <head>
 <meta charset="UTF-8">
@@ -649,7 +649,7 @@
   .halal-coin{ position:relative; width:100%; height:100%; transform-style:preserve-3d; animation:halalFlip 7s ease-in-out infinite; }
   .halal-coin-face{ position:absolute; inset:0; border-radius:50%; display:flex; flex-direction:column; align-items:center; justify-content:center; -webkit-backface-visibility:hidden; backface-visibility:hidden; color:#3b2400; background:radial-gradient(circle at 32% 28%, #ffe7a8 0%, #f5b93a 45%, #d98e10 78%, #b86f00 100%); box-shadow:inset 0 0 0 2px rgba(255,255,255,.55), inset 0 0 0 5px rgba(150,90,0,.28), 0 8px 18px rgba(0,0,0,.22); }
   .halal-coin-back{ transform:rotateY(180deg); }
-  .halal-coin-pct{ font-size:11px; font-weight:800; line-height:1; }
+  .halal-coin-pct{ font-size:7px; font-weight:800; letter-spacing:.1em; line-height:1; }
   .halal-coin-word{ font-size:12.5px; font-weight:800; letter-spacing:.06em; line-height:1.15; }
   .halal-coin-sub{ font-size:7px; font-weight:700; letter-spacing:.16em; line-height:1; }
   @keyframes halalFlip{ 0%, 38%{ transform:rotateY(0deg); } 50%, 88%{ transform:rotateY(180deg); } 100%{ transform:rotateY(360deg); } }
@@ -1540,7 +1540,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
   </div>
   <div class="hero-inner">
     <div>
-      <p class="hero-kick">Green, Ohio &middot; 100% Halal</p>
+      <p class="hero-kick">Green, Ohio</p>
       <h1>Roll-In <em>Shawarma</em></h1>
       <p class="hero-sub">We roll it. You love it.</p>
     </div>
@@ -1551,6 +1551,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       <a class="btn btn-white drive-up-only" href="order.html?ahead=1">Drive Up</a>
       <a class="btn btn-white" href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener" data-delivery-open>Order Delivery</a>
     </div>
+    <p class="hero-halal">Ask about our Halal options</p>
   </div>
 </header>
 
@@ -1943,7 +1944,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     <div class="story-layout">
       <div class="story-copy">
         <h2 class="h2">Middle Eastern and Indian street food, rolled at the window.</h2>
-        <p>We cook out of a rebuilt 2004 Freightliner: chicken shawarma with our signature white sauce, Frankie rolls, rice bowls, tacos and loaded fries. The meat is 100% halal, and every order is rolled when you order it.</p>
+        <p>We cook out of a rebuilt 2004 Freightliner: chicken shawarma with our signature white sauce, Frankie rolls, rice bowls, tacos and loaded fries. Every order is rolled when you order it. Ask us about our halal options.</p>
         <p>Most evenings you&rsquo;ll find us at 3554 S Arlington Rd in Akron. Home base is Green, Ohio, and we bring the truck to events around Northeast Ohio.</p>
         <details>
           <summary>Read the full story</summary>
@@ -1957,7 +1958,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         <div class="story-stats">
           <div class="stat"><b>2004</b><span>Freightliner, rebuilt</span></div>
           <div class="stat"><b>Green, OH</b><span>Home base</span></div>
-          <div class="stat"><b>100%</b><span>Halal meat</span></div>
+          <div class="stat"><b>Halal</b><span>Options, just ask</span></div>
           <div class="stat"><b>SCPH</b><span>Licensed &amp; inspected</span></div>
         </div>
       </div>
@@ -2283,7 +2284,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     <div class="foot-top">
       <div>
         <div class="foot-brand"><img src="logo.jpg" alt=""><span>Roll&#8209;In Shawarma</span></div>
-        <p class="foot-tag">Middle Eastern &amp; Indian street food, rolled fresh at the window. 100% halal meat.</p>
+        <p class="foot-tag">Middle Eastern &amp; Indian street food, rolled fresh at the window. Ask about our halal options.</p>
       </div>
       <div class="foot-cols">
         <div class="foot-col">
@@ -2325,17 +2326,17 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
 
 <!-- Floating UI and overlays: placed BEFORE the page script, because the
      script looks these elements up by id as soon as it runs. -->
-<div id="halalBadge" role="img" aria-label="100% Halal Meat">
+<div id="halalBadge" role="img" aria-label="Ask about our Halal options">
   <div class="halal-coin" aria-hidden="true">
     <div class="halal-coin-face halal-coin-front">
-      <div class="halal-coin-pct">100%</div>
+      <div class="halal-coin-pct">ASK ABOUT</div>
       <div class="halal-coin-word">HALAL</div>
-      <div class="halal-coin-sub">MEAT</div>
+      <div class="halal-coin-sub">OPTIONS</div>
     </div>
     <div class="halal-coin-face halal-coin-back">
-      <div class="halal-coin-pct">100%</div>
+      <div class="halal-coin-pct">ASK ABOUT</div>
       <div class="halal-coin-word">HALAL</div>
-      <div class="halal-coin-sub">MEAT</div>
+      <div class="halal-coin-sub">OPTIONS</div>
     </div>
   </div>
 </div>
@@ -3963,7 +3964,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       document.addEventListener('visibilitychange', function(){ if (document.visibilityState === 'visible') wsRefreshAvailability(); });
     }
 
-    // The floating "100% halal" coin would sit on top of the category
+    // The floating halal coin would sit on top of the category
     // chips while someone browses the menu, so it steps aside there.
     (function(){
       var menuSec = document.getElementById('menu'), ticking = false;
@@ -7151,6 +7152,66 @@ body{ background:var(--bg); color:var(--ink); }
 .ws-add{ background:var(--espresso); color:#FBF6EC; box-shadow:0 6px 14px -6px rgba(42,31,22,.55); }
 .ws-sheet{ background:#fff; }
 .cart-fab-btn{ background:var(--espresso); }
+
+/* ---- promo cards: Taco Tuesday and the "New on the menu" slider ---- */
+.taco-banner.tc-on{ background:#fff; border:0; color:var(--ink); box-shadow:var(--sh-1); border-radius:26px; padding:18px 22px 18px 18px; max-width:880px; }
+.taco-banner.tc-on .tc-img{ border-radius:18px; background:var(--panel); }
+.taco-banner.tc-on .tc-kicker{ background:var(--saffron-soft); color:#7A4A00; letter-spacing:.12em; font-size:11px; padding:5px 10px; }
+.taco-banner.tc-on .tc-title{ font-family:var(--display); text-transform:none; font-weight:500; font-size:38px; letter-spacing:-.025em; color:var(--ink); margin:8px 0 6px; }
+.taco-banner.tc-on .tc-deal{ color:var(--ink-2); font-weight:500; }
+.taco-banner.tc-on .tc-deal s{ color:var(--muted); }
+.taco-banner.tc-on .tc-deal b{ background:var(--saffron); color:#241A12; border-radius:999px; padding:3px 12px; }
+.taco-banner.tc-on .tc-note{ color:var(--muted); }
+.taco-banner.tc-on .tc-go{ background:var(--espresso); color:#FBF6EC; padding:15px 22px; transition:transform .25s cubic-bezier(.34,1.56,.64,1), background .2s ease; }
+.taco-banner.tc-on .tc-go:hover{ background:#3B2C20; transform:translateX(3px); }
+.taco-banner.tc-teaser{ background:#fff; color:var(--ink-2); box-shadow:var(--sh-1); border-radius:999px; max-width:max-content; padding:10px 20px; }
+.taco-banner.tc-teaser b{ color:var(--ink); }
+.mn-deal{ background:var(--saffron); color:#241A12; }
+.ws-deal-price{ color:var(--accent); }
+.sc{ border-radius:26px; min-height:240px; padding:28px 32px; box-shadow:var(--sh-2); background:var(--espresso); }
+.sc-slides::after{ background:linear-gradient(90deg, rgba(30,21,14,.9) 0%, rgba(30,21,14,.6) 32%, rgba(30,21,14,.1) 60%, rgba(30,21,14,0) 100%); }
+.sc-kicker{ background:var(--saffron); color:#241A12; letter-spacing:.12em; font-size:11px; padding:5px 10px; }
+.sc-title{ font-family:var(--display); text-transform:none; font-weight:500; font-size:46px; letter-spacing:-.025em; line-height:1.02; margin:12px 0 6px; }
+.sc-deal{ color:#F3DDB8; font-weight:500; font-size:16px; }
+.sc-note{ color:#D9C5A6; }
+.sc-slide figcaption{ background:rgba(255,255,255,.92); color:var(--ink); -webkit-backdrop-filter:none; backdrop-filter:none; font-weight:600; padding:7px 13px; }
+.sc-go{ background:#fff; color:var(--ink); }
+@media (max-width:560px){ .sc{ padding:20px; min-height:200px; } .sc-title{ font-size:32px; } .taco-banner.tc-on .tc-title{ font-size:30px; } }
+
+/* ---- cart and checkout ---- */
+.cart-drawer-overlay{ background:rgba(42,31,22,.38); -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px); }
+.cart-drawer-panel{ background:var(--bg); box-shadow:-30px 0 80px -30px rgba(42,31,22,.5); }
+.cart-drawer-header{ background:rgba(251,246,236,.92); -webkit-backdrop-filter:blur(12px); backdrop-filter:blur(12px); border-bottom-color:transparent; padding:22px 24px 14px; }
+.cart-drawer-header h3{ font-size:30px; font-weight:500; letter-spacing:-.02em; }
+.cart-drawer-close{ background:#fff; box-shadow:var(--sh-1); }
+.cart-items-list{ padding:6px 16px 12px; }
+.cart-item-row{ background:#fff; border:0; border-radius:20px; padding:16px 16px 16px 18px; margin-bottom:10px; box-shadow:var(--sh-1); }
+.cart-item-name{ font-size:17px; font-weight:650; letter-spacing:-.005em; }
+.cart-item-qty{ background:var(--bg); border-color:transparent; }
+.cart-qty-btn:hover{ background:#fff; }
+.cart-empty-hint{ font-family:var(--display); font-style:italic; font-size:20px; }
+.cart-drawer-footer{ background:#fff; border-top:0; border-radius:26px 26px 0 0; box-shadow:0 -18px 40px -26px rgba(42,31,22,.45); padding-top:20px; }
+.cart-breakdown-row{ color:var(--muted); font-size:14.5px; }
+.cart-total-row{ font-family:var(--display); font-size:26px; font-weight:500; letter-spacing:-.02em; margin:10px 0 16px; padding-top:10px; border-top:1px solid var(--line); }
+#cartCheckoutBtn, #cartPayNowBtn, #coContinueBtn{ height:56px; font-size:17px; }
+.cart-back-link{ margin:6px 24px 0; }
+.cart-checkout-form{ background:#fff; margin:12px 16px 16px; padding:20px 18px 6px; border-radius:22px; box-shadow:var(--sh-1); }
+.cform label{ color:var(--ink); }
+.cform input, .cform select, .cform textarea, #promoCodeInput, #giftCustomAmount{ background:var(--bg); border-color:var(--line); border-radius:14px; transition:border-color .2s ease, box-shadow .2s ease; }
+.cform input:focus, .cform select:focus, .cform textarea:focus, #giftCustomAmount:focus, #promoCodeInput:focus{ border-color:var(--espresso); box-shadow:0 0 0 4px rgba(227,155,23,.2); }
+.cform button[type="submit"]{ background:var(--espresso); }
+.cform button[type="submit"]:hover{ background:#3B2C20; }
+.pt-opt, .tip-opt{ background:var(--bg); border-color:transparent; border-radius:16px; transition:border-color .2s ease, background .2s ease, transform .15s ease; }
+.pt-opt:active, .tip-opt:active{ transform:scale(.97); }
+.pt-opt[aria-checked="true"], .tip-opt[aria-checked="true"]{ border-color:var(--espresso); box-shadow:none; background:#FFFAF1; }
+.checkout-summary{ background:#fff; margin:12px 16px 0; padding:18px; border-radius:22px; box-shadow:var(--sh-1); }
+.co-items{ border-color:var(--line); }
+.cart-upsell{ margin:0 16px 12px; }
+@media (max-width:640px){ .cart-drawer-panel{ border-radius:28px 28px 0 0; } }
+
+/* ---- Halal line under the order buttons ---- */
+.hero-halal{ font-size:14.5px; font-weight:600; color:var(--muted); display:inline-flex; align-items:center; gap:9px; }
+.hero-halal::before{ content:""; width:7px; height:7px; border-radius:50%; background:var(--saffron); }
 </style>
 <!-- =====================================================================
      MOTION PASS (Nov 2026). Purely visual: nothing here changes ordering.
@@ -7168,6 +7229,7 @@ body{ background:var(--bg); color:var(--ink); }
   .mo .hero-sub{ animation:moRise .9s var(--mo-ease) .45s both; }
   .mo .hero .os-slot{ animation:moRise .9s var(--mo-ease) .65s both; }
   .mo .hero-ctas .btn{ animation:moRise .8s var(--mo-ease) both; }
+  .mo .hero-halal{ animation:moRise .8s var(--mo-ease) 1.15s both; }
   .mo .hero-ctas .btn:nth-child(1){ animation-delay:.8s; } .mo .hero-ctas .btn:nth-child(2){ animation-delay:.9s; } .mo .hero-ctas .btn:nth-child(3){ animation-delay:1s; }
   @keyframes moHeroZoom{ from{ transform:scale(1.14); filter:brightness(.7); } to{ transform:scale(1); filter:none; } }
   @keyframes moRise{ from{ opacity:0; transform:translateY(26px); } to{ opacity:1; transform:none; } }
