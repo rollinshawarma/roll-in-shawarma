@@ -727,6 +727,15 @@
   .nd-run-row{ display:flex; flex-wrap:wrap; gap:8px; margin-top:8px; }
   .nd-run-chip{ background:#f5f5f7; border-radius:10px; padding:6px 10px; font-size:13.5px; }
   .nd-run-chip b{ font-size:14.5px; }
+  /* community events */
+  .cm-photo{ display:flex; align-items:center; gap:14px; margin:4px 0 12px; flex-wrap:wrap; }
+  .cm-photo img{ width:168px; aspect-ratio:16/9; object-fit:cover; border-radius:12px; background:#f5f5f7; }
+  .cm-photo .cm-ph{ width:168px; aspect-ratio:16/9; border-radius:12px; border:1px dashed #c7c7cc; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:13px; }
+  .cm-sec{ font-size:12.5px; font-weight:700; letter-spacing:.05em; text-transform:uppercase; color:var(--muted); margin:18px 0 6px; padding-top:14px; border-top:1px solid #e6e6eb; }
+  #cmEditor textarea{ width:100%; min-height:84px; resize:vertical; }
+  .cm-slots{ display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
+  .cm-slots span{ background:#f5f5f7; border-radius:8px; padding:4px 8px; font-size:13px; }
+  .cm-slots span.has{ background:#e7f5ec; font-weight:700; }
   @media (max-width:599px){ .nd-runs-head, .nd-day{ grid-template-columns:1fr 116px 116px; gap:6px; } .nd-runs-head input{ padding:0 6px; font-size:15px; } }
 
   /* ---- Stop scorecard ---- */
@@ -1461,6 +1470,7 @@
       <button class="nav-link hidden" data-tab="menustudio" id="tabMenuBtn"><svg class="icon"><use href="#ic-tag"/></svg>Menu<span class="nav-badge nav-badge-soft hidden" id="navMenuBadge"></span></button>
       <button class="nav-link hidden" data-tab="corpevents" id="tabCorpBtn"><svg class="icon"><use href="#ic-building"/></svg>Corporate events<span class="nav-badge nav-badge-soft hidden" id="navCorpBadge"></span></button>
       <button class="nav-link hidden" data-tab="nextdoor" id="tabDoorBtn"><svg class="icon"><use href="#ic-building"/></svg>Next Door delivery<span class="nav-badge nav-badge-soft hidden" id="navDoorBadge"></span></button>
+      <button class="nav-link hidden" data-tab="community" id="tabCommBtn"><svg class="icon"><use href="#ic-heart"/></svg>Community events<span class="nav-badge nav-badge-soft hidden" id="navCommBadge"></span></button>
       <button class="nav-link hidden" data-tab="offers" id="tabOffersBtn"><svg class="icon"><use href="#ic-mail"/></svg>Member offers</button>
       <button class="nav-link hidden" data-tab="salesreport" id="tabSalesBtn"><svg class="icon"><use href="#ic-chart"/></svg>Sales report</button>
       <button class="nav-link hidden" data-tab="stops" id="tabStopsBtn"><svg class="icon"><use href="#ic-trophy"/></svg>Stop scorecard<span class="nav-badge nav-badge-soft">Soon</span></button>
@@ -2360,6 +2370,61 @@
       <div class="ad-actions"><button type="button" class="btn-primary" id="ndSave">Save</button><button type="button" class="btn-export" id="ndClose">Close</button></div>
     </div>
     <div class="card hidden" id="ndShare"></div>
+  </div>
+
+  <!-- COMMUNITY EVENTS -->
+  <div class="tab-panel hidden" id="panelCommunity">
+    <div class="page-head">
+      <h2>Community events</h2>
+      <p class="hint">A one-time pre-order page for a neighborhood, school, church or club. Each event gets its own QR code. Guests scan it, see your welcome message and photo, pick a pickup time and pay. The QR only takes orders while pre-orders are open. Orders show on the kitchen&rsquo;s <b>Door</b> board before each pickup time.</p>
+    </div>
+    <div class="ad-head-row"><div class="section-title" style="margin:0">Events</div><button class="btn-primary btn-small ad-new" id="cmNewBtn" type="button">Add an event</button></div>
+    <div id="cmMsg"></div>
+    <div id="cmList"><p class="hint">Loading&hellip;</p></div>
+
+    <div class="card hidden" id="cmEditor">
+      <h2 id="cmEditorTitle">New event</h2>
+      <div id="cmEditMsg"></div>
+      <div class="ad-pair">
+        <div><label for="cmName">Event name</label><input type="text" id="cmName" maxlength="60" placeholder="e.g. Maple Ridge Block Party"></div>
+        <div><label for="cmPlace">Where</label><input type="text" id="cmPlace" maxlength="120" placeholder="e.g. Maple Ridge clubhouse"></div>
+      </div>
+      <label for="cmNote">Where to find the truck (optional)</label><input type="text" id="cmNote" maxlength="200" placeholder="e.g. Parking lot by the pool">
+
+      <div class="cm-sec">When</div>
+      <div class="ce-trio">
+        <div><label for="cmStart">First pickup time</label><input type="datetime-local" id="cmStart" step="300"></div>
+        <div><label for="cmEnd">Event ends</label><input type="datetime-local" id="cmEnd" step="300"></div>
+        <div><label for="cmSlot">A pickup time every</label><select id="cmSlot"><option value="10">10 minutes</option><option value="15" selected>15 minutes</option><option value="20">20 minutes</option><option value="30">30 minutes</option><option value="60">1 hour</option></select></div>
+      </div>
+      <p class="hint" id="cmSlotHint"></p>
+
+      <div class="cm-sec">When the QR takes orders</div>
+      <div class="ad-pair">
+        <div><label for="cmOpens">Pre-orders open (optional)</label><input type="datetime-local" id="cmOpens" step="300"></div>
+        <div><label for="cmCloses">Pre-orders close (optional)</label><input type="datetime-local" id="cmCloses" step="300"></div>
+      </div>
+      <p class="hint">Leave &ldquo;open&rdquo; blank to start taking orders as soon as the QR is on. Leave &ldquo;close&rdquo; blank to keep each pickup time open until its last-orders mark below. Outside this window the QR shows the welcome page but takes no orders.</p>
+      <div class="ce-trio">
+        <div><label for="cmCutoff">Last orders</label><select id="cmCutoff"><option value="10">10 min before pickup</option><option value="15">15 min before pickup</option><option value="30" selected>30 min before pickup</option><option value="45">45 min before pickup</option><option value="60">1 hour before pickup</option><option value="120">2 hours before pickup</option></select></div>
+        <div><label for="cmLead">Kitchen sees tickets</label><select id="cmLead"><option value="15">15 min before pickup</option><option value="20">20 min before pickup</option><option value="30" selected>30 min before pickup</option><option value="45">45 min before pickup</option><option value="60">1 hour before pickup</option></select></div>
+        <div><label for="cmMax">Max orders per pickup time</label><input type="number" id="cmMax" min="1" max="200" placeholder="No limit"></div>
+      </div>
+
+      <div class="cm-sec">Welcome page</div>
+      <label for="cmTitle">Headline</label><input type="text" id="cmTitle" maxlength="80" placeholder="We can&rsquo;t wait to serve your community">
+      <label for="cmWelcome">Message</label><textarea id="cmWelcome" maxlength="400" placeholder="Roll-In Shawarma is coming to your neighborhood. Pre-order now, pick your pickup time, and your food will be hot and ready when you walk up."></textarea>
+      <label>Photo (optional)</label>
+      <div class="cm-photo"><div id="cmPhotoBox"></div>
+        <div><input type="file" id="cmPhotoFile" accept="image/jpeg,image/png,image/webp" class="hidden"><button type="button" class="btn-export btn-small" id="cmPhotoPick">Upload a photo</button> <button type="button" class="btn-export btn-small hidden" id="cmPhotoClear">Remove</button>
+        <p class="hint" style="margin:6px 0 0">A wide photo works best (16:9). JPG, PNG or WebP, up to 5 MB.</p></div></div>
+
+      <div class="cm-sec">Menu for this event <span id="cmMenuCount" style="text-transform:none;letter-spacing:0"></span></div>
+      <div id="cmMenu" class="nd-menu"><p class="hint">Loading the menu&hellip;</p></div>
+      <label class="ad-check"><input type="checkbox" id="cmActive"> QR is on</label>
+      <div class="ad-actions"><button type="button" class="btn-primary" id="cmSave">Save</button><button type="button" class="btn-export" id="cmClose">Close</button><button type="button" class="btn-export hidden" id="cmDelete">Delete event</button></div>
+    </div>
+    <div class="card hidden" id="cmShare"></div>
   </div>
 
   <!-- STOP SCORECARD -->
@@ -3489,6 +3554,9 @@
         document.getElementById('tabCorpBtn').classList.remove('hidden');
         document.getElementById('tabDoorBtn').classList.remove('hidden');
         document.querySelector('.nav-link[data-tab="nextdoor"]').addEventListener('click', loadDoor);
+        document.getElementById('tabCommBtn').classList.remove('hidden');
+        document.querySelector('.nav-link[data-tab="community"]').addEventListener('click', cmLoad);
+        if (location.hash === '#community') setTimeout(function(){ showTab('community'); cmLoad(); }, 0);
         if (location.hash === '#nextdoor') setTimeout(function(){ showTab('nextdoor'); loadDoor(); }, 0);
         document.getElementById('tabOffersBtn').classList.remove('hidden');
         ofState.isAdmin = isAdmin;
@@ -7800,6 +7868,186 @@
       lbState.s = res.data; lbFill(res.data);
       showMsg('lbMsg', 'Saved. The kitchen screens pick it up within a few seconds.', 'ok');
     });
+  });
+
+  // ================= COMMUNITY EVENTS (community-events.sql) =================
+  // A one-time pre-order page with its own QR code. Built on the Next
+  // Door tables, so the menu checklist and the kitchen board are shared.
+  var cmState = { rows:[], editing:null, photo:'', qr:null, sign:null };
+  var CM_TZ = 'America/New_York';
+  function cmG(id){ return document.getElementById(id); }
+  function cmClock(iso){ return new Date(iso).toLocaleTimeString('en-US', { timeZone:CM_TZ, hour:'numeric', minute:'2-digit' }); }
+  function cmDay(iso, long){ return new Date(iso).toLocaleDateString('en-US', { timeZone:CM_TZ, weekday: long ? 'long' : 'short', month: long ? 'long' : 'short', day:'numeric' }); }
+  function cmLink(d){ return 'https://rollinshawarma.com/order.html?door=' + encodeURIComponent(d.code); }
+  function cmChip(d){
+    var st = d.state;
+    return st === 'open' ? ['live', 'Taking pre-orders'] : st === 'soon' ? ['', 'Opens ' + cmDay(d.opens_at) + ', ' + cmClock(d.opens_at)]
+      : st === 'closed' ? ['', 'Pre-orders closed'] : st === 'past' ? ['', 'Finished'] : ['', 'QR off'];
+  }
+  function cmLoad(){
+    sb.rpc('community_events_admin').then(function(res){
+      var box = cmG('cmList');
+      if (res.error) { box.innerHTML = '<p class="hint">Couldn’t load: ' + esc(res.error.message) + '. Run community-events.sql in Supabase first.</p>'; return; }
+      cmState.rows = res.data || [];
+      var on = cmState.rows.filter(function(d){ return d.state === 'open' || d.state === 'soon'; }).length;
+      var badge = cmG('navCommBadge'); badge.textContent = on ? String(on) : ''; badge.classList.toggle('hidden', !on);
+      if (!cmState.rows.length) { box.innerHTML = '<div class="ad-card"><div class="ad-body"><div class="ad-title">No events yet</div><div class="ad-meta">Tap “Add an event”, set the date, the welcome message and the menu, then share the QR code with the community.</div></div></div>'; return; }
+      box.innerHTML = cmState.rows.map(function(d){
+        var chip = cmChip(d), count = (d.menu_item_ids || []).length, past = d.state === 'past';
+        var slots = (d.runs || []).map(function(r){ return '<span' + (r.orders > 0 ? ' class="has"' : '') + '>' + esc(cmClock(r.at)) + ' · ' + r.orders + '</span>'; }).join('');
+        return '<div class="ad-card"><div class="ad-body">' +
+          '<div class="ad-title"><span class="ad-chip ' + chip[0] + '">' + esc(chip[1]) + '</span>' + esc(d.name) + ' <span class="hint">· ' + esc(d.place) + '</span></div>' +
+          '<div class="ad-meta">' + esc(cmDay(d.event_start, true)) + ', ' + esc(cmClock(d.event_start)) + ' – ' + esc(cmClock(d.event_end)) + ' · ' + count + ' menu item' + (count === 1 ? '' : 's') +
+            ' · ' + Number(d.orders) + ' order' + (Number(d.orders) === 1 ? '' : 's') + ', ' + scMoney(d.sales) + '</div>' +
+          (Number(d.orders) > 0 ? '<div class="cm-slots" aria-label="Orders per pickup time">' + slots + '</div>' : '') +
+          '<div class="ad-btns">' + (past ? '' : '<button type="button" class="nd-toggle ' + (d.active ? 'on' : 'off') + '" data-cm="toggle" data-id="' + esc(d.id) + '">' + (d.active ? '● On: tap to turn off' : '○ Off: tap to turn on') + '</button>') +
+            '<button type="button" class="btn-primary btn-small" data-cm="share" data-id="' + esc(d.id) + '">QR &amp; link</button>' +
+            '<button type="button" class="btn-export btn-small" data-cm="edit" data-id="' + esc(d.id) + '">Edit</button>' +
+            '<button type="button" class="btn-export btn-small" data-cm="copy" data-id="' + esc(d.id) + '">Copy for a new date</button></div>' +
+        '</div></div>';
+      }).join('');
+    });
+  }
+  function cmPhotoShow(){
+    cmG('cmPhotoBox').innerHTML = cmState.photo ? '<img src="' + esc(cmState.photo) + '" alt="Event photo">' : '<div class="cm-ph">No photo</div>';
+    cmG('cmPhotoClear').classList.toggle('hidden', !cmState.photo);
+  }
+  function cmSlotHint(){
+    var a = Date.parse(cmG('cmStart').value), b = Date.parse(cmG('cmEnd').value), m = Number(cmG('cmSlot').value), el = cmG('cmSlotHint');
+    if (!a || !b || b <= a) { el.textContent = 'Guests choose a pickup time between the first pickup time and the end of the event.'; return; }
+    var n = Math.floor((b - a) / (m * 60000));
+    var last = new Date(a + (n - 1) * m * 60000);
+    el.textContent = n < 1 ? 'The event is shorter than one pickup time.' : n + ' pickup time' + (n === 1 ? '' : 's') + '. The last one is ' + last.toLocaleTimeString('en-US', { hour:'numeric', minute:'2-digit' }) + '.';
+  }
+  ['cmStart', 'cmEnd', 'cmSlot'].forEach(function(id){ cmG(id).addEventListener('change', cmSlotHint); });
+  function cmPaintMenu(selected){
+    var box = cmG('cmMenu'), cats = [], by = {};
+    (ndState.menu || []).forEach(function(m){ if (!by[m.category]) { by[m.category] = []; cats.push(m.category); } by[m.category].push(m); });
+    box.innerHTML = cats.map(function(c){
+      return '<div class="nd-cat">' + esc(c) + '<span><button type="button" data-cm-all="' + esc(c) + '">All</button><button type="button" data-cm-none="' + esc(c) + '">None</button></span></div>' +
+        by[c].map(function(m){ return '<label class="nd-item"><input type="checkbox" data-cm-item="' + esc(m.id) + '" data-cat="' + esc(c) + '"' + (!selected || selected[m.id] ? ' checked' : '') + '>' + esc(m.name) + (m.variant_name ? ' · ' + esc(m.variant_name) : '') + (m.is_available === false ? ' <small>sold out</small>' : '') + '</label>'; }).join('');
+    }).join('') || '<p class="hint">No menu items found.</p>';
+    cmCount();
+  }
+  function cmCount(){ var all = document.querySelectorAll('#cmMenu [data-cm-item]').length, n = document.querySelectorAll('#cmMenu [data-cm-item]:checked').length; cmG('cmMenuCount').textContent = '(' + n + ' of ' + all + ' on)'; }
+  cmG('cmMenu').addEventListener('change', cmCount);
+  cmG('cmMenu').addEventListener('click', function(e){
+    var a = e.target.closest('[data-cm-all],[data-cm-none]'); if (!a) return;
+    var c = a.getAttribute('data-cm-all') || a.getAttribute('data-cm-none'), on = a.hasAttribute('data-cm-all');
+    document.querySelectorAll('#cmMenu [data-cm-item]').forEach(function(x){ if (x.getAttribute('data-cat') === c) x.checked = on; });
+    cmCount();
+  });
+  // d = the event to edit; copy = start a new event from it (dates left blank)
+  function cmOpen(d, copy){
+    cmState.editing = d && !copy ? d : null;
+    cmG('cmEditorTitle').textContent = cmState.editing ? 'Edit ' + d.name : copy ? 'New event (copied from ' + d.name + ')' : 'New event';
+    cmG('cmName').value = d ? d.name : ''; cmG('cmPlace').value = d ? d.place : ''; cmG('cmNote').value = d && d.drop_note || '';
+    cmG('cmStart').value = d && !copy ? d.start_local || '' : ''; cmG('cmEnd').value = d && !copy ? d.end_local || '' : '';
+    cmG('cmOpens').value = d && !copy ? d.opens_local || '' : ''; cmG('cmCloses').value = d && !copy ? d.closes_local || '' : '';
+    cmG('cmSlot').value = String(d ? d.slot_min : 15); cmG('cmCutoff').value = String(d ? d.cutoff_min : 30); cmG('cmLead').value = String(d ? d.board_lead_min : 30);
+    cmG('cmMax').value = d && d.max_per_slot || '';
+    cmG('cmTitle').value = d && d.welcome_title || ''; cmG('cmWelcome').value = d && d.welcome_msg || '';
+    cmState.photo = d && d.image_url || ''; cmPhotoShow();
+    cmG('cmActive').checked = cmState.editing ? !!d.active : false;
+    cmG('cmDelete').classList.toggle('hidden', !cmState.editing);
+    clearMsg('cmEditMsg'); cmSlotHint();
+    var ed = cmG('cmEditor'); ed.classList.remove('hidden'); ed.scrollIntoView({ behavior:'smooth', block:'start' });
+    var sel = null; if (d) { sel = {}; (d.menu_item_ids || []).forEach(function(id){ sel[id] = true; }); }
+    ndLoadMenu().then(function(){ cmPaintMenu(sel); });   // a new event starts with every item on
+  }
+  cmG('cmNewBtn').addEventListener('click', function(){ cmOpen(null); });
+  cmG('cmClose').addEventListener('click', function(){ cmG('cmEditor').classList.add('hidden'); });
+  cmG('cmPhotoPick').addEventListener('click', function(){ cmG('cmPhotoFile').click(); });
+  cmG('cmPhotoClear').addEventListener('click', function(){ cmState.photo = ''; cmPhotoShow(); });
+  cmG('cmPhotoFile').addEventListener('change', function(){
+    var file = this.files && this.files[0]; this.value = '';
+    if (!file) return;
+    if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return showMsg('cmEditMsg', 'Use a JPG, PNG or WebP photo.', 'error');
+    if (file.size > 5 * 1024 * 1024) return showMsg('cmEditMsg', 'That photo is over 5 MB. Use a smaller one.', 'error');
+    showMsg('cmEditMsg', 'Uploading the photo…', 'ok');
+    var ext = file.type === 'image/png' ? 'png' : file.type === 'image/webp' ? 'webp' : 'jpg';
+    var path = 'community/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.' + ext;
+    sb.storage.from('menu-photos').upload(path, file, { contentType:file.type, upsert:false, cacheControl:'31536000' }).then(function(r){
+      if (r.error) throw r.error;
+      cmState.photo = sb.storage.from('menu-photos').getPublicUrl(path).data.publicUrl; cmPhotoShow();
+      showMsg('cmEditMsg', 'Photo added. Tap Save to keep it.', 'ok');
+    }).catch(function(e){ showMsg('cmEditMsg', 'Couldn’t upload the photo: ' + (e && e.message || 'try again'), 'error'); });
+  });
+  cmG('cmSave').addEventListener('click', function(){
+    var b = this, ids = Array.prototype.map.call(document.querySelectorAll('#cmMenu [data-cm-item]:checked'), function(x){ return x.getAttribute('data-cm-item'); });
+    if (!cmG('cmName').value.trim()) return showMsg('cmEditMsg', 'Give the event a name.', 'error');
+    if (!cmG('cmPlace').value.trim()) return showMsg('cmEditMsg', 'Add where the event is.', 'error');
+    if (!cmG('cmStart').value || !cmG('cmEnd').value) return showMsg('cmEditMsg', 'Set the first pickup time and when the event ends.', 'error');
+    if (cmG('cmActive').checked && !ids.length) return showMsg('cmEditMsg', 'Pick at least one menu item before turning the QR on.', 'error');
+    var max = cmG('cmMax').value.trim(), wasNew = !cmState.editing;
+    b.disabled = true;
+    sb.rpc('community_event_save', { p_id: cmState.editing ? cmState.editing.id : null, p_name: cmG('cmName').value, p_place: cmG('cmPlace').value, p_note: cmG('cmNote').value,
+      p_active: cmG('cmActive').checked, p_start: cmG('cmStart').value, p_end: cmG('cmEnd').value, p_slot_min: Number(cmG('cmSlot').value),
+      p_opens: cmG('cmOpens').value, p_closes: cmG('cmCloses').value, p_cutoff_min: Number(cmG('cmCutoff').value), p_board_lead_min: Number(cmG('cmLead').value),
+      p_max_per_slot: max ? Math.round(Number(max)) : null, p_menu_item_ids: ids,
+      p_welcome_title: cmG('cmTitle').value, p_welcome_msg: cmG('cmWelcome').value, p_image_url: cmState.photo }).then(function(res){
+      b.disabled = false;
+      if (res.error) { showMsg('cmEditMsg', res.error.message, 'error'); return; }
+      var row = Array.isArray(res.data) ? res.data[0] : res.data;
+      cmG('cmEditor').classList.add('hidden');
+      if (wasNew) cmShare(row);
+      if (Number(row.orphans) > 0) showMsg('cmMsg', 'Saved. ' + row.orphans + ' paid order' + (row.orphans == 1 ? ' is' : 's are') + ' booked for a pickup time that no longer exists. They still show on the kitchen board at their old time; please call those guests.', 'error');
+      else showMsg('cmMsg', 'Saved.', 'ok');
+      cmLoad();
+    });
+  });
+  cmG('cmDelete').addEventListener('click', function(){
+    var d = cmState.editing; if (!d || !confirm('Delete "' + d.name + '"? Its QR code will stop working.')) return;
+    sb.rpc('community_event_delete', { p_id: d.id }).then(function(res){
+      if (res.error) { showMsg('cmEditMsg', res.error.message, 'error'); return; }
+      cmG('cmEditor').classList.add('hidden'); showMsg('cmMsg', d.name + ' deleted.', 'ok'); cmLoad();
+    });
+  });
+  function cmShare(d){
+    var box = cmG('cmShare'), L = cmLink(d);
+    cmState.sign = { name: d.name, place: d.place, link: L, when: cmDay(d.event_start, true), time: cmClock(d.event_start) + ' – ' + cmClock(d.event_end) };
+    box.innerHTML = '<h2>' + esc(d.name) + ' · QR &amp; link</h2>' +
+      '<div class="ce-link"><b>Pre-order link</b><small>Share the QR code or the link with the community (flyer, group chat, newsletter). It only takes orders while pre-orders are open.</small><code>' + esc(L) + '</code>' +
+        '<div class="ad-btns"><button type="button" class="btn-export btn-small" data-cm-copy="' + esc(L) + '">Copy</button><a class="btn-export btn-small" href="' + esc(L) + '" target="_blank" rel="noopener">Preview</a>' +
+        '<button type="button" class="btn-export btn-small" data-cm-qr>Download QR</button><button type="button" class="btn-primary btn-small" data-cm-sign>Print a flyer</button></div></div>' +
+      '<div class="ce-qr" id="cmQr"></div>' +
+      '<div class="ad-btns"><button type="button" class="btn-export btn-small" data-close-cm>Close</button></div>';
+    box.classList.remove('hidden'); box.scrollIntoView({ behavior:'smooth', block:'start' });
+    var draw = function(){ var q = qrcode(0, 'M'); q.addData(L); q.make(); var el = cmG('cmQr'); cmState.qr = q.createSvgTag({ scalable:true, margin:2 }); if (el) el.innerHTML = cmState.qr; };
+    if (window.qrcode) draw();
+    else { var sc = document.createElement('script'); sc.src = 'https://cdn.jsdelivr.net/npm/qrcode-generator@1.4.4/qrcode.js'; sc.onload = draw; document.head.appendChild(sc); }
+  }
+  cmG('cmShare').addEventListener('click', function(e){
+    var c = e.target.closest('[data-cm-copy]');
+    if (c) { if (navigator.clipboard) navigator.clipboard.writeText(c.getAttribute('data-cm-copy')); c.textContent = 'Copied'; setTimeout(function(){ c.textContent = 'Copy'; }, 1500); return; }
+    if (e.target.closest('[data-close-cm]')) { cmG('cmShare').classList.add('hidden'); return; }
+    if (e.target.closest('[data-cm-qr]') && cmState.qr) {
+      var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([cmState.qr], { type:'image/svg+xml' })); a.download = (cmState.sign.name || 'community').replace(/[^A-Za-z0-9]+/g, '-') + '-preorder-QR.svg';
+      document.body.appendChild(a); a.click(); a.remove(); return;
+    }
+    if (e.target.closest('[data-cm-sign]') && cmState.qr) {
+      var w = window.open('', '_blank'); if (!w) return; var S = cmState.sign;
+      w.document.write('<!doctype html><title>Pre-order flyer</title><style>body{font:18px Georgia,serif;text-align:center;margin:40px;color:#2A1F16}h1{font-size:42px;line-height:1.1;margin:0 0 10px}h2{font:600 22px Arial,sans-serif;margin:0 0 6px}h3{font:400 20px Arial,sans-serif;margin:0 0 24px;color:#555}.qr{width:340px;height:340px;margin:0 auto 18px}.qr svg{width:100%;height:100%}p{font:22px Arial,sans-serif;margin:6px 0}</style>' +
+        '<h1>We can’t wait to serve your community</h1><h2>Roll-In Shawarma · ' + esc(S.name) + '</h2><h3>' + esc(S.when) + ' · ' + esc(S.time) + ' · ' + esc(S.place) + '</h3><div class="qr">' + cmState.qr + '</div><p><b>Scan to pre-order</b></p><p>Pick your pickup time and pay on your phone.</p>');
+      w.document.close(); w.focus(); w.print();
+    }
+  });
+  cmG('cmList').addEventListener('click', function(e){
+    var b = e.target.closest('[data-cm]'); if (!b) return;
+    var d = cmState.rows.find(function(x){ return x.id === b.getAttribute('data-id'); }); if (!d) return;
+    var act = b.getAttribute('data-cm');
+    if (act === 'edit') return cmOpen(d);
+    if (act === 'copy') return cmOpen(d, true);
+    if (act === 'share') return cmShare(d);
+    if (act === 'toggle') {
+      if (!d.active && !(d.menu_item_ids || []).length) { showMsg('cmMsg', 'Pick the menu first (Edit).', 'error'); return; }
+      b.disabled = true;
+      sb.rpc('door_program_set_active', { p_id: d.id, p_active: !d.active }).then(function(res){
+        if (res.error) { b.disabled = false; showMsg('cmMsg', res.error.message, 'error'); return; }
+        showMsg('cmMsg', d.name + (d.active ? ': QR is off. Guests who scan see that pre-orders are off.' : ': QR is on.'), 'ok');
+        cmLoad();
+      });
+    }
   });
 
   // ================= NEXT DOOR DELIVERY =================
