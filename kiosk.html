@@ -1278,7 +1278,9 @@
     // a broken-image icon.
     function itemPhotoHtml(item){
       var src = item.image_url || ('item-' + slugify(item.name) + '.jpg');
-      return '<img class="item-tile-photo" src="' + escHtml(src) + '" alt="" loading="lazy" onerror="this.remove()">';
+      // White Sauce: the sauce-cup picture until item-white-sauce.jpg is uploaded
+      var fb = item.name === 'White Sauce' ? 'ing-white-sauce.svg' : '';
+      return '<img class="item-tile-photo" src="' + escHtml(src) + '" alt="" loading="lazy"' + (fb ? ' data-fb="' + fb + '"' : '') + ' onerror="if(this.dataset.fb&&this.getAttribute(\'src\')!==this.dataset.fb){this.src=this.dataset.fb;this.removeAttribute(\'data-fb\');}else{this.remove();}">';
     }
 
     // Backend errors are sometimes a plain string, but Square's own
