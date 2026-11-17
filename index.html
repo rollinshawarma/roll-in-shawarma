@@ -1273,6 +1273,8 @@ body.ev-tab-mode #coStepPay .wallet-pay, body.ev-tab-mode #payOr, body.ev-tab-mo
 body.ev-tab-mode #cardPanel, body.ev-tab-mode #scanPayPanel, body.ev-tab-mode #coStepPay .cart-breakdown,
 body.ev-tab-mode #coStepPay .cart-total-row, body.ev-tab-mode #tipSection, body.ev-tab-mode #promoSection,
 body.ev-tab-mode #rewardSection, body.ev-tab-mode #coPointsLine{ display:none !important; }
+/* Corporate / private event links (?event=CODE): no promo codes, rewards or points */
+body.ev-qr-mode #promoSection, body.ev-qr-mode #promoOnLocNote, body.ev-qr-mode #rewardSection, body.ev-qr-mode #coPointsLine{ display:none !important; }
 .tab-pay{ background:#f0faf3; border:1px solid #bfe5cb; border-radius:16px; padding:14px; margin-bottom:10px; }
 .tab-pay.hidden{ display:none; }
 .tab-pay-head b{ display:block; font-size:16px; color:#146c3a; }
@@ -1309,6 +1311,10 @@ body.ev-tab-mode #rewardSection, body.ev-tab-mode #coPointsLine{ display:none !i
 .ev-gate-ok small{ font-size:13px; }
 .ev-gate-ok .ev-gate-link{ margin:0; flex:0 0 auto; }
 #cartCustomerEmail[readonly]{ background:#f5f5f7; color:#3a3a3c; }
+.cform label.notify-opt{ display:flex; flex-direction:row; align-items:flex-start; gap:10px; margin:-2px 0 12px; cursor:pointer; font-size:14.5px; line-height:1.35; font-weight:400; }
+.cform label.notify-opt input{ flex:none; width:20px; height:20px; margin:1px 0 0; padding:0; accent-color:#2A1F16; }
+.notify-opt b{ display:block; font-weight:700; }
+.notify-opt small{ display:block; color:#7a6f63; font-size:13px; margin-top:2px; }
 
 /* ---- lunch drop links ---- */
 .pt-popup{ margin-top:12px; border:2px solid #0a7a3d; background:#effaf3; border-radius:14px; padding:12px 14px; font-size:14px; color:#1d1d1f; }
@@ -2397,6 +2403,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       <div class="cform cart-checkout-form">
         <label>Name for the order*<input type="text" id="cartCustomerName" required autocomplete="name"></label>
         <label>Email for your receipt <span class="opt">(optional with Apple Pay / Google Pay)</span><input type="email" id="cartCustomerEmail" autocomplete="email"></label>
+        <label class="notify-opt"><input type="checkbox" id="cartNotifyEmail"><span><b>Email me when my order is ready</b><small>One email when it&rsquo;s ready for pickup. Nothing else.</small></span></label>
         <label id="cartPickupDateLabel" class="hidden">Pickup date (catering)<input type="date" id="cartPickupDate"></label>
         <details class="more-details">
           <summary>Add phone or special requests</summary>
@@ -3458,6 +3465,9 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       });
     }
 
+    // A dish without its own photo yet: use this instead of its section's photo
+    // (otherwise White Sauce would show the Sides photo, which is samosas).
+    var ITEM_FALLBACK_PHOTOS = { 'White Sauce': 'ing-white-sauce.svg' };
     var categoryImages = {
       'Secret Menu': 'secret-menu.svg',
       'Shawarma': 'item-chicken-shawarma.jpg', 'Frankie Rolls': 'item-signature-chicken-frankie.jpg',
@@ -3510,7 +3520,15 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     var WS_HALAL_KEY = 'rollin_halal_only', wsHasHalal = false, wsHalalHidden = {};
     var WS_HALAL_NO_TAG = { 'Drinks': 1, 'Desserts': 1, 'Kulfi Ice Cream': 1, 'Sides': 1 };
     function wsHalalOn(){ try { return wsHasHalal && localStorage.getItem(WS_HALAL_KEY) === '1'; } catch (e) { return false; } }
-    function wsHalalTag(g){ return wsHasHalal && !WS_HALAL_NO_TAG[g.cat] && g.items.every(function(i){ return i.halal === true; }) ? '<span class="hl-tag">Halal</span>' : ''; }
+    // Veg dishes get a Veg tag instead of Halal (halal is about the meat). Names that
+    // already end in "(Veg)" need no tag. Same rule as the drive-up page.
+    function wsIsVeg(name){ return /\(Veg\)|Veggie|Paneer|Falafel|Samosa/i.test(name || ''); }
+    function wsHalalTag(g){
+      if (wsIsVeg(g.name)) return /\(Veg\)/i.test(g.name) || WS_HALAL_NO_TAG[g.cat] ? '' : '<span class="hl-tag vg-tag">Veg</span>';
+      return wsHasHalal && !WS_HALAL_NO_TAG[g.cat] && g.items.every(function(i){ return i.halal === true; }) ? '<span class="hl-tag">Halal</span>' : '';
+    }
+    // On a corporate / private event link (?event=CODE) that's taking orders
+    window.wsOnEventLink = function(){ return !!(window.rollinEvent && window.rollinEvent.code && window.rollinEvent.code()); };
     function wsAttr(v){ return String(v).replace(/\\/g, '\\\\').replace(/"/g, '\\"'); }
     // Same photos as the kiosk: item-<name>.jpg; the category photo if a
     // dish has none yet; combo fries/drinks reuse the fries/soda photos.
@@ -3533,7 +3551,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         : 'item-' + wsSlug(groupName || item.name) + '.jpg');
       var whole = /^(Loaded Fries|Bowls|Drinks)$/.test(cat) || /almond kulfi/i.test(groupName || item.name || '');
       var all = cat === 'Wings';   // square wing photos: show the whole picture
-      return '<img' + (all ? ' class="fit-all"' : whole ? ' class="fit-whole"' : '') + ' src="' + escHtml(src) + '" alt="" loading="lazy" decoding="async" data-fallback="' + escHtml(categoryImages[cat] || '') + '" onerror="wsImgFallback(this)">';
+      return '<img' + (all ? ' class="fit-all"' : whole ? ' class="fit-whole"' : '') + ' src="' + escHtml(src) + '" alt="" loading="lazy" decoding="async" data-fallback="' + escHtml(ITEM_FALLBACK_PHOTOS[groupName || item.name] || categoryImages[cat] || '') + '" onerror="wsImgFallback(this)">';
     }
     var wsToastTimer = null;
     function wsToast(msg, ms){
@@ -4230,7 +4248,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     var rewardOff = {};
     function rewardSummary(){
       var R = window.rollinRewards;
-      var all = R && R.signedIn() ? R.vouchers() : [];
+      var all = R && R.signedIn() && !window.wsOnEventLink() ? R.vouchers() : [];   // no rewards on event links
       var units = [];
       cart.forEach(function(c){
         var it = itemsById[c.menu_item_id] || {};
@@ -4270,7 +4288,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       return out;
     }
     function baseTotalsWithRewards(){
-      var promo = appliedPromo ? appliedPromo.discountAmount : 0;
+      var promo = appliedPromo && !window.wsOnEventLink() ? appliedPromo.discountAmount : 0;
       var rw = rewardSummary();
       var fr = firstRollSummary(rw, promo);
       if (fr.promoDropped) promo = 0;
@@ -4442,7 +4460,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
 
       refreshCheckoutBreakdown();
       prepareWallets();
-      if (!onLocPickup && window.rollinWelcome && window.rollinWelcome.saved() && !hasCatering && cart.length && !appliedPromo) {
+      if (!onLocPickup && !window.wsOnEventLink() && window.rollinWelcome && window.rollinWelcome.saved() && !hasCatering && cart.length && !appliedPromo) {
         var wMin = window.rollinWelcome.min || 0, wSub = cartTotal();
         document.getElementById('promoCodeInput').value = window.rollinWelcome.CODE;
         if (wMin && wSub < wMin) {
@@ -4453,6 +4471,18 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         } else document.getElementById('promoApplyBtn').click();
       }
     }
+
+    // "Email me when my order is ready": remembered on this phone for next time.
+    (function(){
+      var K = 'rollin_notify_email', box = document.getElementById('cartNotifyEmail');
+      if (!box) return;
+      try { box.checked = localStorage.getItem(K) === '1'; } catch (e) {}
+      box.addEventListener('change', function(){
+        try { localStorage.setItem(K, box.checked ? '1' : '0'); } catch (e) {}
+        var em = document.getElementById('cartCustomerEmail');
+        if (box.checked && em && !em.value.trim()) em.focus();
+      });
+    })();
 
     // While the drawer is open, the page behind it must not scroll --
     // otherwise a touch/wheel gesture inside the drawer can "leak"
@@ -4778,6 +4808,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       if (!cart.length && !giftCardCart.length) { checkoutMsg('Your cart is empty.'); return null; }
       if (!name) { checkoutMsg('Please add a name for the order.'); document.getElementById('cartCustomerName').focus(); return null; }
       if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { checkoutMsg('That email doesn\u2019t look right. Fix it or leave it blank.'); return null; }
+      if (document.getElementById('cartNotifyEmail').checked && !email) { checkoutMsg('Add your email for the ready alert, or untick \u201cEmail me when my order is ready\u201d.'); document.getElementById('cartCustomerEmail').focus(); return null; }
       var scheduledPickupAt = null;
       try { scheduledPickupAt = window.rollinPickup ? window.rollinPickup.value() : null; }
       catch (ptErr) { checkoutMsg(ptErr.message); return null; }
@@ -4789,13 +4820,14 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
           giftCards: giftCardCart.map(function(g){ return { amount: g.amount, recipientName: g.recipientName, recipientEmail: g.recipientEmail, message: g.message }; }),
           customerName: name,
           customerEmail: email || undefined,
+          notifyEmail: document.getElementById('cartNotifyEmail').checked && !!email,
           customerPhone: document.getElementById('cartCustomerPhone').value.trim(),
           notes: document.getElementById('cartCustomerNotes').value.trim(),
           pickupDate: document.getElementById('cartPickupDate').value || undefined,
-          promoCode: appliedPromo && !onLocPickup ? appliedPromo.code : undefined,
+          promoCode: appliedPromo && !onLocPickup && !window.wsOnEventLink() ? appliedPromo.code : undefined,
           scheduledPickupAt: scheduledPickupAt || undefined,
           tipAmount: totals.tip || undefined,
-          rewardIds: totals.rewardIds && totals.rewardIds.length ? totals.rewardIds : undefined,
+          rewardIds: totals.rewardIds && totals.rewardIds.length && !window.wsOnEventLink() ? totals.rewardIds : undefined,
           pickupMethod: (window.rollinPickup && window.rollinPickup.method()) || undefined,
           carModel: (window.rollinPickup && window.rollinPickup.car()) || undefined,
           pickupOtherDay: scheduledPickupAt && window.rollinPickup && window.rollinPickup.otherDay() ? true : undefined,
@@ -6928,6 +6960,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
 
     // ---- Checkout: pickup comes from the event; company tab replaces payment ----
     function paintCheckout(){
+      document.body.classList.toggle('ev-qr-mode', canOrder());
       var note = document.getElementById('dropCheckoutNote');
       if (note) note.innerHTML = canOrder() ? '<b>' + esc(ev.name) + '</b>' + (state() === 'live' ? 'Made now at the event' : 'Ready at ' + esc(clock(ev.starts_at)) + ' on ' + esc(day(ev.starts_at))) + (ev.pickup_note ? ' · ' + esc(ev.pickup_note) : '') : '';
       var tab = isTab();
@@ -7265,6 +7298,7 @@ body{ background:var(--bg); color:var(--ink); }
 .hl-sw[aria-checked="true"] i{ background:#2F8F5B; }
 .hl-sw[aria-checked="true"] i::after{ transform:translateX(16px); }
 .hl-note{ font-size:14px; color:var(--muted); }
+.hl-tag.vg-tag{ color:#3E8E3A; }
 .hl-tag{ display:inline-block; margin-left:8px; color:#2F8F5B; font-family:var(--body); font-size:10.5px; font-weight:700; letter-spacing:.1em; text-transform:uppercase; vertical-align:2px; }
 /* Quiet tags: plain small caps, no filled pills. */
 .ws-new{ background:none; color:var(--accent); padding:0; border-radius:0; font-family:var(--body); font-size:10.5px; font-weight:700; letter-spacing:.1em; }
