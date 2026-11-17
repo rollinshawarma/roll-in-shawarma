@@ -7499,5 +7499,59 @@ body{ background:var(--bg); color:var(--ink); }
   }
 })();
 </script>
+<style id="mobileFirst">
+/* =====================================================================
+   PHONES (Nov 17): the first screen shows the food, the name and all the
+   order buttons; the bottom order bar is a real bar; no floating coin.
+   Up to 640px wide only; the computer layout is unchanged.
+   ===================================================================== */
+@media (max-width:640px){
+  /* Banner (review / standard spot): one slim line */
+  #annbar{ font-size:12.5px; }
+  #annbar .wrap{ min-height:32px; padding-left:12px; padding-right:38px; }
+  .ann-slide{ padding:6px 0; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .ann-close{ width:30px; height:30px; }
+
+  /* First screen */
+  .hero{ padding:10px 12px 0; }
+  .hero-media{ height:clamp(188px, 29svh, 330px); border-radius:22px; }
+  .hs-bars{ top:12px; left:14px; right:14px; }
+  .hs-cap{ left:10px; bottom:10px; gap:8px; padding:7px 7px 7px 14px; font-size:14px; }
+  .hs-cap i{ width:28px; height:28px; font-size:14px; }
+  .hero-inner{ padding:16px 2px calc(18px + var(--safe-b)); gap:12px; }
+  .hero-kick{ margin-bottom:6px; font-size:11.5px; letter-spacing:.18em; }
+  .hero h1{ font-size:clamp(30px, 9.2vw, 40px); line-height:1.04; letter-spacing:-.025em; white-space:nowrap; }
+  .hero h1 em{ display:inline; }                       /* "Roll-In Shawarma" on one line */
+  .hero-sub{ font-size:16px; margin-top:6px; }
+  .hero .open-status{ font-size:14.5px; padding-top:6px; padding-bottom:6px; }
+  .hero-ctas{ display:grid; grid-template-columns:1fr 1fr; gap:10px; width:100%; max-width:none; }
+  .hero-ctas .btn{ width:auto; height:48px; font-size:15.5px; padding:0 10px; }
+  .hero-ctas .btn-accent{ grid-column:1 / -1; height:54px; font-size:17px; }   /* Order Pickup: the big one */
+  body:not(.truck-open) .hero-ctas .btn:last-child, body.onloc-now .hero-ctas .btn:last-child{ grid-column:1 / -1; }   /* no Drive Up: Delivery full width */
+  .hero-halal{ font-size:13px; }
+
+  /* "Come find the truck" cards: never wider than the screen (they pushed the page 12px sideways on 360px phones) */
+  .visit-grid{ grid-template-columns:minmax(0, 1fr); }
+  .visit-card{ min-width:0; padding:22px 18px; }
+  /* Header: the name never runs into the Order button */
+  .gnav .brand{ min-width:0; font-size:clamp(17px, 5vw, 21px); white-space:nowrap; }
+  .gnav .brand img{ width:34px; height:34px; }
+
+  /* Halal coin: not on phones (the Halal line and the "Halal only" switch stay) */
+  #halalBadge{ display:none !important; }
+
+  /* Bottom order bar: a solid bar across the bottom, not floating pills */
+  #floatOrderGroup{ left:0 !important; right:0; bottom:0; gap:8px; padding:10px 12px calc(10px + var(--safe-b)); background:#FBF6EC; border-top:1px solid var(--line); box-shadow:0 -8px 24px rgba(42,31,22,.08); }
+  #floatOrderGroup .float-btn{ height:46px; padding:0 8px; font-size:14.5px; box-shadow:none; }
+  #floatDelivery{ box-shadow:inset 0 0 0 1.5px var(--line) !important; }
+  .cart-fab{ left:12px !important; right:12px; }
+  body:not(.has-cart):not(.ws-in-menu):has(#floatOrderGroup.show) .wp{ bottom:calc(80px + var(--safe-b)); }
+  footer{ padding-bottom:calc(76px + var(--safe-b)); }   /* the last lines never hide behind the bar */
+}
+@media (max-width:360px){
+  .hero-ctas .btn{ font-size:14.5px; }
+  #floatOrderGroup .float-btn{ font-size:13.5px; }
+}
+</style>
 </body>
 </html>
