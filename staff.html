@@ -54,7 +54,7 @@
   .hint{ font-size:12.5px; color:var(--muted); margin-bottom:16px; line-height:1.5; }
 
   label{ display:block; font-size:11.5px; font-weight:600; text-transform:uppercase; letter-spacing:0.05em; color:var(--muted); margin-bottom:6px; }
-  input[type=email], input[type=text], input[type=number], input[type=tel], input[type=search], input[type=date], input[type=time]{
+  input[type=email], input[type=text], input[type=number], input[type=tel], input[type=search], input[type=date], input[type=time], input[type=url], input[type=datetime-local]{
     width:100%; background:var(--panel-2); border:1px solid var(--line); border-radius:10px;
     padding:11px 13px; color:var(--white); font-size:14.5px; font-family:'Inter'; margin-bottom:14px;
     color-scheme:light;
@@ -736,6 +736,13 @@
   .cm-slots{ display:flex; flex-wrap:wrap; gap:6px; margin-top:8px; }
   .cm-slots span{ background:#f5f5f7; border-radius:8px; padding:4px 8px; font-size:13px; }
   .cm-slots span.has{ background:#e7f5ec; font-weight:700; }
+  .cm-onloc{ margin:12px 0 4px; padding:12px 14px; border:1px solid #e6e6eb; border-radius:12px; background:#fafafc; }
+  .cm-onloc .ad-check{ margin:0 0 4px; }
+  .cm-onloc .hint{ margin:4px 0 0; }
+  .cm-onloc-state:empty{ display:none; }
+  .cm-onloc-state{ font-weight:600; color:#1b7a3d !important; }
+  .cm-onloc-state.warn{ color:#9a6200 !important; }
+  .ad-chip.onloc{ background:#e7f5ec; color:#1b7a3d; }
   .cm-fly-grid{ display:grid; grid-template-columns:300px minmax(0, 1fr); gap:20px; margin-top:12px; align-items:start; }
   .cm-fly-prev{ width:300px; height:388px; overflow:hidden; border-radius:8px; box-shadow:0 1px 2px rgba(0,0,0,.08), 0 6px 20px rgba(0,0,0,.08); background:#fff; }
   .cm-fly-prev iframe{ width:816px; height:1056px; border:0; transform:scale(.3676); transform-origin:0 0; pointer-events:none; background:#fff; }
@@ -2433,6 +2440,11 @@
         <div><label for="cmSlot">A pickup time every</label><select id="cmSlot"><option value="10">10 minutes</option><option value="15" selected>15 minutes</option><option value="20">20 minutes</option><option value="30">30 minutes</option><option value="60">1 hour</option></select></div>
       </div>
       <p class="hint" id="cmSlotHint"></p>
+      <div class="cm-onloc">
+        <label class="ad-check"><input type="checkbox" id="cmOnloc"> <b>Also run as an On Location stop</b></label>
+        <p class="hint">From the first pickup time to the end of the event, the website, the truck QR, the kiosk and the kitchen treat the truck as being here: the website shows &ldquo;We&rsquo;re on location at&nbsp;&hellip;&rdquo; with directions, walk-up and website orders are picked up here (no drive-up), the kitchen shows the On Location countdown, and it&rsquo;s on the website&rsquo;s Events calendar. Changing the event&rsquo;s place or times updates the stop. Leave it off for private events you don&rsquo;t want on the public website.</p>
+        <p class="hint cm-onloc-state" id="cmOnlocState"></p>
+      </div>
 
       <div class="cm-sec">When the QR takes orders</div>
       <div class="ad-pair">
@@ -7934,7 +7946,8 @@
         return '<div class="ad-card"><div class="ad-body">' +
           '<div class="ad-title"><span class="ad-chip ' + chip[0] + '">' + esc(chip[1]) + '</span>' + esc(d.name) + ' <span class="hint">· ' + esc(d.place) + '</span></div>' +
           '<div class="ad-meta">' + esc(cmDay(d.event_start, true)) + ', ' + esc(cmClock(d.event_start)) + ' – ' + esc(cmClock(d.event_end)) + ' · ' + count + ' menu item' + (count === 1 ? '' : 's') +
-            ' · ' + Number(d.orders) + ' order' + (Number(d.orders) === 1 ? '' : 's') + ', ' + scMoney(d.sales) + '</div>' +
+            ' · ' + Number(d.orders) + ' order' + (Number(d.orders) === 1 ? '' : 's') + ', ' + scMoney(d.sales) +
+            (d.onloc && (d.onloc.state === 'scheduled' || d.onloc.state === 'running') ? ' · <span class="ad-chip onloc">\uD83D\uDE9A On Location ' + (d.onloc.state === 'running' ? 'now' : esc(cmClock(d.onloc.from)) + ' \u2013 ' + esc(cmClock(d.onloc.to))) + '</span>' : '') + '</div>' +
           (Number(d.orders) > 0 ? '<div class="cm-slots" aria-label="Orders per pickup time">' + slots + '</div>' : '') +
           '<div class="ad-btns">' + (past ? '' : '<button type="button" class="nd-toggle ' + (d.active ? 'on' : 'off') + '" data-cm="toggle" data-id="' + esc(d.id) + '">' + (d.active ? '● On: tap to turn off' : '○ Off: tap to turn on') + '</button>') +
             '<button type="button" class="btn-primary btn-small" data-cm="orders" data-id="' + esc(d.id) + '">Pre-orders (' + Number(d.orders) + ')</button>' +
@@ -7991,6 +8004,13 @@
     cmState.photo = d && d.image_url || ''; cmState.spot = d && d.spot_image_url || ''; cmPhotoShow();
     cmG('cmMap').value = d && d.map_url || '';
     cmG('cmActive').checked = cmState.editing ? !!d.active : false;
+    // On Location link: on while the linked stop is scheduled or running (a copy starts off)
+    var ol = cmState.editing && d.onloc, st = cmG('cmOnlocState');
+    cmG('cmOnloc').checked = !!(ol && (ol.state === 'scheduled' || ol.state === 'running' || ol.state === 'ended_early'));
+    st.className = 'hint cm-onloc-state' + (ol && ol.state === 'ended_early' ? ' warn' : '');
+    st.textContent = !ol ? '' : ol.state === 'running' ? 'On Location is running now, until ' + cmClock(ol.to) + '.'
+      : ol.state === 'scheduled' ? 'On Location stop set: ' + cmDay(ol.from) + ', ' + cmClock(ol.from) + ' \u2013 ' + cmClock(ol.to) + '.'
+      : ol.state === 'ended_early' ? 'The kitchen ended this On Location stop early. Saving won\u2019t restart it.' : '';
     cmG('cmDelete').classList.toggle('hidden', !cmState.editing);
     clearMsg('cmEditMsg'); cmSlotHint();
     var ed = cmG('cmEditor'); ed.classList.remove('hidden'); ed.scrollIntoView({ behavior:'smooth', block:'start' });
@@ -8034,14 +8054,14 @@
       p_opens: cmG('cmOpens').value, p_closes: cmG('cmCloses').value, p_cutoff_min: Number(cmG('cmCutoff').value), p_board_lead_min: Number(cmG('cmLead').value),
       p_max_per_slot: max ? Math.round(Number(max)) : null, p_menu_item_ids: ids,
       p_welcome_title: cmG('cmTitle').value, p_welcome_msg: cmG('cmWelcome').value, p_image_url: cmState.photo,
-      p_spot_image_url: cmState.spot, p_map_url: mapUrl }).then(function(res){
+      p_spot_image_url: cmState.spot, p_map_url: mapUrl, p_onloc: cmG('cmOnloc').checked }).then(function(res){
       b.disabled = false;
       if (res.error) { showMsg('cmEditMsg', res.error.message, 'error'); return; }
       var row = Array.isArray(res.data) ? res.data[0] : res.data;
       cmG('cmEditor').classList.add('hidden');
       if (wasNew) cmShare(row);
       if (Number(row.orphans) > 0) showMsg('cmMsg', 'Saved. ' + row.orphans + ' paid order' + (row.orphans == 1 ? ' is' : 's are') + ' booked for a pickup time that no longer exists. They still show on the kitchen board at their old time; please call those guests.', 'error');
-      else showMsg('cmMsg', 'Saved.', 'ok');
+      else showMsg('cmMsg', 'Saved.' + (row.onloc && row.onloc.state === 'scheduled' ? ' On Location stop set for ' + cmDay(row.onloc.from) + ', ' + cmClock(row.onloc.from) + ' \u2013 ' + cmClock(row.onloc.to) + '.' : row.onloc && row.onloc.state === 'running' ? ' On Location is running now.' : ''), 'ok');
       cmLoad();
     });
   });
