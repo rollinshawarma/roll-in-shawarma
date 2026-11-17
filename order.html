@@ -1640,7 +1640,7 @@
         return false;
       }, function(){ return true; });
     }
-    if (DOOR_CODE) setInterval(function(){ if (doorProg) loadDoor().then(function(ok){ if (ok && isComm() && !qrBaseRows) loadMenu(); }); }, 60000);   // cutoffs pass, runs fill up
+    if (DOOR_CODE) setInterval(function(){ if (doorProg) loadDoor().then(function(ok){ loadKitchenPulse(); if (ok && isComm() && !qrBaseRows) loadMenu(); }); }, 60000);   // cutoffs pass, runs fill up
     // A dish without its own photo yet: use this instead of its section's photo
     // (otherwise White Sauce would show the Sides photo, which is samosas).
     var ITEM_FALLBACK_PHOTOS = { 'White Sauce': 'ing-white-sauce.svg' };
@@ -3632,6 +3632,21 @@
 
     // ---------- live kitchen line (real orders in progress) ----------
     function loadKitchenPulse(){
+      // Dedicated QR links: the truck's regular orders say nothing about this event.
+      // Community event: only this event's orders, only around event time.
+      // Next Door delivery: no note (orders go out in scheduled runs).
+      if (DOOR_CODE) {
+        var p = doorProg, live = isComm() && p.state === 'open' && Date.now() > Date.parse(p.event_start) - 3600000 && Date.now() < Date.parse(p.event_end);
+        if (!live) { $('kitchenPulse').classList.add('hidden'); return; }
+        sbShared.rpc('get_status_board', { p_door: DOOR_CODE }).then(function(res){
+          if (res.error || !res.data || !Array.isArray(res.data.orders)) { $('kitchenPulse').classList.add('hidden'); return; }
+          var n = res.data.orders.filter(function(o){ return o.stage === 'preparing' || (o.stage === 'queued' && (!o.pickup_at || Date.parse(o.pickup_at) <= Date.now() + 45 * 60000)); }).length;
+          $('kitchenPulseText').textContent = n === 0 ? 'No orders ahead of you' : n + (n === 1 ? ' order' : ' orders') + ' cooking for this event';
+          $('kitchenPulse').classList.toggle('busy', n >= 5);
+          $('kitchenPulse').classList.remove('hidden');
+        }).catch(function(){ $('kitchenPulse').classList.add('hidden'); });
+        return;
+      }
       sbShared.rpc('get_public_order_status_board').then(function(res){
         if (res.error || !Array.isArray(res.data)) { $('kitchenPulse').classList.add('hidden'); return; }
         var cooking = res.data.filter(function(o){ return o.display_stage !== 'ready' && o.display_stage !== 'picked_up'; }).length;
@@ -3642,14 +3657,14 @@
       }).catch(function(){ $('kitchenPulse').classList.add('hidden'); });
     }
 
-    if (DOOR_CODE) loadDoor().then(function(ok){ if (ok) loadMenu(); }); else loadDriveup().then(function(ok){ if (ok) loadMenu(); });
+    if (DOOR_CODE) loadDoor().then(function(ok){ loadKitchenPulse(); if (ok) loadMenu(); }); else loadDriveup().then(function(ok){ if (ok) loadMenu(); });
     // While ordering is open: if the kitchen pauses ordering, show the paused
     // screen within a minute (the cart is kept for when it opens again).
     if (!DOOR_CODE) setInterval(function(){
       if (document.body.classList.contains('driveup-closed') || document.hidden) return;
       sbShared.rpc('get_ordering_status').then(function(r){ if (r && !r.error && r.data && r.data.manual) { saveCart(); location.reload(); } }, function(){});
     }, 60000);
-    loadKitchenPulse();
+    if (!DOOR_CODE) loadKitchenPulse();
     setInterval(loadKitchenPulse, 60000);
   })();
 </script>
