@@ -8073,7 +8073,7 @@
   // ---- Printable flyer: everything comes from the event itself ----
   var CM_FLY_KEY = 'rollin_cm_flyer_opts';
   function cmFlyOpts(){
-    var o = { photo:true, menu:true, spot:true, layout:'full' };
+    var o = { photo:true, truck:true, menu:true, spot:true, layout:'full' };
     try { var x = JSON.parse(localStorage.getItem(CM_FLY_KEY) || 'null'); if (x) for (var k in o) if (k in x) o[k] = x[k]; } catch (e) {}
     return o;
   }
@@ -8124,7 +8124,9 @@
     var groups = cmFlyMenu(d), tiles = cmFlyTiles(groups);
     var showMenu = o.menu && tiles.length >= 3, more = groups.length - tiles.length;
     var showSpot = o.spot && (d.spot_image_url || mapOk);
-    var hero = o.photo ? (d.image_url || 'hero-truck.jpg') : '';
+    var hero = o.photo ? (d.image_url || '') : '';
+    // The food-truck sketch: beside the headline, so it reads "food truck" at a glance.
+    var truck = o.truck ? '<img class="truck" src="hero-truck.jpg" alt="Roll-In Shawarma food truck" onerror="this.remove()">' : '';
     var base = location.href.replace(/[?#].*$/, '').replace(/[^\/]*$/, '');
     var price = function(g){ if (!g.prices.length) return ''; var lo = Math.min.apply(null, g.prices), hi = Math.max.apply(null, g.prices); return (hi > lo ? 'from ' : '') + '$' + lo.toFixed(2); };
     var qr = cmFlyQr(L), mapQr = mapOk ? cmFlyQr(d.map_url) : '';
@@ -8136,7 +8138,7 @@
       '.serif{font-family:Fraunces,Georgia,serif}.k{font-size:9.5pt;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#B4532A}' +
       '.page{width:8.5in;height:11in;padding:.36in .45in .3in;display:flex;flex-direction:column;gap:.12in;overflow:hidden;page-break-after:always}' +
       '.top{display:flex;align-items:center;justify-content:space-between}.brand{display:flex;align-items:center;gap:.1in;font:500 15pt Fraunces,Georgia,serif}.brand img{width:.46in;height:.46in;border-radius:50%;object-fit:cover}.top small{font-size:9pt;color:#7A6F63}' +
-      '.hero{display:block;width:100%;height:auto;object-fit:contain;border-radius:.16in;background:#FBF6EC}' +
+      '.hero{display:block;width:100%;height:auto;object-fit:contain;border-radius:.16in;background:#FBF6EC}.intro{display:grid;grid-template-columns:minmax(0,1fr) 2.5in;gap:.22in;align-items:center}.intro.solo{grid-template-columns:1fr}.intro .truck{display:block;width:100%;height:auto}.side{display:grid;gap:.08in;justify-items:center}.side .truck{display:block;width:2.1in;height:auto}' +
       'h1{font:500 27pt/1.04 Fraunces,Georgia,serif;letter-spacing:-.01em;margin:.03in 0 .05in}.msg{font-size:11pt;line-height:1.4;color:#5c5248;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;overflow:hidden}' +
       '.facts{display:grid;grid-template-columns:1.1fr 1fr 1.3fr;border-top:1.5px solid #2A1F16;border-bottom:1px solid #E5DBC9}.facts div{padding:.07in .12in .07in 0;font-size:12.5pt;font-weight:700;line-height:1.25}.facts div+div{padding-left:.14in;border-left:1px solid #E5DBC9}.facts small{display:block;font-size:8pt;letter-spacing:.12em;text-transform:uppercase;color:#7A6F63;font-weight:700;margin-bottom:.02in}.facts i{display:block;font-style:normal;font-weight:500;font-size:10pt;color:#5c5248}' +
       '.mid{display:grid;grid-template-columns:1fr 2.25in;gap:.28in;align-items:center}' +
@@ -8156,13 +8158,13 @@
     var body;
     if (o.layout === 'half') {
       var one = '<section class="half"><div>' + head.replace('<small>rollinshawarma.com</small>', '') + '<p class="k" style="margin-top:.1in">Community event · ' + esc(d.name) + '</p><h1>' + esc(title) + '</h1>' + facts + steps +
-        '<p class="window">' + esc(opens) + (closes ? ' \u00b7 ' + esc(closes) : '') + '</p></div>' + qrBox + '</section>';
+        '<p class="window">' + esc(opens) + (closes ? ' \u00b7 ' + esc(closes) : '') + '</p></div><div class="side">' + truck + qrBox + '</div></section>';
       body = '<div class="sheet">' + one + one + '</div>';
     } else {
       var heroH = showMenu && showSpot ? 2.3 : showMenu || showSpot ? 2.9 : 3.6;
       body = '<div class="page">' + head +
         (hero ? '<img class="hero" src="' + esc(hero) + '" alt="" style="max-height:' + heroH + 'in" onerror="this.remove()">' : '') +
-        '<div><p class="k">Community event \u00b7 ' + esc(d.name) + '</p><h1>' + esc(title) + '</h1><p class="msg">' + esc(msg) + '</p></div>' + facts +
+        '<div class="intro' + (truck ? '' : ' solo') + '"><div><p class="k">Community event \u00b7 ' + esc(d.name) + '</p><h1>' + esc(title) + '</h1><p class="msg">' + esc(msg) + '</p></div>' + truck + '</div>' + facts +
         '<div class="mid"><div>' + steps + '<p class="window">' + esc(opens) + (closes ? ' \u00b7 ' + esc(closes) : '') + '</p></div>' + qrBox + '</div>' +
         (showMenu ? '<div class="menu"><h2>On the menu' + (more > 0 ? '<small>+ ' + more + ' more on the pre-order page</small>' : '') + '</h2><div class="tiles">' +
           tiles.map(function(g){ return '<div class="tile"><img src="' + esc(g.img) + '" alt=""' + (g.fb ? ' data-fb="' + esc(g.fb) + '"' : '') + ' onerror="if(this.dataset.fb){this.src=this.dataset.fb;this.removeAttribute(\'data-fb\');}else{this.parentNode.remove();}"><b>' + esc(g.name) + '</b><span>' + esc(price(g)) + '</span></div>'; }).join('') + '</div></div>' : '') +
@@ -8198,7 +8200,8 @@
     var runs = d.runs || [];
     var row = function(ok, label, text){ return '<li class="' + (ok ? 'ok' : 'todo') + '"><b>' + (ok ? '\u2713' : '\u25cb') + '</b><span><strong>' + esc(label) + '</strong> ' + esc(text) + '</span></li>'; };
     var list = [
-      row(!!d.image_url, 'Event photo:', d.image_url ? 'your photo, across the top.' : 'not set, so the truck photo is used.'),
+      row(!!d.image_url, 'Event photo:', d.image_url ? 'your photo, across the top (shown whole).' : 'not set, so the flyer starts with the headline.'),
+      row(true, 'Food truck sketch:', 'beside the headline (above the QR on half sheets).'),
       row(!!(d.welcome_title || d.welcome_msg), 'Welcome text:', d.welcome_title || d.welcome_msg ? '\u201c' + (d.welcome_title || 'We can\u2019t wait to serve your community') + '\u201d' : 'not set, so the default welcome is used.'),
       row(true, 'When:', cmDay(d.event_start, true) + ', pickup ' + cmClock(d.event_start) + ' \u2013 ' + cmClock(d.event_end) + ', a time every ' + d.slot_min + ' min (' + runs.length + ' times).'),
       row(true, 'Pre-orders:', (d.opens_at && Date.parse(d.opens_at) > Date.now() ? 'open ' + cmDay(d.opens_at) + ', ' + cmClock(d.opens_at) : 'open as soon as the QR is on') + '.'),
@@ -8211,7 +8214,7 @@
     box.innerHTML = '<b>Printable flyer</b><small>Letter size. Built from this event\u2019s details; change them with \u201cEdit event details\u201d. In the print window choose your printer, or \u201cSave as PDF\u201d to email or text it.</small>' +
       '<div class="cm-fly-grid"><div class="cm-fly-prev" aria-label="Flyer preview"><iframe id="cmFlyFrame" title="Flyer preview" tabindex="-1" scrolling="no"></iframe></div><div>' +
       '<ul class="cm-fly-list">' + list + '</ul>' +
-      '<div class="cm-fly-opts"><span>Show on the flyer:</span>' + chk('photo', 'Event photo') + chk('menu', 'Menu photos', nTiles < 3) + chk('spot', 'Where we\u2019ll park', !d.spot_image_url && !mapOk) + '</div>' +
+      '<div class="cm-fly-opts"><span>Show on the flyer:</span>' + chk('photo', 'Event photo', !d.image_url) + chk('truck', 'Food truck sketch') + chk('menu', 'Menu photos', nTiles < 3) + chk('spot', 'Where we\u2019ll park', !d.spot_image_url && !mapOk) + '</div>' +
       '<div class="cm-fly-opts"><span>Layout:</span><label class="ad-check"><input type="radio" name="cmFlyLayout" value="full"' + (o.layout !== 'half' ? ' checked' : '') + '> One full page</label><label class="ad-check"><input type="radio" name="cmFlyLayout" value="half"' + (o.layout === 'half' ? ' checked' : '') + '> Two half sheets per page (to cut)</label></div>' +
       '<div class="ad-btns"><button type="button" class="btn-primary btn-small" data-cm-fly-print>Print flyer</button><button type="button" class="btn-export btn-small" data-cm-fly-edit>Edit event details</button></div>' +
       '</div></div>';
