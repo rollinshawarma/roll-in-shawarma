@@ -115,6 +115,8 @@
   :focus-visible{ outline-color:#d62d20; }
   #proceedToCheckoutBtn, #exploreOtherPaymentsBtn{ border-radius:999px; }
   .w1, .w2{ color:#1a1714 !important; font-family:"Barlow Condensed","Arial Narrow",sans-serif; letter-spacing:0; }
+  .board-link{ display:inline-block; margin-top:12px; font-weight:700; font-size:15px; color:#B4532A; text-decoration:none; }
+  .board-link::after{ content:" \2192"; }
 </style>
 <script>
   // The secret order key (?t=) unlocks this customer's order details. Take
@@ -163,6 +165,7 @@ fbq('init','1433859782006722');fbq('track','PageView');
     <div class="ref-label">Order</div>
     <div class="ref-badge" id="refBadge"></div>
     <a id="trackBtn" class="track-btn hidden" href="#">Track your order &amp; get ready alerts</a>
+    <a id="boardLink" class="board-link hidden" href="status.html">See the live order board</a>
     <p id="driveNote" class="pickup-note hidden">&#128205; On your way? When you pull in at the truck, open your order and tap <b>I&rsquo;m here</b> &mdash; then pick your parking spot and we&rsquo;ll bring it out.</p>
     <div id="phoneNote" class="phone-note hidden">
       <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="6" y="2" width="12" height="20" rx="2.5"/><path d="M11 18h2"/></svg>
@@ -367,6 +370,13 @@ fbq('init','1433859782006722');fbq('track','PageView');
         // Tracking only once the payment is confirmed (cash orders are
         // placed at the window, so they count right away).
         var confirmedPaid = order.status === 'paid' || isCashOrder;
+        // Live order board (status.html): their order number at the top, then
+        // everything in prep and ready. Event orders open that event's board.
+        if (confirmedPaid && order.referenceCode) {
+          var bl = document.getElementById('boardLink');
+          bl.href = 'status.html?ref=' + encodeURIComponent(order.referenceCode);
+          bl.classList.remove('hidden');
+        }
         // Meta Pixel: one "Purchase" per order (reloading this page doesn't count it again)
         if (order.status === 'paid' && window.fbq) {
           try {
