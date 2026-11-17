@@ -1881,7 +1881,9 @@
       itemsById = {}; comboAddonsByName = {}; sections = []; groupsByKey = {};
       hasHalal = rows.some(function(it){ return typeof it.halal === 'boolean'; });
       var halalOnly = halalOn();
-      tacoDay = window.RollinDeals ? window.RollinDeals.applyTacoPricing(rows) : null;
+      // No Taco Tuesday/Thursday deal on dedicated QR links (community events, Next Door):
+      // no banner and regular taco prices (the server charges the same).
+      tacoDay = window.RollinDeals && !DOOR_CODE ? window.RollinDeals.applyTacoPricing(rows) : null;
       dealsByName = {}; dealPicksByName = {};
       rows.forEach(function(it){
         if (it.category === 'Deals') dealsByName[it.name] = it;
