@@ -1614,7 +1614,7 @@
         return '<b>We\u2019ve paused ordering for a few minutes.</b><br>' + (du.untilLabel ? 'We\u2019ll be back by ' + escHtml(du.untilLabel) + '. ' : '') + 'Sorry! This page will open again on its own.' +
           '<br><button type="button" class="du-browse-btn" id="duBrowseBtn">See the menu</button>';
       }
-      var ev = du.event, map = ev && ev.map ? 'https://maps.google.com/?q=' + encodeURIComponent(ev.map) : '';
+      var ev = du.event, map = ev && ev.map ? (/^https:\/\/((www\.)?google\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})\/maps|maps\.google\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})\/|maps\.app\.goo\.gl\/|goo\.gl\/maps\/|maps\.apple\.com\/|maps\.apple\/)[^\s\"'<>]*$/i.test(String(ev.map).trim()) ? String(ev.map).trim() : 'https://maps.google.com/?q=' + encodeURIComponent(ev.map)) : '';
       if (du.reason === 'away' && ev) {
         var when = ev.from && ev.until ? ev.from + ' \u2013 ' + ev.until : ev.until ? 'until ' + ev.until : ev.from ? 'from ' + ev.from : '';
         if (stopToday) return olHead + '<br>Drive-up at our usual spot is off today.' + '<br><button type="button" class="du-browse-btn" id="duBrowseBtn">See the menu</button>';
