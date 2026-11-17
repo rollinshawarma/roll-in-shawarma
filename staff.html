@@ -8136,7 +8136,7 @@
       '.serif{font-family:Fraunces,Georgia,serif}.k{font-size:9.5pt;font-weight:700;letter-spacing:.14em;text-transform:uppercase;color:#B4532A}' +
       '.page{width:8.5in;height:11in;padding:.36in .45in .3in;display:flex;flex-direction:column;gap:.12in;overflow:hidden;page-break-after:always}' +
       '.top{display:flex;align-items:center;justify-content:space-between}.brand{display:flex;align-items:center;gap:.1in;font:500 15pt Fraunces,Georgia,serif}.brand img{width:.46in;height:.46in;border-radius:50%;object-fit:cover}.top small{font-size:9pt;color:#7A6F63}' +
-      '.hero{width:100%;object-fit:cover;border-radius:.16in;background:#F3ECDF}' +
+      '.hero{display:block;width:100%;height:auto;object-fit:contain;border-radius:.16in;background:#FBF6EC}' +
       'h1{font:500 27pt/1.04 Fraunces,Georgia,serif;letter-spacing:-.01em;margin:.03in 0 .05in}.msg{font-size:11pt;line-height:1.4;color:#5c5248;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:4;overflow:hidden}' +
       '.facts{display:grid;grid-template-columns:1.1fr 1fr 1.3fr;border-top:1.5px solid #2A1F16;border-bottom:1px solid #E5DBC9}.facts div{padding:.07in .12in .07in 0;font-size:12.5pt;font-weight:700;line-height:1.25}.facts div+div{padding-left:.14in;border-left:1px solid #E5DBC9}.facts small{display:block;font-size:8pt;letter-spacing:.12em;text-transform:uppercase;color:#7A6F63;font-weight:700;margin-bottom:.02in}.facts i{display:block;font-style:normal;font-weight:500;font-size:10pt;color:#5c5248}' +
       '.mid{display:grid;grid-template-columns:1fr 2.25in;gap:.28in;align-items:center}' +
@@ -8145,7 +8145,7 @@
       '.qrbox{border:2px solid #2A1F16;border-radius:.16in;padding:.11in;text-align:center}.qrbox svg{display:block;width:1.8in;height:1.8in;margin:0 auto}.qrbox b{display:block;font:500 14pt Fraunces,Georgia,serif;margin-top:.04in}.qrbox small{display:block;font-size:7pt;color:#7A6F63;word-break:break-all;margin-top:.03in}' +
       '.menu h2,.spot h2{font:500 13pt Fraunces,Georgia,serif;margin-bottom:.05in;display:flex;justify-content:space-between;align-items:baseline}.menu h2 small,.spot h2 small{font:600 9pt Inter,Arial,sans-serif;color:#7A6F63}' +
       '.tiles{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:.1in}.tile{min-width:0}.tile img{width:100%;aspect-ratio:4/3;object-fit:cover;border-radius:.1in;background:#F3ECDF;display:block}.tile b{display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;overflow:hidden;font-size:8.5pt;line-height:1.15;margin-top:.03in}.tile span{display:block;font-size:8pt;color:#7A6F63}' +
-      '.spot{display:grid;grid-template-columns:' + (d.spot_image_url ? '2.3in ' : '') + '1fr' + (mapQr ? ' 1.15in' : '') + ';gap:.18in;align-items:center;background:#FBF6EC;border-radius:.16in;padding:.11in}.spot img{width:100%;height:1.2in;object-fit:cover;border-radius:.1in;display:block}.spot p{font-size:10.5pt;line-height:1.35;color:#5c5248}.spot p b{display:block;color:#2A1F16;font-size:12pt}.spot .mq{text-align:center;font-size:8pt;font-weight:700;color:#2A1F16}.spot .mq svg{display:block;width:.95in;height:.95in;margin:0 auto .03in;background:#fff;border-radius:.06in}' +
+      '.spot{display:grid;grid-template-columns:' + (d.spot_image_url ? '2.3in ' : '') + '1fr' + (mapQr ? ' 1.15in' : '') + ';gap:.18in;align-items:center;background:#FBF6EC;border-radius:.16in;padding:.11in}.spot img{width:100%;height:auto;max-height:2.2in;object-fit:contain;border-radius:.1in;display:block}.spot p{font-size:10.5pt;line-height:1.35;color:#5c5248}.spot p b{display:block;color:#2A1F16;font-size:12pt}.spot .mq{text-align:center;font-size:8pt;font-weight:700;color:#2A1F16}.spot .mq svg{display:block;width:.95in;height:.95in;margin:0 auto .03in;background:#fff;border-radius:.06in}' +
       '.foot{margin-top:auto;display:flex;justify-content:space-between;font-size:9pt;color:#7A6F63;border-top:1px solid #E5DBC9;padding-top:.08in}' +
       /* half sheet: 2 per page */
       '.half{width:8.5in;height:5.5in;padding:.36in .42in;display:grid;grid-template-columns:1fr 2.3in;gap:.3in;align-items:center;overflow:hidden}.half+.half{border-top:1.5px dashed #bbb}.half h1{font-size:22pt}.half .msg{font-size:10pt;-webkit-line-clamp:2}.half .facts{grid-template-columns:1fr 1fr;margin:.1in 0}.half .facts div:nth-child(3){grid-column:1 / -1;border-left:0;padding-left:0;border-top:1px solid #E5DBC9}.half .steps{gap:.05in}.half .steps li{font-size:9pt}.half .steps b{font-size:10pt}.half .qrbox svg{width:1.85in;height:1.85in}.half .brand{font-size:12pt}.half .brand img{width:.36in;height:.36in}' +
@@ -8161,7 +8161,7 @@
     } else {
       var heroH = showMenu && showSpot ? 2.3 : showMenu || showSpot ? 2.9 : 3.6;
       body = '<div class="page">' + head +
-        (hero ? '<img class="hero" src="' + esc(hero) + '" alt="" style="height:' + heroH + 'in" onerror="this.remove()">' : '') +
+        (hero ? '<img class="hero" src="' + esc(hero) + '" alt="" style="max-height:' + heroH + 'in" onerror="this.remove()">' : '') +
         '<div><p class="k">Community event \u00b7 ' + esc(d.name) + '</p><h1>' + esc(title) + '</h1><p class="msg">' + esc(msg) + '</p></div>' + facts +
         '<div class="mid"><div>' + steps + '<p class="window">' + esc(opens) + (closes ? ' \u00b7 ' + esc(closes) : '') + '</p></div>' + qrBox + '</div>' +
         (showMenu ? '<div class="menu"><h2>On the menu' + (more > 0 ? '<small>+ ' + more + ' more on the pre-order page</small>' : '') + '</h2><div class="tiles">' +
@@ -8178,15 +8178,15 @@
       'var over=function(){return pg.scrollHeight>pg.clientHeight+1;};' +
       'var setT=function(v){ti.forEach(function(i){i.style.aspectRatio="auto";i.style.height=v+"px";});};' +
       'while(over()&&n++<120){' +
-        'if(h&&h.offsetHeight>125){h.style.height=(h.offsetHeight-8)+"px";}' +                          // 1. shorter top photo
-        'else if(sp&&sp.offsetHeight>80){sp.style.height=(sp.offsetHeight-6)+"px";}' +                  // 2. shorter parking photo
+        'if(h&&h.offsetHeight>125){h.style.maxHeight=(h.offsetHeight-8)+"px";}' +                          // 1. shorter top photo
+        'else if(sp&&sp.offsetHeight>80){sp.style.maxHeight=(sp.offsetHeight-6)+"px";}' +                  // 2. shorter parking photo
         'else if(ti.length&&ti[0].offsetHeight>70){setT(ti[0].offsetHeight-6);}' +                     // 3. flatter menu photos (all the same height)
         'else if(m&&lines>2){lines--;m.style.webkitLineClamp=lines;}' +                                // 4. message to 3, then 2 lines (ends with ...)
         'else if(h){h.remove();h=null;}else break;}' +
       // Spare room at the bottom (e.g. no event photo): bigger menu photos, then a taller parking photo.
       // Each step is undone if it no longer fits.
       'var H=ti.length?ti[0].offsetHeight:0,S=sp?sp.offsetHeight:0,k=0;' +
-      'if(!over())while(k++<80){if(ti.length&&H<170){H+=4;setT(H);if(over()){H-=4;setT(H);ti=[];}}else if(sp&&S<190){S+=4;sp.style.height=S+"px";if(over()){S-=4;sp.style.height=S+"px";break;}}else break;}}' +
+      'if(!over())while(k++<80){if(ti.length&&H<170){H+=4;setT(H);if(over()){H-=4;setT(H);ti=[];}}else break;}}' +
       (autoPrint ? 'setTimeout(function(){window.print();},150);' : '') + '});})();<\/script>';
     return '<!doctype html><html><head><meta charset="utf-8"><title>' + esc(d.name) + ' flyer</title><base href="' + esc(base) + '">' +
       '<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">' +
