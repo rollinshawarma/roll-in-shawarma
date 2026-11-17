@@ -341,6 +341,10 @@
   .co-earn{ color:var(--gold); font-weight:700; font-size:14px; margin:-6px 0 12px; }
   .co-earn a, .co-earn-link{ color:var(--gold); text-decoration:underline; font-weight:800; font-size:inherit; padding:0; }
   .co-for{ color:var(--cream); font-weight:700; font-size:15px; margin:-4px 0 12px; }
+  .field label.notify-opt{ display:flex; flex-direction:row; align-items:flex-start; gap:10px; margin:12px 0 0; cursor:pointer; font-size:14.5px; font-weight:400; line-height:1.35; text-transform:none; letter-spacing:0; color:var(--white); }
+  .field label.notify-opt input{ flex:none; width:20px; height:20px; min-height:0; margin:1px 0 0; padding:0; border-radius:4px; accent-color:var(--white); box-shadow:none; }
+  .notify-opt b{ display:block; font-weight:700; color:var(--white); }
+  .notify-opt small{ display:block; color:var(--muted); font-size:13px; margin-top:2px; }
   .more-details summary{ cursor:pointer; list-style:none; color:var(--gold); font-weight:700; font-size:15px; padding:6px 0; }
   .more-details summary::-webkit-details-marker{ display:none; }
   .more-details summary::before{ content:"+ "; }
@@ -511,6 +515,8 @@
     .cart-clear.armed{ background:#e5484d !important; color:#fff !important; border-color:#e5484d !important; font-weight:600; }
   /* ---- Next Door delivery (order.html?door=CODE): menu + delivery time only ---- */
   body.door-mode #qrMenuBtn, body.door-mode #pickupSec, body.door-mode #memberChip{ display:none !important; }
+  /* Dedicated QR links (Next Door delivery, community events): no member ID, promo code or points */
+  body.door-mode #memberPromoSec, body.door-mode #coEarn{ display:none !important; }
   body.driveup-closed #qrMenuBtn, body.driveup-closed #memberChip, body.driveup-closed .cat-rail-top, body.driveup-closed #kitchenPulse{ display:none !important; }
   #menuState a{ color:inherit; font-weight:700; }
   .du-hours{ margin:14px auto 12px; border-collapse:collapse; font-size:14px; }
@@ -921,6 +927,18 @@
   .comm-state{ margin:14px 0 6px; padding:14px 16px; border:1px solid var(--line); border-radius:14px; background:#fff; font-size:15px; line-height:1.45; color:var(--white); }
   .comm-state b{ display:block; }
   .comm-state a{ color:var(--accent); font-weight:700; }
+  /* "Where we'll park": parking photo + Open in Maps (the link itself is never shown) */
+  .comm-spot{ display:grid; grid-template-columns:minmax(0, 1fr); gap:12px; margin:16px 0 4px; padding:14px; border:1px solid var(--line); border-radius:18px; background:#fff; }
+  .comm-spot-img{ display:block; width:100%; aspect-ratio:16/10; object-fit:cover; border-radius:12px; background:var(--panel-2); }
+  .comm-spot .comm-kicker{ margin:0 0 4px; }
+  .comm-spot-place{ font-family:var(--serif); font-weight:500; font-size:22px; line-height:1.15; color:var(--white); margin:0; }
+  .comm-spot-note{ font-size:14.5px; line-height:1.45; color:var(--muted); margin:6px 0 0; }
+  .comm-map-btn{ display:inline-flex; align-items:center; justify-content:center; gap:8px; margin-top:12px; min-height:46px; padding:0 20px; border-radius:999px; background:var(--white); color:var(--black); font-weight:700; font-size:15px; text-decoration:none; }
+  .comm-map-btn svg{ width:18px; height:18px; }
+  .comm-board{ display:inline-block; margin:12px 0 2px; font-weight:700; font-size:15px; color:var(--accent); text-decoration:none; }
+  .comm-board::after{ content:" \2192"; }
+  .door-where .comm-map-link{ color:var(--accent); font-weight:700; text-decoration:none; white-space:nowrap; }
+  @media (min-width:700px){ .comm-spot.has-img{ grid-template-columns:minmax(0, 1fr) minmax(0, 1fr); align-items:center; gap:20px; padding:16px; } }
   body.comm-mode .door-strip{ max-width:1040px; margin:0 auto; background:transparent; padding:12px 16px 10px; }
   body.comm-mode .door-kicker{ color:var(--muted); letter-spacing:.1em; font-size:10.5px; }
   body.comm-mode .door-place{ display:none; }
@@ -1211,13 +1229,13 @@
         <label for="custName">First name</label>
         <input type="text" id="custName" autocomplete="given-name" placeholder="We&rsquo;ll call this out">
       </div>
+      <div class="field" id="emailField">
+        <label for="custEmail">Email <small>(optional)</small></label>
+        <input type="email" id="custEmail" autocomplete="email" inputmode="email" placeholder="you@example.com">
+        <label class="notify-opt"><input type="checkbox" id="notifyEmail"><span><b>Email me when my order is ready</b><small>One email when it&rsquo;s ready for pickup. Nothing else.</small></span></label>
+      </div>
       <details class="more-details">
-        <summary>Add email, phone or special requests <small>(optional)</small></summary>
-        <div class="field">
-          <label for="custEmail">Email</label>
-          <input type="email" id="custEmail" autocomplete="email" inputmode="email" placeholder="you@example.com">
-          <div class="hint">For your receipt and a ready alert. Apple Pay / Google Pay can share it for you.</div>
-        </div>
+        <summary>Add phone or special requests <small>(optional)</small></summary>
         <div class="field">
           <label for="custPhone">Phone</label>
           <input type="tel" id="custPhone" autocomplete="tel" inputmode="tel">
@@ -1238,7 +1256,7 @@
       </div>
     </div>
 
-    <div class="co-sec">
+    <div class="co-sec" id="memberPromoSec">
       <h3>Member ID &amp; promo code</h3>
       <div class="member-in hidden" id="memberIn"></div>
       <div class="field hidden" id="qrRewardsField">
@@ -1367,6 +1385,18 @@
       return (k === doorDay(Date.now()) ? 'today' : k === doorDay(Date.now() + 86400000) ? 'tomorrow' : 'on ' + commDay(iso, true)) + ' at ' + doorClock(iso);
     }
     function commState(){ return !doorProg.active && doorProg.paused && doorProg.state !== 'ended' ? 'paused' : (doorProg.state || 'off'); }
+    // Only Google / Apple Maps links (the server checks the same list when it's saved).
+    function commMapUrl(u){ return /^https:\/\/((www\.)?google\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})\/maps|maps\.google\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})\/|maps\.app\.goo\.gl\/|goo\.gl\/maps\/|maps\.apple\.com\/|maps\.apple\/)[^\s"'<>]*$/i.test(u || '') ? u : ''; }
+    var COMM_PIN = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 21s-7-6.2-7-11.5a7 7 0 0 1 14 0C19 14.8 12 21 12 21z"/><circle cx="12" cy="9.5" r="2.5"/></svg>';
+    function commSpot(p){
+      var map = commMapUrl(p.map_url), photo = /^https:\/\//.test(p.spot_image_url || '') ? p.spot_image_url : '';
+      if ((!map && !photo) || Date.parse(p.event_end) <= Date.now()) return '';
+      return '<section class="comm-spot' + (photo ? ' has-img' : '') + '" aria-label="Where we\u2019ll park">' +
+        (photo ? '<img class="comm-spot-img" src="' + escHtml(photo) + '" alt="Where the truck will park" loading="lazy" onerror="this.parentNode.classList.remove(\'has-img\');this.remove()">' : '') +
+        '<div><p class="comm-kicker">Where we\u2019ll park</p><h3 class="comm-spot-place">' + escHtml(p.place) + '</h3>' +
+        (p.drop_note ? '<p class="comm-spot-note">' + escHtml(p.drop_note) + '</p>' : '') +
+        (map ? '<a class="comm-map-btn" href="' + escHtml(map) + '" target="_blank" rel="noopener noreferrer">' + COMM_PIN + 'Open in Maps</a>' : '') + '</div></section>';
+    }
     function commHero(){
       var p = doorProg, st = commState();
       var title = p.welcome_title || 'We can\u2019t wait to serve your community';
@@ -1381,7 +1411,11 @@
       return img + '<p class="comm-kicker">' + escHtml(p.name) + '</p><h2 class="comm-title">' + escHtml(title) + '</h2><p class="comm-msg">' + escHtml(msg) + '</p>' +
         '<div class="comm-facts"><span><b>When</b>' + escHtml(commDay(p.event_start, true)) + '</span><span><b>Pickup</b>' + escHtml(doorClock(p.event_start)) + ' \u2013 ' + escHtml(doorClock(p.event_end)) + '</span>' +
         '<span><b>Where</b>' + escHtml(p.place) + (p.drop_note ? ' \u00b7 ' + escHtml(p.drop_note) : '') + '</span></div>' +
-        (note ? '<div class="comm-state" role="status">' + note + '</div>' : '');
+        (note ? '<div class="comm-state" role="status">' + note + '</div>' : '') +
+        // Live order board: from 3 hours before the event until an hour after
+        (Date.now() > Date.parse(p.event_start) - 3 * 3600000 && Date.now() < Date.parse(p.event_end) + 3600000
+          ? '<a class="comm-board" href="status.html?door=' + encodeURIComponent(p.code) + '">See the live order board</a>' : '') +
+        commSpot(p);
     }
     function commPaint(){
       var runs = doorOpenRuns();
@@ -1397,7 +1431,9 @@
         (allFull ? '<div class="door-note warn">Every pickup time is full. You can still order at the truck window during the event.</div>' : '') +
         (doorLost ? '<div class="door-note warn">The ' + escHtml(doorLost) + ' pickup time just closed. Please pick another one.</div>' : '');
       $('doorRunsCo').innerHTML = runs.length ? chips : '<p class="door-where">No pickup times left.</p>';
-      $('doorWhere').textContent = 'Pick up at ' + doorProg.place + (doorProg.drop_note ? ' \u00b7 ' + doorProg.drop_note : '') + ', ' + commDay(doorProg.event_start, true) + '.';
+      var map = commMapUrl(doorProg.map_url);
+      $('doorWhere').innerHTML = escHtml('Pick up at ' + doorProg.place + (doorProg.drop_note ? ' \u00b7 ' + doorProg.drop_note : '') + ', ' + commDay(doorProg.event_start, true) + '.') +
+        (map ? ' <a class="comm-map-link" href="' + escHtml(map) + '" target="_blank" rel="noopener noreferrer">Open in Maps</a>' : '');
       $('doorSecTitle').textContent = 'Pickup time';
       $('doorSec').classList.toggle('invalid', false);
     }
@@ -1605,6 +1641,9 @@
       }, function(){ return true; });
     }
     if (DOOR_CODE) setInterval(function(){ if (doorProg) loadDoor().then(function(ok){ if (ok && isComm() && !qrBaseRows) loadMenu(); }); }, 60000);   // cutoffs pass, runs fill up
+    // A dish without its own photo yet: use this instead of its section's photo
+    // (otherwise White Sauce would show the Sides photo, which is samosas).
+    var ITEM_FALLBACK_PHOTOS = { 'White Sauce': 'ing-white-sauce.svg' };
     var CATEGORY_IMAGES = {
       'Secret Menu': 'secret-menu.svg',
       'Shawarma': 'item-chicken-shawarma.jpg', 'Frankie Rolls': 'item-signature-chicken-frankie.jpg',
@@ -1676,7 +1715,7 @@
     function photoImg(item, cat, groupName){
       if (FLAVOR_CATS[cat] && !item.variant_name) groupName = item.name;
       var src = item.image_url || (cat === 'Combo Add-ons' ? comboAddonPhoto(item.name) : ('item-' + slugify(groupName || item.name) + '.jpg'));
-      var fb = CATEGORY_IMAGES[cat] || '';
+      var fb = ITEM_FALLBACK_PHOTOS[groupName || item.name] || CATEGORY_IMAGES[cat] || '';
       return '<img' + (cat === 'Wings' ? ' class="fit-all"' : '') + ' src="' + escHtml(src) + '" alt="" loading="lazy" decoding="async" data-fallback="' + escHtml(fb) + '" onerror="rsImgFallback(this)">';
     }
     function formatErrorMessage(err){
@@ -1785,7 +1824,8 @@
     var HALAL_KEY = 'rollin_halal_only', hasHalal = false;
     var HALAL_NO_TAG = { 'Drinks': 1, 'Desserts': 1, 'Kulfi Ice Cream': 1, 'Sides': 1 };
     function halalOn(){ try { return hasHalal && localStorage.getItem(HALAL_KEY) === '1'; } catch (e) { return false; } }
-    function halalTag(g){ return hasHalal && !HALAL_NO_TAG[g.cat] && g.items.every(function(i){ return i.halal === true; }) ? ' <span class="halal-tag" title="Halal">Halal</span>' : ''; }
+    // Veg dishes get the Veg tag instead (halal is about the meat).
+    function halalTag(g){ return hasHalal && !HALAL_NO_TAG[g.cat] && !isVeg(g.name) && g.items.every(function(i){ return i.halal === true; }) ? ' <span class="halal-tag" title="Halal">Halal</span>' : ''; }
     function halalBarHtml(){
       if (!hasHalal) return '';
       var on = halalOn();
@@ -3062,9 +3102,21 @@
       if (window.__qrWalletUpdate) window.__qrWalletUpdate(t);
     }
 
+    // "Email me when my order is ready": remembered on this phone for next time.
+    (function(){
+      var K = 'rollin_notify_email', box = $('notifyEmail'), em = $('custEmail');
+      try { box.checked = localStorage.getItem(K) === '1'; } catch (e) {}
+      box.addEventListener('change', function(){
+        try { localStorage.setItem(K, box.checked ? '1' : '0'); } catch (e) {}
+        $('emailField').classList.remove('invalid');
+        if (box.checked && !em.value.trim()) em.focus();
+      });
+      em.addEventListener('input', function(){ $('emailField').classList.remove('invalid'); });
+    })();
     function validateCheckout(){
       var problems = [];
       if (!$('custName').value.trim()) { problems.push('your first name'); $('nameField').classList.add('invalid'); }
+      if ($('notifyEmail').checked && !/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test($('custEmail').value.trim())) { problems.push('your email for the ready alert'); $('emailField').classList.add('invalid'); }
       if (doorProg) { if (!doorRunOk()) { problems.push(isComm() ? 'a pickup time' : 'a delivery time'); $('doorSec').classList.add('invalid'); } }
       else if (pickupMethod === 'curbside' && arriveMode !== 'on_the_way' && !parkingSpot) { problems.push('your parking spot'); $('spotField').classList.add('invalid'); }
       if (tipChoiceIndex === null) problems.push('a tip option (No tip is fine)');
@@ -3150,7 +3202,7 @@
     (function(){
       try {
         var saved = JSON.parse(sessionStorage.getItem(MEMBER_KEY) || 'null');
-        if (saved && saved.code) { appliedMember = saved.code; if ($('memberId')) $('memberId').value = saved.code; }
+        if (saved && saved.code && !DOOR_CODE) { appliedMember = saved.code; if ($('memberId')) $('memberId').value = saved.code; }
       } catch(e){}
       refreshMemberUi();
     })();
@@ -3175,6 +3227,7 @@
         items: cart.map(function(c){ var o = { menu_item_id: c.menu_item_id, quantity: c.quantity, name: c.name }; if (c.remove && c.remove.length) o.remove = c.remove; if (c.add && c.add.length) o.add = c.add; if (c.note) o.note = c.note; if (c.spice) o.spice = c.spice; if (c.pick) o.pick = c.pick; return o; }),
         customerName: $('custName').value.trim(),
         customerEmail: $('custEmail').value.trim() || undefined,
+        notifyEmail: $('notifyEmail').checked && !!$('custEmail').value.trim(),
         customerPhone: $('custPhone').value.trim() || undefined,
         notes: $('custNotes').value.trim() || undefined,
         orderSource: 'qr',
@@ -3185,10 +3238,11 @@
         carMake: carMakeValue,
         carModel: carModelValue,
         carColor: pickupMethod === 'curbside' ? selectedCarColor : null,
-        memberCode: appliedMember || undefined,
-        promoCode: appliedPromo && !onLocNow ? appliedPromo.code : undefined,
+        // dedicated QR links (Next Door, community events) never carry a member ID, promo code or reward
+        memberCode: DOOR_CODE ? undefined : appliedMember || undefined,
+        promoCode: appliedPromo && !onLocNow && !DOOR_CODE ? appliedPromo.code : undefined,
         tipAmount: selectedTip || 0,
-        rewardIds: (function(){ var ids = computeTotals(0).rewardIds; return ids.length ? ids : undefined; })()
+        rewardIds: DOOR_CODE ? undefined : (function(){ var ids = computeTotals(0).rewardIds; return ids.length ? ids : undefined; })()
       };
     }
 
@@ -3198,8 +3252,8 @@
       if (!checkoutReady()) return;
       // A member ID or promo code typed but not applied: check it now,
       // so the total shown is the total charged.
-      var needMember = $('memberId').value.trim() && !appliedMember;
-      var needPromo = $('promoCode').value.trim() && !appliedPromo;
+      var needMember = !DOOR_CODE && $('memberId').value.trim() && !appliedMember;
+      var needPromo = !DOOR_CODE && $('promoCode').value.trim() && !appliedPromo;
       if (needMember || needPromo) {
         btn.disabled = true;
         Promise.all([needMember ? applyMember() : true, needPromo ? applyPromo() : true]).then(function(ok){
@@ -3250,8 +3304,8 @@
     $('reviewOrderBtn').addEventListener('click', function(){
       if (!checkoutReady()) return;
       var btn = this;
-      var needMember = $('memberId').value.trim() && !appliedMember;
-      var needPromo = $('promoCode').value.trim() && !appliedPromo;
+      var needMember = !DOOR_CODE && $('memberId').value.trim() && !appliedMember;
+      var needPromo = !DOOR_CODE && $('promoCode').value.trim() && !appliedPromo;
       btn.disabled = true;
       Promise.all([needMember ? applyMember() : true, needPromo ? applyPromo() : true]).then(function(ok){
         btn.disabled = false;
@@ -3311,7 +3365,7 @@
       var msg = $('coMsg');
       // Apple Pay must open straight from the tap, so a typed-but-unapplied
       // member ID or promo code can't be checked first.
-      if (($('memberId').value.trim() && !appliedMember) || ($('promoCode').value.trim() && !appliedPromo)) {
+      if (!DOOR_CODE && (($('memberId').value.trim() && !appliedMember) || ($('promoCode').value.trim() && !appliedPromo))) {
         msg.textContent = 'Tap Apply on your member ID or promo code first (or clear it).';
         return;
       }
@@ -3419,7 +3473,7 @@
       submitBtn.addEventListener('click', function(){
         if (!card || busy || !checkoutReady()) return;
         var msg = $('coMsg');
-        if (($('memberId').value.trim() && !appliedMember) || ($('promoCode').value.trim() && !appliedPromo)) {
+        if (!DOOR_CODE && (($('memberId').value.trim() && !appliedMember) || ($('promoCode').value.trim() && !appliedPromo))) {
           msg.textContent = 'Tap Apply on your member ID or promo code first (or clear it).';
           return;
         }
