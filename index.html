@@ -2944,7 +2944,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
           var when = ev.start_date === ev.end_date ? ev.start_date : ev.start_date + ' \u2013 ' + ev.end_date;
           var timeRange = ev.start_time ? (' \u00b7 ' + fmtTimeStr(ev.start_time) + (ev.end_time ? ' \u2013 ' + fmtTimeStr(ev.end_time) : '')) : '';
           var mapLink = ev.map_query
-            ? ' <a class="ann-inline-link" href="https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(ev.map_query) + '" target="_blank" rel="noopener">Map</a>'
+            ? ' <a class="ann-inline-link" href="' + window.wsDirections(ev.map_query).replace(/"/g, '&quot;') + '" target="_blank" rel="noopener">Map</a>'
             : '';
           var html = '\uD83D\uDCC5 <b>' + escHtml(ev.title) + '</b> \u2014 ' + when + timeRange + mapLink;
 
@@ -3528,6 +3528,8 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       return wsHasHalal && !WS_HALAL_NO_TAG[g.cat] && g.items.every(function(i){ return i.halal === true; }) ? '<span class="hl-tag">Halal</span>' : '';
     }
     // On a corporate / private event link (?event=CODE) that's taking orders
+    // Directions: a pasted Google / Apple Maps link is used as-is; anything else is searched for.
+    window.wsDirections = function(q){ q = String(q || '').trim(); return /^https:\/\/((www\.)?google\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})\/maps|maps\.google\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})\/|maps\.app\.goo\.gl\/|goo\.gl\/maps\/|maps\.apple\.com\/|maps\.apple\/)[^\s\"'<>]*$/i.test(q) ? q : 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(q); };
     window.wsOnEventLink = function(){ return !!(window.rollinEvent && window.rollinEvent.code && window.rollinEvent.code()); };
     function wsAttr(v){ return String(v).replace(/\\/g, '\\\\').replace(/"/g, '\\"'); }
     // Same photos as the kiosk: item-<name>.jpg; the category photo if a
@@ -5375,8 +5377,8 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
           if (ev.start_time) {
             timeRange = fmtTimeStr(ev.start_time) + (ev.end_time ? ' \u2013 ' + fmtTimeStr(ev.end_time) : '');
           }
-          var mapLink = ev.map_query
-            ? '<a href="https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(ev.map_query) + '" target="_blank" rel="noopener">Get Directions</a>'
+          var mapLink = ev.map_url || ev.map_query
+            ? '<a href="' + escHtml(window.wsDirections(ev.map_url || ev.map_query)) + '" target="_blank" rel="noopener">Get Directions</a>'
             : '';
           var soon = ev.onloc && Date.parse(ev.from) - Date.now() < 7 * 864e5;
           var orderBtn = soon ? '<br><a href="#menu" class="cal-onloc-order">Order ahead for pickup here</a>' : (ev.onloc ? '<br><span class="cal-onloc-note">Online ordering for pickup here opens a week before.</span>' : '');
@@ -5482,7 +5484,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       calStops = r.data.map(function(p){
         var a = nyParts(p.from), b = nyParts(p.to);
         return { onloc: true, title: '\uD83D\uDE9A On Location: ' + p.name, start_date: a.d, end_date: b.d, start_time: a.t, end_time: b.t,
-          location: p.address || p.name, description: p.note || '', map_query: p.address || p.name, from: p.from };
+          location: (p.address && !/^https?:/i.test(p.address) ? p.address : p.name), description: p.note || '', map_query: p.address || p.name, map_url: p.map || '', from: p.from };
       });
       mergeCal();
     }, function(){});
@@ -6374,7 +6376,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
           bar = document.createElement('div'); bar.id = 'orderPauseBar'; bar.setAttribute('role', 'status');
           var wrap0 = menu0.querySelector('.wrap') || menu0; wrap0.insertBefore(bar, wrap0.firstChild);
         }
-        var mapSrc = pp.lat != null && pp.lng != null ? pp.lat + ',' + pp.lng : (pp.address || '');
+        var mapSrc = pp.lat != null && pp.lng != null ? pp.lat + ',' + pp.lng : (pp.address && !/^https?:/i.test(pp.address) ? pp.address : '');
         var mapKey = mapSrc + '|' + pp.id, oldMap = bar.querySelector('.onloc-map');
         // Keep the map frame when only the countdown changes (no reload flicker).
         var keepMap = oldMap && oldMap.getAttribute('data-key') === mapKey ? oldMap : null;
@@ -6383,7 +6385,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
           '<span class="onloc-kicker"><span class="ol-dot"></span>' + (pNow ? 'On location · ordering open' : 'On location today') + '</span>' +
           '<h3>' + pEsc(pp.name) + '</h3>' +
           '<div class="onloc-when">' + clockOf(pp.from) + ' – ' + clockOf(pp.to) + '<span class="left">' + (pNow ? untilText(pp.to) + ' left' : 'starts in ' + untilText(pp.from)) + '</span></div>' +
-          (pp.address ? '<div class="onloc-addr">&#128205; ' + pEsc(pp.address) + '</div>' : '') +
+          (pp.address && !/^https?:/i.test(pp.address) ? '<div class="onloc-addr">&#128205; ' + pEsc(pp.address) + '</div>' : '') +
           (pp.note ? '<div class="onloc-note">' + pEsc(pp.note) + '</div>' : '') +
           '<div class="onloc-acts"><a class="ol-order" href="#wsMenu" data-onloc-order>' + (pNow ? 'Order for pickup here' : 'Order ahead for pickup here') + '</a>' +
           (pp.map ? '<a class="ol-dir" href="' + pEsc(pp.map) + '" target="_blank" rel="noopener">Directions &#8599;</a>' : '') + '</div>' +
