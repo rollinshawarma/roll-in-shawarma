@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#FBF6EC">
+<meta name="robots" content="noindex">
+<title>Order Board | Roll-In Shawarma</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#FBF6EC; --card:#FFFFFF; --ink:#2A1F16; --muted:#7A6F63; --line:#EADFCB;
+    --accent:#B4532A; --gold:#E39B17; --green:#2F8F5B; --green-bg:#E9F5EE; --red:#B3261E;
+    --serif:"Fraunces", Georgia, serif; --body:"Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html{ -webkit-text-size-adjust:100%; }
+  body{ background:var(--bg); color:var(--ink); font-family:var(--body); line-height:1.4; min-height:100vh; }
+  .wrap{ max-width:1080px; margin:0 auto; padding:16px 16px 40px; }
+
+  header{ display:flex; align-items:center; gap:12px; padding:4px 0 14px; border-bottom:1px solid var(--line); }
+  header img{ width:44px; height:44px; border-radius:50%; object-fit:cover; flex:none; }
+  header .t{ min-width:0; flex:1; }
+  header h1{ font-family:var(--serif); font-weight:500; font-size:24px; line-height:1.1; letter-spacing:-.01em; }
+  header .sub{ font-size:13.5px; color:var(--muted); }
+  .live{ flex:none; display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:600; color:var(--muted); }
+  .live i{ width:8px; height:8px; border-radius:50%; background:var(--green); box-shadow:0 0 0 0 rgba(47,143,91,.5); animation:pulse 2s infinite; }
+  .live.off i{ background:#c9bfb2; animation:none; }
+  @keyframes pulse{ 0%{ box-shadow:0 0 0 0 rgba(47,143,91,.45); } 70%{ box-shadow:0 0 0 7px rgba(47,143,91,0); } 100%{ box-shadow:0 0 0 0 rgba(47,143,91,0); } }
+  @media (prefers-reduced-motion: reduce){ .live i{ animation:none; } }
+
+  /* Your order */
+  .you{ margin:16px 0 4px; padding:18px; background:var(--card); border:1px solid var(--line); border-radius:20px; }
+  .you.ready{ background:var(--green-bg); border-color:#BFE3CC; }
+  .you .k{ font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); }
+  .you.ready .k{ color:var(--green); }
+  .you .big{ font-family:var(--serif); font-weight:500; font-size:clamp(26px, 7vw, 38px); line-height:1.08; letter-spacing:-.015em; margin:6px 0 4px; }
+  .you .msg{ font-size:15px; color:var(--muted); }
+  .steps{ display:grid; grid-template-columns:repeat(3, 1fr); gap:6px; margin-top:14px; }
+  .steps span{ font-size:12px; font-weight:600; color:var(--muted); padding-top:8px; border-top:4px solid var(--line); }
+  .steps span.on{ color:var(--ink); border-top-color:var(--ink); }
+  .you.ready .steps span.on{ color:var(--green); border-top-color:var(--green); }
+
+  .cols{ display:grid; grid-template-columns:minmax(0, 1fr); gap:22px; margin-top:22px; }
+  @media (min-width:760px){ .cols{ grid-template-columns:minmax(0, 1fr) minmax(0, 1fr); gap:28px; } }
+  h2{ display:flex; align-items:baseline; justify-content:space-between; gap:8px; font-family:var(--serif); font-weight:500; font-size:22px; margin-bottom:10px; }
+  h2 small{ font-family:var(--body); font-size:13px; font-weight:600; color:var(--muted); }
+
+  .ready-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(140px, 1fr)); gap:10px; }
+  .r{ background:var(--green-bg); border:1px solid #BFE3CC; border-radius:16px; padding:12px 14px; }
+  .r b{ display:block; font-size:26px; font-weight:800; letter-spacing:.02em; color:var(--green); font-variant-numeric:tabular-nums; }
+  .r span{ display:block; font-size:14px; font-weight:600; color:var(--ink); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .r.me, .p.me{ outline:3px solid var(--gold); outline-offset:2px; }
+
+  .prep{ background:var(--card); border:1px solid var(--line); border-radius:16px; overflow:hidden; }
+  .p{ display:grid; grid-template-columns:auto minmax(0, 1fr) auto; align-items:center; gap:12px; padding:12px 14px; border-top:1px solid var(--line); }
+  .p:first-child{ border-top:0; }
+  .p b{ font-size:18px; font-weight:800; letter-spacing:.02em; font-variant-numeric:tabular-nums; }
+  .p .n{ font-size:15px; font-weight:600; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .p .s{ font-size:12px; font-weight:700; letter-spacing:.04em; text-transform:uppercase; color:var(--muted); text-align:right; }
+  .p .s.cook{ color:var(--accent); }
+  .p .s small{ display:block; font-size:12px; font-weight:600; letter-spacing:0; text-transform:none; color:var(--muted); }
+  .empty{ padding:18px 14px; font-size:14.5px; color:var(--muted); background:var(--card); border:1px dashed var(--line); border-radius:16px; }
+
+  .note{ margin-top:16px; padding:14px 16px; border:1px solid var(--line); border-radius:14px; background:var(--card); font-size:15px; }
+  .note.err{ color:var(--red); }
+  footer{ margin-top:28px; display:flex; flex-wrap:wrap; gap:10px 18px; align-items:center; font-size:14px; color:var(--muted); }
+  footer a{ color:var(--accent); font-weight:700; text-decoration:none; }
+  .hidden{ display:none !important; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <img src="logo.jpg" alt="" onerror="this.remove()">
+    <div class="t"><h1 id="title">Order board</h1><div class="sub" id="sub">Roll-In Shawarma · Green, Ohio</div></div>
+    <div class="live" id="live" aria-live="polite"><i></i><span id="liveText">Live</span></div>
+  </header>
+
+  <section class="you hidden" id="you" aria-live="polite"></section>
+  <div class="note hidden" id="note" role="status"></div>
+
+  <div class="cols" id="cols">
+    <section aria-labelledby="readyH"><h2 id="readyH">Ready <small id="readyN"></small></h2><div id="ready"></div></section>
+    <section aria-labelledby="prepH"><h2 id="prepH">In prep <small id="prepN"></small></h2><div id="prepList"></div></section>
+  </div>
+
+  <footer><span>Updates by itself. We&rsquo;ll also call your name.</span><a id="back" href="index.html">Order food</a></footer>
+</div>
+
+<script>
+(function(){
+  'use strict';
+  var API = 'https://njcmcaoyzujijiyfardx.supabase.co/rest/v1/rpc/get_status_board';
+  var KEY = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
+  var TZ = 'America/New_York';
+  var q = new URLSearchParams(location.search);
+  var door = /^[A-Za-z0-9]{4,12}$/.test(q.get('door') || '') ? q.get('door').toUpperCase() : null;
+  var ref = /^[A-Za-z0-9-]{2,16}$/.test(q.get('ref') || '') ? q.get('ref').toUpperCase() : null;
+  var lastYouStage = null, failures = 0, timer = null;
+
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' }[c]; }); }
+  function clock(iso){ return new Date(iso).toLocaleTimeString('en-US', { timeZone: TZ, hour: 'numeric', minute: '2-digit' }); }
+  function day(iso){ return new Date(iso).toLocaleDateString('en-US', { timeZone: TZ, weekday: 'short', month: 'short', day: 'numeric' }); }
+  function isToday(iso){ return day(iso) === day(Date.now()); }
+  function when(iso){ return iso ? (isToday(iso) ? clock(iso) : day(iso) + ', ' + clock(iso)) : ''; }
+
+  if (door) $('back').href = 'order.html?door=' + encodeURIComponent(door);
+
+  function paintYou(y){
+    var box = $('you');
+    if (!y) { box.classList.add('hidden'); return; }
+    var st = y.stage, pk = y.pickup_at;
+    var big = st === 'ready' ? 'Ready! Come to the window.'
+      : st === 'preparing' ? 'In prep. Almost there.'
+      : st === 'picked_up' ? 'Picked up. Enjoy!'
+      : st === 'canceled' ? 'This order was canceled.'
+      : st === 'unpaid' ? 'Waiting for payment.'
+      : 'Order received.';
+    var msg = st === 'ready' ? 'Show order #' + y.ref + ' at the truck.'
+      : st === 'queued' && pk && Date.parse(pk) > Date.now() + 10 * 60000 ? 'Pickup at ' + when(pk) + '. We start cooking shortly before.'
+      : st === 'queued' ? 'You’re in line. We’ll start it shortly.'
+      : st === 'preparing' ? 'We’re making it now.'
+      : st === 'canceled' ? 'Questions? Ask us at the window.'
+      : '';
+    var step = { queued: 1, preparing: 2, ready: 3, picked_up: 3 }[st] || 0;
+    box.className = 'you' + (st === 'ready' ? ' ready' : '');
+    box.innerHTML = '<div class="k">Your order #' + esc(y.ref) + (y.name && y.name !== 'Guest' ? ' · ' + esc(y.name) : '') + '</div>' +
+      '<div class="big">' + esc(big) + '</div>' + (msg ? '<div class="msg">' + esc(msg) + '</div>' : '') +
+      (step ? '<div class="steps" aria-hidden="true"><span class="' + (step >= 1 ? 'on' : '') + '">Received</span><span class="' + (step >= 2 ? 'on' : '') + '">In prep</span><span class="' + (step >= 3 ? 'on' : '') + '">Ready</span></div>' : '');
+    // Tell them when it turns ready (tab title, and a buzz on phones that allow it)
+    if (st === 'ready' && lastYouStage && lastYouStage !== 'ready') { try { if (navigator.vibrate) navigator.vibrate([200, 100, 200]); } catch (e) {} }
+    document.title = st === 'ready' ? 'Ready! #' + y.ref + ' | Roll-In Shawarma' : 'Order Board | Roll-In Shawarma';
+    lastYouStage = st;
+  }
+
+  function paint(d){
+    if (d && d.error === 'not_found') {
+      $('cols').classList.add('hidden'); $('you').classList.add('hidden');
+      note('This board link isn’t active. Check the link you were sent, or ask us at the window.', true);
+      return;
+    }
+    note('');
+    var ev = d.kind === 'event';
+    $('title').textContent = ev ? d.title : 'Order board';
+    $('sub').textContent = ev ? (d.place ? d.place + ' · ' : '') + (d.event_start ? day(d.event_start) + ', ' + clock(d.event_start) + ' – ' + clock(d.event_end) : '') : 'Roll-In Shawarma · Green, Ohio';
+    paintYou(d.you);
+    var mine = d.you && d.you.ref;
+    var all = d.orders || [];
+    var ready = all.filter(function(o){ return o.stage === 'ready'; });
+    var prep = all.filter(function(o){ return o.stage === 'preparing' || o.stage === 'queued'; });
+    $('readyN').textContent = ready.length ? ready.length + (ready.length === 1 ? ' order' : ' orders') : '';
+    $('prepN').textContent = prep.length ? prep.length + (prep.length === 1 ? ' order' : ' orders') : '';
+    $('ready').innerHTML = ready.length ? '<div class="ready-grid">' + ready.map(function(o){
+      return '<div class="r' + (o.ref === mine ? ' me' : '') + '"><b>#' + esc(o.ref) + '</b><span>' + esc(o.name) + '</span></div>';
+    }).join('') + '</div>' : '<div class="empty">Nothing waiting for pickup right now.</div>';
+    $('prepList').innerHTML = prep.length ? '<div class="prep">' + prep.map(function(o){
+      var later = o.stage === 'queued' && o.pickup_at && Date.parse(o.pickup_at) > Date.now() + 10 * 60000;
+      return '<div class="p' + (o.ref === mine ? ' me' : '') + '"><b>#' + esc(o.ref) + '</b><span class="n">' + esc(o.name) + '</span>' +
+        '<span class="s' + (o.stage === 'preparing' ? ' cook' : '') + '">' + (o.stage === 'preparing' ? 'Cooking' : later ? 'Pickup' : 'In line') +
+        (o.pickup_at && (ev || later) ? '<small>' + esc(when(o.pickup_at)) + '</small>' : '') + '</span></div>';
+    }).join('') + '</div>' : '<div class="empty">' + (ev ? 'No orders in prep right now.' : 'No orders in prep. Come say hi!') + '</div>';
+    $('cols').classList.remove('hidden');
+  }
+
+  function note(t, err){ var n = $('note'); n.textContent = t || ''; n.className = 'note' + (err ? ' err' : '') + (t ? '' : ' hidden'); }
+  function live(ok){
+    $('live').classList.toggle('off', !ok);
+    $('liveText').textContent = ok ? 'Live · ' + clock(Date.now()) : 'Reconnecting…';
+  }
+
+  function load(){
+    var body = {}; if (door) body.p_door = door; if (ref) body.p_ref = ref;
+    return fetch(API, { method: 'POST', headers: { 'Content-Type': 'application/json', 'apikey': KEY, 'Authorization': 'Bearer ' + KEY }, body: JSON.stringify(body) })
+      .then(function(r){ if (!r.ok) throw new Error('HTTP ' + r.status); return r.json(); })
+      .then(function(d){ failures = 0; live(true); paint(d || {}); })
+      .catch(function(){
+        failures++; live(false);
+        if (failures >= 3) note('Can’t reach the board right now. It will keep trying.', true);
+      });
+  }
+  function schedule(){ clearTimeout(timer); timer = setTimeout(function(){ load().then(schedule); }, document.visibilityState === 'visible' ? 15000 : 60000); }
+  document.addEventListener('visibilitychange', function(){ if (document.visibilityState === 'visible') { load(); schedule(); } });
+  load().then(schedule);
+})();
+</script>
+</body>
+</html>
