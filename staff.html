@@ -2407,6 +2407,12 @@
         <div><label for="cmPlace">Where</label><input type="text" id="cmPlace" maxlength="120" placeholder="e.g. Maple Ridge clubhouse"></div>
       </div>
       <label for="cmNote">Where to find the truck (optional)</label><input type="text" id="cmNote" maxlength="200" placeholder="e.g. Parking lot by the pool">
+      <label for="cmMap">Google Maps link (optional)</label><input type="url" id="cmMap" maxlength="1000" placeholder="https://maps.app.goo.gl/..." autocomplete="off" spellcheck="false">
+      <p class="hint" style="margin-top:4px">In Google Maps, drop a pin where the truck will park, tap <b>Share</b>, then <b>Copy link</b> and paste it here. Apple Maps links work too. Guests see an <b>Open in Maps</b> button, never the link.</p>
+      <label>Parking spot photo (optional)</label>
+      <div class="cm-photo"><div id="cmSpotBox"></div>
+        <div><input type="file" id="cmSpotFile" accept="image/jpeg,image/png,image/webp" class="hidden"><button type="button" class="btn-export btn-small" id="cmSpotPick">Upload a photo</button> <button type="button" class="btn-export btn-small hidden" id="cmSpotClear">Remove</button>
+        <p class="hint" style="margin:6px 0 0">A photo of the exact spot (the lot, the entrance, a landmark) so guests find you fast.</p></div></div>
 
       <div class="cm-sec">When</div>
       <div class="ce-trio">
@@ -7891,7 +7897,7 @@
   // ================= COMMUNITY EVENTS (community-events.sql) =================
   // A one-time pre-order page with its own QR code. Built on the Next
   // Door tables, so the menu checklist and the kitchen board are shared.
-  var cmState = { rows:[], editing:null, photo:'', qr:null, sign:null };
+  var cmState = { rows:[], editing:null, photo:'', spot:'', qr:null, sign:null };
   var CM_TZ = 'America/New_York';
   function cmG(id){ return document.getElementById(id); }
   function cmClock(iso){ return new Date(iso).toLocaleTimeString('en-US', { timeZone:CM_TZ, hour:'numeric', minute:'2-digit' }); }
@@ -7930,7 +7936,11 @@
   function cmPhotoShow(){
     cmG('cmPhotoBox').innerHTML = cmState.photo ? '<img src="' + esc(cmState.photo) + '" alt="Event photo">' : '<div class="cm-ph">No photo</div>';
     cmG('cmPhotoClear').classList.toggle('hidden', !cmState.photo);
+    cmG('cmSpotBox').innerHTML = cmState.spot ? '<img src="' + esc(cmState.spot) + '" alt="Parking spot photo">' : '<div class="cm-ph">No photo</div>';
+    cmG('cmSpotClear').classList.toggle('hidden', !cmState.spot);
   }
+  // Same list the database accepts: Google Maps or Apple Maps share links.
+  var CM_MAP_RE = /^https:\/\/((www\.)?google\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})\/maps|maps\.google\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})\/|maps\.app\.goo\.gl\/|goo\.gl\/maps\/|maps\.apple\.com\/|maps\.apple\/)[^\s"'<>]*$/i;
   function cmSlotHint(){
     var a = Date.parse(cmG('cmStart').value), b = Date.parse(cmG('cmEnd').value), m = Number(cmG('cmSlot').value), el = cmG('cmSlotHint');
     if (!a || !b || b <= a) { el.textContent = 'Guests choose a pickup time between the first pickup time and the end of the event.'; return; }
@@ -7966,7 +7976,8 @@
     cmG('cmSlot').value = String(d ? d.slot_min : 15); cmG('cmCutoff').value = String(d ? d.cutoff_min : 30); cmG('cmLead').value = String(d ? d.board_lead_min : 30);
     cmG('cmMax').value = d && d.max_per_slot || '';
     cmG('cmTitle').value = d && d.welcome_title || ''; cmG('cmWelcome').value = d && d.welcome_msg || '';
-    cmState.photo = d && d.image_url || ''; cmPhotoShow();
+    cmState.photo = d && d.image_url || ''; cmState.spot = d && d.spot_image_url || ''; cmPhotoShow();
+    cmG('cmMap').value = d && d.map_url || '';
     cmG('cmActive').checked = cmState.editing ? !!d.active : false;
     cmG('cmDelete').classList.toggle('hidden', !cmState.editing);
     clearMsg('cmEditMsg'); cmSlotHint();
@@ -7978,8 +7989,12 @@
   cmG('cmClose').addEventListener('click', function(){ cmG('cmEditor').classList.add('hidden'); });
   cmG('cmPhotoPick').addEventListener('click', function(){ cmG('cmPhotoFile').click(); });
   cmG('cmPhotoClear').addEventListener('click', function(){ cmState.photo = ''; cmPhotoShow(); });
-  cmG('cmPhotoFile').addEventListener('change', function(){
-    var file = this.files && this.files[0]; this.value = '';
+  cmG('cmSpotPick').addEventListener('click', function(){ cmG('cmSpotFile').click(); });
+  cmG('cmSpotClear').addEventListener('click', function(){ cmState.spot = ''; cmPhotoShow(); });
+  cmG('cmPhotoFile').addEventListener('change', function(){ cmUpload(this, 'photo'); });
+  cmG('cmSpotFile').addEventListener('change', function(){ cmUpload(this, 'spot'); });
+  function cmUpload(input, slot){
+    var file = input.files && input.files[0]; input.value = '';
     if (!file) return;
     if (!/^image\/(jpeg|png|webp)$/.test(file.type)) return showMsg('cmEditMsg', 'Use a JPG, PNG or WebP photo.', 'error');
     if (file.size > 5 * 1024 * 1024) return showMsg('cmEditMsg', 'That photo is over 5 MB. Use a smaller one.', 'error');
@@ -7988,23 +8003,26 @@
     var path = 'community/' + Date.now() + '-' + Math.random().toString(36).slice(2, 8) + '.' + ext;
     sb.storage.from('menu-photos').upload(path, file, { contentType:file.type, upsert:false, cacheControl:'31536000' }).then(function(r){
       if (r.error) throw r.error;
-      cmState.photo = sb.storage.from('menu-photos').getPublicUrl(path).data.publicUrl; cmPhotoShow();
-      showMsg('cmEditMsg', 'Photo added. Tap Save to keep it.', 'ok');
+      cmState[slot] = sb.storage.from('menu-photos').getPublicUrl(path).data.publicUrl; cmPhotoShow();
+      showMsg('cmEditMsg', (slot === 'spot' ? 'Parking photo' : 'Photo') + ' added. Tap Save to keep it.', 'ok');
     }).catch(function(e){ showMsg('cmEditMsg', 'Couldn’t upload the photo: ' + (e && e.message || 'try again'), 'error'); });
-  });
+  }
   cmG('cmSave').addEventListener('click', function(){
     var b = this, ids = Array.prototype.map.call(document.querySelectorAll('#cmMenu [data-cm-item]:checked'), function(x){ return x.getAttribute('data-cm-item'); });
     if (!cmG('cmName').value.trim()) return showMsg('cmEditMsg', 'Give the event a name.', 'error');
     if (!cmG('cmPlace').value.trim()) return showMsg('cmEditMsg', 'Add where the event is.', 'error');
     if (!cmG('cmStart').value || !cmG('cmEnd').value) return showMsg('cmEditMsg', 'Set the first pickup time and when the event ends.', 'error');
     if (cmG('cmActive').checked && !ids.length) return showMsg('cmEditMsg', 'Pick at least one menu item before turning the QR on.', 'error');
+    var mapUrl = cmG('cmMap').value.trim();
+    if (mapUrl && !CM_MAP_RE.test(mapUrl)) return showMsg('cmEditMsg', 'Paste a Google Maps or Apple Maps link (it starts with https://maps.app.goo.gl/, https://www.google.com/maps or https://maps.apple.com/).', 'error');
     var max = cmG('cmMax').value.trim(), wasNew = !cmState.editing;
     b.disabled = true;
     sb.rpc('community_event_save', { p_id: cmState.editing ? cmState.editing.id : null, p_name: cmG('cmName').value, p_place: cmG('cmPlace').value, p_note: cmG('cmNote').value,
       p_active: cmG('cmActive').checked, p_start: cmG('cmStart').value, p_end: cmG('cmEnd').value, p_slot_min: Number(cmG('cmSlot').value),
       p_opens: cmG('cmOpens').value, p_closes: cmG('cmCloses').value, p_cutoff_min: Number(cmG('cmCutoff').value), p_board_lead_min: Number(cmG('cmLead').value),
       p_max_per_slot: max ? Math.round(Number(max)) : null, p_menu_item_ids: ids,
-      p_welcome_title: cmG('cmTitle').value, p_welcome_msg: cmG('cmWelcome').value, p_image_url: cmState.photo }).then(function(res){
+      p_welcome_title: cmG('cmTitle').value, p_welcome_msg: cmG('cmWelcome').value, p_image_url: cmState.photo,
+      p_spot_image_url: cmState.spot, p_map_url: mapUrl }).then(function(res){
       b.disabled = false;
       if (res.error) { showMsg('cmEditMsg', res.error.message, 'error'); return; }
       var row = Array.isArray(res.data) ? res.data[0] : res.data;
@@ -8029,6 +8047,8 @@
       '<div class="ce-link"><b>Pre-order link</b><small>Share the QR code or the link with the community (flyer, group chat, newsletter). It only takes orders while pre-orders are open.</small><code>' + esc(L) + '</code>' +
         '<div class="ad-btns"><button type="button" class="btn-export btn-small" data-cm-copy="' + esc(L) + '">Copy</button><a class="btn-export btn-small" href="' + esc(L) + '" target="_blank" rel="noopener">Preview</a>' +
         '<button type="button" class="btn-export btn-small" data-cm-qr>Download QR</button><button type="button" class="btn-primary btn-small" data-cm-sign>Print a flyer</button></div></div>' +
+      '<div class="ce-link"><b>Live order board</b><small>Order numbers in prep and ready, for this event only. Open it on a TV or tablet at the truck; guests also see it on their phones.</small><code>' + esc(L.replace('order.html?door=', 'status.html?door=')) + '</code>' +
+        '<div class="ad-btns"><button type="button" class="btn-export btn-small" data-cm-copy="' + esc(L.replace('order.html?door=', 'status.html?door=')) + '">Copy</button><a class="btn-export btn-small" href="' + esc(L.replace('order.html?door=', 'status.html?door=')) + '" target="_blank" rel="noopener">Open</a></div></div>' +
       '<div class="ce-qr" id="cmQr"></div>' +
       '<div class="ad-btns"><button type="button" class="btn-export btn-small" data-close-cm>Close</button></div>';
     box.classList.remove('hidden'); box.scrollIntoView({ behavior:'smooth', block:'start' });
