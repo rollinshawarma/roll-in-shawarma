@@ -919,6 +919,15 @@
   .comm-hero{ max-width:1040px; margin:0 auto; padding:14px 16px 2px; }
   .comm-hero.hidden{ display:none; }
   .comm-img{ display:block; width:100%; aspect-ratio:16/9; max-height:380px; object-fit:cover; border-radius:18px; background:var(--panel-2); }
+  /* Header: the truck clip plays, then fades into the event photo */
+  .comm-media{ position:relative; width:100%; aspect-ratio:16/9; max-height:380px; border-radius:18px; overflow:hidden; background:#F4EEE3; }
+  .comm-media .comm-img{ position:absolute; inset:0; width:100%; height:100%; max-height:none; aspect-ratio:auto; border-radius:0; }
+  .comm-vid{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; background:#F4EEE3; transition:opacity .8s ease; }
+  .comm-vid.done{ opacity:0; pointer-events:none; }
+  .comm-replay{ position:absolute; left:12px; bottom:12px; display:inline-flex; align-items:center; gap:6px; min-height:34px; padding:0 13px; border:0; border-radius:999px; background:rgba(251,246,236,.92); color:var(--white); font-family:inherit; font-size:13px; font-weight:700; line-height:1; cursor:pointer; box-shadow:0 1px 3px rgba(0,0,0,.12); }
+  .comm-replay[hidden]{ display:none; }
+  .comm-replay svg{ width:12px; height:12px; }
+  @media (prefers-reduced-motion: reduce){ .comm-vid{ transition:none; } }
   .comm-kicker{ font-size:11px; font-weight:700; letter-spacing:.12em; text-transform:uppercase; color:var(--accent); margin:16px 0 6px; }
   .comm-title{ font-family:var(--serif); font-weight:500; font-size:clamp(28px, 7.6vw, 44px); line-height:1.06; letter-spacing:-.02em; color:var(--white); margin:0 0 10px; }
   .comm-msg{ font-size:15.5px; line-height:1.5; color:var(--muted); margin:0 0 14px; max-width:62ch; white-space:pre-line; }
@@ -1397,6 +1406,41 @@
         (p.drop_note ? '<p class="comm-spot-note">' + escHtml(p.drop_note) + '</p>' : '') +
         (map ? '<a class="comm-map-btn" href="' + escHtml(map) + '" target="_blank" rel="noopener noreferrer">' + COMM_PIN + 'Open in Maps</a>' : '') + '</div></section>';
     }
+    // Header: the truck clip (hero-video.mp4, 7.8 s) plays every time the page opens,
+    // then fades into the event photo (or the truck sketch if there is no photo).
+    // No clip when the phone blocks autoplay, can't play it, or asks for reduced motion.
+    var COMM_PLAY = '<svg viewBox="0 0 12 12" aria-hidden="true"><path d="M2 1.2v9.6L10.6 6z" fill="currentColor"/></svg>';
+    function commMediaStart(p){
+      var box = $('commMedia'); if (!box) return;
+      var photo = /^https:\/\//.test(p.image_url || '') ? p.image_url : 'hero-truck.jpg';
+      box.innerHTML = '<img class="comm-img" src="' + escHtml(photo) + '" alt="' + escHtml(p.name) + '" onerror="if(this.getAttribute(\'src\')!==\'hero-truck.jpg\')this.src=\'hero-truck.jpg\'">' +
+        '<button type="button" class="comm-replay" id="commReplay" hidden>' + COMM_PLAY + 'Play again</button>';
+      $('commReplay').addEventListener('click', commMediaPlay);
+      var reduce = false; try { reduce = matchMedia('(prefers-reduced-motion: reduce)').matches; } catch (e) {}
+      if (!reduce) commMediaPlay();
+      else $('commReplay').hidden = false;
+    }
+    function commMediaPlay(){
+      var box = $('commMedia'), btn = $('commReplay'); if (!box) return;
+      var old = box.querySelector('.comm-vid'); if (old) old.remove();
+      var v = document.createElement('video');
+      v.className = 'comm-vid'; v.muted = true; v.defaultMuted = true; v.playsInline = true; v.preload = 'auto';
+      v.setAttribute('muted', ''); v.setAttribute('playsinline', ''); v.setAttribute('aria-hidden', 'true');
+      var finished = false, started = false;
+      var finish = function(fade){
+        if (finished) return; finished = true;
+        if (fade) { v.classList.add('done'); setTimeout(function(){ v.remove(); }, 900); } else v.remove();
+        btn.hidden = false;
+      };
+      v.addEventListener('playing', function(){ started = true; btn.hidden = true; });
+      v.addEventListener('ended', function(){ finish(true); });
+      v.addEventListener('error', function(){ finish(false); });
+      // Never keep guests waiting on a slow connection or a blocked autoplay
+      setTimeout(function(){ if (!started) finish(false); }, 3000);
+      v.src = 'hero-video.mp4';
+      box.insertBefore(v, btn);
+      var pr = v.play(); if (pr && pr.catch) pr.catch(function(){ finish(false); });
+    }
     function commHero(){
       var p = doorProg, st = commState();
       var title = p.welcome_title || 'We can\u2019t wait to serve your community';
@@ -1407,8 +1451,7 @@
                                  : '<b>Pre-orders have closed.</b>You can still order at the truck window during the event.')
         : st === 'off' ? '<b>Pre-orders are off right now.</b>Please check back soon.'
         : st === 'paused' ? '<b>Online ordering is paused.</b>Please check back in a few minutes.' : '';
-      var img = /^https:\/\//.test(p.image_url || '') ? '<img class="comm-img" src="' + escHtml(p.image_url) + '" alt="" onerror="this.remove()">' : '';
-      return img + '<p class="comm-kicker">' + escHtml(p.name) + '</p><h2 class="comm-title">' + escHtml(title) + '</h2><p class="comm-msg">' + escHtml(msg) + '</p>' +
+      return '<p class="comm-kicker">' + escHtml(p.name) + '</p><h2 class="comm-title">' + escHtml(title) + '</h2><p class="comm-msg">' + escHtml(msg) + '</p>' +
         '<div class="comm-facts"><span><b>When</b>' + escHtml(commDay(p.event_start, true)) + '</span><span><b>Pickup</b>' + escHtml(doorClock(p.event_start)) + ' \u2013 ' + escHtml(doorClock(p.event_end)) + '</span>' +
         '<span><b>Where</b>' + escHtml(p.place) + (p.drop_note ? ' \u00b7 ' + escHtml(p.drop_note) : '') + '</span></div>' +
         (note ? '<div class="comm-state" role="status">' + note + '</div>' : '') +
@@ -1472,7 +1515,9 @@
           document.body.classList.toggle('comm-closed', !open);
           if ($('topMode')) $('topMode').textContent = 'Pre-order';
           document.title = doorProg.name + ' \u00b7 Roll-In Shawarma';
-          $('commHero').innerHTML = commHero(); $('commHero').classList.remove('hidden');
+          // The header (clip + photo) is built once, so the every-minute refresh never restarts it.
+          if (!$('commBody')) { $('commHero').innerHTML = '<div class="comm-media" id="commMedia"></div><div id="commBody"></div>'; commMediaStart(doorProg); }
+          $('commBody').innerHTML = commHero(); $('commHero').classList.remove('hidden');
           $('doorStrip').classList.toggle('hidden', !open); $('doorSec').classList.toggle('hidden', !open);
           pickupMethod = 'window';
           if (open) doorPaint();
