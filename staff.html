@@ -1643,6 +1643,10 @@
           <button type="button" class="switch" role="switch" aria-checked="true" aria-label="Google review slide" data-bn="review" disabled></button>
         </div>
       </div>
+      <div class="bn-row bn-prime">
+        <div><b>Amazon Prime &times; Uber Eats</b><small>Today only (until midnight Nov 18): a gold bar under the top bar, &ldquo;Prime member? Amazon can cover up to $40 of your dinner today. Come see us at the truck and we&rsquo;ll show you how.&rdquo; Plus an &ldquo;Uber Eats through Amazon&rdquo; row in Delivery choices, which stays after today with &ldquo;$0 delivery fee on $25+&rdquo;. Works even when the top bar is off.</small></div>
+        <button type="button" class="switch" role="switch" aria-checked="true" aria-label="Amazon Prime and Uber Eats promo" data-bn="prime" disabled></button>
+      </div>
       <div class="bn-now" id="bnNow"></div>
       <div class="hint" id="bnMsg" role="status" style="margin:8px 0 0;"></div>
     </div>
@@ -6647,8 +6651,12 @@
     if (d.event) list.push('the next event (when there is one)');
     if (d.location) list.push('standard spot');
     if (d.review) list.push('Google review');
-    document.getElementById('bnNow').innerHTML = !d.bar ? '<b>Customers see:</b> no top bar.'
-      : list.length ? '<b>Customers see:</b> ' + esc(list.join(', ')) + '.' : '<b>Customers see:</b> no top bar (every slide is off).';
+    var primeTxt = d.prime === undefined ? ' Run prime-promo.sql in Supabase to switch the Prime promo from here.'
+      : d.prime ? ' Prime \u00d7 Uber Eats promo: on.' : ' Prime \u00d7 Uber Eats promo: off.';
+    var primeSw = document.querySelector('[data-bn="prime"]');
+    if (primeSw && d.prime === undefined) primeSw.disabled = true;
+    document.getElementById('bnNow').innerHTML = (!d.bar ? '<b>Customers see:</b> no top bar.'
+      : list.length ? '<b>Customers see:</b> ' + esc(list.join(', ')) + '.' : '<b>Customers see:</b> no top bar (every slide is off).') + esc(primeTxt);
     var m = document.getElementById('bnMsg');
     if (d.updated_by && !m.textContent) m.textContent = 'Last changed ' + new Date(d.updated_at).toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + ' by ' + d.updated_by + '.';
   }
