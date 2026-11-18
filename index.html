@@ -1543,6 +1543,10 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
   <div class="hero-media">
     <!-- Food-first slideshow. Dishes that are hidden or coming soon drop out by themselves. -->
     <div class="hs" id="heroSlides">
+      <!-- Prime x Uber Eats promo slide: shown first until data-until, and only while the
+           Staff portal -> Banner -> Prime switch is on. Removed by itself afterwards. -->
+      <figure class="hs-slide hs-promo" data-name="Find the truck" data-href="#find" data-until="2026-11-19T05:00:00Z"><img src="item-cali-burrito-tikka.jpg" alt="" style="--pos:40% 50%" loading="lazy">
+        <figcaption class="hsp"><span class="hsp-tag">Prime members &middot; Today only</span><b class="hsp-h">Up to $40 off dinner, <em>with Prime tonight.</em></b><span class="hsp-s">$20 off each of your first 2 Uber Eats orders of $25+ through Amazon. Ask us at the truck.</span></figcaption></figure>
       <figure class="hs-slide on" data-name="Chicken Shawarma" data-cat="Shawarma"><img src="item-chicken-shawarma.jpg" alt="Chicken Shawarma" style="--pos:50% 24%" fetchpriority="high"></figure>
       <figure class="hs-slide" data-name="Cali Burrito" data-cat="Burritos"><img src="item-cali-burrito-tikka.jpg" alt="Cali Burrito" style="--pos:40% 50%" loading="lazy"></figure>
       <figure class="hs-slide" data-name="Loaded Fries" data-cat="Loaded Fries"><img src="item-tandoori-chicken-loaded-fries.jpg" alt="Loaded Fries" style="--pos:50% 50%" loading="lazy"></figure>
@@ -7449,21 +7453,34 @@ body{ background:var(--bg); color:var(--ink); }
   (function(){
     var box = document.getElementById('heroSlides'), cap = document.getElementById('hsCap'), bars = document.getElementById('hsBars');
     if (!box || !cap || !bars) return;
+    // Promo slide (Prime): only before its end time, and never on event links.
+    var promo = box.querySelector('.hs-promo');
+    if (promo && (Date.now() >= Date.parse(promo.getAttribute('data-until')) || /[?&]event=/i.test(location.search))) { promo.remove(); promo = null; }
+    if (promo) { box.querySelectorAll('.hs-slide').forEach(function(s){ s.classList.toggle('on', s === promo); }); var pim = promo.querySelector('img'); pim.loading = 'eager'; }
     var all = Array.prototype.slice.call(box.querySelectorAll('.hs-slide')), slides = all.slice(), cur = 0, timer = 0, DUR = 5000, visible = true;
     function paint(){
       all.forEach(function(s){ s.classList.toggle('on', s === slides[cur]); });
       bars.innerHTML = slides.length > 1 ? slides.map(function(_, i){ return '<b class="' + (i < cur ? 'done' : i === cur && !reduce ? 'run' : '') + '"></b>'; }).join('') : '';
-      cap.querySelector('span').textContent = slides[cur].getAttribute('data-name'); cap.setAttribute('data-order-cat', slides[cur].getAttribute('data-cat'));
+      cap.querySelector('span').textContent = slides[cur].getAttribute('data-name');
+      var oc = slides[cur].getAttribute('data-cat');
+      if (oc) cap.setAttribute('data-order-cat', oc); else cap.removeAttribute('data-order-cat');
+      cap.setAttribute('href', slides[cur].getAttribute('data-href') || '#menu');
     }
     function play(){ clearInterval(timer); paint(); if (reduce || !visible || document.hidden || slides.length < 2) return; timer = setInterval(function(){ cur = (cur + 1) % slides.length; paint(); }, DUR); }
     window.__hsStep = function(d){ if (slides.length < 2) return; cur = (cur + d + slides.length) % slides.length; play(); };
+    // Staff portal Prime switch off -> drop the promo slide.
+    window.rollinPrimeHero = function(on){
+      if (!promo || on) return;
+      var showing = slides[cur]; all = all.filter(function(s){ return s !== promo; }); slides = slides.filter(function(s){ return s !== promo; });
+      promo.remove(); promo = null; if (!slides.length) return; cur = Math.max(slides.indexOf(showing), 0); play();
+    };
     bars.style.setProperty('--hs-d', DUR + 'ms');
     play();
     if (hasIO) new IntersectionObserver(function(es){ visible = es[0].isIntersecting; play(); }, { threshold:0.1 }).observe(box);
     document.addEventListener('visibilitychange', play);
     // Only dishes people can order today (hidden / coming soon ones drop out).
     whenMenu(function(cats){
-      var keep = all.filter(function(s){ return cats[s.getAttribute('data-cat')] === true; });
+      var keep = all.filter(function(s){ return s === promo || cats[s.getAttribute('data-cat')] === true; });
       if (!keep.length || keep.length === slides.length) return;
       var showing = slides[cur]; slides = keep; cur = Math.max(slides.indexOf(showing), 0); play();
     });
@@ -7766,6 +7783,21 @@ body{ background:var(--bg); color:var(--ink); }
 </script>
 <style id="primeOffer">
 /* Amazon Prime x Uber Eats offer (Nov 18). Text and dates are set in the script below. */
+/* promo slide in the top photos */
+.hs-promo::after{ content:""; position:absolute; inset:0; z-index:1; background:linear-gradient(90deg, rgba(20,14,9,.86) 0%, rgba(20,14,9,.62) 46%, rgba(20,14,9,.08) 80%); }
+.hsp{ position:absolute; z-index:2; left:36px; right:36px; top:50%; transform:translateY(-50%); max-width:520px; color:#FFF8EC; display:flex; flex-direction:column; gap:12px; }
+.hsp-tag{ align-self:flex-start; background:#F6C77A; color:#2A1F16; font-weight:800; font-size:12px; letter-spacing:.12em; text-transform:uppercase; padding:6px 12px; border-radius:999px; }
+.hsp-h{ font-family:var(--display); font-weight:600; font-size:clamp(30px, 3.6vw, 48px); line-height:1.02; letter-spacing:-.02em; }
+.hsp-h em{ display:block; font-style:italic; font-weight:400; color:#F3B98E; }
+.hsp-s{ font-size:15px; line-height:1.4; color:rgba(255,248,236,.86); max-width:400px; }
+@media (max-width:640px){
+  .hs-promo::after{ background:linear-gradient(180deg, rgba(20,14,9,.5) 0%, rgba(20,14,9,.7) 45%, rgba(20,14,9,.88) 100%); }
+  .hsp{ left:16px; right:16px; top:34px; bottom:auto; transform:none; gap:8px; }
+  .hsp-tag{ font-size:10.5px; padding:4px 10px; }
+  .hsp-h{ font-size:clamp(24px, 7.4vw, 32px); }
+  .hsp-s{ font-size:13px; }
+}
+@media (max-width:640px) and (max-height:700px){ .hsp-s{ display:none; } .hsp{ top:26px; gap:6px; } .hsp-h{ font-size:clamp(21px, 6.2vw, 26px); } }
 #primeStrip{ background:#FFF1D6; color:#4A2E12; border-bottom:1px solid #F1DDB4; font-size:13.5px; line-height:1.35; }
 #primeStrip .ps-in{ display:flex; align-items:center; justify-content:center; gap:10px; padding-top:8px; padding-bottom:8px; }
 #primeStrip .ps-tag{ flex:none; background:#2A1F16; color:#F6C77A; font-weight:800; font-size:11px; letter-spacing:.06em; text-transform:uppercase; padding:3px 8px; border-radius:999px; }
@@ -7828,6 +7860,7 @@ body{ background:var(--bg); color:var(--ink); }
   // If that can't be read (older database, no connection), it shows after 2.5 s.
   window.rollinPrimeApply = function(){
     var on = window.__primeOn !== false;
+    if (window.rollinPrimeHero) window.rollinPrimeHero(on);
     if (row) row.hidden = !on;
     if (fine) fine.hidden = !on;
     if (strip) {
