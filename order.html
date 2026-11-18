@@ -3753,5 +3753,160 @@
     setTimeout(function(){ menu.querySelectorAll('.rv:not(.in)').forEach(function(el){ var r = el.getBoundingClientRect(); if (r.top < innerHeight) el.classList.add('in'); }); }, 3000);
   })();
 </script>
+<style id="orderApp">
+/* =====================================================================
+   ORDER PAGE ON PHONES (Nov 18)
+   - Drive-up welcome becomes a photo card with the 1-2-3 steps on it
+   - Popular dishes: big swipe cards
+   - Checkout: step chips under the title (tap to jump), and the Member ID /
+     promo card folds into one line until it's needed (all screen sizes)
+   - The View order bar gives a small bump when something is added
+   ===================================================================== */
+#memberPromoSec .mp-toggle{ display:none; }
+#memberPromoSec.mp-closed .mp-toggle{ display:flex; align-items:center; justify-content:space-between; width:100%; padding:2px 0; border:0; background:none;
+  font:inherit; font-size:16px; font-weight:600; color:#241A12; cursor:pointer; text-align:left; }
+#memberPromoSec.mp-closed .mp-toggle small{ display:block; font-size:13px; font-weight:500; color:#8B7E6E; margin-top:3px; }
+#memberPromoSec.mp-closed .mp-toggle b{ flex:none; display:flex; align-items:center; justify-content:center; width:34px; height:34px; border-radius:50%; background:#F4ECDF; font-size:20px; font-weight:600; }
+#memberPromoSec.mp-closed > :not(.mp-toggle){ display:none !important; }
+.co-steps{ display:none; }
+#orderBar.ob-bump button{ animation:obBump .32s cubic-bezier(.2,.8,.2,1); }
+@keyframes obBump{ 0%{ transform:scale(1); } 40%{ transform:scale(1.04); } 100%{ transform:scale(1); } }
+@media (prefers-reduced-motion: reduce){ #orderBar.ob-bump button{ animation:none; } }
+
+@media (max-width:640px){
+  /* ---- drive-up welcome: a photo card ---- */
+  .du-hero{ position:relative; overflow:hidden; margin:8px 12px 2px; padding:0; border-radius:22px; min-height:178px; display:flex; flex-direction:column; justify-content:flex-end;
+            background:#2A1F16 url(item-chicken-shawarma.jpg) 50% 32% / cover no-repeat; box-shadow:0 10px 26px rgba(42,31,22,.16); }
+  .du-hero::before{ content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(20,14,9,.18) 0%, rgba(20,14,9,.55) 30%, rgba(20,14,9,.9) 100%); }
+  .du-hero > *{ position:relative; }
+  .du-hello{ padding:0 16px; color:#FFD49A; font-size:11.5px; letter-spacing:.16em; text-shadow:0 1px 8px rgba(0,0,0,.45); }
+  .du-headline{ padding:0 16px; color:#FFF8EC; font-size:clamp(26px, 7.6vw, 34px); margin-top:4px; text-shadow:0 1px 12px rgba(0,0,0,.25); }
+  .du-headline em{ color:#F3B98E; }
+  .du-steps{ margin:12px 0 0; padding:0 12px 12px; gap:6px; }
+  .du-step{ background:rgba(255,248,236,.16); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px); color:#FFF8EC; box-shadow:none; border:1px solid rgba(255,248,236,.22);
+            padding:6px 11px 6px 6px; font-size:12.5px; gap:6px; }
+  .du-step i{ background:#FFF8EC; color:#2A1F16; width:22px; height:22px; font-size:11.5px; }
+
+  /* ---- Popular: big swipe cards ---- */
+  .pop-row{ gap:12px; margin-right:-16px; padding-right:16px; scroll-padding:0 16px; }
+  .pop-card{ width:min(72vw, 290px); }
+  .pop-photo{ width:100%; height:auto; aspect-ratio:4 / 3; border-radius:20px; }
+  .pop-name{ margin-top:10px; font-size:16px; }
+  .pop-price{ font-size:14.5px; }
+  .pop-card .tile-actions-anchor{ top:auto; bottom:62px; right:10px; }
+  .pop-card .add-btn, .tile .add-btn{ transition:transform .12s ease; }
+  .pop-card .add-btn:active, .tile .add-btn:active{ transform:scale(.88); }
+
+  /* ---- checkout step chips ---- */
+  .co-head{ flex-wrap:wrap; row-gap:0; }
+  .co-steps{ display:flex; gap:6px; width:100%; margin:8px 0 -2px; overflow-x:auto; scrollbar-width:none; }
+  .co-steps::-webkit-scrollbar{ display:none; }
+  .co-steps button{ flex:none; display:flex; align-items:center; gap:6px; height:30px; padding:0 12px 0 6px; border-radius:999px; border:1px solid #E6D9C3; background:#fff;
+                    font:inherit; font-size:13px; font-weight:600; color:#8B7E6E; cursor:pointer; }
+  .co-steps button i{ display:flex; align-items:center; justify-content:center; width:20px; height:20px; border-radius:50%; background:#F4ECDF; color:#8B7E6E; font-style:normal; font-size:11px; font-weight:800; }
+  .co-steps button.on{ border-color:#2A1F16; color:#241A12; }
+  .co-steps button.on i{ background:#2A1F16; color:#FBF6EC; }
+  .co-steps button.done i{ background:#0BAF4C; color:#fff; }
+  .co-steps button[aria-disabled="true"]{ opacity:.55; cursor:default; }
+}
+</style>
+<script id="orderAppJs">
+(function(){
+  function $(id){ return document.getElementById(id); }
+
+  // View order bar: a small bump when the count goes up
+  var cnt = $('obCount'), bar = $('orderBar'), last = cnt ? (parseInt(cnt.textContent, 10) || 0) : 0;
+  if (cnt && bar && window.MutationObserver) new MutationObserver(function(){
+    var n = parseInt(cnt.textContent, 10) || 0;
+    if (n > last) { bar.classList.remove('ob-bump'); void bar.offsetWidth; bar.classList.add('ob-bump'); }
+    last = n;
+  }).observe(cnt, { childList:true, characterData:true, subtree:true });
+
+  // Member ID & promo: one line until it's needed
+  var mp = $('memberPromoSec'), co = $('checkoutScreen');
+  if (mp) {
+    var t = document.createElement('button');
+    t.type = 'button'; t.className = 'mp-toggle'; t.setAttribute('aria-expanded', 'false');
+    t.innerHTML = '<span>Member ID or promo code?<small>Earn points or use a code</small></span><b aria-hidden="true">+</b>';
+    mp.insertBefore(t, mp.firstChild);
+    var opened = false;
+    function needed(){
+      function vis(id){ var e = $(id); return e && !e.classList.contains('hidden') && !e.hidden; }
+      function val(id){ var e = $(id); return e && e.value && e.value.trim(); }
+      function txt(id){ var e = $(id); return e && e.textContent.trim(); }
+      return vis('memberIn') || vis('qrRewardsField') || val('memberId') || val('promoCode') || txt('memberMsg') || txt('promoMsg');
+    }
+    function sync(){ var closed = !opened && !needed(); mp.classList.toggle('mp-closed', closed); t.setAttribute('aria-expanded', closed ? 'false' : 'true'); }
+    t.addEventListener('click', function(){ opened = true; sync(); var i = $('memberId'); if (i && i.offsetParent) i.focus(); });
+    sync();
+    if (window.MutationObserver) new MutationObserver(sync).observe(mp, { subtree:true, childList:true, characterData:true, attributes:true, attributeFilter:['class', 'hidden'] });
+  }
+
+  // Checkout step chips (phones): Pickup · Details · Tip · Pay
+  if (co) {
+    var head = co.querySelector('.co-head'), body = co.querySelector('.co-body');
+    if (head && body) {
+      var nav = document.createElement('nav'); nav.className = 'co-steps'; nav.setAttribute('aria-label', 'Checkout steps');
+      head.appendChild(nav);
+      var steps = [];
+      function isPay(){ return co.getAttribute('data-step') === 'pay'; }
+      function build(){
+        // On "Review & pay" the details are hidden, so keep the chips from the details step.
+        if (isPay() && steps.length) { spy(); return; }
+        if (co.classList.contains('hidden')) return;
+        var secs = [].slice.call(body.querySelectorAll(':scope > .co-sec')).filter(function(s){
+          return s.id !== 'memberPromoSec' && !s.classList.contains('co-summary') && s.offsetParent !== null;
+        });
+        var list = secs.map(function(s){
+          var h = s.querySelector('h3'), n = h ? h.textContent.trim() : '';
+          if (s.id === 'pickupSec') n = 'Pickup'; else if (s.id === 'doorSec' || /delivery time|pickup time/i.test(n)) n = 'Time';
+          else if (/your details/i.test(n)) n = 'Details'; else if (/tip/i.test(n)) n = 'Tip';
+          return { el:s, name:n };
+        }).filter(function(x){ return x.name && x.name.length < 16; });
+        list.push({ el:null, name:'Pay' });
+        var key = list.map(function(x){ return x.name; }).join('|');
+        if (key !== nav.getAttribute('data-k')) {
+          nav.setAttribute('data-k', key); steps = list;
+          nav.innerHTML = list.map(function(x, i){ return '<button type="button" data-i="' + i + '"><i>' + (i + 1) + '</i>' + x.name + '</button>'; }).join('');
+        }
+        spy();
+      }
+      function scroller(){ return co.scrollHeight > co.clientHeight + 4 ? co : (document.scrollingElement || document.documentElement); }
+      function spy(){
+        if (!steps.length) return;
+        var last = steps.length - 1, cur = 0;
+        if (isPay()) cur = last;
+        else {
+          var top = head.getBoundingClientRect().bottom + 24;
+          for (var i = 0; i < last; i++) if (steps[i].el.getBoundingClientRect().top <= top) cur = i;
+          var sc = scroller(); if (sc.scrollTop + sc.clientHeight >= sc.scrollHeight - 8) cur = last - 1;
+        }
+        [].forEach.call(nav.children, function(b, i){
+          b.classList.toggle('on', i === cur); b.classList.toggle('done', i < cur);
+          if (i === last && !isPay()) b.setAttribute('aria-disabled', 'true'); else b.removeAttribute('aria-disabled');
+          if (i === cur) b.setAttribute('aria-current', 'step'); else b.removeAttribute('aria-current');
+        });
+      }
+      function jump(x){
+        var sc = scroller(), y = x.el.getBoundingClientRect().top - head.getBoundingClientRect().bottom - 10;
+        if (sc === co) co.scrollBy({ top:y, behavior:'smooth' }); else window.scrollBy({ top:y, behavior:'smooth' });
+      }
+      nav.addEventListener('click', function(e){
+        var b = e.target.closest('button'); if (!b) return; var x = steps[+b.getAttribute('data-i')]; if (!x || !x.el) return;
+        if (isPay()) { var back = $('coBackBtn'); if (back) back.click(); setTimeout(function(){ jump(x); }, 120); }
+        else jump(x);
+      });
+      co.addEventListener('scroll', spy, { passive:true }); window.addEventListener('scroll', spy, { passive:true });
+      if (window.MutationObserver) {
+        new MutationObserver(function(){ if (!co.classList.contains('hidden')) setTimeout(build, 60); })
+          .observe(co, { attributes:true, attributeFilter:['class', 'data-step'] });
+        new MutationObserver(function(){ if (!co.classList.contains('hidden')) build(); })
+          .observe(body, { attributes:true, attributeFilter:['class', 'hidden'], subtree:true });
+      }
+      build();
+    }
+  }
+})();
+</script>
 </body>
 </html>
