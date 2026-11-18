@@ -1553,9 +1553,9 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     <!-- Halfway between the tagline and the Order buttons (hero-inner spreads its 3 parts evenly). -->
     <div class="os-slot"><p class="open-status" id="openStatus" aria-live="polite"></p></div>
     <div class="hero-ctas">
-      <a class="btn btn-accent" href="#menu">Order Pickup</a>
-      <a class="btn btn-white drive-up-only" href="order.html?ahead=1">Drive Up</a>
-      <a class="btn btn-white" href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener" data-delivery-open>Order Delivery</a>
+      <a class="btn btn-accent" href="#menu"><i class="ma-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 11.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg></i><span class="ma-l"><span class="ma-o">Order </span>Pickup</span><small class="ma-s" aria-hidden="true">At the window</small></a>
+      <a class="btn btn-white drive-up-only" href="order.html?ahead=1"><i class="ma-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16v-3.5l1.8-4.6A2 2 0 0 1 7.7 6.6h8.6a2 2 0 0 1 1.9 1.3l1.8 4.6V16"/><path d="M3 16h18v2.2a.8.8 0 0 1-.8.8h-1.7a.8.8 0 0 1-.8-.8V17H6.3v1.2a.8.8 0 0 1-.8.8H3.8a.8.8 0 0 1-.8-.8z"/><path d="M4.5 12.5h15"/><circle cx="7.5" cy="14.5" r=".6" fill="currentColor"/><circle cx="16.5" cy="14.5" r=".6" fill="currentColor"/></svg></i><span class="ma-l">Drive Up</span><small class="ma-s" aria-hidden="true">From your car</small></a>
+      <a class="btn btn-white" href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener" data-delivery-open><i class="ma-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="17" r="2.5"/><circle cx="18" cy="17" r="2.5"/><path d="M8.5 17h5l2-6h-4"/><path d="M15.5 11l2.5 6"/><path d="M14 7h2.5l1 4"/><path d="M3 11h6v3H4"/></svg></i><span class="ma-l"><span class="ma-o">Order </span>Delivery</span><small class="ma-s" aria-hidden="true">To your door</small></a>
     </div>
     <p class="hero-halal">Ask about our Halal options</p>
   </div>
@@ -1680,6 +1680,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
 </section>
 
 <section id="signatures" class="member-hide" aria-label="Signature dishes">
+  <div class="ma-shead"><span class="eyebrow">Fan favorites</span><h2>The classics</h2></div>
   <div class="tiles">
     <article class="tile wide">
       <h3>Chicken Shawarma</h3>
@@ -7444,6 +7445,7 @@ body{ background:var(--bg); color:var(--ink); }
       cap.querySelector('span').textContent = slides[cur].getAttribute('data-name'); cap.setAttribute('data-order-cat', slides[cur].getAttribute('data-cat'));
     }
     function play(){ clearInterval(timer); paint(); if (reduce || !visible || document.hidden || slides.length < 2) return; timer = setInterval(function(){ cur = (cur + 1) % slides.length; paint(); }, DUR); }
+    window.__hsStep = function(d){ if (slides.length < 2) return; cur = (cur + d + slides.length) % slides.length; play(); };
     bars.style.setProperty('--hs-d', DUR + 'ms');
     play();
     if (hasIO) new IntersectionObserver(function(es){ visible = es[0].isIntersecting; play(); }, { threshold:0.1 }).observe(box);
@@ -7573,6 +7575,182 @@ body{ background:var(--bg); color:var(--ink); }
   fit(); window.addEventListener('load', fit); window.addEventListener('resize', fit);
   window.addEventListener('orientationchange', function(){ setTimeout(fit, 200); });
   if(window.ResizeObserver){ var ro=new ResizeObserver(fit); ['annbar'].forEach(function(id){ var el=document.getElementById(id); if(el) ro.observe(el); }); var n=document.querySelector('.gnav'); if(n) ro.observe(n); }
+})();
+</script>
+<style id="mobileApp">
+/* =====================================================================
+   PHONE APP LAYOUT (Nov 18). Phones up to 640px wide only.
+   - Full-width food photo with a cream "sheet" over its bottom edge
+   - Three order tiles: Pickup · Drive Up · Delivery (icon + one line)
+   - App tab bar at the bottom: Home · Menu · Rewards · Find us · Bag
+   - New dishes and signature dishes swipe sideways instead of a long scroll
+   The computer layout is unchanged (these parts are hidden there).
+   ===================================================================== */
+.ma-ic, .ma-s, .ma-shead, #maTabs, #maToast{ display:none; }
+@media (max-width:640px){
+  :root{ --tabbar-h:62px; }
+  .gnav .nav-order{ display:none; }
+  .gnav .nav-right{ margin-left:auto; }                         /* the tiles and tab bar do this job */
+  .mobile-nav{ padding-bottom:calc(var(--tabbar-h) + 40px + var(--safe-b)); }
+
+  /* ---- first screen ---- */
+  .hero{ padding:0; height:calc(100svh - var(--hero-top, 88px) - var(--tabbar-h) - var(--safe-b)); min-height:470px; }
+  .hero-media{ border-radius:0; min-height:160px; }
+  .hero-media::after{ content:""; position:absolute; z-index:3; left:0; right:0; bottom:0; height:96px; background:linear-gradient(0deg, rgba(20,14,9,.34), rgba(20,14,9,0)); pointer-events:none; }
+  .hs-cap{ left:14px; bottom:40px; }
+  .hs-bars{ top:12px; left:16px; right:16px; }
+  .hero-inner{ position:relative; z-index:6; margin-top:-24px; background:var(--bg); border-radius:24px 24px 0 0; box-shadow:0 -10px 28px rgba(42,31,22,.12);
+               align-items:stretch; text-align:left; gap:12px; padding:18px 16px 12px; }
+  .hero-kick{ margin-bottom:4px; }
+  .hero h1{ font-size:clamp(29px, 8.4vw, 37px); }
+  .hero-sub{ font-size:15.5px; margin-top:3px; }
+  .hero .os-slot{ align-items:flex-start; justify-content:flex-start; }
+  .hero .open-status{ margin:0; }
+  .hero-halal{ text-align:left; font-size:12.5px; margin-top:-2px; }
+
+  /* order tiles */
+  .hero-ctas{ display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:8px; }
+  body:not(.truck-open) .hero-ctas, body.onloc-now .hero-ctas{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
+  .hero-ctas .btn, .hero-ctas .btn-accent,
+  body:not(.truck-open) .hero-ctas .btn:last-child, body.onloc-now .hero-ctas .btn:last-child{
+    grid-column:auto; height:auto; min-height:90px; padding:11px 12px 12px; border-radius:18px;
+    flex-direction:column; align-items:flex-start; justify-content:flex-start; gap:1px; text-align:left; white-space:normal; line-height:1.15; font-size:15.5px; }
+  .hero-ctas .btn-white{ background:#fff; box-shadow:inset 0 0 0 1.5px var(--line); }
+  .ma-ic{ display:block; width:26px; height:26px; margin-bottom:auto; padding-bottom:8px; box-sizing:content-box; }
+  .ma-ic svg{ display:block; width:26px; height:26px; }
+  .ma-o{ display:none; }
+  .ma-s{ display:block; font-size:12px; font-weight:500; opacity:.7; letter-spacing:0; }
+  .hero-ctas .btn:active{ transform:scale(.97); }
+
+  /* ---- tab bar ---- */
+  #maTabs{ position:fixed; z-index:140; left:0; right:0; bottom:0; display:grid; grid-template-columns:repeat(5, minmax(0, 1fr));
+           height:calc(var(--tabbar-h) + var(--safe-b)); padding:0 4px var(--safe-b); background:rgba(251,246,236,.96);
+           -webkit-backdrop-filter:saturate(1.4) blur(14px); backdrop-filter:saturate(1.4) blur(14px); border-top:1px solid var(--line); }
+  #maTabs .tb{ position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; border:0; background:none; padding:0;
+               color:var(--muted); font-family:inherit; font-weight:600; font-size:11px; line-height:1; text-decoration:none; -webkit-tap-highlight-color:transparent; cursor:pointer; }
+  #maTabs .tb i{ display:flex; align-items:center; justify-content:center; width:54px; height:30px; border-radius:999px; transition:background .18s ease; }
+  #maTabs .tb svg{ width:23px; height:23px; }
+  #maTabs .tb.on{ color:var(--ink); }
+  #maTabs .tb.on i{ background:var(--panel); }
+  #maTabs .tb:active i{ transform:scale(.92); }
+  #maTabs .tb-badge{ position:absolute; top:5px; left:calc(50% + 7px); min-width:18px; height:18px; padding:0 5px; border-radius:9px; background:var(--accent); color:#fff;
+                     font-family:inherit; font-weight:700; font-size:11px; line-height:18px; text-align:center; box-shadow:0 0 0 2px #FBF6EC; }
+  #maTabs .tb-badge:empty, #maTabs .tb-badge[data-n="0"]{ display:none; }
+  #maToast{ position:fixed; z-index:470; left:50%; bottom:calc(var(--tabbar-h) + var(--safe-b) + 14px); transform:translate(-50%, 8px); opacity:0; display:block; pointer-events:none;
+            background:var(--espresso); color:#FBF6EC; font-size:14px; font-weight:600; padding:10px 16px; border-radius:999px; white-space:nowrap; transition:opacity .18s ease, transform .18s ease; }
+  #maToast.show{ opacity:1; transform:translate(-50%, 0); }
+
+  /* the old floating buttons give way to the tab bar; the bag button and offer sit above it */
+  #floatOrderGroup{ display:none !important; }
+  .cart-fab{ bottom:calc(var(--tabbar-h) + var(--safe-b) + 10px) !important; }
+  .wp, body:not(.has-cart):not(.ws-in-menu):has(#floatOrderGroup.show) .wp{ bottom:calc(var(--tabbar-h) + var(--safe-b) + 12px) !important; }
+  body.has-cart .wp{ bottom:calc(var(--tabbar-h) + var(--safe-b) + 76px) !important; }
+  .ws-toast{ bottom:calc(var(--tabbar-h) + var(--safe-b) + 76px); }
+  footer{ padding-bottom:calc(var(--tabbar-h) + 28px + var(--safe-b)) !important; }
+  /* On the first screen the Bag tab's count is enough: the big "View order" bar and the
+     offer pill wait until you scroll, so they never cover the order tiles. */
+  .cart-fab, .wp{ transition:opacity .18s ease, transform .18s ease; }
+  body.ma-hero-in .cart-fab, body.ma-hero-in .wp{ opacity:0 !important; transform:translateY(10px); pointer-events:none; }
+
+  /* ---- swipe rows: new dishes and signatures ---- */
+  #newdishes{ padding:30px 0 6px; }
+  #signatures{ padding:22px 0 30px; }
+  .nt-head, .ma-shead{ display:block; text-align:left; max-width:none; margin:0 0 14px; padding:0 16px; }
+  .nt-head h2, .ma-shead h2{ font-family:var(--display); font-size:30px; font-weight:600; letter-spacing:-.02em; line-height:1.05; margin-top:4px; }
+  .ma-shead .eyebrow{ color:var(--accent); }
+  .nt-head p{ font-size:15px; margin-top:6px; }
+  #newdishes .tiles, #signatures .tiles{ display:flex; gap:12px; overflow-x:auto; overscroll-behavior-x:contain; scroll-snap-type:x mandatory; scroll-padding:0 16px;
+                                         padding:2px 16px 16px; scrollbar-width:none; -webkit-overflow-scrolling:touch; }
+  #newdishes .tiles::-webkit-scrollbar, #signatures .tiles::-webkit-scrollbar{ display:none; }
+  #newdishes .tiles .tile, #signatures .tiles .tile{ flex:0 0 78%; min-height:0 !important; scroll-snap-align:start; align-items:flex-start; text-align:left;
+                                                    padding:0 16px 16px; border-radius:22px; opacity:1 !important; transform:none !important; animation:none !important; }
+  #newdishes .tile-img, #signatures .tile-img, .tile.nt-tile .tile-img{ order:-1; flex:none; width:calc(100% + 32px); height:190px; margin:0 -16px 14px; padding:0;
+                                                                      display:flex; align-items:center; justify-content:center; background:var(--panel); overflow:hidden; }
+  #signatures .tile-img img, #signatures .tile.wide .tile-img img{ max-height:172px; max-width:92%; width:auto; height:auto; object-fit:contain; }
+  #newdishes .tile-img img, .tile.nt-tile .tile-img img, .tile.nt-tile.wide .tile-img img{ width:100%; height:190px; max-height:none; object-fit:cover; border-radius:0; }
+  .tile.nt-tile.fit .tile-img img{ object-fit:contain; }
+  .tile.dark .tile-img{ background:#14100c !important; }
+  #newdishes .tile h3, #signatures .tile h3{ font-size:24px; line-height:1.1; }
+  #newdishes .tile p, #signatures .tile p{ font-size:14.5px; margin-top:5px; }
+  #newdishes .tile-ctas, #signatures .tile-ctas{ margin-top:12px; gap:16px; flex-wrap:wrap; }
+  .nt-badge{ position:absolute; z-index:2; top:12px; left:12px; margin:0; }
+  .tile:hover .tile-img img{ transform:none; }
+
+  /* menu heading lines up with the rest */
+  #menu .sec-head{ text-align:left; }
+}
+@media (max-width:640px) and (max-height:560px){
+  .hero{ height:auto; min-height:0; }
+}
+@media (max-width:360px){
+  .hero-ctas .btn{ font-size:14.5px; padding:10px 10px 11px; }
+  .ma-s{ font-size:11.5px; }
+  #maTabs .tb{ font-size:10.5px; }
+}
+</style>
+<nav id="maTabs" aria-label="App menu">
+  <a class="tb on" href="#top" data-tab="home"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 10.5 12 4l8 6.5V19a1 1 0 0 1-1 1h-4.5v-5.5h-5V20H5a1 1 0 0 1-1-1z"/></svg></i>Home</a>
+  <a class="tb" href="#menu" data-tab="menu"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M7 3v8M4.5 3v5a2.5 2.5 0 0 0 5 0V3M7 11v10"/><path d="M17 21V3c-2.2 1.2-3.5 3.6-3.5 7v3H17"/></svg></i>Menu</a>
+  <a class="tb" href="#deals" data-tab="rewards"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3.5 2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.8l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/></svg></i>Rewards</a>
+  <a class="tb" href="#find" data-tab="find"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg></i>Find us</a>
+  <button class="tb" type="button" data-tab="bag" aria-label="Your bag"><i><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 11.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg></i>Bag<b class="tb-badge" id="maBagCount" data-n="0"></b></button>
+</nav>
+<div id="maToast" role="status" aria-live="polite"></div>
+<script id="mobileAppJs">
+/* Phone tab bar: highlights where you are, Bag opens your order, the top photo swipes. */
+(function(){
+  var bar = document.getElementById('maTabs'); if (!bar) return;
+  var tabs = [].slice.call(bar.querySelectorAll('.tb'));
+  var toast = document.getElementById('maToast'), tt = 0;
+  function say(m){ if (!toast) return; toast.textContent = m; toast.classList.add('show'); clearTimeout(tt); tt = setTimeout(function(){ toast.classList.remove('show'); }, 2200); }
+  function setOn(k){ tabs.forEach(function(t){ var on = t.getAttribute('data-tab') === k; t.classList.toggle('on', on); if (t.tagName === 'A') { if (on) t.setAttribute('aria-current', 'page'); else t.removeAttribute('aria-current'); } }); }
+
+  // Bag: count from the order button; tap opens the order, or the menu when it's empty
+  var cnt = document.getElementById('cartFabCount'), badge = document.getElementById('maBagCount');
+  function syncBag(){ var n = parseInt(cnt && cnt.textContent, 10) || 0; badge.textContent = n > 0 ? (n > 9 ? '9+' : n) : ''; badge.setAttribute('data-n', n); }
+  if (cnt && window.MutationObserver) new MutationObserver(syncBag).observe(cnt, { childList:true, characterData:true, subtree:true });
+  syncBag();
+  bar.querySelector('[data-tab="bag"]').addEventListener('click', function(){
+    var n = parseInt(cnt && cnt.textContent, 10) || 0, b = document.getElementById('cartFabBtn');
+    if (n > 0 && b) { b.click(); return; }
+    var m = document.getElementById('menu'); if (m) m.scrollIntoView({ behavior:'smooth', block:'start' });
+    say('Your bag is empty. Pick something from the menu.');
+  });
+  bar.querySelector('[data-tab="home"]').addEventListener('click', function(e){ e.preventDefault(); window.scrollTo({ top:0, behavior:'smooth' }); });
+
+  // Which tab is lit: the section in the upper third of the screen
+  var map = [['top','home'], ['menu','menu'], ['newdishes','menu'], ['flavors','menu'], ['signatures','menu'], ['deals','rewards'],
+             ['story',''], ['reviews',''], ['catering',''], ['gift-cards',''], ['find','find']];
+  var ticking = false;
+  function where(){
+    ticking = false; if (bar.offsetParent === null && getComputedStyle(bar).display === 'none') return;
+    var y = window.innerHeight * 0.33, hit = 'home';
+    for (var i = 0; i < map.length; i++) {
+      var el = document.getElementById(map[i][0]); if (!el || el.hidden || !el.offsetHeight) continue;
+      var r = el.getBoundingClientRect(); if (r.top <= y) hit = map[i][1];
+    }
+    var f = document.querySelector('footer'); if (f && f.getBoundingClientRect().top < window.innerHeight * 0.6) hit = 'find';
+    setOn(hit);
+  }
+  window.addEventListener('scroll', function(){ if (!ticking) { ticking = true; requestAnimationFrame(where); } }, { passive:true });
+  window.addEventListener('resize', where); where();
+
+  // First screen showing? (see the CSS note about the "View order" bar)
+  var heroEl = document.getElementById('top');
+  if (heroEl && window.IntersectionObserver) new IntersectionObserver(function(es){
+    document.body.classList.toggle('ma-hero-in', es[0].intersectionRatio > 0.45);
+  }, { threshold:[0, 0.45, 0.6, 1] }).observe(heroEl);
+
+  // Swipe the top photo left / right
+  var media = document.querySelector('.hero-media');
+  if (media) {
+    var x0 = null, y0 = 0;
+    media.addEventListener('touchstart', function(e){ var t = e.touches[0]; x0 = t.clientX; y0 = t.clientY; }, { passive:true });
+    media.addEventListener('touchend', function(e){
+      if (x0 === null) return; var t = e.changedTouches[0], dx = t.clientX - x0, dy = t.clientY - y0; x0 = null;
+      if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.4 && window.__hsStep) window.__hsStep(dx < 0 ? 1 : -1);
+    }, { passive:true });
+  }
 })();
 </script>
 </body>
