@@ -1492,6 +1492,14 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
   </div>
 </div>
 
+<div id="primeStrip" hidden>
+  <div class="wrap ps-in">
+    <span class="ps-tag"><span class="ps-long">Prime members</span><span class="ps-short">Prime</span></span>
+    <span class="ps-txt" id="psTxt"></span>
+    <a class="ps-go" href="#find"><span class="ps-long">Find the truck</span><span class="ps-short">Find us</span><span aria-hidden="true"> &rarr;</span></a>
+    <button class="ps-x" type="button" id="psClose" aria-label="Hide this offer">&times;</button>
+  </div>
+</div>
 <nav class="gnav" aria-label="Main">
   <div class="wrap">
     <a class="brand" href="#" aria-label="Roll-In Shawarma, back to top"><img src="logo.jpg" alt="">Roll&#8209;In Shawarma</a>
@@ -2550,6 +2558,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
   <div class="dl-list">
     <a class="dl-row" href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener"><span class="dl-mark" style="background:#ff3008"><span class="dl-letter">D</span><img src="logo-doordash.png" alt="" onload="this.parentNode.classList.add('has-logo')" onerror="this.remove()"></span><span class="dl-name">DoorDash<small>Order delivery</small></span><svg class="dl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"></polyline></svg></a>
     <a class="dl-row" href="https://www.ubereats.com/store/roll-in-shawarma/7hTjb6vTRxuScZ_VzXq6aQ?diningMode=DELIVERY" target="_blank" rel="noopener"><span class="dl-mark" style="background:#06c167"><span class="dl-letter">U</span><img src="logo-ubereats.png" alt="" onload="this.parentNode.classList.add('has-logo')" onerror="this.remove()"></span><span class="dl-name">Uber Eats<small>Order delivery</small></span><svg class="dl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"></polyline></svg></a>
+    <a class="dl-row dl-prime" id="dlPrime" href="https://www.amazon.com/ubereats" target="_blank" rel="noopener" hidden><span class="dl-mark" style="background:#06c167"><span class="dl-letter">U</span><img src="logo-ubereats.png" alt="" onload="this.parentNode.classList.add('has-logo')" onerror="this.remove()"></span><span class="dl-name">Uber Eats through Amazon<small id="dlPrimeTxt"></small><em class="dl-prime-how">Sign in with Prime, then search <b>Roll-In Shawarma</b></em></span><svg class="dl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"></polyline></svg></a>
     <a class="dl-row" href="https://www.grubhub.com/restaurant/roll-in-shawarma-3554-s-arlington-rd-akron/15619752" target="_blank" rel="noopener"><span class="dl-mark" style="background:#ff8000"><span class="dl-letter">G</span><img src="logo-grubhub.png" alt="" onload="this.parentNode.classList.add('has-logo')" onerror="this.remove()"></span><span class="dl-name">Grubhub<small>Order delivery</small></span><svg class="dl-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"></polyline></svg></a>
   </div>
   <a class="dl-pickup" href="#menu" id="deliveryPickup">Or order pickup here and skip the delivery fees</a>
@@ -2860,6 +2869,8 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         if (!d || typeof d.bar !== 'boolean') return;
         var hadEvent = annSettings.event;
         annSettings = { bar: d.bar, event: d.event !== false, location: d.location !== false, review: d.review !== false };
+        window.__primeOn = d.prime !== false;                 // Staff portal -> Banner -> Prime switch
+        if (window.rollinPrimeApply) window.rollinPrimeApply();
         applyAnnSettings();
         if (annSettings.event && !hadEvent) refreshEventSlide();
       }, function(){});
@@ -7594,8 +7605,8 @@ body{ background:var(--bg); color:var(--ink); }
   .mobile-nav{ padding-bottom:calc(var(--tabbar-h) + 40px + var(--safe-b)); }
 
   /* ---- first screen ---- */
-  .hero{ padding:0; height:calc(100svh - var(--hero-top, 88px) - var(--tabbar-h) - var(--safe-b)); min-height:470px; }
-  .hero-media{ border-radius:0; min-height:160px; }
+  .hero{ padding:0; height:calc(100svh - var(--hero-top, 88px) - var(--tabbar-h) - var(--safe-b)); min-height:430px; }
+  .hero-media{ border-radius:0; min-height:120px; }
   .hero-media::after{ content:""; position:absolute; z-index:3; left:0; right:0; bottom:0; height:96px; background:linear-gradient(0deg, rgba(20,14,9,.34), rgba(20,14,9,0)); pointer-events:none; }
   .hs-cap{ left:14px; bottom:40px; }
   .hs-bars{ top:12px; left:16px; right:16px; }
@@ -7751,6 +7762,86 @@ body{ background:var(--bg); color:var(--ink); }
       if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.4 && window.__hsStep) window.__hsStep(dx < 0 ? 1 : -1);
     }, { passive:true });
   }
+})();
+</script>
+<style id="primeOffer">
+/* Amazon Prime x Uber Eats offer (Nov 18). Text and dates are set in the script below. */
+#primeStrip{ background:#FFF1D6; color:#4A2E12; border-bottom:1px solid #F1DDB4; font-size:13.5px; line-height:1.35; }
+#primeStrip .ps-in{ display:flex; align-items:center; justify-content:center; gap:10px; padding-top:8px; padding-bottom:8px; }
+#primeStrip .ps-tag{ flex:none; background:#2A1F16; color:#F6C77A; font-weight:800; font-size:11px; letter-spacing:.06em; text-transform:uppercase; padding:3px 8px; border-radius:999px; }
+#primeStrip .ps-txt b{ font-weight:800; }
+#primeStrip .ps-go{ flex:none; font-weight:700; color:#4A2E12; text-decoration:underline; text-underline-offset:3px; white-space:nowrap; }
+#primeStrip .ps-short{ display:none; }
+#primeStrip .ps-x{ flex:none; border:0; background:none; color:#4A2E12; opacity:.6; font-size:20px; line-height:1; padding:0 2px; cursor:pointer; }
+.dl-prime{ background:#F1FAF4; border-radius:14px; padding-left:10px !important; padding-right:10px !important; margin:6px -8px; border-bottom:0 !important; }
+.dl-prime small{ color:#0E4D2A !important; font-weight:600 !important; }
+.dl-prime .dl-prime-how{ display:block; font-style:normal; font-size:12.5px; font-weight:400; color:var(--muted); margin-top:2px; }
+.dl-prime-fine{ font-size:11.5px; color:var(--muted); margin:6px 0 0; }
+@media (max-width:640px){
+  #primeStrip{ font-size:12.5px; }
+  #primeStrip .ps-long{ display:none; }
+  #primeStrip .ps-short{ display:inline; }
+  #primeStrip .ps-tag{ font-size:10px; padding:2px 7px; }
+  #primeStrip .ps-in{ justify-content:flex-start; gap:8px; padding:7px 12px; }
+  #primeStrip .ps-txt{ flex:1; min-width:0; }
+  #primeStrip .ps-go{ font-size:12.5px; }
+}
+</style>
+<script id="primeOfferJs">
+/* =====================================================================
+   Amazon Prime x Uber Eats offer. EDIT HERE to change or end it.
+   - Until DEAL_ENDS: "$20 off your first 2 orders of $25+" (Amazon's launch deal)
+   - After that, until PERK_ENDS: "$0 delivery fee on $25+" (Prime's ongoing perk)
+   - Set PERK_ENDS to a date to stop showing it altogether.
+   Hidden on dedicated event links. Guests can close the banner (remembered per message).
+   ===================================================================== */
+(function(){
+  var DEAL_ENDS = '2026-11-19T05:00:00Z';   // midnight Nov 18, Ohio time
+  var PERK_ENDS = null;                      // e.g. '2027-03-01T05:00:00Z'
+  var now = Date.now(), msg = '', sheet, key;
+  if (now < Date.parse(DEAL_ENDS)) {
+    // Today only: invite Prime members to the truck; staff show them how to use Amazon's credit.
+    key = 'truck40';
+    msg = '<span class="ps-long">Prime member? <b>Amazon can cover up to $40 of your dinner today.</b> Come see us at the truck and we&rsquo;ll show you how.</span>'
+        + '<span class="ps-short"><b>Up to $40 of dinner on Amazon today.</b> Ask us at the truck.</span>';
+    sheet = 'Prime: $20 off your first 2 orders of $25+ · ends tonight';
+  } else if (!PERK_ENDS || now < Date.parse(PERK_ENDS)) {
+    key = 'perk0';                  // after today: no banner, the delivery row keeps the ongoing perk
+    sheet = 'Prime: $0 delivery fee on orders of $25+';
+  } else return;
+  var onEvent = /[?&]event=/i.test(location.search); try { onEvent = onEvent || (window.wsOnEventLink && window.wsOnEventLink()); } catch (e) {}
+  if (onEvent) return;
+
+  var row = document.getElementById('dlPrime'), rowTxt = document.getElementById('dlPrimeTxt');
+  var strip = document.getElementById('primeStrip');
+  if (row && rowTxt) {
+    rowTxt.textContent = sheet;
+    var fine = document.createElement('p'); fine.className = 'dl-prime-fine'; fine.hidden = true;
+    fine.textContent = 'Offer from Amazon and Uber Eats, for Prime members ordering through Amazon. Their terms apply; service fees, taxes and tips may still apply.';
+    var list = row.parentNode; list.parentNode.insertBefore(fine, list.nextSibling);
+  }
+  if (strip && !msg) strip.remove(), strip = null;
+  if (strip) document.getElementById('psTxt').innerHTML = msg;
+  function closedHere(){ try { return localStorage.getItem('rollin_prime_hide_' + key) === '1'; } catch (e) { return false; } }
+
+  // Shown once the staff portal switch is known (Banner -> Amazon Prime x Uber Eats).
+  // If that can't be read (older database, no connection), it shows after 2.5 s.
+  window.rollinPrimeApply = function(){
+    var on = window.__primeOn !== false;
+    if (row) row.hidden = !on;
+    if (fine) fine.hidden = !on;
+    if (strip) {
+      var show = on && !closedHere();
+      if (strip.hidden === show) { strip.hidden = !show; window.dispatchEvent(new Event('resize')); }
+    }
+  };
+  if (window.__primeOn !== undefined) window.rollinPrimeApply();
+  else setTimeout(function(){ if (window.__primeOn === undefined) window.rollinPrimeApply(); }, 2500);
+
+  if (strip) document.getElementById('psClose').addEventListener('click', function(){
+    strip.hidden = true; try { localStorage.setItem('rollin_prime_hide_' + key, '1'); } catch (e) {}
+    window.dispatchEvent(new Event('resize'));       // lets the phone layout re-fit the top section
+  });
 })();
 </script>
 </body>
