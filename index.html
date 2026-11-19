@@ -1379,6 +1379,45 @@ body.onloc-now .drive-up-only{ display:none !important; }
   .onloc-acts{ flex-direction:column; } .onloc-acts a{ width:100%; white-space:nowrap; }
   #onLocStrip{ font-size:13.5px; }
 }
+/* ---- On Location card, v4 (Nov 19): cream, sketch clip on the left, details on the right ---- */
+.onloc.ol4, .onloc.ol4.soon{ display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 1fr); background:#FFFDF8; color:#2A1F16; border:1px solid #EADFCC; border-radius:24px; box-shadow:0 12px 34px rgba(42,31,22,.07); overflow:hidden; }
+.ol4 .ol-media{ position:relative; width:100%; min-width:0; min-height:280px; background:#FFFDF8; border-right:1px solid #EFE5D3; overflow:hidden; }
+.ol4 .ol-media video, .ol4 .ol-media .ol-still{ position:absolute; inset:0; width:100%; height:100%; object-fit:cover; mix-blend-mode:multiply; }
+.ol4 .ol-media video{ opacity:0; transition:opacity .4s ease; }
+.ol4 .ol-media.playing video{ opacity:1; }
+.ol4 .ol-media.playing .ol-still{ opacity:0; }
+.ol4 .ol-media .ol-still{ transition:opacity .4s ease; }
+.ol4 .ol-replay{ position:absolute; z-index:2; right:12px; bottom:12px; border:1px solid #E3D4BC; background:rgba(255,253,248,.92); color:#2A1F16; font:inherit; font-size:12.5px; font-weight:700; padding:6px 12px; border-radius:999px; cursor:pointer; }
+.ol4 .onloc-main{ padding:26px 28px 22px; gap:9px; justify-content:center; }
+.ol4 .ol-top{ display:flex; align-items:center; flex-wrap:wrap; gap:8px 12px; }
+.ol4 .ol-date{ display:inline-flex; align-items:baseline; gap:5px; padding:4px 11px; border-radius:999px; border:1px solid #E3D4BC; font-size:11.5px; font-weight:800; letter-spacing:.1em; text-transform:uppercase; color:#6E6052; }
+.ol4 .ol-date b{ font-family:var(--display); font-size:17px; font-weight:600; letter-spacing:0; color:#2A1F16; }
+.ol4 .onloc-kicker, .ol4.soon .onloc-kicker{ color:#B4542A; font-size:11.5px; letter-spacing:.14em; }
+.ol4 .onloc-kicker .ol-dot{ width:7px; height:7px; background:#0B8F43; }
+.ol4.soon .onloc-kicker .ol-dot{ background:#E39B17; animation:none; }
+.ol4 h3{ font-family:var(--display); font-weight:600; font-size:clamp(26px, 2.8vw, 34px); letter-spacing:-.02em; color:#2A1F16; margin:2px 0 2px; }
+.ol4 .ol-rows{ display:flex; flex-direction:column; gap:7px; }
+.ol4 .ol-row{ display:flex; align-items:flex-start; gap:10px; font-size:15px; line-height:1.4; color:#6E6052; }
+.ol4 .ol-row b{ color:#2A1F16; font-weight:600; }
+.ol4 .ol-row i{ flex:none; width:18px; height:18px; color:#B4542A; margin-top:2px; }
+.ol4 .ol-row i svg{ width:18px; height:18px; display:block; }
+.ol4 .ol-pill{ display:inline-block; margin-left:10px; padding:2px 10px; border-radius:999px; background:#FFF1D6; color:#8A5A00; font-size:12.5px; font-weight:700; vertical-align:1px; }
+.ol4:not(.soon) .ol-pill{ background:#E8F7EE; color:#0B6B35; }
+.ol4 .onloc-note{ font-size:14.5px; color:#6E6052; font-style:normal; }
+.ol4 .onloc-acts{ margin-top:10px; }
+.ol4 .onloc-acts a{ gap:8px; }
+.ol4 .onloc-acts .ol-order, .ol4.soon .onloc-acts .ol-order{ background:#2A1F16; color:#FFF8EC; }
+.ol4 .onloc-acts .ol-order:hover{ background:#000; }
+.ol4 .onloc-acts .ol-dir{ background:transparent; color:#2A1F16; border:1.5px solid #E3D4BC; }
+.ol4 .onloc-acts .ol-dir:hover{ border-color:#2A1F16; }
+.ol4 .onloc-fine{ color:#8B7E6E; font-size:12.5px; }
+@media (max-width:720px){
+  .onloc.ol4, .onloc.ol4.soon{ grid-template-columns:1fr; border-radius:20px; }
+  .ol4 .ol-media{ border-right:0; border-bottom:1px solid #EFE5D3; min-height:0; aspect-ratio:16 / 9; }
+  .ol4 .onloc-main{ padding:16px 18px 18px; }
+  .ol4 .ol-kev{ display:none; }
+  .ol4 .ol-pill{ margin:6px 0 0; display:table; }
+}
 .drop-bar{ display:flex; flex-direction:column; gap:3px; background:#1d1d1f; color:#fff; border-radius:18px; padding:16px 18px; margin:0 0 20px; font-size:14px; line-height:1.45; }
 .drop-bar .drop-kicker{ font-size:12px; font-weight:700; letter-spacing:.06em; text-transform:uppercase; color:#ffb4ab; }
 .drop-bar b{ font-size:20px; line-height:1.2; }
@@ -6434,6 +6473,28 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       var m = document.getElementById('wsMenu') || document.getElementById('menu'); if (!m) return;
       e.preventDefault(); m.scrollIntoView({ behavior: 'smooth', block: 'start' });
     });
+    // On Location card clip: plays once when the card is on screen, holds the last
+    // frame, "Play again" after. The still sketch shows if the phone won't autoplay,
+    // the clip doesn't load within 4 s, or the visitor prefers reduced motion.
+    function olClip(media){
+      var v = media.querySelector('video'), btn = media.querySelector('.ol-replay'), done = false;
+      var calm = window.matchMedia && matchMedia('(prefers-reduced-motion: reduce)').matches;
+      if (!v || calm) { media.classList.add('still'); return; }
+      function go(){
+        if (done) return; done = true;
+        try { v.muted = true; v.currentTime = 0; } catch (e) {}
+        var t = setTimeout(function(){ if (v.readyState < 2) media.classList.add('still'); }, 4000);
+        var pr = v.play(); if (pr && pr.then) pr.then(function(){ clearTimeout(t); media.classList.add('playing'); }, function(){ clearTimeout(t); media.classList.add('still'); });
+      }
+      v.addEventListener('playing', function(){ media.classList.add('playing'); media.classList.remove('still'); btn.hidden = true; });
+      v.addEventListener('ended', function(){ btn.hidden = false; });
+      v.addEventListener('error', function(){ media.classList.add('still'); }, true);
+      btn.addEventListener('click', function(){ btn.hidden = true; done = false; go(); });
+      if ('IntersectionObserver' in window) {
+        var io = new IntersectionObserver(function(es){ if (es[0].isIntersecting) { io.disconnect(); go(); } }, { threshold: 0.4 });
+        io.observe(media);
+      } else go();
+    }
     function paintPauseBar(){
       var bar = document.getElementById('orderPauseBar'), blk = blockAt(Date.now()), evDay = eventToday();
       var onEventLink = window.rollinEvent && window.rollinEvent.info && window.rollinEvent.info();
@@ -6451,16 +6512,51 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         var mapKey = mapSrc + '|' + pp.id, oldMap = bar.querySelector('.onloc-map');
         // Keep the map frame when only the countdown changes (no reload flicker).
         var keepMap = oldMap && oldMap.getAttribute('data-key') === mapKey ? oldMap : null;
-        bar.className = 'onloc' + (pNow ? '' : ' soon') + (mapSrc ? '' : ' no-map');
-        bar.innerHTML = '<div class="onloc-main">' +
-          '<span class="onloc-kicker"><span class="ol-dot"></span>' + (pNow ? 'On location · ordering open' : 'On location today') + '</span>' +
+        // Cream card: the pencil-sketch truck clip on the left (plays once when the card
+        // comes into view, then holds on the hand-off), the details on the right.
+        // The clip is kept across the 30-second refresh so it never restarts by itself.
+        mapSrc = '';
+        var evp = pp.event || null;
+        var noteTxt = String(pp.note || ''), evTitle = '', where = '';
+        var cm = /^Community event:\s*(.*)$/.exec(noteTxt);
+        if (cm) { var bits = cm[1].split(' · '); evTitle = bits.shift(); where = bits.join(' · '); noteTxt = ''; }
+        if (!where && pp.address && !/^https?:/i.test(pp.address)) where = pp.address;
+        var dP = parts(new Date(pp.from)), MONS = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+        var IC = {
+          clock: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>',
+          pin: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-5.6-6.5-11a6.5 6.5 0 0 1 13 0c0 5.4-6.5 11-6.5 11z"/><circle cx="12" cy="10" r="2.4"/></svg>',
+          star: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="m12 3.5 2.6 5.3 5.8.8-4.2 4.1 1 5.8L12 16.8l-5.2 2.7 1-5.8-4.2-4.1 5.8-.8z"/></svg>'
+        };
+        var row = function(ic, html){ return '<div class="ol-row"><i>' + IC[ic] + '</i><span>' + html + '</span></div>'; };
+        var orderUrl = window.wsStopOrderUrl(pp), dirUrl = window.wsStopDir(pp);
+        var pill = '<span class="ol-pill">' + (pNow ? 'Serving now · ' + untilText(pp.to) + ' left' : 'Opens in ' + untilText(pp.from)) + '</span>';
+        bar.className = 'onloc ol4' + (pNow ? '' : ' soon');
+        var media = bar.querySelector('.ol-media'), mkey = 'clip|' + pp.id;
+        if (!media || media.getAttribute('data-key') !== mkey) {
+          if (media) media.remove();
+          media = document.createElement('div'); media.className = 'ol-media'; media.setAttribute('data-key', mkey);
+          media.innerHTML = '<img class="ol-still" src="hero-truck.jpg" alt="">' +
+            '<video muted playsinline preload="metadata" aria-hidden="true" tabindex="-1"><source src="hero-video.mp4" type="video/mp4"></video>' +
+            '<button type="button" class="ol-replay" hidden>&#8635; Play again</button>';
+          olClip(media);
+        }
+        Array.prototype.slice.call(bar.children).forEach(function(c){ if (c !== media) c.remove(); });
+        if (media.parentNode !== bar) bar.insertBefore(media, bar.firstChild);
+        var main = document.createElement('div'); main.className = 'onloc-main';
+        main.innerHTML =
+          '<div class="ol-top"><span class="ol-date">' + WD[dP.dow].slice(0, 3) + ' <b>' + dP.d + '</b> ' + MONS[dP.m - 1] + '</span>' +
+          '<span class="onloc-kicker"><span class="ol-dot"></span>' + (pNow ? 'On location now' : 'On location today') + (evp ? '<span class="ol-kev"> · Community event</span>' : '') + '</span></div>' +
           '<h3>' + pEsc(pp.name) + '</h3>' +
-          '<div class="onloc-when">' + clockOf(pp.from) + ' – ' + clockOf(pp.to) + '<span class="left">' + (pNow ? untilText(pp.to) + ' left' : 'starts in ' + untilText(pp.from)) + '</span></div>' +
-          (pp.address && !/^https?:/i.test(pp.address) ? '<div class="onloc-addr">&#128205; ' + pEsc(pp.address) + '</div>' : '') +
-          (pp.note ? '<div class="onloc-note">' + pEsc(pp.note) + '</div>' : '') +
-          '<div class="onloc-acts">' + (window.wsStopOrderUrl(pp) ? '<a class="ol-order" href="' + pEsc(window.wsStopOrderUrl(pp)) + '">' : '<a class="ol-order" href="#wsMenu" data-onloc-order>') + (pNow ? 'Order for pickup here' : 'Order ahead for pickup here') + '</a>' +
-          (window.wsStopDir(pp) ? '<a class="ol-dir" href="' + pEsc(window.wsStopDir(pp)) + '" target="_blank" rel="noopener">Directions &#8599;</a>' : '') + '</div>' +
-          '<div class="onloc-fine">Pickup at this location only, at the truck window. Back to our regular hours and spot after ' + clockOf(pp.to) + '.</div></div>';
+          '<div class="ol-rows">' +
+            row('clock', '<b>' + clockOf(pp.from) + ' – ' + clockOf(pp.to) + '</b>' + pill) +
+            (where ? row('pin', pEsc(where)) : '') +
+            (evTitle || (evp && evp.name) ? row('star', pEsc(evTitle || evp.name)) : '') +
+          '</div>' +
+          (noteTxt ? '<div class="onloc-note">' + pEsc(noteTxt) + '</div>' : '') +
+          '<div class="onloc-acts">' + (orderUrl ? '<a class="ol-order" href="' + pEsc(orderUrl) + '">' : '<a class="ol-order" href="#wsMenu" data-onloc-order>') + (pNow ? 'Order for pickup here' : 'Order ahead for pickup here') + '<span aria-hidden="true">&rarr;</span></a>' +
+          (dirUrl ? '<a class="ol-dir" href="' + pEsc(dirUrl) + '" target="_blank" rel="noopener">Directions &#8599;</a>' : '') + '</div>' +
+          '<div class="onloc-fine">Pickup at this location only, at the truck window. Back to our regular hours and spot after ' + clockOf(pp.to) + '.</div>';
+        bar.appendChild(main);
         if (mapSrc) {
           if (keepMap) bar.appendChild(keepMap);
           else bar.insertAdjacentHTML('beforeend', '<div class="onloc-map" data-key="' + pEsc(mapKey) + '"><span class="ol-pin"><i>&#128205;</i>' + pEsc(pp.name) + '</span><iframe title="Map: ' + pEsc(pp.name) + '" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://www.google.com/maps?q=' + encodeURIComponent(mapSrc) + '&z=15&output=embed"></iframe></div>');
@@ -6489,7 +6585,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         blocks = (d.blocks || []).map(function(b){ return [Date.parse(b[0]), Date.parse(b[1]), b[2] || null]; });
         manual = d.manual ? { until: d.until ? Date.parse(d.until) : null } : null;
         popups = (d.popups || []).map(function(p){ return { id: String(p.id), from: Date.parse(p.from), to: Date.parse(p.to), name: String(p.name || ''), address: p.address || '', note: p.note || '', map: p.map || '', lat: p.lat == null ? null : +p.lat, lng: p.lng == null ? null : +p.lng,
-          event: p.event && p.event.code ? { code: String(p.event.code), name: String(p.event.name || '') } : null }; })
+          event: p.event && p.event.code ? { code: String(p.event.code), name: String(p.event.name || ''), image: /^https:\/\//.test(String(p.event.image || '')) ? String(p.event.image) : '' } : null }; })
           .filter(function(p){ return p.to > p.from; });
         window.__rollinOrderingPaused = !!manual;
         try { document.dispatchEvent(new Event('rollin:popups')); } catch (e) {}
