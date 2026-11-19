@@ -1324,6 +1324,8 @@ body.ev-qr-mode #promoSection, body.ev-qr-mode #promoOnLocNote, body.ev-qr-mode 
 .notify-opt small{ display:block; color:#7a6f63; font-size:13px; margin-top:2px; }
 
 /* ---- lunch drop links ---- */
+.pt-popup-event{ margin-top:10px; font-size:14px; line-height:1.45; color:#1d1d1f; }
+.pt-popup-evbtn{ display:inline-block; margin-top:10px; background:#0a7a3d; color:#fff !important; font-weight:700; text-decoration:none; padding:10px 16px; border-radius:999px; }
 .pt-popup{ margin-top:12px; border:2px solid #0a7a3d; background:#effaf3; border-radius:14px; padding:12px 14px; font-size:14px; color:#1d1d1f; }
 .pt-popup-head{ font-size:15px; }
 .pt-popup-addr{ color:#424245; margin-top:2px; }
@@ -2453,6 +2455,8 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
           <div class="pt-popup-addr" id="ptPopupAddr"></div>
           <a class="pt-popup-map" id="ptPopupMap" href="#" target="_blank" rel="noopener">Open in Maps &#8599;</a>
           <label class="pt-popup-ok"><input type="checkbox" id="ptPopupOk"> I&rsquo;ll pick up at this location <small>(it&rsquo;s not our usual spot)</small></label>
+          <div class="pt-popup-event hidden" id="ptPopupEvent">This pickup time is for <b id="ptPopupEvName"></b>. Pre-order on the event&rsquo;s page for its menu and pickup times.
+            <a class="pt-popup-evbtn" id="ptPopupEvLink" href="#">Go to the event page &rarr;</a></div>
         </div>
       </div>
 
@@ -3571,6 +3575,8 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     // On a corporate / private event link (?event=CODE) that's taking orders
     // Directions: a pasted Google / Apple Maps link is used as-is; anything else is searched for.
     window.wsDirections = function(q){ q = String(q || '').trim(); return /^https:\/\/((www\.)?google\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})\/maps|maps\.google\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})\/|maps\.app\.goo\.gl\/|goo\.gl\/maps\/|maps\.apple\.com\/|maps\.apple\/)[^\s\"'<>]*$/i.test(q) ? q : 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(q); };
+    // A stop that belongs to a community event: its own pre-order page.
+    window.wsStopOrderUrl = function(p){ var c = p && p.event && p.event.code; return c && /^[A-Za-z0-9]{3,12}$/.test(c) ? 'order.html?door=' + encodeURIComponent(c) : ''; };
     window.wsStopDir = function(p){
       // On Location directions: a pasted Google/Apple Maps link as-is; else the map pin; else the
       // address (fully encoded, so # ? and line breaks can't cut it off); else the stop name + ", OH".
@@ -5434,7 +5440,9 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
             ? '<a href="' + escHtml(window.wsDirections(ev.map_url || ev.map_query)) + '" target="_blank" rel="noopener">Get Directions</a>'
             : '';
           var soon = ev.onloc && Date.parse(ev.from) - Date.now() < 7 * 864e5;
-          var orderBtn = soon ? '<br><a href="#menu" class="cal-onloc-order">Order ahead for pickup here</a>' : (ev.onloc ? '<br><span class="cal-onloc-note">Online ordering for pickup here opens a week before.</span>' : '');
+          // Event stops: their own pre-order page (it says when pre-orders open).
+          var orderBtn = ev.order_url ? '<br><a href="' + escHtml(ev.order_url) + '" class="cal-onloc-order">Order ahead for pickup here</a>'
+            : soon ? '<br><a href="#menu" class="cal-onloc-order">Order ahead for pickup here</a>' : (ev.onloc ? '<br><span class="cal-onloc-note">Online ordering for pickup here opens a week before.</span>' : '');
           return '<div class="cal-event-card' + (ev.onloc ? ' cal-onloc' : '') + '">' +
             '<h4>' + escHtml(ev.title) + '</h4>' +
             '<div class="cal-event-meta">' +
@@ -5537,7 +5545,8 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       calStops = r.data.map(function(p){
         var a = nyParts(p.from), b = nyParts(p.to);
         return { onloc: true, title: '\uD83D\uDE9A On Location: ' + p.name, start_date: a.d, end_date: b.d, start_time: a.t, end_time: b.t,
-          location: (p.address && !/^https?:/i.test(p.address) ? p.address : p.name), description: p.note || '', map_query: p.address || p.name, map_url: window.wsStopDir(p), from: p.from };
+          location: (p.address && !/^https?:/i.test(p.address) ? p.address : p.name), description: p.note || '', map_query: p.address || p.name, map_url: window.wsStopDir(p), from: p.from,
+          order_url: window.wsStopOrderUrl(p) };
       });
       mergeCal();
     }, function(){});
@@ -6338,6 +6347,12 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       document.getElementById('ptPopupAddr').textContent = p.address || '';
       document.getElementById('ptPopupAddr').classList.toggle('hidden', !p.address);
       var mp = document.getElementById('ptPopupMap'), pdir = window.wsStopDir(p); mp.href = pdir || '#'; mp.classList.toggle('hidden', !pdir);
+      var evUrl = window.wsStopOrderUrl(p), evBox = document.getElementById('ptPopupEvent');
+      if (evBox) {
+        evBox.classList.toggle('hidden', !evUrl);
+        popOk.parentNode.classList.toggle('hidden', !!evUrl);
+        if (evUrl) { document.getElementById('ptPopupEvName').textContent = p.event.name || p.name; document.getElementById('ptPopupEvLink').href = evUrl; }
+      }
     }
     if (popOk) popOk.addEventListener('change', function(){ popBox.classList.toggle('need', !popOk.checked && popBox.classList.contains('need')); });
     function setMode(m){
@@ -6412,7 +6427,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       el.className = live ? '' : 'soon';
       el.innerHTML = '<div class="wrap"><span class="ol-dot"></span><span>' +
         (live ? '&#128666; We’re On Location at <b>' + pEsc(pp.name) + '</b> until ' + clockOf(pp.to) : '&#128666; On Location today ' + clockOf(pp.from) + ' – ' + clockOf(pp.to) + ' at <b>' + pEsc(pp.name) + '</b>') +
-        '</span><a href="#wsMenu" data-onloc-order>' + (live ? 'Order now' : 'Order ahead') + '</a>' + (window.wsStopDir(pp) ? '<a href="' + pEsc(window.wsStopDir(pp)) + '" target="_blank" rel="noopener">Directions</a>' : '') + '</div>';
+        '</span>' + (window.wsStopOrderUrl(pp) ? '<a href="' + pEsc(window.wsStopOrderUrl(pp)) + '">' : '<a href="#wsMenu" data-onloc-order>') + (live ? 'Order now' : 'Order ahead') + '</a>' + (window.wsStopDir(pp) ? '<a href="' + pEsc(window.wsStopDir(pp)) + '" target="_blank" rel="noopener">Directions</a>' : '') + '</div>';
     }
     document.addEventListener('click', function(e){
       var a = e.target.closest('[data-onloc-order]'); if (!a) return;
@@ -6443,7 +6458,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
           '<div class="onloc-when">' + clockOf(pp.from) + ' – ' + clockOf(pp.to) + '<span class="left">' + (pNow ? untilText(pp.to) + ' left' : 'starts in ' + untilText(pp.from)) + '</span></div>' +
           (pp.address && !/^https?:/i.test(pp.address) ? '<div class="onloc-addr">&#128205; ' + pEsc(pp.address) + '</div>' : '') +
           (pp.note ? '<div class="onloc-note">' + pEsc(pp.note) + '</div>' : '') +
-          '<div class="onloc-acts"><a class="ol-order" href="#wsMenu" data-onloc-order>' + (pNow ? 'Order for pickup here' : 'Order ahead for pickup here') + '</a>' +
+          '<div class="onloc-acts">' + (window.wsStopOrderUrl(pp) ? '<a class="ol-order" href="' + pEsc(window.wsStopOrderUrl(pp)) + '">' : '<a class="ol-order" href="#wsMenu" data-onloc-order>') + (pNow ? 'Order for pickup here' : 'Order ahead for pickup here') + '</a>' +
           (window.wsStopDir(pp) ? '<a class="ol-dir" href="' + pEsc(window.wsStopDir(pp)) + '" target="_blank" rel="noopener">Directions &#8599;</a>' : '') + '</div>' +
           '<div class="onloc-fine">Pickup at this location only, at the truck window. Back to our regular hours and spot after ' + clockOf(pp.to) + '.</div></div>';
         if (mapSrc) {
@@ -6473,7 +6488,8 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         if (!d) return;   // older database: nothing paused
         blocks = (d.blocks || []).map(function(b){ return [Date.parse(b[0]), Date.parse(b[1]), b[2] || null]; });
         manual = d.manual ? { until: d.until ? Date.parse(d.until) : null } : null;
-        popups = (d.popups || []).map(function(p){ return { id: String(p.id), from: Date.parse(p.from), to: Date.parse(p.to), name: String(p.name || ''), address: p.address || '', note: p.note || '', map: p.map || '', lat: p.lat == null ? null : +p.lat, lng: p.lng == null ? null : +p.lng }; })
+        popups = (d.popups || []).map(function(p){ return { id: String(p.id), from: Date.parse(p.from), to: Date.parse(p.to), name: String(p.name || ''), address: p.address || '', note: p.note || '', map: p.map || '', lat: p.lat == null ? null : +p.lat, lng: p.lng == null ? null : +p.lng,
+          event: p.event && p.event.code ? { code: String(p.event.code), name: String(p.event.name || '') } : null }; })
           .filter(function(p){ return p.to > p.from; });
         window.__rollinOrderingPaused = !!manual;
         try { document.dispatchEvent(new Event('rollin:popups')); } catch (e) {}
@@ -6502,6 +6518,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         if (manual) throw new Error('Online ordering is paused right now' + (manual.until ? ' until ' + clockOf(manual.until) : '') + '. Please check back soon.');
         refresh(true);
         var pv = currentPopup();
+        if (pv && window.wsStopOrderUrl(pv)) { popBox.classList.add('need'); popBox.scrollIntoView({ block: 'center', behavior: 'smooth' }); throw new Error('That pickup time is for ' + (pv.event.name || pv.name) + '. Please pre-order on the event page, or choose another time.'); }
         if (pv && !popOk.checked) { popBox.classList.add('need'); popBox.scrollIntoView({ block: 'center', behavior: 'smooth' }); throw new Error('Please confirm you\u2019ll pick up at ' + pv.name + '.'); }
         if (mode === 'asap') return null;
         if (!days.length) throw new Error('No pickup times are available right now. Please call us at (330) 587-5203.');
@@ -7975,6 +7992,9 @@ body.truck-open:not(.onloc-now) .pk-closed{ display:none; }
   }
   document.addEventListener('click', function(e){
     var t = e.target.closest('[data-pickup-choose]');
+    // The truck is at a community event right now: its own pre-order page.
+    var live = t && window.rollinPopupNow && window.rollinPopupNow(), evUrl = live && window.wsStopOrderUrl && window.wsStopOrderUrl(live);
+    if (evUrl) { e.preventDefault(); e.stopImmediatePropagation(); location.href = evUrl; return; }
     if (!t || !driveOK()) return;          // no drive-up right now: straight to the menu as before
     e.preventDefault(); e.stopImmediatePropagation();
     open();
