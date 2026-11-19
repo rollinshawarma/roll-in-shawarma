@@ -84,6 +84,11 @@
   }
   .total-row span{ color:var(--gold); }
   .pickup-note{ font-size:13px; color:var(--muted); margin-top:18px; }
+  .place-note{ margin:16px auto 18px; max-width:420px; text-align:left; border:2px solid #0a7a3d; background:#effaf3; border-radius:14px; padding:12px 14px; font-size:14.5px; color:#1d1d1f; }
+  .place-note .pn-head{ font-size:15.5px; }
+  .place-note .pn-addr{ margin-top:3px; color:#3a3a3c; }
+  .place-note .pn-sub{ margin-top:3px; font-size:12.5px; color:#0a7a3d; font-weight:600; }
+  .place-note .pn-map{ display:inline-block; margin-top:8px; font-weight:700; color:#0a7a3d; text-decoration:none; }
   .status-note{ font-size:12.5px; color:var(--muted); margin-top:18px; font-style:italic; }
   .btn{
     display:inline-block; margin-top:26px; background:var(--gold); color:#ffffff; font-weight:700;
@@ -164,6 +169,12 @@ fbq('init','1433859782006722');fbq('track','PageView');
     <div class="sub" id="thankYouSub">We&rsquo;ve got your order and we&rsquo;re making it now.</div>
     <div class="ref-label">Order</div>
     <div class="ref-badge" id="refBadge"></div>
+    <div id="placeNote" class="place-note hidden" role="note">
+      <div class="pn-head">&#128205; Pickup at <b id="placeName"></b></div>
+      <div class="pn-addr hidden" id="placeAddr"></div>
+      <div class="pn-sub">Not our usual spot</div>
+      <a class="pn-map hidden" id="placeMap" href="#" target="_blank" rel="noopener">Directions &#8599;</a>
+    </div>
     <a id="trackBtn" class="track-btn hidden" href="#">Track your order &amp; get ready alerts</a>
     <a id="boardLink" class="board-link hidden" href="status.html">See the live order board</a>
     <p id="driveNote" class="pickup-note hidden">&#128205; On your way? When you pull in at the truck, open your order and tap <b>I&rsquo;m here</b> &mdash; then pick your parking spot and we&rsquo;ll bring it out.</p>
@@ -460,6 +471,15 @@ fbq('init','1433859782006722');fbq('track','PageView');
           var schedEl = document.getElementById('pickupNote');
           schedEl.classList.remove('hidden');
           schedEl.textContent = 'Scheduled pickup: ' + new Date(order.scheduledPickupAt).toLocaleString('en-US', { timeZone: 'America/New_York', weekday: 'long', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
+        }
+        // On Location stop or community event: say where (it's not our usual spot).
+        if (order.pickupPlace && order.pickupPlace.name) {
+          var pp = order.pickupPlace, pmap = String(pp.map || '');
+          document.getElementById('placeName').textContent = pp.name;
+          var pa = document.getElementById('placeAddr'); pa.textContent = pp.address || ''; pa.classList.toggle('hidden', !pp.address);
+          var pm = document.getElementById('placeMap');
+          if (/^https:\/\//.test(pmap)) { pm.href = pmap; pm.classList.remove('hidden'); }
+          document.getElementById('placeNote').classList.remove('hidden');
         }
         if (order.pickupDate) {
           var pickupEl = document.getElementById('pickupNote');
