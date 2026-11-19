@@ -703,6 +703,13 @@
   .wallet-pay:empty, .wallet-pay:not(:has(> :not(.hidden))){ display:none; }
   .cart-checkout-form{ padding:20px 24px 0; }
   #promoSection{ padding:0 24px; }
+  #promoOnLocNote{ margin:0 24px 14px; }
+  /* Pickup day / time boxes (they sit outside .cform, so style them here) */
+  .pt-pickers{ display:grid; grid-template-columns:minmax(0, 1fr); gap:10px; }
+  .pt-pickers label{ display:block; font-size:13px; font-weight:600; color:var(--ink); }
+  .pt-pickers select{ display:block; width:100%; height:48px; margin-top:6px; padding:0 36px 0 12px; border:1.5px solid var(--line); border-radius:14px; background:var(--bg) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%232A1F16' stroke-width='2'/%3E%3C/svg%3E") no-repeat right 14px center; font:inherit; font-size:15px; color:var(--ink); -webkit-appearance:none; appearance:none; text-overflow:ellipsis; }
+  .pt-pickers select:focus{ outline:none; border-color:var(--espresso, #2A1F16); box-shadow:0 0 0 4px rgba(227,155,23,.2); }
+  .pt-pickers select:disabled{ opacity:.6; }
   .pickup-time{ padding:0 24px 18px; }
   .tip-section{ padding:14px 24px 4px; }
   .tip-choice{ display:grid; grid-template-columns:repeat(4, 1fr); gap:8px; }
@@ -6080,6 +6087,9 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         }
       }
       if (isOpen) {
+        // An On Location stop later today: say so, so nobody heads to the usual spot then.
+        var laterStop = olStops().filter(function(p){ return p.from > nowMs && olDate(p.from) === t; })[0];
+        if (laterStop) { say('Open now · On Location ' + olRange(laterStop), laterStop.name); return; }
         say('Open now · until ' + H.fmt(h[1]) + why);
       } else if (h && n < h[0]) {
         say('Opens today at ' + H.fmt(h[0]) + why);
