@@ -4338,6 +4338,18 @@
   }
   // ---------------- POP-UP ONLINE ORDERING (popup-ordering.sql) ----------------
   var sp = { list: null, lat: null, lng: null, acc: null, busy: false };
+  var spDir = function(p){
+      // On Location directions: a pasted Google/Apple Maps link as-is; else the map pin; else the
+      // address (fully encoded, so # ? and line breaks can't cut it off); else the stop name + ", OH".
+      p = p || {}; var RE = /^https:\/\/((www\.)?google\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})\/maps|maps\.google\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})\/|maps\.app\.goo\.gl\/|goo\.gl\/maps\/|maps\.apple\.com\/|maps\.apple\/)[^\s\"'<>]*$/i;
+      var a = String(p.address || '').trim(), m = String(p.map || '').trim(), n = String(p.name || '').replace(/\s+/g, ' ').trim();
+      if (RE.test(a)) return a;
+      if (m && RE.test(m) && !/\/maps\/(search|dir)\/\?api=1/i.test(m)) return m;
+      var dir = 'https://www.google.com/maps/dir/?api=1&destination=';
+      if (p.lat != null && p.lng != null && isFinite(p.lat) && isFinite(p.lng)) return dir + Number(p.lat).toFixed(6) + ',' + Number(p.lng).toFixed(6);
+      var q = a ? a.replace(/\s+/g, ' ') : (n ? (n.indexOf(',') < 0 ? n + ', OH' : n) : '');
+      return q ? dir + encodeURIComponent(q) : '';
+    };
   function spTime(iso, withDay){ var d = new Date(iso), same = d.toLocaleDateString('en-US', { timeZone: 'America/New_York' }) === new Date().toLocaleDateString('en-US', { timeZone: 'America/New_York' });
     return (withDay !== false && !same ? d.toLocaleDateString('en-US', { timeZone: 'America/New_York', weekday: 'short', month: 'short', day: 'numeric' }) + ', ' : '') + d.toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }); }
   function spLeft(to){ var m = Math.max(0, Math.round((Date.parse(to) - Date.now()) / 60000)); return m >= 60 ? Math.floor(m / 60) + 'h ' + (m % 60) + 'm' : m + ' min'; }
@@ -4377,7 +4389,7 @@
     document.getElementById('spList').innerHTML = cur.map(function(p){
       var on = Date.parse(p.from) <= now;
       return '<div class="sp-item' + (on ? '' : ' soon') + '"><div class="k">' + (on ? '● On now · ' + spLeft(p.to) + ' left' : 'Scheduled') + '</div>' +
-        '<div class="w">' + esc(p.name) + '</div><div class="t">' + esc(spTime(p.from) + ' – ' + spTime(p.to)) + (p.address ? ' · ' + esc(p.address) : '') + (p.map ? ' · <a href="' + esc(p.map) + '" target="_blank" rel="noopener">Map ↗</a>' : '') + (p.by ? ' · by ' + esc(p.by) : '') + '</div>' +
+        '<div class="w">' + esc(p.name) + '</div><div class="t">' + esc(spTime(p.from) + ' – ' + spTime(p.to)) + (p.address ? ' · ' + esc(p.address) : '') + (spDir(p) ? ' · <a href="' + esc(spDir(p)) + '" target="_blank" rel="noopener">Map ↗</a>' : '') + (p.by ? ' · by ' + esc(p.by) : '') + '</div>' +
         '<div class="sp-acts">' + (on ? '<button type="button" class="btn-ghost btn-small" data-sp="ext" data-id="' + esc(p.id) + '" data-min="30">+30 min</button><button type="button" class="btn-ghost btn-small" data-sp="ext" data-id="' + esc(p.id) + '" data-min="60">+1 hour</button>' : '') +
         '<button type="button" class="btn-ghost btn-small" data-sp="end" data-id="' + esc(p.id) + '" style="color:#c4271b">' + (on ? 'End now' : 'Cancel') + '</button></div></div>';
     }).join('');
