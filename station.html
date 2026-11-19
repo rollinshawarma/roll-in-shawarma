@@ -3506,7 +3506,7 @@
         var inFryer = groups.some(function(g){ return g.fry && g.status === 'prepping'; });
         var anyFry = groups.some(function(g){ return g.fry; });
         var state = todo ? 'todo' : inFryer ? 'frying' : anyFry ? 'done' : 'nofry';
-        var src = SRC[o.src] || [o.src || 'Order', 'web'];
+        var src = /^Event\d/.test(o.ref || '') ? ['Event', 'du'] : (SRC[o.src] || [o.src || 'Order', 'web']);
         var lines = groups.map(function(g){
           var cls = g.fry ? 'fx ' + g.status : (g.drink ? 'nf drink' : 'nf') + (g.status === 'ready' ? ' ok' : '');
           var tag = g.fry ? (g.status === 'queued' ? 'TAP TO DROP' : g.status === 'prepping' ? 'IN FRYER · TAP WHEN DONE' : '✓ DONE') : (g.status === 'ready' ? '✓' : '');
