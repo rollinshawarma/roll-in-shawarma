@@ -3564,6 +3564,18 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     // On a corporate / private event link (?event=CODE) that's taking orders
     // Directions: a pasted Google / Apple Maps link is used as-is; anything else is searched for.
     window.wsDirections = function(q){ q = String(q || '').trim(); return /^https:\/\/((www\.)?google\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})\/maps|maps\.google\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})\/|maps\.app\.goo\.gl\/|goo\.gl\/maps\/|maps\.apple\.com\/|maps\.apple\/)[^\s\"'<>]*$/i.test(q) ? q : 'https://www.google.com/maps/dir/?api=1&destination=' + encodeURIComponent(q); };
+    window.wsStopDir = function(p){
+      // On Location directions: a pasted Google/Apple Maps link as-is; else the map pin; else the
+      // address (fully encoded, so # ? and line breaks can't cut it off); else the stop name + ", OH".
+      p = p || {}; var RE = /^https:\/\/((www\.)?google\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})\/maps|maps\.google\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})\/|maps\.app\.goo\.gl\/|goo\.gl\/maps\/|maps\.apple\.com\/|maps\.apple\/)[^\s\"'<>]*$/i;
+      var a = String(p.address || '').trim(), m = String(p.map || '').trim(), n = String(p.name || '').replace(/\s+/g, ' ').trim();
+      if (RE.test(a)) return a;
+      if (m && RE.test(m) && !/\/maps\/(search|dir)\/\?api=1/i.test(m)) return m;
+      var dir = 'https://www.google.com/maps/dir/?api=1&destination=';
+      if (p.lat != null && p.lng != null && isFinite(p.lat) && isFinite(p.lng)) return dir + Number(p.lat).toFixed(6) + ',' + Number(p.lng).toFixed(6);
+      var q = a ? a.replace(/\s+/g, ' ') : (n ? (n.indexOf(',') < 0 ? n + ', OH' : n) : '');
+      return q ? dir + encodeURIComponent(q) : '';
+    };
     window.wsOnEventLink = function(){ return !!(window.rollinEvent && window.rollinEvent.code && window.rollinEvent.code()); };
     function wsAttr(v){ return String(v).replace(/\\/g, '\\\\').replace(/"/g, '\\"'); }
     // Same photos as the kiosk: item-<name>.jpg; the category photo if a
@@ -5518,7 +5530,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       calStops = r.data.map(function(p){
         var a = nyParts(p.from), b = nyParts(p.to);
         return { onloc: true, title: '\uD83D\uDE9A On Location: ' + p.name, start_date: a.d, end_date: b.d, start_time: a.t, end_time: b.t,
-          location: (p.address && !/^https?:/i.test(p.address) ? p.address : p.name), description: p.note || '', map_query: p.address || p.name, map_url: p.map || '', from: p.from };
+          location: (p.address && !/^https?:/i.test(p.address) ? p.address : p.name), description: p.note || '', map_query: p.address || p.name, map_url: window.wsStopDir(p), from: p.from };
       });
       mergeCal();
     }, function(){});
@@ -6315,7 +6327,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       document.getElementById('ptPopupName').textContent = p.name;
       document.getElementById('ptPopupAddr').textContent = p.address || '';
       document.getElementById('ptPopupAddr').classList.toggle('hidden', !p.address);
-      var mp = document.getElementById('ptPopupMap'); mp.href = p.map || '#'; mp.classList.toggle('hidden', !p.map);
+      var mp = document.getElementById('ptPopupMap'), pdir = window.wsStopDir(p); mp.href = pdir || '#'; mp.classList.toggle('hidden', !pdir);
     }
     if (popOk) popOk.addEventListener('change', function(){ popBox.classList.toggle('need', !popOk.checked && popBox.classList.contains('need')); });
     function setMode(m){
@@ -6390,7 +6402,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       el.className = live ? '' : 'soon';
       el.innerHTML = '<div class="wrap"><span class="ol-dot"></span><span>' +
         (live ? '&#128666; We’re On Location at <b>' + pEsc(pp.name) + '</b> until ' + clockOf(pp.to) : '&#128666; On Location today ' + clockOf(pp.from) + ' – ' + clockOf(pp.to) + ' at <b>' + pEsc(pp.name) + '</b>') +
-        '</span><a href="#wsMenu" data-onloc-order>' + (live ? 'Order now' : 'Order ahead') + '</a>' + (pp.map ? '<a href="' + pEsc(pp.map) + '" target="_blank" rel="noopener">Directions</a>' : '') + '</div>';
+        '</span><a href="#wsMenu" data-onloc-order>' + (live ? 'Order now' : 'Order ahead') + '</a>' + (window.wsStopDir(pp) ? '<a href="' + pEsc(window.wsStopDir(pp)) + '" target="_blank" rel="noopener">Directions</a>' : '') + '</div>';
     }
     document.addEventListener('click', function(e){
       var a = e.target.closest('[data-onloc-order]'); if (!a) return;
@@ -6422,7 +6434,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
           (pp.address && !/^https?:/i.test(pp.address) ? '<div class="onloc-addr">&#128205; ' + pEsc(pp.address) + '</div>' : '') +
           (pp.note ? '<div class="onloc-note">' + pEsc(pp.note) + '</div>' : '') +
           '<div class="onloc-acts"><a class="ol-order" href="#wsMenu" data-onloc-order>' + (pNow ? 'Order for pickup here' : 'Order ahead for pickup here') + '</a>' +
-          (pp.map ? '<a class="ol-dir" href="' + pEsc(pp.map) + '" target="_blank" rel="noopener">Directions &#8599;</a>' : '') + '</div>' +
+          (window.wsStopDir(pp) ? '<a class="ol-dir" href="' + pEsc(window.wsStopDir(pp)) + '" target="_blank" rel="noopener">Directions &#8599;</a>' : '') + '</div>' +
           '<div class="onloc-fine">Pickup at this location only, at the truck window. Back to our regular hours and spot after ' + clockOf(pp.to) + '.</div></div>';
         if (mapSrc) {
           if (keepMap) bar.appendChild(keepMap);
