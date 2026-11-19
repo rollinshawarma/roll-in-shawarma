@@ -1597,7 +1597,19 @@
     function olDay(ms){ return new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', weekday: 'short' }).format(new Date(ms)); }
     function olDate(ms){ return new Intl.DateTimeFormat('en-CA', { timeZone: 'America/New_York' }).format(new Date(ms)); }
     function olPlace(p){ return '<b>' + escHtml(p.name || 'our event stop') + '</b>' + (p.address ? '<span class="du-ol-addr">' + escHtml(p.address) + '</span>' : ''); }
-    function olMap(p){ var q = p.map || (p.lat != null && p.lng != null ? 'https://maps.google.com/?q=' + p.lat + ',' + p.lng : p.address ? 'https://maps.google.com/?q=' + encodeURIComponent(p.address) : ''); return q ? '<a class="du-ol-link" href="' + escHtml(q) + '" target="_blank" rel="noopener">Directions</a>' : ''; }
+    var olDir = function(p){
+      // On Location directions: a pasted Google/Apple Maps link as-is; else the map pin; else the
+      // address (fully encoded, so # ? and line breaks can't cut it off); else the stop name + ", OH".
+      p = p || {}; var RE = /^https:\/\/((www\.)?google\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})\/maps|maps\.google\.(com|[a-z]{2}|co\.[a-z]{2}|com\.[a-z]{2})\/|maps\.app\.goo\.gl\/|goo\.gl\/maps\/|maps\.apple\.com\/|maps\.apple\/)[^\s\"'<>]*$/i;
+      var a = String(p.address || '').trim(), m = String(p.map || '').trim(), n = String(p.name || '').replace(/\s+/g, ' ').trim();
+      if (RE.test(a)) return a;
+      if (m && RE.test(m) && !/\/maps\/(search|dir)\/\?api=1/i.test(m)) return m;
+      var dir = 'https://www.google.com/maps/dir/?api=1&destination=';
+      if (p.lat != null && p.lng != null && isFinite(p.lat) && isFinite(p.lng)) return dir + Number(p.lat).toFixed(6) + ',' + Number(p.lng).toFixed(6);
+      var q = a ? a.replace(/\s+/g, ' ') : (n ? (n.indexOf(',') < 0 ? n + ', OH' : n) : '');
+      return q ? dir + encodeURIComponent(q) : '';
+    };
+    function olMap(p){ var q = olDir(p); return q ? '<a class="du-ol-link" href="' + escHtml(q) + '" target="_blank" rel="noopener">Directions</a>' : ''; }
     function driveupMessage(du, stops){
       stops = (stops || []).filter(function(p){ return Date.parse(p.to) > Date.now(); }).sort(function(a, b){ return Date.parse(a.from) - Date.parse(b.from); });
       var today = olDate(Date.now()), stopToday = stops.filter(function(p){ return olDate(Date.parse(p.from)) === today; })[0];
