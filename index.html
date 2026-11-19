@@ -1522,8 +1522,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
   </div>
 </nav>
 <div class="mobile-nav">
-  <a href="#menu">Order Pickup</a>
-  <a href="order.html?ahead=1" class="drive-up-only">Drive Up <small>(order from your car)</small></a>
+  <a href="#menu" data-pickup-choose>Order Pickup <small class="pk-open">(window or drive-up)</small></a>
   <a href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener" data-delivery-open>Order Delivery</a>
   <a href="#menu">Menu</a>
   <a href="#deals" class="member-hide">Rewards</a>
@@ -1565,8 +1564,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     <!-- Halfway between the tagline and the Order buttons (hero-inner spreads its 3 parts evenly). -->
     <div class="os-slot"><p class="open-status" id="openStatus" aria-live="polite"></p></div>
     <div class="hero-ctas">
-      <a class="btn btn-accent" href="#menu"><i class="ma-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 11.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg></i><span class="ma-l"><span class="ma-o">Order </span>Pickup</span><small class="ma-s" aria-hidden="true">At the window</small></a>
-      <a class="btn btn-white drive-up-only" href="order.html?ahead=1"><i class="ma-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16v-3.5l1.8-4.6A2 2 0 0 1 7.7 6.6h8.6a2 2 0 0 1 1.9 1.3l1.8 4.6V16"/><path d="M3 16h18v2.2a.8.8 0 0 1-.8.8h-1.7a.8.8 0 0 1-.8-.8V17H6.3v1.2a.8.8 0 0 1-.8.8H3.8a.8.8 0 0 1-.8-.8z"/><path d="M4.5 12.5h15"/><circle cx="7.5" cy="14.5" r=".6" fill="currentColor"/><circle cx="16.5" cy="14.5" r=".6" fill="currentColor"/></svg></i><span class="ma-l">Drive Up</span><small class="ma-s" aria-hidden="true">From your car</small></a>
+      <a class="btn btn-accent" href="#menu" data-pickup-choose><i class="ma-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 11.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg></i><span class="ma-l"><span class="ma-o">Order </span>Pickup</span><small class="ma-s" aria-hidden="true"><span class="pk-open">Window or drive-up</span><span class="pk-closed">Order ahead</span></small></a>
       <a class="btn btn-white" href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener" data-delivery-open><i class="ma-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="17" r="2.5"/><circle cx="18" cy="17" r="2.5"/><path d="M8.5 17h5l2-6h-4"/><path d="M15.5 11l2.5 6"/><path d="M14 7h2.5l1 4"/><path d="M3 11h6v3H4"/></svg></i><span class="ma-l"><span class="ma-o">Order </span>Delivery</span><small class="ma-s" aria-hidden="true">To your door</small></a>
     </div>
     <p class="hero-halal">Ask about our Halal options</p>
@@ -2373,8 +2371,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
   <button type="button" class="wp-x" id="welcomePromoX" aria-label="No thanks">&times;</button>
 </div>
 <div id="floatOrderGroup">
-  <a id="floatPickup" class="float-btn" href="#menu">Order Pickup</a>
-  <a id="floatDriveUp" class="float-btn drive-up-only" href="order.html?ahead=1">Drive Up</a>
+  <a id="floatPickup" class="float-btn" href="#menu" data-pickup-choose>Order Pickup</a>
   <a id="floatDelivery" class="float-btn" data-delivery-open href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener">Delivery</a>
 </div>
 
@@ -2552,6 +2549,27 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
   </div>
 </div>
 
+<!-- Pickup chooser: only while drive-up is possible (truck open, on a phone or tablet). -->
+<div class="dl-scrim" id="pickScrim" hidden></div>
+<section class="dl-sheet pk-sheet" id="pickSheet" role="dialog" aria-modal="true" aria-labelledby="pickTitle" hidden>
+  <div class="dl-head">
+    <h3 id="pickTitle">How will you pick up?</h3>
+    <button type="button" class="dl-x" id="pickClose" aria-label="Close">&times;</button>
+  </div>
+  <p class="dl-sub" id="pickSub">We&rsquo;re open. Same food either way.</p>
+  <div class="pk-list">
+    <a class="pk-row" href="#menu" data-pick="window">
+      <span class="pk-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 11.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg></span>
+      <span class="pk-txt"><b>At the window <em class="pk-last" hidden>Last time</em></b><small>Order ahead here. We&rsquo;ll call your name when it&rsquo;s ready.</small></span>
+      <svg class="pk-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"></polyline></svg>
+    </a>
+    <a class="pk-row" href="order.html?ahead=1" data-pick="drive">
+      <span class="pk-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M4 16v-3.5l1.8-4.6A2 2 0 0 1 7.7 6.6h8.6a2 2 0 0 1 1.9 1.3l1.8 4.6V16"/><path d="M3 16h18v2.2a.8.8 0 0 1-.8.8h-1.7a.8.8 0 0 1-.8-.8V17H6.3v1.2a.8.8 0 0 1-.8.8H3.8a.8.8 0 0 1-.8-.8z"/><path d="M4.5 12.5h15"/></svg></span>
+      <span class="pk-txt"><b>Drive up <em class="pk-last" hidden>Last time</em></b><small>Order from your car. Pick a spot and we bring it out.</small></span>
+      <svg class="pk-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="9 6 15 12 9 18"></polyline></svg>
+    </a>
+  </div>
+</section>
 <div class="dl-scrim" id="deliveryScrim" hidden></div>
 <section class="dl-sheet" id="deliverySheet" role="dialog" aria-modal="true" aria-labelledby="deliveryTitle" hidden>
   <div class="dl-head">
@@ -7875,6 +7893,79 @@ body{ background:var(--bg); color:var(--ink); }
     strip.hidden = true; try { localStorage.setItem('rollin_prime_hide_' + key, '1'); } catch (e) {}
     window.dispatchEvent(new Event('resize'));       // lets the phone layout re-fit the top section
   });
+})();
+</script>
+<style id="pickupChoose">
+/* One "Order Pickup" button; how to pick up (window or drive-up) is asked only when drive-up is possible. */
+.pk-open{ display:none; }
+body.truck-open:not(.onloc-now) .pk-open{ display:inline; }
+body.truck-open:not(.onloc-now) .pk-closed{ display:none; }
+@media (hover:hover) and (pointer:fine){ body.truck-open .pk-open{ display:none; } body.truck-open .pk-closed{ display:inline; } }
+.pk-list{ display:flex; flex-direction:column; gap:10px; margin-top:4px; }
+.pk-row{ display:flex; align-items:center; gap:14px; padding:16px 14px; border-radius:18px; background:#fff; box-shadow:inset 0 0 0 1.5px var(--line); color:var(--ink); text-decoration:none; transition:transform .12s ease, box-shadow .12s ease; }
+.pk-row:active{ transform:scale(.98); }
+.pk-row:focus-visible{ box-shadow:inset 0 0 0 2px var(--ink); outline:none; }
+@media (hover:hover){ .pk-row:hover{ box-shadow:inset 0 0 0 2px var(--ink); } }
+.pk-sheet .dl-head h3{ font-size:26px; }
+.pk-row.is-last{ box-shadow:inset 0 0 0 2px var(--ink); }
+.pk-ic{ flex:none; width:48px; height:48px; border-radius:14px; background:var(--panel); display:flex; align-items:center; justify-content:center; }
+.pk-ic svg{ width:26px; height:26px; }
+.pk-txt{ flex:1; min-width:0; display:flex; flex-direction:column; gap:3px; }
+.pk-txt b{ font-size:17px; font-weight:700; display:flex; align-items:center; gap:8px; }
+.pk-txt small{ font-size:13.5px; color:var(--muted); line-height:1.35; }
+.pk-last{ font-style:normal; font-size:10.5px; font-weight:800; letter-spacing:.08em; text-transform:uppercase; background:var(--panel); color:var(--muted); padding:3px 7px; border-radius:999px; }
+.pk-chev{ flex:none; width:18px; height:18px; color:var(--muted); }
+@media (max-width:640px){
+  .hero-ctas, body:not(.truck-open) .hero-ctas, body.onloc-now .hero-ctas{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
+}
+</style>
+<script id="pickupChooseJs">
+(function(){
+  var sheet = document.getElementById('pickSheet'), scrim = document.getElementById('pickScrim');
+  if (!sheet || !scrim) return;
+  var b = document.body, lastFocus = null;
+  // Drive-up only makes sense with the truck open (not On Location), on a phone or tablet, and not on event links.
+  function driveOK(){
+    if (!b.classList.contains('truck-open') || b.classList.contains('onloc-now')) return false;
+    if (window.matchMedia && matchMedia('(hover:hover) and (pointer:fine)').matches) return false;
+    if (/[?&]event=/i.test(location.search)) return false;
+    try { if (window.wsOnEventLink && window.wsOnEventLink()) return false; } catch (e) {}
+    return true;
+  }
+  function last(){ try { return localStorage.getItem('rollin_pick_mode'); } catch (e) { return null; } }
+  function open(){
+    lastFocus = document.activeElement;
+    var lm = last();
+    sheet.querySelectorAll('.pk-row').forEach(function(r){
+      var on = r.getAttribute('data-pick') === lm;
+      r.classList.toggle('is-last', on); r.querySelector('.pk-last').hidden = !on;
+    });
+    var st = document.getElementById('openStatus'), t = st && st.textContent.trim();
+    document.getElementById('pickSub').textContent = (t ? t + '. ' : '') + 'Same food either way.';
+    var mn = document.querySelector('.mobile-nav.open, .mobile-nav.is-open'); if (mn) { var tg = document.querySelector('.nav-toggle'); if (tg) tg.click(); }
+    sheet.hidden = false; scrim.hidden = false; b.classList.add('ws-locked');
+    document.getElementById('pickClose').focus();
+  }
+  function close(){
+    if (sheet.hidden) return;
+    sheet.hidden = true; scrim.hidden = true; b.classList.remove('ws-locked');
+    if (lastFocus && b.contains(lastFocus)) lastFocus.focus();
+  }
+  document.addEventListener('click', function(e){
+    var t = e.target.closest('[data-pickup-choose]');
+    if (!t || !driveOK()) return;          // no drive-up right now: straight to the menu as before
+    e.preventDefault(); e.stopImmediatePropagation();
+    open();
+  }, true);
+  sheet.querySelectorAll('.pk-row').forEach(function(r){
+    r.addEventListener('click', function(){
+      try { localStorage.setItem('rollin_pick_mode', r.getAttribute('data-pick')); } catch (e) {}
+      close();
+    });
+  });
+  document.getElementById('pickClose').addEventListener('click', close);
+  scrim.addEventListener('click', close);
+  document.addEventListener('keydown', function(e){ if (e.key === 'Escape') close(); });
 })();
 </script>
 </body>
