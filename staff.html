@@ -454,6 +454,16 @@
   .sp-card.live{ border-color:#30b35a; }
   .sp-head{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
   .sp-head h3{ margin:0; font-size:18px; }
+  .kp-card{ border:2px solid #e6e6eb; }
+  .kp-card.live{ border-color:#0a84ff; }
+  .ad-chip.kp-on{ background:#e5f0ff; color:#0a5fc2; }
+  .kp-grid{ display:grid; grid-template-columns:repeat(auto-fill, minmax(170px, 1fr)); gap:12px 14px; margin:12px 0 6px; }
+  .kp-grid label{ display:block; font-size:13px; font-weight:600; margin-bottom:4px; }
+  .kp-grid select, .kp-grid input{ width:100%; }
+  .kp-note{ margin-top:6px; }
+  .kp-actions{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin:10px 0 4px; }
+  .kp-rush{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin-top:14px; padding-top:12px; border-top:1px solid #ececf0; }
+  .kp-rush-btns{ display:flex; gap:8px; flex-wrap:wrap; }
   .sp-form{ margin-top:14px; display:grid; gap:12px; }
   .sp-form input, .sp-form select{ margin:0; }
   .sp-gps{ width:auto; justify-self:start; }
@@ -2639,6 +2649,30 @@
       <details class="sp-recent"><summary>Recent locations</summary><div id="spRecent"></div></details>
     </div>
 
+    <div class="card kp-card" id="kpCard">
+      <div class="sp-head"><h3>&#9201; Pickup slots on busy nights</h3><span class="ad-chip" id="kpChip">Off</span></div>
+      <p class="hint">While an <b>event</b>, an <b>On Location</b> stop or a confirmed <b>calendar event</b> is on, or you turn on <b>Rush</b>, every order takes a pickup slot: event pre-orders, website, truck QR, kiosk and walk-ups rung on Square. An order placed now goes in the next slot with room, and the kitchen cooks slot by slot, so nobody jumps the line.</p>
+      <div class="kp-grid">
+        <div><label for="kpSlot">A slot every</label><select id="kpSlot"><option value="5">5 min</option><option value="10">10 min</option><option value="15">15 min</option><option value="20">20 min</option><option value="30">30 min</option></select></div>
+        <div><label for="kpMax">Orders per slot</label><input type="number" id="kpMax" min="1" max="20" step="1" inputmode="numeric"></div>
+        <div><label for="kpEvery">Keep a spot for walk-ups</label><select id="kpEvery"><option value="0">Don&rsquo;t keep one</option><option value="1">In every slot</option><option value="2">1 every 2 slots</option><option value="3">1 every 3 slots</option><option value="4">1 every 4 slots</option></select></div>
+        <div><label for="kpLead">Kitchen sees a slot</label><select id="kpLead"><option value="5">5 min before</option><option value="10">10 min before</option><option value="15">15 min before</option><option value="20">20 min before</option><option value="30">30 min before</option><option value="45">45 min before</option><option value="60">60 min before</option></select></div>
+        <div><label for="kpReady">Walk-up ready in at least</label><select id="kpReady"><option value="0">No minimum</option><option value="5">5 min</option><option value="10">10 min</option><option value="15">15 min</option><option value="20">20 min</option><option value="30">30 min</option></select></div>
+      </div>
+      <p class="hint kp-note">Community events use their own <b>A pickup time every</b>, <b>Max orders per pickup time</b> (blank = &ldquo;Orders per slot&rdquo; here) and <b>Kitchen sees tickets</b>. A spot kept for walk-ups can&rsquo;t be pre-ordered; it opens to anyone 15 minutes before its slot. At the Nov 19 event the kitchen finished about 2 orders every 10 minutes.</p>
+      <div class="kp-actions"><button type="button" class="btn-primary" id="kpSave">Save slot settings</button><span class="sh-msg" id="kpMsg" role="status"></span></div>
+      <div class="kp-rush" id="kpRush">
+        <div><b>Rush</b> <span id="kpRushTxt">Off. Turn it on for a busy regular day.</span></div>
+        <div class="kp-rush-btns" id="kpRushBtns">
+          <button type="button" class="btn-ghost btn-small" data-rush="60">1 hour</button>
+          <button type="button" class="btn-ghost btn-small" data-rush="120">2 hours</button>
+          <button type="button" class="btn-ghost btn-small" data-rush="180">3 hours</button>
+          <button type="button" class="btn-ghost btn-small hidden" data-rush="0" id="kpRushOff">End Rush</button>
+        </div>
+      </div>
+      <p class="hint sh-updated" id="kpUpdated"></p>
+    </div>
+
     <div class="card sh-alert hidden" id="shOutside">
       <div class="sh-alert-title">&#9888; Paid orders booked outside the new hours</div>
       <p class="hint">These customers already paid for a pickup time that&rsquo;s now closed. Call or text them, or refund from the Square Dashboard.</p>
@@ -3594,8 +3628,8 @@
         document.getElementById('tabStopsBtn').classList.remove('hidden');
         document.getElementById('tabSalesBtn').classList.remove('hidden');
         document.getElementById('tabStoreHoursBtn').classList.remove('hidden');
-        document.querySelector('.nav-link[data-tab="storehours"]').addEventListener('click', function(){ shLoad(); spLoad(); });
-        shLoad(); spLoad();
+        document.querySelector('.nav-link[data-tab="storehours"]').addEventListener('click', function(){ shLoad(); spLoad(); kpLoad(); });
+        shLoad(); spLoad(); kpLoad();
         if (location.hash === '#hours') setTimeout(function(){ showTab('storehours'); shLoad(); }, 0);
         document.getElementById('tabFeaturesBtn').classList.remove('hidden');
         document.querySelector('.nav-link[data-tab="features"]').addEventListener('click', ftLoad);
@@ -4398,6 +4432,60 @@
     document.getElementById('spRecent').innerHTML = rec.length ? rec.map(function(p){
       return '<div class="r"><b>' + esc(p.name) + '</b> · ' + esc(spTime(p.from) + ' – ' + spTime(p.to, false)) + (p.canceled ? ' · canceled' : p.ended_early ? ' · ended early' : '') + (p.by ? ' · ' + esc(p.by) : '') + '</div>'; }).join('') : '<p class="hint">None yet.</p>';
   }
+  // ---- Pickup slots on busy nights (slot-pacing.sql) ----
+  var kpMissing = false;
+  function kpClock(iso){ try { return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' }).replace(/[  ]/g, ' '); } catch (e) { return ''; } }
+  function kpPaint(d){
+    var WHY = { event: 'Event', onloc: 'On Location', calendar: 'Calendar event', rush: 'Rush' };
+    document.getElementById('kpSlot').value = String(d.slot_min);
+    document.getElementById('kpMax').value = String(d.max_orders);
+    document.getElementById('kpEvery').value = String(d.walkup_every);
+    document.getElementById('kpLead').value = String(d.lead_min);
+    document.getElementById('kpReady').value = String(d.ready_min);
+    var chip = document.getElementById('kpChip'), card = document.getElementById('kpCard');
+    var on = d.now && d.now.why;
+    chip.textContent = on ? 'On now · ' + (WHY[d.now.why] || '') + (d.now.name && d.now.why !== 'rush' ? ': ' + d.now.name : '') : 'Off';
+    chip.classList.toggle('kp-on', !!on); card.classList.toggle('live', !!on);
+    var rush = !!d.rush_until;
+    document.getElementById('kpRushTxt').textContent = rush ? 'On until ' + kpClock(d.rush_until) + (d.rush_by ? ' (' + d.rush_by + ')' : '') + '.' : 'Off. Turn it on for a busy regular day.';
+    document.querySelectorAll('#kpRushBtns [data-rush]').forEach(function(b){ b.classList.toggle('hidden', rush ? b.getAttribute('data-rush') !== '0' : b.getAttribute('data-rush') === '0'); });
+    document.getElementById('kpUpdated').textContent = d.updated_by ? 'Last changed by ' + d.updated_by + ', ' + new Date(d.updated_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' }) : '';
+  }
+  function kpLoad(){
+    if (!document.getElementById('kpCard')) return;
+    sb.rpc('staff_get_pacing').then(function(res){
+      var msg = document.getElementById('kpMsg');
+      if (res.error) {
+        kpMissing = /Could not find the function|does not exist/i.test(res.error.message || '');
+        msg.textContent = kpMissing ? 'Run slot-pacing.sql in Supabase to turn this on.' : 'Couldn’t load: ' + (res.error.message || 'unknown error');
+        return;
+      }
+      kpMissing = false; msg.textContent = ''; kpPaint(res.data || {});
+    });
+  }
+  document.getElementById('kpSave').addEventListener('click', function(){
+    var msg = document.getElementById('kpMsg'), btn = this;
+    var max = parseInt(document.getElementById('kpMax').value, 10);
+    if (!(max >= 1 && max <= 20)) { msg.textContent = 'Orders per slot: 1 to 20.'; return; }
+    btn.disabled = true; msg.textContent = 'Saving…';
+    sb.rpc('staff_set_pacing', { p: {
+      slot_min: parseInt(document.getElementById('kpSlot').value, 10), max_orders: max,
+      walkup_every: parseInt(document.getElementById('kpEvery').value, 10),
+      lead_min: parseInt(document.getElementById('kpLead').value, 10), ready_min: parseInt(document.getElementById('kpReady').value, 10) } }).then(function(res){
+      btn.disabled = false;
+      if (res.error) { msg.textContent = /Could not find the function|does not exist/i.test(res.error.message || '') ? 'Run slot-pacing.sql in Supabase first.' : res.error.message || 'Couldn’t save.'; return; }
+      msg.textContent = 'Saved ✓'; kpPaint(res.data || {});
+    }, function(){ btn.disabled = false; msg.textContent = 'Couldn’t reach the server.'; });
+  });
+  document.getElementById('kpRushBtns').addEventListener('click', function(e){
+    var b = e.target.closest('[data-rush]'); if (!b) return;
+    var mins = parseInt(b.getAttribute('data-rush'), 10), msg = document.getElementById('kpMsg');
+    sb.rpc('staff_set_rush', { p_minutes: mins }).then(function(res){
+      if (res.error) { msg.textContent = /Could not find the function|does not exist/i.test(res.error.message || '') ? 'Run slot-pacing.sql in Supabase first.' : res.error.message || 'Couldn’t change Rush.'; return; }
+      msg.textContent = mins ? 'Rush on ✓' : 'Rush ended ✓'; kpPaint(res.data || {});
+    });
+  });
+
   function spLoad(){
     return sb.rpc('staff_popup_list').then(function(res){
       if (res.error) { if (/does not exist|could not find/i.test(res.error.message || '')) document.getElementById('spCard').classList.add('hidden'); return; }
