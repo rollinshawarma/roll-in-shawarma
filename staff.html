@@ -1435,6 +1435,30 @@
     .cu-stats{ grid-template-columns:1fr 1fr; }
     .cu-when{ min-width:62px; }
   }
+  /* Events section (events-pack.sql) */
+  .nav-link.ev-sub{ display:none !important; }
+  .ev-subtabs{ display:flex; gap:6px; overflow-x:auto; padding:2px 0 10px; margin:-4px 0 14px; border-bottom:1px solid #ececf0; scrollbar-width:none; }
+  .ev-subtabs::-webkit-scrollbar{ display:none; }
+  .ev-subtabs button{ flex:none; border:1px solid #e3e3e8; background:#fff; border-radius:999px; padding:7px 13px; font:inherit; font-size:14px; font-weight:600; color:#3a3a3c; cursor:pointer; }
+  .ev-subtabs button.on{ background:#1d1d1f; border-color:#1d1d1f; color:#fff; }
+  .eh-now-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .eh-now-row .hint{ margin:0; }
+  .eh-now-row button{ margin-left:auto; }
+  .ev-tagchip{ display:inline-block; border-radius:6px; padding:1px 7px; font-size:12px; font-weight:800; letter-spacing:.04em; color:#000; }
+  .eh-def-sum p{ margin:6px 0; }
+  .eo-wrap{ position:fixed; inset:0; background:rgba(0,0,0,.35); display:flex; align-items:flex-start; justify-content:center; padding:5vh 16px; z-index:1000; overflow-y:auto; }
+  .eo-wrap.hidden{ display:none; }
+  .eo-card{ background:#fff; border-radius:18px; padding:18px 20px; width:100%; max-width:620px; box-shadow:0 20px 60px rgba(0,0,0,.25); }
+  .eo-card select, .eo-card input[type=text]{ width:100%; }
+  .eo-colors{ display:flex; gap:8px; flex-wrap:wrap; margin:4px 0 10px; }
+  .eo-sw{ width:34px; height:34px; flex:none; padding:0; border-radius:50%; border:2px solid #e3e3e8; cursor:pointer; color:#8e8e93; font-size:16px; line-height:1; }
+  .eo-sw.on{ border-color:#1d1d1f; box-shadow:0 0 0 2px #fff inset; }
+  #eoMenuList{ max-height:260px; overflow:auto; }
+  .rs-row{ display:flex; align-items:center; gap:8px 12px; flex-wrap:wrap; padding:10px 0; border-bottom:1px solid #f0f0f3; }
+  .rs-days{ display:flex; gap:4px; flex-wrap:wrap; }
+  .rs-days label{ display:inline-flex; align-items:center; gap:3px; border:1px solid #e3e3e8; border-radius:8px; padding:4px 7px; font-size:13px; }
+  .rs-row input[type=time]{ width:auto; }
+  .rs-on{ margin:0; }
 </style>
 </head>
 <body>
@@ -1510,13 +1534,16 @@
       <button class="nav-link hidden" data-tab="banner" id="tabBannerBtn"><svg class="icon"><use href="#ic-megaphone"/></svg>Banner</button>
       <button class="nav-link hidden" data-tab="hiring" id="tabHiringBtn"><svg class="icon"><use href="#ic-users"/></svg>Hiring<span class="nav-badge hidden" id="navHireBadge"></span></button>
       <button class="nav-link hidden" data-tab="promotions" id="tabPromotionsBtn"><svg class="icon"><use href="#ic-tag"/></svg>Promo codes</button>
-      <button class="nav-link hidden" data-tab="events" id="tabEventsBtn"><svg class="icon"><use href="#ic-calendar"/></svg>Events</button>
+      <button class="nav-link hidden" data-tab="eventhub" id="tabEventHubBtn"><svg class="icon"><use href="#ic-calendar"/></svg>Events<span class="nav-badge nav-badge-soft hidden" id="navHubBadge"></span></button>
+      <button class="nav-link hidden ev-sub" data-tab="onloc" id="tabOnlocBtn"><svg class="icon"><use href="#ic-calendar"/></svg>On Location</button>
+      <button class="nav-link hidden ev-sub" data-tab="slots" id="tabSlotsBtn"><svg class="icon"><use href="#ic-clock"/></svg>Pickup slots</button>
+      <button class="nav-link hidden ev-sub" data-tab="events" id="tabEventsBtn"><svg class="icon"><use href="#ic-calendar"/></svg>Events</button>
       <button class="nav-link hidden" data-tab="catering" id="tabCateringBtn"><svg class="icon"><use href="#ic-gift"/></svg>Catering<span class="nav-badge hidden" id="navCaterBadge"></span></button>
       <button class="nav-link hidden" data-tab="invoices" id="tabInvoicesBtn"><svg class="icon"><use href="#ic-file"/></svg>Invoices<span class="nav-badge hidden" id="navInvBadge"></span></button>
       <button class="nav-link hidden" data-tab="menustudio" id="tabMenuBtn"><svg class="icon"><use href="#ic-tag"/></svg>Menu<span class="nav-badge nav-badge-soft hidden" id="navMenuBadge"></span></button>
-      <button class="nav-link hidden" data-tab="corpevents" id="tabCorpBtn"><svg class="icon"><use href="#ic-building"/></svg>Corporate events<span class="nav-badge nav-badge-soft hidden" id="navCorpBadge"></span></button>
-      <button class="nav-link hidden" data-tab="nextdoor" id="tabDoorBtn"><svg class="icon"><use href="#ic-building"/></svg>Next Door delivery<span class="nav-badge nav-badge-soft hidden" id="navDoorBadge"></span></button>
-      <button class="nav-link hidden" data-tab="community" id="tabCommBtn"><svg class="icon"><use href="#ic-heart"/></svg>Community events<span class="nav-badge nav-badge-soft hidden" id="navCommBadge"></span></button>
+      <button class="nav-link hidden ev-sub" data-tab="corpevents" id="tabCorpBtn"><svg class="icon"><use href="#ic-building"/></svg>Corporate events<span class="nav-badge nav-badge-soft hidden" id="navCorpBadge"></span></button>
+      <button class="nav-link hidden ev-sub" data-tab="nextdoor" id="tabDoorBtn"><svg class="icon"><use href="#ic-building"/></svg>Next Door delivery<span class="nav-badge nav-badge-soft hidden" id="navDoorBadge"></span></button>
+      <button class="nav-link hidden ev-sub" data-tab="community" id="tabCommBtn"><svg class="icon"><use href="#ic-heart"/></svg>Community events<span class="nav-badge nav-badge-soft hidden" id="navCommBadge"></span></button>
       <button class="nav-link hidden" data-tab="offers" id="tabOffersBtn"><svg class="icon"><use href="#ic-mail"/></svg>Member offers</button>
       <button class="nav-link hidden" data-tab="salesreport" id="tabSalesBtn"><svg class="icon"><use href="#ic-chart"/></svg>Sales report</button>
       <button class="nav-link hidden" data-tab="stops" id="tabStopsBtn"><svg class="icon"><use href="#ic-trophy"/></svg>Stop scorecard<span class="nav-badge nav-badge-soft">Soon</span></button>
@@ -2483,7 +2510,7 @@
       <div class="cm-sec">Menu for this event <span id="cmMenuCount" style="text-transform:none;letter-spacing:0"></span></div>
       <div id="cmMenu" class="nd-menu"><p class="hint">Loading the menu&hellip;</p></div>
       <label class="ad-check"><input type="checkbox" id="cmActive"> QR is on</label>
-      <div class="ad-actions"><button type="button" class="btn-primary" id="cmSave">Save</button><button type="button" class="btn-export" id="cmClose">Close</button><button type="button" class="btn-export hidden" id="cmDelete">Delete event</button></div>
+      <div class="ad-actions"><button type="button" class="btn-primary" id="cmSave">Save</button><button type="button" class="btn-export" id="cmClose">Close</button><button type="button" class="btn-export" id="cmSaveDefaults" title="New events will start with these times, spacing, welcome text, photo and menu">&#9733; Save as my defaults</button><button type="button" class="btn-export hidden" id="cmDelete">Delete event</button></div>
     </div>
     <div class="card hidden" id="cmShare"></div>
     <div class="card hidden" id="cmOrders"></div>
@@ -2660,6 +2687,7 @@
         <div><label for="kpReady">Walk-up ready in at least</label><select id="kpReady"><option value="0">No minimum</option><option value="5">5 min</option><option value="10">10 min</option><option value="15">15 min</option><option value="20">20 min</option><option value="30">30 min</option></select></div>
       </div>
       <p class="hint kp-note">Community events use their own <b>A pickup time every</b>, <b>Max orders per pickup time</b> (blank = &ldquo;Orders per slot&rdquo; here) and <b>Kitchen sees tickets</b>. A spot kept for walk-ups can&rsquo;t be pre-ordered; it opens to anyone 15 minutes before its slot. At the Nov 19 event the kitchen finished about 2 orders every 10 minutes.</p>
+      <label class="ad-check"><input type="checkbox" id="kpPrintSlot"> Print the slot time on tickets (&ldquo;READY BY 6:20 PM&rdquo;)</label>
       <div class="kp-actions"><button type="button" class="btn-primary" id="kpSave">Save slot settings</button><span class="sh-msg" id="kpMsg" role="status"></span></div>
       <div class="kp-rush" id="kpRush">
         <div><b>Rush</b> <span id="kpRushTxt">Off. Turn it on for a busy regular day.</span></div>
@@ -3029,6 +3057,72 @@
   </div>
 
   <!-- EVENTS TAB -->
+  <!-- EVENTS: Overview (events-pack.sql) -->
+  <div class="tab-panel hidden" id="panelEventhub">
+    <div class="page-head"><h2>Events</h2><p class="hint">Everything the truck does away from a regular day: community pre-order nights, company lunches, public events on the calendar, On Location stops and Next Door delivery, plus the pickup slots that pace the kitchen.</p></div>
+    <div class="card eh-now" id="ehNow"><p class="hint">Loading&hellip;</p></div>
+    <div class="ad-head-row"><div class="section-title" style="margin:0">Coming up &middot; next 30 days</div>
+      <div class="ad-btns eh-new" style="margin:0">
+        <button type="button" class="btn-primary btn-small" data-eh-new="community">+ Community event</button>
+        <button type="button" class="btn-export btn-small" data-eh-new="corpevents">+ Corporate</button>
+        <button type="button" class="btn-export btn-small" data-eh-new="events">+ Calendar</button>
+        <button type="button" class="btn-export btn-small" data-eh-new="onloc">+ On Location</button>
+      </div></div>
+    <div id="ehMsg"></div>
+    <div id="ehList"><p class="hint">Loading&hellip;</p></div>
+    <div class="card" id="ehDefaults">
+      <div class="sp-head"><h3>Event defaults</h3><button type="button" class="btn-export btn-small" id="ehDefEdit">Edit defaults</button></div>
+      <p class="hint">What a new community event starts with, and the options every event uses unless you set its own under <b>Options</b>.</p>
+      <div id="ehDefSum" class="eh-def-sum"></div>
+      <div id="ehDefForm" class="hidden">
+        <div class="cm-sec">New community events start with</div>
+        <div class="ce-trio">
+          <div><label for="edStart">First pickup time</label><input type="time" id="edStart"></div>
+          <div><label for="edEnd">Event ends</label><input type="time" id="edEnd"></div>
+          <div><label for="edSlot">A pickup time every</label><select id="edSlot"><option value="">Not set</option><option value="10">10 minutes</option><option value="15">15 minutes</option><option value="20">20 minutes</option><option value="30">30 minutes</option><option value="60">60 minutes</option></select></div>
+        </div>
+        <div class="ce-trio">
+          <div><label for="edCutoff">Last orders</label><select id="edCutoff"><option value="">Not set</option><option value="10">10 min before pickup</option><option value="15">15 min before pickup</option><option value="30">30 min before pickup</option><option value="45">45 min before pickup</option><option value="60">60 min before pickup</option><option value="120">2 hours before pickup</option></select></div>
+          <div><label for="edLead">Kitchen sees tickets</label><select id="edLead"><option value="">Not set</option><option value="15">15 min before pickup</option><option value="20">20 min before pickup</option><option value="30">30 min before pickup</option><option value="45">45 min before pickup</option><option value="60">60 min before pickup</option></select></div>
+          <div><label for="edMax">Max orders per pickup time</label><input type="number" id="edMax" min="1" max="200" placeholder="No limit"></div>
+        </div>
+        <label for="edTitle">Headline</label><input type="text" id="edTitle" maxlength="80">
+        <label for="edMsg">Message</label><textarea id="edMsg" maxlength="400"></textarea>
+        <label class="ad-check"><input type="checkbox" id="edOnloc"> Also run as an On Location stop</label>
+        <p class="hint">The photo and menu: open an event, set them up, then tap <b>Save as my defaults</b> in its editor to keep those too.</p>
+        <div class="cm-sec">Every event, unless it has its own</div>
+        <div class="ce-trio">
+          <div><label for="edEvery">Keep a spot for walk-ups</label><select id="edEvery"><option value="">Pickup slots setting</option><option value="0">Don&rsquo;t keep one</option><option value="1">In every slot</option><option value="2">1 every 2 slots</option><option value="3">1 every 3 slots</option><option value="4">1 every 4 slots</option></select></div>
+          <div><label for="edReminder">Reminder email (community)</label><select id="edReminder"><option value="0">Off</option><option value="15">15 min before pickup</option><option value="30">30 min before pickup</option><option value="45">45 min before pickup</option><option value="60">1 hour before pickup</option><option value="90">90 min before pickup</option><option value="120">2 hours before pickup</option></select></div>
+          <div><label for="edPrint">Community tickets print</label><select id="edPrint"><option value="">At Ready (default)</option><option value="ready">At Ready</option><option value="order">When ordered</option></select></div>
+        </div>
+        <div class="ad-actions"><button type="button" class="btn-primary" id="edSave">Save defaults</button><button type="button" class="btn-export" id="edCancel">Close</button></div>
+      </div>
+      <div id="edMsgBox"></div>
+    </div>
+  </div>
+
+  <!-- EVENTS: On Location (the card moves here from Store hours) -->
+  <div class="tab-panel hidden" id="panelOnloc">
+    <div class="page-head"><h2>On Location</h2><p class="hint">Park somewhere other than the usual spot: the website, truck QR, kiosk and kitchen all switch to that place while the stop runs.</p></div>
+  </div>
+
+  <!-- EVENTS: Pickup slots (moved here from Store hours) + Rush schedule + window screen -->
+  <div class="tab-panel hidden" id="panelSlots">
+    <div class="page-head"><h2>Pickup slots</h2><p class="hint">How the kitchen is paced on busy nights. Each event can also have its own settings under <b>Options</b>.</p></div>
+    <div class="card" id="rsCard">
+      <div class="sp-head"><h3>&#9889; Rush schedule</h3><span class="ad-chip" id="rsChip">Off</span></div>
+      <p class="hint">Rush turns itself on at these times every week, e.g. Friday and Saturday 5&ndash;8 PM. Staff can still turn Rush on or off by hand.</p>
+      <div id="rsRows"></div>
+      <div class="ad-actions"><button type="button" class="btn-export btn-small" id="rsAdd">+ Add a time</button><button type="button" class="btn-primary btn-small" id="rsSave">Save schedule</button><span class="sh-msg" id="rsMsg" role="status"></span></div>
+    </div>
+    <div class="card" id="wsCard">
+      <div class="sp-head"><h3>&#128250; Window screen</h3></div>
+      <p class="hint">Open this on a tablet or TV at the truck window: a big <b>Ready about 6:20 PM</b> for people about to order (when slots are on), the order numbers being called, and the ones cooking. Order numbers and first names only.</p>
+      <div class="ad-actions"><a class="btn-primary btn-small" href="window.html" target="_blank" rel="noopener">Open the window screen</a><button type="button" class="btn-export btn-small" id="wsCopy">Copy link</button><span class="sh-msg" id="wsMsg"></span></div>
+    </div>
+  </div>
+
   <div class="tab-panel hidden" id="panelEvents">
     <div class="card">
       <h2>Paste an email to fill the form</h2>
@@ -4425,6 +4519,7 @@
       return '<div class="sp-item' + (on ? '' : ' soon') + '"><div class="k">' + (on ? '● On now · ' + spLeft(p.to) + ' left' : 'Scheduled') + '</div>' +
         '<div class="w">' + esc(p.name) + '</div><div class="t">' + esc(spTime(p.from) + ' – ' + spTime(p.to)) + (p.address ? ' · ' + esc(p.address) : '') + (spDir(p) ? ' · <a href="' + esc(spDir(p)) + '" target="_blank" rel="noopener">Map ↗</a>' : '') + (p.by ? ' · by ' + esc(p.by) : '') + '</div>' +
         '<div class="sp-acts">' + (on ? '<button type="button" class="btn-ghost btn-small" data-sp="ext" data-id="' + esc(p.id) + '" data-min="30">+30 min</button><button type="button" class="btn-ghost btn-small" data-sp="ext" data-id="' + esc(p.id) + '" data-min="60">+1 hour</button>' : '') +
+        '<button type="button" class="btn-ghost btn-small" data-spopt="' + esc(p.id) + '" data-name="' + esc(p.name) + '">Options</button>' +
         '<button type="button" class="btn-ghost btn-small" data-sp="end" data-id="' + esc(p.id) + '" style="color:#c4271b">' + (on ? 'End now' : 'Cancel') + '</button></div></div>';
     }).join('');
     document.getElementById('spGo').textContent = live ? 'Plan another location' : 'Turn on On Location ordering';
@@ -4442,6 +4537,7 @@
     document.getElementById('kpEvery').value = String(d.walkup_every);
     document.getElementById('kpLead').value = String(d.lead_min);
     document.getElementById('kpReady').value = String(d.ready_min);
+    document.getElementById('kpPrintSlot').checked = d.print_slot !== false;
     var chip = document.getElementById('kpChip'), card = document.getElementById('kpCard');
     var on = d.now && d.now.why;
     chip.textContent = on ? 'On now · ' + (WHY[d.now.why] || '') + (d.now.name && d.now.why !== 'rush' ? ': ' + d.now.name : '') : 'Off';
@@ -4471,7 +4567,8 @@
     sb.rpc('staff_set_pacing', { p: {
       slot_min: parseInt(document.getElementById('kpSlot').value, 10), max_orders: max,
       walkup_every: parseInt(document.getElementById('kpEvery').value, 10),
-      lead_min: parseInt(document.getElementById('kpLead').value, 10), ready_min: parseInt(document.getElementById('kpReady').value, 10) } }).then(function(res){
+      lead_min: parseInt(document.getElementById('kpLead').value, 10), ready_min: parseInt(document.getElementById('kpReady').value, 10),
+      print_slot: document.getElementById('kpPrintSlot').checked } }).then(function(res){
       btn.disabled = false;
       if (res.error) { msg.textContent = /Could not find the function|does not exist/i.test(res.error.message || '') ? 'Run slot-pacing.sql in Supabase first.' : res.error.message || 'Couldn’t save.'; return; }
       msg.textContent = 'Saved ✓'; kpPaint(res.data || {});
@@ -4542,7 +4639,7 @@
       }, function(){ sp.busy = false; b.disabled = false; });
     });
     spPaintSum();
-    setInterval(function(){ if (sp.list && !document.getElementById('panelStorehours').classList.contains('hidden')) spRender(sp.list); }, 30000);
+    setInterval(function(){ if (sp.list && (!document.getElementById('panelStorehours').classList.contains('hidden') || !document.getElementById('panelOnloc').classList.contains('hidden'))) spRender(sp.list); }, 30000);
   })();
 
   function shLoad(){
@@ -4669,6 +4766,7 @@
     document.querySelectorAll('.nav-link[data-tab]').forEach(function(b){ b.classList.remove('active'); });
     document.querySelectorAll('.tab-panel').forEach(function(p){ p.classList.add('hidden'); });
     btn.classList.add('active');
+    if (window.evHubMark) window.evHubMark(tab);
     var name = tab.charAt(0).toUpperCase() + tab.slice(1);
     document.getElementById('panel' + name).classList.remove('hidden');
     document.getElementById('topTitle').textContent = btn.firstChild && btn.childNodes.length ? Array.prototype.filter.call(btn.childNodes, function(n){ return n.nodeType === 3; }).map(function(n){ return n.textContent; }).join('').trim() : tab;
@@ -6076,6 +6174,7 @@
       '</div>' +
       '<div class="doc-actions">' +
         '<button class="btn-ghost btn-small edit-event-btn" data-id="' + ev.id + '">Edit</button>' +
+        '<button class="btn-ghost btn-small" data-calopt="' + ev.id + '" data-name="' + esc(ev.title) + '">Options</button>' +
         '<button class="btn-reject btn-small del-event-btn" data-id="' + ev.id + '">Delete</button>' +
       '</div>' +
     '</div>';
@@ -8061,7 +8160,8 @@
             '<button type="button" class="btn-primary btn-small" data-cm="orders" data-id="' + esc(d.id) + '">Pre-orders (' + Number(d.orders) + ')</button>' +
             '<button type="button" class="btn-export btn-small" data-cm="share" data-id="' + esc(d.id) + '">QR &amp; link</button>' +
             '<button type="button" class="btn-export btn-small" data-cm="edit" data-id="' + esc(d.id) + '">Edit</button>' +
-            '<button type="button" class="btn-export btn-small" data-cm="copy" data-id="' + esc(d.id) + '">Copy for a new date</button></div>' +
+            '<button type="button" class="btn-export btn-small" data-cm="copy" data-id="' + esc(d.id) + '">Copy for a new date</button>' +
+            '<button type="button" class="btn-export btn-small" data-cmopt="' + esc(d.id) + '" data-name="' + esc(d.name) + '">Options</button></div>' +
         '</div></div>';
       }).join('');
     });
@@ -8123,6 +8223,24 @@
     clearMsg('cmEditMsg'); cmSlotHint();
     var ed = cmG('cmEditor'); ed.classList.remove('hidden'); ed.scrollIntoView({ behavior:'smooth', block:'start' });
     var sel = null; if (d) { sel = {}; (d.menu_item_ids || []).forEach(function(id){ sel[id] = true; }); }
+    // A brand-new event starts from the Event defaults (events-pack.sql)
+    var defs = !d && window.evDefaults ? window.evDefaults() : null;
+    if (defs) {
+      var tmr = new Date(Date.now() + 864e5), ymd = tmr.toLocaleDateString('en-CA', { timeZone: CM_TZ });
+      if (defs.start_time) cmG('cmStart').value = ymd + 'T' + defs.start_time;
+      if (defs.end_time) cmG('cmEnd').value = ymd + 'T' + defs.end_time;
+      if (defs.slot_min) cmG('cmSlot').value = String(defs.slot_min);
+      if (defs.cutoff_min) cmG('cmCutoff').value = String(defs.cutoff_min);
+      if (defs.board_lead_min) cmG('cmLead').value = String(defs.board_lead_min);
+      if (defs.max_per_slot) cmG('cmMax').value = String(defs.max_per_slot);
+      if (defs.welcome_title) cmG('cmTitle').value = defs.welcome_title;
+      if (defs.welcome_msg) cmG('cmWelcome').value = defs.welcome_msg;
+      if (defs.image_url) { cmState.photo = defs.image_url; cmPhotoShow(); }
+      if (typeof defs.onloc === 'boolean') cmG('cmOnloc').checked = defs.onloc;
+      if (Array.isArray(defs.menu_item_ids) && defs.menu_item_ids.length) { sel = {}; defs.menu_item_ids.forEach(function(id){ sel[id] = true; }); }
+      if (defs.start_time) showMsg('cmEditMsg', 'Started from your Event defaults (dated tomorrow). Change the date and anything else.', 'ok');
+      cmSlotHint();
+    }
     ndLoadMenu().then(function(){ cmPaintMenu(sel); });   // a new event starts with every item on
   }
   cmG('cmNewBtn').addEventListener('click', function(){ cmOpen(null); });
@@ -10332,6 +10450,286 @@
     loginHandled = true;
     afterLogin();
   }
+  // ================= EVENTS SECTION (events-pack.sql) =================
+  // One "Events" menu item with sub-tabs, the Overview, per-event Options,
+  // Event defaults and the Rush schedule.
+  (function(){
+    var EV_TABS = [['eventhub', 'Overview', 'tabEventHubBtn'], ['community', 'Community', 'tabCommBtn'], ['corpevents', 'Corporate', 'tabCorpBtn'],
+      ['events', 'Calendar', 'tabEventsBtn'], ['onloc', 'On Location', 'tabOnlocBtn'], ['nextdoor', 'Next Door', 'tabDoorBtn'], ['slots', 'Pickup slots', 'tabSlotsBtn']];
+    var EV_PANELS = { eventhub: 'panelEventhub', community: 'panelCommunity', corpevents: 'panelCorpevents', events: 'panelEvents', onloc: 'panelOnloc', nextdoor: 'panelNextdoor', slots: 'panelSlots' };
+    var TZ = 'America/New_York', hub = document.getElementById('tabEventHubBtn');
+    var COLORS = ['#ff9f0a', '#30d158', '#0a84ff', '#bf5af2', '#ff375f', '#64d2ff', '#ffd60a', '#ac8e68'];
+    function $(id){ return document.getElementById(id); }
+    function clock(iso){ return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: TZ }).replace(/[  ]/g, ' '); }
+    function day(iso){ return new Date(iso).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric', timeZone: TZ }); }
+    function missing(e){ return /does not exist|Could not find the function|schema cache/i.test((e && e.message) || ''); }
+    var NEED = 'Run events-pack.sql in Supabase → SQL Editor to turn this on.';
+
+    // ---- move On Location + Pickup slots into their new homes ----
+    var spCard = $('spCard'), kpCard = $('kpCard');
+    if (spCard) $('panelOnloc').appendChild(spCard);
+    if (kpCard) $('panelSlots').insertBefore(kpCard, $('rsCard'));
+    var moved = document.createElement('div'); moved.className = 'card';
+    moved.innerHTML = '<p class="hint" style="margin:0"><b>On Location</b> and <b>Pickup slots</b> are now under <b>Events</b>. <button type="button" class="btn-export btn-small" data-ev-go="onloc">On Location</button> <button type="button" class="btn-export btn-small" data-ev-go="slots">Pickup slots</button></p>';
+    $('panelStorehours').appendChild(moved);
+
+    // ---- sub-tab bar at the top of each events panel ----
+    Object.keys(EV_PANELS).forEach(function(k){
+      var panel = $(EV_PANELS[k]); if (!panel) return;
+      var bar = document.createElement('div'); bar.className = 'ev-subtabs'; bar.setAttribute('role', 'tablist');
+      bar.innerHTML = EV_TABS.map(function(t){ return '<button type="button" role="tab" data-ev-go="' + t[0] + '" data-ev-nav="' + t[2] + '"' + (t[0] === k ? ' class="on" aria-selected="true"' : '') + '>' + t[1] + '</button>'; }).join('');
+      panel.insertBefore(bar, panel.firstChild);
+    });
+    function syncVisibility(){
+      var any = false;
+      ['tabEventsBtn', 'tabCommBtn', 'tabCorpBtn', 'tabDoorBtn', 'tabStoreHoursBtn'].forEach(function(id){ if ($(id) && !$(id).classList.contains('hidden')) any = true; });
+      var mgr = $('tabStoreHoursBtn') && !$('tabStoreHoursBtn').classList.contains('hidden');
+      $('tabOnlocBtn').classList.toggle('hidden', !mgr); $('tabSlotsBtn').classList.toggle('hidden', !mgr);
+      hub.classList.toggle('hidden', !(any && mgr));
+      document.querySelectorAll('.ev-subtabs [data-ev-nav]').forEach(function(b){ var n = $(b.getAttribute('data-ev-nav')); b.classList.toggle('hidden', !n || n.classList.contains('hidden')); });
+    }
+    try { var mo = new MutationObserver(syncVisibility); ['tabEventsBtn', 'tabCommBtn', 'tabCorpBtn', 'tabDoorBtn', 'tabStoreHoursBtn'].forEach(function(id){ if ($(id)) mo.observe($(id), { attributes: true, attributeFilter: ['class'] }); }); } catch (e) {}
+    syncVisibility();
+    window.evHubMark = function(tab){ if (EV_PANELS[tab]) hub.classList.add('active'); };
+    document.addEventListener('click', function(e){
+      var b = e.target.closest('[data-ev-go]'); if (!b) return;
+      var nav = document.querySelector('.nav-link[data-tab="' + b.getAttribute('data-ev-go') + '"]'); if (nav) nav.click();
+    });
+    hub.addEventListener('click', ehLoad);
+    $('tabOnlocBtn').addEventListener('click', function(){ if (typeof spLoad === 'function') spLoad(); });
+    $('tabSlotsBtn').addEventListener('click', function(){ if (typeof kpLoad === 'function') kpLoad(); rsLoad(); });
+
+    // ---- Overview ----
+    var KIND = { community: ['Community', 'community'], corporate: ['Corporate', 'corpevents'], calendar: ['Calendar', 'events'], onloc: ['On Location', 'onloc'] };
+    var WHY = { event: 'Community event', onloc: 'On Location', calendar: 'Calendar event', rush: 'Rush' };
+    var ehDefaults = null;
+    window.evDefaults = function(){ return ehDefaults && ehDefaults.community || null; };
+    function ehLoad(){
+      sb.rpc('staff_events_overview').then(function(res){
+        if (res.error) { $('ehNow').innerHTML = '<p class="hint">' + esc(missing(res.error) ? NEED : res.error.message) + '</p>'; $('ehList').innerHTML = ''; return; }
+        var d = res.data || {}, g = d.now;
+        $('ehNow').innerHTML = g ? '<div class="eh-now-row"><span class="ad-chip live">On now</span><b>' + esc(WHY[g.why] || '') + (g.name && g.why !== 'rush' ? ': ' + esc(g.name) : '') + '</b>' +
+            (g.tag ? ' <span class="ev-tagchip" style="background:' + esc(g.color || '#ddd') + '">' + esc(g.tag) + '</span>' : '') +
+            '<span class="hint">Pickup slots every ' + g.slot + ' min, up to ' + g.max + ' orders each' + (g.until ? ', until ' + esc(clock(g.until)) : '') + '</span>' +
+            '<button type="button" class="btn-export btn-small" data-ev-go="slots">Pickup slots</button></div>'
+          : '<div class="eh-now-row"><span class="ad-chip">Quiet</span><b>No event right now</b><span class="hint">Orders are first come, first served.</span><button type="button" class="btn-export btn-small" data-ev-go="slots">Pickup slots &amp; Rush</button></div>';
+        var items = d.items || [];
+        var badge = $('navHubBadge'), live = items.filter(function(i){ return i.on && Date.parse(i.from) - Date.now() < 864e5; }).length;
+        badge.textContent = live ? String(live) : ''; badge.classList.toggle('hidden', !live);
+        $('ehList').innerHTML = items.length ? items.map(function(i){
+          var k = KIND[i.kind] || [i.kind, 'eventhub'], now = Date.parse(i.from) <= Date.now() && Date.parse(i.to) > Date.now();
+          var sameDay = day(i.from) === day(i.to);
+          return '<div class="ad-card eh-item"' + (i.color ? ' style="border-left:6px solid ' + esc(i.color) + '"' : '') + '><div class="ad-body">' +
+            '<div class="ad-title"><span class="ad-chip ' + (now ? 'live' : '') + '">' + (now ? 'Now · ' : '') + esc(k[0]) + '</span>' + esc(i.name) +
+              (i.tag ? ' <span class="ev-tagchip" style="background:' + esc(i.color || '#ddd') + '">' + esc(i.tag) + '</span>' : '') + (i.place ? ' <span class="hint">· ' + esc(i.place) + '</span>' : '') + '</div>' +
+            '<div class="ad-meta">' + esc(day(i.from)) + ', ' + esc(clock(i.from)) + ' – ' + (sameDay ? '' : esc(day(i.to)) + ', ') + esc(clock(i.to)) +
+              (i.kind === 'community' || i.kind === 'corporate' ? ' · ' + Number(i.orders || 0) + ' order' + (Number(i.orders) === 1 ? '' : 's') : '') +
+              (i.on ? '' : ' · <b>' + (i.kind === 'calendar' ? esc(i.status || 'not confirmed') : 'off') + '</b>') + (i.linked ? ' · part of a community event' : '') + '</div>' +
+            '<div class="ad-btns"><button type="button" class="btn-export btn-small" data-ev-go="' + k[1] + '">Open</button>' +
+              (i.kind !== 'corporate' ? '<button type="button" class="btn-export btn-small" data-evopt="' + esc(i.kind) + '|' + esc(i.id) + '" data-name="' + esc(i.name) + '">Options</button>' : '') + '</div>' +
+          '</div></div>';
+        }).join('') : '<div class="ad-card"><div class="ad-body"><div class="ad-title">Nothing in the next 30 days</div><div class="ad-meta">Use the + buttons to plan one.</div></div></div>';
+      });
+      edLoad();
+    }
+    document.querySelector('.eh-new').addEventListener('click', function(e){
+      var b = e.target.closest('[data-eh-new]'); if (!b) return;
+      var tab = b.getAttribute('data-eh-new'), nav = document.querySelector('.nav-link[data-tab="' + tab + '"]'); if (nav) nav.click();
+      setTimeout(function(){
+        if (tab === 'community' && $('cmNewBtn')) $('cmNewBtn').click();
+        else if (tab === 'corpevents' && $('ceNewBtn')) $('ceNewBtn').click();
+        else if (tab === 'events' && $('eventTitle')) $('eventTitle').focus();
+        else if (tab === 'onloc' && $('spName')) $('spName').focus();
+      }, 120);
+    });
+
+    // ---- Event defaults ----
+    function edLoad(){
+      sb.rpc('staff_event_defaults_get').then(function(res){
+        if (res.error) { $('ehDefSum').innerHTML = '<p class="hint">' + esc(missing(res.error) ? NEED : res.error.message) + '</p>'; return; }
+        ehDefaults = res.data || {}; edPaint();
+      });
+    }
+    function edPaint(){
+      var c = ehDefaults.community || {}, o = ehDefaults.options || {}, bits = [];
+      if (c.start_time && c.end_time) bits.push('Times ' + c.start_time + '–' + c.end_time);
+      if (c.slot_min) bits.push('a pickup time every ' + c.slot_min + ' min');
+      if (c.cutoff_min) bits.push('last orders ' + c.cutoff_min + ' min before');
+      if (c.board_lead_min) bits.push('kitchen sees tickets ' + c.board_lead_min + ' min before');
+      if (c.max_per_slot) bits.push('up to ' + c.max_per_slot + ' per pickup time');
+      if (c.welcome_title) bits.push('headline “' + c.welcome_title + '”');
+      if (c.image_url) bits.push('photo');
+      if (c.menu_item_ids && c.menu_item_ids.length) bits.push(c.menu_item_ids.length + ' menu items');
+      if (c.onloc) bits.push('On Location stop on');
+      var ob = ['reminder email ' + (Number(o.reminder_min) ? o.reminder_min + ' min before pickup' : 'off')];
+      if (o.walkup_every != null) ob.push('walk-up spot ' + (Number(o.walkup_every) === 0 ? 'off' : Number(o.walkup_every) === 1 ? 'every slot' : '1 every ' + o.walkup_every + ' slots'));
+      if (o.print_mode) ob.push('community tickets print ' + (o.print_mode === 'order' ? 'when ordered' : 'at Ready'));
+      $('ehDefSum').innerHTML = '<p><b>New community events:</b> ' + (bits.length ? esc(bits.join(', ')) : 'blank (nothing saved yet)') + '.</p><p><b>Every event:</b> ' + esc(ob.join(', ')) + '.</p>' +
+        (ehDefaults.updated_by ? '<p class="hint">Last changed by ' + esc(ehDefaults.updated_by) + '.</p>' : '');
+      $('edStart').value = c.start_time || ''; $('edEnd').value = c.end_time || ''; $('edSlot').value = c.slot_min ? String(c.slot_min) : '';
+      $('edCutoff').value = c.cutoff_min ? String(c.cutoff_min) : ''; $('edLead').value = c.board_lead_min ? String(c.board_lead_min) : ''; $('edMax').value = c.max_per_slot || '';
+      $('edTitle').value = c.welcome_title || ''; $('edMsg').value = c.welcome_msg || ''; $('edOnloc').checked = !!c.onloc;
+      $('edEvery').value = o.walkup_every != null ? String(o.walkup_every) : ''; $('edReminder').value = String(Number(o.reminder_min) || 0); $('edPrint').value = o.print_mode || '';
+    }
+    $('ehDefEdit').addEventListener('click', function(){ $('ehDefForm').classList.toggle('hidden'); });
+    $('edCancel').addEventListener('click', function(){ $('ehDefForm').classList.add('hidden'); });
+    function edSave(community, options, msgEl){
+      var p = {}; if (community) p.community = community; if (options) p.options = options;
+      return sb.rpc('staff_event_defaults_set', { p: p }).then(function(res){
+        if (res.error) { showMsg(msgEl, missing(res.error) ? NEED : res.error.message, 'error'); return false; }
+        ehDefaults = res.data || {}; edPaint(); showMsg(msgEl, 'Defaults saved.', 'ok'); return true;
+      });
+    }
+    $('edSave').addEventListener('click', function(){
+      var keep = (ehDefaults && ehDefaults.community) || {}, max = $('edMax').value.trim();
+      var c = { image_url: keep.image_url || null, menu_item_ids: keep.menu_item_ids || null,
+        start_time: $('edStart').value || null, end_time: $('edEnd').value || null, slot_min: $('edSlot').value ? Number($('edSlot').value) : null,
+        cutoff_min: $('edCutoff').value ? Number($('edCutoff').value) : null, board_lead_min: $('edLead').value ? Number($('edLead').value) : null,
+        max_per_slot: max ? Math.round(Number(max)) : null, welcome_title: $('edTitle').value.trim() || null, welcome_msg: $('edMsg').value.trim() || null, onloc: $('edOnloc').checked };
+      var o = { reminder_min: Number($('edReminder').value), walkup_every: $('edEvery').value === '' ? null : Number($('edEvery').value), print_mode: $('edPrint').value || null };
+      edSave(c, o, 'edMsgBox').then(function(ok){ if (ok) $('ehDefForm').classList.add('hidden'); });
+    });
+    // From the community editor: keep these settings as the defaults
+    $('cmSaveDefaults').addEventListener('click', function(){
+      function t(v){ var m = /T(\d{2}:\d{2})/.exec(v || ''); return m ? m[1] : null; }
+      var ids = Array.prototype.map.call(document.querySelectorAll('#cmMenu [data-cm-item]:checked'), function(x){ return x.getAttribute('data-cm-item'); });
+      var all = document.querySelectorAll('#cmMenu [data-cm-item]').length, max = $('cmMax').value.trim();
+      var c = { start_time: t($('cmStart').value), end_time: t($('cmEnd').value), slot_min: Number($('cmSlot').value), cutoff_min: Number($('cmCutoff').value),
+        board_lead_min: Number($('cmLead').value), max_per_slot: max ? Math.round(Number(max)) : null,
+        welcome_title: $('cmTitle').value.trim() || null, welcome_msg: $('cmWelcome').value.trim() || null,
+        image_url: (typeof cmState !== 'undefined' && cmState.photo) || null, menu_item_ids: ids.length && ids.length < all ? ids : null, onloc: $('cmOnloc').checked };
+      edSave(c, null, 'cmEditMsg').then(function(ok){ if (ok) showMsg('cmEditMsg', 'Saved as your defaults. New events will start with these times, spacing, welcome text, photo and menu.', 'ok'); });
+    });
+    // Load defaults once signed in, so "Add an event" can use them.
+    setTimeout(function(){ if (!hub.classList.contains('hidden')) edLoad(); }, 2500);
+    $('tabCommBtn').addEventListener('click', function(){ if (!ehDefaults) edLoad(); });
+
+    // ---- Options dialog (one event) ----
+    var dlg = document.createElement('div'); dlg.className = 'eo-wrap hidden'; dlg.setAttribute('role', 'dialog'); dlg.setAttribute('aria-modal', 'true');
+    dlg.innerHTML = '<div class="eo-card"><div class="sp-head"><h3 id="eoTitle">Options</h3><button type="button" class="btn-export btn-small" id="eoClose">Close</button></div><div id="eoBody"></div>' +
+      '<div class="ad-actions"><button type="button" class="btn-primary" id="eoSave">Save options</button><span class="sh-msg" id="eoMsg" role="status"></span></div></div>';
+    document.body.appendChild(dlg);
+    var eo = { kind: null, id: null };
+    function sel(id, opts, val, def){ return '<select id="' + id + '"><option value="">' + esc(def) + '</option>' + opts.map(function(o){ return '<option value="' + o[0] + '"' + (String(val) === String(o[0]) ? ' selected' : '') + '>' + esc(o[1]) + '</option>'; }).join('') + '</select>'; }
+    function eoOpen(kind, id, name){
+      eo.kind = kind; eo.id = id;
+      $('eoTitle').textContent = (KIND[kind] ? KIND[kind][0] : '') + ': ' + name; $('eoMsg').textContent = '';
+      $('eoBody').innerHTML = '<p class="hint">Loading…</p>'; dlg.classList.remove('hidden');
+      sb.rpc('staff_event_options_get', { p_kind: kind, p_id: id }).then(function(res){
+        if (res.error) { $('eoBody').innerHTML = '<p class="hint">' + esc(missing(res.error) ? NEED : res.error.message) + '</p>'; return; }
+        var own = res.data.own || {}, eff = res.data.effective || {}, pc = res.data.pacing || {}, h = '';
+        var EVERY = [['0', 'Don’t keep one'], ['1', 'In every slot'], ['2', '1 every 2 slots'], ['3', '1 every 3 slots'], ['4', '1 every 4 slots']];
+        h += '<div class="cm-sec">Pickup slots</div><label class="ad-check"><input type="checkbox" id="eoPace"' + (own.pace_on === false ? '' : ' checked') + '> Use pickup slots during this ' + (kind === 'onloc' ? 'stop' : 'event') + '</label>';
+        if (kind !== 'community') {
+          h += '<div class="ce-trio"><div><label for="eoSlot">A slot every</label>' + sel('eoSlot', [[5, '5 min'], [10, '10 min'], [15, '15 min'], [20, '20 min'], [30, '30 min']], own.slot_min, 'Default (' + pc.slot_min + ' min)') + '</div>' +
+            '<div><label for="eoMax">Orders per slot</label>' + sel('eoMax', [1, 2, 3, 4, 5, 6, 8, 10, 12, 15, 20].map(function(n){ return [n, String(n)]; }), own.max_orders, 'Default (' + pc.max_orders + ')') + '</div>' +
+            '<div><label for="eoLead">Kitchen sees a slot</label>' + sel('eoLead', [[5, '5 min before'], [10, '10 min before'], [15, '15 min before'], [20, '20 min before'], [30, '30 min before'], [45, '45 min before'], [60, '60 min before']], own.lead_min, 'Default (' + pc.lead_min + ' min)') + '</div></div>';
+        } else {
+          h += '<p class="hint">Pickup times, orders per pickup time and when the kitchen sees tickets are in the event&rsquo;s own editor.</p>';
+        }
+        h += '<label for="eoEvery">Keep a spot for walk-ups</label>' + sel('eoEvery', EVERY, own.walkup_every, 'Default');
+        if (kind !== 'community') {
+          var lim = Array.isArray(own.menu_item_ids);
+          h += '<div class="cm-sec">Menu</div><label class="ad-check"><input type="radio" name="eoMenu" value="full"' + (lim ? '' : ' checked') + '> Full menu</label>' +
+            '<label class="ad-check"><input type="radio" name="eoMenu" value="some"' + (lim ? ' checked' : '') + '> Only some items (e.g. no fryer today)</label><div id="eoMenuList" class="nd-menu' + (lim ? '' : ' hidden') + '"><p class="hint">Loading the menu…</p></div>' +
+            '<p class="hint">Items left off show as unavailable on the website, the truck QR and the kiosk while this runs, and checkout refuses them. Combo add-ons and deal pieces always stay on.</p>';
+        }
+        h += '<div class="cm-sec">Look</div><div class="eo-colors">' + ['', ].concat(COLORS).map(function(c){ return '<button type="button" class="eo-sw' + ((own.color || '') === c ? ' on' : '') + '" data-color="' + c + '" style="background:' + (c || '#fff') + '" aria-label="' + (c ? 'Color ' + c : 'No color') + '">' + (c ? '' : '×') + '</button>'; }).join('') + '</div>' +
+          '<label for="eoTag">Short tag on kitchen tickets and the slot strip (up to 10 letters)</label><input type="text" id="eoTag" maxlength="10" placeholder="e.g. SUMMIT" value="' + esc(own.tag || '') + '">';
+        h += '<div class="cm-sec">Printed tickets</div>' + sel('eoPrint', [['ready', 'Print when the kitchen marks it Ready'], ['order', 'Print as soon as it’s ordered']], own.print_mode,
+          'Default (' + ((kind === 'onloc' ? (eff.print_mode || 'order') : (eff.print_mode || 'ready')) === 'order' ? 'when ordered' : 'at Ready') + ')');
+        if (kind === 'community') h += '<div class="cm-sec">Reminder email</div>' + sel('eoRem', [[0, 'Off'], [15, '15 min before pickup'], [30, '30 min before pickup'], [45, '45 min before pickup'], [60, '1 hour before pickup'], [90, '90 min before pickup'], [120, '2 hours before pickup']], own.reminder_min,
+          'Default (' + (Number(eff.reminder_min) ? eff.reminder_min + ' min before' : 'off') + ')') + '<p class="hint">Pre-order guests with an email get one reminder with their order number, pickup time and directions.</p>';
+        $('eoBody').innerHTML = h;
+        eo.color = own.color || '';
+        if (kind !== 'community') {
+          ndLoadMenu().then(function(){
+            var on = {}; (own.menu_item_ids || []).forEach(function(x){ on[x] = 1; });
+            var cats = [], by = {};
+            (ndState.menu || []).forEach(function(m){ if (!by[m.category]) { by[m.category] = []; cats.push(m.category); } by[m.category].push(m); });
+            $('eoMenuList').innerHTML = cats.map(function(c){ return '<div class="nd-cat">' + esc(c) + '</div>' + by[c].map(function(m){ return '<label class="nd-item"><input type="checkbox" data-eo-item="' + esc(m.id) + '"' + (Array.isArray(own.menu_item_ids) ? (on[m.id] ? ' checked' : '') : ' checked') + '>' + esc(m.name) + (m.variant_name ? ' · ' + esc(m.variant_name) : '') + '</label>'; }).join(''); }).join('') || '<p class="hint">No menu items found.</p>';
+          });
+        }
+      });
+    }
+    dlg.addEventListener('change', function(e){ if (e.target.name === 'eoMenu') $('eoMenuList').classList.toggle('hidden', e.target.value !== 'some'); });
+    dlg.addEventListener('click', function(e){
+      var sw = e.target.closest('.eo-sw'); if (sw) { eo.color = sw.getAttribute('data-color'); dlg.querySelectorAll('.eo-sw').forEach(function(x){ x.classList.toggle('on', x === sw); }); return; }
+      if (e.target === dlg || e.target.id === 'eoClose') dlg.classList.add('hidden');
+    });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape' && !dlg.classList.contains('hidden')) dlg.classList.add('hidden'); });
+    $('eoSave').addEventListener('click', function(){
+      var b = this, num = function(id){ var el = $(id); return el && el.value !== '' ? Number(el.value) : null; };
+      var p = { pace_on: $('eoPace').checked, walkup_every: num('eoEvery'), color: eo.color || null, tag: $('eoTag').value.trim() || null, print_mode: $('eoPrint').value || null };
+      if (eo.kind !== 'community') {
+        p.slot_min = num('eoSlot'); p.max_orders = num('eoMax'); p.lead_min = num('eoLead');
+        var some = dlg.querySelector('input[name="eoMenu"]:checked');
+        if (some && some.value === 'some') {
+          p.menu_item_ids = Array.prototype.map.call(dlg.querySelectorAll('[data-eo-item]:checked'), function(x){ return x.getAttribute('data-eo-item'); });
+          if (!p.menu_item_ids.length) { $('eoMsg').textContent = 'Pick at least one item, or choose Full menu.'; return; }
+        }
+      } else p.reminder_min = num('eoRem');
+      b.disabled = true; $('eoMsg').textContent = 'Saving…';
+      sb.rpc('staff_event_options_set', { p_kind: eo.kind, p_id: eo.id, p: p }).then(function(res){
+        b.disabled = false;
+        if (res.error) { $('eoMsg').textContent = missing(res.error) ? NEED : res.error.message; return; }
+        $('eoMsg').textContent = 'Saved ✓'; setTimeout(function(){ dlg.classList.add('hidden'); }, 600);
+        if (!$('panelEventhub').classList.contains('hidden')) ehLoad();
+      }, function(){ b.disabled = false; $('eoMsg').textContent = 'Couldn’t reach the server.'; });
+    });
+    document.addEventListener('click', function(e){
+      var b = e.target.closest('[data-evopt],[data-cmopt],[data-spopt],[data-calopt]'); if (!b) return;
+      e.stopPropagation();
+      var name = b.getAttribute('data-name') || '';
+      if (b.hasAttribute('data-evopt')) { var kv = b.getAttribute('data-evopt').split('|'); eoOpen(kv[0], kv[1], name); }
+      else if (b.hasAttribute('data-cmopt')) eoOpen('community', b.getAttribute('data-cmopt'), name);
+      else if (b.hasAttribute('data-spopt')) eoOpen('onloc', b.getAttribute('data-spopt'), name);
+      else eoOpen('calendar', b.getAttribute('data-calopt'), name);
+    }, true);
+
+    // ---- Rush schedule ----
+    var DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], rs = [];
+    function rsPaint(){
+      $('rsRows').innerHTML = rs.length ? rs.map(function(r, i){
+        return '<div class="rs-row" data-i="' + i + '"><div class="rs-days">' + DAYS.map(function(d, k){ return '<label><input type="checkbox" data-day="' + k + '"' + (r.days.indexOf(k) > -1 ? ' checked' : '') + '>' + d + '</label>'; }).join('') + '</div>' +
+          '<input type="time" data-f="start" value="' + esc(r.start) + '"> to <input type="time" data-f="end" value="' + esc(r.end) + '">' +
+          '<label class="ad-check rs-on"><input type="checkbox" data-f="active"' + (r.active ? ' checked' : '') + '> On</label><button type="button" class="btn-ghost btn-small" data-rs-del="' + i + '" style="color:#c4271b">Remove</button></div>';
+      }).join('') : '<p class="hint">No Rush times yet.</p>';
+      var on = rs.some(function(r){ return r.active; }); $('rsChip').textContent = on ? 'Scheduled' : 'Off'; $('rsChip').classList.toggle('kp-on', on);
+    }
+    function rsRead(){
+      document.querySelectorAll('#rsRows .rs-row').forEach(function(row){
+        var r = rs[Number(row.getAttribute('data-i'))];
+        r.days = Array.prototype.map.call(row.querySelectorAll('[data-day]:checked'), function(x){ return Number(x.getAttribute('data-day')); });
+        r.start = row.querySelector('[data-f="start"]').value; r.end = row.querySelector('[data-f="end"]').value; r.active = row.querySelector('[data-f="active"]').checked;
+      });
+    }
+    function rsLoad(){
+      sb.rpc('staff_rush_schedule_get').then(function(res){
+        if (res.error) { $('rsMsg').textContent = missing(res.error) ? NEED : res.error.message; return; }
+        rs = (res.data || []).map(function(r){ return { days: r.days || [], start: r.start, end: r.end, active: r.active !== false }; }); rsPaint();
+      });
+    }
+    $('rsAdd').addEventListener('click', function(){ rsRead(); rs.push({ days: [5, 6], start: '17:00', end: '20:00', active: true }); rsPaint(); });
+    $('rsRows').addEventListener('click', function(e){ var d = e.target.closest('[data-rs-del]'); if (!d) return; rsRead(); rs.splice(Number(d.getAttribute('data-rs-del')), 1); rsPaint(); });
+    $('rsSave').addEventListener('click', function(){
+      rsRead();
+      for (var i = 0; i < rs.length; i++) {
+        if (!rs[i].days.length) { $('rsMsg').textContent = 'Pick at least one day for each time.'; return; }
+        if (!rs[i].start || !rs[i].end || rs[i].end <= rs[i].start) { $('rsMsg').textContent = 'Each Rush time has to end after it starts.'; return; }
+      }
+      $('rsMsg').textContent = 'Saving…';
+      sb.rpc('staff_rush_schedule_set', { p: rs }).then(function(res){
+        if (res.error) { $('rsMsg').textContent = missing(res.error) ? NEED : res.error.message; return; }
+        rs = (res.data || []).map(function(r){ return { days: r.days || [], start: r.start, end: r.end, active: r.active !== false }; }); rsPaint(); $('rsMsg').textContent = 'Saved ✓';
+      });
+    });
+    $('wsCopy').addEventListener('click', function(){
+      var url = 'https://rollinshawarma.com/window.html';
+      try { navigator.clipboard.writeText(url).then(function(){ $('wsMsg').textContent = 'Copied ✓'; }, function(){ $('wsMsg').textContent = url; }); } catch (e) { $('wsMsg').textContent = url; }
+    });
+  })();
+
   sb.auth.getSession().then(function(res){
     if (res.data && res.data.session) { handleLoginOnce(); }
   });
