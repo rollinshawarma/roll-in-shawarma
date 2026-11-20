@@ -1474,6 +1474,8 @@ body.onloc-now .drive-up-only{ display:none !important; }
   /* "Powered by TruckStack" credit under the footer */
   .foot-powered{ margin-top:14px; padding-top:12px; border-top:1px solid rgba(127,127,127,.18); text-align:center; font-size:12px; letter-spacing:.04em; opacity:.7; }
   .foot-powered b{ font-weight:800; letter-spacing:.02em; }
+  .co-ready{ border:1px solid #cfe3f7; background:#f2f8fe; color:#1d1d1f; border-radius:12px; padding:10px 12px; margin:8px 0 12px; font-size:14px; line-height:1.4; }
+  .co-ready b{ font-size:15px; }
 </style>
 <script type="application/ld+json">
 {
@@ -2542,6 +2544,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         <div class="checkout-summary">
           <div class="co-for" id="coForLine"></div>
           <div class="pt-other-day hidden" id="coOtherDay" role="alert"></div>
+          <div class="co-ready hidden" id="coReady" role="status"></div>
           <div class="co-items" id="coItemsList"></div>
           <div class="rw-earn hidden" id="coPointsLine"></div>
         <div class="cart-breakdown">
@@ -8105,6 +8108,29 @@ body.truck-open:not(.onloc-now) .pk-closed{ display:none; }
   scrim.addEventListener('click', close);
   document.addEventListener('keydown', function(e){ if (e.key === 'Escape') close(); });
 })();
+</script>
+
+<script>
+  // Busy nights (slot-pacing.sql): "Ready about 6:20 PM" on the pay step for
+  // an ASAP order. A chosen later time is shown as usual.
+  (function(){
+    var box = document.getElementById('coReady'); if (!box || !window.sbShared) return;
+    function load(){
+      if (document.hidden) return;
+      var later = null; try { later = window.rollinPickup ? window.rollinPickup.value() : null; } catch (e) {}
+      if (later) { box.classList.add('hidden'); return; }
+      sbShared.rpc('get_pace_status').then(function(res){
+        var d = res && !res.error ? res.data : null;
+        if (!d || !d.on || !d.ready_at) { box.classList.add('hidden'); return; }
+        var t = new Date(d.ready_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' }).replace(/[\u202f\u00a0]/g, ' ');
+        box.innerHTML = '\u23F1 It\u2019s busy right now. Your order will be ready about <b>' + t + '</b>. We cook in pickup slots so nobody jumps the line.';
+        box.classList.remove('hidden');
+      }, function(){});
+    }
+    var pay = document.getElementById('coStepPay');
+    if (pay && window.MutationObserver) new MutationObserver(function(){ if (!pay.classList.contains('hidden')) load(); }).observe(pay, { attributes: true, attributeFilter: ['class'] });
+    setInterval(function(){ if (pay && !pay.classList.contains('hidden')) load(); }, 30000);
+  })();
 </script>
 </body>
 </html>
