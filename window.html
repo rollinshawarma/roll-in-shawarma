@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<meta name="robots" content="noindex">
+<title>Pickup Window | Roll-In Shawarma</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Fraunces:opsz,wght@9..144,600;9..144,700&display=swap" rel="stylesheet">
+<style>
+  /* Window screen (events-pack): a tablet or TV at the truck window.
+     Big "ready about" time for people about to order, the numbers being
+     called, and the ones cooking. Order numbers only, plus a first name. */
+  :root{ --bg:#F4EEE3; --card:#FFFFFF; --ink:#2A1F16; --soft:#6E6052; --line:#EADFCC; --accent:#B4542A; --green:#0B8F43; }
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html, body{ height:100%; }
+  body{ background:var(--bg); color:var(--ink); font-family:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,sans-serif; display:flex; flex-direction:column; overflow:hidden; }
+  header{ display:flex; align-items:center; justify-content:space-between; padding:2.2vh 3vw; }
+  .brand{ font-family:"Fraunces",Georgia,serif; font-weight:700; font-size:clamp(20px,3vh,34px); letter-spacing:-.01em; }
+  .clock{ color:var(--soft); font-weight:600; font-size:clamp(16px,2.4vh,26px); font-variant-numeric:tabular-nums; }
+  .hero{ margin:0 3vw; background:var(--ink); color:#fff; border-radius:28px; padding:3.2vh 3vw; display:flex; align-items:center; justify-content:space-between; gap:3vw; }
+  .hero .k{ font-size:clamp(14px,2.2vh,22px); letter-spacing:.14em; text-transform:uppercase; color:#F6C77A; font-weight:700; }
+  .hero .t{ font-family:"Fraunces",Georgia,serif; font-size:clamp(46px,10vh,120px); line-height:1; font-weight:700; margin-top:.8vh; font-variant-numeric:tabular-nums; }
+  .hero .s{ font-size:clamp(14px,2.2vh,22px); color:#e9dfcf; margin-top:1vh; max-width:52ch; }
+  .hero .ev{ text-align:right; font-size:clamp(14px,2.2vh,22px); color:#e9dfcf; }
+  .hero .ev b{ display:block; color:#fff; font-size:clamp(18px,3vh,32px); }
+  .hero.calm .t{ font-size:clamp(36px,7vh,84px); }
+  main{ flex:1; display:grid; grid-template-columns:1.25fr 1fr; gap:2.4vw; padding:2.4vh 3vw 3vh; min-height:0; }
+  .col{ background:var(--card); border:1px solid var(--line); border-radius:24px; padding:2.4vh 2vw; display:flex; flex-direction:column; min-height:0; }
+  .col h2{ font-size:clamp(14px,2.2vh,22px); letter-spacing:.14em; text-transform:uppercase; color:var(--soft); margin-bottom:1.6vh; }
+  .col.ready h2{ color:var(--green); }
+  .grid{ display:flex; flex-wrap:wrap; gap:1.4vh 1.2vw; align-content:flex-start; overflow:hidden; }
+  .num{ border-radius:18px; padding:1.2vh 1.4vw; min-width:9.5em; }
+  .ready .num{ background:#E7F5EC; border:2px solid var(--green); animation:pop .5s ease-out; }
+  .cook .num{ background:#FBF6EC; border:1px solid var(--line); }
+  .num b{ display:block; font-size:clamp(30px,6.4vh,72px); line-height:1; font-variant-numeric:tabular-nums; }
+  .cook .num b{ font-size:clamp(24px,4.4vh,52px); color:var(--ink); }
+  .num span{ display:block; color:var(--soft); font-weight:600; font-size:clamp(13px,2vh,22px); margin-top:.6vh; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:11em; }
+  .empty{ color:var(--soft); font-size:clamp(16px,2.6vh,28px); }
+  .err{ position:fixed; left:50%; bottom:2vh; transform:translateX(-50%); background:#fff3f1; color:#a32a1a; border:1px solid #f1c4bd; border-radius:999px; padding:8px 16px; font-weight:600; display:none; }
+  @keyframes pop{ from{ transform:scale(.92); opacity:.4; } to{ transform:none; opacity:1; } }
+  @media (prefers-reduced-motion: reduce){ .ready .num{ animation:none; } }
+  @media (max-width: 760px){ main{ grid-template-columns:1fr; } .hero{ flex-direction:column; align-items:flex-start; } .hero .ev{ text-align:left; } }
+</style>
+</head>
+<body>
+<header><div class="brand">Roll-In Shawarma</div><div class="clock" id="clock"></div></header>
+<section class="hero calm" id="hero" aria-live="polite">
+  <div>
+    <div class="k" id="heroK">Order at the window</div>
+    <div class="t" id="heroT">We&rsquo;ll call your number</div>
+    <div class="s" id="heroS">Watch for your order number below.</div>
+  </div>
+  <div class="ev" id="heroEv"></div>
+</section>
+<main>
+  <section class="col ready"><h2>Ready &mdash; come get it</h2><div class="grid" id="ready"><div class="empty">&nbsp;</div></div></section>
+  <section class="col cook"><h2>Cooking</h2><div class="grid" id="cook"><div class="empty">&nbsp;</div></div></section>
+</main>
+<div class="err" id="err">Reconnecting&hellip;</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
+<script>
+  var sb = supabase.createClient('https://njcmcaoyzujijiyfardx.supabase.co', 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_');
+  var TZ = 'America/New_York';
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function clock(d){ return new Date(d).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: TZ }).replace(/[  ]/g, ' '); }
+  function shortNo(ref){ var m = /(\d{3,})$/.exec(String(ref || '')); return m ? '#' + m[1] : String(ref || ''); }
+  var WHY = { event: 'Event', onloc: 'On Location', calendar: 'Today', rush: 'Busy right now' };
+  function tickClock(){ document.getElementById('clock').textContent = clock(Date.now()); }
+  function showErr(on){ document.getElementById('err').style.display = on ? 'block' : 'none'; }
+  function card(o){ return '<div class="num"><b>' + esc(shortNo(o.reference_code)) + '</b><span>' + esc(o.first_name || '') + '</span></div>'; }
+  function load(){
+    sb.rpc('get_public_order_status_board').then(function(res){
+      if (res.error || !Array.isArray(res.data)) { showErr(true); return; }
+      showErr(false);
+      var ready = res.data.filter(function(o){ return o.display_stage === 'ready'; });
+      var cook = res.data.filter(function(o){ return o.display_stage === 'preparing' || o.display_stage === 'placed'; });
+      document.getElementById('ready').innerHTML = ready.length ? ready.map(card).join('') : '<div class="empty">Nothing waiting right now.</div>';
+      document.getElementById('cook').innerHTML = cook.length ? cook.slice(0, 24).map(card).join('') + (cook.length > 24 ? '<div class="empty">+' + (cook.length - 24) + ' more</div>' : '') : '<div class="empty">All caught up.</div>';
+    }, function(){ showErr(true); });
+    sb.rpc('get_pace_status').then(function(res){
+      var d = res && !res.error ? res.data : null, hero = document.getElementById('hero');
+      if (d && d.on && d.ready_at) {
+        hero.classList.remove('calm');
+        document.getElementById('heroK').textContent = 'Ordering now?';
+        document.getElementById('heroT').textContent = 'Ready about ' + clock(d.ready_at);
+        document.getElementById('heroS').textContent = 'We cook in pickup slots when it’s busy, so nobody jumps the line. We’ll call your number.';
+        document.getElementById('heroEv').innerHTML = d.why && d.why !== 'rush' ? esc(WHY[d.why] || '') + '<b>' + esc(d.name || '') + '</b>' : '';
+      } else {
+        hero.classList.add('calm');
+        document.getElementById('heroK').textContent = 'Order at the window';
+        document.getElementById('heroT').textContent = 'We’ll call your number';
+        document.getElementById('heroS').textContent = 'Watch for your order number below.';
+        document.getElementById('heroEv').innerHTML = '';
+      }
+    }, function(){});
+  }
+  tickClock(); setInterval(tickClock, 15000);
+  load(); setInterval(load, 8000);
+  document.addEventListener('visibilitychange', function(){ if (!document.hidden) load(); });
+  // Keep the tablet awake where supported.
+  try { if (navigator.wakeLock) navigator.wakeLock.request('screen').catch(function(){}); } catch (e) {}
+</script>
+</body>
+</html>
