@@ -472,6 +472,12 @@ fbq('init','1433859782006722');fbq('track','PageView');
           schedEl.classList.remove('hidden');
           schedEl.textContent = 'Scheduled pickup: ' + new Date(order.scheduledPickupAt).toLocaleString('en-US', { timeZone: 'America/New_York', weekday: 'long', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' });
         }
+        // Busy night (pickup slots): when this order will be ready.
+        if (!order.scheduledPickupAt && order.readyAt && ['COMPLETED', 'CANCELED'].indexOf(order.fulfillmentStatus) === -1) {
+          var readyEl = document.getElementById('pickupNote');
+          readyEl.classList.remove('hidden');
+          readyEl.textContent = 'Ready about ' + new Date(order.readyAt).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }).replace(/[\u202f\u00a0]/g, ' ') + '. It\u2019s busy, so we\u2019re cooking orders in pickup slots. We\u2019ll call your name.';
+        }
         // On Location stop or community event: say where (it's not our usual spot).
         if (order.pickupPlace && order.pickupPlace.name) {
           var pp = order.pickupPlace, pmap = String(pp.map || '');
