@@ -1022,6 +1022,8 @@
   .sheet{ box-shadow:0 0 0 1px rgba(42,31,22,.08); }
   .halal-tag, .veg-tag{ border:0; padding:0; letter-spacing:.08em; }
   .new-tag{ background:none; color:var(--accent); padding:0; letter-spacing:.1em; }
+  .co-ready{ border:1px solid rgba(100,210,255,.45); background:rgba(100,210,255,.08); color:var(--cream); border-radius:12px; padding:10px 12px; margin:-2px 0 12px; font-size:14px; line-height:1.35; }
+  .co-ready b{ color:#fff; font-size:16px; }
 </style>
 </head>
 <body>
@@ -1293,6 +1295,7 @@
     <div class="co-sec co-summary" style="border-bottom:none;">
       <h3>Review your order</h3>
       <div class="co-for" id="coForLine"></div>
+      <div class="co-ready hidden" id="coReady" role="status"></div>
       <div class="co-earn hidden" id="coEarn"></div>
       <div id="coLines"></div>
       <div class="totals" id="coTotals"></div>
@@ -3919,6 +3922,28 @@
     }
   }
 })();
+</script>
+
+<script>
+  // Busy nights (slot-pacing.sql): "Ready about 6:20 PM" before paying, for
+  // orders placed now. Event pre-orders pick their own time, so not there.
+  (function(){
+    var q = new URLSearchParams(location.search);
+    if (q.get('door') || q.get('event')) return;
+    var box = document.getElementById('coReady'); if (!box || !window.sbShared) return;
+    function load(){
+      if (document.hidden) return;
+      sbShared.rpc('get_pace_status').then(function(res){
+        var d = res && !res.error ? res.data : null;
+        if (!d || !d.on || !d.ready_at) { box.classList.add('hidden'); return; }
+        var t = new Date(d.ready_at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' }).replace(/[\u202f\u00a0]/g, ' ');
+        box.innerHTML = '\u23F1 It\u2019s busy right now. Your order will be ready about <b>' + t + '</b>. We cook in pickup slots so nobody jumps the line.';
+        box.classList.remove('hidden');
+      }, function(){});
+    }
+    load(); setInterval(load, 30000);
+    document.addEventListener('visibilitychange', load);
+  })();
 </script>
 </body>
 </html>
