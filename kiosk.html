@@ -2869,6 +2869,12 @@
       document.getElementById('confirmedInstructions').textContent = isCash
         ? "Please pay at the counter. We'll call your name when it's ready."
         : "We'll call your name when it's ready.";
+      // Busy night (slot-pacing.sql): the pickup slot this order was given.
+      var ra = window.__kioskReadyAt; window.__kioskReadyAt = null;
+      if (ra) {
+        var rt = new Date(ra).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' }).replace(/[\u202f\u00a0]/g, ' ');
+        document.getElementById('confirmedInstructions').textContent += ' Ready about ' + rt + ' (we cook in pickup slots when it\u2019s busy).';
+      }
 
       var itemsEl = document.getElementById('confirmedItemsList');
       if (items && items.length) {
@@ -2909,6 +2915,7 @@
 
         if (order && order.status === 'paid') {
           stopPolling();
+          window.__kioskReadyAt = order.readyAt || null;
           showOrderConfirmed(referenceCode, order.items, false);
           return;
         }
@@ -2984,6 +2991,7 @@
             checkBtn.textContent = 'Already paid? Check now \u2192';
             if (order && order.status === 'paid') {
               stopPolling();
+              window.__kioskReadyAt = order.readyAt || null;
               showOrderConfirmed(referenceCode, order.items, false);
             } else {
               var msgEl = document.getElementById('scanToPayMsg');
@@ -3066,6 +3074,7 @@
           }
           var confirmedItems = cart.map(function(c){ return { name: c.name + (ingNote(c) ? ' (' + ingNote(c) + ')' : ''), quantity: c.quantity }; });
           lastKioskOrderId = result.data.orderId || null;
+          window.__kioskReadyAt = result.data.readyAt || null;
           showOrderConfirmed(result.data.referenceCode, confirmedItems, true);
         })
         .catch(function(err){
@@ -3969,6 +3978,7 @@
             return;
           }
           lastKioskOrderId = readerOrderId;
+          window.__kioskReadyAt = result.data.readyAt || null;
           showOrderConfirmed(result.data.referenceCode, result.data.items, false);
         })
         .catch(function(){
