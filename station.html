@@ -2252,6 +2252,16 @@
     // it can't interrupt someone mid-tap.
     function updateWaitTimes(){
       document.querySelectorAll('.wait-time').forEach(function(el){
+        // Pre-orders (event pickup times, scheduled orders): count down to
+        // the pickup time instead of up from when it was placed hours ago.
+        var dueAt = el.getAttribute('data-due-at');
+        if (dueAt) {
+          var left = Math.round((new Date(dueAt).getTime() - Date.now()) / 60000);
+          el.textContent = left > 0 ? 'due ' + left + 'm' : (left === 0 ? 'due now' : 'late ' + (-left) + 'm');
+          el.classList.toggle('caution', left <= 10 && left > 0);
+          el.classList.toggle('warn', left <= 0);
+          return;
+        }
         var createdAt = el.getAttribute('data-created-at');
         if (!createdAt) return;
         var elapsedSeconds = Math.max(0, Math.round((Date.now() - new Date(createdAt).getTime()) / 1000));
@@ -3195,7 +3205,7 @@
           '<div class="order-card-head">' +
             '<span class="order-ref">' + escHtml(o.reference_code || '') + '</span>' +
             '<span class="order-name">' + escHtml(o.customer_name || '') + '</span>' +
-            '<span class="wait-time" data-created-at="' + escHtml(o.createdAt || '') + '">&mdash;</span>' +
+            '<span class="wait-time" data-created-at="' + escHtml(o.createdAt || '') + '"' + (o.scheduledAt && new Date(o.scheduledAt).getTime() - new Date(o.createdAt || 0).getTime() > 25 * 60000 ? ' data-due-at="' + escHtml(o.scheduledAt) + '"' : '') + '>&mdash;</span>' +
           '</div>' +
           (isCash ? '<div class="cash-warning">Cash order: collect payment at the window</div>' : '') +
           (o.scheduledAt ? '<div class="scheduled-badge">\u23F0 ' + (DELIVERY_APPS[o.source] ? 'Scheduled ' + escHtml(DELIVERY_APPS[o.source]) + ' \u2014 ready by ' : 'Scheduled pickup ') + escHtml(fmtTime(o.scheduledAt)) + '</div>' : '') +
@@ -3790,12 +3800,14 @@
   // in the kitchen shortly before it leaves.
   function doorTime(iso){ return new Date(iso).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }); }
   makeTicketBoard({
-    prefix: 'door', rpc: 'get_kds_door_board', start: 'startDoorBoard', stop: 'stopDoorBoard',
+    prefix: 'door', rpc: 'get_kds_door_board', start: 'startDoorBoard', stop: 'stopDoorBoard', refresh: 'refreshDoorBoard',
     doneLabel: 'Delivered', emptyText: 'No Next Door orders to make right now.',
     evLine: function(o){ return (o.pickup ? 'Pickup ' : 'Delivery ') + escHtml(doorTime(o.run_at)) + ' \u00b7 ' + escHtml(o.event || ''); },
     more: function(d){
       var later = (d.groups || []).filter(function(g){ return g.total > g.up; });
-      return later.map(function(g){ return '<div class="lb-more">' + (g.total - g.up) + ' more for the ' + escHtml(doorTime(g.run_at)) + (g.pickup ? ' pickup' : ' run') + ' \u2014 they show at ' + escHtml(doorTime(g.shows_at)) + '</div>'; }).join('');
+      return later.map(function(g){ return '<div class="lb-more">' + (g.total - g.up) + ' more for the ' + escHtml(doorTime(g.run_at)) + (g.pickup ? ' pickup' : ' run') + ' \u2014 they show at ' + escHtml(doorTime(g.shows_at)) +
+        // Community event batches can be pulled onto the main kitchen board early.
+        (g.pickup ? ' <button type="button" class="lb-pull" data-pull-batch="' + escHtml(g.id) + '">Pull to kitchen board now</button>' : '') + '</div>'; }).join('');
     },
     chips: function(d, color){
       return (d.groups || []).map(function(g){
@@ -3805,6 +3817,24 @@
     }
   });
 </script>
+
+<script>
+  // Door tab: "Pull to kitchen board now" for a community event's pickup-time batch
+  // (event-kitchen-batches.sql). Those orders then show on the Main / Sub Station.
+  document.addEventListener('click', function(e){
+    var b = e.target.closest('[data-pull-batch]'); if (!b || b.disabled) return;
+    b.disabled = true; var was = b.textContent; b.textContent = 'Pulling\u2026';
+    sb.rpc('kds_release_door_batch', { p_batch: b.getAttribute('data-pull-batch') }).then(function(res){
+      if (res.error) { b.disabled = false; b.textContent = was; alert(/Could not find the function|does not exist/i.test(res.error.message || '') ? 'Run event-kitchen-batches.sql in Supabase first.' : (res.error.message || 'Could not pull that batch.')); return; }
+      b.textContent = (res.data || 0) + ' pulled \u2713';
+      if (window.refreshDoorBoard) window.refreshDoorBoard();
+    }, function(){ b.disabled = false; b.textContent = was; alert("Couldn't reach the server \u2014 check your connection."); });
+  });
+</script>
+<style>
+  .lb-pull{ margin-left:10px; border:0; border-radius:999px; background:#1d1d1f; color:#fff; font:inherit; font-size:13px; font-weight:700; padding:7px 14px; cursor:pointer; }
+  .lb-pull:disabled{ opacity:.6; cursor:default; }
+</style>
 
 <script>
   // ---- Platinum secret menu: "✦ Wings - Tikka" -> [✦ PLATINUM] Wings - Tikka ----
