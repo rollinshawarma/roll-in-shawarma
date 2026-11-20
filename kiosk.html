@@ -1402,7 +1402,13 @@
         kioskNewIds = ids;
         if (changed && expandedCategory && expandedCategory !== '__deals' && typeof renderCategoryContent === 'function') renderCategoryContent(expandedCategory);
       }, function(){}); } catch (e) {}
-      sbShared.from('menu_items').select('*').order('display_order').then(function(res){
+      // Event menu (events-pack.sql): items not on today's event menu show as
+      // unavailable, same list the website and order page follow.
+      var kAvail = sbShared.from('menu_item_availability').select('menu_item_id,is_available').then(function(r){ return r && !r.error ? r.data : null; }, function(){ return null; });
+      Promise.all([sbShared.from('menu_items').select('*').order('display_order'), kAvail]).then(function(pair){
+        var res = pair[0], off = {};
+        (pair[1] || []).forEach(function(a){ if (a && a.is_available === false) off[a.menu_item_id] = true; });
+        if (res && !res.error && Array.isArray(res.data)) res.data.forEach(function(it){ if (off[it.id]) it.is_available = false; });
         if (res.error || !res.data) return;
         // Reset first -- this function is called again each time a new
         // order starts (to pick up any price/menu changes made in the
