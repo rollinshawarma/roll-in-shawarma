@@ -3859,6 +3859,8 @@
   #paceStrip .ps-slot.now{ border-color:var(--cook, #FF9F0A); }
   #paceStrip .ps-slot.full .n{ color:var(--alert, #ff453a); font-weight:700; }
   #paceStrip .ps-slot .w{ color:var(--ready, #30D158); }
+  #paceStrip .ps-tag, .ev-tag{ display:inline-block; border-radius:6px; padding:1px 7px; margin-right:6px; color:#000; font-weight:800; font-size:12px; letter-spacing:.04em; background:#ccc; }
+  .ev-tagged{ box-shadow: inset 5px 0 0 var(--ev-color, #888); }
 </style>
 <script>
   // ---- Pickup slots (slot-pacing.sql): the strip under the header and the Rush switch ----
@@ -3867,15 +3869,37 @@
     var WHY = { event: 'Event', onloc: 'On Location', calendar: 'Calendar event', rush: 'Rush' };
     function clock(iso){ try { return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' }).replace(/[  ]/g, ' '); } catch (e) { return ''; } }
     function esc(t){ return String(t == null ? '' : t).replace(/[&<>"']/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+    // Event colors + tags (events-pack.sql): tickets whose note starts
+    // "EVENT [SUMMIT]" get the tag as a colored chip and a colored edge.
+    var tagColors = {};
+    function decorate(){
+      document.querySelectorAll('#board .order-notes, #board .ft-notes, #board .lt-notes').forEach(function(el){
+        if (el.getAttribute('data-ev-done') === el.textContent) return;
+        var m = /EVENT \[([A-Z0-9 &'-]{1,10})\]/.exec(el.textContent || '');
+        if (m) {
+          var col = tagColors[m[1]] || '#9e9e9e';
+          el.innerHTML = el.innerHTML.replace('EVENT [' + esc(m[1]) + ']', '<span class="ev-tag" style="background:' + esc(col) + '">' + esc(m[1]) + '</span>EVENT');
+          var card = el.closest('.order-card, .ft-card, .lt-ticket, .lt-card, [class*="ticket"]');
+          if (card) { card.classList.add('ev-tagged'); card.style.setProperty('--ev-color', col); }
+        }
+        el.setAttribute('data-ev-done', el.textContent);
+      });
+    }
+    var decoTimer = null;
+    try { new MutationObserver(function(){ clearTimeout(decoTimer); decoTimer = setTimeout(decorate, 60); }).observe(document.getElementById('board'), { childList: true, subtree: true }); } catch (e) {}
     function paint(d){
       var strip = document.getElementById('paceStrip'); if (!strip) return;
       st.ready = true;
+      tagColors = {}; ((d && d.tags) || []).forEach(function(t){ if (t && t.tag) tagColors[t.tag] = t.color || '#9e9e9e'; });
+      decorate();
       st.on = !!(d && d.on); st.why = d && d.why || ''; st.whyLabel = WHY[st.why] || 'Slots';
       st.rush = !!(d && d.rush_until && new Date(d.rush_until).getTime() > Date.now());
       st.rushUntil = st.rush ? clock(d.rush_until) : '';
       strip.classList.toggle('hidden', !st.on);
       if (!st.on) return;
-      document.getElementById('paceWhy').textContent = (d.why === 'rush' ? 'Rush until ' + st.rushUntil : st.whyLabel + (d.name ? ': ' + d.name : '')) + ' · ' + d.slot + '-min slots';
+      var whyEl = document.getElementById('paceWhy');
+      whyEl.textContent = (d.why === 'rush' ? (d.scheduled_rush ? 'Rush (scheduled)' : 'Rush until ' + st.rushUntil) : st.whyLabel + (d.name ? ': ' + d.name : '')) + ' · ' + d.slot + '-min slots';
+      if (d.tag) { var tg = document.createElement('span'); tg.className = 'ps-tag'; tg.textContent = d.tag; if (d.color) tg.style.background = d.color; whyEl.insertBefore(tg, whyEl.firstChild); }
       document.getElementById('paceNext').textContent = d.next_walkup ? clock(d.next_walkup) : '—';
       var now = Date.now();
       document.getElementById('paceSlots').innerHTML = (d.slots || []).map(function(x, i){
