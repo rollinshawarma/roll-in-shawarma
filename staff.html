@@ -1459,6 +1459,56 @@
   .rs-days label{ display:inline-flex; align-items:center; gap:3px; border:1px solid #e3e3e8; border-radius:8px; padding:4px 7px; font-size:13px; }
   .rs-row input[type=time]{ width:auto; }
   .rs-on{ margin:0; }
+
+  /* ===== Kitchen insights (kitchen-insights.sql) ===== */
+  .ki-root{ --ki-s1:#2a78d6; --ki-s2:#eb6834; --ki-grid:#ececf0; --ki-axis:#8e8e93; --ki-ink:#1d1d1f; --ki-ink2:#52514e;
+    --ki-good:#0ca30c; --ki-warn:#fab219; --ki-bad:#d03b3b; }
+  .ki-filters{ display:flex; align-items:center; gap:10px 14px; flex-wrap:wrap; margin:6px 0 8px; }
+  .ki-chips{ display:flex; gap:6px; flex-wrap:wrap; }
+  .ki-chips button{ border:1px solid #e3e3e8; background:#fff; border-radius:999px; padding:7px 13px; font:inherit; font-size:14px; font-weight:600; color:#3a3a3c; cursor:pointer; }
+  .ki-chips button.on{ background:#1d1d1f; color:#fff; border-color:#1d1d1f; }
+  .ki-custom{ display:flex; align-items:center; gap:6px; } .ki-custom input{ width:auto; }
+  .ki-target{ font-size:14px; color:var(--ki-ink2); display:flex; align-items:center; gap:6px; margin:0; } .ki-target select{ width:auto; padding:5px 8px; }
+  .ki-sub{ color:var(--ki-ink2); font-size:14px; margin:0 0 14px; }
+  .ki-kpis{ display:grid; grid-template-columns:repeat(auto-fill, minmax(170px, 1fr)); gap:12px; margin-bottom:16px; }
+  .ki-kpi{ background:#fff; border:1px solid #ececf0; border-radius:14px; padding:14px 16px; }
+  .ki-kpi .l{ font-size:13px; font-weight:600; color:var(--ki-ink2); }
+  .ki-kpi .v{ font-size:28px; font-weight:800; color:var(--ki-ink); letter-spacing:-.02em; margin-top:4px; font-variant-numeric:tabular-nums; }
+  .ki-kpi .d{ font-size:13px; font-weight:700; margin-top:4px; color:var(--ki-ink2); }
+  .ki-kpi .d .up, .ki-kpi .d .dn{ display:inline-flex; align-items:center; gap:3px; }
+  .ki-kpi .d .good{ color:#0a7d0a; } .ki-kpi .d .bad{ color:#b42323; }
+  .ki-kpi.hero{ border-color:#cfe0f6; background:#f6faff; }
+  .ki-grid2{ display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:14px; }
+  .ki-root, .ki-card{ min-width:0; max-width:100%; }
+  .ki-card{ margin-bottom:14px; }
+  .ki-h{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+  .ki-h h3{ margin:0; font-size:17px; }
+  .ki-h input[type=search]{ width:auto; min-width:160px; padding:6px 10px; }
+  .ki-note{ color:var(--ki-ink2); font-size:13px; margin:4px 0 8px; }
+  .ki-legend{ display:flex; gap:12px; font-size:13px; color:var(--ki-ink2); flex-wrap:wrap; }
+  .ki-legend i{ display:inline-block; width:14px; height:3px; border-radius:2px; vertical-align:middle; margin-right:5px; }
+  .ki-legend i.sq{ width:10px; height:10px; border-radius:3px; }
+  .ki-legend i.dash{ background:repeating-linear-gradient(90deg, var(--ki-axis) 0 4px, transparent 4px 7px); }
+  .ki-chart{ position:relative; width:100%; }
+  .ki-chart svg, .ki-heat svg{ display:block; width:100%; height:auto; overflow:visible; }
+  .ki-tip{ position:fixed; z-index:2000; pointer-events:none; background:#1d1d1f; color:#fff; font-size:13px; line-height:1.4; padding:8px 10px; border-radius:8px; box-shadow:0 6px 20px rgba(0,0,0,.2); max-width:260px; display:none; }
+  .ki-tip b{ font-weight:800; } .ki-tip .sw{ display:inline-block; width:9px; height:9px; border-radius:2px; margin-right:6px; }
+  .ki-empty{ color:var(--ki-ink2); font-size:14px; padding:28px 0; text-align:center; }
+  .ki-table-wrap{ overflow-x:auto; }
+  .ki-table{ width:100%; border-collapse:collapse; font-size:14px; }
+  .ki-table th{ text-align:left; font-size:12px; font-weight:700; color:var(--ki-ink2); text-transform:uppercase; letter-spacing:.04em; padding:8px 10px; border-bottom:1px solid #e3e3e8; white-space:nowrap; }
+  .ki-table th[data-sort]{ cursor:pointer; } .ki-table th[data-sort].on::after{ content:' ▾'; }
+  .ki-table td{ padding:8px 10px; border-bottom:1px solid #f2f2f5; font-variant-numeric:tabular-nums; white-space:nowrap; }
+  .ki-table td.num, .ki-table th.num{ text-align:right; }
+  .ki-table td:first-child{ font-weight:600; white-space:normal; min-width:120px; }
+  .ki-bar{ display:inline-block; height:8px; border-radius:0 4px 4px 0; background:var(--ki-s1); vertical-align:middle; margin-right:8px; min-width:2px; }
+  .ki-st{ display:inline-flex; align-items:center; gap:4px; font-weight:700; }
+  .ki-st::before{ content:''; width:8px; height:8px; border-radius:50%; background:currentColor; }
+  .ki-st.good{ color:#0a7d0a; } .ki-st.warn{ color:#9a6700; } .ki-st.bad{ color:#b42323; }
+  .ki-heat{ overflow-x:auto; }
+  .ki-defs summary{ cursor:pointer; font-weight:700; }
+  .ki-defs ul{ margin:10px 0 0; padding-left:18px; color:var(--ki-ink2); font-size:14px; line-height:1.6; }
+  @media (max-width:900px){ .ki-grid2{ grid-template-columns:minmax(0,1fr); } .ki-kpis{ grid-template-columns:repeat(2, minmax(0,1fr)); } .ki-kpi .v{ font-size:24px; } }
 </style>
 </head>
 <body>
@@ -1836,32 +1886,58 @@
       </div>
     </div>
 
-    <div class="section-title">Prep times</div>
-    <div class="card">
-      <div id="kitchenRangeButtons" style="display:flex; gap:8px; flex-wrap:wrap; margin-bottom:18px;">
-        <button type="button" class="btn-export btn-small kitchen-range-btn" data-range="today">Today</button>
-        <button type="button" class="btn-export btn-small kitchen-range-btn" data-range="week">7 days</button>
-        <button type="button" class="btn-export btn-small kitchen-range-btn" data-range="month">30 days</button>
-        <button type="button" class="btn-export btn-small kitchen-range-btn" data-range="year">Year</button>
+    <!-- KITCHEN INSIGHTS (kitchen-insights.sql) -->
+    <div class="ki-root" id="kiRoot">
+      <div class="ki-filters" role="group" aria-label="Date range">
+        <div class="ki-chips" id="kiRange">
+          <button type="button" data-ki="today" class="on">Today</button>
+          <button type="button" data-ki="yesterday">Yesterday</button>
+          <button type="button" data-ki="7">7 days</button>
+          <button type="button" data-ki="30">30 days</button>
+          <button type="button" data-ki="90">90 days</button>
+          <button type="button" data-ki="custom">Custom</button>
+        </div>
+        <div class="ki-custom hidden" id="kiCustom"><input type="date" id="kiFrom" aria-label="From"> to <input type="date" id="kiTo" aria-label="To"><button type="button" class="btn-export btn-small" id="kiApply">Show</button></div>
+        <label class="ki-target">On time if ready within <select id="kiTarget"><option value="8">8 min</option><option value="10">10 min</option><option value="12" selected>12 min</option><option value="15">15 min</option><option value="20">20 min</option></select></label>
+        <button type="button" class="btn-export btn-small" id="kiCsv">Download CSV</button>
       </div>
-      <div id="kitchenStatsGrid" class="stat-grid"></div>
-    </div>
+      <p class="ki-sub" id="kiSub">Loading&hellip;</p>
+      <div id="kiMsg"></div>
 
-    <div class="section-title">Accept to ready, over time</div>
-    <div class="card">
-      <div id="kitchenTrendChart" class="kitchen-trend-chart"></div>
-      <p class="hint" id="kitchenTrendEmptyHint" style="display:none;">No completed orders in this range yet.</p>
-    </div>
+      <div class="ki-kpis" id="kiKpis"></div>
 
-    <div class="section-title">Slowest items to prep</div>
-    <div class="card">
-      <p class="hint">Drinks aren't included because they're never timed.</p>
-      <div style="overflow-x:auto;">
-        <table class="stack">
-          <thead><tr><th>Item</th><th>Made</th><th>Avg. wait to start</th><th>Avg. cook time</th></tr></thead>
-          <tbody id="kitchenItemStatsBody"></tbody>
-        </table>
+      <div class="ki-grid2">
+        <section class="card ki-card"><div class="ki-h"><h3>Ticket time</h3><span class="ki-legend" id="kiTrendLegend"></span></div>
+          <p class="ki-note">ASAP orders, placed to ready. Dashed line = your target.</p><div class="ki-chart" id="kiTrend"></div></section>
+        <section class="card ki-card"><div class="ki-h"><h3>Orders</h3></div><p class="ki-note" id="kiVolNote">Orders placed.</p><div class="ki-chart" id="kiVolume"></div></section>
       </div>
+
+      <section class="card ki-card" id="kiPaceCard"><div class="ki-h"><h3 id="kiPaceTitle">Kitchen pace</h3><span class="ki-legend" id="kiPaceLegend"></span></div>
+        <p class="ki-note" id="kiPaceNote"></p><div class="ki-chart" id="kiPace"></div></section>
+
+      <section class="card ki-card" id="kiHeatCard"><div class="ki-h"><h3>When you&rsquo;re busy</h3><span class="ki-legend" id="kiHeatLegend"></span></div>
+        <p class="ki-note">Orders placed by day and hour. Hover a square for the count and average ticket time.</p><div class="ki-heat" id="kiHeat"></div></section>
+
+      <section class="card ki-card"><div class="ki-h"><h3>By channel</h3></div>
+        <div class="ki-table-wrap"><table class="ki-table" id="kiChannels"></table></div></section>
+
+      <section class="card ki-card"><div class="ki-h"><h3>Dishes</h3><input type="search" id="kiItemSearch" placeholder="Find a dish" aria-label="Find a dish"></div>
+        <p class="ki-note">Tap a column to sort. Cook time = item started to ready. &ldquo;In late orders&rdquo; = share of orders with this dish that were late.</p>
+        <div class="ki-table-wrap"><table class="ki-table" id="kiItems"></table></div></section>
+
+      <section class="card ki-card" id="kiEventsCard"><div class="ki-h"><h3>Events</h3></div><div class="ki-table-wrap"><table class="ki-table" id="kiEvents"></table></div></section>
+      <section class="card ki-card"><div class="ki-h"><h3>Late orders</h3><span class="ki-legend">The 20 latest in this range</span></div><div class="ki-table-wrap"><table class="ki-table" id="kiLate"></table></div></section>
+
+      <details class="card ki-defs"><summary>How these numbers are worked out</summary>
+        <ul>
+          <li><b>ASAP order</b>: placed for as soon as possible (walk-ups, kiosk, truck QR, website &ldquo;now&rdquo;, delivery apps). <b>Pre-order</b>: placed for a later pickup time (events, scheduled, pickup slots).</li>
+          <li><b>Ticket time</b> (ASAP only): placed &rarr; ready. Walk-ups count from the Square sale when it&rsquo;s known.</li>
+          <li><b>Wait to start</b>: placed &rarr; first item started. <b>Cook time</b>: first item started &rarr; ready. <b>Pickup wait</b>: ready &rarr; picked up.</li>
+          <li><b>On time</b>: ASAP orders ready within the target above; pre-orders ready by their pickup time (2 minutes&rsquo; grace).</li>
+          <li><b>90% within</b>: nine in ten ASAP orders were ready within this time (the 90th percentile) &mdash; the number guests feel on a busy night.</li>
+          <li>Change arrows compare with the same length of time just before. Green = better, red = worse. Canceled and refunded orders are left out of times; orders left on the board for over 4 hours are left out of averages.</li>
+        </ul>
+      </details>
     </div>
   </div>
 
@@ -3704,7 +3780,7 @@
         setInterval(loadCashOrders, 30000);
         loadPinLockStatus();
         setInterval(loadPinLockStatus, 30000);
-        loadKitchenAnalytics('today');
+        if (window.kiInit) window.kiInit();
         loadPromotions();
         document.querySelector('.nav-link[data-tab="promotions"]').addEventListener('click', woLoad);
         // Website banner: managers and admins only (security-pack-3.sql enforces it on the server too).
@@ -10728,6 +10804,249 @@
       var url = 'https://rollinshawarma.com/window.html';
       try { navigator.clipboard.writeText(url).then(function(){ $('wsMsg').textContent = 'Copied ✓'; }, function(){ $('wsMsg').textContent = url; }); } catch (e) { $('wsMsg').textContent = url; }
     });
+  })();
+
+  // ================= KITCHEN INSIGHTS (kitchen-insights.sql) =================
+  (function(){
+    var TZ = 'America/New_York', $ = function(id){ return document.getElementById(id); };
+    if (!$('kiRoot')) return;
+    var st = { range: 'today', from: null, to: null, data: null, itemSort: 'made', itemDir: -1 };
+    var C = { s1: '#2a78d6', s2: '#eb6834', grid: '#ececf0', axis: '#8e8e93', ink: '#1d1d1f', ink2: '#52514e' };
+    var HEAT = ['#f3f7fd', '#cde2fb', '#9ec5f4', '#6da7ec', '#3987e5', '#256abf', '#184f95', '#0d366b'];
+    var tip = document.createElement('div'); tip.className = 'ki-tip'; document.body.appendChild(tip);
+    function showTip(html, x, y){ tip.innerHTML = html; tip.style.display = 'block'; var w = tip.offsetWidth, h = tip.offsetHeight; tip.style.left = Math.min(window.innerWidth - w - 8, x + 14) + 'px'; tip.style.top = Math.max(8, y - h - 12) + 'px'; }
+    function hideTip(){ tip.style.display = 'none'; }
+    function dur(s){ if (s == null || isNaN(s)) return '—'; s = Math.round(s); if (s < 60) return s + 's'; var m = Math.floor(s / 60), r = s % 60; return m < 60 ? m + 'm ' + ('0' + r).slice(-2) + 's' : Math.floor(m / 60) + 'h ' + (m % 60) + 'm'; }
+    function durShort(s){ if (s == null) return '—'; var m = s / 60; return m < 10 ? m.toFixed(1).replace(/\.0$/, '') + ' min' : Math.round(m) + ' min'; }
+    function money(n){ return n == null ? '—' : '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 }); }
+    function pct(n){ return n == null ? '—' : Math.round(n) + '%'; }
+    function int(n){ return n == null ? '—' : Number(n).toLocaleString('en-US'); }
+    function localDay(d){ return d.toLocaleDateString('en-CA', { timeZone: TZ }); }
+    function nyMidnight(ymd){
+      // midnight in Ohio for a YYYY-MM-DD date, as an instant
+      var guess = new Date(ymd + 'T05:00:00Z');
+      var h = Number(guess.toLocaleString('en-US', { timeZone: TZ, hour: 'numeric', hour12: false })) % 24;
+      return new Date(guess.getTime() - h * 3600000);
+    }
+    function addDays(ymd, n){ var d = new Date(ymd + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); }
+    function rangeDates(){
+      var today = localDay(new Date());
+      if (st.range === 'today') return [nyMidnight(today), new Date(), 'Today'];
+      if (st.range === 'yesterday') return [nyMidnight(addDays(today, -1)), nyMidnight(today), 'Yesterday'];
+      if (st.range === 'custom' && st.from && st.to) return [nyMidnight(st.from), nyMidnight(addDays(st.to, 1)), st.from + ' to ' + st.to];
+      var n = Number(st.range) || 7;
+      return [nyMidnight(addDays(today, -(n - 1))), new Date(), 'Last ' + n + ' days'];
+    }
+    function fmtAt(iso, bucket){
+      var d = new Date(iso);
+      if (bucket === '30min') return d.toLocaleTimeString('en-US', { timeZone: TZ, hour: 'numeric', minute: '2-digit' }).replace(/[  ]/g, ' ');
+      if (bucket === 'week') return 'Week of ' + d.toLocaleDateString('en-US', { timeZone: TZ, month: 'short', day: 'numeric' });
+      return d.toLocaleDateString('en-US', { timeZone: TZ, weekday: 'short', month: 'short', day: 'numeric' });
+    }
+    function niceMax(v){ if (!(v > 0)) return 1; var p = Math.pow(10, Math.floor(Math.log10(v))), n = v / p; return (n <= 1 ? 1 : n <= 2 ? 2 : n <= 5 ? 5 : 10) * p; }
+
+    // ---- KPI tiles ----
+    function delta(cur, prev, betterLow, fmt){
+      if (cur == null || prev == null || prev === 0) return '<span>no earlier data to compare</span>';
+      var ch = (cur - prev) / Math.abs(prev) * 100;
+      if (Math.abs(ch) < 0.5) return '<span>about the same as before</span>';
+      var up = ch > 0, good = betterLow ? !up : up;
+      return '<span class="' + (up ? 'up ' : 'dn ') + (good ? 'good' : 'bad') + '">' + (up ? '▲' : '▼') + ' ' + Math.abs(ch).toFixed(Math.abs(ch) < 10 ? 1 : 0) + '%</span> <span>vs ' + fmt(prev) + ' before</span>';
+    }
+    function kpis(d){
+      var k = d.kpis || {}, p = d.prev || {}, t = d.range.target_min;
+      var tiles = [
+        ['Orders', int(k.orders), delta(k.orders, p.orders, false, int), true],
+        ['Avg ticket time', durShort(k.avg_ticket), delta(k.avg_ticket, p.avg_ticket, true, durShort), true],
+        ['90% ready within', durShort(k.p90_ticket), delta(k.p90_ticket, p.p90_ticket, true, durShort)],
+        ['On time (' + t + ' min)', pct(k.on_time), delta(k.on_time, p.on_time, false, pct), true],
+        ['Late orders', int(k.late), delta(k.late, p.late, true, int)],
+        ['Wait to start', durShort(k.avg_wait), delta(k.avg_wait, p.avg_wait, true, durShort)],
+        ['Cook time', durShort(k.avg_cook), delta(k.avg_cook, p.avg_cook, true, durShort)],
+        ['Pickup wait', durShort(k.avg_pickup), delta(k.avg_pickup, p.avg_pickup, true, durShort)],
+        ['Pre-orders on time', pct(k.pre_on_time), k.pre ? int(k.pre) + ' pre-orders' : 'no pre-orders'],
+        ['Items made', int(k.items), (k.items_per_order ? k.items_per_order + ' per order · ' : '') + int(k.canceled) + ' canceled']
+      ];
+      if (d.range.sales) tiles.splice(1, 0, ['Sales', money(k.sales), delta(k.sales, p.sales, false, money), true], ['Avg order', k.avg_order == null ? '—' : '$' + Number(k.avg_order).toFixed(2), delta(k.avg_order, p.avg_order, false, function(v){ return '$' + Number(v).toFixed(2); })]);
+      $('kiKpis').innerHTML = tiles.map(function(x){ return '<div class="ki-kpi' + (x[3] ? ' hero' : '') + '"><div class="l">' + esc(x[0]) + '</div><div class="v">' + esc(x[1]) + '</div><div class="d">' + x[2] + '</div></div>'; }).join('');
+    }
+
+    // ---- line chart (same unit series, crosshair + tooltip) ----
+    function lineChart(el, rows, series, opts){
+      if (!rows.length || !series.some(function(s){ return rows.some(function(r){ return r[s.key] != null; }); })) { el.innerHTML = '<div class="ki-empty">No finished ASAP orders in this range.</div>'; return; }
+      var W = 640, H = 240, L = 48, R = 14, T = 12, B = 34, iw = W - L - R, ih = H - T - B;
+      var mx = 0; rows.forEach(function(r){ series.forEach(function(s){ if (r[s.key] > mx) mx = r[s.key]; }); }); if (opts.target > mx) mx = opts.target;
+      var top = niceMax(mx * 1.08), n = rows.length;
+      var X = function(i){ return L + (n === 1 ? iw / 2 : i * iw / (n - 1)); }, Y = function(v){ return T + ih - v / top * ih; };
+      var g = '';
+      for (var k = 0; k <= 4; k++) { var v = top * k / 4, y = Y(v); g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y + '" y2="' + y + '" stroke="' + C.grid + '" stroke-width="1"/><text x="' + (L - 6) + '" y="' + (y + 4) + '" text-anchor="end" font-size="11" fill="' + C.axis + '">' + opts.fmtAxis(v) + '</text>'; }
+      var step = Math.max(1, Math.ceil(n / 7));
+      rows.forEach(function(r, i){ if (i % step === 0 || i === n - 1) g += '<text x="' + X(i) + '" y="' + (H - 12) + '" text-anchor="middle" font-size="11" fill="' + C.axis + '">' + esc(opts.fmtX(r)) + '</text>'; });
+      if (opts.target) g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + Y(opts.target) + '" y2="' + Y(opts.target) + '" stroke="' + C.axis + '" stroke-width="1.5" stroke-dasharray="5 4"/>';
+      series.forEach(function(s){
+        var d = '', pen = false;
+        rows.forEach(function(r, i){ var v = r[s.key]; if (v == null) { pen = false; return; } d += (pen ? 'L' : 'M') + X(i).toFixed(1) + ' ' + Y(v).toFixed(1); pen = true; });
+        g += '<path d="' + d + '" fill="none" stroke="' + s.color + '" stroke-width="2" stroke-linejoin="round" stroke-linecap="round"/>';
+        if (n <= 40) rows.forEach(function(r, i){ if (r[s.key] != null) g += '<circle cx="' + X(i) + '" cy="' + Y(r[s.key]) + '" r="3" fill="' + s.color + '" stroke="#fff" stroke-width="1.5"/>'; });
+      });
+      g += '<line class="xh" x1="0" x2="0" y1="' + T + '" y2="' + (T + ih) + '" stroke="' + C.ink2 + '" stroke-width="1" opacity="0"/>';
+      g += '<rect x="' + L + '" y="' + T + '" width="' + iw + '" height="' + ih + '" fill="transparent" class="hit"/>';
+      el.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(opts.label) + '">' + g + '</svg>';
+      var svg = el.querySelector('svg'), xh = svg.querySelector('.xh');
+      svg.querySelector('.hit').addEventListener('mousemove', function(e){
+        var bb = svg.getBoundingClientRect(), x = (e.clientX - bb.left) / bb.width * W, i = n === 1 ? 0 : Math.max(0, Math.min(n - 1, Math.round((x - L) / iw * (n - 1))));
+        xh.setAttribute('x1', X(i)); xh.setAttribute('x2', X(i)); xh.setAttribute('opacity', '.5');
+        var r = rows[i];
+        showTip('<b>' + esc(opts.fmtX(r, true)) + '</b><br>' + series.map(function(s){ return '<span class="sw" style="background:' + s.color + '"></span>' + esc(s.name) + ': <b>' + esc(opts.fmtVal(r[s.key])) + '</b>'; }).join('<br>') + (opts.extra ? '<br>' + opts.extra(r) : ''), e.clientX, e.clientY);
+      });
+      svg.querySelector('.hit').addEventListener('mouseleave', function(){ xh.setAttribute('opacity', '0'); hideTip(); });
+    }
+    // ---- bar chart (one or two series, grouped) ----
+    function barChart(el, rows, series, opts){
+      if (!rows.length) { el.innerHTML = '<div class="ki-empty">No orders in this range.</div>'; return; }
+      var W = 640, H = 220, L = 40, R = 10, T = 10, B = 34, iw = W - L - R, ih = H - T - B, n = rows.length, m = series.length;
+      var mx = 0; rows.forEach(function(r){ series.forEach(function(s){ if ((r[s.key] || 0) > mx) mx = r[s.key]; }); });
+      var top = niceMax(mx * 1.05), slot = iw / n, gap = 2, bw = Math.max(2, (slot - 4 - gap * (m - 1)) / m);
+      var Y = function(v){ return T + ih - v / top * ih; }, g = '';
+      for (var k = 0; k <= 4; k++) { var v = top * k / 4, y = Y(v); g += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y + '" y2="' + y + '" stroke="' + C.grid + '"/><text x="' + (L - 6) + '" y="' + (y + 4) + '" text-anchor="end" font-size="11" fill="' + C.axis + '">' + Math.round(v) + '</text>'; }
+      var step = Math.max(1, Math.ceil(n / 8));
+      rows.forEach(function(r, i){
+        var x0 = L + i * slot + 2;
+        series.forEach(function(s, j){
+          var v = r[s.key] || 0, h = v / top * ih, x = x0 + j * (bw + gap), y = T + ih - h, rr = Math.min(4, bw / 2, h);
+          if (h > 0) g += '<path d="M' + x + ' ' + (T + ih) + 'V' + (y + rr) + 'Q' + x + ' ' + y + ' ' + (x + rr) + ' ' + y + 'H' + (x + bw - rr) + 'Q' + (x + bw) + ' ' + y + ' ' + (x + bw) + ' ' + (y + rr) + 'V' + (T + ih) + 'Z" fill="' + s.color + '"/>';
+        });
+        g += '<rect x="' + (L + i * slot) + '" y="' + T + '" width="' + slot + '" height="' + ih + '" fill="transparent" data-i="' + i + '" class="hit"/>';
+        if (i % step === 0) g += '<text x="' + (x0 + (slot - 4) / 2) + '" y="' + (H - 12) + '" text-anchor="middle" font-size="11" fill="' + C.axis + '">' + esc(opts.fmtX(r)) + '</text>';
+      });
+      el.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc(opts.label) + '">' + g + '</svg>';
+      el.querySelectorAll('.hit').forEach(function(h){
+        h.addEventListener('mousemove', function(e){ var r = rows[Number(h.getAttribute('data-i'))];
+          showTip('<b>' + esc(opts.fmtX(r, true)) + '</b><br>' + series.map(function(s){ return '<span class="sw" style="background:' + s.color + '"></span>' + esc(s.name) + ': <b>' + int(r[s.key] || 0) + '</b>'; }).join('<br>') + (opts.extra ? '<br>' + opts.extra(r) : ''), e.clientX, e.clientY); });
+        h.addEventListener('mouseleave', hideTip);
+      });
+    }
+    // ---- heatmap: day of week x hour ----
+    function heat(el, cells){
+      if (!cells.length) { el.innerHTML = '<div class="ki-empty">No orders in this range.</div>'; $('kiHeatLegend').innerHTML = ''; return; }
+      var hrs = cells.map(function(c){ return c.hour; }), h0 = Math.min.apply(null, hrs), h1 = Math.max.apply(null, hrs);
+      var by = {}, mx = 0; cells.forEach(function(c){ by[c.dow + '|' + c.hour] = c; if (c.orders > mx) mx = c.orders; });
+      var DOW = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], order = [1, 2, 3, 4, 5, 6, 0];
+      var cw = 38, chh = 28, L = 44, T = 22, cols = h1 - h0 + 1, W = L + cols * (cw + 2), H = T + 7 * (chh + 2) + 4, g = '';
+      for (var h = h0; h <= h1; h++) { var lab = (h % 12 || 12) + (h < 12 ? 'a' : 'p'); g += '<text x="' + (L + (h - h0) * (cw + 2) + cw / 2) + '" y="14" text-anchor="middle" font-size="11" fill="' + C.axis + '">' + lab + '</text>'; }
+      order.forEach(function(dw, r){
+        g += '<text x="' + (L - 8) + '" y="' + (T + r * (chh + 2) + chh / 2 + 4) + '" text-anchor="end" font-size="12" fill="' + C.ink2 + '">' + DOW[dw] + '</text>';
+        for (var h = h0; h <= h1; h++) {
+          var c = by[dw + '|' + h], v = c ? c.orders : 0, lvl = v ? Math.min(7, 1 + Math.floor(v / mx * 6.999)) : 0;
+          g += '<rect x="' + (L + (h - h0) * (cw + 2)) + '" y="' + (T + r * (chh + 2)) + '" width="' + cw + '" height="' + chh + '" rx="4" fill="' + HEAT[lvl] + '" data-d="' + dw + '" data-h="' + h + '"/>';
+        }
+      });
+      el.innerHTML = '<svg viewBox="0 0 ' + W + ' ' + H + '" style="min-width:' + Math.min(W, 560) + 'px;max-width:' + W * 1.4 + 'px" role="img" aria-label="Orders by day and hour">' + g + '</svg>';
+      el.querySelectorAll('rect[data-d]').forEach(function(rc){
+        rc.addEventListener('mousemove', function(e){ var dw = Number(rc.getAttribute('data-d')), h = Number(rc.getAttribute('data-h')), c = by[dw + '|' + h];
+          showTip('<b>' + DOW[dw] + ', ' + (h % 12 || 12) + ' ' + (h < 12 ? 'AM' : 'PM') + '–' + ((h + 1) % 12 || 12) + ' ' + (h + 1 < 12 || h + 1 === 24 ? 'AM' : 'PM') + '</b><br>' + (c ? int(c.orders) + ' orders · avg ticket ' + durShort(c.avg_ticket) : 'No orders'), e.clientX, e.clientY); });
+        rc.addEventListener('mouseleave', hideTip);
+      });
+      $('kiHeatLegend').innerHTML = 'Fewer <span style="display:inline-flex;gap:2px;vertical-align:middle">' + HEAT.slice(1).map(function(c){ return '<i class="sq" style="background:' + c + ';margin:0"></i>'; }).join('') + '</span> More (busiest: ' + int(mx) + ')';
+    }
+    // ---- status chip for on-time % ----
+    function onTimeChip(v){ if (v == null) return '—'; var c = v >= 85 ? 'good' : v >= 65 ? 'warn' : 'bad', w = v >= 85 ? 'Good' : v >= 65 ? 'Watch' : 'Slow'; return '<span class="ki-st ' + c + '">' + Math.round(v) + '% · ' + w + '</span>'; }
+
+    function render(d){
+      st.data = d; var r = d.range;
+      kpis(d);
+      var bucket = r.bucket, rows = d.trend || [];
+      lineChart($('kiTrend'), rows.filter(function(x){ return x.avg_ticket != null; }), [{ key: 'avg_ticket', name: 'Average', color: C.s1 }, { key: 'p90_ticket', name: '90% within', color: C.s2 }], {
+        target: r.target_min * 60, label: 'Ticket time over time', fmtAxis: function(v){ return Math.round(v / 60) + 'm'; }, fmtVal: durShort,
+        fmtX: function(x, long){ return long ? fmtAt(x.at, bucket) : fmtAt(x.at, bucket).replace(/^[A-Z][a-z]{2}, /, ''); },
+        extra: function(x){ return int(x.orders) + ' orders · on time ' + pct(x.on_time); } });
+      $('kiTrendLegend').innerHTML = '<span><i style="background:' + C.s1 + '"></i>Average</span><span><i style="background:' + C.s2 + '"></i>90% within</span><span><i class="dash"></i>Target ' + r.target_min + ' min</span>';
+      barChart($('kiVolume'), rows, [{ key: 'orders', name: 'Orders', color: C.s1 }], { label: 'Orders over time',
+        fmtX: function(x, long){ return long ? fmtAt(x.at, bucket) : fmtAt(x.at, bucket).replace(/^[A-Z][a-z]{2}, /, ''); },
+        extra: function(x){ return 'avg ticket ' + durShort(x.avg_ticket); } });
+      $('kiVolNote').textContent = 'Orders placed ' + (bucket === '30min' ? 'per half hour' : bucket === 'day' ? 'per day' : 'per week') + '.';
+      // Pace: placed vs finished per 15 min (short ranges), else just the peak numbers
+      var pc = d.pace || {}, f0 = Date.parse(r.from), f1 = Date.parse(r.to);
+      var pb = (pc.buckets || []).filter(function(x){ var t = Date.parse(x.at); return (x.placed || x.done) && t >= f0 - 9e5 && t < f1; });
+      if (pb.length) {   // every 15 minutes from the first to the last, so time reads evenly
+        var byT = {}; pb.forEach(function(x){ byT[Date.parse(x.at)] = x; });
+        var t0 = Date.parse(pb[0].at), t1 = Date.parse(pb[pb.length - 1].at), full = [];
+        for (var tt = t0; tt <= t1 && full.length < 200; tt += 9e5) full.push(byT[tt] || { at: new Date(tt).toISOString(), placed: 0, done: 0 });
+        pb = full;
+      }
+      $('kiPaceTitle').textContent = 'Kitchen pace';
+      var peakTxt = pc.peak_done ? 'Busiest 15 minutes: ' + pc.peak_done + ' order' + (pc.peak_done == 1 ? '' : 's') + ' finished (' + new Date(pc.peak_at).toLocaleString('en-US', { timeZone: TZ, weekday: 'short', hour: 'numeric', minute: '2-digit' }).replace(/[  ]/g, ' ') + '). On busy stretches the kitchen finished about ' + (pc.avg_done_busy || 0) + ' order' + (pc.avg_done_busy == 1 ? '' : 's') + ' every 15 minutes.' : 'No finished orders yet.';
+      $('kiPaceNote').textContent = peakTxt + (pb.length ? ' When orders placed (blue) stay above orders finished (orange), the line is growing.' : '');
+      if (pb.length) {
+        $('kiPace').style.display = '';
+        barChart($('kiPace'), pb, [{ key: 'placed', name: 'Placed', color: C.s1 }, { key: 'done', name: 'Finished', color: C.s2 }], { label: 'Orders placed and finished per 15 minutes',
+          fmtX: function(x){ return new Date(x.at).toLocaleTimeString('en-US', { timeZone: TZ, hour: 'numeric', minute: '2-digit' }).replace(/[  ]/g, ' '); } });
+        $('kiPaceLegend').innerHTML = '<span><i class="sq" style="background:' + C.s1 + '"></i>Placed</span><span><i class="sq" style="background:' + C.s2 + '"></i>Finished</span>';
+      } else { $('kiPace').style.display = 'none'; $('kiPaceLegend').innerHTML = ''; }
+      $('kiHeatCard').style.display = bucket === '30min' ? 'none' : '';
+      if (bucket !== '30min') heat($('kiHeat'), d.heat || []);
+      // Channels
+      var ch = d.channels || [], tot = ch.reduce(function(a, c){ return a + (c.orders || 0); }, 0), maxO = Math.max.apply(null, ch.map(function(c){ return c.orders || 0; }).concat([1]));
+      $('kiChannels').innerHTML = ch.length ? '<thead><tr><th>Channel</th><th>Orders</th>' + (r.sales ? '<th class="num">Sales</th>' : '') + '<th class="num">Avg ticket</th><th class="num">Cook</th><th class="num">Pickup wait</th><th>On time</th></tr></thead><tbody>' +
+        ch.map(function(c){ return '<tr><td>' + esc(c.channel) + (c.pre ? ' <span class="hint">(' + c.pre + ' pre-orders)</span>' : '') + '</td><td><span class="ki-bar" style="width:' + Math.round((c.orders || 0) / maxO * 120) + 'px"></span>' + int(c.orders) + ' <span class="hint">' + (tot ? Math.round(c.orders / tot * 100) : 0) + '%</span></td>' +
+          (r.sales ? '<td class="num">' + money(c.sales) + '</td>' : '') + '<td class="num">' + durShort(c.avg_ticket) + '</td><td class="num">' + durShort(c.avg_cook) + '</td><td class="num">' + durShort(c.avg_pickup) + '</td><td>' + onTimeChip(c.on_time) + '</td></tr>'; }).join('') + '</tbody>'
+        : '<tbody><tr><td class="ki-empty">No orders in this range.</td></tr></tbody>';
+      renderItems();
+      // Late orders
+      var late = d.late || [];
+      $('kiLate').innerHTML = late.length ? '<thead><tr><th>Order</th><th>Channel</th><th>Placed</th><th class="num">Late by</th><th class="num">Cook</th></tr></thead><tbody>' + late.map(function(l){
+        return '<tr><td>#' + esc(String(l.ref || '').replace(/^\D+/, '')) + '</td><td>' + esc(l.channel) + (l.pre ? ' · pre-order' : '') + '</td><td>' + esc(new Date(l.placed).toLocaleString('en-US', { timeZone: TZ, month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }).replace(/[  ]/g, ' ')) + '</td><td class="num"><span class="ki-st bad">' + durShort(l.late_min * 60) + '</span></td><td class="num">' + durShort(l.cook) + '</td></tr>'; }).join('') + '</tbody>'
+        : '<tbody><tr><td class="ki-empty">No late orders. 🎉</td></tr></tbody>';
+      // Events
+      var ev = d.events || [];
+      $('kiEventsCard').style.display = ev.length ? '' : 'none';
+      $('kiEvents').innerHTML = '<thead><tr><th>Event</th><th class="num">Pre-orders</th>' + (r.sales ? '<th class="num">Sales</th>' : '') + '<th>On time</th><th class="num">Avg late</th><th class="num">Worst</th></tr></thead><tbody>' + ev.map(function(e){
+        return '<tr><td>' + esc(e.name) + '</td><td class="num">' + int(e.orders) + '</td>' + (r.sales ? '<td class="num">' + money(e.sales) + '</td>' : '') + '<td>' + onTimeChip(e.on_time) + '</td><td class="num">' + (e.avg_late == null ? '—' : durShort(e.avg_late * 60)) + '</td><td class="num">' + (e.worst_late == null ? '—' : durShort(e.worst_late * 60)) + '</td></tr>'; }).join('') + '</tbody>';
+    }
+    function renderItems(){
+      var d = st.data; if (!d) return;
+      var q = ($('kiItemSearch').value || '').toLowerCase(), rows = (d.items || []).filter(function(i){ return !q || String(i.item).toLowerCase().indexOf(q) > -1; });
+      var k = st.itemSort; rows.sort(function(a, b){ var x = a[k], y = b[k]; if (k === 'item') return st.itemDir * String(x).localeCompare(String(y)); return st.itemDir * ((x == null ? -1 : x) - (y == null ? -1 : y)); });
+      var maxC = Math.max.apply(null, (d.items || []).map(function(i){ return i.avg_cook || 0; }).concat([1]));
+      var H = [['item', 'Dish', ''], ['made', 'Made', 'num'], ['avg_wait', 'Wait to start', 'num'], ['avg_cook', 'Cook time', ''], ['p90_cook', '90% within', 'num'], ['late_share', 'In late orders', 'num']];
+      $('kiItems').innerHTML = '<thead><tr>' + H.map(function(h){ return '<th data-sort="' + h[0] + '" class="' + h[2] + (st.itemSort === h[0] ? ' on' : '') + '">' + h[1] + '</th>'; }).join('') + '</tr></thead><tbody>' +
+        (rows.length ? rows.slice(0, 40).map(function(i){ return '<tr><td>' + esc(i.item) + '</td><td class="num">' + int(i.made) + '</td><td class="num">' + durShort(i.avg_wait) + '</td><td><span class="ki-bar" style="width:' + Math.round((i.avg_cook || 0) / maxC * 110) + 'px;background:#eb6834"></span>' + durShort(i.avg_cook) + '</td><td class="num">' + durShort(i.p90_cook) + '</td><td class="num">' + pct(i.late_share) + '</td></tr>'; }).join('') : '<tr><td class="ki-empty" colspan="6">No dishes found.</td></tr>') + '</tbody>';
+    }
+    $('kiItems').addEventListener('click', function(e){ var th = e.target.closest('th[data-sort]'); if (!th) return; var k = th.getAttribute('data-sort'); st.itemDir = st.itemSort === k ? -st.itemDir : (k === 'item' ? 1 : -1); st.itemSort = k; renderItems(); });
+    $('kiItemSearch').addEventListener('input', renderItems);
+    function load(){
+      var r = rangeDates();
+      $('kiSub').textContent = r[2] + ' · compared with the same length of time just before · Ohio time';
+      $('kiMsg').innerHTML = '';
+      $('kiKpis').style.opacity = '.5';
+      sb.rpc('staff_kitchen_insights', { p_from: r[0].toISOString(), p_to: r[1].toISOString(), p_target_min: Number($('kiTarget').value) }).then(function(res){
+        $('kiKpis').style.opacity = '';
+        if (res.error) { $('kiMsg').innerHTML = '<div class="msg error">' + esc(/does not exist|Could not find|schema cache/i.test(res.error.message || '') ? 'Run kitchen-insights.sql in Supabase → SQL Editor to turn this on.' : res.error.message) + '</div>'; return; }
+        render(res.data || {});
+      }, function(){ $('kiKpis').style.opacity = ''; $('kiMsg').innerHTML = '<div class="msg error">Couldn’t reach the server.</div>'; });
+    }
+    $('kiRange').addEventListener('click', function(e){
+      var b = e.target.closest('[data-ki]'); if (!b) return;
+      document.querySelectorAll('#kiRange button').forEach(function(x){ x.classList.toggle('on', x === b); });
+      st.range = b.getAttribute('data-ki');
+      $('kiCustom').classList.toggle('hidden', st.range !== 'custom');
+      if (st.range === 'custom') { if (!$('kiFrom').value) { var t = localDay(new Date()); $('kiFrom').value = addDays(t, -13); $('kiTo').value = t; } return; }
+      load();
+    });
+    $('kiApply').addEventListener('click', function(){ if (!$('kiFrom').value || !$('kiTo').value || $('kiTo').value < $('kiFrom').value) { $('kiMsg').innerHTML = '<div class="msg error">Pick a start and end date.</div>'; return; } st.from = $('kiFrom').value; st.to = $('kiTo').value; load(); });
+    $('kiTarget').addEventListener('change', load);
+    $('kiCsv').addEventListener('click', function(){
+      var d = st.data; if (!d) return;
+      var lines = [['Section', 'Name', 'Orders/Made', 'Avg ticket (s)', 'Avg cook (s)', '90% cook (s)', 'On time %', 'Sales']];
+      (d.channels || []).forEach(function(c){ lines.push(['Channel', c.channel, c.orders, c.avg_ticket, c.avg_cook, '', c.on_time, c.sales == null ? '' : c.sales]); });
+      (d.items || []).forEach(function(i){ lines.push(['Dish', i.item, i.made, '', i.avg_cook, i.p90_cook, '', '']); });
+      (d.trend || []).forEach(function(t){ lines.push(['Over time', t.at, t.orders, t.avg_ticket, t.avg_cook, '', t.on_time, '']); });
+      var csv = lines.map(function(l){ return l.map(function(v){ v = v == null ? '' : String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }).join(','); }).join('\n');
+      var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv' })); a.download = 'kitchen-insights-' + localDay(new Date()) + '.csv'; document.body.appendChild(a); a.click(); a.remove();
+    });
+    var loaded = false;
+    window.kiInit = function(){ if (!loaded) { loaded = true; } load(); };
+    var nav = document.querySelector('.nav-link[data-tab="kitchen"]'); if (nav) nav.addEventListener('click', load);
   })();
 
   sb.auth.getSession().then(function(res){
