@@ -551,6 +551,67 @@
   .scheduled-badge{ color:var(--info); background:rgba(100,210,255,0.12); border-color:rgba(100,210,255,0.5); }
   .complete-btn{ font-family:var(--kds-font); font-size:24px; background:var(--ready); color:#032010; padding:14px; }
   .complete-btn.delivered-btn{ background:var(--info); color:#00202b; }
+
+  /* ---------- Tickets view: industry-standard upgrade ---------- */
+  /* Header band colored by time: green on time, amber from 8 min (or 10 min to pickup), red late */
+  body.tickets-mode .order-card{ border-top:0; padding:0 14px 12px; overflow:hidden; zoom:var(--tk-zoom, 1); }
+  body.tickets-mode .order-card .order-card-head{ margin:0 -14px 10px; padding:9px 12px; background:#1f8a4c; color:#fff; gap:8px; transition:background .3s; }
+  body.tickets-mode .order-card:has(.wait-time.caution) .order-card-head{ background:#c77c00; }
+  body.tickets-mode .order-card:has(.wait-time.warn) .order-card-head{ background:#c4271b; }
+  body.tickets-mode .order-card.order-complete .order-card-head{ background:#0a5fc2 !important; }
+  body.tickets-mode .order-card.order-allergy .order-card-head{ box-shadow:inset 0 -5px 0 #ff453a; }
+  body.tickets-mode .order-card .order-ref{ color:#fff; font-family:var(--kds-font); font-size:30px; font-weight:900; letter-spacing:-.01em; }
+  body.tickets-mode .order-card .order-name{ color:#fff; opacity:.92; font-size:19px; font-weight:700; }
+  body.tickets-mode .order-card .wait-time, body.tickets-mode .order-card .wait-time.caution, body.tickets-mode .order-card .wait-time.warn{ color:#fff; background:rgba(0,0,0,.22); font-size:22px; padding:2px 9px; }
+  .tk-chan{ flex:none; font-family:"Inter",sans-serif; font-size:13px; font-weight:800; letter-spacing:.02em; text-transform:uppercase; padding:3px 8px; border-radius:6px; background:rgba(255,255,255,.92); color:#1d1d1f; }
+  .tk-chan.ch-event{ background:#ffd479; } .tk-chan.ch-walk{ background:#fff; } .tk-chan.ch-kiosk{ background:#d7c6ff; }
+  .tk-chan.ch-drive{ background:#9be7ff; } .tk-chan.ch-qr{ background:#c8f5d3; } .tk-chan.ch-web{ background:#e5e5ea; }
+  .tk-chan.ch-app{ background:#1d1d1f; color:#fff; }
+  /* Bump number (keys 1–9 or a bump bar) */
+  .tk-bump{ flex:none; display:inline-flex; align-items:center; justify-content:center; width:26px; height:26px; border-radius:50%; background:#fff; color:#1d1d1f; font:900 15px/1 "Inter",sans-serif; }
+  /* Slim meta lines instead of big dark blocks */
+  .tk-metarow{ display:flex; align-items:center; gap:6px; flex-wrap:wrap; margin:0 0 6px; }
+  body.tickets-mode .order-card .scheduled-badge.tk-meta{ display:inline-block; background:#e7f0fb; color:#0a4f9e; border:0; border-radius:6px; padding:3px 9px; margin:0; font-size:16px; }
+  body.tickets-mode .order-card .tk-chan{ border:1px solid rgba(0,0,0,.12); }
+  body.tickets-mode .order-card .order-name{ min-width:3ch; }
+  body.tickets-mode .order-card .wait-time{ flex:none; }
+  body.tickets-mode .order-card .order-card-head > *{ flex-shrink:0; }
+  body.tickets-mode .order-card .order-card-head .order-name{ flex:1 1 0; flex-shrink:1; min-width:0; }
+  @media (max-width:1400px){
+    body.tickets-mode .order-card .order-ref{ font-size:25px; }
+    body.tickets-mode .order-card .order-name{ font-size:16px; }
+    body.tickets-mode .order-card .wait-time, body.tickets-mode .order-card .wait-time.caution, body.tickets-mode .order-card .wait-time.warn{ font-size:17px; padding:2px 6px; }
+    .tk-bump{ width:22px; height:22px; font-size:13px; }
+  }
+  body.tickets-mode .order-card .order-notes{ background:#fff4d6; color:#4a3500; border:0; border-left:5px solid #f5b400; border-radius:6px; padding:6px 10px; margin:6px 0 0; font-size:17px; font-weight:700; }
+  body.tickets-mode .order-card .order-notes.allergy{ background:#ffe5e3; color:#7a120a; border-left-color:#d62d20; }
+  body.tickets-mode .order-card .sq-sync{ background:none; padding:0; margin-top:6px; font-size:12px; color:#6e6e73; }
+  body.tickets-mode .order-card .sq-sync.bad{ color:#b3261e; }
+  body.tickets-mode .order-card .sq-sync .sq-retry{ font-size:12px; padding:1px 8px; }
+  /* Items: bigger, quantity first, add-ons on their own line */
+  body.tickets-mode .tk-items li{ font-size:20px; font-weight:700; padding:8px 0; }
+  body.tickets-mode .tk-items li > span{ line-height:1.25; }
+  body.tickets-mode .tk-items .item-variation{ display:inline; font-size:16px; color:#b45309; margin-left:6px; }
+  body.tickets-mode .tk-items .item-modifier{ display:block; font-size:16px; font-weight:700; margin:3px 0 0 14px; }
+  /* Up next gets more room and lays tickets out in a grid */
+  body.tickets-mode .tk-col[data-col="next"]{ flex:2.1; display:grid; grid-template-columns:repeat(auto-fill, minmax(270px, 1fr)); grid-auto-rows:max-content; align-content:start; align-items:start; }
+  body.tickets-mode .tk-col > .order-card{ flex:none; min-height:min-content; }
+  body.tickets-mode .tk-col[data-col="next"] .tk-col-head, body.tickets-mode .tk-col[data-col="next"] .queue-empty-hint{ grid-column:1 / -1; }
+  .tk-col-head{ justify-content:flex-start !important; align-items:baseline; }
+  .tk-col-head > span{ margin-left:auto; }
+  .tk-col-head small{ font-size:15px; font-weight:700; color:var(--muted); margin-left:10px; }
+  /* New ticket: a short glow so it's noticed */
+  @keyframes tkNew{ 0%{ box-shadow:0 0 0 0 rgba(255,212,121,.95); } 70%{ box-shadow:0 0 0 10px rgba(255,212,121,0); } 100%{ box-shadow:none; } }
+  body.tickets-mode .order-card.tk-new{ animation:tkNew 1.2s ease-out 3; }
+  /* Add-ons one per line (Tickets view) */
+  .tk-qty{ display:inline-block; min-width:1.5em; font-weight:900; }
+  .tk-mod.tk-inote.tk-allergy{ color:#fff; background:#d62d20; }
+  .tk-mods{ display:block; margin:4px 0 0 1.7em; }
+  .tk-mod{ display:block; font-size:16px; font-weight:700; color:#b3261e; line-height:1.35; padding:1px 0; }
+  .tk-mod .kds-pick{ margin:1px 0; }
+  .tk-mod.tk-inote{ color:#4a3500; background:#fff4d6; border-radius:5px; padding:2px 7px; margin-top:3px; display:inline-block; }
+  /* Text size (Orders -> Ticket text) */
+  body.tk-sz-s{ --tk-zoom:.86; } body.tk-sz-l{ --tk-zoom:1.15; } body.tk-sz-xl{ --tk-zoom:1.32; }
   @media (prefers-reduced-motion: reduce){ *{ animation:none !important; transition:none !important; } }
   /* Header: title and clock on the left, controls on the right; wraps cleanly on smaller tablets. */
   #boardHeader, #fryerBoardHeader{ flex-wrap:wrap; justify-content:flex-start; gap:10px 8px; padding:14px 20px; }
@@ -1144,6 +1205,7 @@
       <button type="button" id="itemTotalsBtn" class="kh-grouped" title="Item totals on / off" aria-label="Item totals">&#931;</button>
       <button type="button" id="custInfoBtn" class="kh-grouped" title="Customer info (managers)" aria-label="Customer info">&#128100;</button>
       <button type="button" id="rushBtn" class="kh-grouped" title="Rush: pickup slots for every order" aria-label="Rush">&#9889;</button>
+      <button type="button" id="tkSizeBtn" class="kh-grouped" title="Ticket text size" aria-label="Ticket text size">A</button>
       <button type="button" id="kioskOrdersBtn" class="kh-grouped" title="Kiosk orders on / off" aria-label="Kiosk orders">&#128421;</button>
       <button type="button" id="suppliesBtn" title="Supplies to restock" aria-label="Supplies">&#128230;<span class="gl"> Supplies</span><span class="nd-count zero" id="suppliesCount">0</span></button>
       <button type="button" id="lockBtn" class="kh-lock" title="Lock the board" aria-label="Lock">&#128274;</button>
@@ -2264,7 +2326,8 @@
         var dueAt = el.getAttribute('data-due-at');
         if (dueAt) {
           var left = Math.round((new Date(dueAt).getTime() - Date.now()) / 60000);
-          el.textContent = left > 0 ? 'due ' + left + 'm' : (left === 0 ? 'due now' : 'late ' + (-left) + 'm');
+          var hm = function(m){ return m >= 60 ? Math.floor(m / 60) + 'h' + ('0' + (m % 60)).slice(-2) : m + 'm'; };
+          el.textContent = left > 0 ? 'due ' + hm(left) : (left === 0 ? 'due now' : 'late ' + hm(-left));
           el.classList.toggle('caution', left <= 10 && left > 0);
           el.classList.toggle('warn', left <= 0);
           return;
@@ -3134,6 +3197,33 @@
       arrivalSeen = now;
     }
 
+    // Tickets view (industry-standard upgrade): "Event102" -> "#102", and a
+    // chip for where the order came from.
+    // Tickets view: each add-on / pick on its own line, the guest's item note
+    // highlighted, like a printed kitchen ticket.
+    function tkItemHtml(raw){
+      var cut = raw.indexOf(' // ');
+      if (cut === -1) return renderItemNameHtml(raw);
+      var head = renderItemNameHtml(raw.slice(0, cut)), mods = raw.slice(cut + 4);
+      var parts = [], note = '', i = mods.indexOf('Note:');
+      if (i > -1) { note = mods.slice(i + 5).trim(); mods = mods.slice(0, i).replace(/,\s*$/, ''); }
+      mods.split(/,\s+(?=[^,]*$|[^()]*(?:\(|$))/).forEach(function(m){ m = m.trim(); if (m) parts.push(m); });
+      return head + '<span class="tk-mods">' + parts.map(function(m){ return '<span class="tk-mod">' + kdsNoteHtml(m) + '</span>'; }).join('') +
+        (note ? '<span class="tk-mod tk-inote' + (ALLERGY_PATTERN.test(note) ? ' tk-allergy' : '') + '">' + (ALLERGY_PATTERN.test(note) ? '\u26A0\uFE0F ' : '\uD83D\uDCDD ') + escHtml(note) + '</span>' : '') + '</span>';
+    }
+    function tkShortNo(ref){ var m = /(\d{3,})$/.exec(String(ref || '')); return m ? '#' + m[1] : String(ref || ''); }
+    function tkChannelChip(o, curb, evTag){
+      var ref = String(o.reference_code || ''), src = o.source || '', k, t;
+      if (evTag) return '<span class="tk-chan ch-event" data-tag="' + escHtml(evTag) + '">' + escHtml(evTag) + '</span>';
+      if (/^Event\d/.test(ref)) { k = 'event'; t = 'Event'; }
+      else if (DELIVERY_APPS[src]) { k = 'app ' + src; t = DELIVERY_APPS[src]; }
+      else if (src === 'pos') { k = 'walk'; t = 'Walk-up'; }
+      else if (src === 'kiosk') { k = 'kiosk'; t = 'Kiosk'; }
+      else if (curb) { k = 'drive'; t = 'Drive-up'; }
+      else if (src === 'qr') { k = 'qr'; t = 'Truck QR'; }
+      else { k = 'web'; t = 'Online'; }
+      return '<span class="tk-chan ch-' + k + '">' + escHtml(t) + '</span>';
+    }
     function renderQueuePanel(rows){
       var listEl = document.getElementById('queueList');
       var orderIds = [];
@@ -3174,7 +3264,7 @@
           o.items.forEach(function(i){ var k = i.name + '|' + i.drink; if (!g[k]) { g[k] = { name: i.name, drink: i.drink, n: 0, done: 0 }; order.push(k); } g[k].n++; if (i.status === 'ready') g[k].done++; });
           return '<ul class="tk-items">' + order.map(function(k){
             var T = window.__kdsTags || {}, it = g[k], tag = it.drink ? (T.tag_window || 'Window') : (isFryerItem({ item_name: it.name }) ? (T.tag_fryer || 'Fryer') : (T.tag_line || 'Line'));
-            return '<li class="' + (it.done === it.n && !allReady ? 'done' : '') + '"><span>' + it.n + 'x ' + renderItemNameHtml(it.name) + '</span><em class="lt-tag">' + escHtml(tag) + '</em></li>';
+            return '<li class="' + (it.done === it.n && !allReady ? 'done' : '') + '"><span>' + '<b class="tk-qty">' + it.n + '\u00d7</b> ' + tkItemHtml(it.name) + '</span><em class="lt-tag">' + escHtml(tag) + '</em></li>';
           }).join('') + '</ul>';
         })();
         var pillsHtml = TK ? '' : o.items.map(function(i){
@@ -3202,20 +3292,28 @@
         if (itemNotesAllergy && !orderNotesAllergy) {
           notesHtml += '<div class="order-notes allergy"><span class="allergy-tag">\u26A0\uFE0F ALLERGY</span>See item note below</div>';
         }
+        var evTagM = /^EVENT \[([^\]]{1,10})\]/.exec(notesText);
         if (notesText) {
+          var shownNotes = TK && o.scheduledAt ? notesText.replace(/ · pickup \d{1,2}:\d{2} [AP]M/, '') : notesText;
+          // Tickets view: "EVENT [SUMMIT]: The Summit · pickup 5:06 PM — unit 14B" -> "unit 14B"
+          // (the event is on the ticket's chip and the slot strip). Allergy checks use the full note.
+          if (TK && /^EVENT[ :\[]/.test(notesText)) { var cut = notesText.indexOf(' \u2014 '); shownNotes = cut > -1 ? notesText.slice(cut + 3).trim() : ''; }
           notesHtml += '<div class="order-notes' + (orderNotesAllergy ? ' allergy' : '') + '">' +
-              (orderNotesAllergy ? '<span class="allergy-tag">\u26A0\uFE0F ALLERGY</span>' : '\uD83D\uDCDD ') +
-              escHtml(notesText) +
+              (orderNotesAllergy ? '<span class="allergy-tag">\u26A0\uFE0F ALLERGY</span>' : (TK ? '' : '\uD83D\uDCDD ')) +
+              escHtml(shownNotes) +
             '</div>';
+          if (!shownNotes && !orderNotesAllergy) notesHtml = notesHtml.replace(/<div class="order-notes">[^<]*<\/div>$/, '');
         }
         return '<div class="order-card' + (allReady ? ' order-complete' : '') + (isCash ? ' order-cash' : '') + (isCurbside ? ' order-curbside' : '') + (isAllergy ? ' order-allergy' : '') + (isCurbside && o.arrival === 'arrived' ? ' order-arrived' : '') + '" data-order-id="' + orderId + '" data-stage="' + stage + '">' +
           '<div class="order-card-head">' +
-            '<span class="order-ref">' + escHtml(o.reference_code || '') + '</span>' +
+            '<span class="order-ref"' + (TK ? ' title="' + escHtml(o.reference_code || '') + '"' : '') + '>' + escHtml(TK ? tkShortNo(o.reference_code) : (o.reference_code || '')) + '</span>' +
             '<span class="order-name">' + escHtml(o.customer_name || '') + '</span>' +
             '<span class="wait-time" data-created-at="' + escHtml(o.createdAt || '') + '"' + (o.scheduledAt && !DELIVERY_APPS[o.source] && new Date(o.scheduledAt).getTime() - new Date(o.createdAt || 0).getTime() >= 5 * 60000 ? ' data-due-at="' + escHtml(o.scheduledAt) + '"' : '') + '>&mdash;</span>' +
           '</div>' +
           (isCash ? '<div class="cash-warning">Cash order: collect payment at the window</div>' : '') +
-          (o.scheduledAt ? '<div class="scheduled-badge">\u23F0 ' + (DELIVERY_APPS[o.source] ? 'Scheduled ' + escHtml(DELIVERY_APPS[o.source]) + ' \u2014 ready by ' : 'Ready by ') + escHtml(fmtTime(o.scheduledAt)) + '</div>' : '') +
+          (TK ? '<div class="tk-metarow">' + tkChannelChip(o, isCurbside, evTagM ? evTagM[1] : null) +
+              (o.scheduledAt ? '<span class="scheduled-badge tk-meta">\u23F0 ' + (DELIVERY_APPS[o.source] ? 'Scheduled \u2014 ready by ' : 'Ready by ') + escHtml(fmtTime(o.scheduledAt)) + '</span>' : '') + '</div>'
+            : (o.scheduledAt ? '<div class="scheduled-badge">\u23F0 ' + (DELIVERY_APPS[o.source] ? 'Scheduled ' + escHtml(DELIVERY_APPS[o.source]) + ' \u2014 ready by ' : 'Ready by ') + escHtml(fmtTime(o.scheduledAt)) + '</div>' : '')) +
           (isCurbside ? driveUpBadgeHtml(o) : '') +
           notesHtml +
           (TK ? ticketLines : '<div class="order-pills">' + pillsHtml + '</div>') +
@@ -3241,6 +3339,7 @@
           return c;
         });
         listEl.innerHTML = ''; wrap.forEach(function(c){ listEl.appendChild(c); c.scrollTop = tkScroll[c.getAttribute('data-col')] || 0; });
+        if (window.kdsTk) window.kdsTk.after(listEl);
       }
 
       if (window.kdsCust) window.kdsCust.decorate(listEl);
@@ -3873,6 +3972,11 @@
     // "EVENT [SUMMIT]" get the tag as a colored chip and a colored edge.
     var tagColors = {};
     function decorate(){
+      document.querySelectorAll('#board .tk-chan[data-tag]').forEach(function(ch){
+        var col = tagColors[ch.getAttribute('data-tag')]; if (!col) return;
+        ch.style.background = col;
+        var card = ch.closest('.order-card'); if (card) { card.classList.add('ev-tagged'); card.style.setProperty('--ev-color', col); }
+      });
       document.querySelectorAll('#board .order-notes, #board .ft-notes, #board .lt-notes').forEach(function(el){
         if (el.getAttribute('data-ev-done') === el.textContent) return;
         var m = /EVENT \[([A-Z0-9 &'-]{1,10})\]/.exec(el.textContent || '');
@@ -4143,6 +4247,8 @@
       function(){ var on = document.body.classList.contains('totals-on');
         return { key: 'itemTotalsBtn', ic: 'Σ', label: 'Item totals: ' + (on ? 'ON' : 'OFF'), on: on,
           sub: on ? 'Showing a count of every item to make, above the tickets · tap to hide' : 'Show one line with each item and how many to make' }; },
+      function(){ var z = window.kdsTk ? window.kdsTk.size() : 'm', L = { s: 'Compact', m: 'Regular', l: 'Large', xl: 'Extra large' };
+        return { key: 'tkSizeBtn', ic: 'A', label: 'Ticket text: ' + L[z], sub: 'Tap to change (Compact, Regular, Large, Extra large) · this screen only' }; },
       function(){ var p = window.kdsPace ? window.kdsPace.state() : null; if (!p || !p.ready) return null;
         return { key: 'rushBtn', ic: '⚡', label: p.rush ? 'Rush slots: ON' : p.on ? 'Slots: ON (' + p.whyLabel + ')' : 'Rush slots: OFF', on: !!p.on,
           sub: p.rush ? 'Every order takes a pickup slot until ' + p.rushUntil + ' · tap to end' : p.on ? 'Every order takes a pickup slot while ' + p.whyLabel.toLowerCase() + ' is on' : 'Busy? Every order takes the next pickup slot for 2 hours' }; },
@@ -4490,6 +4596,68 @@
   btn.addEventListener('click', function(){ set(!on(), true); });
   var saved = null; try { saved = localStorage.getItem(KEY); } catch (e) {}
   set(saved === '1', false);
+})();
+</script>
+
+<script>
+// ---- Tickets view upgrade: bump numbers + keyboard / bump bar, new-ticket
+// glow, column stats, text size. Keys 1–9 press the main button on that
+// ticket (Fire, Ready, Picked up / Delivered).
+(function(){
+  var KEY = 'kdsTkSize', seen = null, newAt = {}, sizes = ['s', 'm', 'l', 'xl'];
+  function size(){ var z = 'm'; try { z = localStorage.getItem(KEY) || 'm'; } catch (e) {} return sizes.indexOf(z) > -1 ? z : 'm'; }
+  function applySize(z){ sizes.forEach(function(x){ document.body.classList.toggle('tk-sz-' + x, x === z && x !== 'm'); }); }
+  applySize(size());
+  var sb2 = document.getElementById('tkSizeBtn');
+  if (sb2) sb2.addEventListener('click', function(){
+    var z = sizes[(sizes.indexOf(size()) + 1) % sizes.length];
+    try { localStorage.setItem(KEY, z); } catch (e) {}
+    applySize(z); if (window.rollinGroups) window.rollinGroups.refresh();
+  });
+  function mmss(sec){ sec = Math.max(0, Math.round(sec)); return Math.floor(sec / 60) + ':' + ('0' + (sec % 60)).slice(-2); }
+  function after(listEl){
+    // 1) bump numbers, in reading order: Up next, Cooking, Ready
+    var cards = listEl.querySelectorAll('.order-card[data-order-id]'), n = 0;
+    cards.forEach(function(c){
+      var old = c.querySelector('.tk-bump'); if (old) old.remove();
+      c.removeAttribute('data-bump');
+      if (n < 9 && c.querySelector('.pull-prep-btn, .complete-btn')) {
+        n++; c.setAttribute('data-bump', String(n));
+        var h = c.querySelector('.order-card-head'); if (h) h.insertAdjacentHTML('afterbegin', '<span class="tk-bump" aria-hidden="true">' + n + '</span>');
+      }
+    });
+    // 2) glow on tickets that just arrived (not on the first load)
+    var now = {}, t = Date.now();
+    cards.forEach(function(c){
+      var id = c.getAttribute('data-order-id'); now[id] = 1;
+      if (seen && !seen[id]) newAt[id] = t;
+      if (newAt[id] && t - newAt[id] < 6000) c.classList.add('tk-new'); else delete newAt[id];
+    });
+    seen = now;
+    // 3) column stats: how long the oldest ticket has waited
+    listEl.querySelectorAll('.tk-col').forEach(function(col){
+      var oldest = 0, late = 0;
+      col.querySelectorAll('.wait-time[data-created-at]').forEach(function(w){
+        if (w.hasAttribute('data-due-at')) { if (Date.parse(w.getAttribute('data-due-at')) < Date.now()) late++; return; }
+        var a = (Date.now() - Date.parse(w.getAttribute('data-created-at'))) / 1000;
+        if (a > oldest) oldest = a; if (a >= 720) late++;
+      });
+      var head = col.querySelector('.tk-col-head'); if (!head || col.getAttribute('data-col') === 'ready') return;
+      var sm = head.querySelector('small'); if (!sm) { sm = document.createElement('small'); head.firstChild.after(sm); }
+      sm.textContent = (oldest ? 'oldest ' + mmss(oldest) : '') + (late ? (oldest ? ' · ' : '') + late + ' late' : '');
+    });
+  }
+  // Keys 1–9 (most bump bars send these): press that ticket's main button.
+  document.addEventListener('keydown', function(e){
+    if (!document.body.classList.contains('tickets-mode') || e.ctrlKey || e.metaKey || e.altKey) return;
+    var t = e.target; if (t && (t.tagName === 'INPUT' || t.tagName === 'TEXTAREA' || t.isContentEditable)) return;
+    var board = document.getElementById('board'); if (!board || board.classList.contains('hidden')) return;
+    if (!/^[1-9]$/.test(e.key)) return;
+    var card = document.querySelector('#queueList .order-card[data-bump="' + e.key + '"]'); if (!card) return;
+    var btn = card.querySelector('.pull-prep-btn:not([disabled]), .complete-btn:not([disabled])'); if (!btn) return;
+    e.preventDefault(); card.classList.add('tk-new'); btn.click();
+  });
+  window.kdsTk = { after: after, size: size };
 })();
 </script>
 </body>
