@@ -1213,7 +1213,7 @@
   </div>
   <!-- Pickup slots (slot-pacing.sql): shown while an event, On Location stop or Rush is on -->
   <div id="paceStrip" class="hidden" role="status" aria-live="polite">
-    <div class="ps-what"><b>SLOTS</b><span id="paceWhy"></span></div>
+    <div class="ps-what"><b>SLOTS</b><span id="paceWhy"></span><button type="button" id="paceEnd" class="ps-end hidden">End Rush</button></div>
     <div class="ps-next">Next walk-up ready <b id="paceNext">&mdash;</b><small>tell the customer at the window</small></div>
     <div class="ps-slots" id="paceSlots"></div>
   </div>
@@ -3958,13 +3958,15 @@
   #paceStrip .ps-slot.now{ border-color:var(--cook, #FF9F0A); }
   #paceStrip .ps-slot.full .n{ color:var(--alert, #ff453a); font-weight:700; }
   #paceStrip .ps-slot .w{ color:var(--ready, #30D158); }
+  #paceStrip .ps-end{ margin-left:12px; background:transparent; color:var(--white); border:1px solid var(--muted); border-radius:8px; padding:5px 12px; font:inherit; font-size:14px; font-weight:700; cursor:pointer; min-height:36px; }
+  #paceStrip .ps-end:active{ background:#222; }
   #paceStrip .ps-tag, .ev-tag{ display:inline-block; border-radius:6px; padding:1px 7px; margin-right:6px; color:#000; font-weight:800; font-size:12px; letter-spacing:.04em; background:#ccc; }
   .ev-tagged{ box-shadow: inset 5px 0 0 var(--ev-color, #888); }
 </style>
 <script>
   // ---- Pickup slots (slot-pacing.sql): the strip under the header and the Rush switch ----
   (function(){
-    var st = { ready: false, on: false, rush: false, why: '', whyLabel: '', rushUntil: '' };
+    var st = { ready: false, on: false, rush: false, active: false, sched: false, why: '', whyLabel: '', rushUntil: '', schedEnd: '', paused: '', pausedBy: '' };
     var WHY = { event: 'Event', onloc: 'On Location', calendar: 'Calendar event', rush: 'Rush' };
     function clock(iso){ try { return new Date(iso).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: 'America/New_York' }).replace(/[  ]/g, ' '); } catch (e) { return ''; } }
     function esc(t){ return String(t == null ? '' : t).replace(/[&<>"']/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
@@ -3999,10 +4001,17 @@
       st.on = !!(d && d.on); st.why = d && d.why || ''; st.whyLabel = WHY[st.why] || 'Slots';
       st.rush = !!(d && d.rush_until && new Date(d.rush_until).getTime() > Date.now());
       st.rushUntil = st.rush ? clock(d.rush_until) : '';
+      // Rush is "active" whether it was turned on by hand or by the Rush schedule.
+      st.sched = !!(d && d.on && d.why === 'rush' && d.scheduled_rush);
+      st.active = st.rush || st.sched;
+      st.schedEnd = d && d.rush_sched_end ? clock(d.rush_sched_end) : '';
+      st.paused = d && d.rush_paused_until ? clock(d.rush_paused_until) : '';
+      st.pausedBy = d && d.rush_paused_by || '';
+      document.getElementById('paceEnd').classList.toggle('hidden', !st.active);
       strip.classList.toggle('hidden', !st.on);
       if (!st.on) return;
       var whyEl = document.getElementById('paceWhy');
-      whyEl.textContent = (d.why === 'rush' ? (d.scheduled_rush ? 'Rush (scheduled)' : 'Rush until ' + st.rushUntil) : st.whyLabel + (d.name ? ': ' + d.name : '')) + ' · ' + d.slot + '-min slots';
+      whyEl.textContent = (d.why === 'rush' ? (d.scheduled_rush ? 'Rush (scheduled)' + (st.schedEnd ? ' until ' + st.schedEnd : '') : 'Rush until ' + st.rushUntil) : st.whyLabel + (d.name ? ': ' + d.name : '')) + ' · ' + d.slot + '-min slots';
       if (d.tag) { var tg = document.createElement('span'); tg.className = 'ps-tag'; tg.textContent = d.tag; if (d.color) tg.style.background = d.color; whyEl.insertBefore(tg, whyEl.firstChild); }
       document.getElementById('paceNext').textContent = d.next_walkup ? clock(d.next_walkup) : '—';
       var now = Date.now();
@@ -4020,17 +4029,21 @@
         paint(res.data);
       }, function(){});
     }
-    document.getElementById('rushBtn').addEventListener('click', function(){
+    function toggleRush(){
       if (!st.ready) { alert('Run slot-pacing.sql in Supabase first.'); return; }
-      if (st.on && !st.rush) { alert('Pickup slots are already on for the ' + st.whyLabel.toLowerCase() + '. They end by themselves when it ends.'); return; }
-      var turnOn = !st.rush;
+      if (st.on && !st.active) { alert('Pickup slots are already on for the ' + st.whyLabel.toLowerCase() + '. They end by themselves when it ends.'); return; }
+      var turnOn = !st.active;
       if (turnOn && !confirm('Turn on Rush for 2 hours?\n\nEvery order (website, QR, kiosk, walk-ups at the window) takes the next pickup slot, so the kitchen cooks slot by slot.')) return;
-      if (!turnOn && !confirm('End Rush now? Orders go back to first come, first served.')) return;
+      if (!turnOn && !confirm(st.sched && !st.rush
+          ? 'End the scheduled Rush now?\n\nIt stays off until ' + (st.schedEnd || 'its end time') + ' today, then comes back at its next scheduled time. Orders go back to first come, first served.'
+          : 'End Rush now? Orders go back to first come, first served.' + (st.sched ? '\n\nThe scheduled Rush running now ends too (until ' + (st.schedEnd || 'its end time') + ').' : ''))) return;
       sb.rpc('staff_set_rush', { p_minutes: turnOn ? 120 : 0 }).then(function(res){
         if (res.error) { alert('Couldn’t change Rush: ' + (res.error.message || 'unknown error')); return; }
         load(); if (window.__kdsMainRefresh) window.__kdsMainRefresh();
       }, function(){ alert("Couldn't reach the server — check your connection."); });
-    });
+    }
+    document.getElementById('rushBtn').addEventListener('click', toggleRush);
+    document.getElementById('paceEnd').addEventListener('click', toggleRush);
     window.kdsPace = { state: function(){ return st; }, refresh: load };
     setInterval(load, 20000);
     setTimeout(load, 1500);
@@ -4250,8 +4263,12 @@
       function(){ var z = window.kdsTk ? window.kdsTk.size() : 'm', L = { s: 'Compact', m: 'Regular', l: 'Large', xl: 'Extra large' };
         return { key: 'tkSizeBtn', ic: 'A', label: 'Ticket text: ' + L[z], sub: 'Tap to change (Compact, Regular, Large, Extra large) · this screen only' }; },
       function(){ var p = window.kdsPace ? window.kdsPace.state() : null; if (!p || !p.ready) return null;
-        return { key: 'rushBtn', ic: '⚡', label: p.rush ? 'Rush slots: ON' : p.on ? 'Slots: ON (' + p.whyLabel + ')' : 'Rush slots: OFF', on: !!p.on,
-          sub: p.rush ? 'Every order takes a pickup slot until ' + p.rushUntil + ' · tap to end' : p.on ? 'Every order takes a pickup slot while ' + p.whyLabel.toLowerCase() + ' is on' : 'Busy? Every order takes the next pickup slot for 2 hours' }; },
+        return { key: 'rushBtn', ic: '⚡', label: p.active ? 'Rush slots: ON · tap to end' : p.on ? 'Slots: ON (' + p.whyLabel + ')' : 'Rush slots: OFF', on: !!p.on,
+          sub: p.rush ? 'Every order takes a pickup slot until ' + p.rushUntil + ' · tap to end Rush'
+             : p.active ? 'Scheduled Rush' + (p.schedEnd ? ' until ' + p.schedEnd : '') + ' · tap to end it for today'
+             : p.on ? 'Every order takes a pickup slot while ' + p.whyLabel.toLowerCase() + ' is on'
+             : p.paused ? 'Scheduled Rush ended until ' + p.paused + (p.pausedBy ? ' (' + p.pausedBy + ')' : '') + ' · tap to turn Rush on for 2 hours'
+             : 'Busy? Every order takes the next pickup slot for 2 hours' }; },
       function(){ var st = window.kdsCust ? window.kdsCust.state() : { on: false };
         return { key: 'custInfoBtn', ic: '👤', label: 'Customer info', on: !!st.on,
           sub: st.on ? (st.always ? 'On (manager tablet)' : 'On · ' + st.by + ' · ' + st.left + ' min left · tap to turn off') : 'Managers: regulars & visit counts (PIN)' }; }
