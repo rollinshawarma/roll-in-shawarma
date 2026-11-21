@@ -2330,6 +2330,122 @@ body.p-shell #mainContent:has(#panelHome:not(.hidden)){ max-width:1280px; }
 }
 @media (prefers-reduced-motion: no-preference){ .tb-ring .arc{ transition:stroke-dashoffset .9s cubic-bezier(.2,.8,.2,1); } }
 </style>
+<style id="sales-ui">
+/* Sales report v2: period bar, insights, KPI tiles with sparklines, trend vs comparison,
+   breakdown waterfall, channels, weekday×hour heatmap, average weekday, product mix,
+   customers, payments, promos, day by day. Colours: blue #2a78d6 = this period,
+   orange #eb6834 = comparison (validated dataviz pair); status green/red only for change. */
+#panelSalesreport{ --sa1:#2a78d6; --sa2:#eb6834; --sa-up:#0c7a43; --sa-dn:#b3261e; --sa-grid:var(--ds-border); }
+:root[data-theme="dark"] #panelSalesreport{ --sa1:#5b9bf0; --sa2:#f0804f; --sa-up:#7ee2ad; --sa-dn:#ff9aa6; }
+body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px; }
+.sa-legacy{ display:none !important; }
+.sa-bar{ background:var(--ds-surface); border-radius:14px; box-shadow:var(--ds-card-shadow); padding:12px 14px; display:flex; flex-direction:column; gap:10px; position:sticky; top:calc(var(--ds-top-h, 0px) + 8px); z-index:30; }
+@media (max-width:899px){ .sa-bar{ position:static; } }
+.sa-chips{ display:flex; flex-wrap:wrap; gap:4px; }
+.sa-chips button{ min-height:32px; padding:5px 12px; border-radius:8px; background:transparent; color:var(--ds-text-3); font-size:13px; font-weight:550; box-shadow:none; border:0; }
+.sa-chips button:hover{ background:rgba(0,0,0,.05); color:var(--ds-text); }
+.sa-chips button.on{ background:rgba(0,0,0,.08); color:var(--ds-text); font-weight:650; }
+:root[data-theme="dark"] .sa-chips button.on{ background:rgba(255,255,255,.12); }
+.sa-custom, .sa-opts{ display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end; }
+.sa-custom.hidden{ display:none; }
+.sa-custom label, .sa-opts label{ display:flex; flex-direction:column; gap:4px; font-size:12.5px; margin:0; color:var(--ds-text-3); }
+.sa-custom select{ min-width:220px; }
+.sa-hrs span{ display:flex; gap:6px; }
+.sa-opts .sa-sp{ flex:1; }
+.sa-opts button, .sa-custom button{ width:auto; }
+.sa-period{ margin:14px 2px 10px; font-size:13.5px; color:var(--ds-text-2); }
+.sa-period b{ color:var(--ds-text); }
+.sa-msg{ padding:12px 14px; border-radius:12px; background:var(--ds-red-bg); color:var(--ds-red-ink); margin-bottom:12px; font-weight:500; }
+.sa-msg.hidden{ display:none; }
+.sa-body.loading{ opacity:.55; transition:opacity .2s; pointer-events:none; }
+.sa-insights{ list-style:none; margin:0 0 14px; padding:0; display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:10px; }
+.sa-insights li{ background:var(--ds-surface); box-shadow:var(--ds-card-shadow); border-radius:12px; padding:12px 14px; font-size:13.5px; line-height:1.45; color:var(--ds-text-2); border-left:3px solid var(--sa1); }
+.sa-insights li b{ color:var(--ds-text); }
+.sa-kpis{ display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:0; background:var(--ds-surface); box-shadow:var(--ds-card-shadow); border-radius:14px; overflow:hidden; margin-bottom:14px; }
+.sa-kpi{ padding:14px 16px 10px; border-right:1px solid var(--ds-border); border-bottom:1px solid var(--ds-border); min-width:0; position:relative; }
+.sa-kpi:nth-child(4n){ border-right:0; }
+.sa-kpi:nth-last-child(-n+4){ border-bottom:0; }
+.sa-kpi span{ font-size:12.5px; font-weight:550; color:var(--ds-text-3); }
+.sa-kpi b{ display:block; font:700 24px/1.2 var(--tb-num, var(--ds-font)); letter-spacing:-.02em; color:var(--ds-text); margin-top:4px; font-variant-numeric:tabular-nums; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sa-kpi small{ display:block; font-size:12px; font-weight:600; color:var(--ds-text-3); margin-top:2px; min-height:16px; }
+.sa-kpi small.up{ color:var(--sa-up); } .sa-kpi small.dn{ color:var(--sa-dn); }
+.sa-kpi svg{ display:block; width:100%; height:30px; margin-top:6px; }
+.sa-kpi.hero{ background:linear-gradient(180deg, rgba(42,120,214,.07), transparent 70%); }
+.sa-card{ background:var(--ds-surface); box-shadow:var(--ds-card-shadow); border-radius:14px; padding:16px 18px; min-width:0; margin-bottom:14px; }
+.sa-row{ display:grid; grid-template-columns:minmax(0, 1fr) minmax(0, 1fr); gap:14px; }
+.sa-row > .sa-card{ margin-bottom:14px; }
+.sa-h{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; margin-bottom:10px; }
+.sa-h h3{ font-size:15px !important; font-weight:650 !important; color:var(--ds-text) !important; margin:0; letter-spacing:-.01em; }
+.sa-h .hint{ font-size:12.5px; }
+.sa-h input[type=search]{ margin-left:auto; max-width:220px; min-height:32px; }
+.sa-seg{ margin-left:auto; display:inline-flex; gap:2px; background:var(--ds-subtle); border-radius:8px; padding:2px; }
+.sa-seg button{ min-height:28px; padding:3px 10px; border-radius:6px; border:0; background:transparent; color:var(--ds-text-3); font-size:12.5px; font-weight:550; box-shadow:none; }
+.sa-seg button.on{ background:var(--ds-surface); color:var(--ds-text); box-shadow:0 1px 2px rgba(0,0,0,.1); font-weight:650; }
+.sa-chart{ position:relative; }
+.sa-chart svg{ display:block; width:100%; height:auto; overflow:visible; }
+.sa-chart text, .sa-heatwrap text{ font-family:var(--ds-font); }
+.sa-chart .ax{ fill:var(--ds-text-3); font-size:11px; }
+.sa-chart .gl{ stroke:var(--sa-grid); }
+.sa-legend{ display:flex; gap:16px; flex-wrap:wrap; font-size:12px; color:var(--ds-text-3); margin-top:8px; }
+.sa-legend i{ display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:6px; vertical-align:-1px; background:var(--sa1); }
+.sa-legend i.l{ height:3px; width:16px; border-radius:2px; vertical-align:2px; background:var(--sa2); }
+.sa-tip{ position:absolute; pointer-events:none; z-index:20; background:var(--ds-top, #1a1a1a); color:#fff; border-radius:8px; padding:8px 10px; font-size:12px; line-height:1.5; box-shadow:var(--ds-pop-shadow); white-space:nowrap; transform:translate(-50%, calc(-100% - 12px)); display:none; }
+.sa-tip b{ font-weight:650; } .sa-tip i{ display:inline-block; width:8px; height:8px; border-radius:2px; margin-right:6px; }
+.sa-bars{ display:flex; flex-direction:column; gap:10px; }
+.sa-bl{ display:grid; grid-template-columns:minmax(0, 1fr) auto auto; gap:4px 12px; align-items:baseline; font-size:13px; }
+.sa-bl .n{ color:var(--ds-text); font-weight:550; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.sa-bl .v{ color:var(--ds-text); font-weight:650; font-variant-numeric:tabular-nums; text-align:right; }
+.sa-bl .c{ font-size:12px; font-weight:600; min-width:58px; text-align:right; color:var(--ds-text-3); }
+.sa-bl .c.up{ color:var(--sa-up); } .sa-bl .c.dn{ color:var(--sa-dn); }
+.sa-bl .t{ grid-column:1 / -1; height:8px; border-radius:4px; background:var(--ds-subtle-2); position:relative; overflow:hidden; }
+.sa-bl .t i{ position:absolute; left:0; top:0; bottom:0; background:var(--sa1); border-radius:4px; }
+.sa-bl .t u{ position:absolute; top:0; bottom:0; width:2px; background:var(--sa2); }
+.sa-bl small{ grid-column:1 / -1; font-size:12px; color:var(--ds-text-3); margin-top:-2px; }
+.sa-heatwrap{ overflow-x:auto; }
+.sa-heatwrap svg{ display:block; min-width:520px; width:100%; height:auto; }
+.sa-heat-lg{ display:flex; align-items:center; gap:8px; font-size:12px; color:var(--ds-text-3); margin-top:8px; }
+.sa-heat-lg span{ display:inline-block; width:120px; height:8px; border-radius:4px; background:linear-gradient(90deg, #e8f0fb, #2a78d6 60%, #0d3d7a); }
+:root[data-theme="dark"] .sa-heat-lg span{ background:linear-gradient(90deg, #1b2534, #3f7fd0 60%, #9cc2f5); }
+.sa-tablewrap{ overflow-x:auto; }
+.sa-table{ width:100%; border-collapse:collapse; font-size:13px; }
+.sa-table th{ text-align:left; cursor:pointer; user-select:none; white-space:nowrap; }
+.sa-table th.n, .sa-table td.n{ text-align:right; font-variant-numeric:tabular-nums; }
+.sa-table th[aria-sort="ascending"]::after{ content:" ▲"; font-size:9px; } .sa-table th[aria-sort="descending"]::after{ content:" ▼"; font-size:9px; }
+.sa-table td.nm{ min-width:180px; }
+.sa-table td.nm i{ display:block; height:4px; border-radius:2px; background:var(--sa1); margin-top:5px; opacity:.85; }
+.sa-table .up{ color:var(--sa-up); font-weight:600; } .sa-table .dn{ color:var(--sa-dn); font-weight:600; }
+.sa-table tr.pareto td{ border-top:2px dashed var(--ds-border-strong); }
+.sa-days{ max-height:360px; overflow:auto; }
+.sa-cust{ display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:10px; margin-bottom:14px; }
+.sa-cust div span{ display:block; font-size:12.5px; color:var(--ds-text-3); }
+.sa-cust div b{ font:700 22px/1.2 var(--tb-num, var(--ds-font)); color:var(--ds-text); }
+.sa-stack{ display:flex; height:14px; border-radius:7px; overflow:hidden; background:var(--ds-subtle-2); }
+.sa-stack i{ display:block; height:100%; }
+.sa-stack-lg{ display:flex; gap:14px; flex-wrap:wrap; font-size:12.5px; color:var(--ds-text-2); margin-top:8px; }
+.sa-stack-lg i{ display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:6px; vertical-align:-1px; }
+.sa-empty{ color:var(--ds-text-3); font-size:13px; padding:12px 0; }
+.sa-defs summary{ cursor:pointer; font-weight:650; color:var(--ds-text); }
+.sa-defs ul{ margin:10px 0 0 18px; color:var(--ds-text-2); font-size:13px; line-height:1.6; }
+@media (max-width:980px){ .sa-row{ grid-template-columns:minmax(0, 1fr); } }
+@media (max-width:700px){
+  .sa-kpis{ grid-template-columns:repeat(2, minmax(0, 1fr)); }
+  .sa-kpi:nth-child(4n){ border-right:1px solid var(--ds-border); } .sa-kpi:nth-child(2n){ border-right:0; }
+  .sa-kpi:nth-last-child(-n+4){ border-bottom:1px solid var(--ds-border); } .sa-kpi:nth-last-child(-n+2){ border-bottom:0; }
+  .sa-kpi b{ font-size:20px; }
+  .sa-h input[type=search]{ max-width:none; width:100%; margin-left:0; }
+  .sa-seg{ margin-left:0; }
+  .sa-cust{ grid-template-columns:repeat(3, minmax(0, 1fr)); }
+  .sa-custom label, .sa-custom select{ min-width:0; width:100%; }
+}
+@media print{
+  body *{ visibility:hidden !important; }
+  #panelSalesreport, #panelSalesreport *{ visibility:visible !important; }
+  #panelSalesreport{ position:absolute; left:0; top:0; width:100%; }
+  .sa-bar, .p-crumb, #saItemQ, .sa-seg{ display:none !important; }
+  .sa-card, .sa-kpis, .sa-insights li{ box-shadow:none !important; border:1px solid #ddd; break-inside:avoid; }
+  .sa-days{ max-height:none; overflow:visible; }
+}
+</style>
 </head>
 <body>
 
@@ -3678,8 +3794,71 @@ body.p-shell #mainContent:has(#panelHome:not(.hidden)){ max-width:1280px; }
   <div class="tab-panel hidden" id="panelSalesreport">
     <div class="page-head">
       <h2>Sales report</h2>
-      <p class="hint">Sales for any stretch of time: pick an event day or set the date and hours. Good for event organizers who take a percentage, and for seeing which events are worth repeating.</p>
+      <p class="hint">How sales are going, compared with the period before or last year: trends, what sold, when, through which channel, and who's coming back. Pick an event day under Custom for organizer reports.</p>
     </div>
+    <div class="sa" id="saRoot">
+      <div class="sa-bar" role="toolbar" aria-label="Report period">
+        <div class="sa-chips" id="saChips">
+          <button type="button" data-r="today">Today</button><button type="button" data-r="yesterday">Yesterday</button>
+          <button type="button" data-r="7" class="on">Last 7 days</button><button type="button" data-r="30">Last 30 days</button>
+          <button type="button" data-r="month">This month</button><button type="button" data-r="lastmonth">Last month</button>
+          <button type="button" data-r="year">This year</button><button type="button" data-r="custom">Custom</button>
+        </div>
+        <div class="sa-custom hidden" id="saCustom">
+          <label>From<input type="date" id="saFrom"></label><label>To<input type="date" id="saTo"></label>
+          <label>Event day<select id="saEvent"><option value="">Pick an event…</option></select></label>
+          <label class="sa-hrs">Hours<span><input type="time" id="saT1" value="00:00"><input type="time" id="saT2" value="23:59"></span></label>
+          <button type="button" class="btn-primary btn-small" id="saApply">Show</button>
+        </div>
+        <div class="sa-opts">
+          <label>Compare with<select id="saCmp"><option value="prev">Previous period</option><option value="year">Same days last year</option><option value="none">No comparison</option></select></label>
+          <label>Group by<select id="saGrain"><option value="">Automatic</option><option value="hour">Hour</option><option value="day">Day</option><option value="week">Week</option><option value="month">Month</option></select></label>
+          <span class="sa-sp"></span>
+          <button type="button" class="btn-ghost btn-small" id="saCsv">Download CSV</button>
+          <button type="button" class="btn-ghost btn-small" id="saPrint">Print</button>
+        </div>
+      </div>
+      <p class="sa-period" id="saPeriod"></p>
+      <div class="sa-msg hidden" id="saMsg" role="alert"></div>
+      <div id="saBody" class="sa-body" aria-live="polite">
+        <ul class="sa-insights" id="saInsights"></ul>
+        <div class="sa-kpis" id="saKpis"></div>
+        <section class="sa-card sa-wide"><div class="sa-h"><h3>Sales over time</h3>
+            <div class="sa-seg" id="saMetric" role="group" aria-label="Measure"><button type="button" data-m="net" class="on">Net sales</button><button type="button" data-m="orders">Orders</button><button type="button" data-m="avg">Average order</button></div></div>
+          <div class="sa-chart" id="saTrend"></div><div class="sa-legend" id="saTrendLg"></div></section>
+        <div class="sa-row">
+          <section class="sa-card"><div class="sa-h"><h3>Where the money went</h3><span class="hint">Gross sales to what you collected</span></div><div class="sa-chart" id="saFall"></div></section>
+          <section class="sa-card"><div class="sa-h"><h3>Sales by channel</h3><span class="hint" id="saChHint"></span></div><div id="saChannels"></div></section>
+        </div>
+        <div class="sa-row">
+          <section class="sa-card"><div class="sa-h"><h3>When you sell</h3><span class="hint">Net sales by weekday and hour</span></div><div id="saHeat" class="sa-heatwrap"></div></section>
+          <section class="sa-card"><div class="sa-h"><h3>Average day</h3><span class="hint">Net sales on an average weekday</span></div><div class="sa-chart" id="saDow"></div><div class="sa-legend" id="saDowLg"></div></section>
+        </div>
+        <section class="sa-card sa-wide"><div class="sa-h"><h3>What sold</h3><span class="hint" id="saPareto"></span>
+            <input type="search" id="saItemQ" placeholder="Find a dish" aria-label="Find a dish"></div>
+          <div class="sa-tablewrap"><table class="sa-table" id="saItems"><thead><tr><th data-s="name">Dish</th><th data-s="qty" class="n">Sold</th><th data-s="sales" class="n">Sales</th><th data-s="share" class="n">Share</th><th data-s="avg" class="n">Avg price</th><th data-s="chg" class="n">vs before</th></tr></thead><tbody></tbody></table></div>
+          <p class="hint" id="saItemsNote"></p></section>
+        <div class="sa-row">
+          <section class="sa-card"><div class="sa-h"><h3>Customers</h3><span class="hint">Guests who left a phone, email or member account</span></div><div id="saCust"></div></section>
+          <section class="sa-card"><div class="sa-h"><h3>Payments</h3></div><div id="saPay"></div></section>
+        </div>
+        <div class="sa-row">
+          <section class="sa-card"><div class="sa-h"><h3>Promo codes</h3></div><div id="saPromo"></div></section>
+          <section class="sa-card"><div class="sa-h"><h3>Day by day</h3><span class="hint" id="saDaysHint"></span></div><div class="sa-tablewrap sa-days" id="saDays"></div></section>
+        </div>
+        <details class="sa-card sa-defs"><summary>How these numbers are worked out</summary>
+          <ul>
+            <li><b>Gross sales:</b> what the dishes sold for before discounts. <b>Discounts:</b> promo codes and member rewards. <b>Refunds:</b> money given back.</li>
+            <li><b>Net sales</b> = gross sales − discounts − refunds. This is the main number, the same as Square and Shopify use.</li>
+            <li><b>Tax &amp; fees</b> and <b>tips</b> are added on top; <b>Collected</b> is everything guests paid, minus refunds.</li>
+            <li><b>Average order</b> = net sales ÷ orders. <b>Items per order</b> counts dishes and drinks.</li>
+            <li><b>New customer:</b> their first order with us is in this period. <b>Returning:</b> they ordered before. Walk-up window sales usually have no name, so they aren't in the customer numbers.</li>
+            <li>Orders count when placed (pre-orders by pickup time), Ohio time. Canceled, failed and unpaid cash orders are left out.</li>
+            <li><b>Previous period</b> is the same number of days right before. <b>Same days last year</b> is 52 weeks earlier, so weekdays line up.</li>
+          </ul></details>
+      </div>
+    </div>
+    <div class="sa-legacy" aria-hidden="true">
     <div class="card sr-controls">
       <label for="srPreset">Event or day</label>
       <select id="srPreset"><option value="today">Today (all day)</option><option value="yesterday">Yesterday (all day)</option></select>
@@ -3713,6 +3892,7 @@ body.p-shell #mainContent:has(#panelHome:not(.hidden)){ max-width:1280px; }
       <div class="card"><div style="overflow-x:auto;"><table class="stack"><thead><tr><th>Item</th><th>Qty</th><th>Sales</th></tr></thead><tbody id="srItems"></tbody></table></div>
         <p class="hint">Item sales are before tax and discounts. Combo fries and drinks show as their own lines.</p></div>
       <p class="hint">Sales = order totals (tax and tips included) minus refunds, counted by pickup time. Window sales count only when they're synced from Square. Cancelled orders aren't counted.</p>
+    </div>
     </div>
   </div>
 
@@ -12622,6 +12802,316 @@ body.p-shell #mainContent:has(#panelHome:not(.hidden)){ max-width:1280px; }
   }
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
   window.tbReload = function(){ load(true); };
+})();
+</script>
+<script id="sales-ui-js">
+/* Sales report v2. One call: sales_analytics(from, to, cmp_from, cmp_to, grain) (sales-analytics.sql). */
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  if (!$('saRoot')) return;
+  var TZ = 'America/New_York', DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], DAYL = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  var st = { r: '7', d: null, metric: 'net', sort: { k: 'sales', dir: -1 }, q: '', busy: false, loaded: false, events: [] };
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function money(n, c){ if (n == null || isNaN(n)) return '—'; n = Number(n); var a = Math.abs(n), dec = c != null ? c : (a < 1000 ? 2 : 0); return (n < 0 ? '−' : '') + '$' + a.toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec }); }
+  function short$(n){ n = Number(n || 0); return n >= 10000 ? '$' + (n / 1000).toFixed(n >= 100000 ? 0 : 1) + 'k' : '$' + Math.round(n).toLocaleString('en-US'); }
+  function num(n){ return Number(n || 0).toLocaleString('en-US'); }
+  function pct(a, b){ if (a == null || b == null || Number(b) === 0) return null; return (Number(a) - Number(b)) / Math.abs(Number(b)) * 100; }
+  function chg(a, b, lower){ var p = pct(a, b); if (p == null) return { t: '', c: '' }; if (Math.abs(p) < 0.5) return { t: 'no change', c: '' }; var good = lower ? p < 0 : p > 0; return { t: (p > 0 ? '▲ ' : '▼ ') + Math.abs(p).toFixed(Math.abs(p) < 10 ? 1 : 0) + '%', c: good ? 'up' : 'dn' }; }
+  function pad(n){ return String(n).padStart(2, '0'); }
+  function ymd(d){ return d.getFullYear() + '-' + pad(d.getMonth() + 1) + '-' + pad(d.getDate()); }
+  function day0(d){ var x = new Date(d); x.setHours(0, 0, 0, 0); return x; }
+  function addDays(d, n){ var x = new Date(d); x.setDate(x.getDate() + n); return x; }
+  function fmtD(d, o){ return new Date(d).toLocaleDateString('en-US', Object.assign({ month: 'short', day: 'numeric', timeZone: TZ }, o || {})); }
+  function now(){ return window.__tbNow ? new Date(window.__tbNow) : new Date(); }
+
+  // ---------- period ----------
+  function range(){
+    var n = now(), t0 = day0(n), from, to, label;
+    switch (st.r) {
+      case 'today': from = t0; to = addDays(t0, 1); label = 'Today'; break;
+      case 'yesterday': from = addDays(t0, -1); to = t0; label = 'Yesterday'; break;
+      case '30': from = addDays(t0, -29); to = addDays(t0, 1); label = 'Last 30 days'; break;
+      case 'month': from = new Date(n.getFullYear(), n.getMonth(), 1); to = addDays(t0, 1); label = 'This month'; break;
+      case 'lastmonth': from = new Date(n.getFullYear(), n.getMonth() - 1, 1); to = new Date(n.getFullYear(), n.getMonth(), 1); label = 'Last month'; break;
+      case 'year': from = new Date(n.getFullYear(), 0, 1); to = addDays(t0, 1); label = 'This year'; break;
+      case 'custom':
+        var a = $('saFrom').value, b = $('saTo').value || a, t1 = $('saT1').value || '00:00', t2 = $('saT2').value || '23:59';
+        if (!a) return null;
+        from = new Date(a + 'T' + t1); to = new Date(b + 'T' + t2); to = new Date(to.getTime() + 60000);
+        if (t2 <= t1 && a === b) to = addDays(to, 1);
+        label = $('saEvent').value ? $('saEvent').selectedOptions[0].textContent : 'Custom'; break;
+      default: from = addDays(t0, -6); to = addDays(t0, 1); label = 'Last 7 days';
+    }
+    var len = to - from, cf = null, ct = null, cmp = $('saCmp').value;
+    if (cmp === 'prev') { ct = new Date(from); cf = new Date(from.getTime() - len); }
+    else if (cmp === 'year') { cf = addDays(from, -364); ct = addDays(to, -364); }
+    // "to date" periods compare like for like: only up to the same moment
+    var live = to > n;
+    if (live && cf) { ct = new Date(cf.getTime() + (n - from)); }
+    return { from: from, to: live ? n : to, end: to, cf: cf, ct: ct, label: label, live: live };
+  }
+  function periodText(r){
+    var last = new Date(r.end.getTime() - 1), same = ymd(r.from) === ymd(last);
+    var p = same ? fmtD(r.from, { weekday: 'long', month: 'long', year: 'numeric' }) : fmtD(r.from) + ' – ' + fmtD(last, { year: 'numeric' });
+    if (st.r === 'custom' && ($('saT1').value !== '00:00' || $('saT2').value !== '23:59')) p += ', ' + $('saT1').value + '–' + $('saT2').value;
+    var c = r.cf ? ' · compared with <b>' + ($('saCmp').value === 'year' ? 'the same days last year' : 'the ' + (same ? 'day' : Math.round((r.end - r.from) / 864e5) + ' days') + ' before') + '</b> (' + fmtD(r.cf) + (ymd(r.cf) === ymd(new Date(r.ct.getTime() - 1)) ? '' : ' – ' + fmtD(new Date(r.ct.getTime() - 1))) + ')' : '';
+    return '<b>' + esc(r.label) + '</b>: ' + esc(p) + (r.live ? ' (so far, to ' + now().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) + ')' : '') + c;
+  }
+
+  // ---------- load ----------
+  function load(){
+    if (st.busy || typeof sb === 'undefined') return;
+    var r = range(); if (!r) { msg('Pick a start date.'); return; }
+    if (r.to - r.from > 400 * 864e5) { msg('Pick 400 days or less.'); return; }
+    st.busy = true; st.range = r; $('saBody').classList.add('loading'); msg('');
+    $('saPeriod').innerHTML = periodText(r);
+    sb.rpc('sales_analytics', { p_from: r.from.toISOString(), p_to: r.to.toISOString(), p_cmp_from: r.cf ? r.cf.toISOString() : null, p_cmp_to: r.ct ? r.ct.toISOString() : null, p_grain: $('saGrain').value || null }).then(function(res){
+      st.busy = false; $('saBody').classList.remove('loading');
+      if (res.error) { msg(/does not exist|schema cache|Could not find/i.test(res.error.message || '') ? 'Run sales-analytics.sql in Supabase (SQL Editor) to turn on the new sales report.' : res.error.message); return; }
+      st.d = res.data; st.loaded = true; paint();
+    }, function(){ st.busy = false; $('saBody').classList.remove('loading'); msg('Couldn’t reach the server. Check the connection and try again.'); });
+  }
+  function msg(t){ $('saMsg').textContent = t; $('saMsg').classList.toggle('hidden', !t); $('saBody').classList.toggle('hidden', !!t && !st.loaded); }
+
+  // ---------- buckets ----------
+  function keyOf(d, g){ // matches date_trunc(g, local) from the server: 'YYYY-MM-DDTHH:00:00'
+    var x = new Date(d);
+    if (g === 'day') x.setHours(0, 0, 0, 0);
+    else if (g === 'week') { x.setHours(0, 0, 0, 0); x.setDate(x.getDate() - ((x.getDay() + 6) % 7)); }
+    else if (g === 'month') { x = new Date(x.getFullYear(), x.getMonth(), 1); }
+    else x.setMinutes(0, 0, 0);
+    return ymd(x) + 'T' + pad(x.getHours()) + ':00:00';
+  }
+  function step(d, g){ var x = new Date(d); if (g === 'hour') x.setHours(x.getHours() + 1); else if (g === 'day') x.setDate(x.getDate() + 1); else if (g === 'week') x.setDate(x.getDate() + 7); else x.setMonth(x.getMonth() + 1); return x; }
+  function buckets(from, to, g){ var out = [], k = keyOf(from, g), x = new Date(k), guard = 0; while (x < to && guard++ < 1000) { out.push(keyOf(x, g)); x = step(new Date(keyOf(x, g)), g); } return out; }
+  function bLabel(k, g, short){ var d = new Date(k); if (g === 'hour') { var h = d.getHours(); var s = (h % 12 || 12) + (h < 12 ? 'a' : 'p'); return short ? s : fmtD(d, { weekday: 'short' }) + ' ' + s; }
+    if (g === 'day') return short ? fmtD(d) : fmtD(d, { weekday: 'short' }); if (g === 'week') return 'Week of ' + fmtD(d); return d.toLocaleDateString('en-US', { month: 'short', year: short ? undefined : 'numeric' }); }
+
+  // ---------- paint ----------
+  function paint(){
+    var d = st.d, t = d.totals || {}, c = d.cmp_totals || null;
+    insights(); kpis(t, c); trend(); waterfall(t); channels(); heat(); dow(); items(); customers(t, c); payments(); promos(); days();
+  }
+  function spark(series, key){
+    var v = series.map(function(x){ return Number(x[key] || 0); }); if (v.length < 2) return '';
+    var mx = Math.max.apply(null, v) || 1, W = 160, H = 30;
+    var pts = v.map(function(y, i){ return (i / (v.length - 1) * W).toFixed(1) + ',' + (H - 2 - y / mx * (H - 4)).toFixed(1); }).join(' ');
+    return '<svg viewBox="0 0 ' + W + ' ' + H + '" preserveAspectRatio="none" aria-hidden="true"><polyline points="' + pts + '" fill="none" stroke="var(--sa1)" stroke-width="1.8" vector-effect="non-scaling-stroke" stroke-linejoin="round"/></svg>';
+  }
+  function series(){ // full bucket list with zeros, for this period and the comparison
+    var d = st.d, r = st.range, g = d.grain, keys = buckets(r.from, r.to > r.from ? r.to : r.end, g), map = {}, cmap = {};
+    (d.series || []).forEach(function(x){ map[x.t.slice(0, 19)] = x; });
+    var ck = r.cf ? buckets(r.cf, r.ct, g) : []; (d.cmp_series || []).forEach(function(x){ cmap[x.t.slice(0, 19)] = x; });
+    return keys.map(function(k, i){ var a = map[k] || { orders: 0, net: 0 }, b = ck[i] ? (cmap[ck[i]] || { orders: 0, net: 0 }) : null;
+      return { k: k, ck: ck[i] || null, orders: Number(a.orders), net: Number(a.net), avg: a.orders ? a.net / a.orders : null, c: b ? { orders: Number(b.orders), net: Number(b.net), avg: b.orders ? b.net / b.orders : null } : null }; });
+  }
+  function kpis(t, c){
+    var s = series(), cu = c && (c.customers || 0);
+    var retPct = t.customers ? (t.customers - t.new_customers) / t.customers * 100 : null, cRet = c && c.customers ? (c.customers - c.new_customers) / c.customers * 100 : null;
+    var tiles = [
+      ['Net sales', money(t.net), t.net, c && c.net, false, spark(s, 'net'), 'hero'],
+      ['Orders', num(t.orders), t.orders, c && c.orders, false, spark(s, 'orders')],
+      ['Average order', money(t.avg_order, 2), t.avg_order, c && c.avg_order, false, ''],
+      ['Items per order', t.items_per_order != null ? Number(t.items_per_order).toFixed(2) : '—', t.items_per_order, c && c.items_per_order, false, ''],
+      ['Gross sales', money(t.gross), t.gross, c && c.gross, false, ''],
+      ['Discounts', money(t.discounts), t.discounts, c && c.discounts, true, '', '', (t.discounted_orders || 0) + ' orders'],
+      ['Tips', money(t.tips), t.tips, c && c.tips, false, '', '', t.net ? (t.tips / t.net * 100).toFixed(1) + '% of net' : ''],
+      ['Returning guests', retPct == null ? '—' : Math.round(retPct) + '%', retPct, cRet, false, '', '', t.customers ? num(t.customers) + ' known guests' : 'No known guests']
+    ];
+    $('saKpis').innerHTML = tiles.map(function(x){
+      var ch = { t: '', c: '' };
+      if (c && x[0] === 'Returning guests') { if (x[2] != null && x[3] != null) { var dp = x[2] - x[3]; ch = Math.abs(dp) < .5 ? { t: 'no change', c: '' } : { t: (dp > 0 ? '▲ ' : '▼ ') + Math.abs(Math.round(dp)) + ' pts', c: dp > 0 ? 'up' : 'dn' }; } }
+      else if (c) ch = chg(x[2], x[3], x[4]);
+      var sub = ch.t ? ch.t + ' <span style="color:var(--ds-text-3);font-weight:500">vs before</span>' : esc(x[7] || '');
+      return '<div class="sa-kpi ' + (x[6] || '') + '"><span>' + x[0] + '</span><b>' + x[1] + '</b><small class="' + ch.c + '">' + sub + '</small>' + x[5] + '</div>'; }).join('');
+  }
+  function insights(){
+    var d = st.d, t = d.totals || {}, c = d.cmp_totals, out = [];
+    var p = c ? pct(t.net, c.net) : null;
+    if (p != null) out.push('Net sales are <b>' + (p >= 0 ? 'up ' : 'down ') + Math.abs(p).toFixed(Math.abs(p) < 10 ? 1 : 0) + '%</b> (' + money(t.net) + ' vs ' + money(c.net) + ')' + (pct(t.orders, c.orders) != null ? ', with ' + (t.orders >= c.orders ? 'more' : 'fewer') + ' orders (' + num(t.orders) + ' vs ' + num(c.orders) + ')' : '') + (c.avg_order ? ' and ' + (t.avg_order >= c.avg_order ? 'bigger' : 'smaller') + ' orders on average.' : '.'));
+    var days = (d.days || []).slice().sort(function(a, b){ return b.net - a.net; });
+    if (days.length > 1) out.push('Best day: <b>' + fmtD(days[0].day + 'T12:00', { weekday: 'short', month: 'short', day: 'numeric' }) + '</b> with ' + money(days[0].net) + ' from ' + num(days[0].orders) + ' orders.');
+    var hrs = {}; (d.heat || []).forEach(function(h){ hrs[h.hour] = (hrs[h.hour] || 0) + Number(h.net); });
+    var hk = Object.keys(hrs).sort(function(a, b){ return hrs[b] - hrs[a]; });
+    if (hk.length) { var h = +hk[0], tot = Object.keys(hrs).reduce(function(a, k){ return a + hrs[k]; }, 0); out.push('Busiest hour: <b>' + (h % 12 || 12) + '–' + ((h + 1) % 12 || 12) + (h + 1 < 12 || h + 1 === 24 ? ' AM' : ' PM') + '</b>, ' + Math.round(hrs[h] / (tot || 1) * 100) + '% of net sales.'); }
+    var it = (d.items || []).filter(function(x){ return x.sales != null; }), tot2 = it.reduce(function(a, x){ return a + Number(x.sales); }, 0);
+    if (it.length) out.push('<b>' + esc(it[0].name) + '</b> is the top dish: ' + money(it[0].sales) + ', ' + Math.round(it[0].sales / (tot2 || 1) * 100) + '% of dish sales.');
+    var grow = c ? it.filter(function(x){ return x.cmp_sales > 20 && x.sales > 20; }).map(function(x){ return { n: x.name, p: pct(x.sales, x.cmp_sales) }; }).sort(function(a, b){ return b.p - a.p; })[0] : null;
+    if (grow && grow.p > 15) out.push('Growing fastest: <b>' + esc(grow.n) + '</b>, up ' + Math.round(grow.p) + '%.');
+    var ch = (d.channels || []).filter(function(x){ return x.orders >= 5; }).sort(function(a, b){ return b.avg - a.avg; });
+    if (ch.length > 1) out.push('Biggest orders come through <b>' + esc(ch[0].label) + '</b> (' + money(ch[0].avg, 2) + ' average vs ' + money(t.avg_order, 2) + ' overall).');
+    if (!t.orders) out = ['No sales in this period yet.'];
+    $('saInsights').innerHTML = out.slice(0, 4).map(function(x){ return '<li>' + x + '</li>'; }).join('');
+  }
+  function tipOn(box, html, x, y){ var tip = box.querySelector('.sa-tip'); if (!tip) { tip = document.createElement('div'); tip.className = 'sa-tip'; box.appendChild(tip); } tip.innerHTML = html; tip.style.left = Math.max(80, Math.min(box.clientWidth - 80, x)) + 'px'; tip.style.top = y + 'px'; tip.style.display = 'block'; }
+  function tipOff(box){ var tip = box.querySelector('.sa-tip'); if (tip) tip.style.display = 'none'; }
+  function nice(mx){ if (mx <= 0) return { top: 1, step: 1 }; var p = Math.pow(10, Math.floor(Math.log10(mx))), m = mx / p, s = m <= 1.5 ? .25 : m <= 3 ? .5 : m <= 6 ? 1 : 2; s *= p; return { top: Math.ceil(mx / s) * s, step: s }; }
+  function trend(){
+    var box = $('saTrend'), g = st.d.grain, s = series(), m = st.metric, cmp = !!st.range.cf;
+    var val = function(x){ return x ? (m === 'avg' ? x.avg : x[m]) : null; };
+    var W = Math.max(560, box.clientWidth || 900), H = 260, L = 54, R = 10, T = 12, B = 30, n = s.length;
+    var mx = 0; s.forEach(function(x){ mx = Math.max(mx, val(x) || 0, cmp ? (val(x.c) || 0) : 0); });
+    var ny = nice(mx), cw = (W - L - R) / Math.max(1, n), Y = function(v){ return T + (H - T - B) * (1 - v / ny.top); };
+    var fmt = m === 'orders' ? function(v){ return num(Math.round(v)); } : function(v){ return v >= 1000 ? short$(v) : '$' + (Math.round(v * 100) / 100).toLocaleString('en-US'); };
+    var out = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc({ net: 'Net sales', orders: 'Orders', avg: 'Average order' }[m]) + ' by ' + g + (cmp ? ', with the comparison period as a line' : '') + '">';
+    for (var v = 0; v <= ny.top + 1e-9; v += ny.step) out += '<line class="gl" x1="' + L + '" x2="' + (W - R) + '" y1="' + Y(v) + '" y2="' + Y(v) + '"/><text class="ax" x="' + (L - 8) + '" y="' + (Y(v) + 4) + '" text-anchor="end">' + fmt(v) + '</text>';
+    var every = Math.max(1, Math.ceil(n / Math.floor((W - L) / 64))), bw = Math.max(2, Math.min(42, cw * .68)), pts = [];
+    s.forEach(function(x, i){ var cx = L + cw * i + cw / 2, v1 = val(x);
+      if (v1) out += '<rect x="' + (cx - bw / 2) + '" y="' + Y(v1) + '" width="' + bw + '" height="' + Math.max(0, Y(0) - Y(v1)) + '" rx="' + Math.min(4, bw / 3) + '" fill="var(--sa1)"/>';
+      if (cmp && x.c) pts.push(cx.toFixed(1) + ',' + Y(val(x.c) || 0).toFixed(1));
+      if (i % every === 0) out += '<text class="ax" x="' + cx + '" y="' + (H - 10) + '" text-anchor="middle">' + esc(bLabel(x.k, g, true)) + '</text>'; });
+    if (pts.length > 1) out += '<polyline points="' + pts.join(' ') + '" fill="none" stroke="var(--sa2)" stroke-width="2.2" stroke-linejoin="round" stroke-linecap="round"/>';
+    else if (pts.length === 1) out += '<circle cx="' + pts[0].split(',')[0] + '" cy="' + pts[0].split(',')[1] + '" r="4" fill="var(--sa2)"/>';
+    out += '<line id="saX" x1="0" x2="0" y1="' + T + '" y2="' + (H - B) + '" stroke="var(--ds-text-3)" stroke-dasharray="3 3" opacity="0"/>';
+    s.forEach(function(x, i){ out += '<rect class="hit" data-i="' + i + '" x="' + (L + cw * i) + '" y="' + T + '" width="' + cw + '" height="' + (H - T - B) + '" fill="transparent"/>'; });
+    box.innerHTML = out + '</svg>';
+    var svg = box.querySelector('svg');
+    svg.addEventListener('mousemove', function(e){ var r = e.target.closest('.hit'); if (!r) return tipOff(box); var i = +r.getAttribute('data-i'), x = s[i], k = svg.getBoundingClientRect().width / W, cx = (L + cw * i + cw / 2) * k;
+      var line = svg.querySelector('#saX'); line.setAttribute('x1', L + cw * i + cw / 2); line.setAttribute('x2', L + cw * i + cw / 2); line.setAttribute('opacity', '.6');
+      tipOn(box, '<b>' + esc(bLabel(x.k, g)) + '</b><br><i style="background:var(--sa1)"></i>' + fmt(val(x) || 0) + (x.orders && m !== 'orders' ? ' · ' + x.orders + ' orders' : '') + (cmp && x.ck ? '<br><i style="background:var(--sa2)"></i>' + esc(bLabel(x.ck, g)) + ': ' + fmt(val(x.c) || 0) : ''), cx, Y(Math.max(val(x) || 0, cmp ? (val(x.c) || 0) : 0)) * k); });
+    svg.addEventListener('mouseleave', function(){ tipOff(box); var line = svg.querySelector('#saX'); if (line) line.setAttribute('opacity', '0'); });
+    $('saTrendLg').innerHTML = '<span><i></i>' + esc(st.range.label) + '</span>' + (cmp ? '<span><i class="l"></i>' + ($('saCmp').value === 'year' ? 'Same days last year' : 'Period before') + '</span>' : '');
+  }
+  function waterfall(t){
+    var box = $('saFall');
+    var steps = [['Gross sales', t.gross, 'total'], ['Discounts', -t.discounts, 'neg'], ['Refunds', -t.refunds, 'neg'], ['Net sales', t.net, 'total'], ['Tax & fees', t.taxfee, 'pos'], ['Tips', t.tips, 'pos'], ['Collected', t.collected, 'total']];
+    var W = Math.max(420, box.clientWidth || 520), H = 250, L = 10, R = 10, T = 22, B = 34, n = steps.length, cw = (W - L - R) / n, bw = Math.min(56, cw * .62);
+    var mx = Math.max(t.gross || 0, t.collected || 0, t.net || 0, 1), ny = nice(mx), Y = function(v){ return T + (H - T - B) * (1 - v / ny.top); };
+    var run = 0, out = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="From gross sales to money collected">';
+    out += '<line class="gl" x1="' + L + '" x2="' + (W - R) + '" y1="' + Y(0) + '" y2="' + Y(0) + '"/>';
+    steps.forEach(function(s, i){ var v = Number(s[1] || 0), cx = L + cw * i + cw / 2, a, b, col;
+      if (s[2] === 'total') { a = 0; b = v; run = v; col = 'var(--sa1)'; } else { a = run; b = run + v; run = b; col = v < 0 ? 'var(--sa-dn)' : 'var(--sa2)'; }
+      var y1 = Y(Math.max(a, b)), y2 = Y(Math.min(a, b));
+      out += '<rect x="' + (cx - bw / 2) + '" y="' + y1 + '" width="' + bw + '" height="' + Math.max(1.5, y2 - y1) + '" rx="4" fill="' + col + '"' + (s[2] === 'total' ? '' : ' opacity=".85"') + '><title>' + esc(s[0]) + ': ' + money(v) + '</title></rect>';
+      if (i < n - 1 && steps[i + 1][2] !== 'total') out += '<line x1="' + (cx + bw / 2) + '" x2="' + (cx + cw - bw / 2) + '" y1="' + Y(run) + '" y2="' + Y(run) + '" stroke="var(--ds-text-3)" stroke-dasharray="2 3"/>';
+      out += '<text x="' + cx + '" y="' + (y1 - 6) + '" text-anchor="middle" font-size="11.5" font-weight="650" fill="var(--ds-text)">' + (s[2] === 'neg' && v ? '−' : s[2] === 'pos' && v ? '+' : '') + short$(Math.abs(v)) + '</text>';
+      out += '<text class="ax" x="' + cx + '" y="' + (H - 12) + '" text-anchor="middle">' + esc(s[0]) + '</text>'; });
+    box.innerHTML = out + '</svg>';
+  }
+  function bars(list, label, value, extra){
+    if (!list.length) return '<div class="sa-empty">Nothing in this period.</div>';
+    var mx = Math.max.apply(null, list.map(value).concat([1]));
+    return '<div class="sa-bars">' + list.map(function(x){ var v = value(x), e = extra(x);
+      return '<div class="sa-bl"><span class="n">' + esc(label(x)) + '</span><span class="v">' + e.v + '</span><span class="c ' + (e.cc || '') + '">' + (e.c || '') + '</span><span class="t"><i style="width:' + Math.max(1, v / mx * 100) + '%"></i>' + (e.mark != null ? '<u style="left:' + Math.min(100, e.mark / mx * 100) + '%"></u>' : '') + '</span>' + (e.s ? '<small>' + e.s + '</small>' : '') + '</div>'; }).join('') + '</div>';
+  }
+  function channels(){
+    var d = st.d, ch = (d.channels || []).filter(function(x){ return x.net != null || x.cmp_net != null; }), tot = ch.reduce(function(a, x){ return a + Number(x.net || 0); }, 0), cmp = !!st.range.cf;
+    $('saChHint').textContent = cmp ? 'Orange tick: the period before' : '';
+    $('saChannels').innerHTML = bars(ch, function(x){ return x.label; }, function(x){ return Number(x.net || 0); }, function(x){ var c = cmp ? chg(x.net, x.cmp_net) : { t: '', c: '' };
+      return { v: money(x.net || 0, 0), c: c.t, cc: c.c, mark: cmp && x.cmp_net != null ? Number(x.cmp_net) : null, s: num(x.orders || 0) + ' orders · ' + Math.round((x.net || 0) / (tot || 1) * 100) + '% of net · avg ' + money(x.avg, 2) }; });
+  }
+  function heat(){
+    var box = $('saHeat'), cells = st.d.heat || [], map = {}, mx = 0, hours = [];
+    cells.forEach(function(c){ map[c.dow + '-' + c.hour] = c; mx = Math.max(mx, Number(c.net)); });
+    var h0 = 24, h1 = 0; cells.forEach(function(c){ if (c.net > 0) { h0 = Math.min(h0, c.hour); h1 = Math.max(h1, c.hour); } });
+    if (h0 > h1) { box.innerHTML = '<div class="sa-empty">No sales in this period.</div>'; return; }
+    for (var h = h0; h <= h1; h++) hours.push(h);
+    var order = [1, 2, 3, 4, 5, 6, 0], W = Math.max(520, box.clientWidth || 600), L = 38, T = 4, B = 22, cw = (W - L) / hours.length, ch = 26, H = T + ch * 7 + B;
+    var dark = document.documentElement.getAttribute('data-theme') === 'dark';
+    function col(v){ if (!v) return dark ? '#202020' : '#f3f4f6'; var t = Math.pow(v / mx, .7); var a = dark ? [27, 37, 52] : [232, 240, 251], b = dark ? [156, 194, 245] : [13, 61, 122], m = dark ? [63, 127, 208] : [42, 120, 214];
+      var p = t < .6 ? [a, m, t / .6] : [m, b, (t - .6) / .4]; return 'rgb(' + [0, 1, 2].map(function(i){ return Math.round(p[0][i] + (p[1][i] - p[0][i]) * p[2]); }).join(',') + ')'; }
+    var out = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Net sales by weekday and hour">';
+    order.forEach(function(dw, r){ out += '<text class="ax" x="0" y="' + (T + r * ch + ch / 2 + 4) + '" font-size="11" fill="var(--ds-text-3)">' + DAYS[dw] + '</text>';
+      hours.forEach(function(h, i){ var c = map[dw + '-' + h], v = c ? Number(c.net) : 0;
+        out += '<rect x="' + (L + i * cw + 1) + '" y="' + (T + r * ch + 1) + '" width="' + (cw - 2) + '" height="' + (ch - 2) + '" rx="3" fill="' + col(v) + '"><title>' + DAYL[dw] + 's ' + ((h % 12) || 12) + (h < 12 ? ' AM' : ' PM') + ': ' + money(v, 0) + (c ? ' · ' + c.orders + ' orders' : '') + '</title></rect>'; }); });
+    hours.forEach(function(h, i){ if (hours.length < 14 || i % 2 === 0) out += '<text x="' + (L + i * cw + cw / 2) + '" y="' + (H - 6) + '" text-anchor="middle" font-size="11" fill="var(--ds-text-3)">' + ((h % 12) || 12) + (h < 12 ? 'a' : 'p') + '</text>'; });
+    box.innerHTML = out + '</svg><div class="sa-heat-lg">Less<span></span>More · busiest: ' + money(mx, 0) + ' in one hour slot</div>';
+  }
+  function dow(){
+    var box = $('saDow'), wk = st.d.weekdays || {}, cur = {}, cmp = {}, order = [1, 2, 3, 4, 5, 6, 0], hasC = !!st.range.cf && (wk.cmp || []).length;
+    (wk.cur || []).forEach(function(x){ cur[x.dow] = x; }); (wk.cmp || []).forEach(function(x){ cmp[x.dow] = x; });
+    var mx = 0; order.forEach(function(d){ mx = Math.max(mx, cur[d] ? +cur[d].avg_net : 0, hasC && cmp[d] ? +cmp[d].avg_net : 0); });
+    if (!mx) { box.innerHTML = '<div class="sa-empty">No sales in this period.</div>'; $('saDowLg').innerHTML = ''; return; }
+    var W = Math.max(420, box.clientWidth || 520), H = 230, L = 46, R = 8, T = 12, B = 26, cw = (W - L - R) / 7, ny = nice(mx), Y = function(v){ return T + (H - T - B) * (1 - v / ny.top); }, bw = Math.min(26, cw * (hasC ? .34 : .6));
+    var out = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Average net sales by weekday">';
+    for (var v = 0; v <= ny.top + 1e-9; v += ny.step) out += '<line class="gl" x1="' + L + '" x2="' + (W - R) + '" y1="' + Y(v) + '" y2="' + Y(v) + '"/><text class="ax" x="' + (L - 8) + '" y="' + (Y(v) + 4) + '" text-anchor="end">' + short$(v) + '</text>';
+    order.forEach(function(d, i){ var cx = L + cw * i + cw / 2, a = cur[d] ? +cur[d].avg_net : 0, b = hasC && cmp[d] ? +cmp[d].avg_net : 0;
+      var x1 = hasC ? cx - bw - 1 : cx - bw / 2;
+      if (a) out += '<rect x="' + x1 + '" y="' + Y(a) + '" width="' + bw + '" height="' + (Y(0) - Y(a)) + '" rx="3" fill="var(--sa1)"><title>' + DAYL[d] + ': ' + money(a, 0) + ' on average (' + (cur[d].days) + ' day' + (cur[d].days === 1 ? '' : 's') + ')</title></rect>';
+      if (hasC && b) out += '<rect x="' + (cx + 1) + '" y="' + Y(b) + '" width="' + bw + '" height="' + (Y(0) - Y(b)) + '" rx="3" fill="var(--sa2)"><title>Before: ' + money(b, 0) + '</title></rect>';
+      out += '<text class="ax" x="' + cx + '" y="' + (H - 8) + '" text-anchor="middle">' + DAYS[d] + '</text>'; });
+    box.innerHTML = out + '</svg>';
+    $('saDowLg').innerHTML = '<span><i></i>' + esc(st.range.label) + '</span>' + (hasC ? '<span><i style="background:var(--sa2)"></i>' + ($('saCmp').value === 'year' ? 'Last year' : 'Period before') + '</span>' : '');
+  }
+  function items(){
+    var it = (st.d.items || []).filter(function(x){ return x.sales != null; }), tot = it.reduce(function(a, x){ return a + Number(x.sales); }, 0), cmp = !!st.range.cf;
+    var rows = it.map(function(x){ return { name: x.name, qty: +x.qty || 0, sales: +x.sales || 0, share: tot ? x.sales / tot * 100 : 0, avg: x.qty ? x.sales / x.qty : 0, chg: cmp ? pct(x.sales, x.cmp_sales) : null, cs: x.cmp_sales }; });
+    // Pareto: how many dishes make 80% of sales
+    var acc = 0, n80 = 0; rows.slice().sort(function(a, b){ return b.sales - a.sales; }).some(function(r){ acc += r.share; n80++; return acc >= 80; });
+    $('saPareto').textContent = rows.length ? n80 + ' of ' + rows.length + ' dishes make 80% of dish sales' : '';
+    var k = st.sort.k, dir = st.sort.dir, q = st.q.toLowerCase();
+    var shown = rows.filter(function(r){ return !q || r.name.toLowerCase().indexOf(q) >= 0; }).sort(function(a, b){ var A = a[k], B = b[k]; if (k === 'name') return A.localeCompare(B) * dir; return ((A == null ? -1e9 : A) - (B == null ? -1e9 : B)) * dir; });
+    var mx = Math.max.apply(null, rows.map(function(r){ return r.sales; }).concat([1])), cut = null;
+    if (k === 'sales' && dir === -1 && !q) { var a2 = 0; for (var i = 0; i < shown.length; i++) { a2 += shown[i].share; if (a2 >= 80) { cut = i; break; } } }
+    document.querySelectorAll('#saItems th').forEach(function(th){ th.setAttribute('aria-sort', th.getAttribute('data-s') === k ? (dir === 1 ? 'ascending' : 'descending') : 'none'); });
+    $('saItems').querySelector('tbody').innerHTML = shown.length ? shown.map(function(r, i){ var c = r.chg == null ? (cmp && !r.cs ? '<span class="up">new</span>' : '—') : '<span class="' + (r.chg >= 0 ? 'up' : 'dn') + '">' + (r.chg >= 0 ? '▲ ' : '▼ ') + Math.abs(Math.round(r.chg)) + '%</span>';
+      return '<tr' + (cut != null && i === cut + 1 ? ' class="pareto" title="Dishes above this line make 80% of sales"' : '') + '><td class="nm">' + esc(r.name) + '<i style="width:' + Math.max(1, r.sales / mx * 100) + '%"></i></td><td class="n">' + num(r.qty) + '</td><td class="n">' + money(r.sales, 0) + '</td><td class="n">' + r.share.toFixed(1) + '%</td><td class="n">' + money(r.avg, 2) + '</td><td class="n">' + (cmp ? c : '—') + '</td></tr>'; }).join('')
+      : '<tr><td colspan="6" class="sa-empty">' + (q ? 'No dish matches “' + esc(st.q) + '”.' : 'No dish sales in this period.') + '</td></tr>';
+    $('saItemsNote').textContent = 'Dish sales are before discounts and tax. The dashed line marks where the top dishes add up to 80% of sales.';
+  }
+  function customers(t, c){
+    var known = t.customers || 0, nw = t.new_customers || 0, ret = known - nw, rep = t.repeat_customers || 0, cov = t.orders ? Math.round((t.known || 0) / t.orders * 100) : 0;
+    $('saCust').innerHTML = !known ? '<div class="sa-empty">No guests left a phone, email or member account in this period.</div>' :
+      '<div class="sa-cust"><div><span>Guests</span><b>' + num(known) + '</b></div><div><span>New</span><b>' + num(nw) + '</b></div><div><span>Came back this period</span><b>' + num(rep) + '</b></div></div>' +
+      '<div class="sa-stack" role="img" aria-label="' + nw + ' new, ' + ret + ' returning"><i style="width:' + (ret / known * 100) + '%;background:var(--sa1)"></i><i style="width:' + (nw / known * 100) + '%;background:var(--sa2)"></i></div>' +
+      '<div class="sa-stack-lg"><span><i style="background:var(--sa1)"></i>Returning ' + Math.round(ret / known * 100) + '%</span><span><i style="background:var(--sa2)"></i>New ' + Math.round(nw / known * 100) + '%</span></div>' +
+      '<p class="hint" style="margin-top:10px">' + cov + '% of orders had a phone, email or member account.' + (c && c.customers ? ' Before: ' + num(c.customers) + ' guests, ' + num(c.new_customers) + ' new.' : '') + '</p>';
+  }
+  function payments(){
+    var p = st.d.payments || [], tot = p.reduce(function(a, x){ return a + Number(x.collected); }, 0);
+    $('saPay').innerHTML = bars(p, function(x){ return x.label; }, function(x){ return Number(x.collected); }, function(x){ return { v: money(x.collected, 0), c: Math.round(x.collected / (tot || 1) * 100) + '%', s: num(x.orders) + ' orders' + (x.tips > 0 ? ' · ' + money(x.tips) + ' tips' : '') }; });
+  }
+  function promos(){
+    var p = st.d.promos || [];
+    $('saPromo').innerHTML = !p.length ? '<div class="sa-empty">No promo codes used in this period.</div>' :
+      '<div class="sa-tablewrap"><table class="sa-table"><thead><tr><th>Code</th><th class="n">Orders</th><th class="n">Discount given</th><th class="n">Net sales</th></tr></thead><tbody>' +
+      p.map(function(x){ return '<tr><td>' + esc(x.code) + '</td><td class="n">' + num(x.orders) + '</td><td class="n">' + money(x.discount) + '</td><td class="n">' + money(x.net, 0) + '</td></tr>'; }).join('') + '</tbody></table></div>';
+  }
+  function days(){
+    var ds = (st.d.days || []).slice().reverse();
+    $('saDaysHint').textContent = ds.length ? ds.length + ' day' + (ds.length === 1 ? '' : 's') + ' with sales' : '';
+    $('saDays').innerHTML = !ds.length ? '<div class="sa-empty">No sales in this period.</div>' :
+      '<table class="sa-table"><thead><tr><th>Day</th><th class="n">Orders</th><th class="n">Net sales</th><th class="n">Avg order</th><th class="n">Tips</th></tr></thead><tbody>' +
+      ds.map(function(x){ return '<tr><td>' + esc(fmtD(x.day + 'T12:00', { weekday: 'short', month: 'short', day: 'numeric' })) + '</td><td class="n">' + num(x.orders) + '</td><td class="n">' + money(x.net, 0) + '</td><td class="n">' + money(x.orders ? x.net / x.orders : 0, 2) + '</td><td class="n">' + money(x.tips, 0) + '</td></tr>'; }).join('') + '</tbody></table>';
+  }
+  // ---------- CSV ----------
+  function csv(){
+    if (!st.d) return; var d = st.d, t = d.totals || {}, c = d.cmp_totals || {}, L = [];
+    function row(a){ L.push(a.map(function(v){ v = v == null ? '' : String(v); return /[",\n]/.test(v) ? '"' + v.replace(/"/g, '""') + '"' : v; }).join(',')); }
+    row(['Roll-In Shawarma sales report']); row(['Period', st.range.label, st.range.from.toISOString(), st.range.to.toISOString()]); if (st.range.cf) row(['Compared with', st.range.cf.toISOString(), st.range.ct.toISOString()]); row([]);
+    row(['Measure', 'This period', 'Comparison']); ['orders', 'gross', 'discounts', 'refunds', 'net', 'taxfee', 'tips', 'collected', 'avg_order', 'items_per_order', 'customers', 'new_customers'].forEach(function(k){ row([k, t[k], c[k]]); }); row([]);
+    row(['Day', 'Orders', 'Net sales', 'Tips']); (d.days || []).forEach(function(x){ row([x.day, x.orders, x.net, x.tips]); }); row([]);
+    row(['Channel', 'Orders', 'Net sales', 'Average', 'Comparison orders', 'Comparison net']); (d.channels || []).forEach(function(x){ row([x.label, x.orders, x.net, x.avg, x.cmp_orders, x.cmp_net]); }); row([]);
+    row(['Dish', 'Sold', 'Sales', 'Comparison sold', 'Comparison sales']); (d.items || []).forEach(function(x){ row([x.name, x.qty, x.sales, x.cmp_qty, x.cmp_sales]); }); row([]);
+    row(['Payment', 'Orders', 'Collected', 'Tips']); (d.payments || []).forEach(function(x){ row([x.label, x.orders, x.collected, x.tips]); }); row([]);
+    row(['Promo code', 'Orders', 'Discount', 'Net sales']); (d.promos || []).forEach(function(x){ row([x.code, x.orders, x.discount, x.net]); }); row([]);
+    row(['Weekday', 'Hour', 'Orders', 'Net sales']); (d.heat || []).forEach(function(x){ row([DAYL[x.dow], x.hour, x.orders, x.net]); });
+    var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([L.join('\n')], { type: 'text/csv' })); a.download = 'sales-' + ymd(st.range.from) + '-to-' + ymd(new Date(st.range.end - 1)) + '.csv'; document.body.appendChild(a); a.click(); setTimeout(function(){ URL.revokeObjectURL(a.href); a.remove(); }, 500);
+  }
+
+  // ---------- wiring ----------
+  $('saChips').addEventListener('click', function(e){ var b = e.target.closest('[data-r]'); if (!b) return; st.r = b.getAttribute('data-r');
+    $('saChips').querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x === b); });
+    $('saCustom').classList.toggle('hidden', st.r !== 'custom');
+    if (st.r === 'custom') { if (!$('saFrom').value) { $('saFrom').value = ymd(addDays(now(), -6)); $('saTo').value = ymd(now()); } return; }
+    load(); });
+  $('saApply').addEventListener('click', load);
+  $('saEvent').addEventListener('change', function(){ var e = st.events[+this.value - 1]; if (!e) return; var a = new Date(e.from), b = new Date(e.to);
+    $('saFrom').value = ymd(a); $('saTo').value = ymd(b); $('saT1').value = pad(a.getHours()) + ':' + pad(a.getMinutes()); $('saT2').value = pad(b.getHours()) + ':' + pad(b.getMinutes()); load(); });
+  $('saCmp').addEventListener('change', load); $('saGrain').addEventListener('change', load);
+  $('saMetric').addEventListener('click', function(e){ var b = e.target.closest('[data-m]'); if (!b) return; st.metric = b.getAttribute('data-m'); this.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x === b); }); if (st.d) trend(); });
+  $('saItems').querySelector('thead').addEventListener('click', function(e){ var th = e.target.closest('th'); if (!th) return; var k = th.getAttribute('data-s'); st.sort = { k: k, dir: st.sort.k === k ? -st.sort.dir : (k === 'name' ? 1 : -1) }; if (st.d) items(); });
+  $('saItemQ').addEventListener('input', function(){ st.q = this.value; if (st.d) items(); });
+  $('saCsv').addEventListener('click', csv); $('saPrint').addEventListener('click', function(){ window.print(); });
+  var rz; window.addEventListener('resize', function(){ clearTimeout(rz); rz = setTimeout(function(){ if (st.d && !$('panelSalesreport').classList.contains('hidden')) { trend(); waterfall(st.d.totals || {}); heat(); dow(); } }, 150); });
+  function presets(){
+    sb.rpc('sales_report_presets').then(function(res){ if (res.error || !Array.isArray(res.data)) return; st.events = res.data;
+      $('saEvent').innerHTML = '<option value="">Pick an event…</option>' + res.data.map(function(p, i){ return '<option value="' + (i + 1) + '">' + esc(fmtD(p.day + 'T12:00', { weekday: 'short', month: 'short', day: 'numeric' }) + ' · ' + p.title + (p.location ? ' (' + p.location + ')' : '')) + '</option>'; }).join(''); }, function(){});
+  }
+  function onOpen(){ if (!st.loaded) { presets(); load(); } }
+  var link = document.querySelector('#tabs .nav-link[data-tab="salesreport"]'); if (link) link.addEventListener('click', function(){ setTimeout(onOpen, 60); });
+  try { new MutationObserver(function(){ if (!$('panelSalesreport').classList.contains('hidden')) onOpen(); }).observe($('panelSalesreport'), { attributes: true, attributeFilter: ['class'] }); } catch (e) {}
+  window.saReload = load;
 })();
 </script>
 <script id="ds-js">
