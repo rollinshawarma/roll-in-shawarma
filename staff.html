@@ -2446,6 +2446,75 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
   .sa-days{ max-height:none; overflow:visible; }
 }
 </style>
+<style id="sales-ai-css">
+/* AI summary hero, reference scorecard with bullet bars, pace chart, dish photos. */
+.sa-ai{ background:var(--ds-surface); box-shadow:var(--ds-card-shadow); border-radius:16px; overflow:hidden; margin-bottom:14px; }
+.sa-ai-hero{ position:relative; padding:22px 24px 20px; color:#fff; background:#141b2b url(truck-night.webp) right center / cover no-repeat; min-height:170px; }
+.sa-ai-hero::before{ content:""; position:absolute; inset:0; background:linear-gradient(90deg, rgba(14,19,32,.96) 0%, rgba(14,19,32,.9) 55%, rgba(14,19,32,.55) 100%); }
+.sa-ai-hero > *{ position:relative; }
+.sa-ai-tag{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; font-size:12.5px; font-weight:600; color:#c9d3e6; }
+.sa-ai-spark{ color:#f6c75a; font-size:14px; }
+#saAiMeta{ color:#8f9bb3; font-weight:500; }
+.sa-ai-btn{ margin-left:auto; min-height:30px !important; padding:4px 12px !important; border-radius:999px !important; background:rgba(255,255,255,.12) !important; color:#fff !important; box-shadow:none !important; font-size:12.5px !important; font-weight:600 !important; width:auto; }
+.sa-ai-btn:hover{ background:rgba(255,255,255,.2) !important; }
+.sa-ai-hero h3{ font:700 26px/1.2 var(--tb-num, var(--ds-font)) !important; letter-spacing:-.02em !important; color:#fff !important; margin:10px 0 8px; max-width:30ch; }
+.sa-ai-hero p{ font-size:15px; line-height:1.6; color:#dfe5f0; max-width:72ch; margin:0; }
+.sa-ai.loading .sa-ai-hero h3, .sa-ai.loading .sa-ai-hero p{ opacity:.55; }
+.sa-ai-cols{ display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); }
+.sa-ai-cols > div{ padding:14px 18px 16px; border-right:1px solid var(--ds-border); }
+.sa-ai-cols > div:last-child{ border-right:0; }
+.sa-ai-cols h4{ font-size:13px; font-weight:650; margin:0 0 8px; display:flex; align-items:center; gap:8px; color:var(--ds-text); }
+.sa-ai-cols h4::before{ content:""; width:8px; height:8px; border-radius:50%; background:var(--sa-up); }
+.sa-ai-cols > div:nth-child(2) h4::before{ background:#c98a00; } .sa-ai-cols > div:nth-child(3) h4::before{ background:var(--sa1); }
+.sa-ai-cols ul{ margin:0; padding-left:16px; font-size:13.5px; line-height:1.5; color:var(--ds-text-2); }
+.sa-ai-cols li + li{ margin-top:6px; }
+.sa-ai-note{ margin:0; padding:10px 18px; border-top:1px solid var(--ds-border); font-size:12px; color:var(--ds-text-3); }
+.sa-ai-note:empty{ display:none; }
+.sa-ref{ width:100%; border-collapse:collapse; font-size:13.5px; }
+.sa-ref th{ text-align:left; white-space:nowrap; }
+.sa-ref .n{ text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.sa-ref td{ vertical-align:middle; }
+.sa-ref td.m b{ display:block; color:var(--ds-text); font-weight:600; }
+.sa-ref td.m{ width:36%; min-width:220px; white-space:normal; }
+.sa-ref td.m small{ display:block; color:var(--ds-text-3); font-size:12px; line-height:1.4; margin-top:2px; overflow-wrap:anywhere; }
+.sa-ref td.m small.sa-clash{ color:#8a5a00; }
+:root[data-theme="dark"] .sa-ref td.m small.sa-clash{ color:#f6c75a; }
+.sa-ref td.n{ padding-left:12px; }
+.sa-ref-bar{ width:30%; min-width:180px; }
+.sa-bullet{ position:relative; height:22px; }
+.sa-bullet .tr{ position:absolute; left:0; right:0; top:8px; height:6px; border-radius:3px; background:var(--ds-subtle-2); }
+.sa-bullet .you{ position:absolute; left:0; top:6px; height:10px; border-radius:5px; background:var(--sa1); }
+.sa-bullet .tk{ position:absolute; top:2px; width:3px; height:18px; border-radius:2px; background:var(--sa2); transform:translateX(-1.5px); }
+.sa-bullet .dm{ position:absolute; top:5px; width:11px; height:11px; background:#0c7a43; transform:translateX(-5.5px) rotate(45deg); border-radius:2px; box-shadow:0 0 0 2px var(--ds-surface); }
+:root[data-theme="dark"] .sa-bullet .dm{ background:#7ee2ad; }
+.sa-legend i.tick{ width:3px; height:12px; border-radius:2px; background:var(--sa2); vertical-align:-2px; }
+.sa-legend i.dia{ width:9px; height:9px; transform:rotate(45deg); background:#0c7a43; border-radius:2px; vertical-align:0; }
+.sa-verdict{ display:inline-flex; align-items:center; gap:6px; font-size:12px; font-weight:650; border-radius:999px; padding:3px 10px; white-space:nowrap; }
+.sa-verdict.ahead{ background:#dcf3e6; color:#0c5132; } .sa-verdict.on_par{ background:var(--ds-subtle-2); color:var(--ds-text-2); } .sa-verdict.behind{ background:#fde4df; color:#8e0b21; }
+:root[data-theme="dark"] .sa-verdict.ahead{ background:rgba(47,163,107,.18); color:#7ee2ad; } :root[data-theme="dark"] .sa-verdict.behind{ background:rgba(229,53,77,.18); color:#ff9aa6; }
+.sa-verdict::before{ font-size:10px; } .sa-verdict.ahead::before{ content:"▲"; } .sa-verdict.behind::before{ content:"▼"; } .sa-verdict.on_par::before{ content:"●"; }
+.sa-src{ margin-top:10px; font-size:12px; }
+.sa-src a{ color:var(--ds-link); }
+/* dishes with photos */
+.sa-podium{ display:grid; grid-template-columns:repeat(3, minmax(0, 1fr)); gap:12px; margin:4px 0 14px; }
+.sa-pod{ position:relative; border-radius:14px; overflow:hidden; min-height:150px; background:#2b2b2b center/cover no-repeat; color:#fff; }
+.sa-pod::after{ content:""; position:absolute; inset:0; background:linear-gradient(180deg, rgba(0,0,0,.05) 20%, rgba(0,0,0,.78)); }
+.sa-pod.nophoto{ background:linear-gradient(140deg,#3a2a1c,#1d1f26); }
+.sa-pod .in{ position:absolute; left:14px; right:14px; bottom:12px; z-index:1; }
+.sa-pod .rk{ position:absolute; top:10px; left:10px; z-index:1; width:28px; height:28px; border-radius:50%; background:rgba(255,255,255,.92); color:#1a1a1a; display:grid; place-items:center; font:800 14px var(--tb-num, var(--ds-font)); }
+.sa-pod b{ display:block; font:700 18px/1.15 var(--tb-num, var(--ds-font)); letter-spacing:-.01em; }
+.sa-pod span{ display:block; font-size:12.5px; color:#e9e9e9; margin-top:3px; }
+.sa-thumb{ width:34px; height:34px; border-radius:8px; object-fit:cover; float:left; margin:0 10px 0 0; background:var(--ds-subtle-2); }
+.sa-thumb.blank{ display:inline-block; }
+.sa-table td.nm{ overflow:hidden; }
+@media (max-width:760px){
+  .sa-ai-cols{ grid-template-columns:minmax(0, 1fr); } .sa-ai-cols > div{ border-right:0; border-bottom:1px solid var(--ds-border); }
+  .sa-ai-hero h3{ font-size:22px !important; }
+  .sa-podium{ grid-template-columns:minmax(0, 1fr); } .sa-pod{ min-height:120px; }
+  .sa-ref th:nth-child(4), .sa-ref td:nth-child(4), .sa-ref th:nth-child(5), .sa-ref td:nth-child(5){ display:none; }
+}
+@media print{ .sa-ai-btn{ display:none !important; } .sa-ai-hero{ background:#fff !important; color:#000 !important; } .sa-ai-hero::before{ display:none; } .sa-ai-hero h3, .sa-ai-hero p, .sa-ai-tag{ color:#000 !important; } }
+</style>
 </head>
 <body>
 
@@ -3821,6 +3890,27 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       <p class="sa-period" id="saPeriod"></p>
       <div class="sa-msg hidden" id="saMsg" role="alert"></div>
       <div id="saBody" class="sa-body" aria-live="polite">
+        <section class="sa-ai" id="saAi" aria-live="polite">
+          <div class="sa-ai-hero">
+            <div class="sa-ai-tag"><span class="sa-ai-spark" aria-hidden="true">✦</span><span id="saAiKind">AI summary</span><span id="saAiMeta"></span>
+              <button type="button" class="sa-ai-btn" id="saAiRegen">Regenerate</button></div>
+            <h3 id="saAiHead">Reading your numbers…</h3>
+            <p id="saAiText"></p>
+          </div>
+          <div class="sa-ai-cols">
+            <div><h4>Going well</h4><ul id="saAiWins"></ul></div>
+            <div><h4>Keep an eye on</h4><ul id="saAiWatch"></ul></div>
+            <div><h4>Do next</h4><ul id="saAiDo"></ul></div>
+          </div>
+          <p class="sa-ai-note" id="saAiNote"></p>
+        </section>
+        <section class="sa-card sa-wide" id="saRefCard"><div class="sa-h"><h3>Against your reference</h3>
+            <span class="hint" id="saRefHint"></span></div>
+          <div class="sa-tablewrap"><table class="sa-ref" id="saRef"><thead><tr><th>Measure</th><th class="n">You</th><th class="n">Your usual</th><th class="n">Goal / industry</th><th class="sa-ref-bar">How it compares</th><th>Vs your usual</th></tr></thead><tbody></tbody></table></div>
+          <div class="sa-legend"><span><i></i>You</span><span><i class="tick"></i>Your usual</span><span><i class="dia"></i>Goal or industry</span></div>
+          <p class="hint sa-src" id="saRefSrc"></p></section>
+        <section class="sa-card sa-wide" id="saPaceCard"><div class="sa-h"><h3>Pace: sales adding up</h3><span class="hint" id="saPaceHint"></span></div>
+          <div class="sa-chart" id="saPace"></div><div class="sa-legend" id="saPaceLg"></div></section>
         <ul class="sa-insights" id="saInsights"></ul>
         <div class="sa-kpis" id="saKpis"></div>
         <section class="sa-card sa-wide"><div class="sa-h"><h3>Sales over time</h3>
@@ -12891,6 +12981,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
   function paint(){
     var d = st.d, t = d.totals || {}, c = d.cmp_totals || null;
     insights(); kpis(t, c); trend(); waterfall(t); channels(); heat(); dow(); items(); customers(t, c); payments(); promos(); days();
+    if (window.saAfterPaint) try { window.saAfterPaint(st, { money: money, short$: short$, num: num, pct: pct, fmtD: fmtD, esc: esc, items: items }); } catch (e) { console.error(e); }
   }
   function spark(series, key){
     var v = series.map(function(x){ return Number(x[key] || 0); }); if (v.length < 2) return '';
@@ -13045,7 +13136,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     if (k === 'sales' && dir === -1 && !q) { var a2 = 0; for (var i = 0; i < shown.length; i++) { a2 += shown[i].share; if (a2 >= 80) { cut = i; break; } } }
     document.querySelectorAll('#saItems th').forEach(function(th){ th.setAttribute('aria-sort', th.getAttribute('data-s') === k ? (dir === 1 ? 'ascending' : 'descending') : 'none'); });
     $('saItems').querySelector('tbody').innerHTML = shown.length ? shown.map(function(r, i){ var c = r.chg == null ? (cmp && !r.cs ? '<span class="up">new</span>' : '—') : '<span class="' + (r.chg >= 0 ? 'up' : 'dn') + '">' + (r.chg >= 0 ? '▲ ' : '▼ ') + Math.abs(Math.round(r.chg)) + '%</span>';
-      return '<tr' + (cut != null && i === cut + 1 ? ' class="pareto" title="Dishes above this line make 80% of sales"' : '') + '><td class="nm">' + esc(r.name) + '<i style="width:' + Math.max(1, r.sales / mx * 100) + '%"></i></td><td class="n">' + num(r.qty) + '</td><td class="n">' + money(r.sales, 0) + '</td><td class="n">' + r.share.toFixed(1) + '%</td><td class="n">' + money(r.avg, 2) + '</td><td class="n">' + (cmp ? c : '—') + '</td></tr>'; }).join('')
+      return '<tr' + (cut != null && i === cut + 1 ? ' class="pareto" title="Dishes above this line make 80% of sales"' : '') + '><td class="nm">' + (window.saDishPhoto ? window.saDishPhoto(r.name) : '') + esc(r.name) + '<i style="width:' + Math.max(1, r.sales / mx * 100) + '%"></i></td><td class="n">' + num(r.qty) + '</td><td class="n">' + money(r.sales, 0) + '</td><td class="n">' + r.share.toFixed(1) + '%</td><td class="n">' + money(r.avg, 2) + '</td><td class="n">' + (cmp ? c : '—') + '</td></tr>'; }).join('')
       : '<tr><td colspan="6" class="sa-empty">' + (q ? 'No dish matches “' + esc(st.q) + '”.' : 'No dish sales in this period.') + '</td></tr>';
     $('saItemsNote').textContent = 'Dish sales are before discounts and tax. The dashed line marks where the top dishes add up to 80% of sales.';
   }
@@ -13111,7 +13202,236 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
   function onOpen(){ if (!st.loaded) { presets(); load(); } }
   var link = document.querySelector('#tabs .nav-link[data-tab="salesreport"]'); if (link) link.addEventListener('click', function(){ setTimeout(onOpen, 60); });
   try { new MutationObserver(function(){ if (!$('panelSalesreport').classList.contains('hidden')) onOpen(); }).observe($('panelSalesreport'), { attributes: true, attributeFilter: ['class'] }); } catch (e) {}
-  window.saReload = load;
+  window.saReload = load; window.__saState = st;
+})();
+</script>
+<script id="sales-ai-js">
+/* Sales report: AI summary + reference scorecard + pace chart + dish photos.
+   Reference = "your usual" (average of the same period over the last 8 weeks, sales_reference()),
+   your sales goal (daily goals), and a few published industry figures (cited on the page).
+   The AI summary comes from the sales-ai-summary edge function (Claude). If that isn't set up,
+   an automatic summary is written from the same numbers in the browser. */
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  if (!$('saAi')) return;
+  var TZ = 'America/New_York';
+  // Published reference points (general U.S. restaurant figures, not food-truck specific).
+  var INDUSTRY = {
+    tip: { v: 15.8, label: 'Quick-service average tip 15.8% (Q2 2026)', src: 'https://pos.toasttab.com/blog/data/restaurant-tipping-trends', name: 'Toast, Restaurant Tipping Trends' },
+    regulars: { v: 50, label: 'Up to 50% of orders come from 7% of guests', src: 'https://pos.toasttab.com/blog/on-the-line/restaurant-industry-statistics', name: 'Toast & Resy, Regulars Report' },
+    burrito: { v: 13.59, label: 'U.S. median burrito price $13.59 (May 2026)', src: 'https://pos.toasttab.com/blog/on-the-line/restaurant-industry-statistics', name: 'Toast Menu Price Monitor' }
+  };
+  var S = { photos: null, ref: null, refFull: null, token: 0, ai: null, H: null, st: null };
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+
+  // ---------- photos ----------
+  function photoFor(name){
+    if (!S.photos || !name) return null; var n = String(name).toLowerCase(), best = null;
+    S.photos.forEach(function(p){ if (!p.image_url || best) return; var full = (p.name + (p.variant_name ? ' - ' + p.variant_name : '')).toLowerCase(); if (full === n || p.name.toLowerCase() === n) best = p.image_url; });
+    if (!best) S.photos.forEach(function(p){ if (p.image_url && !best && n.indexOf(p.name.toLowerCase()) === 0) best = p.image_url; });
+    return best;
+  }
+  window.saDishPhoto = function(name){ var u = photoFor(name); return u ? '<img class="sa-thumb" src="' + esc(u) + '" alt="" loading="lazy">' : '<span class="sa-thumb blank" aria-hidden="true"></span>'; };
+  function loadPhotos(){
+    if (S.photos) return Promise.resolve();
+    return sb.from('menu_items').select('name, variant_name, image_url').then(function(r){ S.photos = r && !r.error ? (r.data || []) : []; }, function(){ S.photos = []; });
+  }
+  function podium(){
+    var st = S.st, H = S.H, card = $('saItems').closest('.sa-card'), wrap = card.querySelector('.sa-tablewrap');
+    var pod = $('saPodium'); if (!pod) { pod = document.createElement('div'); pod.className = 'sa-podium'; pod.id = 'saPodium'; card.insertBefore(pod, wrap); }
+    var it = (st.d.items || []).filter(function(x){ return x.sales != null; }).slice().sort(function(a, b){ return b.sales - a.sales; }), tot = it.reduce(function(a, x){ return a + Number(x.sales); }, 0);
+    pod.innerHTML = it.slice(0, 3).map(function(x, i){ var u = photoFor(x.name), ch = st.range.cf ? H.pct(x.sales, x.cmp_sales) : null;
+      return '<div class="sa-pod' + (u ? '' : ' nophoto') + '"' + (u ? ' style="background-image:url(&quot;' + esc(u) + '&quot;)"' : '') + '><span class="rk">' + (i + 1) + '</span><div class="in"><b>' + esc(x.name) + '</b><span>' + H.num(x.qty) + ' sold · ' + H.money(x.sales, 0) + ' · ' + Math.round(x.sales / (tot || 1) * 100) + '% of dish sales' + (ch != null ? ' · ' + (ch >= 0 ? '▲ ' : '▼ ') + Math.abs(Math.round(ch)) + '%' : '') + '</span></div></div>'; }).join('');
+    pod.classList.toggle('hidden', !it.length);
+  }
+
+  // ---------- reference ----------
+  function verdict(you, ref, lower){
+    if (you == null || ref == null || !isFinite(you) || !isFinite(ref) || Number(ref) === 0) return null;
+    var p = (you - ref) / Math.abs(ref) * 100; if (Math.abs(p) <= 5) return 'on_par';
+    return (lower ? p < 0 : p > 0) ? 'ahead' : 'behind';
+  }
+  var VERD = { ahead: 'Ahead', on_par: 'On par', behind: 'Behind', info: 'For context' };
+  function rows(){
+    var st = S.st, H = S.H, t = st.d.totals || {}, R = S.ref || {}, A = R.avg || {}, F = S.refFull || R;
+    var usualNow = R.n ? Number(A.net) : null, goalFull = F.goal != null ? Number(F.goal) : null, goalNow = goalFull;
+    if (goalFull != null && st.range.live && F.curve && F.curve.length) { // pro-rate the goal by how sales usually build up
+      var tot = 0, upto = 0, unitMs = F.unit === 'hour' ? 36e5 : 864e5, nowK = Math.floor((st.range.to - st.range.from) / unitMs);
+      F.curve.forEach(function(c){ tot += Number(c.net); if (c.k < nowK) upto += Number(c.net); });
+      var partK = ((st.range.to - st.range.from) / unitMs) - nowK, curC = F.curve.filter(function(c){ return c.k === nowK; })[0];
+      if (curC) upto += Number(curC.net) * partK;
+      goalNow = tot ? goalFull * upto / tot : goalFull;
+    }
+    var ch = st.d.channels || [], ordAll = ch.reduce(function(a, c){ return a + Number(c.orders || 0); }, 0);
+    var own = ch.filter(function(c){ return ['Window (Square)', 'DoorDash', 'Uber Eats', 'Grubhub'].indexOf(c.label) < 0; }).reduce(function(a, c){ return a + Number(c.orders || 0); }, 0);
+    var tipRate = t.net ? t.tips / t.net * 100 : null, discRate = t.gross ? t.discounts / t.gross * 100 : null, ownShare = ordAll ? own / ordAll * 100 : null;
+    var top = (st.d.items || []).filter(function(x){ return x.qty > 0; }).slice().sort(function(a, b){ return b.sales - a.sales; })[0];
+    var reg = R.regulars || {};
+    var out = [
+      { m: 'Net sales', you: t.net, usual: usualNow, ref2: goalNow, ref2l: goalNow != null ? (st.range.live ? 'Goal pace' : 'Goal') : null, f: function(v){ return H.money(v, 0); }, sub: st.range.live ? 'So far, compared at the same point' : '' },
+      { m: 'Orders', you: t.orders, usual: R.n ? Number(A.orders) : null, f: function(v){ return H.num(Math.round(v)); } },
+      { m: 'Average order', you: t.avg_order, usual: R.n ? Number(A.avg_order) : null, f: function(v){ return H.money(v, 2); } },
+      { m: 'Tips (% of net sales)', you: tipRate, usual: R.n ? Number(A.tip_rate) : null, ref2: INDUSTRY.tip.v, ref2l: 'Industry', f: function(v){ return v.toFixed(1) + '%'; }, sub: INDUSTRY.tip.label },
+      { m: 'Discounts (% of gross)', you: discRate, usual: R.n ? Number(A.discount_rate) : null, lower: true, f: function(v){ return v.toFixed(1) + '%'; }, sub: 'Lower keeps more of each sale' },
+      { m: 'Ordered on your own channels', you: ownShare, usual: R.n ? Number(A.own_digital_share) : null, f: function(v){ return Math.round(v) + '%'; }, sub: 'Website, truck QR, kiosk, drive-up, events: no app commission' }
+    ];
+    if (reg.top_share != null && reg.guests >= 20) out.push({ m: 'Orders from your top 7% of guests', you: Number(reg.top_share), ref2: INDUSTRY.regulars.v, ref2l: 'Industry', info: true, f: function(v){ return Math.round(v) + '%'; }, sub: INDUSTRY.regulars.label + ' · ' + reg.top_guests + ' of ' + reg.guests + ' known guests' });
+    if (top && top.qty) out.push({ m: 'Top dish price: ' + top.name, you: top.sales / top.qty, ref2: INDUSTRY.burrito.v, ref2l: 'Industry', info: true, f: function(v){ return H.money(v, 2); }, sub: INDUSTRY.burrito.label + '. A price check, not a target' });
+    out.forEach(function(r){ r.v = r.info ? 'info' : verdict(r.you, r.usual != null ? r.usual : r.ref2, r.lower); });
+    return { rows: out, goalNow: goalNow, goalFull: goalFull, usualNow: usualNow };
+  }
+  function scorecard(){
+    var st = S.st, R = S.ref || {}, x = rows(), ai = S.ai && S.ai.reference || [];
+    $('saRefHint').textContent = R.n ? 'Your usual = average of the same ' + (R.step_days === 7 && (st.range.end - st.range.from) <= 864e5 * 1.01 ? DAYNAME(st.range.from) : 'period') + ' over the last ' + R.n + ' week' + (R.n === 1 ? '' : 's') + (R.step_days > 7 ? ' (stepped back ' + R.step_days + ' days)' : '') : 'Not enough history yet for “your usual”';
+    var body = $('saRef').querySelector('tbody');
+    body.innerHTML = x.rows.map(function(r){
+      if (r.you == null || !isFinite(r.you)) return '';
+      var vals = [r.you, r.usual, r.ref2].filter(function(v){ return v != null && isFinite(v); }), mx = Math.max.apply(null, vals.concat([1e-9])) * 1.12;
+      var note = ai.filter(function(a){ var A = a.metric.toLowerCase(), M = r.m.toLowerCase(); return A === M || M.indexOf(A) === 0 || A.indexOf(M.split(' (')[0]) === 0; })[0];
+      var v = r.v; // verdicts come from the numbers; the AI only adds the note
+      var clash = note && !r.info && note.verdict !== r.v && r.v;
+      return '<tr><td class="m"><b>' + esc(r.m) + '</b><small>' + esc(note ? note.note : (r.sub || '')) + '</small>' + (clash ? '<small class="sa-clash">The AI called this “' + VERD[note.verdict].toLowerCase() + '”; against your usual it is ' + VERD[r.v].toLowerCase().replace('_', ' ') + '.</small>' : '') + '</td><td class="n"><b>' + r.f(r.you) + '</b></td><td class="n">' + (r.usual != null && isFinite(r.usual) ? r.f(r.usual) : '—') + '</td><td class="n">' + (r.ref2 != null ? r.f(r.ref2) + ' <small style="color:var(--ds-text-3)">' + esc(r.ref2l) + '</small>' : '—') + '</td>' +
+        '<td class="sa-ref-bar"><div class="sa-bullet" role="img" aria-label="' + esc(r.m + ': ' + r.f(r.you)) + '"><span class="tr"></span><span class="you" style="width:' + (r.you / mx * 100) + '%"></span>' + (r.usual != null && isFinite(r.usual) ? '<span class="tk" style="left:' + (r.usual / mx * 100) + '%" title="Your usual"></span>' : '') + (r.ref2 != null ? '<span class="dm" style="left:' + (r.ref2 / mx * 100) + '%" title="' + esc(r.ref2l) + '"></span>' : '') + '</div></td>' +
+        '<td>' + (v ? '<span class="sa-verdict ' + (v === 'info' ? 'on_par' : v) + '">' + VERD[v] + '</span>' : '—') + '</td></tr>';
+    }).join('');
+    $('saRefSrc').innerHTML = 'Industry figures are general U.S. restaurant numbers, not food-truck specific: ' + [INDUSTRY.tip, INDUSTRY.regulars, INDUSTRY.burrito].map(function(s){ return '<a href="' + s.src + '" target="_blank" rel="noopener">' + esc(s.name) + '</a>'; }).join(' · ') + '. Set your own sales goals on Today → Set goal.';
+  }
+  function DAYNAME(d){ return new Date(d).toLocaleDateString('en-US', { weekday: 'long', timeZone: TZ }); }
+
+  // ---------- pace ----------
+  function pace(){
+    var st = S.st, H = S.H, F = S.refFull || S.ref, box = $('saPace'), card = $('saPaceCard');
+    if (!F || !F.curve || !F.unit) { card.classList.add('hidden'); return; }
+    var unit = F.unit, unitMs = unit === 'hour' ? 36e5 : 864e5, n = Math.max(1, Math.round((st.range.end - st.range.from) / unitMs)), you = [];
+    if (unit === 'day') { var byDay = {}; (st.d.days || []).forEach(function(x){ byDay[x.day] = Number(x.net); });
+      for (var i = 0; i < n; i++) { var d = new Date(st.range.from.getTime() + i * unitMs + 12 * 36e5); var k = d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0'); you.push(byDay[k] || 0); } }
+    else { if (st.d.grain !== 'hour') { card.classList.add('hidden'); return; } var bh = {}; (st.d.series || []).forEach(function(x){ bh[x.t.slice(0, 13)] = Number(x.net); });
+      for (var j = 0; j < n; j++) { var h = new Date(st.range.from.getTime() + j * unitMs); var kk = h.getFullYear() + '-' + String(h.getMonth() + 1).padStart(2, '0') + '-' + String(h.getDate()).padStart(2, '0') + 'T' + String(h.getHours()).padStart(2, '0'); you.push(bh[kk] || 0); } }
+    card.classList.remove('hidden');
+    var nowIdx = st.range.live ? Math.min(n, (st.range.to - st.range.from) / unitMs) : n;
+    var usual = []; for (var a = 0; a < n; a++) usual.push(0); (F.curve || []).forEach(function(c){ if (c.k >= 0 && c.k < n) usual[c.k] = Number(c.net); });
+    function cum(arr){ var s = 0; return arr.map(function(v){ s += v; return s; }); }
+    var cy = cum(you), cu = cum(usual), totU = cu[n - 1] || 0, goal = F.goal != null ? Number(F.goal) : null;
+    var cg = goal != null ? (totU ? cu.map(function(v){ return goal * v / totU; }) : cu.map(function(_, i){ return goal * (i + 1) / n; })) : null;
+    var mx = Math.max(cy[Math.max(0, Math.ceil(nowIdx) - 1)] || 0, totU, goal || 0, 1), W = Math.max(560, box.clientWidth || 900), Hh = 240, L = 58, R = 16, T = 12, B = 28;
+    var X = function(i){ return L + (i / n) * (W - L - R); }, ny = (function(m){ var p = Math.pow(10, Math.floor(Math.log10(m))), q = m / p, s = (q <= 1.5 ? .25 : q <= 3 ? .5 : q <= 6 ? 1 : 2) * p; return { top: Math.ceil(m / s) * s, step: s }; })(mx), Y = function(v){ return T + (Hh - T - B) * (1 - v / ny.top); };
+    var out = '<svg viewBox="0 0 ' + W + ' ' + Hh + '" role="img" aria-label="Sales adding up over the period, vs your usual and your goal">';
+    for (var g = 0; g <= ny.top + 1e-9; g += ny.step) out += '<line class="gl" x1="' + L + '" x2="' + (W - R) + '" y1="' + Y(g) + '" y2="' + Y(g) + '"/><text class="ax" x="' + (L - 8) + '" y="' + (Y(g) + 4) + '" text-anchor="end">' + H.short$(g) + '</text>';
+    var every = Math.max(1, Math.ceil(n / 10));
+    for (var t = 0; t < n; t += every) { var dt = new Date(st.range.from.getTime() + t * unitMs); out += '<text class="ax" x="' + X(t + .5) + '" y="' + (Hh - 8) + '" text-anchor="middle">' + esc(unit === 'hour' ? ((dt.getHours() % 12) || 12) + (dt.getHours() < 12 ? 'a' : 'p') : H.fmtD(dt)) + '</text>'; }
+    function path(arr, upto){ var p = 'M' + X(0) + ' ' + Y(0); for (var i = 0; i < arr.length && i < upto; i++) p += ' L' + X(i + 1).toFixed(1) + ' ' + Y(arr[i]).toFixed(1); return p; }
+    if (cg) out += '<path d="' + path(cg, n) + '" fill="none" stroke="#0c7a43" stroke-width="2" stroke-dasharray="2 5" stroke-linecap="round"/>';
+    if (totU) out += '<path d="' + path(cu, n) + '" fill="none" stroke="var(--sa2)" stroke-width="2.2" stroke-dasharray="7 5"/>';
+    var upto = Math.ceil(nowIdx); out += '<path d="' + path(cy, upto) + ' L' + X(upto).toFixed(1) + ' ' + Y(0) + ' L' + X(0) + ' ' + Y(0) + 'Z" fill="var(--sa1)" opacity=".1"/>';
+    out += '<path d="' + path(cy, upto) + '" fill="none" stroke="var(--sa1)" stroke-width="3" stroke-linejoin="round"/>';
+    var yNow = cy[Math.max(0, upto - 1)] || 0; out += '<circle cx="' + X(upto) + '" cy="' + Y(yNow) + '" r="5" fill="var(--sa1)" stroke="var(--ds-surface)" stroke-width="2"/>';
+    out += '<text x="' + Math.min(W - R - 4, X(upto) + 8) + '" y="' + (Y(yNow) - 8) + '" font-size="12" font-weight="700" fill="var(--ds-text)" text-anchor="' + (X(upto) > W - 120 ? 'end' : 'start') + '">' + H.money(yNow, 0) + '</text>';
+    for (var hi = 0; hi < n; hi++) out += '<rect class="hit" data-i="' + hi + '" x="' + X(hi) + '" y="' + T + '" width="' + (X(1) - X(0)) + '" height="' + (Hh - T - B) + '" fill="transparent"/>';
+    box.innerHTML = out + '</svg>';
+    var svg = box.querySelector('svg');
+    svg.addEventListener('mousemove', function(e){ var r = e.target.closest('.hit'), tip = box.querySelector('.sa-tip'); if (!r) { if (tip) tip.style.display = 'none'; return; }
+      var i = +r.getAttribute('data-i'), k = svg.getBoundingClientRect().width / W, dt = new Date(st.range.from.getTime() + i * unitMs);
+      if (!tip) { tip = document.createElement('div'); tip.className = 'sa-tip'; box.appendChild(tip); }
+      tip.innerHTML = '<b>By end of ' + esc(unit === 'hour' ? ((dt.getHours() % 12) || 12) + (dt.getHours() < 12 ? ' AM' : ' PM') + ' hour' : H.fmtD(dt, { weekday: 'short', month: 'short', day: 'numeric' })) + '</b>' +
+        (i < upto ? '<br><i style="background:var(--sa1)"></i>You: ' + H.money(cy[i], 0) : '') + (totU ? '<br><i style="background:var(--sa2)"></i>Usual: ' + H.money(cu[i], 0) : '') + (cg ? '<br><i style="background:#0c7a43"></i>Goal pace: ' + H.money(cg[i], 0) : '');
+      tip.style.left = Math.max(80, Math.min(box.clientWidth - 80, X(i + 1) * k)) + 'px'; tip.style.top = (Y(Math.max(cy[i] || 0, cu[i] || 0, cg ? cg[i] : 0)) * k) + 'px'; tip.style.display = 'block'; });
+    svg.addEventListener('mouseleave', function(){ var tip = box.querySelector('.sa-tip'); if (tip) tip.style.display = 'none'; });
+    var uNow = cu[Math.max(0, upto - 1)] || 0, gNow = cg ? cg[Math.max(0, upto - 1)] : null;
+    $('saPaceHint').textContent = totU ? (st.range.live ? 'By now you’d usually have ' + H.money(uNow, 0) + '; you have ' + H.money(yNow, 0) + '.' : 'Usual for the whole period: ' + H.money(totU, 0) + '; you made ' + H.money(yNow, 0) + '.') + (gNow != null ? ' Goal pace: ' + H.money(gNow, 0) + '.' : '') : '';
+    $('saPaceLg').innerHTML = '<span><i></i>You</span>' + (totU ? '<span><i class="l" style="background:repeating-linear-gradient(90deg,var(--sa2) 0 6px,transparent 6px 9px)"></i>Your usual</span>' : '') + (cg ? '<span><i class="l" style="background:repeating-linear-gradient(90deg,#0c7a43 0 2px,transparent 2px 6px)"></i>Goal</span>' : '');
+  }
+
+  // ---------- summary ----------
+  function payload(){
+    var st = S.st, H = S.H, t = st.d.totals || {}, c = st.d.cmp_totals, R = S.ref || {}, x = rows();
+    var ch = st.d.channels || [], net = ch.reduce(function(a, q){ return a + Number(q.net || 0); }, 0), us = {}; (R.channels || []).forEach(function(q){ us[q.label] = q.share; });
+    var it = (st.d.items || []).filter(function(q){ return q.sales != null; }), itot = it.reduce(function(a, q){ return a + Number(q.sales); }, 0), ui = {}; (R.items || []).forEach(function(q){ ui[q.name] = q.share; });
+    var hrs = {}, ht = 0; (st.d.heat || []).forEach(function(h){ hrs[h.hour] = (hrs[h.hour] || 0) + Number(h.net); ht += Number(h.net); });
+    var wk = {}; ((st.d.weekdays || {}).cmp || []).forEach(function(w){ wk[w.dow] = w.avg_net; });
+    var DN = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    return {
+      period: { label: st.range.label, from: st.range.from.toISOString(), to: st.range.to.toISOString(), so_far: !!st.range.live, compare_label: st.range.cf ? ($('saCmp').value === 'year' ? 'same days last year' : 'the period before') : null },
+      totals: t, comparison: c || null,
+      reference: { usual: Object.assign({ periods: R.n || 0 }, R.avg || {}), goal: x.goalNow != null ? Math.round(x.goalNow) : null,
+        industry: [{ metric: 'Tip rate %', value: INDUSTRY.tip.v, ours: t.net ? +(t.tips / t.net * 100).toFixed(1) : null, source: INDUSTRY.tip.name + ' (quick-service, Q2 2026)' },
+                   { metric: 'Share of orders from top 7% of guests %', value: INDUSTRY.regulars.v, ours: R.regulars ? R.regulars.top_share : null, source: INDUSTRY.regulars.name + ' (up to)' },
+                   { metric: 'U.S. median burrito price $', value: INDUSTRY.burrito.v, ours: null, source: INDUSTRY.burrito.name + ' (May 2026)' }],
+        pace: { usual_by_now: x.usualNow, goal_by_now: x.goalNow != null ? Math.round(x.goalNow) : null } },
+      rates: { tip_rate: t.net ? +(t.tips / t.net * 100).toFixed(1) : null, discount_rate: t.gross ? +(t.discounts / t.gross * 100).toFixed(1) : null,
+        own_digital_share: (x.rows[5] && x.rows[5].you != null) ? +x.rows[5].you.toFixed(1) : null, returning_share: t.customers ? Math.round((t.customers - t.new_customers) / t.customers * 100) : null, top7_share: R.regulars ? R.regulars.top_share : null },
+      channels: ch.map(function(q){ return { label: q.label, net: q.net, orders: q.orders, avg: q.avg, share: net ? +(q.net / net * 100).toFixed(1) : null, usual_share: us[q.label] != null ? us[q.label] : null, change_pct: H.pct(q.net, q.cmp_net) != null ? Math.round(H.pct(q.net, q.cmp_net)) : null }; }),
+      dishes: it.slice().sort(function(a, b){ return b.sales - a.sales; }).slice(0, 12).map(function(q){ return { name: q.name, qty: q.qty, sales: q.sales, share: itot ? +(q.sales / itot * 100).toFixed(1) : null, usual_share: ui[q.name] != null ? ui[q.name] : null, change_pct: H.pct(q.sales, q.cmp_sales) != null ? Math.round(H.pct(q.sales, q.cmp_sales)) : null, avg_price: q.qty ? +(q.sales / q.qty).toFixed(2) : null }; }),
+      best_days: (st.d.days || []).slice().sort(function(a, b){ return b.net - a.net; }).slice(0, 3),
+      weekday_avg: ((st.d.weekdays || {}).cur || []).map(function(w){ return { day: DN[w.dow], avg_net: w.avg_net, prev_avg_net: wk[w.dow] != null ? wk[w.dow] : null }; }),
+      busiest_hours: Object.keys(hrs).sort(function(a, b){ return hrs[b] - hrs[a]; }).slice(0, 3).map(function(h){ h = +h; return { hour: ((h % 12) || 12) + (h < 12 ? ' AM' : ' PM'), share: ht ? Math.round(hrs[h] / ht * 100) : null }; }),
+      promos: st.d.promos || []
+    };
+  }
+  function localSummary(){ // written in the browser from the same numbers when AI isn't available
+    var st = S.st, H = S.H, t = st.d.totals || {}, x = rows(), r0 = x.rows[0], wins = [], watch = [], act = [];
+    var vs = r0.usual != null ? H.pct(t.net, r0.usual) : null;
+    var head = !t.orders ? 'No sales in this period yet' : vs == null ? H.money(t.net, 0) + ' in net sales from ' + H.num(t.orders) + ' orders' : Math.abs(vs) <= 5 ? 'A normal ' + (st.range.live ? 'run so far' : 'period') + ': right around your usual' : vs > 0 ? 'Ahead of your usual by ' + Math.round(vs) + '%' : 'Behind your usual by ' + Math.abs(Math.round(vs)) + '%';
+    var sum = t.orders ? H.money(t.net, 0) + ' net sales from ' + H.num(t.orders) + ' orders (' + H.money(t.avg_order, 2) + ' average)' + (r0.usual != null ? ', vs ' + H.money(r0.usual, 0) + ' usual' + (st.range.live ? ' by this point' : '') : '') + '.' + (x.goalNow != null ? ' Goal' + (st.range.live ? ' pace' : '') + ': ' + H.money(x.goalNow, 0) + ' (' + (t.net >= x.goalNow ? 'ahead' : H.money(x.goalNow - t.net, 0) + ' to go') + ').' : '') : '';
+    x.rows.forEach(function(r){ if (r.info || !r.v || r.you == null) return; var line = r.m + ': ' + r.f(r.you) + ' vs ' + r.f(r.usual != null ? r.usual : r.ref2) + (r.usual != null ? ' usual' : ' ' + r.ref2l.toLowerCase());
+      if (r.v === 'ahead') wins.push(line); else if (r.v === 'behind') watch.push(line); });
+    var it = (st.d.items || []).filter(function(q){ return q.cmp_sales > 20 && q.sales > 20; }).map(function(q){ return { n: q.name, p: H.pct(q.sales, q.cmp_sales) }; }).sort(function(a, b){ return a.p - b.p; });
+    if (it.length && it[0].p < -25) { watch.push(it[0].n + ' sales down ' + Math.abs(Math.round(it[0].p)) + '% vs before'); act.push('Check ' + it[0].n + ': was it sold out, moved on the menu, or priced differently?'); }
+    if (it.length && it[it.length - 1].p > 25) wins.push(it[it.length - 1].n + ' up ' + Math.round(it[it.length - 1].p) + '% vs before');
+    var r5 = x.rows[5]; if (r5 && r5.you != null && r5.you < 60) act.push('Push the website and truck QR (no app fees): only ' + Math.round(r5.you) + '% of orders came that way.');
+    var r3 = x.rows[3]; if (r3 && r3.you != null && r3.you < INDUSTRY.tip.v) act.push('Tips are ' + r3.f(r3.you) + ' of net sales vs ' + INDUSTRY.tip.v + '% at quick-service places; check the tip screen on the kiosk and card machine.');
+    if (x.goalNow == null) act.push('Set a daily sales goal (Today → Set goal) so reports can show goal pace.');
+    return { kind: 'auto', headline: head, summary: sum, reference: [], wins: wins.slice(0, 3), watch: watch.slice(0, 3), actions: act.slice(0, 3) };
+  }
+  function showSummary(s, meta, note){
+    $('saAi').classList.remove('loading');
+    $('saAiKind').textContent = s.kind === 'auto' ? 'Automatic summary' : 'AI summary';
+    $('saAiMeta').textContent = meta || '';
+    $('saAiHead').textContent = s.headline || '';
+    $('saAiText').textContent = s.summary || '';
+    function li(a, empty){ return (a && a.length ? a : [empty]).map(function(x){ return '<li>' + esc(x) + '</li>'; }).join(''); }
+    $('saAiWins').innerHTML = li(s.wins, 'Nothing stands out above usual.');
+    $('saAiWatch').innerHTML = li(s.watch, 'Nothing stands out below usual.');
+    $('saAiDo').innerHTML = li(s.actions, 'Keep going. Check again next week.');
+    $('saAiNote').textContent = note || '';
+  }
+  function cacheKey(){ var st = S.st, r = st.range; return 'saAi:' + r.from.getTime() + ':' + r.to.getTime() + ':' + (r.cf ? r.cf.getTime() : 0) + ':' + (st.d.totals || {}).net + ':' + (st.d.totals || {}).orders; }
+  function summarize(force){
+    var st = S.st, my = S.token, key = cacheKey();
+    if (!force) { try { var c = JSON.parse(sessionStorage.getItem(key) || 'null'); if (c) { S.ai = c; showSummary(c, c._meta); scorecard(); return; } } catch (e) {} }
+    if (!(st.d.totals || {}).orders) { var l0 = localSummary(); S.ai = null; showSummary(l0, ''); return; }
+    $('saAi').classList.add('loading'); $('saAiHead').textContent = 'Reading your numbers…'; $('saAiText').textContent = ''; $('saAiKind').textContent = 'AI summary';
+    sb.functions.invoke('sales-ai-summary', { body: { report: payload() } }).then(function(res){
+      if (my !== S.token) return;
+      var d = res && res.data, err = res && res.error;
+      if (err || !d || !d.ok) {
+        var p = err && err.context && typeof err.context.json === 'function' ? err.context.json().catch(function(){ return {}; }) : Promise.resolve(d || {});
+        return p.then(function(j){ if (my !== S.token) return;
+          var off = (j && j.error === 'AI_NOT_SET_UP') || /not found|404|Failed to send|FunctionsFetchError|Relay/i.test(String((err && (err.message || err.name)) || ''));
+          var l = localSummary(); S.ai = null; showSummary(l, '', off ? 'AI summaries are off. To turn them on: deploy the sales-ai-summary function and add the ANTHROPIC_API_KEY secret in Supabase. This summary is worked out from the numbers on this page.' : 'The AI summary didn’t come back (' + ((j && (j.error || j.message)) || (err && err.message) || 'unknown') + '). This summary is worked out from the numbers on this page.'); scorecard(); });
+      }
+      var meta = '· ' + new Date(d.at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      d._meta = meta; S.ai = d; try { sessionStorage.setItem(key, JSON.stringify(d)); } catch (e) {}
+      showSummary(d, meta, 'Written by AI from this page’s totals (no guest names or contact details are sent). Check numbers that matter against the tables below.'); scorecard();
+    }, function(){ if (my !== S.token) return; var l = localSummary(); showSummary(l, '', 'Couldn’t reach the AI service. This summary is worked out from the numbers on this page.'); });
+  }
+
+  // ---------- after each report load ----------
+  window.saAfterPaint = function(st, H){
+    S.st = st; S.H = H; S.token++; var my = S.token, r = st.range;
+    loadPhotos().then(function(){ if (my !== S.token) return; podium(); H.items(); });
+    $('saAi').classList.add('loading'); $('saAiHead').textContent = 'Reading your numbers…'; $('saAiText').textContent = '';
+    var calls = [sb.rpc('sales_reference', { p_from: r.from.toISOString(), p_to: r.to.toISOString(), p_n: 8 })];
+    if (r.live && r.end - r.to > 6e4) calls.push(sb.rpc('sales_reference', { p_from: r.from.toISOString(), p_to: r.end.toISOString(), p_n: 8 }));
+    Promise.all(calls).then(function(res){
+      if (my !== S.token) return;
+      S.ref = res[0] && !res[0].error ? res[0].data : null; S.refFull = res[1] && !res[1].error ? res[1].data : S.ref;
+      $('saRefCard').classList.toggle('hidden', !S.ref);
+      if (S.ref) { scorecard(); pace(); } else $('saPaceCard').classList.add('hidden');
+      summarize(false);
+    }, function(){ if (my !== S.token) return; S.ref = S.refFull = null; $('saRefCard').classList.add('hidden'); $('saPaceCard').classList.add('hidden'); summarize(false); });
+  };
+  $('saAiRegen').addEventListener('click', function(){ if (S.st) summarize(true); });
+  var rz; window.addEventListener('resize', function(){ clearTimeout(rz); rz = setTimeout(function(){ if (S.st && S.ref && !$('panelSalesreport').classList.contains('hidden')) pace(); }, 160); });
 })();
 </script>
 <script id="ds-js">
