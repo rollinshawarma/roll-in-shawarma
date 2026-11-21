@@ -2348,6 +2348,13 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
 :root[data-theme="dark"] .sa-chips button.on{ background:rgba(255,255,255,.12); }
 .sa-custom, .sa-opts{ display:flex; flex-wrap:wrap; gap:10px; align-items:flex-end; }
 .sa-custom.hidden{ display:none; }
+.sa-cmpbox{ margin-top:2px; padding:10px 12px; border-radius:12px; background:color-mix(in srgb, var(--sa2) 7%, var(--ds-surface)); border:1px solid color-mix(in srgb, var(--sa2) 28%, transparent); }
+.sa-cmptag-unused{ align-self:center; font-size:12.5px; font-weight:650; color:var(--ds-text); display:flex; align-items:center; gap:7px; margin-right:4px; }
+.sa-cmptag::before{ content:""; width:14px; height:0; border-top:2.5px dashed var(--sa2); }
+.sa-cmpbox[data-mode="event"] .sa-cmp-dt, .sa-cmpbox[data-mode="dates"] .sa-cmp-ev{ display:none; }
+.sa-cmpbox select{ min-width:260px; }
+.sa-cmpnote{ flex-basis:100%; margin:0; font-size:12px; color:var(--ds-text-3); }
+.sa-cmpnote:empty{ display:none; }
 .sa-custom label, .sa-opts label{ display:flex; flex-direction:column; gap:4px; font-size:12.5px; margin:0; color:var(--ds-text-3); }
 .sa-custom select{ min-width:220px; }
 .sa-hrs span{ display:flex; gap:6px; }
@@ -3863,7 +3870,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
   <div class="tab-panel hidden" id="panelSalesreport">
     <div class="page-head">
       <h2>Sales report</h2>
-      <p class="hint">How sales are going, compared with the period before or last year: trends, what sold, when, through which channel, and who's coming back. Pick an event day under Custom for organizer reports.</p>
+      <p class="hint">How sales are going, compared with the period before, last year, dates you pick or a past event: trends, what sold, when, through which channel, and who's coming back. Pick an event day under Custom for organizer reports.</p>
     </div>
     <div class="sa" id="saRoot">
       <div class="sa-bar" role="toolbar" aria-label="Report period">
@@ -3880,11 +3887,18 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
           <button type="button" class="btn-primary btn-small" id="saApply">Show</button>
         </div>
         <div class="sa-opts">
-          <label>Compare with<select id="saCmp"><option value="prev">Previous period</option><option value="year">Same days last year</option><option value="none">No comparison</option></select></label>
+          <label>Compare with<select id="saCmp"><option value="prev">Previous period</option><option value="year">Same days last year</option><option value="dates">Dates I pick…</option><option value="event">An event…</option><option value="none">No comparison</option></select></label>
           <label>Group by<select id="saGrain"><option value="">Automatic</option><option value="hour">Hour</option><option value="day">Day</option><option value="week">Week</option><option value="month">Month</option></select></label>
           <span class="sa-sp"></span>
           <button type="button" class="btn-ghost btn-small" id="saCsv">Download CSV</button>
           <button type="button" class="btn-ghost btn-small" id="saPrint">Print</button>
+        </div>
+        <div class="sa-custom sa-cmpbox hidden" id="saCmpBox" aria-label="Compare with">
+                    <label class="sa-cmp-ev">Event<select id="saCmpEvent"><option value="">Pick an event…</option></select></label>
+          <label class="sa-cmp-dt">From<input type="date" id="saCFrom"></label><label class="sa-cmp-dt">To<input type="date" id="saCTo"></label>
+          <label class="sa-hrs sa-cmp-dt">Hours<span><input type="time" id="saCT1" value="00:00"><input type="time" id="saCT2" value="23:59"></span></label>
+          <button type="button" class="btn-primary btn-small sa-cmp-dt" id="saCApply">Compare</button>
+          <p class="sa-cmpnote" id="saCmpNote"></p>
         </div>
       </div>
       <p class="sa-period" id="saPeriod"></p>
@@ -12935,31 +12949,51 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     var len = to - from, cf = null, ct = null, cmp = $('saCmp').value;
     if (cmp === 'prev') { ct = new Date(from); cf = new Date(from.getTime() - len); }
     else if (cmp === 'year') { cf = addDays(from, -364); ct = addDays(to, -364); }
+    else if (cmp === 'dates' || cmp === 'event') { var cw = cmpWindow(); if (cw) { cf = cw.from; ct = cw.to; } }
     // "to date" periods compare like for like: only up to the same moment
     var live = to > n;
-    if (live && cf) { ct = new Date(cf.getTime() + (n - from)); }
-    return { from: from, to: live ? n : to, end: to, cf: cf, ct: ct, label: label, live: live };
+    if (live && cf && (cmp === 'prev' || cmp === 'year')) { ct = new Date(cf.getTime() + (n - from)); }
+    else if (live && cf && ct - cf >= to - from - 6e4) { ct = new Date(Math.min(ct.getTime(), cf.getTime() + (n - from))); } // same length: compare up to the same point
+    return { from: from, to: live ? n : to, end: to, cf: cf, ct: ct, label: label, live: live, cmpLabel: cf ? cmpName(cmp) : null };
+  }
+  function cmpWindow(){ // the window picked under "Compare with" (dates or an event)
+    var m = $('saCmp').value;
+    if (m === 'event') { var e = (st.cmpEvents || [])[+$('saCmpEvent').value - 1]; return e ? { from: new Date(e.from), to: new Date(e.to), name: e.title } : null; }
+    var a = $('saCFrom').value, b = $('saCTo').value || a, t1 = $('saCT1').value || '00:00', t2 = $('saCT2').value || '23:59';
+    if (!a) return null; var f = new Date(a + 'T' + t1), t = new Date(new Date(b + 'T' + t2).getTime() + 60000);
+    if (t2 <= t1 && a === b) t = addDays(t, 1); if (t <= f) return null;
+    return { from: f, to: t };
+  }
+  function vsWord(){ var m = $('saCmp').value; return m === 'year' ? 'vs last year' : m === 'event' ? 'vs the event' : m === 'dates' ? 'vs your dates' : 'vs before'; }
+  function cmpName(m){
+    if (m === 'year') return 'Same days last year';
+    if (m === 'event') { var e = (st.cmpEvents || [])[+$('saCmpEvent').value - 1]; return e ? e.title + ' (' + fmtD(e.day + 'T12:00', { month: 'short', day: 'numeric', year: 'numeric' }) + ')' : 'Event'; }
+    if (m === 'dates') return 'Your dates';
+    return 'Period before';
   }
   function periodText(r){
     var last = new Date(r.end.getTime() - 1), same = ymd(r.from) === ymd(last);
     var p = same ? fmtD(r.from, { weekday: 'long', month: 'long', year: 'numeric' }) : fmtD(r.from) + ' – ' + fmtD(last, { year: 'numeric' });
     if (st.r === 'custom' && ($('saT1').value !== '00:00' || $('saT2').value !== '23:59')) p += ', ' + $('saT1').value + '–' + $('saT2').value;
-    var c = r.cf ? ' · compared with <b>' + ($('saCmp').value === 'year' ? 'the same days last year' : 'the ' + (same ? 'day' : Math.round((r.end - r.from) / 864e5) + ' days') + ' before') + '</b> (' + fmtD(r.cf) + (ymd(r.cf) === ymd(new Date(r.ct.getTime() - 1)) ? '' : ' – ' + fmtD(new Date(r.ct.getTime() - 1))) + ')' : '';
+    var cm = $('saCmp').value, cl = r.ct ? new Date(r.ct.getTime() - 1) : null, hrs = r.cf && cm === 'event' || (cm === 'dates' && ($('saCT1').value !== '00:00' || $('saCT2').value !== '23:59')) ? ', ' + r.cf.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) + '–' + r.ct.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '';
+    var c = r.cf ? ' · compared with <b>' + esc(cm === 'year' ? 'the same days last year' : cm === 'event' ? r.cmpLabel.replace(/ \(.*\)$/, '') : cm === 'dates' ? 'your dates' : 'the ' + (same ? 'day' : Math.round((r.end - r.from) / 864e5) + ' days') + ' before') + '</b> (' + fmtD(r.cf, { month: 'short', day: 'numeric', year: ymd(r.cf).slice(0, 4) !== ymd(r.from).slice(0, 4) ? 'numeric' : undefined }) + (ymd(r.cf) === ymd(cl) ? '' : ' – ' + fmtD(cl)) + hrs + ')' : '';
     return '<b>' + esc(r.label) + '</b>: ' + esc(p) + (r.live ? ' (so far, to ' + now().toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) + ')' : '') + c;
   }
 
   // ---------- load ----------
   function load(){
-    if (st.busy || typeof sb === 'undefined') return;
+    if (typeof sb === 'undefined') return;
+    if (st.busy) { st.again = true; return; } // a newer pick waits for the current load, then runs
     var r = range(); if (!r) { msg('Pick a start date.'); return; }
     if (r.to - r.from > 400 * 864e5) { msg('Pick 400 days or less.'); return; }
     st.busy = true; st.range = r; $('saBody').classList.add('loading'); msg('');
     $('saPeriod').innerHTML = periodText(r);
     sb.rpc('sales_analytics', { p_from: r.from.toISOString(), p_to: r.to.toISOString(), p_cmp_from: r.cf ? r.cf.toISOString() : null, p_cmp_to: r.ct ? r.ct.toISOString() : null, p_grain: $('saGrain').value || null }).then(function(res){
       st.busy = false; $('saBody').classList.remove('loading');
+      if (st.again) { st.again = false; load(); return; }
       if (res.error) { msg(/does not exist|schema cache|Could not find/i.test(res.error.message || '') ? 'Run sales-analytics.sql in Supabase (SQL Editor) to turn on the new sales report.' : res.error.message); return; }
       st.d = res.data; st.loaded = true; paint();
-    }, function(){ st.busy = false; $('saBody').classList.remove('loading'); msg('Couldn’t reach the server. Check the connection and try again.'); });
+    }, function(){ st.busy = false; $('saBody').classList.remove('loading'); if (st.again) { st.again = false; load(); return; } msg('Couldn’t reach the server. Check the connection and try again.'); });
   }
   function msg(t){ $('saMsg').textContent = t; $('saMsg').classList.toggle('hidden', !t); $('saBody').classList.toggle('hidden', !!t && !st.loaded); }
 
@@ -13013,7 +13047,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       var ch = { t: '', c: '' };
       if (c && x[0] === 'Returning guests') { if (x[2] != null && x[3] != null) { var dp = x[2] - x[3]; ch = Math.abs(dp) < .5 ? { t: 'no change', c: '' } : { t: (dp > 0 ? '▲ ' : '▼ ') + Math.abs(Math.round(dp)) + ' pts', c: dp > 0 ? 'up' : 'dn' }; } }
       else if (c) ch = chg(x[2], x[3], x[4]);
-      var sub = ch.t ? ch.t + ' <span style="color:var(--ds-text-3);font-weight:500">vs before</span>' : esc(x[7] || '');
+      var sub = ch.t ? ch.t + ' <span style="color:var(--ds-text-3);font-weight:500">' + esc(vsWord()) + '</span>' : esc(x[7] || '');
       return '<div class="sa-kpi ' + (x[6] || '') + '"><span>' + x[0] + '</span><b>' + x[1] + '</b><small class="' + ch.c + '">' + sub + '</small>' + x[5] + '</div>'; }).join('');
   }
   function insights(){
@@ -13061,7 +13095,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       var line = svg.querySelector('#saX'); line.setAttribute('x1', L + cw * i + cw / 2); line.setAttribute('x2', L + cw * i + cw / 2); line.setAttribute('opacity', '.6');
       tipOn(box, '<b>' + esc(bLabel(x.k, g)) + '</b><br><i style="background:var(--sa1)"></i>' + fmt(val(x) || 0) + (x.orders && m !== 'orders' ? ' · ' + x.orders + ' orders' : '') + (cmp && x.ck ? '<br><i style="background:var(--sa2)"></i>' + esc(bLabel(x.ck, g)) + ': ' + fmt(val(x.c) || 0) : ''), cx, Y(Math.max(val(x) || 0, cmp ? (val(x.c) || 0) : 0)) * k); });
     svg.addEventListener('mouseleave', function(){ tipOff(box); var line = svg.querySelector('#saX'); if (line) line.setAttribute('opacity', '0'); });
-    $('saTrendLg').innerHTML = '<span><i></i>' + esc(st.range.label) + '</span>' + (cmp ? '<span><i class="l"></i>' + ($('saCmp').value === 'year' ? 'Same days last year' : 'Period before') + '</span>' : '');
+    $('saTrendLg').innerHTML = '<span><i></i>' + esc(st.range.label) + '</span>' + (cmp ? '<span><i class="l"></i>' + esc(st.range.cmpLabel || 'Period before') + '</span>' : '');
   }
   function waterfall(t){
     var box = $('saFall');
@@ -13122,7 +13156,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       if (hasC && b) out += '<rect x="' + (cx + 1) + '" y="' + Y(b) + '" width="' + bw + '" height="' + (Y(0) - Y(b)) + '" rx="3" fill="var(--sa2)"><title>Before: ' + money(b, 0) + '</title></rect>';
       out += '<text class="ax" x="' + cx + '" y="' + (H - 8) + '" text-anchor="middle">' + DAYS[d] + '</text>'; });
     box.innerHTML = out + '</svg>';
-    $('saDowLg').innerHTML = '<span><i></i>' + esc(st.range.label) + '</span>' + (hasC ? '<span><i style="background:var(--sa2)"></i>' + ($('saCmp').value === 'year' ? 'Last year' : 'Period before') + '</span>' : '');
+    $('saDowLg').innerHTML = '<span><i></i>' + esc(st.range.label) + '</span>' + (hasC ? '<span><i style="background:var(--sa2)"></i>' + esc(st.range.cmpLabel || 'Period before') + '</span>' : '');
   }
   function items(){
     var it = (st.d.items || []).filter(function(x){ return x.sales != null; }), tot = it.reduce(function(a, x){ return a + Number(x.sales); }, 0), cmp = !!st.range.cf;
@@ -13188,14 +13222,38 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     load(); });
   $('saApply').addEventListener('click', load);
   $('saEvent').addEventListener('change', function(){ var e = st.events[+this.value - 1]; if (!e) return; var a = new Date(e.from), b = new Date(e.to);
-    $('saFrom').value = ymd(a); $('saTo').value = ymd(b); $('saT1').value = pad(a.getHours()) + ':' + pad(a.getMinutes()); $('saT2').value = pad(b.getHours()) + ':' + pad(b.getMinutes()); load(); });
-  $('saCmp').addEventListener('change', load); $('saGrain').addEventListener('change', load);
+    $('saFrom').value = ymd(a); $('saTo').value = ymd(b); $('saT1').value = pad(a.getHours()) + ':' + pad(a.getMinutes()); $('saT2').value = pad(b.getHours()) + ':' + pad(b.getMinutes()); load(); if ($('saCmp').value === 'event') cmpEventList(); });
+  function cmpBox(){ var m = $('saCmp').value, box = $('saCmpBox'), on = m === 'dates' || m === 'event';
+    box.classList.toggle('hidden', !on); box.setAttribute('data-mode', m);
+    if (m === 'dates' && !$('saCFrom').value && st.range) { var len = st.range.end - st.range.from, f = new Date(st.range.from.getTime() - len), t = new Date(st.range.from.getTime() - 1);
+      $('saCFrom').value = ymd(f); $('saCTo').value = ymd(t); }
+    if (m === 'event') cmpEventList();
+    $('saCmpNote').textContent = ''; return on; }
+  $('saCmp').addEventListener('change', function(){ var on = cmpBox(); if (!on || cmpWindow()) load(); else $('saCmpNote').textContent = $('saCmp').value === 'event' ? 'Pick an event to compare with.' : 'Pick dates to compare with.'; });
+  $('saCmpEvent').addEventListener('change', function(){ $('saCmpNote').textContent = ''; if (cmpWindow()) load(); });
+  $('saCApply').addEventListener('click', function(){ $('saCmpNote').textContent = ''; if (!cmpWindow()) { $('saCmpNote').textContent = 'Pick a start date (and an end after it).'; return; } load(); });
+  $('saGrain').addEventListener('change', load);
+  function cmpEventList(){ // past event days, newest first; the same event's earlier days go on top
+    var sel = $('saCmpEvent'), cur = sel.value ? (st.cmpEvents || [])[+sel.value - 1] : null, ev = st.cmpEvents || [];
+    if (!ev.length) { sel.innerHTML = '<option value="">No past events on the calendar yet</option>'; return; }
+    var r = st.range, title = $('saEvent').value && st.r === 'custom' ? ((st.events || [])[+$('saEvent').value - 1] || {}).title : null;
+    var opt = function(e){ var i = ev.indexOf(e); return '<option value="' + (i + 1) + '"' + (cur === e ? ' selected' : '') + '>' + esc(fmtD(e.day + 'T12:00', { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' }) + ' · ' + e.title + (e.location ? ' (' + e.location + ')' : '')) + '</option>'; };
+    var notNow = ev.filter(function(e){ return !r || new Date(e.to) <= r.from || new Date(e.from) >= r.end; });
+    var same = title ? notNow.filter(function(e){ return e.title === title; }) : [], groups = {}, order = [];
+    notNow.forEach(function(e){ if (same.indexOf(e) >= 0) return; var k = fmtD(e.day + 'T12:00', { month: 'long', year: 'numeric' }); if (!groups[k]) { groups[k] = []; order.push(k); } groups[k].push(e); });
+    sel.innerHTML = '<option value="">Pick an event…</option>' + (same.length ? '<optgroup label="Same event, earlier">' + same.map(opt).join('') + '</optgroup>' : '') +
+      order.map(function(k){ return '<optgroup label="' + esc(k) + '">' + groups[k].map(opt).join('') + '</optgroup>'; }).join('');
+  }
   $('saMetric').addEventListener('click', function(e){ var b = e.target.closest('[data-m]'); if (!b) return; st.metric = b.getAttribute('data-m'); this.querySelectorAll('button').forEach(function(x){ x.classList.toggle('on', x === b); }); if (st.d) trend(); });
   $('saItems').querySelector('thead').addEventListener('click', function(e){ var th = e.target.closest('th'); if (!th) return; var k = th.getAttribute('data-s'); st.sort = { k: k, dir: st.sort.k === k ? -st.sort.dir : (k === 'name' ? 1 : -1) }; if (st.d) items(); });
   $('saItemQ').addEventListener('input', function(){ st.q = this.value; if (st.d) items(); });
   $('saCsv').addEventListener('click', csv); $('saPrint').addEventListener('click', function(){ window.print(); });
   var rz; window.addEventListener('resize', function(){ clearTimeout(rz); rz = setTimeout(function(){ if (st.d && !$('panelSalesreport').classList.contains('hidden')) { trend(); waterfall(st.d.totals || {}); heat(); dow(); } }, 150); });
   function presets(){
+    sb.rpc('sales_event_days', { p_days: 400 }).then(function(res){
+      if (!res.error && Array.isArray(res.data)) { st.cmpEvents = res.data; if ($('saCmp').value === 'event') cmpEventList(); return; }
+      sb.rpc('sales_report_presets').then(function(r2){ if (!r2.error && Array.isArray(r2.data)) { st.cmpEvents = r2.data; if ($('saCmp').value === 'event') cmpEventList(); } }, function(){});
+    }, function(){});
     sb.rpc('sales_report_presets').then(function(res){ if (res.error || !Array.isArray(res.data)) return; st.events = res.data;
       $('saEvent').innerHTML = '<option value="">Pick an event…</option>' + res.data.map(function(p, i){ return '<option value="' + (i + 1) + '">' + esc(fmtD(p.day + 'T12:00', { weekday: 'short', month: 'short', day: 'numeric' }) + ' · ' + p.title + (p.location ? ' (' + p.location + ')' : '')) + '</option>'; }).join(''); }, function(){});
   }
@@ -13350,7 +13408,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     var wk = {}; ((st.d.weekdays || {}).cmp || []).forEach(function(w){ wk[w.dow] = w.avg_net; });
     var DN = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
     return {
-      period: { label: st.range.label, from: st.range.from.toISOString(), to: st.range.to.toISOString(), so_far: !!st.range.live, compare_label: st.range.cf ? ($('saCmp').value === 'year' ? 'same days last year' : 'the period before') : null },
+      period: { label: st.range.label, from: st.range.from.toISOString(), to: st.range.to.toISOString(), so_far: !!st.range.live, compare_label: st.range.cf ? (st.range.cmpLabel || 'the period before') : null },
       totals: t, comparison: c || null,
       reference: { usual: Object.assign({ periods: R.n || 0 }, R.avg || {}), goal: x.goalNow != null ? Math.round(x.goalNow) : null,
         industry: [{ metric: 'Tip rate %', value: INDUSTRY.tip.v, ours: t.net ? +(t.tips / t.net * 100).toFixed(1) : null, source: INDUSTRY.tip.name + ' (quick-service, Q2 2026)' },
