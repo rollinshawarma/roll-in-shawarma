@@ -991,6 +991,7 @@
   <img class="logo-small" src="logo.jpg" alt="Roll-In Shawarma">
   <button type="button" class="menu-choice-btn" id="menuClockInBtn">Clock In</button>
   <button type="button" class="menu-choice-btn" id="menuKitchenBtn">Kitchen Mode</button>
+  <button type="button" class="menu-choice-btn" id="menuStatsBtn">Today’s numbers <small style="display:block;font-size:.55em;font-weight:600;opacity:.7">Manager PIN</small></button>
   <button type="button" id="mainMenuBackBtn">&larr; Back</button>
 </div>
 </div>
@@ -1205,6 +1206,7 @@
       <button type="button" id="itemTotalsBtn" class="kh-grouped" title="Item totals on / off" aria-label="Item totals">&#931;</button>
       <button type="button" id="custInfoBtn" class="kh-grouped" title="Customer info (managers)" aria-label="Customer info">&#128100;</button>
       <button type="button" id="rushBtn" class="kh-grouped" title="Rush: pickup slots for every order" aria-label="Rush">&#9889;</button>
+      <button type="button" id="statsBtn" class="kh-grouped" title="Today’s numbers (manager PIN)" aria-label="Today’s numbers">📊</button>
       <button type="button" id="tkSizeBtn" class="kh-grouped" title="Ticket text size" aria-label="Ticket text size">A</button>
       <button type="button" id="kioskOrdersBtn" class="kh-grouped" title="Kiosk orders on / off" aria-label="Kiosk orders">&#128421;</button>
       <button type="button" id="suppliesBtn" title="Supplies to restock" aria-label="Supplies">&#128230;<span class="gl"> Supplies</span><span class="nd-count zero" id="suppliesCount">0</span></button>
@@ -4257,6 +4259,7 @@
     orders: { title: 'Orders', items: [
       function(){ var n = num('scheduledCount'); return { key: 'scheduledBtn', ic: '⏰', label: 'Scheduled orders', sub: n ? n + ' coming up' : 'None coming up', attn: n > 0 }; },
       function(){ return { key: 'recallBtn', ic: '↺', label: 'Recall an order', sub: 'Bring back one marked done (last 30 min)' }; },
+      function(){ return { key: 'statsBtn', ic: '📊', label: 'Today’s numbers', sub: 'Sales, orders, timings vs last week · manager PIN' }; },
       function(){ var on = document.body.classList.contains('totals-on');
         return { key: 'itemTotalsBtn', ic: 'Σ', label: 'Item totals: ' + (on ? 'ON' : 'OFF'), on: on,
           sub: on ? 'Showing a count of every item to make, above the tickets · tap to hide' : 'Show one line with each item and how many to make' }; },
@@ -4675,6 +4678,210 @@
     e.preventDefault(); card.classList.add('tk-new'); btn.click();
   });
   window.kdsTk = { after: after, size: size };
+})();
+</script>
+<!-- ===== Today's numbers (manager PIN) — the staff portal's Today board, sized for the kitchen screen ===== -->
+<style id="kstats-css">
+  #ksWrap{ position:fixed; inset:0; z-index:900; background:#0b0b0c; color:#f5f5f7; display:flex; flex-direction:column; font-family:"Inter",-apple-system,sans-serif; }
+  #ksWrap.hidden{ display:none; }
+  #ksWrap .ks-top{ display:flex; align-items:center; gap:14px; padding:14px 20px; border-bottom:1px solid #222; flex-wrap:wrap; }
+  #ksWrap .ks-top h1{ font:800 30px/1 var(--kds-font, "Barlow Condensed", sans-serif); letter-spacing:.01em; margin:0; }
+  #ksWrap .ks-who{ font-size:14px; color:#a1a1a6; }
+  #ksWrap .ks-who b{ color:#f5f5f7; }
+  #ksWrap .ks-sp{ flex:1; }
+  #ksWrap .ks-btn{ min-height:48px; padding:0 18px; border-radius:12px; border:0; background:#2c2c2e; color:#f5f5f7; font:700 16px "Inter",sans-serif; cursor:pointer; }
+  #ksWrap .ks-btn:active{ background:#3a3a3c; }
+  #ksWrap .ks-btn.lock{ background:#3a2a10; color:#ffd27a; }
+  #ksWrap .ks-btn:focus-visible{ outline:3px solid #64D2FF; outline-offset:2px; }
+  #ksBody{ flex:1; overflow:auto; padding:16px 20px 24px; }
+  /* PIN */
+  .ks-pin{ max-width:360px; margin:6vh auto 0; text-align:center; }
+  .ks-pin h2{ font:800 34px/1.1 var(--kds-font, "Barlow Condensed", sans-serif); margin:0 0 6px; }
+  .ks-pin p{ color:#a1a1a6; font-size:15px; margin:0 0 18px; }
+  .ks-dots{ display:flex; justify-content:center; gap:14px; margin:0 0 10px; min-height:22px; }
+  .ks-dots i{ width:18px; height:18px; border-radius:50%; border:2px solid #636366; }
+  .ks-dots i.f{ background:#f5f5f7; border-color:#f5f5f7; }
+  .ks-err{ min-height:22px; color:#ff6961; font-weight:600; margin-bottom:10px; }
+  .ks-pad{ display:grid; grid-template-columns:repeat(3, 1fr); gap:12px; }
+  .ks-pad button{ min-height:72px; border-radius:16px; border:0; background:#1c1c1e; color:#f5f5f7; font:700 30px "Inter",sans-serif; cursor:pointer; }
+  .ks-pad button:active{ background:#2c2c2e; }
+  .ks-pad button[data-k="OK"]{ background:#30D158; color:#04260f; font-size:22px; }
+  /* board */
+  .ks-grid{ display:grid; gap:14px; grid-template-columns:repeat(12, minmax(0, 1fr)); }
+  .ks-t{ background:#1c1c1e; border-radius:18px; padding:16px 18px; min-width:0; position:relative; overflow:hidden; }
+  .ks-h{ font-size:14px; font-weight:600; color:#a1a1a6; display:flex; justify-content:space-between; gap:8px; }
+  .ks-n{ font:800 48px/1 var(--kds-font, "Barlow Condensed", sans-serif); letter-spacing:.005em; margin-top:8px; font-variant-numeric:tabular-nums; }
+  .ks-d{ font-size:14px; font-weight:700; margin-top:6px; color:#a1a1a6; }
+  .ks-d.up{ color:#30D158; } .ks-d.dn{ color:#ff6961; }
+  .ks-sales{ grid-column:span 4; grid-row:span 2; display:flex; flex-direction:column; background:#182033; }
+  .ks-ringrow{ display:flex; align-items:center; gap:18px; margin-top:10px; flex:1; }
+  .ks-ring{ position:relative; width:190px; height:190px; flex:none; }
+  .ks-ring svg{ width:100%; height:100%; display:block; }
+  .ks-ring .c{ position:absolute; inset:0; display:flex; flex-direction:column; align-items:center; justify-content:center; text-align:center; }
+  .ks-ring .c b{ font:800 38px/1 var(--kds-font, "Barlow Condensed", sans-serif); }
+  .ks-ring .c small{ font-size:13px; color:#9aa3b5; margin-top:4px; }
+  .ks-fc{ font-size:15px; line-height:1.45; color:#c7cdd8; }
+  .ks-fc b{ color:#fff; font-size:17px; }
+  .ks-kpi{ grid-column:span 2; }
+  .ks-rail{ grid-column:span 8; }
+  .ks-rail svg{ display:block; width:100%; height:auto; }
+  .ks-list{ grid-column:span 4; }
+  .ks-feed{ grid-column:span 12; }
+  .ks-li{ display:grid; grid-template-columns:minmax(0, 1fr) auto; gap:4px 10px; margin-top:12px; font-size:16px; }
+  .ks-li span{ white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .ks-li b{ font:800 20px/1 var(--kds-font, "Barlow Condensed", sans-serif); }
+  .ks-li i{ grid-column:1 / -1; height:7px; border-radius:4px; background:#2c2c2e; overflow:hidden; }
+  .ks-li i u{ display:block; height:100%; background:#64D2FF; border-radius:4px; }
+  .ks-ppl div{ display:flex; align-items:center; gap:10px; margin-top:12px; font-size:16px; font-weight:600; }
+  .ks-ppl div.off{ color:#8e8e93; }
+  .ks-ppl em{ width:34px; height:34px; border-radius:50%; display:grid; place-items:center; font:800 15px var(--kds-font, "Barlow Condensed", sans-serif); font-style:normal; color:#fff; flex:none; }
+  .ks-ppl small{ margin-left:auto; color:#8e8e93; font-size:13px; font-weight:500; }
+  .ks-feed ul{ list-style:none; margin:8px 0 0; padding:0; }
+  .ks-feed li{ display:grid; grid-template-columns:64px minmax(0, 1fr) auto 76px; gap:12px; align-items:center; padding:9px 0; border-top:1px solid #2c2c2e; font-size:15px; }
+  .ks-feed li:first-child{ border-top:0; }
+  .ks-feed .no{ font:800 20px var(--kds-font, "Barlow Condensed", sans-serif); }
+  .ks-feed .w{ color:#d2d2d7; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .ks-feed .w b{ color:#fff; }
+  .ks-feed .s{ font-size:13px; font-weight:700; border-radius:8px; padding:4px 9px; white-space:nowrap; }
+  .ks-feed .s.cooking{ background:rgba(255,159,10,.18); color:#FF9F0A; } .ks-feed .s.late{ background:rgba(255,69,58,.2); color:#ff6961; }
+  .ks-feed .s.ready{ background:rgba(48,209,88,.18); color:#30D158; } .ks-feed .s.picked_up{ background:#2c2c2e; color:#a1a1a6; } .ks-feed .s.canceled{ background:#2c2c2e; color:#ff6961; }
+  .ks-feed .a{ text-align:right; font:700 17px var(--kds-font, "Barlow Condensed", sans-serif); font-variant-numeric:tabular-nums; }
+  .ks-note{ color:#8e8e93; font-size:14px; margin-top:10px; }
+  @media (max-width:1100px){
+    .ks-sales{ grid-column:span 12; grid-row:auto; } .ks-kpi{ grid-column:span 3; } .ks-rail{ grid-column:span 12; }
+    .ks-list{ grid-column:span 6; } .ks-feed{ grid-column:span 12; }
+  }
+  @media (max-width:640px){ .ks-kpi{ grid-column:span 6; } .ks-list{ grid-column:span 12; } .ks-feed li{ grid-template-columns:56px minmax(0, 1fr) auto; } .ks-feed .a{ display:none; } .ks-ringrow{ flex-direction:column; } }
+</style>
+<div id="ksWrap" class="hidden" role="dialog" aria-modal="true" aria-labelledby="ksTitle">
+  <div class="ks-top"><h1 id="ksTitle">Today’s numbers</h1><span class="ks-who" id="ksWho"></span><span class="ks-sp"></span>
+    <button type="button" class="ks-btn lock hidden" id="ksLock">Lock</button><button type="button" class="ks-btn" id="ksClose">Close</button></div>
+  <div id="ksBody"></div>
+</div>
+<script id="kstats-js">
+/* Today's numbers on the kitchen station. A manager's PIN unlocks it on this tablet for
+   10 minutes (kds_today_stats in today-board.sql); it refreshes every 30 seconds while open,
+   and asks for the PIN again when the time is up or someone taps Lock. */
+(function(){
+  function $(id){ return document.getElementById(id); }
+  var wrap = $('ksWrap'), body = $('ksBody'); if (!wrap || typeof sb === 'undefined') return;
+  var TZ = 'America/New_York', pin = '', timer = null, until = 0, busy = false, d = null;
+  var PEOPLE = ['#64D2FF', '#30D158', '#FF9F0A', '#BF5AF2', '#FF6961', '#5E5CE6'];
+  var DAYS = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function clock(t){ return new Date(t).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZone: TZ }).replace(/[  ]/g, ' ').replace(':00 ', ' '); }
+  function money(n, c){ return n == null ? '—' : '$' + Number(n).toLocaleString('en-US', { minimumFractionDigits: c ? 2 : 0, maximumFractionDigits: c ? 2 : 0 }); }
+  function mins(s){ return s == null ? '—' : Math.round(s / 60) + ' min'; }
+  function shortNo(r){ var m = /(\d{2,})$/.exec(String(r || '')); return m ? '#' + m[1].slice(-3).padStart(3, '0') : (r || '—'); }
+  function hLbl(h){ h = ((h % 24) + 24) % 24; return (h % 12 || 12) + (h < 12 ? 'a' : 'p'); }
+  function nowArg(){ return window.__tbNow ? { p_now: new Date(window.__tbNow).toISOString() } : {}; }
+
+  function open(){ wrap.classList.remove('hidden'); fetchBoard(null); }
+  function close(){ wrap.classList.add('hidden'); stop(); pin = ''; }
+  function stop(){ if (timer) { clearInterval(timer); timer = null; } }
+  function pinScreen(msg){
+    stop(); d = null; $('ksLock').classList.add('hidden'); $('ksWho').textContent = '';
+    body.innerHTML = '<div class="ks-pin"><h2>Manager PIN</h2><p>Today’s sales, orders and timings. Opens for 10 minutes on this screen.</p>' +
+      '<div class="ks-dots" id="ksDots"></div><div class="ks-err" id="ksErr" role="alert">' + esc(msg || '') + '</div><div class="ks-pad" id="ksPad">' +
+      ['1', '2', '3', '4', '5', '6', '7', '8', '9', '⌫', '0', 'OK'].map(function(k){ return '<button type="button" data-k="' + k + '" aria-label="' + (k === '⌫' ? 'Delete' : k) + '">' + k + '</button>'; }).join('') + '</div></div>';
+    pin = ''; dots();
+  }
+  function dots(){ var el = $('ksDots'); if (!el) return; var n = Math.max(4, pin.length); el.innerHTML = Array.apply(null, Array(n)).map(function(_, i){ return '<i' + (i < pin.length ? ' class="f"' : '') + '></i>'; }).join(''); }
+  body.addEventListener('click', function(e){
+    var b = e.target.closest('#ksPad button'); if (!b) return; var k = b.getAttribute('data-k');
+    if (k === '⌫') pin = pin.slice(0, -1); else if (k === 'OK') { if (pin.length < 4) { $('ksErr').textContent = 'Enter your PIN'; return; } var p = pin; pin = ''; dots(); $('ksErr').textContent = 'Checking…'; fetchBoard(p); return; }
+    else if (pin.length < 8) pin += k;
+    $('ksErr').textContent = ''; dots();
+  });
+  document.addEventListener('keydown', function(e){
+    if (wrap.classList.contains('hidden')) return;
+    if (e.key === 'Escape') return close();
+    if (!$('ksPad')) return;
+    if (/^\d$/.test(e.key) && pin.length < 8) { pin += e.key; dots(); } else if (e.key === 'Backspace') { pin = pin.slice(0, -1); dots(); } else if (e.key === 'Enter') { var ok = document.querySelector('#ksPad [data-k="OK"]'); if (ok) ok.click(); }
+  });
+  function fetchBoard(p){
+    if (busy) return; busy = true;
+    var args = nowArg(); if (p) args.p_pin = p;
+    sb.rpc('kds_today_stats', args).then(function(r){
+      busy = false;
+      if (r.error) {
+        var m = r.error.message || '';
+        if (/does not exist|schema cache|Could not find/i.test(m)) return pinScreen('Run today-board.sql in Supabase first.');
+        if (/Not authorized/i.test(m)) return pinScreen('Sign in to Kitchen Mode on this tablet first.');
+        return pinScreen(m);
+      }
+      var x = r.data || {};
+      if (!x.ok) return pinScreen(x.locked ? (p ? 'Wrong PIN' : '') : (x.error || 'Wrong PIN'));
+      until = Date.parse(x.until); d = x.board;
+      $('ksWho').innerHTML = 'Opened by <b>' + esc(x.by) + '</b> · locks at ' + esc(clock(until));
+      $('ksLock').classList.remove('hidden');
+      render();
+      if (!timer) timer = setInterval(function(){ if (wrap.classList.contains('hidden')) return stop(); if (Date.now() >= until) return pinScreen('Locked after 10 minutes.'); fetchBoard(null); }, 30000);
+    }, function(){ busy = false; if (!d) pinScreen('No connection. Try again.'); });
+  }
+  function delta(cur, prev, lower){
+    if (cur == null || prev == null || Number(prev) === 0) return '<div class="ks-d">&nbsp;</div>';
+    var p = (Number(cur) - Number(prev)) / Math.abs(Number(prev)) * 100; if (Math.abs(p) < 1) return '<div class="ks-d">same as last ' + DAYS[d.dow].slice(0, 3) + '</div>';
+    var good = lower ? p < 0 : p > 0; return '<div class="ks-d ' + (good ? 'up' : 'dn') + '">' + (p > 0 ? '▲ ' : '▼ ') + Math.abs(Math.round(p)) + '% vs last ' + DAYS[d.dow].slice(0, 3) + '</div>';
+  }
+  function render(){
+    var t = d.today || {}, lw = d.last_week || {}, u = d.usual || {}, q = d.queue || {}, sales = Number(t.sales || 0), goal = d.goal ? Number(d.goal) : null;
+    var fcS = null, fcO = null;
+    if (d.weeks && u.sales_by_now != null) { var ratio = u.sales_by_now > 0 ? Math.max(.6, Math.min(1.4, sales / u.sales_by_now)) : 1; fcS = sales + Math.max(0, u.sales_day - u.sales_by_now) * ratio; }
+    if (d.weeks && u.orders_by_now != null) { var r2 = u.orders_by_now > 0 ? Math.max(.6, Math.min(1.4, (t.orders || 0) / u.orders_by_now)) : 1; fcO = (t.orders || 0) + Math.max(0, u.orders_day - u.orders_by_now) * r2; }
+    var target = goal || fcS, R = 80, C = 2 * Math.PI * R, frac = target ? Math.min(1, sales / target) : 0, mark = target && u.sales_by_now != null ? Math.min(1, u.sales_by_now / target) : null;
+    var ring = '<svg viewBox="0 0 190 190" role="img" aria-label="' + esc(money(sales)) + '"><circle cx="95" cy="95" r="' + R + '" fill="none" stroke="rgba(255,255,255,.12)" stroke-width="15"/><circle cx="95" cy="95" r="' + R + '" fill="none" stroke="#f0a500" stroke-width="15" stroke-linecap="round" stroke-dasharray="' + C + '" stroke-dashoffset="' + (C * (1 - frac)) + '" transform="rotate(-90 95 95)"/>' +
+      (mark != null ? '<line x1="95" y1="5" x2="95" y2="27" stroke="#fff" stroke-width="3" stroke-linecap="round" transform="rotate(' + (mark * 360) + ' 95 95)"/>' : '') + '</svg>';
+    var dishes = d.dishes || [], mx = dishes.length ? Number(dishes[0].made) : 1, ch = (d.channels || []).filter(function(c){ return c.orders > 0; }), tot = ch.reduce(function(a, c){ return a + Number(c.orders); }, 0);
+    var team = d.team || [], S = { cooking: 'Cooking', ready: 'Ready', picked_up: 'Picked up', canceled: 'Canceled' };
+    body.innerHTML = '<div class="ks-grid">' +
+      '<section class="ks-t ks-sales"><div class="ks-h"><span>Sales today</span><span>' + (goal ? 'Goal ' + money(goal) : 'No goal set') + '</span></div>' +
+        '<div class="ks-ringrow"><div class="ks-ring">' + ring + '<div class="c"><b>' + money(sales) + '</b><small>' + (goal ? Math.round(sales / goal * 100) + '% of goal' : 'so far') + '</small></div></div>' +
+        '<div class="ks-fc">' + (fcS != null ? 'At this pace<br><b>' + money(Math.round(fcS / 10) * 10) + '</b> and <b>' + Math.round(fcO) + ' orders</b><br>by close' + (goal ? (fcS >= goal ? ', above the goal.' : ', ' + money(goal - fcS) + ' short.') : '.') : 'Forecast starts after a few ' + DAYS[d.dow] + 's of orders.') +
+        (mark != null ? '<div class="ks-note">White mark: where the last ' + d.weeks + ' ' + DAYS[d.dow] + 's were by now.</div>' : '') + '</div></div></section>' +
+      '<section class="ks-t ks-kpi"><div class="ks-h">Orders</div><div class="ks-n">' + (t.orders || 0) + '</div>' + delta(t.orders, lw.orders) + '</section>' +
+      '<section class="ks-t ks-kpi"><div class="ks-h">Average order</div><div class="ks-n">' + money(t.avg_order, true) + '</div>' + delta(t.avg_order, lw.avg_order) + '</section>' +
+      '<section class="ks-t ks-kpi"><div class="ks-h">Ready time</div><div class="ks-n">' + mins(t.avg_ready) + '</div>' + delta(t.avg_ready, lw.avg_ready, true) + '</section>' +
+      '<section class="ks-t ks-kpi"><div class="ks-h">On time (12 min)</div><div class="ks-n">' + (t.on_time != null ? Math.round(t.on_time) + '%' : '—') + '</div><div class="ks-d">' + (q.cooking || 0) + ' cooking · ' + (q.ready || 0) + ' ready</div></section>' +
+      '<section class="ks-t ks-rail"><div class="ks-h"><span>Today, open to close</span><span>Bars: orders every 15 min · striped: usual · red line: now</span></div><div id="ksRail"></div></section>' +
+      '<section class="ks-t ks-list"><div class="ks-h">Top dishes</div>' + (dishes.length ? dishes.map(function(x){ return '<div class="ks-li"><span>' + esc(x.item) + '</span><b>' + x.made + '</b><i><u style="width:' + Math.max(4, x.made / mx * 100) + '%"></u></i></div>'; }).join('') : '<div class="ks-note">No dishes yet.</div>') + '</section>' +
+      '<section class="ks-t ks-list"><div class="ks-h">Where orders came from</div>' + (tot ? ch.slice(0, 5).map(function(c){ return '<div class="ks-li"><span>' + esc(c.channel) + '</span><b>' + Math.round(c.orders / tot * 100) + '%</b><i><u style="width:' + Math.max(4, c.orders / tot * 100) + '%;background:#FF9F0A"></u></i></div>'; }).join('') : '<div class="ks-note">No orders yet.</div>') + '</section>' +
+      '<section class="ks-t ks-list"><div class="ks-h">On shift</div><div class="ks-ppl">' + (team.length ? team.map(function(x, i){ return '<div class="' + (x.on ? '' : 'off') + '"><em style="background:' + PEOPLE[i % PEOPLE.length] + '">' + esc((x.name || '?').slice(0, 2).toUpperCase()) + '</em>' + esc(x.name) + '<small>' + (x.on ? 'since ' + esc(clock(x.in)) : 'left ' + esc(clock(x.out))) + '</small></div>'; }).join('') : '<div class="ks-note">Nobody has clocked in today.</div>') + '</div></section>' +
+      '<section class="ks-t ks-feed"><div class="ks-h">Latest orders</div><ul>' + ((d.feed || []).map(function(o){ var late = o.state === 'cooking' && o.age_s > 720;
+          return '<li><span class="no">' + esc(shortNo(o.ref)) + '</span><span class="w"><b>' + esc(o.name || 'Guest') + '</b>' + (o.what ? ' · ' + esc(o.what) : '') + '</span><span class="s ' + (late ? 'late' : o.state) + '">' + esc(S[o.state] || o.state) + (o.state === 'cooking' ? ' ' + Math.round(o.age_s / 60) + 'm' : '') + '</span><span class="a">' + money(o.total, true) + '</span></li>'; }).join('') || '<li class="ks-note" style="display:block">No orders yet today.</li>') + '</ul></section>' +
+      '</div>';
+    // the rail sits beside the sales tile on wide screens
+    var rail = body.querySelector('.ks-rail'); if (window.innerWidth > 1100) { rail.style.gridColumn = 'span 8'; }
+    drawRail();
+  }
+  function drawRail(){
+    var box = $('ksRail'); if (!box || !d) return;
+    var now = Date.parse(d.now), t0 = Date.parse(d.day_start), nowH = (now - t0) / 36e5, curve = d.curve || [], ready = d.ready || [];
+    var H0 = 10, H1 = 22; if (d.hours && d.hours.open != null) { H0 = Math.floor(d.hours.open / 60) - 1; H1 = Math.ceil(d.hours.close / 60); }
+    curve.forEach(function(c){ var h = c.m / 60; if (c.today >= 2 || c.usual >= .5) { H0 = Math.min(H0, Math.floor(h)); H1 = Math.max(H1, Math.ceil(h + .25)); } });
+    H0 = Math.max(0, Math.min(H0, Math.floor(nowH))); H1 = Math.min(24, Math.max(H1, Math.ceil(nowH)));
+    var W = Math.max(600, box.clientWidth || 900), L = 18, R = 18, H = 210, base = 150;
+    function X(h){ return L + (h - H0) / (H1 - H0) * (W - L - R); }
+    var mx = 2; curve.forEach(function(c){ mx = Math.max(mx, c.today || 0, c.usual || 0); });
+    var sc = 130 / mx, bw = Math.max(3, X(H0 + .25) - X(H0) - 3), s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Orders through the day">';
+    s += '<defs><pattern id="ksHz" width="6" height="6" patternUnits="userSpaceOnUse" patternTransform="rotate(45)"><rect width="2.4" height="6" fill="#636366"/></pattern></defs>';
+    (d.plan || []).forEach(function(p){ var a = Math.max(H0, (Date.parse(p.from) - t0) / 36e5), b = Math.min(H1, (Date.parse(p.to) - t0) / 36e5); if (b <= a) return;
+      s += '<rect x="' + X(a) + '" y="6" width="' + (X(b) - X(a)) + '" height="' + (base - 4) + '" rx="6" fill="' + (p.kind === 'rush' ? 'rgba(255,159,10,.14)' : 'rgba(100,210,255,.1)') + '"/><text x="' + (X(a) + 8) + '" y="22" font-size="13" font-weight="700" fill="' + (p.kind === 'rush' ? '#FF9F0A' : '#64D2FF') + '">' + esc(p.kind === 'rush' ? 'Rush slots' : p.name) + '</text>'; });
+    for (var h = Math.ceil(H0); h <= H1; h++) s += '<line x1="' + X(h) + '" x2="' + X(h) + '" y1="6" y2="' + (base + 2) + '" stroke="#2c2c2e"/><text x="' + X(h) + '" y="' + (H - 6) + '" text-anchor="middle" font-size="13" fill="#8e8e93">' + hLbl(h) + '</text>';
+    curve.forEach(function(c){ var h = c.m / 60; if (h < H0 || h >= H1) return; var past = h <= nowH;
+      if (past && c.today) s += '<rect x="' + (X(h) + 1.5) + '" y="' + (base - c.today * sc) + '" width="' + bw + '" height="' + (c.today * sc) + '" rx="3" fill="#f5f5f7"' + (h + .25 > nowH ? ' opacity=".55"' : '') + '/>';
+      else if (!past && c.usual > 0) s += '<rect x="' + (X(h) + 1.5) + '" y="' + (base - c.usual * sc) + '" width="' + bw + '" height="' + (c.usual * sc) + '" rx="3" fill="url(#ksHz)" stroke="#636366"/>'; });
+    var slotW = X(H0 + .5) - X(H0);
+    ready.forEach(function(r){ var a = r.m / 60; if (a < H0 || a >= H1 || r.avg == null || r.avg < 30) return; var m = Math.round(r.avg / 60), c = m > 12 ? '#ff6961' : m > 9 ? '#FF9F0A' : '#30D158';
+      s += '<rect x="' + (X(a) + 1.5) + '" y="' + (base + 8) + '" width="' + (slotW - 3) + '" height="12" rx="4" fill="' + c + '" opacity=".85"><title>' + m + ' min</title></rect>'; });
+    if (nowH >= H0 && nowH <= H1) s += '<line x1="' + X(nowH) + '" x2="' + X(nowH) + '" y1="6" y2="' + (base + 22) + '" stroke="#ff453a" stroke-width="2.5"/>';
+    box.innerHTML = s + '<text x="' + L + '" y="' + (base + 36) + '" font-size="12.5" fill="#8e8e93">Strip under the bars: ready time every 30 min (green on time, orange slow, red late)</text></svg>';
+  }
+  window.addEventListener('resize', function(){ if (d && !wrap.classList.contains('hidden')) drawRail(); });
+  $('ksClose').addEventListener('click', close);
+  $('ksLock').addEventListener('click', function(){ sb.rpc('kds_today_stats_lock').then(function(){}, function(){}); pinScreen('Locked.'); });
+  window.kdsStats = { open: open, close: close };
+  ['statsBtn', 'menuStatsBtn'].forEach(function(id){ var b = $(id); if (b) b.addEventListener('click', function(){ open(); }); });
 })();
 </script>
 </body>
