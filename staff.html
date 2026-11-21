@@ -2,7 +2,15 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<link rel="manifest" href="staff-manifest.json">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="RI Staff">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<meta name="theme-color" content="#fafafa" media="(prefers-color-scheme: light)">
+<meta name="theme-color" content="#0a0a0b" media="(prefers-color-scheme: dark)">
 <meta name="robots" content="noindex, nofollow">
 <title>Staff Portal | Roll-In Shawarma</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -1731,6 +1739,19 @@ tbody tr:hover td{ background:color-mix(in srgb, var(--ds-subtle) 60%, transpare
 :root[data-theme="dark"] .mn-launch.live{ background:var(--ds-green-bg); border-color:var(--ds-green-line); }
 :root[data-theme="dark"] .mn-launch.soon{ background:var(--ds-amber-bg); border-color:var(--ds-amber-line); }
 
+/* ---------- Sidebar sections fold (click a heading) ---------- */
+.nav-section-label.ds-fold{ display:flex; align-items:center; gap:6px; cursor:pointer; user-select:none; border-radius:6px; margin:0 -2px; padding-left:12px; padding-right:8px; }
+.nav-section-label.ds-fold.hidden{ display:none; }
+.nav-section-label.ds-fold:hover{ color:var(--ds-text); }
+.nav-section-label.ds-fold:focus-visible{ box-shadow:var(--ds-ring); }
+.nav-section-label .ds-chev{ margin-left:auto; width:14px; height:14px; opacity:0; transition:transform .15s, opacity .15s; }
+.nav-section-label.ds-fold:hover .ds-chev, .nav-section-label.folded .ds-chev, .nav-section-label.ds-fold:focus-visible .ds-chev{ opacity:1; }
+.nav-section-label.folded .ds-chev{ transform:rotate(-90deg); }
+.nav-section-label .ds-dot{ width:6px; height:6px; border-radius:50%; background:var(--ds-red); display:none; }
+.nav-section-label.folded.has-alert .ds-dot{ display:inline-block; }
+.nav-link.nav-folded{ display:none !important; }
+@media (prefers-reduced-motion: reduce){ .nav-section-label .ds-chev{ transition:none; } }
+
 /* ---------- Toasts ---------- */
 .ds-toasts{ position:fixed; z-index:5000; right:20px; bottom:20px; display:flex; flex-direction:column; gap:8px; align-items:flex-end; pointer-events:none; max-width:calc(100vw - 32px); }
 .ds-toast{ pointer-events:auto; display:flex; align-items:flex-start; gap:10px; min-width:260px; max-width:420px; padding:12px 12px 12px 14px;
@@ -1757,6 +1778,90 @@ tbody tr:hover td{ background:color-mix(in srgb, var(--ds-subtle) 60%, transpare
 .ds-skel.sm{ min-height:22px; } .ds-skel.sm::before{ top:calc(50% - 6px); width:min(160px, 70%); } .ds-skel.sm::after{ display:none; }
 @keyframes dsShimmer{ 0%{ background-position:100% 0; } 100%{ background-position:-50% 0; } }
 @media (prefers-reduced-motion: reduce){ .ds-skel::before, .ds-skel::after{ animation:none; } }
+
+/* ==========================================================================
+   Phone app mode (below 900px): bottom tab bar, "More" bottom sheet, compact
+   app header, safe areas, pull to refresh, install-to-home-screen card.
+   ========================================================================== */
+.ds-tabbar, .ds-ptr, .ds-install{ display:none; }
+@media (max-width:899px){
+  :root{ --ds-head-h:56px; --ds-bar-h:62px; }
+  html{ -webkit-tap-highlight-color:transparent; }
+  body{ overscroll-behavior-y:contain; }
+  #app{ padding:0 16px calc(var(--ds-bar-h) + env(safe-area-inset-bottom) + 28px); }
+  /* header */
+  .topheader{ margin:0 -16px; padding:calc(env(safe-area-inset-top) + 8px) 16px 8px; min-height:var(--ds-head-h); border-bottom:1px solid transparent; transition:border-color .2s, background .2s; }
+  body.ds-scrolled .topheader{ border-bottom-color:var(--ds-border); }
+  .topheader .top-kicker{ display:none; }
+  .topheader .top-title{ font-family:var(--ds-font); font-size:17px; font-weight:650; letter-spacing:-.02em; color:var(--ds-text); }
+  .menu-btn{ width:36px; height:36px; border-radius:50%; padding:0; overflow:hidden; border:1px solid var(--ds-border); box-shadow:none; background:var(--ds-subtle); min-height:0; }
+  .menu-btn img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .menu-btn.has-avatar svg{ display:none; }
+  .ev-subtabs{ top:calc(var(--ds-head-h) + env(safe-area-inset-top)); margin-left:-16px; margin-right:-16px; padding:0 10px; overflow-x:auto; scrollbar-width:none; }
+  .ev-subtabs button{ white-space:nowrap; flex:none; }
+  /* tap targets, no iOS zoom on focus */
+  input[type=email], input[type=text], input[type=number], input[type=tel], input[type=search], input[type=date], input[type=time], input[type=url], input[type=datetime-local], input[type=password], textarea, select{ font-size:16px; min-height:44px; }
+  button{ min-height:44px; }
+  .btn-small{ min-height:38px; }
+  .card{ padding:18px 16px; border-radius:14px; }
+  .page-title, .page-head h2, .today-title{ font-size:26px !important; }
+  button:active:not(:disabled), .quick:active, .todo:active{ transform:scale(.98); transition:transform .06s; }
+  .sc-range, .ki-chips{ display:flex; flex-wrap:nowrap; overflow-x:auto; max-width:100%; scrollbar-width:none; }
+  .sc-range::-webkit-scrollbar, .ki-chips::-webkit-scrollbar{ display:none; }
+  .sc-range button, .ki-chips button{ flex:none; white-space:nowrap; }
+  /* bottom tab bar */
+  .ds-tabbar{ display:grid; grid-auto-flow:column; grid-auto-columns:1fr; position:fixed; left:0; right:0; bottom:0; z-index:250;
+    padding:6px 6px calc(env(safe-area-inset-bottom) + 6px); min-height:var(--ds-bar-h);
+    background:color-mix(in srgb, var(--ds-surface) 88%, transparent); -webkit-backdrop-filter:saturate(1.6) blur(16px); backdrop-filter:saturate(1.6) blur(16px);
+    border-top:1px solid var(--ds-border); }
+  .ds-tabbar button{ position:relative; display:flex; flex-direction:column; align-items:center; justify-content:center; gap:3px; min-height:50px; padding:4px 2px; border:0; border-radius:12px;
+    background:transparent; color:var(--ds-text-3); font-size:10.5px; font-weight:550; letter-spacing:0; box-shadow:none; }
+  .ds-tabbar button svg, .ds-tabbar button .icon{ width:23px; height:23px; margin:0; }
+  .ds-tabbar button.on{ color:var(--ds-text); }
+  .ds-tabbar button.on .ds-tbi{ background:var(--ds-accent-soft); color:var(--ds-accent-ink); }
+  .ds-tabbar .ds-tbi{ display:grid; place-items:center; width:52px; height:30px; border-radius:15px; transition:background .18s, color .18s; }
+  .ds-tabbar button:active:not(:disabled){ transform:none; }
+  .ds-tabbar button:active .ds-tbi{ transform:scale(.9); }
+  .ds-tabbar .ds-tbb{ position:absolute; top:2px; left:calc(50% + 6px); min-width:17px; height:17px; padding:0 5px; border-radius:9px; background:var(--ds-red); color:#fff; font-size:10.5px; font-weight:700; line-height:17px; text-align:center; box-shadow:0 0 0 2px var(--ds-surface); font-variant-numeric:tabular-nums; }
+  .ds-tabbar .ds-tbb.dot{ min-width:9px; width:9px; height:9px; padding:0; top:6px; left:calc(50% + 10px); }
+  /* "More" = bottom sheet */
+  .nav-drawer{ top:auto; left:0; right:0; bottom:0; width:auto; max-width:none; max-height:calc(100dvh - 40px - env(safe-area-inset-top));
+    border:0; border-top:1px solid var(--ds-border); border-radius:22px 22px 0 0; padding:8px 14px calc(env(safe-area-inset-bottom) + 16px);
+    transform:translateY(102%); transition:transform .32s cubic-bezier(.2,.8,.2,1); box-shadow:0 -16px 48px -12px rgba(0,0,0,.25); overscroll-behavior:contain; }
+  .nav-drawer.open{ transform:translateY(0); }
+  .nav-drawer.dragging{ transition:none; }
+  .nav-drawer::before{ content:""; display:block; flex:none; width:40px; height:5px; border-radius:3px; background:var(--ds-border-strong); margin:2px auto 6px; }
+  .nav-close-row{ position:absolute; top:10px; right:10px; }
+  .nav-close{ width:32px; height:32px; min-height:0; border-radius:50%; background:var(--ds-subtle); color:var(--ds-text-2); display:grid; place-items:center; }
+  .nav-close .icon{ width:16px; height:16px; margin:0; }
+  .nav-drawer .who-block{ padding:4px 44px 14px 6px; }
+  .nav-drawer .tabs{ display:grid; grid-template-columns:1fr 1fr; gap:2px 6px; align-content:start; }
+  .nav-drawer .tabs .nav-section-label{ grid-column:1 / -1; }
+  .nav-drawer .nav-link{ min-height:44px; padding:9px 10px; border-radius:12px; font-size:14px; }
+  .nav-drawer .nav-link .icon{ width:18px; height:18px; }
+  .nav-drawer .nav-link.active::before{ display:none; }
+  .nav-drawer .nav-link.active{ background:var(--ds-accent-soft); box-shadow:inset 0 0 0 1px var(--ds-accent-line); }
+  .nav-drawer .spacer{ flex:none; height:6px; }
+  .nav-backdrop{ background:rgba(0,0,0,.4); }
+  /* toasts sit above the tab bar */
+  .ds-toasts{ bottom:calc(var(--ds-bar-h) + env(safe-area-inset-bottom) + 12px); }
+  /* pull to refresh */
+  .ds-ptr{ display:grid; place-items:center; position:fixed; left:50%; top:calc(env(safe-area-inset-top) + 10px); z-index:260; width:36px; height:36px; margin-left:-18px; border-radius:50%;
+    background:var(--ds-surface); border:1px solid var(--ds-border); box-shadow:var(--ds-shadow-lg); color:var(--ds-text-2); opacity:0; transform:translateY(-60px); pointer-events:none; }
+  .ds-ptr svg{ width:18px; height:18px; }
+  .ds-ptr.spin svg{ animation:dsSpin .7s linear infinite; }
+  @keyframes dsSpin{ to{ transform:rotate(360deg); } }
+  /* install card */
+  .ds-install{ display:flex; align-items:center; gap:12px; margin:12px 0 4px; padding:12px 12px 12px 14px; border:1px solid var(--ds-border); border-radius:14px; background:var(--ds-surface); box-shadow:var(--ds-shadow-sm); }
+  .ds-install.hidden{ display:none; }
+  .ds-install img{ width:40px; height:40px; border-radius:10px; flex:none; }
+  .ds-install .t{ flex:1; min-width:0; font-size:13px; color:var(--ds-text-3); line-height:1.4; }
+  .ds-install .t b{ display:block; color:var(--ds-text); font-size:14px; }
+  .ds-install .x{ min-height:32px; width:32px; padding:0; background:transparent; color:var(--ds-text-3); font-size:18px; }
+}
+/* Installed app (home screen): a little more room at the top */
+@media (display-mode: standalone) and (max-width:899px){ .topheader{ padding-top:calc(env(safe-area-inset-top) + 10px); } }
+@media (prefers-reduced-motion: reduce){ .nav-drawer{ transition:none; } }
 </style>
 </head>
 <body>
@@ -1827,34 +1932,38 @@ tbody tr:hover td{ background:color-mix(in srgb, var(--ds-subtle) 60%, transpare
       <button class="nav-link" data-tab="supplies" id="tabSuppliesBtn"><svg class="icon"><use href="#ic-gift"/></svg>Supplies<span class="nav-badge hidden" id="navSupBadge"></span></button>
       <button class="nav-link hidden" data-tab="cashorders" id="tabCashOrdersBtn"><svg class="icon"><use href="#ic-dollar"/></svg>Cash log</button>
 
-      <div class="nav-section-label">Website</div>
+      <div class="nav-section-label">Menu &amp; store</div>
+      <button class="nav-link hidden" data-tab="menustudio" id="tabMenuBtn"><svg class="icon"><use href="#ic-tag"/></svg>Menu<span class="nav-badge nav-badge-soft hidden" id="navMenuBadge"></span></button>
       <button class="nav-link hidden" data-tab="storehours" id="tabStoreHoursBtn"><svg class="icon"><use href="#ic-clock"/></svg>Store hours<span class="nav-badge hidden" id="navHoursBadge"></span></button>
       <button class="nav-link hidden" data-tab="banner" id="tabBannerBtn"><svg class="icon"><use href="#ic-megaphone"/></svg>Banner</button>
-      <button class="nav-link hidden" data-tab="hiring" id="tabHiringBtn"><svg class="icon"><use href="#ic-users"/></svg>Hiring<span class="nav-badge hidden" id="navHireBadge"></span></button>
-      <button class="nav-link hidden" data-tab="promotions" id="tabPromotionsBtn"><svg class="icon"><use href="#ic-tag"/></svg>Promo codes</button>
+      <button class="nav-link hidden" data-tab="features" id="tabFeaturesBtn"><svg class="icon"><use href="#ic-gift"/></svg>Secret menu<span class="nav-badge nav-badge-soft hidden" id="navFeatSecret">Off</span></button>
+
+      <div class="nav-section-label">Events &amp; catering</div>
       <button class="nav-link hidden" data-tab="eventhub" id="tabEventHubBtn"><svg class="icon"><use href="#ic-calendar"/></svg>Events<span class="nav-badge nav-badge-soft hidden" id="navHubBadge"></span></button>
       <button class="nav-link hidden ev-sub" data-tab="onloc" id="tabOnlocBtn"><svg class="icon"><use href="#ic-calendar"/></svg>On Location</button>
       <button class="nav-link hidden ev-sub" data-tab="slots" id="tabSlotsBtn"><svg class="icon"><use href="#ic-clock"/></svg>Pickup slots</button>
       <button class="nav-link hidden ev-sub" data-tab="events" id="tabEventsBtn"><svg class="icon"><use href="#ic-calendar"/></svg>Events</button>
-      <button class="nav-link hidden" data-tab="catering" id="tabCateringBtn"><svg class="icon"><use href="#ic-gift"/></svg>Catering<span class="nav-badge hidden" id="navCaterBadge"></span></button>
-      <button class="nav-link hidden" data-tab="invoices" id="tabInvoicesBtn"><svg class="icon"><use href="#ic-file"/></svg>Invoices<span class="nav-badge hidden" id="navInvBadge"></span></button>
-      <button class="nav-link hidden" data-tab="menustudio" id="tabMenuBtn"><svg class="icon"><use href="#ic-tag"/></svg>Menu<span class="nav-badge nav-badge-soft hidden" id="navMenuBadge"></span></button>
       <button class="nav-link hidden ev-sub" data-tab="corpevents" id="tabCorpBtn"><svg class="icon"><use href="#ic-building"/></svg>Corporate events<span class="nav-badge nav-badge-soft hidden" id="navCorpBadge"></span></button>
       <button class="nav-link hidden ev-sub" data-tab="nextdoor" id="tabDoorBtn"><svg class="icon"><use href="#ic-building"/></svg>Next Door delivery<span class="nav-badge nav-badge-soft hidden" id="navDoorBadge"></span></button>
       <button class="nav-link hidden ev-sub" data-tab="community" id="tabCommBtn"><svg class="icon"><use href="#ic-heart"/></svg>Community events<span class="nav-badge nav-badge-soft hidden" id="navCommBadge"></span></button>
+      <button class="nav-link hidden" data-tab="catering" id="tabCateringBtn"><svg class="icon"><use href="#ic-gift"/></svg>Catering<span class="nav-badge hidden" id="navCaterBadge"></span></button>
+      <button class="nav-link hidden" data-tab="invoices" id="tabInvoicesBtn"><svg class="icon"><use href="#ic-file"/></svg>Invoices<span class="nav-badge hidden" id="navInvBadge"></span></button>
+
+      <div class="nav-section-label">Marketing</div>
+      <button class="nav-link hidden" data-tab="promotions" id="tabPromotionsBtn"><svg class="icon"><use href="#ic-tag"/></svg>Promo codes</button>
       <button class="nav-link hidden" data-tab="offers" id="tabOffersBtn"><svg class="icon"><use href="#ic-mail"/></svg>Member offers</button>
+      <button class="nav-link hidden" data-tab="ads" id="tabAdsBtn"><svg class="icon"><use href="#ic-target"/></svg>Ads<span class="nav-badge hidden" id="navAdsBadge"></span></button>
+      <button class="nav-link hidden" data-tab="customerInfo" id="tabCustomerInfoBtn"><svg class="icon"><use href="#ic-heart"/></svg>Customers</button>
+
+      <div class="nav-section-label">Reports</div>
       <button class="nav-link hidden" data-tab="salesreport" id="tabSalesBtn"><svg class="icon"><use href="#ic-chart"/></svg>Sales report</button>
       <button class="nav-link hidden" data-tab="stops" id="tabStopsBtn"><svg class="icon"><use href="#ic-trophy"/></svg>Stop scorecard<span class="nav-badge nav-badge-soft">Soon</span></button>
-      <button class="nav-link hidden" data-tab="ads" id="tabAdsBtn"><svg class="icon"><use href="#ic-target"/></svg>Ads<span class="nav-badge hidden" id="navAdsBadge"></span></button>
-
-      <div class="nav-section-label">New features</div>
-      <button class="nav-link hidden" data-tab="features" id="tabFeaturesBtn"><svg class="icon"><use href="#ic-gift"/></svg>Secret menu<span class="nav-badge nav-badge-soft hidden" id="navFeatSecret">Off</span></button>
 
       <div class="nav-section-label">Team</div>
       <button class="nav-link hidden" data-tab="approve" id="tabApproveBtn"><svg class="icon"><use href="#ic-check"/></svg>Approvals<span class="nav-badge hidden" id="navApproveBadge"></span></button>
-      <button class="nav-link hidden" data-tab="payroll" id="tabPayrollBtn"><svg class="icon"><use href="#ic-download"/></svg>Payroll</button>
       <button class="nav-link hidden" data-tab="admin" id="tabAdminBtn"><svg class="icon"><use href="#ic-users"/></svg>Staff</button>
-      <button class="nav-link hidden" data-tab="customerInfo" id="tabCustomerInfoBtn"><svg class="icon"><use href="#ic-heart"/></svg>Customers</button>
+      <button class="nav-link hidden" data-tab="payroll" id="tabPayrollBtn"><svg class="icon"><use href="#ic-download"/></svg>Payroll</button>
+      <button class="nav-link hidden" data-tab="hiring" id="tabHiringBtn"><svg class="icon"><use href="#ic-users"/></svg>Hiring<span class="nav-badge hidden" id="navHireBadge"></span></button>
     </div>
     <div class="spacer"></div>
     <button class="nav-link" id="signOutBtn"><svg class="icon"><use href="#ic-logout"/></svg>Sign out</button>
@@ -11310,6 +11419,167 @@ tbody tr:hover td{ background:color-mix(in srgb, var(--ds-subtle) 60%, transpare
   });
 </script>
 
+<script id="ds-nav">
+/* Sidebar: click a section heading to fold it. Remembered per device. The section
+   holding the open page always unfolds; a folded section shows a red dot when one
+   of its items has an alert badge. */
+(function(){
+  var KEY = 'navFolded';
+  function load(){ try { return JSON.parse(localStorage.getItem(KEY) || '[]'); } catch (e) { return []; } }
+  function save(a){ try { localStorage.setItem(KEY, JSON.stringify(a)); } catch (e) {} }
+  function items(label){ var out = [], el = label.nextElementSibling; while (el && !el.classList.contains('nav-section-label')) { if (el.classList.contains('nav-link')) out.push(el); el = el.nextElementSibling; } return out; }
+  function name(label){ return label.getAttribute('data-sec'); }
+  function paint(){
+    var folded = load(), tabs = document.getElementById('tabs'); if (!tabs) return;
+    tabs.querySelectorAll('.nav-section-label.ds-fold').forEach(function(l){
+      var its = items(l), isActive = its.some(function(b){ return b.classList.contains('active'); });
+      var f = folded.indexOf(name(l)) >= 0 && !isActive;
+      l.classList.toggle('folded', f); l.setAttribute('aria-expanded', f ? 'false' : 'true');
+      its.forEach(function(b){ b.classList.toggle('nav-folded', f); });
+      l.classList.toggle('has-alert', its.some(function(b){ var bd = b.querySelector('.nav-badge:not(.nav-badge-soft)'); return bd && !bd.classList.contains('hidden') && !b.classList.contains('hidden') && (bd.textContent || '').trim(); }));
+    });
+  }
+  function boot(){
+    var tabs = document.getElementById('tabs'); if (!tabs) return;
+    var chev = '<svg class="ds-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m6 9 6 6 6-6"/></svg>';
+    tabs.querySelectorAll('.nav-section-label').forEach(function(l){
+      var n = l.textContent.trim(); l.setAttribute('data-sec', n);
+      l.classList.add('ds-fold'); l.setAttribute('role', 'button'); l.setAttribute('tabindex', '0');
+      l.innerHTML = '<span>' + l.innerHTML + '</span><span class="ds-dot" aria-hidden="true"></span>' + chev;
+    });
+    function toggle(l){
+      var a = load(), n = name(l), i = a.indexOf(n);
+      if (l.classList.contains('folded')) { if (i >= 0) a.splice(i, 1); } else if (i < 0) a.push(n);
+      save(a); paint();
+    }
+    tabs.addEventListener('click', function(e){ var l = e.target.closest('.nav-section-label.ds-fold'); if (l) toggle(l); });
+    tabs.addEventListener('keydown', function(e){ var l = e.target.closest('.nav-section-label.ds-fold'); if (l && (e.key === 'Enter' || e.key === ' ')) { e.preventDefault(); toggle(l); } });
+    var busy = false;
+    try { new MutationObserver(function(){ if (busy) return; busy = true; requestAnimationFrame(function(){ paint(); busy = false; }); })
+      .observe(tabs, { subtree: true, attributes: true, attributeFilter: ['class'], childList: true, characterData: true }); } catch (e) {}
+    paint();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+})();
+</script>
+<script id="ds-app">
+/* Phone app mode: bottom tab bar (first 4 pages this person can use + More),
+   More opens the full menu as a bottom sheet (swipe down to close), avatar in the
+   header, header line on scroll, pull down to refresh the page, install card. */
+(function(){
+  var mq = window.matchMedia('(max-width: 899px)');
+  var PRI = ['home', 'kitchen', 'eventhub', 'clock', 'soldout', 'absence', 'dashboard', 'documents'];
+  var SHORT = { home: 'Today', kitchen: 'Kitchen', eventhub: 'Events', clock: 'Hours', soldout: 'Sold out', absence: 'Time off', dashboard: 'Stats', documents: 'Docs' };
+  var EVSUB = { onloc: 1, slots: 1, events: 1, corpevents: 1, nextdoor: 1, community: 1 };
+  var MORE_IC = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="3.5" y="3.5" width="7" height="7" rx="2"/><rect x="13.5" y="3.5" width="7" height="7" rx="2"/><rect x="3.5" y="13.5" width="7" height="7" rx="2"/><rect x="13.5" y="13.5" width="7" height="7" rx="2"/></svg>';
+  var bar, picked = '', drawer, backdrop;
+  function link(t){ return document.querySelector('#tabs .nav-link[data-tab="' + t + '"]'); }
+  function usable(b){ return b && !b.classList.contains('hidden'); }
+  function alertOf(b){ var bd = b && b.querySelector('.nav-badge:not(.nav-badge-soft)'); var t = bd && !bd.classList.contains('hidden') ? (bd.textContent || '').trim() : ''; return t && t !== '0' ? t : ''; }
+  function iconOf(b){ var u = b && b.querySelector('svg use'); return u ? '<svg class="icon" aria-hidden="true"><use href="' + (u.getAttribute('href') || u.getAttribute('xlink:href')) + '"/></svg>' : ''; }
+  function openSheet(){ var b = document.getElementById('menuOpenBtn'); if (b) b.click(); }
+  function closeSheet(){ var b = document.getElementById('menuCloseBtn'); if (b) b.click(); }
+  function build(){
+    var tabs = PRI.filter(function(t){ return usable(link(t)); }).slice(0, 4), key = tabs.join(',');
+    if (key !== picked) {
+      picked = key;
+      bar.innerHTML = tabs.map(function(t){
+        return '<button type="button" data-go="' + t + '" aria-label="' + SHORT[t] + '"><span class="ds-tbi">' + iconOf(link(t)) + '</span><span>' + SHORT[t] + '</span></button>';
+      }).join('') + '<button type="button" data-go="__more" aria-label="More"><span class="ds-tbi">' + MORE_IC + '</span><span>More</span></button>';
+    }
+    paint();
+  }
+  function paint(){
+    if (!bar) return;
+    var act = document.querySelector('#tabs .nav-link.active'), at = act ? act.getAttribute('data-tab') : '';
+    if (EVSUB[at]) at = 'eventhub';
+    var inBar = picked.split(','), sheetOpen = drawer && drawer.classList.contains('open');
+    bar.querySelectorAll('button').forEach(function(b){
+      var g = b.getAttribute('data-go'), on = sheetOpen ? g === '__more' : (g === at || (g === '__more' && inBar.indexOf(at) < 0));
+      b.classList.toggle('on', on); if (on) b.setAttribute('aria-current', 'page'); else b.removeAttribute('aria-current');
+      var a = '';
+      if (g === '__more') {
+        a = Array.prototype.some.call(document.querySelectorAll('#tabs .nav-link[data-tab]'), function(l){ return inBar.indexOf(l.getAttribute('data-tab')) < 0 && usable(l) && alertOf(l); }) ? 'dot' : '';
+      } else a = alertOf(link(g));
+      var bb = b.querySelector('.ds-tbb');
+      if (!a) { if (bb) bb.remove(); }
+      else { if (!bb) { bb = document.createElement('span'); bb.className = 'ds-tbb'; b.appendChild(bb); } bb.className = 'ds-tbb' + (a === 'dot' ? ' dot' : ''); bb.textContent = a === 'dot' ? '' : a; }
+    });
+  }
+  function avatar(){
+    var btn = document.getElementById('menuOpenBtn'), logo = document.querySelector('.who-block .who-logo');
+    if (!btn || !logo || btn.querySelector('img')) return;
+    var im = document.createElement('img'); im.src = logo.src; im.alt = ''; btn.appendChild(im); btn.classList.add('has-avatar'); btn.setAttribute('aria-label', 'Menu and account');
+  }
+  // Swipe the sheet down to close it.
+  function swipe(){
+    var y0 = null, dy = 0;
+    drawer.addEventListener('touchstart', function(e){ if (!mq.matches || !drawer.classList.contains('open') || drawer.scrollTop > 0) { y0 = null; return; } y0 = e.touches[0].clientY; dy = 0; }, { passive: true });
+    drawer.addEventListener('touchmove', function(e){ if (y0 == null) return; dy = Math.max(0, e.touches[0].clientY - y0); if (dy > 4) { drawer.classList.add('dragging'); drawer.style.transform = 'translateY(' + dy + 'px)'; } }, { passive: true });
+    drawer.addEventListener('touchend', function(){ if (y0 == null) return; drawer.classList.remove('dragging'); drawer.style.transform = ''; if (dy > 90) closeSheet(); y0 = null; });
+  }
+  // Pull down at the top of a page to reload it (useful in the home-screen app, which has no reload button).
+  function pull(){
+    var ptr = document.createElement('div'); ptr.className = 'ds-ptr'; ptr.setAttribute('aria-hidden', 'true');
+    ptr.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12a9 9 0 1 1-3-6.7L21 8"/><path d="M21 3v5h-5"/></svg>';
+    document.body.appendChild(ptr);
+    var y0 = null, dy = 0, busy = false;
+    function blocked(t){ return drawer.classList.contains('open') || document.querySelector('.eo-wrap:not(.hidden), .mn-scrim:not(.hidden)') || (t && t.closest && t.closest('input, textarea, select, .mn-modal, .mn-drawer, .eo-card, .ki-chart, canvas')); }
+    document.addEventListener('touchstart', function(e){ y0 = null; if (!mq.matches || busy || window.scrollY > 0 || blocked(e.target)) return; y0 = e.touches[0].clientY; dy = 0; }, { passive: true });
+    document.addEventListener('touchmove', function(e){
+      if (y0 == null) return; dy = e.touches[0].clientY - y0; if (dy <= 0 || window.scrollY > 0) { ptr.style.opacity = 0; return; }
+      var d = Math.min(dy, 120); ptr.style.opacity = Math.min(1, d / 70); ptr.style.transform = 'translateY(' + (d * .6 - 20) + 'px) rotate(' + (d * 3) + 'deg)';
+    }, { passive: true });
+    document.addEventListener('touchend', function(){
+      if (y0 == null) return; y0 = null;
+      if (dy > 80 && window.scrollY <= 0) {
+        busy = true; ptr.classList.add('spin'); ptr.style.transform = 'translateY(30px)';
+        var act = document.querySelector('#tabs .nav-link.active'); if (act) act.click();
+        if (window.loadTodayGlance) try { window.loadTodayGlance(); } catch (e) {}
+        setTimeout(function(){ ptr.classList.remove('spin'); ptr.style.opacity = 0; ptr.style.transform = ''; busy = false; }, 900);
+      } else { ptr.style.opacity = 0; ptr.style.transform = ''; }
+    });
+  }
+  // "Add to home screen" card on Today (phones, not already installed, until dismissed).
+  var deferred = null;
+  window.addEventListener('beforeinstallprompt', function(e){ e.preventDefault(); deferred = e; installCard(); });
+  function installCard(){
+    var standalone = (window.matchMedia && matchMedia('(display-mode: standalone)').matches) || navigator.standalone;
+    var dismissed = false; try { dismissed = localStorage.getItem('dsInstallHide') === '1'; } catch (e) {}
+    var home = document.getElementById('panelHome'); if (!home || standalone || dismissed || !mq.matches) return;
+    var ios = /iphone|ipad|ipod/i.test(navigator.userAgent);
+    if (!deferred && !ios) return;
+    var c = document.getElementById('dsInstall');
+    if (!c) { c = document.createElement('div'); c.id = 'dsInstall'; c.className = 'ds-install'; home.insertBefore(c, home.firstChild); }
+    c.innerHTML = '<img src="apple-touch-icon.png" alt=""><div class="t"><b>Get the staff app</b>' +
+      (deferred ? 'Opens full screen from your home screen, like an app.' : 'Tap <b style="display:inline">Share</b>, then <b style="display:inline">Add to Home Screen</b>.') + '</div>' +
+      (deferred ? '<button type="button" class="btn-primary btn-small" id="dsInstallGo">Install</button>' : '') + '<button type="button" class="x" id="dsInstallX" aria-label="Hide">×</button>';
+    var go = document.getElementById('dsInstallGo');
+    if (go) go.onclick = function(){ deferred.prompt(); deferred.userChoice.then(function(){ deferred = null; c.classList.add('hidden'); }); };
+    document.getElementById('dsInstallX').onclick = function(){ try { localStorage.setItem('dsInstallHide', '1'); } catch (e) {} c.classList.add('hidden'); };
+  }
+  function boot(){
+    var tabs = document.getElementById('tabs'); drawer = document.getElementById('navDrawer'); backdrop = document.getElementById('navBackdrop');
+    if (!tabs || !drawer) return;
+    bar = document.createElement('nav'); bar.className = 'ds-tabbar'; bar.id = 'dsTabbar'; bar.setAttribute('aria-label', 'Main');
+    document.body.appendChild(bar);
+    bar.addEventListener('click', function(e){
+      var b = e.target.closest('button[data-go]'); if (!b) return; var g = b.getAttribute('data-go');
+      if (g === '__more') { if (drawer.classList.contains('open')) closeSheet(); else openSheet(); paint(); return; }
+      var l = link(g); if (!l) return;
+      if (l.classList.contains('active')) { window.scrollTo({ top: 0, behavior: 'smooth' }); closeSheet(); return; }
+      l.click();
+    });
+    var q = false;
+    try { new MutationObserver(function(){ if (q) return; q = true; requestAnimationFrame(function(){ q = false; build(); }); })
+      .observe(tabs, { subtree: true, attributes: true, attributeFilter: ['class'], childList: true, characterData: true }); } catch (e) {}
+    try { new MutationObserver(function(){ paint(); }).observe(drawer, { attributes: true, attributeFilter: ['class'] }); } catch (e) {}
+    window.addEventListener('scroll', function(){ document.body.classList.toggle('ds-scrolled', window.scrollY > 4); }, { passive: true });
+    avatar(); swipe(); pull(); build(); installCard();
+  }
+  if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot); else boot();
+})();
+</script>
 <script id="ds-js">
 /* Design System v2 runtime: theme, toasts (alert() → toast), "✓" messages → toast,
    "Loading…" → skeleton. Public API: window.ds.toast(text, 'ok'|'error'|'info'[, ms]),
@@ -11319,7 +11589,7 @@ tbody tr:hover td{ background:color-mix(in srgb, var(--ds-subtle) 60%, transpare
   // ---------- Theme ----------
   var mq = window.matchMedia ? matchMedia('(prefers-color-scheme: dark)') : null;
   function pref(){ try { return localStorage.getItem('dsTheme') || 'light'; } catch (e) { return 'light'; } }
-  function apply(p){ var t = p === 'system' ? (mq && mq.matches ? 'dark' : 'light') : p; root.setAttribute('data-theme', t === 'dark' ? 'dark' : 'light'); paintSwitch(); }
+  function apply(p){ var t = p === 'system' ? (mq && mq.matches ? 'dark' : 'light') : p; root.setAttribute('data-theme', t === 'dark' ? 'dark' : 'light'); document.querySelectorAll('meta[name="theme-color"]').forEach(function(m){ m.setAttribute('content', t === 'dark' ? '#0a0a0b' : '#fafafa'); }); paintSwitch(); }
   function setTheme(p){ try { localStorage.setItem('dsTheme', p); } catch (e) {} apply(p); }
   if (mq && mq.addEventListener) mq.addEventListener('change', function(){ if (pref() === 'system') apply('system'); });
   var IC = {
