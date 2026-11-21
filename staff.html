@@ -2269,6 +2269,33 @@ body.p-shell #mainContent:has(#panelHome:not(.hidden)){ max-width:1280px; }
 .tb-quick #homeQuick{ grid-template-columns:repeat(auto-fill, minmax(190px, 1fr)); gap:8px; margin-top:8px; }
 .tb-quick .quick{ box-shadow:none !important; background:var(--ds-subtle) !important; }
 .tb-quick .quick:hover{ background:var(--ds-subtle-2) !important; }
+/* online orders: header control, popover, banner */
+.tb-ordbtn{ cursor:pointer; border:0; font-family:var(--ds-font); }
+.tb-ordbtn i{ background:var(--tb-herb); box-shadow:0 0 0 4px rgba(47,138,91,.18); }
+.tb-ordbtn.off i{ background:var(--tb-chili); box-shadow:0 0 0 4px rgba(200,54,31,.2); }
+.tb-ordbtn.off{ color:#a12a17; }
+:root[data-theme="dark"] .tb-ordbtn.off{ color:#ff9a87; }
+.tb-ordbtn svg{ width:14px; height:14px; margin-left:-2px; opacity:.7; }
+.tb-ordbtn:focus-visible{ outline:2px solid var(--ds-focus); outline-offset:2px; }
+.tb-pop{ position:absolute; z-index:650; width:min(460px, calc(100vw - 24px)); max-height:min(72vh, 640px); overflow:auto; background:var(--ds-surface); border-radius:16px; box-shadow:var(--ds-pop-shadow); padding:6px; }
+.tb-pop.hidden{ display:none; }
+.tb-pop .ord-card{ display:block; box-shadow:none !important; border:0 !important; background:none !important; margin:0 !important; padding:12px 14px !important; }
+.tb-pop .ord-card.hidden{ display:block; }
+.tb-pop .ord-card.paused{ background:none !important; }
+.tb-pop .ord-actions{ display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+.tb-pop .ord-actions select{ flex:1; min-width:180px; }
+.tb-pop-x{ position:absolute; top:10px; right:10px; width:30px; height:30px; min-height:0 !important; padding:0 !important; border-radius:8px; background:transparent !important; box-shadow:none !important; color:var(--ds-text-3) !important; font-size:18px; }
+.tb-pop-x:hover{ background:var(--ds-subtle) !important; color:var(--ds-text) !important; }
+.tb-alert{ display:flex; align-items:center; gap:12px; flex-wrap:wrap; margin:0 0 14px; padding:12px 16px; border-radius:14px; background:#fde4df; color:#7d1d10; font-size:14px; font-weight:500; }
+.tb-alert.warn{ background:#fff1d1; color:#6b4500; }
+:root[data-theme="dark"] .tb-alert{ background:rgba(229,53,77,.16); color:#ffb4a8; } :root[data-theme="dark"] .tb-alert.warn{ background:rgba(251,191,36,.13); color:#fbd27a; }
+.tb-alert b{ font-weight:700; }
+.tb-alert span{ flex:1; min-width:200px; }
+.tb-alert button{ width:auto; }
+.p-ordchip{ display:inline-flex; align-items:center; gap:8px; height:32px; min-height:0 !important; padding:0 12px !important; border-radius:999px; background:#8e0b21 !important; color:#fff !important; font-size:12.5px !important; font-weight:650 !important; box-shadow:none !important; }
+.p-ordchip i{ width:7px; height:7px; border-radius:50%; background:#ffb4a8; }
+@media (max-width:899px){ .p-ordchip{ display:none !important; } }
+@media (max-width:700px){ .tb-pop{ position:fixed; left:12px !important; right:12px; top:auto !important; bottom:calc(var(--ds-bar-h, 62px) + env(safe-area-inset-bottom) + 10px); width:auto; max-height:70vh; } }
 /* goal dialog */
 .tb-dlg{ position:fixed; inset:0; z-index:800; background:rgba(0,0,0,.45); display:flex; align-items:center; justify-content:center; padding:16px; }
 .tb-dlg.hidden{ display:none; }
@@ -12267,12 +12294,19 @@ body.p-shell #mainContent:has(#panelHome:not(.hidden)){ max-width:1280px; }
     grid.appendChild(quick);
     // keep pin / online-ordering cards above the board
     var top = document.createElement('div'); top.id = 'tbTop';
-    ['pinLockAlert', 'ordCard'].forEach(function(id){ if ($(id)) top.appendChild($(id)); });
+    top.innerHTML = '<div class="tb-alert hidden" id="tbOrdAlert" role="status"></div>';
+    ['pinLockAlert'].forEach(function(id){ if ($(id)) top.appendChild($(id)); });
+    // Online orders: a status button in the header; the full controls open in a popover
+    var pop = document.createElement('div'); pop.className = 'tb-pop hidden'; pop.id = 'tbOrdPop'; pop.setAttribute('role', 'dialog'); pop.setAttribute('aria-label', 'Online orders');
+    pop.innerHTML = '<button type="button" class="tb-pop-x" id="tbOrdX" aria-label="Close">×</button>';
+    if ($('ordCard')) pop.appendChild($('ordCard'));
+    document.body.appendChild(pop);
     var anchor = panel.querySelector('.today-head');
     panel.insertBefore(head, anchor); panel.insertBefore(top, anchor); panel.insertBefore(grid, anchor);
     panel.classList.add('tb-on');
     panel.addEventListener('click', function(e){ var b = e.target.closest('[data-tb-go]'); if (b) go(b.getAttribute('data-tb-go')); });
     $('tbGoalBtn').addEventListener('click', openGoals);
+    wireOrders();
     var att = $('homeAttention');
     function syncClear(){ $('tbClear').classList.toggle('hidden', !!(att && !att.classList.contains('hidden'))); }
     if (att) try { new MutationObserver(syncClear).observe(att, { attributes: true, attributeFilter: ['class'] }); } catch (e) {}
@@ -12283,6 +12317,7 @@ body.p-shell #mainContent:has(#panelHome:not(.hidden)){ max-width:1280px; }
     var panel = $('panelHome'), grid = $('tbGrid'); if (!panel || !grid) return;
     var anchor = panel.querySelector('.today-head');
     [$('pinLockAlert'), $('ordCard')].forEach(function(x){ if (x) panel.insertBefore(x, anchor.nextSibling); });
+    if ($('tbOrdPop')) $('tbOrdPop').remove(); if ($('pOrdChip')) $('pOrdChip').remove();
     if ($('clockCard')) panel.insertBefore($('clockCard'), $('homeToday') || null);
     if ($('homeAttention')) panel.insertBefore($('homeAttention'), $('homeToday') || null);
     var qs = $('homeQuick') && $('homeQuick').closest('.home-sec'); if (qs) panel.appendChild(qs);
@@ -12307,7 +12342,8 @@ body.p-shell #mainContent:has(#panelHome:not(.hidden)){ max-width:1280px; }
     } else if (h) pill = '<span class="tb-pill"><i></i>Closed today' + (h.note ? ' · ' + esc(h.note) : '') + '</span>';
     else if (p && p.on) pill = '<span class="tb-pill rush"><i></i>' + (p.why === 'rush' ? 'Rush slots on' : 'Pickup slots on') + '</span>';
     $('tbSub').textContent = date + (sub ? ' · ' + sub : '');
-    $('tbStatus').innerHTML = pill + '<span class="tb-pill">Updated ' + esc(clock(now)) + ' <button type="button" id="tbRefresh">Refresh</button></span>';
+    $('tbStatus').innerHTML = '<span id="tbOrdSlot"></span>' + pill + '<span class="tb-pill">Updated ' + esc(clock(now)) + ' <button type="button" id="tbRefresh">Refresh</button></span>';
+    ordPaint();
     $('tbRefresh').onclick = function(){ load(true); };
   }
   function delta(cur, prev, lowerBetter, label){
@@ -12463,6 +12499,58 @@ body.p-shell #mainContent:has(#panelHome:not(.hidden)){ max-width:1280px; }
     el.innerHTML = '<div class="tmp">' + Math.round(w.current.temperature_2m) + '°</div><p>' + esc(txt) + (w.current.apparent_temperature != null ? ', feels like ' + Math.round(w.current.apparent_temperature) + '°' : '') + '.' +
       (wet ? ' ' + (wet.p) + '% chance of rain or snow around ' + esc(clock(wet.at)) + '.' : hrs.length ? ' Dry for the next few hours.' : '') + '</p>' +
       '<div class="hrs">' + hrs.map(function(h){ return '<span>' + esc(hLbl(hourOf(h.at))) + '<b>' + Math.round(h.t) + '°</b></span>'; }).join('') + '</div>';
+  }
+
+  // ---------- online orders (moved from the top of the page) ----------
+  var CHEV = '<svg viewBox="0 0 20 20" fill="currentColor" aria-hidden="true"><path d="M5.72 8.22a.75.75 0 0 1 1.06 0L10 11.44l3.22-3.22a.75.75 0 1 1 1.06 1.06l-3.75 3.75a.75.75 0 0 1-1.06 0L5.72 9.28a.75.75 0 0 1 0-1.06Z"/></svg>';
+  function ordInfo(){
+    var c = $('ordCard'); if (!c || !$('ordTitle')) return null;
+    if (c.classList.contains('hidden') && !c.closest('.tb-pop')) return null;
+    var loaded = !!($('ordTitle').textContent && $('ordSub').textContent);
+    if (!loaded) return null;
+    var resume = ($('ordResume').textContent || '').trim(), todo = c.querySelectorAll('#ordChecklist .ord-row.todo').length;
+    return { paused: c.classList.contains('paused'), title: $('ordTitle').textContent.trim(), sub: $('ordSub').textContent.trim(), resume: !!resume,
+             resumeNames: Array.prototype.map.call(c.querySelectorAll('#ordResume .ord-row span'), function(x){ return x.textContent.replace(/^Turn | back on$/g, ''); }), appsTodo: todo,
+             warn: c.querySelector('#ordUpcoming .ord-warn') ? c.querySelector('#ordUpcoming .ord-warn').textContent.trim() : '' };
+  }
+  function ordPaint(){
+    var slot = $('tbOrdSlot'), o = ordInfo(), al = $('tbOrdAlert');
+    if (slot) slot.innerHTML = !o ? '' : '<button type="button" class="tb-pill tb-ordbtn' + (o.paused ? ' off' : '') + '" id="tbOrdBtn" aria-haspopup="dialog" aria-expanded="' + (!$('tbOrdPop').classList.contains('hidden')) + '"><i></i>' + (o.paused ? 'Online orders paused' : 'Online orders on') + CHEV + '</button>';
+    if (al) {
+      var html = '', cls = '';
+      if (o && o.paused) { html = '<span><b>' + esc(o.title) + '.</b> ' + esc(o.sub) + (o.appsTodo ? ' ' + o.appsTodo + ' delivery app' + (o.appsTodo === 1 ? ' is' : 's are') + ' still taking orders.' : '') + '</span>'; }
+      else if (o && o.resume) { cls = 'warn'; html = '<span><b>Turn the delivery apps back on:</b> ' + esc(o.resumeNames.join(', ')) + '.</span>'; }
+      else if (o && o.warn) { cls = 'warn'; html = '<span><b>Automatic pause coming up.</b> ' + esc(o.warn) + '</span>'; }
+      al.className = 'tb-alert' + (cls ? ' ' + cls : '') + (html ? '' : ' hidden');
+      al.innerHTML = html ? html + '<button type="button" class="btn-ghost btn-small" data-tb-ord="1">' + (o.paused ? 'Manage' : 'Open') + '</button>' : '';
+    }
+    // a reminder in the top bar on every page while website orders are paused
+    var right = document.querySelector('#pTop .p-right'), chip = $('pOrdChip');
+    if (right && o && o.paused) {
+      if (!chip) { chip = document.createElement('button'); chip.type = 'button'; chip.id = 'pOrdChip'; chip.className = 'p-ordchip'; chip.innerHTML = '<i></i>Online orders paused'; right.insertBefore(chip, right.firstChild);
+        chip.addEventListener('click', function(){ go('home'); setTimeout(ordOpen, 120); }); }
+    } else if (chip) chip.remove();
+  }
+  function ordOpen(){
+    var pop = $('tbOrdPop'), btn = $('tbOrdBtn'); if (!pop) return;
+    pop.classList.remove('hidden');
+    var r = (btn || $('tbHead')).getBoundingClientRect();
+    pop.style.top = (r.bottom + window.scrollY + 8) + 'px';
+    pop.style.left = Math.max(12, Math.min(window.innerWidth - pop.offsetWidth - 12, r.right - pop.offsetWidth + window.scrollX)) + 'px';
+    if (btn) btn.setAttribute('aria-expanded', 'true');
+    var f = pop.querySelector('select, button.btn-pause, button.btn-resume, a, button:not(.tb-pop-x)'); if (f) f.focus();
+  }
+  function ordClose(){ var pop = $('tbOrdPop'); if (pop && !pop.classList.contains('hidden')) { pop.classList.add('hidden'); var b = $('tbOrdBtn'); if (b) { b.setAttribute('aria-expanded', 'false'); b.focus(); } } }
+  function wireOrders(){
+    document.addEventListener('click', function(e){
+      if (e.target.closest('#tbOrdBtn') || e.target.closest('[data-tb-ord]')) { var pop = $('tbOrdPop'); if (pop.classList.contains('hidden')) ordOpen(); else ordClose(); return; }
+      if (e.target.closest('#tbOrdX')) return ordClose();
+      var pop2 = $('tbOrdPop'); if (pop2 && !pop2.classList.contains('hidden') && !pop2.contains(e.target) && !e.target.closest('#pOrdChip')) ordClose();
+    });
+    document.addEventListener('keydown', function(e){ if (e.key === 'Escape') ordClose(); });
+    var c = $('ordCard'), q = false;
+    if (c) try { new MutationObserver(function(){ if (q) return; q = true; requestAnimationFrame(function(){ q = false; ordPaint(); }); }).observe(c, { attributes: true, attributeFilter: ['class'], childList: true, subtree: true, characterData: true }); } catch (e) {}
+    window.addEventListener('resize', function(){ if (!$('tbOrdPop').classList.contains('hidden')) ordOpen(); });
   }
 
   // ---------- goals dialog ----------
