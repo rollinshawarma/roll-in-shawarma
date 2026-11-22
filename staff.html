@@ -5004,6 +5004,11 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       if (h.missingOut) out.push(todoHtml(h.missingOut, 'Missing ' + (h.missingOut === 1 ? 'clock-out' : 'clock-outs'), 'From a past day. Add the hours by hand.', 'approve', true));
       if (h.certs) out.push(todoHtml(h.certs, 'Food handler ' + (h.certs === 1 ? 'cert' : 'certs') + ' expiring', 'Expired or due within 30 days.', 'documents', true));
       if (h.soldOut) out.push(todoHtml(h.soldOut, (h.soldOut === 1 ? 'Item' : 'Items') + ' marked sold out', 'Switch back on when you restock.', 'soldout'));
+      (h.appAccept || []).forEach(function(o){ // app-auto-accept.sql: Square wouldn't take the "in progress"
+        var app = { doordash: 'DoorDash', ubereats: 'Uber Eats', grubhub: 'Grubhub' }[o.source] || 'App', no = (/(\d+)$/.exec(o.ref || '') || [])[1] || o.ref;
+        var why = String(o.note || '').replace(/^(REJECTED by Square|FAILED): ?/, '').replace(/\[\{.*"detail":"([^"]+)".*$/, '$1').slice(0, 90);
+        out.push(todoHtml('!', app + ' #' + no + (o.customer ? ' (' + o.customer + ')' : '') + ' can still be canceled', 'It isn\u2019t accepted on ' + app + ' yet. Accept it on the ' + app + ' tablet.' + (why ? ' Square said: ' + why : ''), document.querySelector('#tabCustomerInfoBtn:not(.hidden)') ? 'customerInfo' : 'home', true));
+      });
       if (h.caterNew) out.push(todoHtml(h.caterNew, 'New catering ' + (h.caterNew === 1 ? 'request' : 'requests'), 'Reply within a day to win the booking.', 'catering'));
       if (h.adsPending) out.push(todoHtml(h.adsPending, (h.adsPending === 1 ? 'Ad' : 'Ads') + ' waiting for approval', adsState.isAdmin ? 'Check it and tap Approve & launch.' : 'An admin needs to approve it.', 'ads'));
       if (h.adsProblem) out.push(todoHtml(h.adsProblem, (h.adsProblem === 1 ? 'Ad needs' : 'Ads need') + ' a fix', 'It didn\u2019t start or Meta turned it down.', 'ads', true));
@@ -5028,6 +5033,10 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
 
   function loadTodayGlance(){
     var start = new Date(); start.setHours(0,0,0,0);
+    sb.rpc('staff_app_accept_issues').then(function(res){ // fine before the SQL is run: just nothing shown
+      var list = res && !res.error && Array.isArray(res.data) ? res.data : [];
+      if (JSON.stringify(list) !== JSON.stringify(homeState.appAccept || [])) { homeState.appAccept = list; renderHomeTodo(); }
+    }, function(){});
     sb.from('orders').select('created_at, total_amount, status').gte('created_at', start.toISOString()).then(function(res){
       if (res.error || !res.data) return;
       var done = res.data.filter(function(o){ return ['paid','preparing','ready','completed'].indexOf(String(o.status || '').toLowerCase()) !== -1; });
