@@ -2522,6 +2522,70 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
 }
 @media print{ .sa-ai-btn{ display:none !important; } .sa-ai-hero{ background:#fff !important; color:#000 !important; } .sa-ai-hero::before{ display:none; } .sa-ai-hero h3, .sa-ai-hero p, .sa-ai-tag{ color:#000 !important; } }
 </style>
+<style id="sales-tax-css">
+/* Sales tax page: month list, Gateway-shaped return card, Square summary. */
+.tx-alert{ display:flex; align-items:center; gap:12px; padding:12px 16px; border-radius:12px; margin-bottom:14px; font-size:14px; background:#fff4d6; color:#5c4100; border:1px solid #f1d58a; }
+.tx-alert.red{ background:#fde4df; color:#8e0b21; border-color:#f5b7ab; }
+.tx-alert b{ font-weight:700; } .tx-alert button{ margin-left:auto; }
+:root[data-theme="dark"] .tx-alert{ background:rgba(240,165,0,.14); color:#f6c75a; border-color:rgba(240,165,0,.3); }
+:root[data-theme="dark"] .tx-alert.red{ background:rgba(229,53,77,.16); color:#ff9aa6; border-color:rgba(229,53,77,.35); }
+.tx-setbtn{ margin-left:auto; }
+.tx-list{ width:100%; border-collapse:collapse; font-size:14px; }
+.tx-list th{ text-align:left; font-size:12px; color:var(--ds-text-3); font-weight:600; padding:6px 10px; border-bottom:1px solid var(--ds-border); }
+.tx-list td{ padding:9px 10px; border-bottom:1px solid var(--ds-border); vertical-align:middle; }
+.tx-list tr:last-child td{ border-bottom:0; }
+.tx-list tr.on td{ background:var(--ds-subtle); }
+.tx-list .n{ text-align:right; font-variant-numeric:tabular-nums; }
+.tx-list td:last-child{ text-align:right; white-space:nowrap; }
+.tx-list tr.tx-more td{ text-align:left; padding-top:10px; } .tx-list tr.tx-more button{ width:auto; }
+.tx-pill{ display:inline-flex; align-items:center; gap:6px; border-radius:999px; padding:3px 10px; font-size:12px; font-weight:650; white-space:nowrap; background:var(--ds-subtle-2); color:var(--ds-text-2); }
+.tx-pill.ok{ background:#dcf3e6; color:#0c5132; } .tx-pill.due{ background:#fff1c7; color:#6b4a00; } .tx-pill.late{ background:#fde4df; color:#8e0b21; }
+:root[data-theme="dark"] .tx-pill.ok{ background:rgba(47,163,107,.18); color:#7ee2ad; } :root[data-theme="dark"] .tx-pill.due{ background:rgba(240,165,0,.16); color:#f6c75a; } :root[data-theme="dark"] .tx-pill.late{ background:rgba(229,53,77,.18); color:#ff9aa6; }
+.tx-head{ display:flex; align-items:flex-end; gap:12px; flex-wrap:wrap; margin:6px 0 12px; }
+.tx-head h3{ font:700 24px/1.2 var(--tb-num, var(--ds-font)) !important; letter-spacing:-.02em !important; margin:0 !important; color:var(--ds-text) !important; }
+.tx-head p{ margin:4px 0 0; }
+.tx-acts{ margin-left:auto; display:flex; gap:8px; flex-wrap:wrap; }
+.tx-acts button{ width:auto; }
+.tx-warn{ display:flex; gap:10px; align-items:flex-start; padding:10px 14px; border-radius:10px; margin-bottom:10px; font-size:13.5px; line-height:1.5; background:var(--ds-subtle); color:var(--ds-text-2); }
+.tx-warn.y{ background:#fff4d6; color:#5c4100; } :root[data-theme="dark"] .tx-warn.y{ background:rgba(240,165,0,.12); color:#f6c75a; }
+.tx-warn::before{ content:"i"; flex:none; width:18px; height:18px; border-radius:50%; display:grid; place-items:center; font:700 11px var(--ds-font); background:currentColor; color:var(--ds-surface); margin-top:1px; }
+/* the Gateway-shaped card */
+.tx-form{ padding:0; overflow:hidden; border-left:4px solid #3ab0c3; }
+.tx-step{ padding:16px 20px; border-bottom:1px solid var(--ds-border); }
+.tx-sn{ display:block; font-size:12.5px; font-weight:650; color:var(--ds-text-3); margin-bottom:10px; }
+.tx-gw{ width:100%; border-collapse:collapse; font-size:14px; }
+.tx-gw th{ text-align:left; font-size:12.5px; font-weight:650; color:var(--ds-text-2); padding:6px 10px; border-bottom:2px solid var(--ds-border); }
+.tx-gw td{ padding:10px; border-bottom:1px solid var(--ds-border); }
+.tx-gw .n{ text-align:right; }
+.tx-fields{ display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:14px 24px; }
+.tx-f label{ display:block; font-size:13px; font-weight:600; color:#1f6fb2; margin-bottom:4px; }
+:root[data-theme="dark"] .tx-f label{ color:#7db7ea; }
+.tx-f small{ display:block; font-size:12px; color:var(--ds-text-3); margin-top:4px; line-height:1.4; }
+.tx-v{ display:inline-flex; align-items:center; gap:8px; font-variant-numeric:tabular-nums; font-weight:650; color:var(--ds-text); }
+.tx-v.big{ font:700 24px/1.2 var(--tb-num, var(--ds-font)); letter-spacing:-.01em; }
+.tx-auto .tx-v{ color:var(--ds-text-2); }
+.tx-copy{ min-height:26px !important; padding:2px 9px !important; font-size:12px !important; font-weight:600 !important; border-radius:999px !important; width:auto !important; box-shadow:none !important; background:var(--ds-subtle) !important; color:var(--ds-text-2) !important; border:0 !important; font-family:var(--ds-font) !important; letter-spacing:0 !important; }
+.tx-copy.done{ background:#dcf3e6 !important; color:#0c5132 !important; }
+.tx-pay{ padding:14px 20px; display:flex; align-items:center; gap:12px 22px; flex-wrap:wrap; font-size:14px; background:var(--ds-subtle); }
+.tx-pay b.big{ font:700 22px var(--tb-num, var(--ds-font)); color:var(--ds-text); }
+.tx-sum{ width:100%; border-collapse:collapse; font-size:13.5px; }
+.tx-sum td{ padding:5px 0; border-bottom:1px solid var(--ds-border); }
+.tx-sum td.n{ text-align:right; font-variant-numeric:tabular-nums; white-space:nowrap; }
+.tx-sum tr.sub td:first-child{ padding-left:16px; color:var(--ds-text-2); }
+.tx-sum tr.sub2 td:first-child{ padding-left:32px; color:var(--ds-text-3); }
+.tx-sum tr.tot td{ font-weight:700; color:var(--ds-text); }
+.tx-sum tr.tip td{ color:#8a5a00; } :root[data-theme="dark"] .tx-sum tr.tip td{ color:#f6c75a; }
+.tx-small{ font-size:12.5px; line-height:1.55; color:var(--ds-text-2); } .tx-small li + li{ margin-top:4px; }
+.tx-how ul{ margin:0; padding-left:18px; }
+.tx-ev{ margin-top:10px; font-size:13px; } .tx-ev ul{ margin:6px 0 0; padding-left:18px; color:var(--ds-text-2); }
+.tx-dlg .g2{ display:grid; grid-template-columns:1fr 1fr; gap:10px 12px; margin:14px 0 6px; }
+.tx-dlg .g2 .w{ grid-column:1 / -1; }
+.tx-dlg label{ font-size:13px; font-weight:600; color:var(--ds-text-2); display:flex; flex-direction:column; gap:4px; }
+.tx-dlg .acts{ display:flex; gap:8px; justify-content:flex-end; margin-top:12px; } .tx-dlg .acts button{ width:auto; }
+.tx-dlg .acts .left{ margin-right:auto; }
+@media (max-width:760px){ .tx-fields{ grid-template-columns:minmax(0, 1fr); } .tx-v.big{ font-size:21px; } .tx-list th:nth-child(2), .tx-list td:nth-child(2), .tx-list th:nth-child(4), .tx-list td:nth-child(4){ display:none; } .tx-list td, .tx-list th{ padding-left:6px; padding-right:6px; } .tx-gw th:nth-child(2), .tx-gw td:nth-child(2){ display:none; } .tx-step{ padding:14px; } }
+@media print{ body.tx-printing .tab-panel:not(#panelSalestax), body.tx-printing .tx-months, body.tx-printing .tx-acts, body.tx-printing .tx-copy, body.tx-printing #txAlert{ display:none !important; } }
+</style>
 </head>
 <body>
 
@@ -2616,6 +2680,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
 
       <div class="nav-section-label">Reports</div>
       <button class="nav-link hidden" data-tab="salesreport" id="tabSalesBtn"><svg class="icon"><use href="#ic-chart"/></svg>Sales report</button>
+      <button class="nav-link hidden" data-tab="salestax" id="tabTaxBtn"><svg class="icon"><use href="#ic-file"/></svg>Sales tax<span class="nav-badge hidden" id="navTaxBadge"></span></button>
       <button class="nav-link hidden" data-tab="stops" id="tabStopsBtn"><svg class="icon"><use href="#ic-trophy"/></svg>Stop scorecard<span class="nav-badge nav-badge-soft">Soon</span></button>
 
       <div class="nav-section-label">Team</div>
@@ -3867,6 +3932,54 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
   </div>
 
   <!-- SALES REPORT -->
+  <div class="tab-panel hidden" id="panelSalestax">
+    <div class="page-head">
+      <h2>Sales tax</h2>
+      <p class="hint">Your Ohio sales tax return for each month, worked out from Square: the numbers to type into the Ohio Business Gateway, Square’s sales summary behind them, and what’s been filed.</p>
+    </div>
+    <div class="tx" id="txRoot">
+      <div class="tx-alert hidden" id="txAlert" role="status"></div>
+      <section class="sa-card tx-months"><div class="sa-h"><h3>Returns</h3><span class="hint" id="txSetHint"></span>
+          <button type="button" class="btn-ghost btn-small tx-setbtn" id="txSetBtn">Settings</button></div>
+        <div class="sa-tablewrap"><table class="tx-list" id="txList"><thead><tr><th>Month</th><th>Due</th><th>Status</th><th class="n">Tax</th><th></th></tr></thead><tbody></tbody></table></div></section>
+      <div id="txMsg"></div>
+      <div id="txDetail" class="hidden">
+        <div class="tx-head"><div><h3 id="txTitle">October 2026</h3><p id="txSub" class="hint"></p></div>
+          <div class="tx-acts"><button type="button" class="btn-ghost btn-small" id="txRefresh">Refresh from Square</button><button type="button" class="btn-ghost btn-small" id="txCsv">Download CSV</button><button type="button" class="btn-ghost btn-small" id="txPrint">Print</button><button type="button" class="btn-primary btn-small" id="txFile">Mark as filed</button></div></div>
+        <div id="txWarn"></div>
+        <section class="sa-card tx-form" aria-label="Ohio return">
+          <div class="tx-step"><span class="tx-sn">Ohio Business Gateway · Taxable Sales by County</span>
+            <table class="tx-gw"><thead><tr><th>County Name</th><th class="n">Tax Rate</th><th class="n">Taxable Sales</th><th class="n">Tax Liability</th></tr></thead>
+              <tbody><tr><td id="txCounty">Summit County - 77</td><td class="n" id="txRate">0.0675</td><td class="n"><span class="tx-v" id="txTaxable2"></span></td><td class="n"><span class="tx-v" id="txLiab"></span></td></tr></tbody></table></div>
+          <div class="tx-step"><span class="tx-sn">Ohio Business Gateway · Taxable Sales</span>
+            <div class="tx-fields">
+              <div class="tx-f"><label>Gross Sales</label><span class="tx-v big" id="txGross"></span><small id="txGrossWhy"></small></div>
+              <div class="tx-f"><label>Exempt Sales</label><span class="tx-v big" id="txExempt"></span><small id="txExemptWhy"></small></div>
+              <div class="tx-f tx-auto"><label>Reportable Taxable Sales</label><span class="tx-v big" id="txTaxable"></span><small>Fills in from the county row. Should match.</small></div>
+              <div class="tx-f tx-auto"><label>Motor vehicle / watercraft dealer?</label><span class="tx-v">No</span></div>
+            </div></div>
+          <div class="tx-pay" id="txPay"></div>
+        </section>
+        <div class="sa-row">
+          <section class="sa-card"><div class="sa-h"><h3>Square sales summary</h3><span class="hint" id="txSqHint"></span></div>
+            <table class="tx-sum" id="txSum"></table></section>
+          <section class="sa-card"><div class="sa-h"><h3>Delivery apps (exempt)</h3></div>
+            <table class="tx-sum" id="txApps"></table>
+            <p class="hint tx-small">DoorDash, Uber Eats and Grubhub collect and pay Ohio sales tax on their orders, so their sales go under Exempt Sales. Courier tips are left out. Compare with each app’s monthly statement (subtotal before tax and tips).</p>
+            <div id="txEvents"></div></section>
+        </div>
+        <section class="sa-card tx-how"><div class="sa-h"><h3>How these numbers are worked out</h3></div>
+          <ul class="tx-small">
+            <li><b>Gross Sales</b> = Square net sales (items + service charges − returns − discounts) minus “Tip” service charges. Sales tax and tips aren’t sales.</li>
+            <li><b>Exempt Sales</b> = DoorDash, Uber Eats and Grubhub sales (Ohio UST instructions, line 2: sales made through a marketplace facilitator that collected the tax).</li>
+            <li><b>Taxable</b> = Gross − Exempt. <b>Tax liability</b> = Taxable × county rate. Pay at least the tax Square collected from customers.</li>
+            <li>Sales count in the month the payment was taken (Ohio time); refunds in the month they were made, as in Square’s report.</li>
+            <li>Ohio returns for a month are due on the 23rd of the next month. Not tax advice: ask your tax preparer if something looks off.</li>
+          </ul>
+          <p class="hint tx-small">Sources: <a href="https://dam.assets.ohio.gov/image/upload/tax.ohio.gov/forms/sales_and_use/generic/ust-instructions.pdf" target="_blank" rel="noopener">Ohio UST return instructions</a> · <a href="https://dam.assets.ohio.gov/image/upload/tax.ohio.gov/communications/information_releases/RestInfoRelease8-14.pdf" target="_blank" rel="noopener">Ohio restaurant sales tax guide</a></p></section>
+      </div>
+    </div>
+  </div>
   <div class="tab-panel hidden" id="panelSalesreport">
     <div class="page-head">
       <h2>Sales report</h2>
@@ -4905,6 +5018,8 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
         document.getElementById('tabAdsBtn').classList.remove('hidden');
         document.getElementById('tabStopsBtn').classList.remove('hidden');
         document.getElementById('tabSalesBtn').classList.remove('hidden');
+        document.getElementById('tabTaxBtn').classList.remove('hidden');
+        if (location.hash === '#salestax') setTimeout(function(){ showTab('salestax'); if (window.txOpen) window.txOpen(); }, 0);
         document.getElementById('tabStoreHoursBtn').classList.remove('hidden');
         document.querySelector('.nav-link[data-tab="storehours"]').addEventListener('click', function(){ shLoad(); spLoad(); kpLoad(); });
         shLoad(); spLoad(); kpLoad();
@@ -4991,6 +5106,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       '<span class="todo-text"><b>' + esc(title) + '</b>' + (sub ? '<small>' + esc(sub) + '</small>' : '') + '</span>' +
       '<svg class="icon"><use href="#ic-arrow"/></svg></button>';
   }
+  window.homeTaxAlerts = function(list){ if (JSON.stringify(list) !== JSON.stringify(homeState.salesTax || [])) { homeState.salesTax = list; renderHomeTodo(); } };
   function renderHomeTodo(){
     var h = homeState, out = [];
     if (h.myMissingOut) out.push(todoHtml(h.myMissingOut, h.myMissingOut === 1 ? 'You have a shift with no clock-out' : 'You have shifts with no clock-out', 'Ask your manager to fix the time so you get paid for it.', 'clock', true));
@@ -5004,6 +5120,10 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       if (h.missingOut) out.push(todoHtml(h.missingOut, 'Missing ' + (h.missingOut === 1 ? 'clock-out' : 'clock-outs'), 'From a past day. Add the hours by hand.', 'approve', true));
       if (h.certs) out.push(todoHtml(h.certs, 'Food handler ' + (h.certs === 1 ? 'cert' : 'certs') + ' expiring', 'Expired or due within 30 days.', 'documents', true));
       if (h.soldOut) out.push(todoHtml(h.soldOut, (h.soldOut === 1 ? 'Item' : 'Items') + ' marked sold out', 'Switch back on when you restock.', 'soldout'));
+      (h.salesTax || []).forEach(function(m){ // sales-tax.sql: Ohio return due within a week, or overdue
+        var mon = new Date(String(m.period).slice(0, 10) + 'T12:00:00').toLocaleDateString('en-US', { month: 'long' }), due = new Date(String(m.due).slice(0, 10) + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }), n = m.days_left;
+        out.push(todoHtml(n < 0 ? '!' : n, n < 0 ? 'Ohio sales tax for ' + mon + ' is overdue' : 'Ohio sales tax for ' + mon + ' due ' + (n === 0 ? 'today' : n === 1 ? 'tomorrow' : 'in ' + n + ' days'), (n < 0 ? 'Was due ' + due + '. File it soon: Ohio may add a penalty and interest. ' : 'Due ' + due + '. ') + 'The numbers to enter are ready on Sales tax.', 'salestax', n <= 2));
+      });
       (h.appAccept || []).forEach(function(o){ // app-auto-accept.sql: Square wouldn't take the "in progress"
         var app = { doordash: 'DoorDash', ubereats: 'Uber Eats', grubhub: 'Grubhub' }[o.source] || 'App', no = (/(\d+)$/.exec(o.ref || '') || [])[1] || o.ref;
         var why = String(o.note || '').replace(/^(REJECTED by Square|FAILED): ?/, '').replace(/\[\{.*"detail":"([^"]+)".*$/, '$1').slice(0, 90);
@@ -5028,11 +5148,12 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
   }
   document.getElementById('mainContent').addEventListener('click', function(e){
     var b = e.target.closest('[data-go]');
-    if (b) showTab(b.getAttribute('data-go'));
+    if (b) { showTab(b.getAttribute('data-go')); if (b.getAttribute('data-go') === 'salestax' && window.txOpen) window.txOpen(); }
   });
 
   function loadTodayGlance(){
     var start = new Date(); start.setHours(0,0,0,0);
+    if (window.txRefreshAlerts) window.txRefreshAlerts();
     sb.rpc('staff_app_accept_issues').then(function(res){ // fine before the SQL is run: just nothing shown
       var list = res && !res.error && Array.isArray(res.data) ? res.data : [];
       if (JSON.stringify(list) !== JSON.stringify(homeState.appAccept || [])) { homeState.appAccept = list; renderHomeTodo(); }
@@ -13499,6 +13620,225 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
   };
   $('saAiRegen').addEventListener('click', function(){ if (S.st) summarize(true); });
   var rz; window.addEventListener('resize', function(){ clearTimeout(rz); rz = setTimeout(function(){ if (S.st && S.ref && !$('panelSalesreport').classList.contains('hidden')) pace(); }, 160); });
+})();
+</script>
+<script id="sales-tax-js">
+/* Sales tax (Reports -> Sales tax): Ohio return numbers from Square, filed records, due reminders.
+   Data: staff_sales_tax_overview / _alerts / _mark_filed / _unfile / _save_settings (sales-tax.sql)
+   and the sales-tax-report edge function (Square). Managers and admins only. */
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  if (!$('panelSalestax')) return;
+  var TZ = 'America/New_York';
+  var S = { ov: null, sel: null, rep: {}, busy: 0, opened: false };
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function money(v){ return v == null || !isFinite(v) ? '—' : (v < 0 ? '−$' : '$') + Math.abs(Number(v)).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function plain(v){ return Number(v || 0).toFixed(2); }
+  function d(p){ return new Date(String(p).slice(0, 10) + 'T12:00:00'); }
+  function monthName(p){ return d(p).toLocaleDateString('en-US', { month: 'long', year: 'numeric' }); }
+  function shortDay(p){ return d(p).toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }); }
+  function ymOf(p){ return String(p).slice(0, 7); }
+  function todayStr(){ var t = window.__tbNow ? new Date(window.__tbNow) : new Date(); return new Intl.DateTimeFormat('en-CA', { timeZone: TZ }).format(t); }
+  function status(m){
+    if (m.current) return ['', 'In progress'];
+    if (m.filed) return ['ok', 'Filed ' + (m.filed_at ? new Date(m.filed_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) : '')];
+    if (!m.tracked) return ['', 'Not tracked'];
+    var n = m.days_left;
+    if (n < 0) return ['late', 'Overdue · ' + (-n) + (n === -1 ? ' day' : ' days')];
+    if (n === 0) return ['late', 'Due today'];
+    if (n <= (S.ov ? S.ov.settings.remind_days : 7)) return ['due', n === 1 ? 'Due tomorrow' : 'Due in ' + n + ' days'];
+    return ['', 'Due ' + shortDay(m.due)];
+  }
+  function msg(html, kind){ $('txMsg').innerHTML = html ? '<div class="msg ' + (kind || 'error') + '">' + html + '</div>' : ''; }
+
+  // ---------- month list ----------
+  function months(){
+    var list = (S.ov && S.ov.months || []).slice(), t = todayStr(), cur = t.slice(0, 7) + '-01';
+    var due = new Date(d(cur)); due.setMonth(due.getMonth() + 1); due.setDate(S.ov ? S.ov.settings.due_day : 23);
+    list.unshift({ period: cur, current: true, due: due.toISOString().slice(0, 10), tracked: false });
+    return list;
+  }
+  function renderList(){
+    var st = S.ov.settings;
+    $('txSetHint').textContent = st.county + ' · ' + (Number(st.rate) * 100).toFixed(2).replace(/0$/, '') + '% · monthly, due the ' + st.due_day + 'rd';
+    var all = months(), main = all.filter(function(m){ return m.current || m.tracked || m.filed || m.period === S.sel; }), older = all.length - main.length;
+    $('txList').querySelector('tbody').innerHTML = (S.showOld ? all : main).map(function(m){
+      var s = status(m), tax = m.filed && m.paid != null ? m.paid : (m.ohio ? m.ohio.pay : null);
+      return '<tr data-p="' + m.period + '"' + (S.sel === m.period ? ' class="on"' : '') + '><td><b>' + esc(monthName(m.period)) + '</b>' + (m.current ? ' <span class="hint">so far</span>' : '') + '</td><td>' + esc(shortDay(m.due)) + '</td>' +
+        '<td><span class="tx-pill ' + s[0] + '">' + esc(s[1]) + '</span></td><td class="n">' + (tax != null ? money(tax) : '<span class="hint">—</span>') + '</td>' +
+        '<td><button type="button" class="btn-ghost btn-small" data-open="' + m.period + '">' + (S.sel === m.period ? 'Showing' : 'Open') + '</button></td></tr>';
+    }).join('') + (older ? '<tr class="tx-more"><td colspan="5"><button type="button" class="btn-ghost btn-small" id="txOld">' + (S.showOld ? 'Hide earlier months' : 'Show ' + older + ' earlier month' + (older === 1 ? '' : 's')) + '</button></td></tr>' : '');
+    var a = (S.ov.months || []).filter(function(m){ return m.tracked && !m.filed && m.days_left <= st.remind_days; }).sort(function(x, y){ return x.days_left - y.days_left; });
+    var box = $('txAlert');
+    if (!a.length) { box.classList.add('hidden'); return; }
+    var m = a[0], late = m.days_left < 0;
+    box.className = 'tx-alert' + (late || m.days_left <= 2 ? ' red' : '');
+    box.innerHTML = '<span><b>' + esc(monthName(m.period)) + ' sales tax ' + (late ? 'was due ' + esc(shortDay(m.due)) : 'is due ' + esc(shortDay(m.due))) + '</b>' + (late ? '. File it as soon as you can: Ohio may add a late penalty and interest.' : m.days_left === 0 ? ' (today).' : ' (in ' + m.days_left + (m.days_left === 1 ? ' day' : ' days') + ').') + (a.length > 1 ? ' ' + (a.length - 1) + ' more month' + (a.length > 2 ? 's' : '') + ' to file.' : '') + '</span>' +
+      (S.sel !== m.period ? '<button type="button" class="btn-primary btn-small" data-open="' + m.period + '">Open ' + esc(d(m.period).toLocaleDateString('en-US', { month: 'long' })) + '</button>' : '');
+  }
+  function load(keepSel, quiet){ // quiet: refresh the list and status only, don't fetch the month again
+    if (typeof sb === 'undefined') return;
+    sb.rpc('staff_sales_tax_overview', window.__tbNow ? { p_today: todayStr() } : {}).then(function(res){
+      if (res.error) { $('txDetail').classList.add('hidden'); msg(/does not exist|Could not find|schema cache/i.test(res.error.message || '') ? 'Run <b>sales-tax.sql</b> in Supabase → SQL Editor to turn on this page.' : esc(res.error.message)); return; }
+      S.ov = res.data; msg('');
+      if (!keepSel || !S.sel) {
+        var open = (S.ov.months || []).filter(function(m){ return m.tracked && !m.filed; }).sort(function(a, b){ return a.days_left - b.days_left; })[0];
+        S.sel = (open || S.ov.months[0] || months()[0]).period;
+      }
+      renderList();
+      if (quiet && S.rep[S.sel]) { var m = months().filter(function(x){ return x.period === S.sel; })[0] || { period: S.sel }; head(m); fill(S.rep[S.sel], m); }
+      else openMonth(S.sel, false);
+    });
+  }
+
+  // ---------- one month ----------
+  function warn(text, y){ return '<div class="tx-warn' + (y ? ' y' : '') + '">' + text + '</div>'; }
+  function copyBtn(v){ return '<button type="button" class="tx-copy" data-copy="' + plain(v) + '" aria-label="Copy ' + plain(v) + '">Copy</button>'; }
+  function head(m){
+    var p = m.period, s = status(m);
+    $('txTitle').textContent = monthName(p);
+    $('txSub').innerHTML = (m.current ? 'This month so far. ' : '') + 'Due <b>' + esc(shortDay(m.due)) + '</b> · <span class="tx-pill ' + s[0] + '">' + esc(s[1]) + '</span>' + (m.filed && m.confirmation ? ' · Confirmation ' + esc(m.confirmation) : '');
+    $('txFile').textContent = m.filed ? 'Edit filing' : 'Mark as filed'; $('txFile').classList.toggle('hidden', !!m.current);
+  }
+  function openMonth(p, refresh){
+    S.sel = p; renderList();
+    var m = months().filter(function(x){ return x.period === p; })[0] || { period: p };
+    $('txDetail').classList.remove('hidden'); head(m);
+    var my = ++S.busy;
+    $('txRoot').classList.add('loading'); $('txWarn').innerHTML = warn('Getting ' + esc(monthName(p)) + ' from Square…');
+    sb.functions.invoke('sales-tax-report', { body: { month: ymOf(p), refresh: !!refresh } }).then(function(res){
+      if (my !== S.busy) return;
+      $('txRoot').classList.remove('loading');
+      var dta = res && res.data, err = res && res.error;
+      if (err || !dta || !dta.ok) {
+        var pr = err && err.context && typeof err.context.json === 'function' ? err.context.json().catch(function(){ return {}; }) : Promise.resolve(dta || {});
+        return pr.then(function(j){ if (my !== S.busy) return;
+          var off = /not found|404|Failed to send|FunctionsFetchError|Relay/i.test(String((err && (err.message || err.name)) || ''));
+          $('txWarn').innerHTML = warn(off ? 'Deploy the <b>sales-tax-report</b> edge function (Verify JWT off) to pull this month from Square.' : 'Couldn’t get this month from Square: ' + esc((j && (j.error || j.message)) || (err && err.message) || 'unknown') + '. Try <b>Refresh from Square</b>.', true);
+          fill(null, m); });
+      }
+      S.rep[p] = dta; fill(dta, m);
+      if (refresh && window.ds) ds.toast(monthName(p) + ' updated from Square', 'ok');
+      if (!m.current && (!m.saved || refresh)) load(true, true);
+    }, function(){ if (my !== S.busy) return; $('txRoot').classList.remove('loading'); $('txWarn').innerHTML = warn('Couldn’t reach the server. Check the connection and try again.', true); });
+  }
+  function fill(r, m){
+    var o = r && r.ohio, q = r && r.square;
+    var set = function(id, v, cp){ $(id).innerHTML = v == null ? '—' : esc(money(v)) + (cp ? ' ' + copyBtn(v) : ''); };
+    $('txCounty').textContent = (o && o.county) || (S.ov ? S.ov.settings.county : '');
+    $('txRate').textContent = o ? String(o.rate) : (S.ov ? String(S.ov.settings.rate) : '');
+    set('txTaxable2', o && o.taxable, true); set('txLiab', o && o.liability, true);
+    set('txGross', o && o.gross, true); set('txExempt', o && o.exempt, true); set('txTaxable', o && o.taxable, false);
+    $('txGrossWhy').textContent = o ? 'Square net sales ' + money(q.net_sales) + (o.tip_service_charges ? ' − ' + money(o.tip_service_charges) + ' “Tip” service charges' : '') : '';
+    $('txExemptWhy').textContent = o ? (r.apps || []).map(function(a){ return a.name + ' ' + money(a.sales); }).join(' + ') || 'No delivery-app sales' : '';
+    $('txPay').innerHTML = o ? '<span>Tax collected in Square <b>' + money(o.collected) + '</b></span><span>Tax liability <b>' + money(o.liability) + '</b></span><span>Pay <b class="big">' + money(o.pay) + '</b></span>' +
+      '<span class="hint">' + (Math.abs(o.difference) < 0.005 ? 'Matches what you collected.' : o.difference > 0 ? 'You collected ' + money(o.difference) + ' more than the liability (rounding on single orders). Enter ' + money(o.collected) + ' as the tax liability if the form allows it: tax collected from customers has to be paid in.' : 'Liability is ' + money(-o.difference) + ' more than Square collected (rounding, untaxed charges). Pay the liability.') + '</span>' : '';
+    var w = [];
+    if (r && !r.complete) w.push(warn('This month isn’t over yet: numbers will change until it ends.', true));
+    if (m && m.filed && o && m.f_taxable != null && Math.abs(Number(m.f_taxable) - o.taxable) > 0.5) w.push(warn('Filed with taxable sales of ' + money(m.f_taxable) + '; Square now shows ' + money(o.taxable) + ' (a refund or late change since). If the difference matters, ask your tax preparer about amending.', true));
+    if (o && !o.check_ok) w.push(warn('Square collected tax on about ' + money(o.implied_taxable) + ' of sales, but taxable sales come to ' + money(o.taxable) + '. Some sales may not have been taxed in Square (custom amounts, tax-free items) or the rate differs. Check before filing.', true));
+    if (o && o.apps_taxed) w.push(warn('Square shows sales tax on some delivery-app orders. The apps pay that tax, so check those orders before filing.', true));
+    if (q && q.unitemized) w.push(warn(q.unitemized + ' payment' + (q.unitemized === 1 ? '' : 's') + ' had no item list in Square (quick amount). Counted as taxable sales.'));
+    if (r && r.events && r.events.length) w.push(warn('Event days this month: ' + r.events.map(function(e){ return esc(e.title) + ' (' + esc(shortDay(e.date)) + (e.location ? ', ' + esc(e.location) : '') + ')'; }).join('; ') + '. If any were outside ' + esc(o ? o.county.replace(/ - \d+$/, '') : 'your county') + ', add a row for that county on the form and split the taxable sales.'));
+    if (r) $('txWarn').innerHTML = w.join('');
+    $('txSqHint').textContent = r ? (r.cached ? 'Saved ' : 'Pulled ') + new Date(r.computed_at).toLocaleString('en-US', { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + ' · ' + q.orders + ' orders · ' + q.refunds + ' refunds' : '';
+    var row = function(label, v, cls){ return '<tr' + (cls ? ' class="' + cls + '"' : '') + '><td>' + esc(label) + '</td><td class="n">' + (v == null ? '' : esc(money(v))) + '</td></tr>'; };
+    $('txSum').innerHTML = q ? [
+      row('Gross sales', q.gross_sales, 'tot'), row('Items', q.items, 'sub'), row('Service charges', q.service_charges_total, 'sub')]
+      .concat((q.service_charges || []).map(function(x){ return row(x.name + (x.tip ? ' (left out of Ohio gross)' : ''), x.amount, 'sub2' + (x.tip ? ' tip' : '')); }))
+      .concat([row('Returns', -q.returns), row('Discounts & comps', -q.discounts), row('Net sales', q.net_sales, 'tot'), row('Taxes', q.taxes), row('Tips', q.tips), row('Total sales', q.total_sales, 'tot'),
+        row('Total payments collected', q.total_collected, 'tot')])
+      .concat((q.tenders || []).map(function(x){ return row(x.name, x.amount, 'sub'); }))
+      .concat([row('Fees', -q.fees), row('Net total', q.net_total, 'tot')]).join('') : '';
+    $('txApps').innerHTML = r ? ((r.apps || []).length ? r.apps.map(function(a){ return '<tr><td>' + esc(a.name) + ' <span class="hint">' + a.orders + ' orders</span></td><td class="n">' + esc(money(a.sales)) + '</td></tr>'; }).join('') + '<tr class="tot"><td>Exempt sales</td><td class="n">' + esc(money(o.exempt)) + '</td></tr>' : '<tr><td class="hint">No delivery-app sales this month.</td><td></td></tr>') : '';
+    $('txEvents').innerHTML = '';
+  }
+
+  // ---------- filed ----------
+  function dlg(id){ var x = $(id); if (!x) { x = document.createElement('div'); x.className = 'tb-dlg tx-dlg hidden'; x.id = id; x.setAttribute('role', 'dialog'); x.setAttribute('aria-modal', 'true'); document.body.appendChild(x);
+      x.addEventListener('click', function(e){ if (e.target === x) x.classList.add('hidden'); }); x.addEventListener('keydown', function(e){ if (e.key === 'Escape') x.classList.add('hidden'); }); } return x; }
+  function fileDialog(){
+    var p = S.sel, m = (S.ov.months || []).filter(function(x){ return x.period === p; })[0] || {}, r = S.rep[p], o = r && r.ohio;
+    var x = dlg('txFileDlg');
+    x.innerHTML = '<form id="txFileForm"><h3>' + (m.filed ? 'Edit filing' : 'Mark as filed') + ': ' + esc(monthName(p)) + '</h3><p class="hint">Saves what you filed on the Ohio Business Gateway, and stops the reminder.</p><div class="g2">' +
+      '<label>Filed on<input type="date" name="on" value="' + (m.filed_at ? new Date(m.filed_at).toLocaleDateString('en-CA', { timeZone: TZ }) : todayStr()) + '" max="' + todayStr() + '"></label>' +
+      '<label>Amount paid<input type="number" step="0.01" min="0" name="paid" inputmode="decimal" value="' + (m.paid != null ? m.paid : o ? o.pay : '') + '"></label>' +
+      '<label class="w">Confirmation number<input type="text" name="conf" maxlength="80" value="' + esc(m.confirmation || '') + '" placeholder="From the Gateway receipt"></label>' +
+      '<label class="w">Note<input type="text" name="note" maxlength="300" value="' + esc(m.note || '') + '" placeholder="Optional"></label></div>' +
+      '<div class="acts">' + (m.filed ? '<button type="button" class="btn-ghost left" id="txUnfile">Not filed</button>' : '') + '<button type="button" class="btn-ghost" id="txFileX">Cancel</button><button type="submit" class="btn-primary" id="txFileSave">Save</button></div></form>';
+    x.classList.remove('hidden'); x.querySelector('[name=conf]').focus();
+    $('txFileX').onclick = function(){ x.classList.add('hidden'); };
+    if ($('txUnfile')) $('txUnfile').onclick = function(){ sb.rpc('staff_sales_tax_unfile', { p_period: p }).then(function(res){ if (res.error) { alert('Couldn’t change it: ' + res.error.message); return; } x.classList.add('hidden'); if (window.ds) ds.toast(monthName(p) + ' marked not filed', 'info'); load(true, true); refreshAlerts(); }); };
+    $('txFileForm').onsubmit = function(e){
+      e.preventDefault(); var f = e.target, paid = f.paid.value === '' ? null : Number(f.paid.value);
+      if (paid != null && !(paid >= 0)) { alert('Enter the amount paid, like 529.58.'); return; }
+      $('txFileSave').disabled = true;
+      sb.rpc('staff_sales_tax_mark_filed', { p_period: p, p_confirmation: f.conf.value, p_paid: paid, p_gross: o ? o.gross : null, p_exempt: o ? o.exempt : null, p_taxable: o ? o.taxable : null, p_liability: o ? o.liability : null, p_note: f.note.value, p_filed_on: f.on.value || null }).then(function(res){
+        $('txFileSave').disabled = false;
+        if (res.error) { alert('Couldn’t save: ' + res.error.message); return; }
+        x.classList.add('hidden'); if (window.ds) ds.toast(monthName(p) + ' marked filed', 'ok'); load(true, true); refreshAlerts();
+      });
+    };
+  }
+  function settingsDialog(){
+    var st = S.ov.settings, x = dlg('txSetDlg');
+    x.innerHTML = '<form id="txSetForm"><h3>Sales tax settings</h3><p class="hint">Use the county name and rate exactly as the Ohio form shows them.</p><div class="g2">' +
+      '<label class="w">County<input type="text" name="county" maxlength="60" value="' + esc(st.county) + '"></label>' +
+      '<label>Rate<input type="number" name="rate" step="0.00001" min="0.001" max="0.2" value="' + st.rate + '"></label>' +
+      '<label>Due day of next month<input type="number" name="due" min="1" max="28" value="' + st.due_day + '"></label>' +
+      '<label>Remind days before<input type="number" name="rem" min="1" max="28" value="' + st.remind_days + '"></label>' +
+      '<label>Track from month<input type="month" name="start" value="' + String(st.start_period).slice(0, 7) + '"></label></div>' +
+      '<div class="acts"><button type="button" class="btn-ghost" id="txSetX">Cancel</button><button type="submit" class="btn-primary">Save</button></div></form>';
+    x.classList.remove('hidden');
+    $('txSetX').onclick = function(){ x.classList.add('hidden'); };
+    $('txSetForm').onsubmit = function(e){ e.preventDefault(); var f = e.target;
+      sb.rpc('staff_sales_tax_save_settings', { p_county: f.county.value, p_rate: Number(f.rate.value), p_due_day: Number(f.due.value), p_remind_days: Number(f.rem.value), p_start: f.start.value ? f.start.value + '-01' : null }).then(function(res){
+        if (res.error) { alert('Couldn’t save: ' + res.error.message); return; }
+        x.classList.add('hidden'); if (window.ds) ds.toast('Sales tax settings saved', 'ok'); S.rep = {}; load(true); refreshAlerts();
+      }); };
+  }
+  function csv(){
+    var r = S.rep[S.sel]; if (!r) return; var q = r.square, o = r.ohio, rows = [['Roll-In Shawarma sales tax', monthName(S.sel)], [], ['Ohio return', ''], ['County', o.county], ['Tax rate', o.rate], ['Gross Sales', plain(o.gross)], ['Exempt Sales', plain(o.exempt)], ['Reportable Taxable Sales', plain(o.taxable)], ['Tax liability', plain(o.liability)], ['Tax collected in Square', plain(o.collected)], ['Pay', plain(o.pay)], [], ['Square sales summary', ''],
+      ['Gross sales', plain(q.gross_sales)], ['Items', plain(q.items)]].concat(q.service_charges.map(function(x){ return ['Service charge: ' + x.name, plain(x.amount)]; }))
+      .concat([['Returns', plain(-q.returns)], ['Discounts', plain(-q.discounts)], ['Net sales', plain(q.net_sales)], ['Taxes', plain(q.taxes)], ['Tips', plain(q.tips)], ['Total sales', plain(q.total_sales)], ['Total payments collected', plain(q.total_collected)]])
+      .concat(q.tenders.map(function(x){ return [x.name, plain(x.amount)]; })).concat([['Fees', plain(-q.fees)], ['Net total', plain(q.net_total)], [], ['Delivery apps (exempt)', '']]).concat(r.apps.map(function(a){ return [a.name + ' (' + a.orders + ' orders)', plain(a.sales)]; }));
+    var text = rows.map(function(rw){ return rw.map(function(c){ c = String(c == null ? '' : c); return /[",\n]/.test(c) ? '"' + c.replace(/"/g, '""') + '"' : c; }).join(','); }).join('\n');
+    var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'text/csv' })); a.download = 'sales-tax-' + ymOf(S.sel) + '.csv'; document.body.appendChild(a); a.click(); a.remove();
+  }
+
+  // ---------- reminder on Today ----------
+  function refreshAlerts(){
+    if (typeof sb === 'undefined') return;
+    sb.rpc('staff_sales_tax_alerts', window.__tbNow ? { p_today: todayStr() } : {}).then(function(res){
+      var list = res && !res.error && Array.isArray(res.data) ? res.data : [];
+      var b = $('navTaxBadge'); if (b) { b.textContent = list.length; b.classList.toggle('hidden', !list.length); }
+      if (window.homeTaxAlerts) window.homeTaxAlerts(list);
+    }, function(){});
+  }
+  window.txRefreshAlerts = refreshAlerts;
+  // The Today page may load before this script: check once the manager-only menu item appears.
+  (function(){ var btn = $('tabTaxBtn'); if (!btn) return; var done = false;
+    var go = function(){ if (!done && !btn.classList.contains('hidden')) { done = true; refreshAlerts(); } };
+    try { new MutationObserver(go).observe(btn, { attributes: true, attributeFilter: ['class'] }); } catch (e) {}
+    go(); })();
+
+  // ---------- wiring ----------
+  $('txRoot').addEventListener('click', function(e){
+    var o = e.target.closest('[data-open]'); if (o) { openMonth(o.getAttribute('data-open'), false); var top = $('txDetail'); if (top && top.scrollIntoView && o.closest('#txList')) top.scrollIntoView({ behavior: 'smooth', block: 'start' }); return; }
+    var row = e.target.closest('#txList tr[data-p]'); if (row && !e.target.closest('button')) { openMonth(row.getAttribute('data-p'), false); return; }
+    var c = e.target.closest('[data-copy]');
+    if (c) { var v = c.getAttribute('data-copy'); var done = function(){ c.textContent = 'Copied'; c.classList.add('done'); setTimeout(function(){ c.textContent = 'Copy'; c.classList.remove('done'); }, 1400); };
+      try { navigator.clipboard.writeText(v).then(done, done); } catch (er) { done(); } }
+  });
+  $('txList').addEventListener('click', function(e){ if (e.target.id === 'txOld') { S.showOld = !S.showOld; renderList(); } });
+  $('txRefresh').addEventListener('click', function(){ if (S.sel) openMonth(S.sel, true); });
+  $('txFile').addEventListener('click', function(){ if (S.ov && S.sel) fileDialog(); });
+  $('txSetBtn').addEventListener('click', function(){ if (S.ov) settingsDialog(); });
+  $('txCsv').addEventListener('click', csv);
+  $('txPrint').addEventListener('click', function(){ document.body.classList.add('tx-printing'); window.print(); setTimeout(function(){ document.body.classList.remove('tx-printing'); }, 500); });
+  var link = document.querySelector('#tabs .nav-link[data-tab="salestax"]');
+  if (link) link.addEventListener('click', function(){ load(!!S.ov); });
+  window.txOpen = function(){ load(!!S.ov); };
 })();
 </script>
 <script id="ds-js">
