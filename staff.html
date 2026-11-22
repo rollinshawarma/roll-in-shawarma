@@ -2586,6 +2586,19 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
 @media (max-width:760px){ .tx-fields{ grid-template-columns:minmax(0, 1fr); } .tx-v.big{ font-size:21px; } .tx-list th:nth-child(2), .tx-list td:nth-child(2), .tx-list th:nth-child(4), .tx-list td:nth-child(4){ display:none; } .tx-list td, .tx-list th{ padding-left:6px; padding-right:6px; } .tx-gw th:nth-child(2), .tx-gw td:nth-child(2){ display:none; } .tx-step{ padding:14px; } }
 @media print{ body.tx-printing .tab-panel:not(#panelSalestax), body.tx-printing .tx-months, body.tx-printing .tx-acts, body.tx-printing .tx-copy, body.tx-printing #txAlert{ display:none !important; } }
 </style>
+<style id="square-ledger-css">
+.sa-srcline{ margin:-4px 0 12px; font-size:12.5px; color:var(--ds-text-3); line-height:1.6; }
+.sa-srcline b{ color:var(--ds-text-2); font-weight:650; }
+.sa-sqdot{ display:inline-block; width:8px; height:8px; border-radius:50%; background:#2fa36b; margin-right:7px; vertical-align:0; box-shadow:0 0 0 3px rgba(47,163,107,.18); }
+.sa-srcerr{ color:#b42318; } :root[data-theme="dark"] .sa-srcerr{ color:#ff9aa6; }
+.sa-srcnote{ color:var(--ds-text-2); }
+.sa-linkbtn{ all:unset; cursor:pointer; color:var(--ds-link); font-weight:600; margin-left:4px; }
+.sa-linkbtn:hover{ text-decoration:underline; } .sa-linkbtn:focus-visible{ outline:2px solid var(--ds-link); outline-offset:2px; border-radius:3px; }
+.sa-linkbtn[disabled]{ color:var(--ds-text-3); cursor:default; }
+.tb-gmoney{ display:flex; gap:6px 14px; flex-wrap:wrap; font-size:12.5px; color:rgba(255,255,255,.72); margin:-4px 0 10px; }
+.tb-gmoney b{ color:#fff; font-weight:650; }
+@media print{ .sa-linkbtn{ display:none !important; } }
+</style>
 </head>
 <body>
 
@@ -4015,6 +4028,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
         </div>
       </div>
       <p class="sa-period" id="saPeriod"></p>
+      <p class="sa-srcline" id="saSrc" aria-live="polite"></p>
       <div class="sa-msg hidden" id="saMsg" role="alert"></div>
       <div id="saBody" class="sa-body" aria-live="polite">
         <section class="sa-ai" id="saAi" aria-live="polite">
@@ -4065,12 +4079,13 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
         </div>
         <details class="sa-card sa-defs"><summary>How these numbers are worked out</summary>
           <ul>
-            <li><b>Gross sales:</b> what the dishes sold for before discounts. <b>Discounts:</b> promo codes and member rewards. <b>Refunds:</b> money given back.</li>
-            <li><b>Net sales</b> = gross sales − discounts − refunds. This is the main number, the same as Square and Shopify use.</li>
-            <li><b>Tax &amp; fees</b> and <b>tips</b> are added on top; <b>Collected</b> is everything guests paid, minus refunds.</li>
-            <li><b>Average order</b> = net sales ÷ orders. <b>Items per order</b> counts dishes and drinks.</li>
+            <li><b>Where the numbers come from:</b> Square's own sales (every payment, its items, discounts, service charges, tax and tips, and every refund), copied into the portal within seconds. They match Square Dashboard → Reports → Sales summary. Website / QR / drive-up / event labels, customers and promo codes come from our order records.</li>
+            <li><b>Gross sales:</b> items before discounts, plus service charges (online fee, card surcharge, tips added as a charge), as Square counts them. <b>Discounts:</b> promo codes, member rewards and POS discounts. <b>Refunds:</b> counted on the day they were made.</li>
+            <li><b>Net sales</b> = gross sales − discounts − refunds. This is the main number, the same as Square uses.</li>
+            <li><b>Tax</b> and <b>tips</b> are added on top; <b>Collected</b> = net sales + tax + tips: everything guests paid, minus refunds.</li>
+            <li><b>Average order</b> = net sales ÷ orders. A sale paid in two parts counts as one order. Company-tab orders count when the company pays the bill.</li>
             <li><b>New customer:</b> their first order with us is in this period. <b>Returning:</b> they ordered before. Walk-up window sales usually have no name, so they aren't in the customer numbers.</li>
-            <li>Orders count when placed (pre-orders by pickup time), Ohio time. Canceled, failed and unpaid cash orders are left out.</li>
+            <li>Sales count when paid, Ohio time (the same as Square). Canceled and failed payments are left out.</li>
             <li><b>Previous period</b> is the same number of days right before. <b>Same days last year</b> is 52 weeks earlier, so weekdays line up.</li>
           </ul></details>
       </div>
@@ -12794,6 +12809,9 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
         (goal ? (fc.sales >= goal ? ', above the goal.' : ', ' + money(goal - fc.sales) + ' short of the goal.') : '.') + (mark != null ? ' The white mark is where the last ' + d.weeks + ' ' + dayName + 's were by now.' : '');
     } else foot = 'Forecasts start once there are a few ' + dayName + 's of orders to compare with.';
     $('tbGFoot').innerHTML = foot;
+    var gm = $('tbGMoney'); if (!gm) { gm = document.createElement('div'); gm.className = 'tb-gmoney'; gm.id = 'tbGMoney'; $('tbGStats').parentNode.insertBefore(gm, $('tbGFoot')); }
+    gm.innerHTML = d.mgr && t.tax != null ? '<span>Net sales from Square</span><span>Tax <b>' + money(t.tax, true) + '</b></span><span>Tips <b>' + money(t.tips, true) + '</b></span><span>Collected <b>' + money(t.collected, true) + '</b></span>' : '';
+    gm.classList.toggle('hidden', !(d.mgr && t.tax != null));
   }
   function queueTile(){
     var q = st.d.queue || {}, tix = q.tickets || [];
@@ -13144,8 +13162,32 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
   // ---------- paint ----------
   function paint(){
     var d = st.d, t = d.totals || {}, c = d.cmp_totals || null;
-    insights(); kpis(t, c); trend(); waterfall(t); channels(); heat(); dow(); items(); customers(t, c); payments(); promos(); days();
+    insights(); kpis(t, c); trend(); waterfall(t); channels(); heat(); dow(); items(); customers(t, c); payments(); promos(); days(); srcLine();
     if (window.saAfterPaint) try { window.saAfterPaint(st, { money: money, short$: short$, num: num, pct: pct, fmtD: fmtD, esc: esc, items: items }); } catch (e) { console.error(e); }
+  }
+  // Where the money numbers come from (square-ledger.sql): Square's own sales, synced.
+  function ago(t){ var m = Math.round((now() - new Date(t)) / 60000); return m < 1 ? 'just now' : m < 60 ? m + ' min ago' : m < 1440 ? Math.round(m / 60) + ' h ago' : fmtD(t); }
+  function srcLine(){
+    var d = st.d, y = d.sync || {}, u = d.unpaid_tabs, el = $('saSrc'); if (!el) return;
+    var btn = ' <button type="button" class="sa-linkbtn" id="saSync">Sync now</button>';
+    if (d.source === 'square') {
+      el.className = 'sa-srcline sq';
+      el.innerHTML = '<span class="sa-sqdot" aria-hidden="true"></span>Numbers from <b>Square</b>' + (y.last_run_at ? ' · synced ' + esc(ago(y.last_run_at)) : '') +
+        (y.history_done ? '' : ' · loading history' + (y.history_back_to ? ' (back to ' + esc(new Date(y.history_back_to).toLocaleDateString('en-US', { month: 'long', year: 'numeric', timeZone: 'America/New_York' })) + ')' : '') + '…') +
+        (y.last_error ? ' · <span class="sa-srcerr">last sync failed: ' + esc(String(y.last_error).slice(0, 90)) + '</span>' : '') + btn +
+        (u && u.orders ? '<br><span class="sa-srcnote">Plus ' + money(u.amount, 2) + ' on company tabs (' + u.orders + ' order' + (u.orders === 1 ? '' : 's') + ') not paid yet: they count when the company pays.</span>' : '');
+    } else {
+      el.className = 'sa-srcline';
+      el.innerHTML = 'Numbers from our own order records until the first Square sync runs.' + (d.sync ? btn : ' Run <b>square-ledger.sql</b> to switch to Square’s numbers.');
+    }
+    var b = $('saSync'); if (b) b.onclick = function(){
+      b.disabled = true; b.textContent = 'Syncing…';
+      sb.functions.invoke('square-sync', { body: { mode: 'backfill' } }).then(function(res){
+        var e = res && (res.error || (res.data && res.data.error));
+        if (e) { b.disabled = false; b.textContent = 'Sync now'; alert(/not found|404|Failed to send|FunctionsFetchError/i.test(String(e.message || e)) ? 'Deploy the square-sync edge function first (Verify JWT off).' : 'Sync didn’t finish: ' + (e.message || e)); return; }
+        if (window.ds) ds.toast('Synced with Square', 'ok'); load();
+      }, function(){ b.disabled = false; b.textContent = 'Sync now'; });
+    };
   }
   function spark(series, key){
     var v = series.map(function(x){ return Number(x[key] || 0); }); if (v.length < 2) return '';
@@ -13167,7 +13209,8 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       ['Net sales', money(t.net), t.net, c && c.net, false, spark(s, 'net'), 'hero'],
       ['Orders', num(t.orders), t.orders, c && c.orders, false, spark(s, 'orders')],
       ['Average order', money(t.avg_order, 2), t.avg_order, c && c.avg_order, false, ''],
-      ['Items per order', t.items_per_order != null ? Number(t.items_per_order).toFixed(2) : '—', t.items_per_order, c && c.items_per_order, false, ''],
+      t.tax != null ? ['Tax collected', money(t.tax), t.tax, c && c.tax, false, '', '', t.net ? (t.tax / t.net * 100).toFixed(2) + '% of net' : '']
+                    : ['Items per order', t.items_per_order != null ? Number(t.items_per_order).toFixed(2) : '—', t.items_per_order, c && c.items_per_order, false, ''],
       ['Gross sales', money(t.gross), t.gross, c && c.gross, false, ''],
       ['Discounts', money(t.discounts), t.discounts, c && c.discounts, true, '', '', (t.discounted_orders || 0) + ' orders'],
       ['Tips', money(t.tips), t.tips, c && c.tips, false, '', '', t.net ? (t.tips / t.net * 100).toFixed(1) + '% of net' : ''],
@@ -13229,7 +13272,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
   }
   function waterfall(t){
     var box = $('saFall');
-    var steps = [['Gross sales', t.gross, 'total'], ['Discounts', -t.discounts, 'neg'], ['Refunds', -t.refunds, 'neg'], ['Net sales', t.net, 'total'], ['Tax & fees', t.taxfee, 'pos'], ['Tips', t.tips, 'pos'], ['Collected', t.collected, 'total']];
+    var steps = [['Gross sales', t.gross, 'total'], ['Discounts', -t.discounts, 'neg'], ['Refunds', -t.refunds, 'neg'], ['Net sales', t.net, 'total'], [st.d.source === 'square' ? 'Tax' : 'Tax & fees', t.taxfee, 'pos'], ['Tips', t.tips, 'pos'], ['Collected', t.collected, 'total']];
     var W = Math.max(420, box.clientWidth || 520), H = 250, L = 10, R = 10, T = 22, B = 34, n = steps.length, cw = (W - L - R) / n, bw = Math.min(56, cw * .62);
     var mx = Math.max(t.gross || 0, t.collected || 0, t.net || 0, 1), ny = nice(mx), Y = function(v){ return T + (H - T - B) * (1 - v / ny.top); };
     var run = 0, out = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="From gross sales to money collected">';
@@ -13326,8 +13369,8 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     var ds = (st.d.days || []).slice().reverse();
     $('saDaysHint').textContent = ds.length ? ds.length + ' day' + (ds.length === 1 ? '' : 's') + ' with sales' : '';
     $('saDays').innerHTML = !ds.length ? '<div class="sa-empty">No sales in this period.</div>' :
-      '<table class="sa-table"><thead><tr><th>Day</th><th class="n">Orders</th><th class="n">Net sales</th><th class="n">Avg order</th><th class="n">Tips</th></tr></thead><tbody>' +
-      ds.map(function(x){ return '<tr><td>' + esc(fmtD(x.day + 'T12:00', { weekday: 'short', month: 'short', day: 'numeric' })) + '</td><td class="n">' + num(x.orders) + '</td><td class="n">' + money(x.net, 0) + '</td><td class="n">' + money(x.orders ? x.net / x.orders : 0, 2) + '</td><td class="n">' + money(x.tips, 0) + '</td></tr>'; }).join('') + '</tbody></table>';
+      '<table class="sa-table"><thead><tr><th>Day</th><th class="n">Orders</th><th class="n">Net sales</th><th class="n">Avg order</th>' + (st.d.source === 'square' ? '<th class="n">Tax</th>' : '') + '<th class="n">Tips</th></tr></thead><tbody>' +
+      ds.map(function(x){ return '<tr><td>' + esc(fmtD(x.day + 'T12:00', { weekday: 'short', month: 'short', day: 'numeric' })) + '</td><td class="n">' + num(x.orders) + '</td><td class="n">' + money(x.net, 0) + '</td><td class="n">' + money(x.orders ? x.net / x.orders : 0, 2) + '</td>' + (st.d.source === 'square' ? '<td class="n">' + money(x.tax, 2) + '</td>' : '') + '<td class="n">' + money(x.tips, 0) + '</td></tr>'; }).join('') + '</tbody></table>';
   }
   // ---------- CSV ----------
   function csv(){
@@ -13591,13 +13634,13 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     sb.functions.invoke('sales-ai-summary', { body: { report: payload() } }).then(function(res){
       if (my !== S.token) return;
       var d = res && res.data, err = res && res.error;
-      if (err || !d || !d.ok) {
+      if (err || !d || !d.ok || !d.headline) {
         var p = err && err.context && typeof err.context.json === 'function' ? err.context.json().catch(function(){ return {}; }) : Promise.resolve(d || {});
         return p.then(function(j){ if (my !== S.token) return;
           var off = (j && j.error === 'AI_NOT_SET_UP') || /not found|404|Failed to send|FunctionsFetchError|Relay/i.test(String((err && (err.message || err.name)) || ''));
           var l = localSummary(); S.ai = null; showSummary(l, '', off ? 'AI summaries are off. To turn them on: deploy the sales-ai-summary function and add the ANTHROPIC_API_KEY secret in Supabase. This summary is worked out from the numbers on this page.' : 'The AI summary didn’t come back (' + ((j && (j.error || j.message)) || (err && err.message) || 'unknown') + '). This summary is worked out from the numbers on this page.'); scorecard(); });
       }
-      var meta = '· ' + new Date(d.at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+      var meta = d.at && !isNaN(new Date(d.at)) ? '· ' + new Date(d.at).toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) : '';
       d._meta = meta; S.ai = d; try { sessionStorage.setItem(key, JSON.stringify(d)); } catch (e) {}
       showSummary(d, meta, 'Written by AI from this page’s totals (no guest names or contact details are sent). Check numbers that matter against the tables below.'); scorecard();
     }, function(){ if (my !== S.token) return; var l = localSummary(); showSummary(l, '', 'Couldn’t reach the AI service. This summary is worked out from the numbers on this page.'); });
