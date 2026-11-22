@@ -2599,6 +2599,74 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
 .tb-gmoney b{ color:#fff; font-weight:650; }
 @media print{ .sa-linkbtn{ display:none !important; } }
 </style>
+<style id="members-css">
+/* Customers -> Members: KPIs, growth, free roll reminder, list */
+.mb-head{ display:flex; align-items:flex-start; gap:12px; margin:4px 0 12px; }
+.mb-head h2{ margin:0 0 4px !important; } .mb-head p{ margin:0; } .mb-head button{ margin-left:auto; width:auto; }
+.mb-kpis{ display:grid; grid-template-columns:repeat(6, minmax(0, 1fr)); gap:10px; margin-bottom:14px; }
+.mb-k{ background:var(--ds-surface); box-shadow:var(--ds-card-shadow); border-radius:14px; padding:14px 16px; min-width:0; }
+.mb-k span{ display:block; font-size:12.5px; color:var(--ds-text-3); font-weight:600; }
+.mb-k b{ display:block; font:700 26px/1.15 var(--tb-num, var(--ds-font)); letter-spacing:-.02em; color:var(--ds-text); margin-top:4px; font-variant-numeric:tabular-nums; }
+.mb-k small{ display:block; font-size:12px; color:var(--ds-text-3); margin-top:3px; }
+.mb-k small.up{ color:var(--sa-up, #0c7a43); } .mb-k small.dn{ color:#b42318; }
+.mb-seg{ display:inline-flex; background:var(--ds-subtle); border-radius:10px; padding:3px; gap:2px; }
+.mb-seg button{ all:unset; cursor:pointer; padding:5px 11px; border-radius:8px; font-size:13px; font-weight:600; color:var(--ds-text-2); }
+.mb-seg button.on{ background:var(--ds-surface); color:var(--ds-text); box-shadow:0 1px 2px rgba(0,0,0,.08); }
+.mb-seg button:focus-visible{ outline:2px solid var(--ds-link); outline-offset:1px; }
+.mb-growth .sa-h{ flex-wrap:wrap; gap:8px 12px; } .mb-growth .sa-h h3{ margin-right:auto; }
+.mb-tiles{ display:grid; grid-template-columns:repeat(6, minmax(0, 1fr)); border:1px solid var(--ds-border); border-radius:12px; margin:4px 0 14px; overflow:hidden; }
+.mb-tiles div{ padding:10px 14px; border-right:1px solid var(--ds-border); }
+.mb-tiles div:last-child{ border-right:0; background:var(--ds-subtle); }
+.mb-tiles span{ display:block; font-size:12px; color:var(--ds-text-3); font-weight:600; }
+.mb-tiles b{ display:block; font:700 22px/1.2 var(--tb-num, var(--ds-font)); color:var(--ds-text); font-variant-numeric:tabular-nums; }
+.mb-chart{ position:relative; }
+.mb-chart svg{ display:block; width:100%; height:auto; overflow:visible; }
+.mb-chart .gl{ stroke:var(--ds-border); } .mb-chart .ax{ font-size:11px; fill:var(--ds-text-3); }
+.mb-h4{ font-size:13px; font-weight:650; color:var(--ds-text-2); margin:14px 0 6px; }
+.mb-small{ font-size:12.5px; margin:6px 0 0; }
+.mb-tip{ position:absolute; pointer-events:none; background:var(--ds-text); color:var(--ds-surface); border-radius:8px; padding:6px 10px; font-size:12.5px; white-space:nowrap; transform:translate(-50%, calc(-100% - 10px)); display:none; z-index:2; }
+.mb-fr{ padding:0 !important; overflow:hidden; }
+.mb-fr-in{ display:grid; grid-template-columns:220px minmax(0, 1fr); gap:22px; padding:18px; }
+.mb-fr-img{ all:unset; cursor:pointer; border-radius:14px; overflow:hidden; display:block; box-shadow:0 4px 14px rgba(43,33,26,.18); align-self:start; }
+.mb-fr-img img{ display:block; width:100%; height:auto; }
+.mb-fr-img:focus-visible{ outline:3px solid var(--ds-link); outline-offset:2px; }
+.mb-fr-body h3{ font:700 21px/1.25 var(--tb-num, var(--ds-font)) !important; margin:2px 0 4px !important; color:var(--ds-text) !important; }
+.mb-fr-stats{ display:flex; flex-wrap:wrap; gap:8px; margin:12px 0 8px; }
+.mb-fr-stats span{ background:var(--ds-subtle); border-radius:10px; padding:7px 11px; font-size:13px; color:var(--ds-text-2); }
+.mb-fr-stats span b{ font-size:16px; color:var(--ds-text); margin-right:4px; font-variant-numeric:tabular-nums; }
+.mb-fr-stats span.go{ background:#fbe6dc; color:#7a2f12; } .mb-fr-stats span.go b{ color:#7a2f12; }
+:root[data-theme="dark"] .mb-fr-stats span.go{ background:rgba(181,83,44,.22); color:#f4b393; } :root[data-theme="dark"] .mb-fr-stats span.go b{ color:#f4b393; }
+.mb-fr-last{ font-size:13px; color:var(--ds-text-2); margin:0 0 12px; }
+.mb-fr-acts{ display:flex; flex-wrap:wrap; gap:8px; align-items:center; }
+.mb-fr-acts button{ width:auto; }
+#mbFrSend{ background:#b5532c !important; border-color:#b5532c !important; }
+#mbFrSend:disabled{ opacity:.55; }
+#mbFrHist{ border-top:1px solid var(--ds-border); padding:4px 18px 12px; }
+#mbFrHist:empty{ display:none; }
+.mb-chips{ display:flex; flex-wrap:wrap; gap:6px; margin:4px 0 12px; }
+.mb-chips button{ all:unset; cursor:pointer; padding:6px 12px; border-radius:999px; font-size:13px; font-weight:600; color:var(--ds-text-2); background:var(--ds-subtle); }
+.mb-chips button b{ font-weight:700; margin-left:4px; color:var(--ds-text-3); font-variant-numeric:tabular-nums; }
+.mb-chips button.on{ background:var(--ds-text); color:var(--ds-surface); } .mb-chips button.on b{ color:inherit; opacity:.75; }
+.mb-chips button:focus-visible{ outline:2px solid var(--ds-link); outline-offset:2px; }
+.mb-table td{ vertical-align:middle; }
+.mb-table tbody tr{ cursor:pointer; } .mb-table tbody tr:hover td{ background:var(--ds-subtle); }
+.mb-who b{ display:block; color:var(--ds-text); font-weight:600; } .mb-who small{ display:block; color:var(--ds-text-3); font-size:12px; overflow:hidden; text-overflow:ellipsis; max-width:46ch; white-space:nowrap; }
+.mb-st{ display:inline-block; font-size:11.5px; font-weight:650; border-radius:999px; padding:2px 8px; margin-left:6px; vertical-align:1px; background:var(--ds-subtle-2); color:var(--ds-text-2); }
+.mb-st.active{ background:#dcf3e6; color:#0c5132; } .mb-st.at_risk{ background:#fff1c7; color:#6b4a00; } .mb-st.lapsed{ background:#fde4df; color:#8e0b21; }
+:root[data-theme="dark"] .mb-st.active{ background:rgba(47,163,107,.18); color:#7ee2ad; } :root[data-theme="dark"] .mb-st.at_risk{ background:rgba(240,165,0,.16); color:#f6c75a; } :root[data-theme="dark"] .mb-st.lapsed{ background:rgba(229,53,77,.18); color:#ff9aa6; }
+.mb-roll{ font-size:12.5px; font-weight:600; } .mb-roll.w{ color:#b5532c; } .mb-roll.u{ color:var(--ds-text-3); }
+:root[data-theme="dark"] .mb-roll.w{ color:#f4b393; }
+.mb-signups summary{ cursor:pointer; font-weight:650; color:var(--ds-text); }
+.mb-dlg-prev{ width:100%; height:68vh; border:0; border-radius:12px; background:#efe8dc; }
+@media (max-width:1100px){ .mb-kpis{ grid-template-columns:repeat(3, minmax(0, 1fr)); } .mb-tiles{ grid-template-columns:repeat(3, minmax(0, 1fr)); } .mb-tiles div:nth-child(3){ border-right:0; } .mb-tiles div:nth-child(-n+3){ border-bottom:1px solid var(--ds-border); } }
+@media (max-width:760px){
+  .mb-kpis{ grid-template-columns:repeat(2, minmax(0, 1fr)); } .mb-k b{ font-size:22px; }
+  .mb-tiles{ grid-template-columns:repeat(2, minmax(0, 1fr)); } .mb-tiles div{ border-right:0; border-bottom:1px solid var(--ds-border); } .mb-tiles div:nth-child(odd){ border-right:1px solid var(--ds-border); }
+  .mb-fr-in{ grid-template-columns:minmax(0, 1fr); } .mb-fr-img{ max-width:260px; }
+  .mb-table th:nth-child(2), .mb-table td:nth-child(2), .mb-table th:nth-child(5), .mb-table td:nth-child(5), .mb-table th:nth-child(6), .mb-table td:nth-child(6), .mb-table th:nth-child(8), .mb-table td:nth-child(8){ display:none; }
+  .mb-head{ flex-wrap:wrap; }
+}
+</style>
 </head>
 <body>
 
@@ -4574,7 +4642,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     <div class="sc-range cu-views" id="cuViews" role="tablist" aria-label="Customers">
       <button type="button" class="on" data-v="orders">Order history</button>
       <button type="button" data-v="people">Customers</button>
-      <button type="button" class="hidden" data-v="members" id="cuMembersBtn">Members &amp; signups</button>
+      <button type="button" class="hidden" data-v="members" id="cuMembersBtn">Members</button>
     </div>
 
     <!-- Order history (customer-orders.sql) -->
@@ -4635,31 +4703,47 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     </aside>
 
     <div id="cuMembersWrap" class="hidden">
-    <div class="card">
-      <h2>Members</h2>
-      <p class="hint">Everyone who's signed up as a member on the website. Birthdays are month/day only &mdash; no year is ever collected.</p>
-      <div style="overflow-x:auto;">
-        <table class="stack">
-          <thead><tr><th>Name</th><th>Email</th><th>Birthday</th><th>Signed up</th><th>Free roll</th></tr></thead>
-          <tbody id="customerInfoBody"></tbody>
-        </table>
-      </div>
-    </div>
-    <div class="card">
-      <h2>Email signups</h2>
-      <p class="hint">People who signed up on the public site to hear about new stops.</p>
-      <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px;">
-        <span id="signupCount" class="hint" style="margin:0;">&mdash;</span>
-        <button class="btn-export btn-small" id="exportSignupsBtn">
-          <svg class="icon" style="width:13px;height:13px;"><use href="#ic-download"/></svg>Export CSV
-        </button>
-      </div>
-      <div style="overflow-x:auto;">
-        <table>
-          <thead><tr><th>Email</th><th>Signed up</th></tr></thead>
-          <tbody id="signupsBody"></tbody>
-        </table>
-      </div>
+    <div class="mb" id="mbRoot">
+      <div class="mb-head"><div><h2>Members</h2><p class="hint">Roll-In Rewards members: who joined, who’s ordering, and who still has their welcome free roll.</p></div>
+        <button type="button" class="btn-export btn-small" id="mbExport"><svg class="icon" style="width:13px;height:13px;"><use href="#ic-download"/></svg>Export CSV</button></div>
+      <div id="mbMsg"></div>
+      <div class="mb-kpis" id="mbKpis"></div>
+
+      <section class="sa-card mb-growth"><div class="sa-h"><h3>New customers</h3>
+          <div class="mb-seg" role="tablist" aria-label="Count"><button type="button" class="on" data-s="members">Members joined</button><button type="button" data-s="first_time">First-time customers</button></div>
+          <div class="mb-seg" role="tablist" aria-label="Group by"><button type="button" class="on" data-g="day">Day</button><button type="button" data-g="week">Week</button><button type="button" data-g="month">Month</button><button type="button" data-g="year">Year</button></div></div>
+        <div class="mb-tiles" id="mbTiles"></div>
+        <div class="mb-chart" id="mbChart"></div>
+        <p class="hint mb-small" id="mbChartHint"></p>
+        <div id="mbTotalWrap"><h4 class="mb-h4">Total members</h4><div class="mb-chart mb-line" id="mbTotal"></div></div></section>
+
+      <section class="sa-card mb-fr" id="mbFr">
+        <div class="mb-fr-in">
+          <button type="button" class="mb-fr-img" id="mbFrPrevImg" aria-label="Preview the email"><img src="email/free-roll-waiting.jpg" alt="Your free roll is still waiting" loading="lazy"></button>
+          <div class="mb-fr-body">
+            <h3>“Your free roll is still waiting”</h3>
+            <p class="hint">A weekly nudge to members who joined but haven’t used their welcome Frankie Roll. Each member gets it at most once a week, and 4 times in all.</p>
+            <div class="mb-fr-stats" id="mbFrStats"></div>
+            <p class="mb-fr-last" id="mbFrLast"></p>
+            <div class="mb-fr-acts"><button type="button" class="btn-primary" id="mbFrSend" disabled>Send reminder</button><button type="button" class="btn-ghost btn-small" id="mbFrPrev">Preview email</button><button type="button" class="btn-ghost btn-small" id="mbFrTest">Send me a test</button><button type="button" class="btn-ghost btn-small" id="mbFrSet">Settings</button></div>
+            <div id="mbFrMsg"></div>
+          </div>
+        </div>
+        <div class="sa-tablewrap" id="mbFrHist"></div>
+      </section>
+
+      <section class="sa-card mb-list"><div class="sa-h"><h3>All members</h3><span class="hint" id="mbListHint"></span></div>
+        <div class="mb-chips" id="mbChips" role="tablist" aria-label="Segment"></div>
+        <div class="cu-bar"><input type="search" id="mbQ" placeholder="Search name, email or member #" autocomplete="off" aria-label="Search members">
+          <select id="mbSort" aria-label="Sort"><option value="joined">Newest first</option><option value="spent">Top spenders</option><option value="orders">Most orders</option><option value="last">Last order</option><option value="name">Name A–Z</option></select></div>
+        <div class="sa-tablewrap"><table class="sa-table mb-table" id="mbTable"><thead><tr><th>Member</th><th>Joined</th><th class="n">Orders</th><th class="n">Spent</th><th>Last order</th><th class="n">Points</th><th>Free roll</th><th>Emails</th></tr></thead><tbody></tbody></table></div>
+        <div class="cu-more"><button type="button" class="btn-secondary btn-small hidden" id="mbMore">Show more</button></div></section>
+
+      <details class="sa-card mb-signups"><summary>Email signups (not members) <span class="hint" id="signupCount">&mdash;</span></summary>
+        <p class="hint">People who left an email on the website to hear about new stops, without becoming members.</p>
+        <div style="display:flex; justify-content:flex-end; margin-bottom:10px;"><button class="btn-export btn-small" id="exportSignupsBtn"><svg class="icon" style="width:13px;height:13px;"><use href="#ic-download"/></svg>Export CSV</button></div>
+        <div style="overflow-x:auto;"><table><thead><tr><th>Email</th><th>Signed up</th></tr></thead><tbody id="signupsBody"></tbody></table></div></details>
+      <table class="hidden" aria-hidden="true"><tbody id="customerInfoBody"></tbody></table>
     </div>
     </div>
   </div>
@@ -5121,6 +5205,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       '<span class="todo-text"><b>' + esc(title) + '</b>' + (sub ? '<small>' + esc(sub) + '</small>' : '') + '</span>' +
       '<svg class="icon"><use href="#ic-arrow"/></svg></button>';
   }
+  window.homeFrAlert = function(a){ if (JSON.stringify(a || null) !== JSON.stringify(homeState.frAlert || null)) { homeState.frAlert = a || null; renderHomeTodo(); } };
   window.homeTaxAlerts = function(list){ if (JSON.stringify(list) !== JSON.stringify(homeState.salesTax || [])) { homeState.salesTax = list; renderHomeTodo(); } };
   function renderHomeTodo(){
     var h = homeState, out = [];
@@ -5135,6 +5220,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       if (h.missingOut) out.push(todoHtml(h.missingOut, 'Missing ' + (h.missingOut === 1 ? 'clock-out' : 'clock-outs'), 'From a past day. Add the hours by hand.', 'approve', true));
       if (h.certs) out.push(todoHtml(h.certs, 'Food handler ' + (h.certs === 1 ? 'cert' : 'certs') + ' expiring', 'Expired or due within 30 days.', 'documents', true));
       if (h.soldOut) out.push(todoHtml(h.soldOut, (h.soldOut === 1 ? 'Item' : 'Items') + ' marked sold out', 'Switch back on when you restock.', 'soldout'));
+      if (h.frAlert && h.frAlert.ready) out.push(todoHtml(h.frAlert.ready, 'Free roll reminder ready for ' + h.frAlert.ready + ' member' + (h.frAlert.ready === 1 ? '' : 's'), (h.frAlert.last ? 'A week since the last one.' : 'Not sent yet.') + ' One tap sends “Your free roll is still waiting”.', 'members', false));
       (h.salesTax || []).forEach(function(m){ // sales-tax.sql: Ohio return due within a week, or overdue
         var mon = new Date(String(m.period).slice(0, 10) + 'T12:00:00').toLocaleDateString('en-US', { month: 'long' }), due = new Date(String(m.due).slice(0, 10) + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' }), n = m.days_left;
         out.push(todoHtml(n < 0 ? '!' : n, n < 0 ? 'Ohio sales tax for ' + mon + ' is overdue' : 'Ohio sales tax for ' + mon + ' due ' + (n === 0 ? 'today' : n === 1 ? 'tomorrow' : 'in ' + n + ' days'), (n < 0 ? 'Was due ' + due + '. File it soon: Ohio may add a penalty and interest. ' : 'Due ' + due + '. ') + 'The numbers to enter are ready on Sales tax.', 'salestax', n <= 2));
@@ -5163,12 +5249,15 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
   }
   document.getElementById('mainContent').addEventListener('click', function(e){
     var b = e.target.closest('[data-go]');
-    if (b) { showTab(b.getAttribute('data-go')); if (b.getAttribute('data-go') === 'salestax' && window.txOpen) window.txOpen(); }
+    if (b) { var go = b.getAttribute('data-go');
+      if (go === 'members') { showTab('customerInfo'); if (window.cuShowView) window.cuShowView('members'); return; }
+      showTab(go); if (go === 'salestax' && window.txOpen) window.txOpen(); }
   });
 
   function loadTodayGlance(){
     var start = new Date(); start.setHours(0,0,0,0);
     if (window.txRefreshAlerts) window.txRefreshAlerts();
+    if (window.mbRefreshAlert) window.mbRefreshAlert();
     sb.rpc('staff_app_accept_issues').then(function(res){ // fine before the SQL is run: just nothing shown
       var list = res && !res.error && Array.isArray(res.data) ? res.data : [];
       if (JSON.stringify(list) !== JSON.stringify(homeState.appAccept || [])) { homeState.appAccept = list; renderHomeTodo(); }
@@ -11392,6 +11481,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       cuBindList(cuEl('cuDOrders'));
     });
   }
+  window.cuOpenPerson = cuOpenPerson; window.cuShowView = function(v){ cuInit(); cuShow(v); };
   function cuClosePerson(){ cuEl('cuScrim').classList.add('hidden'); cuEl('cuDrawer').classList.add('hidden'); document.body.style.overflow = ''; }
   function cuShow(v){
     cu.view = v;
@@ -11399,6 +11489,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     cuEl('cuOrdersCard').classList.toggle('hidden', v !== 'orders');
     cuEl('cuPeopleCard').classList.toggle('hidden', v !== 'people');
     cuEl('cuMembersWrap').classList.toggle('hidden', v !== 'members');
+    if (v === 'members' && window.mbOpen) window.mbOpen();
     if (v === 'people' && !cu.people.length) cuPeopleLoad(false);
   }
   function cuInit(){
@@ -13882,6 +13973,227 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
   var link = document.querySelector('#tabs .nav-link[data-tab="salestax"]');
   if (link) link.addEventListener('click', function(){ load(!!S.ov); });
   window.txOpen = function(){ load(!!S.ov); };
+})();
+</script>
+<script id="members-js">
+/* Customers -> Members (members-pack.sql + member-offers edge function). Admins only. */
+(function(){
+  var $ = function(id){ return document.getElementById(id); };
+  if (!$('mbRoot')) return;
+  var TZ = 'America/New_York';
+  var M = { g: 'day', s: 'members', seg: 'all', sort: 'joined', q: '', rows: [], off: 0, ov: null, fr: null, t: null, busy: 0 };
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function num(n){ return Number(n || 0).toLocaleString('en-US'); }
+  function money(n){ return '$' + Number(n || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function day(t, o){ return t ? new Date(t).toLocaleDateString('en-US', Object.assign({ month: 'short', day: 'numeric', timeZone: TZ }, o || {})) : '—'; }
+  function nowArg(){ return window.__tbNow ? new Date(window.__tbNow).toISOString() : null; }
+  function err(e){ var m = (e && e.message) || String(e || ''); return /does not exist|schema cache|Could not find/i.test(m) ? 'Run <b>members-pack.sql</b> in Supabase → SQL Editor to turn on the new Members page.' : esc(m); }
+  function msg(id, html, kind){ $(id).innerHTML = html ? '<div class="msg ' + (kind || 'error') + '">' + html + '</div>' : ''; }
+
+  // ---------- KPIs + growth ----------
+  function loadOverview(){
+    var my = ++M.busy;
+    sb.rpc('staff_members_overview', { p_grain: M.g, p_now: nowArg() }).then(function(res){
+      if (my !== M.busy) return;
+      if (res.error) { msg('mbMsg', err(res.error)); return; }
+      M.ov = res.data; msg('mbMsg', ''); kpis(); growth();
+    });
+  }
+  function kpis(){
+    var k = M.ov.kpis, ch = k.new_prev7 ? Math.round((k.new7 - k.new_prev7) / k.new_prev7 * 100) : null;
+    var tile = function(label, v, sub, cls){ return '<div class="mb-k"><span>' + esc(label) + '</span><b>' + v + '</b><small' + (cls ? ' class="' + cls + '"' : '') + '>' + sub + '</small></div>'; };
+    $('mbKpis').innerHTML =
+      tile('Members', num(k.total), num(M.ov.joined.month) + ' joined this month') +
+      tile('New this week', num(k.new7), ch == null ? 'last 7 days' : (ch >= 0 ? '▲ ' : '▼ ') + Math.abs(ch) + '% vs the week before', ch == null ? '' : ch >= 0 ? 'up' : 'dn') +
+      tile('Ordered in 30 days', num(k.active30), k.total ? Math.round(k.active30 / k.total * 100) + '% of members' : '') +
+      tile('Free roll waiting', num(k.waiting), 'joined, never ordered') +
+      tile('Come back', k.repeat_rate != null ? Math.round(k.repeat_rate) + '%' : '—', 'of members who ordered, ordered again') +
+      tile('Birthdays this month', num(k.birthdays), num(k.emails_on) + ' get emails');
+  }
+  function bucketLabel(t, short){
+    var d = new Date(String(t).slice(0, 10) + 'T12:00:00');
+    if (M.g === 'day') return d.toLocaleDateString('en-US', short ? { month: 'numeric', day: 'numeric' } : { weekday: 'short', month: 'short', day: 'numeric' });
+    if (M.g === 'week') return (short ? '' : 'Week of ') + d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+    if (M.g === 'month') return d.toLocaleDateString('en-US', short ? { month: 'short' } : { month: 'long', year: 'numeric' });
+    return String(d.getFullYear());
+  }
+  function niceMax(m){ if (m <= 4) return { top: Math.max(1, Math.ceil(m)), step: 1 }; var p = Math.pow(10, Math.floor(Math.log10(m))), q = m / p, s = (q <= 1.5 ? .25 : q <= 3 ? .5 : q <= 6 ? 1 : 2) * p; s = Math.max(1, Math.round(s)); return { top: Math.ceil(m / s) * s, step: s }; }
+  function growth(){
+    var J = M.s === 'members' ? M.ov.joined : M.ov.first_time;
+    var names = [['today', 'Today'], ['yesterday', 'Yesterday'], ['week', 'This week'], ['month', 'This month'], ['year', 'This year'], ['total', M.s === 'members' ? 'Total members' : 'All customers']];
+    $('mbTiles').innerHTML = names.map(function(n){ return '<div><span>' + n[1] + '</span><b>' + num(J[n[0]]) + '</b></div>'; }).join('');
+    var ser = M.ov.series || [], key = M.s, box = $('mbChart');
+    var vals = ser.map(function(x){ return Number(x[key] || 0); }), mx = niceMax(Math.max.apply(null, vals.concat([1])));
+    var W = Math.max(560, box.clientWidth || 900), H = 210, L = 36, R = 8, T = 10, B = 26, n = ser.length || 1, bw = (W - L - R) / n;
+    var Y = function(v){ return T + (H - T - B) * (1 - v / mx.top); };
+    var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="' + esc((M.s === 'members' ? 'Members joined' : 'First-time customers') + ' by ' + M.g) + '">';
+    for (var g = 0; g <= mx.top + 1e-9; g += mx.step) s += '<line class="gl" x1="' + L + '" x2="' + (W - R) + '" y1="' + Y(g) + '" y2="' + Y(g) + '"/><text class="ax" x="' + (L - 6) + '" y="' + (Y(g) + 4) + '" text-anchor="end">' + g + '</text>';
+    var every = Math.max(1, Math.ceil(n / 12));
+    ser.forEach(function(x, i){
+      var v = vals[i], h = Math.max(v ? 2 : 0, (H - T - B) - (Y(v) - T)), x0 = L + i * bw + Math.max(1, bw * .18), w = Math.max(2, bw * .64), last = i === n - 1;
+      if (v) s += '<path d="M' + x0 + ' ' + (H - B) + ' V' + (H - B - h + Math.min(4, h)) + ' q0 -' + Math.min(4, h) + ' ' + Math.min(4, w / 2) + ' -' + Math.min(4, h) + ' H' + (x0 + w - Math.min(4, w / 2)) + ' q' + Math.min(4, w / 2) + ' 0 ' + Math.min(4, w / 2) + ' ' + Math.min(4, h) + ' V' + (H - B) + ' Z" fill="' + (last ? '#2a78d6' : '#7fb0ea') + '"/>';
+      if (i % every === 0 || last) s += '<text class="ax" x="' + (x0 + w / 2) + '" y="' + (H - 8) + '" text-anchor="middle">' + esc(bucketLabel(x.t, true)) + '</text>';
+      s += '<rect class="hit" data-i="' + i + '" x="' + (L + i * bw) + '" y="' + T + '" width="' + bw + '" height="' + (H - T - B) + '" fill="transparent"/>';
+    });
+    box.innerHTML = s + '</svg><div class="mb-tip"></div>';
+    hover(box, W, function(i){ var x = ser[i]; return '<b>' + esc(bucketLabel(x.t)) + '</b><br>' + num(x[key]) + (M.s === 'members' ? ' joined' : ' first-time customers') + (M.s === 'members' ? ' · ' + num(x.total) + ' members total' : ''); }, function(i){ return L + i * bw + bw / 2; }, function(i){ return Y(vals[i]); });
+    var sum = vals.reduce(function(a, b){ return a + b; }, 0);
+    $('mbChartHint').textContent = (M.s === 'members' ? num(sum) + ' members joined' : num(sum) + ' first-time customers') + ' in the period shown. ' + (M.s === 'first_time' ? 'First-time customer = anyone’s first paid order (members and guests who left a name, phone or email).' : 'Members = people who signed up for Roll-In Rewards.');
+    // total members (line)
+    $('mbTotalWrap').classList.toggle('hidden', M.s !== 'members');
+    if (M.s === 'members') {
+      var tb = $('mbTotal'), tv = ser.map(function(x){ return Number(x.total || 0); }), tm = niceMax(Math.max.apply(null, tv.concat([1]))), H2 = 140;
+      var Y2 = function(v){ return T + (H2 - T - B) * (1 - v / tm.top); }, X2 = function(i){ return L + i * bw + bw / 2; };
+      var t = '<svg viewBox="0 0 ' + W + ' ' + H2 + '" role="img" aria-label="Total members over time">';
+      for (var g2 = 0; g2 <= tm.top + 1e-9; g2 += tm.step) t += '<line class="gl" x1="' + L + '" x2="' + (W - R) + '" y1="' + Y2(g2) + '" y2="' + Y2(g2) + '"/><text class="ax" x="' + (L - 6) + '" y="' + (Y2(g2) + 4) + '" text-anchor="end">' + g2 + '</text>';
+      var d = tv.map(function(v, i){ return (i ? 'L' : 'M') + X2(i).toFixed(1) + ' ' + Y2(v).toFixed(1); }).join(' ');
+      t += '<path d="' + d + ' L' + X2(n - 1) + ' ' + (H2 - B) + ' L' + X2(0) + ' ' + (H2 - B) + 'Z" fill="#2a78d6" opacity=".08"/><path d="' + d + '" fill="none" stroke="#2a78d6" stroke-width="2" stroke-linejoin="round"/>';
+      t += '<circle cx="' + X2(n - 1) + '" cy="' + Y2(tv[n - 1] || 0) + '" r="4.5" fill="#2a78d6" stroke="var(--ds-surface)" stroke-width="2"/>';
+      ser.forEach(function(x, i){ if (i % every === 0 || i === n - 1) t += '<text class="ax" x="' + X2(i) + '" y="' + (H2 - 8) + '" text-anchor="middle">' + esc(bucketLabel(x.t, true)) + '</text>'; t += '<rect class="hit" data-i="' + i + '" x="' + (L + i * bw) + '" y="' + T + '" width="' + bw + '" height="' + (H2 - T - B) + '" fill="transparent"/>'; });
+      tb.innerHTML = t + '</svg><div class="mb-tip"></div>';
+      hover(tb, W, function(i){ return '<b>' + esc(bucketLabel(ser[i].t)) + '</b><br>' + num(tv[i]) + ' members'; }, X2, function(i){ return Y2(tv[i]); });
+    }
+  }
+  function hover(box, W, html, xf, yf){
+    var svg = box.querySelector('svg'), tip = box.querySelector('.mb-tip');
+    svg.addEventListener('mousemove', function(e){ var r = e.target.closest('.hit'); if (!r) { tip.style.display = 'none'; return; }
+      var i = +r.getAttribute('data-i'), k = svg.getBoundingClientRect().width / W;
+      tip.innerHTML = html(i); tip.style.left = Math.max(70, Math.min(box.clientWidth - 70, xf(i) * k)) + 'px'; tip.style.top = (yf(i) * k) + 'px'; tip.style.display = 'block'; });
+    svg.addEventListener('mouseleave', function(){ tip.style.display = 'none'; });
+  }
+
+  // ---------- free roll reminder ----------
+  function loadFr(){
+    sb.rpc('staff_free_roll_reminder_status', { p_now: nowArg() }).then(function(res){
+      if (res.error) { $('mbFr').classList.add('hidden'); return; }
+      $('mbFr').classList.remove('hidden'); M.fr = res.data; frPaint();
+    });
+  }
+  function frPaint(){
+    var f = M.fr, st = f.settings, last = f.last, b = $('mbFrSend');
+    var chip = function(n, label, cls){ return '<span' + (cls ? ' class="' + cls + '"' : '') + '><b>' + num(n) + '</b>' + esc(label) + '</span>'; };
+    $('mbFrStats').innerHTML = chip(f.ready, 'ready for a reminder', 'go') + chip(f.waiting, 'free rolls waiting') + chip(f.reminded_recently, 'reminded this week') +
+      (f.too_new ? chip(f.too_new, 'joined in the last ' + st.min_age_days + ' days') : '') + (f.maxed ? chip(f.maxed, 'had all ' + st.max_reminders + ' reminders') : '') + chip(f.claimed_total, 'claimed after a reminder');
+    var sentToday = last && last.status === 'sent' && Date.now() - new Date(last.at) < 20 * 3600e3 && !window.__tbNow;
+    if (window.__tbNow && last) sentToday = new Date(window.__tbNow) - new Date(last.at) < 20 * 3600e3;
+    $('mbFrLast').innerHTML = last ? 'Last sent <b>' + esc(day(last.at, { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' })) + '</b> to ' + num(last.count) + ' member' + (last.count === 1 ? '' : 's') + '.' + (sentToday ? ' Next one can go tomorrow.' : '') : 'Not sent yet.';
+    var n = Math.min(f.ready, st.per_send);
+    b.disabled = !f.ready || sentToday || last && last.status === 'sending';
+    b.textContent = !f.ready ? 'Nobody due right now' : sentToday ? 'Sent today' : 'Send to ' + num(n) + ' member' + (n === 1 ? '' : 's');
+    b.title = f.ready > st.per_send ? 'Up to ' + st.per_send + ' per send (email service limit). The rest can go tomorrow.' : '';
+    var h = f.history || [];
+    $('mbFrHist').innerHTML = h.length ? '<table class="sa-table"><thead><tr><th>Sent</th><th class="n">Members</th><th class="n">Claimed since</th><th class="n">Rate</th></tr></thead><tbody>' +
+      h.map(function(x){ return '<tr><td>' + esc(day(x.at, { weekday: 'short', month: 'short', day: 'numeric', year: 'numeric' })) + '</td><td class="n">' + num(x.count) + '</td><td class="n">' + num(x.claimed) + '</td><td class="n">' + (x.count ? Math.round(x.claimed / x.count * 100) + '%' : '—') + '</td></tr>'; }).join('') + '</tbody></table>' : '';
+  }
+  function invoke(body){ return sb.functions.invoke('member-offers', { body: body }).then(function(res){
+    var d = res && res.data, e = res && res.error;
+    if (!e && d && !d.error) return d;
+    var p = e && e.context && typeof e.context.json === 'function' ? e.context.json().catch(function(){ return {}; }) : Promise.resolve(d || {});
+    return p.then(function(j){ var m = (j && j.error) || (e && e.message) || 'Something went wrong';
+      if (/Failed to send|FunctionsFetchError|not found|404/i.test(String((e && (e.message || e.name)) || '')) && !(j && j.error)) m = 'Redeploy the member-offers edge function first.';
+      throw new Error(m); }); }); }
+  function dlg(id){ var x = $(id); if (!x) { x = document.createElement('div'); x.className = 'tb-dlg tx-dlg hidden'; x.id = id; x.setAttribute('role', 'dialog'); x.setAttribute('aria-modal', 'true'); document.body.appendChild(x);
+      x.addEventListener('click', function(e){ if (e.target === x) x.classList.add('hidden'); }); x.addEventListener('keydown', function(e){ if (e.key === 'Escape') x.classList.add('hidden'); }); } return x; }
+  function preview(){
+    var x = dlg('mbPrevDlg');
+    x.innerHTML = '<form onsubmit="return false" style="max-width:620px"><h3 id="mbPrevSubj">Preview</h3><p class="hint">What members see (their own first name goes in).</p><iframe class="mb-dlg-prev" id="mbPrevFrame" title="Email preview"></iframe><div class="acts"><button type="button" class="btn-ghost" id="mbPrevX">Close</button></div></form>';
+    x.classList.remove('hidden'); $('mbPrevX').onclick = function(){ x.classList.add('hidden'); }; $('mbPrevX').focus();
+    invoke({ action: 'freeroll_preview' }).then(function(d){ $('mbPrevSubj').textContent = 'Subject: ' + d.subject; $('mbPrevFrame').srcdoc = d.html; }, function(e){ $('mbPrevSubj').textContent = e.message; });
+  }
+  function send(){
+    var f = M.fr, n = Math.min(f.ready, f.settings.per_send);
+    if (!confirm('Send “Your free roll is still waiting” to ' + n + ' member' + (n === 1 ? '' : 's') + ' now?')) return;
+    var b = $('mbFrSend'); b.disabled = true; b.textContent = 'Sending…'; msg('mbFrMsg', '');
+    invoke({ action: 'freeroll_send' }).then(function(d){
+      msg('mbFrMsg', 'Sent to ' + num(d.sent) + ' member' + (d.sent === 1 ? '' : 's') + '.' + (d.due > d.sent ? ' ' + num(d.due - d.sent) + ' more can go tomorrow.' : ''), 'ok');
+      if (window.ds) ds.toast('Free roll reminder sent to ' + d.sent, 'ok'); loadFr(); loadList(false); if (window.mbRefreshAlert) window.mbRefreshAlert();
+    }, function(e){ msg('mbFrMsg', esc(e.message)); loadFr(); });
+  }
+  function test(){
+    var to = prompt('Send a test to which email? (Leave empty for your own.)', ''); if (to === null) return;
+    msg('mbFrMsg', 'Sending a test…', 'info');
+    invoke({ action: 'freeroll_test', to: to.trim() }).then(function(d){ msg('mbFrMsg', 'Test sent to ' + esc(d.sent_to) + '.', 'ok'); }, function(e){ msg('mbFrMsg', esc(e.message)); });
+  }
+  function settings(){
+    var st = M.fr.settings, x = dlg('mbSetDlg');
+    x.innerHTML = '<form id="mbSetForm"><h3>Reminder settings</h3><div class="g2">' +
+      '<label>Days between reminders (per member)<input type="number" name="cd" min="3" max="60" value="' + st.cooldown_days + '"></label>' +
+      '<label>Reminders per member, in all<input type="number" name="mx" min="1" max="12" value="' + st.max_reminders + '"></label>' +
+      '<label>Wait after joining (days)<input type="number" name="ma" min="0" max="30" value="' + st.min_age_days + '"></label>' +
+      '<label>Most emails per send<input type="number" name="ps" min="1" max="2000" value="' + st.per_send + '"></label>' +
+      '<p class="hint w">Resend’s free plan sends 100 emails a day, sign-in codes included. Raise “most per send” only on a paid plan.</p></div>' +
+      '<div class="acts"><button type="button" class="btn-ghost" id="mbSetX">Cancel</button><button type="submit" class="btn-primary">Save</button></div></form>';
+    x.classList.remove('hidden'); $('mbSetX').onclick = function(){ x.classList.add('hidden'); };
+    $('mbSetForm').onsubmit = function(e){ e.preventDefault(); var f = e.target;
+      sb.rpc('staff_free_roll_reminder_settings_save', { p_cooldown: +f.cd.value, p_max: +f.mx.value, p_min_age: +f.ma.value, p_per_send: +f.ps.value }).then(function(r){
+        if (r.error) { alert('Couldn’t save: ' + r.error.message); return; } x.classList.add('hidden'); if (window.ds) ds.toast('Reminder settings saved', 'ok'); loadFr(); }); };
+  }
+
+  // ---------- list ----------
+  var SEGS = [['all', 'All'], ['new', 'New (30 days)'], ['waiting', 'Free roll waiting'], ['active', 'Active'], ['at_risk', 'At risk'], ['lapsed', 'Lapsed'], ['never', 'Never ordered'], ['regulars', 'Regulars (3+)'], ['birthday', 'Birthday this month'], ['unsub', 'Emails off']];
+  var STAT = { active: 'Active', at_risk: 'At risk', lapsed: 'Lapsed', never: 'New' };
+  function loadList(more){
+    if (!more) { M.off = 0; M.rows = []; }
+    var my = ++M.lt;
+    sb.rpc('staff_members_list', { p: { seg: M.seg, q: M.q, sort: M.sort, limit: 50, offset: M.off, now: nowArg() } }).then(function(res){
+      if (my !== M.lt) return;
+      if (res.error) { msg('mbMsg', err(res.error)); return; }
+      var d = res.data; M.rows = M.rows.concat(d.rows || []); M.off = M.rows.length; M.total = d.total; M.counts = d.counts;
+      $('mbChips').innerHTML = SEGS.map(function(s){ return '<button type="button" role="tab" aria-selected="' + (M.seg === s[0]) + '" class="' + (M.seg === s[0] ? 'on' : '') + '" data-seg="' + s[0] + '">' + esc(s[1]) + '<b>' + num(d.counts[s[0]]) + '</b></button>'; }).join('');
+      $('mbListHint').textContent = num(d.total) + ' member' + (d.total === 1 ? '' : 's') + (M.q ? ' matching “' + M.q + '”' : '');
+      var tb = $('mbTable').querySelector('tbody');
+      tb.innerHTML = M.rows.length ? M.rows.map(function(r){
+        var name = [r.first_name, r.last_name].filter(Boolean).join(' ') || '—';
+        var roll = r.roll_used ? '<span class="mb-roll u">Used ' + esc(day(r.roll_used_at)) + '</span>' : r.roll_waiting ? '<span class="mb-roll w">Waiting' + (r.reminders ? ' · ' + r.reminders + ' reminder' + (r.reminders === 1 ? '' : 's') : '') + '</span>' : '<span class="mb-roll u">—</span>';
+        return '<tr data-email="' + esc(r.email) + '" tabindex="0"><td class="mb-who"><b>' + esc(name) + '<span class="mb-st ' + r.status + '">' + STAT[r.status] + '</span></b><small>' + esc(r.email) + (r.code ? ' · ' + esc(r.code.replace('MEMBER-', '#')) : '') + (r.birth_month ? ' · 🎂 ' + esc(new Date(2000, r.birth_month - 1, r.birth_day).toLocaleDateString('en-US', { month: 'short', day: 'numeric' })) : '') + '</small></td>' +
+          '<td>' + esc(day(r.joined, { year: 'numeric' })) + '</td><td class="n">' + num(r.orders) + '</td><td class="n">' + (r.orders ? money(r.spent) : '—') + '</td><td>' + (r.last_order ? esc(day(r.last_order, { year: 'numeric' })) : '—') + '</td>' +
+          '<td class="n">' + (r.points == null ? '—' : num(r.points)) + '</td><td>' + roll + '</td><td>' + (r.emails_on ? 'On' : '<span class="hint">Off</span>') + '</td></tr>'; }).join('')
+        : '<tr><td colspan="8" class="hint" style="padding:18px 10px">' + (M.q ? 'No members match that search.' : 'No members in this group yet.') + '</td></tr>';
+      $('mbMore').classList.toggle('hidden', M.rows.length >= d.total);
+    });
+  }
+  function exportCsv(){
+    sb.rpc('staff_members_list', { p: { seg: M.seg, q: M.q, sort: M.sort, limit: 2000, offset: 0, now: nowArg() } }).then(function(res){
+      if (res.error) { alert(res.error.message); return; }
+      var rows = [['First name', 'Last name', 'Email', 'Member #', 'Joined', 'Birthday', 'Orders', 'Spent', 'Last order', 'Points', 'Free roll', 'Reminders sent', 'Emails', 'Status']].concat((res.data.rows || []).map(function(r){
+        return [r.first_name, r.last_name, r.email, r.code, String(r.joined).slice(0, 10), r.birth_month ? r.birth_month + '/' + r.birth_day : '', r.orders, r.spent, r.last_order ? String(r.last_order).slice(0, 10) : '', r.points == null ? '' : r.points,
+                r.roll_used ? 'Used' : r.roll_waiting ? 'Waiting' : '', r.reminders, r.emails_on ? 'On' : 'Off', STAT[r.status]]; }));
+      var text = rows.map(function(rw){ return rw.map(function(c){ c = String(c == null ? '' : c); return /[",\n]/.test(c) ? '"' + c.replace(/"/g, '""') + '"' : c; }).join(','); }).join('\n');
+      var a = document.createElement('a'); a.href = URL.createObjectURL(new Blob([text], { type: 'text/csv' })); a.download = 'members-' + M.seg + '.csv'; document.body.appendChild(a); a.click(); a.remove();
+    });
+  }
+
+  // ---------- wiring ----------
+  M.lt = 0;
+  $('mbRoot').addEventListener('click', function(e){
+    var g = e.target.closest('[data-g]'); if (g) { M.g = g.getAttribute('data-g'); g.parentNode.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', b === g); }); loadOverview(); return; }
+    var s = e.target.closest('[data-s]'); if (s) { M.s = s.getAttribute('data-s'); s.parentNode.querySelectorAll('button').forEach(function(b){ b.classList.toggle('on', b === s); }); if (M.ov) growth(); return; }
+    var c = e.target.closest('[data-seg]'); if (c) { M.seg = c.getAttribute('data-seg'); loadList(false); return; }
+    var tr = e.target.closest('#mbTable tbody tr[data-email]'); if (tr && window.cuOpenPerson) { window.cuOpenPerson('e:' + tr.getAttribute('data-email')); }
+  });
+  $('mbTable').addEventListener('keydown', function(e){ var tr = e.target.closest('tr[data-email]'); if (tr && e.key === 'Enter' && window.cuOpenPerson) window.cuOpenPerson('e:' + tr.getAttribute('data-email')); });
+  $('mbQ').addEventListener('input', function(){ clearTimeout(M.t); var v = this.value.trim(); M.t = setTimeout(function(){ M.q = v; loadList(false); }, 300); });
+  $('mbSort').addEventListener('change', function(){ M.sort = this.value; loadList(false); });
+  $('mbMore').addEventListener('click', function(){ loadList(true); });
+  $('mbExport').addEventListener('click', exportCsv);
+  $('mbFrSend').addEventListener('click', send);
+  $('mbFrPrev').addEventListener('click', preview); $('mbFrPrevImg').addEventListener('click', preview);
+  $('mbFrTest').addEventListener('click', test);
+  $('mbFrSet').addEventListener('click', function(){ if (M.fr) settings(); });
+  var rz; window.addEventListener('resize', function(){ clearTimeout(rz); rz = setTimeout(function(){ if (M.ov && !$('cuMembersWrap').classList.contains('hidden')) growth(); }, 160); });
+  window.mbOpen = function(){ if (typeof sb === 'undefined') return; loadOverview(); loadFr(); loadList(false); };
+
+  // Today "Needs you": a week since the last free roll reminder and members are due one.
+  window.mbRefreshAlert = function(){
+    if (typeof sb === 'undefined') return;
+    sb.rpc('staff_free_roll_reminder_alert', { p_now: nowArg() }).then(function(res){
+      if (window.homeFrAlert) window.homeFrAlert(res && !res.error ? res.data : null);
+    }, function(){});
+  };
+  (function(){ var btn = $('cuMembersBtn'); if (!btn) return; var done = false;
+    var go = function(){ if (!done && !btn.classList.contains('hidden')) { done = true; window.mbRefreshAlert(); } };
+    try { new MutationObserver(go).observe(btn, { attributes: true, attributeFilter: ['class'] }); } catch (e) {}
+    go(); })();
 })();
 </script>
 <script id="ds-js">
