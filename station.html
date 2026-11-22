@@ -4838,7 +4838,8 @@
       '<section class="ks-t ks-sales"><div class="ks-h"><span>Sales today</span><span>' + (goal ? 'Goal ' + money(goal) : 'No goal set') + '</span></div>' +
         '<div class="ks-ringrow"><div class="ks-ring">' + ring + '<div class="c"><b>' + money(sales) + '</b><small>' + (goal ? Math.round(sales / goal * 100) + '% of goal' : 'so far') + '</small></div></div>' +
         '<div class="ks-fc">' + (fcS != null ? 'At this pace<br><b>' + money(Math.round(fcS / 10) * 10) + '</b> and <b>' + Math.round(fcO) + ' orders</b><br>by close' + (goal ? (fcS >= goal ? ', above the goal.' : ', ' + money(goal - fcS) + ' short.') : '.') : 'Forecast starts after a few ' + DAYS[d.dow] + 's of orders.') +
-        (mark != null ? '<div class="ks-note">White mark: where the last ' + d.weeks + ' ' + DAYS[d.dow] + 's were by now.</div>' : '') + '</div></div></section>' +
+        (mark != null ? '<div class="ks-note">White mark: where the last ' + d.weeks + ' ' + DAYS[d.dow] + 's were by now.</div>' : '') +
+        (t.tax != null ? '<div class="ks-note">Net sales from Square · tax <b>' + money(t.tax, true) + '</b> · tips <b>' + money(t.tips, true) + '</b> · collected <b>' + money(t.collected, true) + '</b></div>' : '') + '</div></div></section>' +
       '<section class="ks-t ks-kpi"><div class="ks-h">Orders</div><div class="ks-n">' + (t.orders || 0) + '</div>' + delta(t.orders, lw.orders) + '</section>' +
       '<section class="ks-t ks-kpi"><div class="ks-h">Average order</div><div class="ks-n">' + money(t.avg_order, true) + '</div>' + delta(t.avg_order, lw.avg_order) + '</section>' +
       '<section class="ks-t ks-kpi"><div class="ks-h">Ready time</div><div class="ks-n">' + mins(t.avg_ready) + '</div>' + delta(t.avg_ready, lw.avg_ready, true) + '</section>' +
