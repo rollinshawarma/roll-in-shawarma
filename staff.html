@@ -1119,6 +1119,9 @@
   .ps-thumb{ width:92px; height:115px; border-radius:10px; background:var(--ds-subtle) center/cover no-repeat; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:12px; text-align:center; }
   .ps-thumb i{ position:absolute; right:5px; bottom:5px; background:rgba(0,0,0,.62); color:#fff; font-style:normal; font-size:11px; font-weight:700; border-radius:6px; padding:1px 6px; }
   .ps-thumb video{ width:100%; height:100%; object-fit:cover; }
+  a.ps-thumb{ text-decoration:none; }
+  a.ps-cap-link{ color:var(--ink); text-decoration:none; } a.ps-cap-link:hover{ text-decoration:underline; }
+  .ps-acts a.ps-open{ display:inline-flex; align-items:center; width:auto; text-decoration:none; }
   .ps-top{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; font-size:13px; }
   .ps-cap{ font-size:13.5px; line-height:1.4; margin:6px 0; color:var(--ink); white-space:pre-line; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
   .ps-places{ display:flex; gap:6px; flex-wrap:wrap; margin:4px 0 8px; }
@@ -15477,15 +15480,19 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     }).join('');
     var a = [];
     var editable = ['draft', 'scheduled', 'failed', 'canceled'].indexOf(p.status) >= 0;
+    var live = function(t){ var x = r[t]; return x && x.state === 'done' && x.url && !/instagram\.com\/?$/.test(x.url) ? x.url : null; };
+    if (live('ig_feed')) a.push('<a class="btn-primary btn-small ps-open" href="' + esc(live('ig_feed')) + '" target="_blank" rel="noopener">Open on Instagram ↗</a>');
+    if (live('fb_feed')) a.push('<a class="btn-ghost btn-small ps-open" href="' + esc(live('fb_feed')) + '" target="_blank" rel="noopener">Open on Facebook ↗</a>');
     if (editable) a.push('<button type="button" class="btn-ghost btn-small" data-ps="edit" data-id="' + p.id + '">' + (ps.admin && p.status === 'draft' ? 'Check &amp; post' : 'Edit') + '</button>');
     if (ps.admin && p.status === 'partly') a.push('<button type="button" class="btn-primary btn-small" data-ps="retry" data-id="' + p.id + '">Try the rest again</button>');
     if (ps.admin && p.status === 'failed') a.push('<button type="button" class="btn-primary btn-small" data-ps="retry" data-id="' + p.id + '">Try again</button>');
     if (p.status === 'scheduled') a.push('<button type="button" class="btn-ghost btn-small" data-ps="unsched" data-id="' + p.id + '">Don’t post yet</button>');
     if (ps.admin && ['draft', 'failed', 'canceled'].indexOf(p.status) >= 0) a.push('<button type="button" class="btn-ghost btn-small" data-ps="del" data-id="' + p.id + '">Delete</button>');
     var by = [p.source === 'event' ? 'Drafted from Events' : p.created_by_name ? 'By ' + p.created_by_name : '', p.posted_at ? 'posted ' + when(p.posted_at) : p.status === 'draft' ? 'saved ' + when(p.updated_at) : ''].filter(Boolean).join(' · ');
-    return '<div class="ps-card"><div class="ps-thumb" data-thumb="' + p.id + '">' + (m.length ? (m.length > 1 ? '<i>1/' + m.length + '</i>' : m[0].type === 'video' ? '<i>▶</i>' : '') : 'Text only') + '</div><div>' +
+    var go = (r.ig_feed && r.ig_feed.state === 'done' && r.ig_feed.url && !/instagram\.com\/?$/.test(r.ig_feed.url) && r.ig_feed.url) || (r.fb_feed && r.fb_feed.state === 'done' && r.fb_feed.url) || null;
+    return '<div class="ps-card"><' + (go ? 'a href="' + esc(go) + '" target="_blank" rel="noopener" aria-label="Open the live post"' : 'div') + ' class="ps-thumb" data-thumb="' + p.id + '">' + (m.length ? (m.length > 1 ? '<i>1/' + m.length + '</i>' : m[0].type === 'video' ? '<i>▶</i>' : '') : 'Text only') + (go ? '</a>' : '</div>') + '<div>' +
       '<div class="ps-top"><span class="' + st[1] + '">' + esc(label) + '</span>' + (p.idea ? '<span class="ps-meta">' + esc(p.idea) + '</span>' : '') + '</div>' +
-      '<div class="ps-cap">' + esc(p.caption || '(no caption)') + '</div><div class="ps-places">' + places + '</div>' + statLines(p) +
+      (go ? '<a class="ps-cap ps-cap-link" href="' + esc(go) + '" target="_blank" rel="noopener">' + esc(p.caption || '(no caption)') + '</a>' : '<div class="ps-cap">' + esc(p.caption || '(no caption)') + '</div>') + '<div class="ps-places">' + places + '</div>' + statLines(p) +
       (p.last_error && p.status !== 'posted' ? '<div class="ps-err">' + esc(p.last_error) + '</div>' : '') +
       '<div class="ps-acts">' + a.join('') + '<span class="ps-meta" style="align-self:center">' + esc(by) + '</span></div></div></div>';
   }
