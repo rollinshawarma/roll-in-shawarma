@@ -991,7 +991,6 @@
   <img class="logo-small" src="logo.jpg" alt="Roll-In Shawarma">
   <button type="button" class="menu-choice-btn" id="menuClockInBtn">Clock In</button>
   <button type="button" class="menu-choice-btn" id="menuKitchenBtn">Kitchen Mode</button>
-  <button type="button" class="menu-choice-btn" id="menuStatsBtn">Today’s numbers <small style="display:block;font-size:.55em;font-weight:600;opacity:.7">Manager PIN</small></button>
   <button type="button" id="mainMenuBackBtn">&larr; Back</button>
 </div>
 </div>
@@ -1186,11 +1185,12 @@
       <div id="boardLastUpdated" class="board-last-updated">&mdash;</div>
     </div>
     <nav class="st-tabs" aria-label="Stations">
-      <span class="st-tab on" aria-current="page">&#127859; Main</span>
+      <span class="st-tab on" aria-current="page" id="mainTabSelf" role="button" tabindex="0">&#127859; Main</span>
       <button type="button" id="switchToFryerBtn" class="st-tab" title="Sub Station">&#127839; Sub</button>
       <button type="button" id="switchToCalBtn" class="st-tab cal-btn hidden">Event board</button>
       <button type="button" id="switchToLunchBtn" class="st-tab hidden" title="Corporate lunch">&#127970; Lunch</button>
       <button type="button" id="nextDoorBtn" class="st-tab" title="Next Door delivery orders">&#128666; Door<span class="nd-count zero" id="nextDoorCount">0</span></button>
+      <button type="button" id="numbersTabBtn" class="st-tab" title="Today’s numbers (manager PIN)">&#128202; Numbers</button>
     </nav>
     <div class="kh-tools">
       <button type="button" id="pauseOnlineBtn" title="Pause or resume online orders: website, drive-up and Next Door. The kiosk keeps going. (Needs your PIN)">&#9208; Pause</button>
@@ -2685,8 +2685,26 @@
       truckBtn.className = old ? 'needs' : 'ok';
       truckBtn.title = old ? 'Truck location is old: tap to update it' : 'Truck location saved at ' + at.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }) + ' (tap to update)';
     }
+    // No button any more: when the board opens, a tablet that's already allowed to share its location
+    // saves where the truck is (at most every 30 min). It never asks for permission by itself.
+    // On Location also saves it when a stop starts.
+    function autoTruckLoc(){
+      try {
+        var last = Number(localStorage.getItem('truckLocAuto') || 0);
+        if (Date.now() - last < 30 * 60000 || !navigator.geolocation || !navigator.permissions) return;
+        navigator.permissions.query({ name: 'geolocation' }).then(function(pm){
+          if (pm.state !== 'granted') return;
+          navigator.geolocation.getCurrentPosition(function(p){
+            if (p.coords.accuracy > 150) return;
+            try { localStorage.setItem('truckLocAuto', String(Date.now())); } catch (e) {}
+            sb.rpc('set_truck_location', { p_lat: p.coords.latitude, p_lng: p.coords.longitude, p_accuracy: p.coords.accuracy }).then(function(){}, function(){});
+          }, function(){}, { enableHighAccuracy: true, timeout: 20000, maximumAge: 120000 });
+        }, function(){});
+      } catch (e) {}
+    }
     window.refreshTruckLoc = function(){
       sb.rpc('get_truck_location').then(function(res){ if (!res.error) showTruckLoc(res.data); }, function(){});
+      autoTruckLoc();
     };
     truckBtn.addEventListener('click', function(){
       if (!navigator.geolocation) { alert('This tablet can\u2019t share its location.'); return; }
@@ -4259,7 +4277,6 @@
     orders: { title: 'Orders', items: [
       function(){ var n = num('scheduledCount'); return { key: 'scheduledBtn', ic: '⏰', label: 'Scheduled orders', sub: n ? n + ' coming up' : 'None coming up', attn: n > 0 }; },
       function(){ return { key: 'recallBtn', ic: '↺', label: 'Recall an order', sub: 'Bring back one marked done (last 30 min)' }; },
-      function(){ return { key: 'statsBtn', ic: '📊', label: 'Today’s numbers', sub: 'Sales, orders, timings vs last week · manager PIN' }; },
       function(){ var on = document.body.classList.contains('totals-on');
         return { key: 'itemTotalsBtn', ic: 'Σ', label: 'Item totals: ' + (on ? 'ON' : 'OFF'), on: on,
           sub: on ? 'Showing a count of every item to make, above the tickets · tap to hide' : 'Show one line with each item and how many to make' }; },
@@ -4286,9 +4303,7 @@
       function(){ var d = ($('spotsDots') || {}).textContent || '', used = (d.match(/●/g) || []).length;
         return { key: 'spotsBtn', ic: '🅿️', label: 'Parking spots', sub: used ? used + ' of 5 in use' : 'All 5 free', attn: used > 0 }; },
       function(){ if (!shown('kioskHealthBtn')) return null; var dot = $('kioskHealthDot'), bad = dot && /\b(bad|warn)\b/.test(dot.className);
-        return { key: 'kioskHealthBtn', ic: '🖥️', label: 'Kiosk & card machine', sub: bad ? 'Needs a look' : 'All good', attn: !!bad }; },
-      function(){ var b = $('truckLocBtn'), need = b && b.classList.contains('needs');
-        return { key: 'truckLocBtn', ic: '📍', label: 'Truck location', sub: need ? 'Update it (the truck moved?)' : 'Saved · tap to update', attn: !!need }; }
+        return { key: 'kioskHealthBtn', ic: '🖥️', label: 'Kiosk & card machine', sub: bad ? 'Needs a look' : 'All good', attn: !!bad }; }
     ] }
   };
   var openGrp = null;
@@ -4684,6 +4699,9 @@
 <style id="kstats-css">
   #ksWrap{ position:fixed; inset:0; z-index:900; background:#0b0b0c; color:#f5f5f7; display:flex; flex-direction:column; font-family:"Inter",-apple-system,sans-serif; }
   #ksWrap.hidden{ display:none; }
+  #ksWrap.as-tab{ top:var(--ks-top, 78px); z-index:60; }
+  #ksWrap.as-tab .ks-top h1, #ksWrap.as-tab #ksClose{ display:none; }
+  #ksWrap.as-tab .ks-top{ padding:10px 20px; min-height:0; }
   #ksWrap .ks-top{ display:flex; align-items:center; gap:14px; padding:14px 20px; border-bottom:1px solid #222; flex-wrap:wrap; }
   #ksWrap .ks-top h1{ font:800 30px/1 var(--kds-font, "Barlow Condensed", sans-serif); letter-spacing:.01em; margin:0; }
   #ksWrap .ks-who{ font-size:14px; color:#a1a1a6; }
@@ -4790,8 +4808,21 @@
   function hLbl(h){ h = ((h % 24) + 24) % 24; return (h % 12 || 12) + (h < 12 ? 'a' : 'p'); }
   function nowArg(){ return window.__tbNow ? { p_now: new Date(window.__tbNow).toISOString() } : {}; }
 
-  function open(){ wrap.classList.remove('hidden'); fetchBoard(null); }
-  function close(){ wrap.classList.add('hidden'); stop(); pin = ''; }
+  var numTab = $('numbersTabBtn'), mainTab = $('mainTabSelf');
+  function tabState(on){ if (!numTab || !mainTab) return; numTab.classList.toggle('on', on); mainTab.classList.toggle('on', !on);
+    if (on) { numTab.setAttribute('aria-current', 'page'); mainTab.removeAttribute('aria-current'); } else { mainTab.setAttribute('aria-current', 'page'); numTab.removeAttribute('aria-current'); } }
+  function placeUnder(){ var h = $('boardHeader'); if (h) wrap.style.setProperty('--ks-top', Math.round(h.getBoundingClientRect().bottom) + 'px'); }
+  function open(asTab){
+    wrap.classList.toggle('as-tab', !!asTab); if (asTab) placeUnder();
+    tabState(!!asTab); wrap.classList.remove('hidden'); fetchBoard(null);
+  }
+  function close(){ wrap.classList.add('hidden'); wrap.classList.remove('as-tab'); tabState(false); stop(); pin = ''; }
+  if (numTab) numTab.addEventListener('click', function(){ if (!wrap.classList.contains('hidden') && wrap.classList.contains('as-tab')) return; open(true); });
+  if (mainTab) { mainTab.addEventListener('click', function(){ if (!wrap.classList.contains('hidden')) close(); });
+    mainTab.addEventListener('keydown', function(e){ if ((e.key === 'Enter' || e.key === ' ') && !wrap.classList.contains('hidden')) { e.preventDefault(); close(); } }); }
+  window.addEventListener('resize', function(){ if (wrap.classList.contains('as-tab')) placeUnder(); });
+  // Leaving the main board (Sub, Door, Lock…) closes the numbers too
+  ['switchToFryerBtn', 'switchToCalBtn', 'switchToLunchBtn', 'nextDoorBtn', 'lockBtn'].forEach(function(id){ var b = $(id); if (b) b.addEventListener('click', function(){ if (!wrap.classList.contains('hidden')) close(); }); });
   function stop(){ if (timer) { clearInterval(timer); timer = null; } }
   function pinScreen(msg){
     stop(); d = null; $('ksLock').classList.add('hidden'); $('ksWho').textContent = '';
@@ -4913,7 +4944,7 @@
   $('ksClose').addEventListener('click', close);
   $('ksLock').addEventListener('click', function(){ sb.rpc('kds_today_stats_lock').then(function(){}, function(){}); pinScreen('Locked.'); });
   window.kdsStats = { open: open, close: close };
-  ['statsBtn', 'menuStatsBtn'].forEach(function(id){ var b = $(id); if (b) b.addEventListener('click', function(){ open(); }); });
+  ['statsBtn', 'menuStatsBtn'].forEach(function(id){ var b = $(id); if (b) b.addEventListener('click', function(){ open(true); }); });
 })();
 </script>
 </body>
