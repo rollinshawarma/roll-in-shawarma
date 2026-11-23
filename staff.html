@@ -1109,6 +1109,90 @@
   .ad-sum div:last-child{ border-right:0; }
   .ad-sum b{ display:block; font-family:var(--display); font-size:22px; color:var(--ink); }
   .ad-sum small{ color:var(--muted); font-size:12px; }
+  /* ---- Posts (social-posts.sql, Nov 23 2026) ---- */
+  .ps-ideas{ display:flex; flex-wrap:wrap; gap:8px; margin:2px 0 16px; }
+  .ps-ideas button{ width:auto; min-height:0; background:var(--card); border:1px solid var(--ds-border); border-radius:99px; padding:8px 14px; font:inherit; font-size:13.5px; font-weight:600; color:var(--ink); cursor:pointer; }
+  .ps-ideas button:hover{ border-color:var(--ds-border-strong); }
+  .ps-ideas button:focus-visible{ outline:2px solid var(--ds-focus, #2a78d6); outline-offset:2px; }
+  .ps-sec{ font-size:12.5px; font-weight:700; color:var(--muted); margin:14px 0 8px; }
+  .ps-card{ display:grid; grid-template-columns:92px minmax(0,1fr); gap:14px; background:var(--card); border:1px solid var(--ds-border); border-radius:14px; padding:12px; margin-bottom:10px; }
+  .ps-thumb{ width:92px; height:115px; border-radius:10px; background:var(--ds-subtle) center/cover no-repeat; position:relative; overflow:hidden; display:flex; align-items:center; justify-content:center; color:var(--muted); font-size:12px; text-align:center; }
+  .ps-thumb i{ position:absolute; right:5px; bottom:5px; background:rgba(0,0,0,.62); color:#fff; font-style:normal; font-size:11px; font-weight:700; border-radius:6px; padding:1px 6px; }
+  .ps-thumb video{ width:100%; height:100%; object-fit:cover; }
+  .ps-top{ display:flex; gap:8px; align-items:center; flex-wrap:wrap; font-size:13px; }
+  .ps-cap{ font-size:13.5px; line-height:1.4; margin:6px 0; color:var(--ink); white-space:pre-line; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .ps-places{ display:flex; gap:6px; flex-wrap:wrap; margin:4px 0 8px; }
+  .ps-pl{ font-size:12px; font-weight:600; border-radius:8px; padding:3px 8px; background:var(--ds-subtle); color:var(--ds-text-2, var(--muted)); text-decoration:none; }
+  .ps-pl.done{ background:var(--ds-green-bg); color:var(--ds-green-ink); } .ps-pl.error{ background:var(--ds-red-bg); color:var(--ds-red-ink); } .ps-pl.working{ background:var(--ds-amber-bg); color:var(--ds-amber-ink); }
+  a.ps-pl:hover{ text-decoration:underline; }
+  .ps-err{ font-size:12.5px; color:var(--ds-red-ink); margin:2px 0 8px; }
+  .ps-acts{ display:flex; gap:8px; flex-wrap:wrap; }
+  .ps-acts button{ width:auto; }
+  .ps-meta{ font-size:12px; color:var(--muted); }
+  .ps-grid{ display:grid; grid-template-columns:minmax(0,1fr) 340px; gap:24px; align-items:start; }
+  .ps-media{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:8px; }
+  .ps-m{ position:relative; width:84px; height:105px; border-radius:10px; background:var(--ds-subtle) center/cover no-repeat; overflow:hidden; border:1px solid var(--ds-border); }
+  .ps-m video{ width:100%; height:100%; object-fit:cover; display:block; }
+  .ps-m .x{ position:absolute; top:4px; right:4px; width:24px; height:24px; min-height:0; padding:0; border-radius:50%; border:0; background:rgba(0,0,0,.66); color:#fff; font-size:13px; cursor:pointer; }
+  .ps-m .mv{ position:absolute; bottom:4px; left:4px; display:flex; gap:3px; }
+  .ps-m .mv button{ width:24px; height:24px; min-height:0; padding:0; border-radius:6px; border:0; background:rgba(0,0,0,.66); color:#fff; font-size:12px; cursor:pointer; }
+  .ps-m .n{ position:absolute; top:4px; left:4px; background:rgba(0,0,0,.66); color:#fff; border-radius:6px; font-size:11px; font-weight:700; padding:1px 6px; }
+  .ps-m.busy::after{ content:"Uploading…"; position:absolute; inset:0; background:rgba(255,255,255,.75); display:flex; align-items:center; justify-content:center; font-size:11.5px; font-weight:700; color:#333; }
+  .ps-add{ display:flex; gap:8px; flex-wrap:wrap; margin-bottom:6px; }
+  .ps-add button, .ps-add .btn-small{ width:auto; }
+  .ps-file{ position:relative; overflow:hidden; cursor:pointer; display:inline-flex; align-items:center; margin:0; }
+  .ps-file input{ position:absolute; inset:0; opacity:0; cursor:pointer; }
+  .ps-pick{ display:grid; grid-template-columns:repeat(auto-fill, minmax(84px, 1fr)); gap:8px; background:var(--ds-subtle); border-radius:12px; padding:10px; margin:6px 0 10px; max-height:260px; overflow:auto; }
+  .ps-pick button{ width:auto; min-height:0; padding:0; border:2px solid transparent; border-radius:10px; overflow:hidden; aspect-ratio:4/5; background:var(--card) center/cover no-repeat; position:relative; cursor:pointer; }
+  .ps-pick button span{ position:absolute; left:0; right:0; bottom:0; font-size:10.5px; color:#fff; background:linear-gradient(transparent, rgba(0,0,0,.7)); padding:12px 4px 3px; text-align:left; line-height:1.2; }
+  .ps-pick button:focus-visible{ border-color:var(--ds-focus, #2a78d6); }
+  .ps-where{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:2px 0 12px; }
+  .ps-where label{ display:flex; gap:10px; align-items:flex-start; border:1.5px solid var(--ds-border); border-radius:12px; padding:9px 12px; margin:0; cursor:pointer; background:var(--card); font-weight:400; }
+  .ps-where label:has(input:checked){ border-color:var(--ink); box-shadow:0 0 0 1px var(--ink) inset; }
+  .ps-where input{ width:auto; margin-top:3px; }
+  .ps-where b{ display:block; font-size:14px; } .ps-where small{ display:block; font-size:12px; color:var(--muted); }
+  .ps-snips{ display:flex; gap:8px; margin:6px 0 12px; } .ps-snips button{ width:auto; }
+  .ps-when{ display:flex; gap:16px; align-items:center; flex-wrap:wrap; margin:2px 0 10px; }
+  .ps-when > label{ display:flex; gap:6px; align-items:center; margin:0; font-weight:500; }
+  .ps-when input[type=radio]{ width:auto; }
+  .ps-when input[type=datetime-local]{ width:auto; }
+  .ps-checks{ list-style:none; padding:0; margin:4px 0 12px; display:grid; gap:4px; font-size:13px; }
+  .ps-checks li{ padding-left:20px; position:relative; }
+  .ps-checks li::before{ position:absolute; left:0; font-weight:700; }
+  .ps-checks li.warn::before{ content:"!"; color:#a86a00; left:5px; } .ps-checks li.bad::before{ content:"✕"; color:#c0261b; } .ps-checks li.ok::before{ content:"✓"; color:#0c7a43; }
+  .ps-checks li.bad{ color:#a1281c; font-weight:600; }
+  .ps-btns{ display:flex; gap:10px; justify-content:flex-end; flex-wrap:wrap; }
+  .ps-btns button{ width:auto; }
+  .ps-prev{ position:sticky; top:76px; }
+  .ps-prev-tabs{ display:inline-flex; background:var(--ds-subtle); border-radius:10px; padding:3px; gap:2px; margin-bottom:10px; }
+  .ps-prev-tabs button{ all:unset; cursor:pointer; padding:5px 12px; border-radius:8px; font-size:12.5px; font-weight:600; color:var(--muted); }
+  .ps-prev-tabs button.on{ background:var(--card); color:var(--ink); box-shadow:0 1px 2px rgba(0,0,0,.12); }
+  .ps-prev-tabs button:focus-visible{ outline:2px solid var(--ds-focus, #2a78d6); }
+  .ps-phone{ background:#fff; color:#111; border-radius:14px; overflow:hidden; box-shadow:0 1px 4px rgba(0,0,0,.16); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif; }
+  .ps-ph{ display:flex; align-items:center; gap:8px; padding:9px 11px; font-size:13px; font-weight:600; }
+  .ps-ph small{ font-weight:400; color:#777; }
+  .ps-av{ width:30px; height:30px; border-radius:50%; background:#2b211a url(logo.jpg) center/cover; flex:none; }
+  .ps-pic{ aspect-ratio:4/5; background:#eee center/cover no-repeat; position:relative; display:flex; align-items:center; justify-content:center; color:#888; font-size:13px; }
+  .ps-pic video{ width:100%; height:100%; object-fit:cover; }
+  .ps-pic.sq{ aspect-ratio:auto; }
+  .ps-pic.sq img{ display:block; width:100%; height:auto; }
+  .ps-dots{ display:flex; gap:4px; justify-content:center; padding:7px 0 0; }
+  .ps-dots i{ width:6px; height:6px; border-radius:50%; background:#c7c7c7; } .ps-dots i:first-child{ background:#0095f6; }
+  .ps-igcap{ padding:6px 11px 12px; font-size:13px; line-height:1.4; white-space:pre-line; max-height:150px; overflow:hidden; }
+  .ps-fbcap{ padding:0 11px 10px; font-size:14px; line-height:1.4; white-space:pre-line; max-height:170px; overflow:hidden; }
+  .ps-fbgrid{ display:grid; grid-template-columns:1fr 1fr; gap:2px; }
+  .ps-fbgrid > div{ aspect-ratio:1; background:#eee center/cover no-repeat; position:relative; }
+  .ps-fbgrid > div b{ position:absolute; inset:0; background:rgba(0,0,0,.45); color:#fff; display:flex; align-items:center; justify-content:center; font-size:22px; }
+  .ps-story{ width:220px; aspect-ratio:9/16; border-radius:14px; overflow:hidden; background:#222 center/cover no-repeat; position:relative; margin:0 auto; box-shadow:0 1px 4px rgba(0,0,0,.2); }
+  .ps-story video{ width:100%; height:100%; object-fit:cover; }
+  .ps-story .ps-sh{ position:absolute; top:10px; left:10px; right:10px; display:flex; gap:6px; align-items:center; color:#fff; font:600 11px -apple-system,Arial,sans-serif; text-shadow:0 1px 2px rgba(0,0,0,.6); }
+  .ps-story .ps-sh .ps-av{ width:22px; height:22px; }
+  .ps-none{ padding:30px 16px; text-align:center; color:var(--muted); font-size:13px; }
+  .ps-defs{ display:flex; gap:14px; flex-wrap:wrap; padding-top:8px; }
+  .ps-defs label{ display:flex; gap:6px; align-items:center; margin:0; font-weight:500; }
+  .ps-defs input{ width:auto; }
+  @media (max-width:980px){ .ps-grid{ grid-template-columns:1fr; } .ps-prev{ position:static; max-width:380px; } }
+  @media (max-width:560px){ .ps-where{ grid-template-columns:1fr; } .ps-card{ grid-template-columns:72px minmax(0,1fr); } .ps-thumb{ width:72px; height:90px; } }
   /* ---- Ad Studio + campaign kinds (Nov 22 2026) ---- */
   .sr-only{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
   .ad-kind{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:2px 0 14px; }
@@ -2906,6 +2990,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       <button class="nav-link hidden" data-tab="promotions" id="tabPromotionsBtn"><svg class="icon"><use href="#ic-tag"/></svg>Promo codes</button>
       <button class="nav-link hidden" data-tab="offers" id="tabOffersBtn"><svg class="icon"><use href="#ic-mail"/></svg>Member offers</button>
       <button class="nav-link hidden" data-tab="ads" id="tabAdsBtn"><svg class="icon"><use href="#ic-target"/></svg>Ads<span class="nav-badge hidden" id="navAdsBadge"></span></button>
+      <button class="nav-link hidden" data-tab="posts" id="tabPostsBtn"><svg class="icon"><use href="#ic-megaphone"/></svg>Posts<span class="nav-badge hidden" id="navPostsBadge"></span></button>
       <button class="nav-link hidden" data-tab="customerInfo" id="tabCustomerInfoBtn"><svg class="icon"><use href="#ic-heart"/></svg>Customers</button>
 
       <div class="nav-section-label">Reports</div>
@@ -4508,6 +4593,95 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
   </div>
 
   <!-- PROMOTIONS -->
+    <div class="tab-panel hidden" id="panelPosts">
+    <div class="page-head">
+      <h2>Posts</h2>
+      <p class="hint">Everyday posts for Facebook and Instagram (not ads). Write it once and pick where it goes. Managers save drafts; an admin posts them or picks a time. Each morning, today's stop from Events is drafted for you.</p>
+    </div>
+    <div class="ad-conn" id="psConn"><span class="ad-dot"></span><span id="psConnText">Checking the Facebook and Instagram connection&hellip;</span></div>
+    <div id="psMsg"></div>
+
+    <div class="ps-ideas" id="psIdeas" aria-label="Post ideas">
+      <button type="button" data-idea="stop">📍 Today's stop</button>
+      <button type="button" data-idea="dish">🌯 Dish of the week</button>
+      <button type="button" data-idea="freeroll">🎁 Free roll for members</button>
+      <button type="button" data-idea="bts">🔥 Behind the scenes</button>
+      <button type="button" data-idea="recap">🙏 Thank-you recap</button>
+      <button type="button" data-idea="hours">🕒 Hours change</button>
+    </div>
+
+    <div class="ad-head-row">
+      <div class="section-title" style="margin:0">Drafts and coming up</div>
+      <div class="ad-head-btns"><button class="btn-primary btn-small" id="psNewBtn" type="button">New post</button></div>
+    </div>
+    <div id="psList"><p class="hint">Loading posts&hellip;</p></div>
+
+    <!-- composer -->
+    <div class="card hidden" id="psEditor">
+      <h2 id="psEditorTitle">New post</h2>
+      <div id="psEditMsg"></div>
+      <div class="ps-grid">
+        <div class="ps-form">
+          <label>Pictures and videos <span class="hint" style="margin:0;font-weight:400">up to 10 · first one is the cover</span></label>
+          <div class="ps-media" id="psMedia"></div>
+          <div class="ps-add">
+            <label class="btn-ghost btn-small ps-file">Add from this device<input type="file" id="psFile" accept="image/jpeg,image/png,image/webp,video/mp4,video/quicktime" multiple></label>
+            <button type="button" class="btn-ghost btn-small" id="psFromStudio">From Ad Studio</button>
+            <button type="button" class="btn-ghost btn-small" id="psFromMenu">Menu photos</button>
+          </div>
+          <div class="ps-pick hidden" id="psPick"></div>
+
+          <label id="psWhereLbl">Where it goes</label>
+          <div class="ps-where" role="group" aria-labelledby="psWhereLbl">
+            <label><input type="checkbox" data-t="fb_feed"><span><b>Facebook post</b><small>On the Page's timeline</small></span></label>
+            <label><input type="checkbox" data-t="ig_feed"><span><b>Instagram post</b><small>Grid and feed (a video becomes a Reel)</small></span></label>
+            <label><input type="checkbox" data-t="ig_story"><span><b>Instagram story</b><small>24 hours · first picture or video</small></span></label>
+            <label><input type="checkbox" data-t="fb_story"><span><b>Facebook story</b><small>24 hours · first picture or video</small></span></label>
+          </div>
+
+          <label for="psCaption">Caption <span class="hint" style="margin:0;font-weight:400" id="psCount"></span></label>
+          <textarea id="psCaption" rows="7" maxlength="2200" placeholder="What's happening on the truck today?"></textarea>
+          <div class="ps-snips"><button type="button" class="btn-ghost btn-small" id="psAddFooter">+ Order link</button><button type="button" class="btn-ghost btn-small" id="psAddTags">+ Our hashtags</button></div>
+
+          <div id="psWhenBox">
+            <label>When</label>
+            <div class="ps-when">
+              <label><input type="radio" name="psWhen" value="now" checked> Post now</label>
+              <label><input type="radio" name="psWhen" value="later"> Pick a time</label>
+              <input type="datetime-local" id="psAt" class="hidden" aria-label="Date and time to post">
+            </div>
+          </div>
+          <ul class="ps-checks" id="psChecks"></ul>
+          <div class="ps-btns">
+            <button type="button" class="btn-ghost" id="psCancel">Close</button>
+            <button type="button" class="btn-ghost" id="psSave">Save draft</button>
+            <button type="button" class="btn-primary hidden" id="psGo">Post now</button>
+          </div>
+        </div>
+        <div class="ps-prev">
+          <div class="ps-prev-tabs" role="tablist"><button type="button" data-pv="ig" class="on">Instagram</button><button type="button" data-pv="fb">Facebook</button><button type="button" data-pv="story">Story</button></div>
+          <div id="psPrev"></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- settings (admin) -->
+    <div class="card hidden" id="psSettingsCard">
+      <h2>Post settings</h2>
+      <div id="psSetMsg"></div>
+      <label for="psSetFooter">Order link line (+ Order link)</label>
+      <input type="text" id="psSetFooter" maxlength="300">
+      <label for="psSetTags">Our hashtags (+ Our hashtags)</label>
+      <input type="text" id="psSetTags" maxlength="400">
+      <label class="ad-check"><input type="checkbox" id="psSetAuto"> Each morning, draft a post for today's public stop from Events</label>
+      <div class="ad-pair">
+        <div><label for="psSetHour">Draft it at</label><select id="psSetHour"><option value="5">5 AM</option><option value="6">6 AM</option><option value="7">7 AM</option><option value="8">8 AM</option><option value="9">9 AM</option><option value="10">10 AM</option><option value="11">11 AM</option></select></div>
+        <div><label>New posts go to</label><div class="ps-defs"><label><input type="checkbox" id="psDefFb"> Facebook</label><label><input type="checkbox" id="psDefIg"> Instagram</label><label><input type="checkbox" id="psDefIgS"> IG story</label></div></div>
+      </div>
+      <button type="button" class="btn-primary" id="psSetSave" style="margin-top:12px">Save settings</button>
+    </div>
+  </div>
+
   <div class="tab-panel hidden" id="panelPromotions">
     <div class="card wo-card" id="woCard">
       <div class="wo-top">
@@ -5362,6 +5536,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
         loadAds();
         setInterval(loadAds, 120000);
         if (location.hash === '#ads') setTimeout(function(){ showTab('ads'); }, 0);
+        if (window.psInit) window.psInit(isAdmin); else window.__psPending = isAdmin;   // posts-js loads after this script
         loadTodayGlance();
         setInterval(loadTodayGlance, 60000);
       }
@@ -5431,6 +5606,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       });
       if (h.caterNew) out.push(todoHtml(h.caterNew, 'New catering ' + (h.caterNew === 1 ? 'request' : 'requests'), 'Reply within a day to win the booking.', 'catering'));
       if (h.adsPending) out.push(todoHtml(h.adsPending, (h.adsPending === 1 ? 'Ad' : 'Ads') + ' waiting for approval', adsState.isAdmin ? 'Check it and tap Approve & launch.' : 'An admin needs to approve it.', 'ads'));
+      if (h.postsWaiting) out.push(todoHtml(h.postsWaiting, (h.postsWaiting === 1 ? 'Post' : 'Posts') + ' ready to check', 'Drafts for Facebook and Instagram (today’s stop is drafted each morning). Check and post.', 'posts'));
       if (h.adsProblem) out.push(todoHtml(h.adsProblem, (h.adsProblem === 1 ? 'Ad needs' : 'Ads need') + ' a fix', 'It didn\u2019t start or Meta turned it down.', 'ads', true));
     }
     var badge = document.getElementById('navApproveBadge');
@@ -15197,6 +15373,369 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     render: render, _state: S,
     _reelFrame: function(cv, t){ cv.width = 1080; cv.height = 1920; reelFrame(cv.getContext('2d'), t, reelLen(), REEL.mode === 'clip' && REEL.video ? { video: REEL.video } : { ov: overlay() }); }
   };
+})();
+</script>
+<script id="posts-js">
+/* Posts: everyday Facebook + Instagram posts (social-posts.sql + the social-posts function). */
+(function(){
+  function $(id){ return document.getElementById(id); }
+  var ps = { admin: false, list: [], settings: null, ed: null, media: [], pv: 'ig', urls: {}, conn: null, started: false, studio: null, menu: null };
+  var PLACE = { fb_feed: 'Facebook post', ig_feed: 'Instagram post', ig_story: 'Instagram story', fb_story: 'Facebook story' };
+  var ORDER = ['fb_feed', 'ig_feed', 'ig_story', 'fb_story'];
+  var STATUS = { draft: ['Draft', 'ad-chip'], scheduled: ['Scheduled', 'ad-chip kp-on'], posting: ['Posting…', 'ad-chip wait'], posted: ['Posted', 'ad-chip live'], partly: ['Partly posted', 'ad-chip wait'], failed: ['Didn’t post', 'ad-chip bad'], canceled: ['Canceled', 'ad-chip'] };
+  var SITE = 'https://rollinshawarma.com/';
+
+  function call(body){
+    return sb.functions.invoke('social-posts', { body: body }).then(function(res){
+      if (!res.error) return res.data || {};
+      var ctx = res.error.context;
+      if (ctx && typeof ctx.json === 'function') return ctx.json().then(function(j){ return j && j.error ? j : { error: res.error.message }; }, function(){ return { error: res.error.message }; });
+      return { error: res.error.message };
+    }, function(e){ return { error: (e && e.message) || 'No answer' }; });
+  }
+  function rpc(fn, args){ return sb.rpc(fn, args || {}).then(function(r){ if (r.error) throw new Error(/does not exist|schema cache/i.test(r.error.message) ? 'Run social-posts.sql in Supabase → SQL Editor to turn on Posts.' : r.error.message); return r.data; }); }
+  function when(t){ var d = new Date(t); return d.toLocaleString('en-US', { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }); }
+  function signed(m){
+    if (m.url) return Promise.resolve(m.url);
+    if (m.local) return Promise.resolve(m.local);
+    var k = (m.bucket || 'social-media') + '/' + m.path;
+    if (ps.urls[k]) return Promise.resolve(ps.urls[k]);
+    return sb.storage.from(m.bucket || 'social-media').createSignedUrl(m.path, 3600).then(function(r){ var u = r && r.data && r.data.signedUrl; if (u) ps.urls[k] = u; return u; }, function(){ return null; });
+  }
+  function fill(el, m){ // background picture or a muted video
+    if (!el || !m) return;
+    signed(m).then(function(u){ if (!u) return; if (m.type === 'video') { el.innerHTML = '<video muted playsinline preload="metadata" src="' + esc(u) + '#t=0.5"></video>' + el.innerHTML.replace(/<video[^>]*><\/video>/, ''); } else el.style.backgroundImage = 'url("' + u + '")'; });
+  }
+
+  // ---------- connection ----------
+  function conn(){
+    var box = $('psConn'), t = $('psConnText');
+    if (!sb.functions) return;
+    call({ action: 'status' }).then(function(d){
+      ps.conn = d; box.classList.remove('ok', 'bad');
+      if (d.error) { box.classList.add('bad'); t.textContent = /not found|404|Failed to send/i.test(d.error) ? 'The social-posts function isn’t deployed yet (Supabase → Edge Functions).' : d.error; return; }
+      if (d.missing) { box.classList.add('bad'); t.textContent = 'Not connected: add ' + d.missing.join(', ') + ' in Supabase secrets.'; return; }
+      var parts = [];
+      if (d.page) parts.push('Facebook Page “' + d.page.name + '”');
+      if (d.instagram) parts.push('Instagram @' + d.instagram.username);
+      var txt = parts.length ? 'Posting as ' + parts.join(' and ') : 'Connected';
+      if (d.ig_quota && d.ig_quota.config) txt += ' · ' + d.ig_quota.quota_usage + ' of ' + d.ig_quota.config.quota_total + ' Instagram posts used today';
+      if (!d.instagram) txt += '. Instagram isn’t linked (META_IG_USER_ID).';
+      if (d.missing_permissions && d.missing_permissions.length) txt += '. To post, the Meta token also needs: ' + d.missing_permissions.join(', ') + ' (make a new token and replace META_ACCESS_TOKEN).';
+      if (d.page_error) txt = 'Can’t use the Facebook Page: ' + d.page_error;
+      box.classList.add(d.ok ? 'ok' : 'bad'); t.textContent = txt;
+    });
+  }
+
+  // ---------- list ----------
+  function load(){
+    return Promise.all([rpc('posts_list', { p_days: 45 }), ps.settings ? ps.settings : rpc('posts_settings').catch(function(){ return null; })]).then(function(r){
+      ps.list = (r[0] || []).map(function(x){ return typeof x === 'string' ? JSON.parse(x) : x; });
+      if (r[1]) { ps.settings = r[1]; settingsFill(); }
+      render(); badge();
+    }, function(e){ $('psList').innerHTML = ''; showMsg('psMsg', e.message, 'error'); });
+  }
+  function badge(){
+    var n = ps.list.filter(function(p){ return p.status === 'draft' || p.status === 'failed' || p.status === 'partly'; }).length;
+    var b = $('navPostsBadge'); if (b) { b.textContent = n; b.classList.toggle('hidden', !n || !ps.admin); }
+    if (window.homeState) { window.homeState.postsWaiting = ps.admin ? n : 0; if (typeof renderHomeTodo === 'function') try { renderHomeTodo(); } catch (e) {} }
+  }
+  function render(){
+    var groups = [['Needs you', function(p){ return ['draft', 'failed', 'partly'].indexOf(p.status) >= 0; }], ['Going out', function(p){ return p.status === 'scheduled' || p.status === 'posting'; }], ['Posted lately', function(p){ return p.status === 'posted' || p.status === 'canceled'; }]];
+    var html = groups.map(function(g){ var rows = ps.list.filter(g[1]); if (!rows.length) return ''; return '<div class="ps-sec">' + g[0] + '</div>' + rows.map(card).join(''); }).join('');
+    $('psList').innerHTML = html || '<div class="card ps-none">No posts yet. Tap an idea above or <b>New post</b>.</div>';
+    $('psList').querySelectorAll('[data-thumb]').forEach(function(el){ var p = ps.list.find(function(x){ return x.id === el.getAttribute('data-thumb'); }); if (p && p.media && p.media[0]) fill(el, p.media[0]); });
+  }
+  function card(p){
+    var st = STATUS[p.status] || [p.status, 'ad-chip'], r = p.results || {}, m = p.media || [];
+    var label = p.status === 'scheduled' ? 'Scheduled · ' + when(p.scheduled_at) : st[0];
+    var places = ORDER.filter(function(t){ return p.targets && p.targets[t]; }).map(function(t){
+      var x = r[t], cls = x ? x.state : '', txt = PLACE[t] + (x && x.state === 'done' ? ' ✓' : x && x.state === 'error' ? ' ✕' : x && x.state === 'working' ? ' …' : '');
+      return x && x.url && x.state === 'done' ? '<a class="ps-pl done" href="' + esc(x.url) + '" target="_blank" rel="noopener">' + esc(txt) + ' ↗</a>' : '<span class="ps-pl ' + cls + '">' + esc(txt) + '</span>';
+    }).join('');
+    var a = [];
+    var editable = ['draft', 'scheduled', 'failed', 'canceled'].indexOf(p.status) >= 0;
+    if (editable) a.push('<button type="button" class="btn-ghost btn-small" data-ps="edit" data-id="' + p.id + '">' + (ps.admin && p.status === 'draft' ? 'Check &amp; post' : 'Edit') + '</button>');
+    if (ps.admin && p.status === 'partly') a.push('<button type="button" class="btn-primary btn-small" data-ps="retry" data-id="' + p.id + '">Try the rest again</button>');
+    if (ps.admin && p.status === 'failed') a.push('<button type="button" class="btn-primary btn-small" data-ps="retry" data-id="' + p.id + '">Try again</button>');
+    if (p.status === 'scheduled') a.push('<button type="button" class="btn-ghost btn-small" data-ps="unsched" data-id="' + p.id + '">Don’t post yet</button>');
+    if (ps.admin && ['draft', 'failed', 'canceled'].indexOf(p.status) >= 0) a.push('<button type="button" class="btn-ghost btn-small" data-ps="del" data-id="' + p.id + '">Delete</button>');
+    var by = [p.source === 'event' ? 'Drafted from Events' : p.created_by_name ? 'By ' + p.created_by_name : '', p.posted_at ? 'posted ' + when(p.posted_at) : p.status === 'draft' ? 'saved ' + when(p.updated_at) : ''].filter(Boolean).join(' · ');
+    return '<div class="ps-card"><div class="ps-thumb" data-thumb="' + p.id + '">' + (m.length ? (m.length > 1 ? '<i>1/' + m.length + '</i>' : m[0].type === 'video' ? '<i>▶</i>' : '') : 'Text only') + '</div><div>' +
+      '<div class="ps-top"><span class="' + st[1] + '">' + esc(label) + '</span>' + (p.idea ? '<span class="ps-meta">' + esc(p.idea) + '</span>' : '') + '</div>' +
+      '<div class="ps-cap">' + esc(p.caption || '(no caption)') + '</div><div class="ps-places">' + places + '</div>' +
+      (p.last_error && p.status !== 'posted' ? '<div class="ps-err">' + esc(p.last_error) + '</div>' : '') +
+      '<div class="ps-acts">' + a.join('') + '<span class="ps-meta" style="align-self:center">' + esc(by) + '</span></div></div></div>';
+  }
+  function act(e){
+    var b = e.target.closest('[data-ps]'); if (!b) return;
+    var id = b.getAttribute('data-id'), what = b.getAttribute('data-ps'), p = ps.list.find(function(x){ return x.id === id; });
+    if (what === 'edit') return open(p);
+    if (what === 'del') { if (!confirm('Delete this post?')) return; b.disabled = true; return rpc('posts_delete', { p_id: id }).then(load, function(er){ b.disabled = false; showMsg('psMsg', er.message, 'error'); }); }
+    if (what === 'unsched') { b.disabled = true; return rpc('posts_unschedule', { p_id: id }).then(function(){ showMsg('psMsg', 'Back to drafts. It won’t go out until someone posts it.', 'ok'); load(); }, function(er){ b.disabled = false; showMsg('psMsg', er.message, 'error'); }); }
+    if (what === 'retry') { b.disabled = true; b.textContent = 'Posting…'; return goNow(id).then(function(){ b.disabled = false; }); }
+  }
+  // Admin: approve and post right away; the function posts it and reports each place.
+  function goNow(id){
+    return rpc('posts_schedule', { p_id: id, p_at: null }).then(function(){
+      showMsg('psMsg', 'Posting… videos can take a minute while Facebook and Instagram process them.', 'ok');
+      return call({ action: 'publish', id: id });
+    }).then(function(d){
+      if (d.error) showMsg('psMsg', d.error + ' It will be tried again in 2 minutes.', 'error');
+      else {
+        var p = d.post || {}, st = p.status;
+        showMsg('psMsg', st === 'posted' ? 'Posted! Links are on the post below.' : st === 'posting' ? 'Still processing. It finishes by itself in a few minutes.' : st === 'partly' ? 'Posted in some places. ' + (p.last_error || '') : 'Didn’t post. ' + (p.last_error || ''), st === 'posted' || st === 'posting' ? 'ok' : 'error');
+      }
+      return load();
+    }, function(er){ showMsg('psMsg', er.message, 'error'); return load(); });
+  }
+
+  // ---------- composer ----------
+  function defaults(){ var d = (ps.settings && ps.settings.default_targets) || { fb_feed: true, ig_feed: true }; return { fb_feed: !!d.fb_feed, ig_feed: !!d.ig_feed, ig_story: !!d.ig_story, fb_story: !!d.fb_story }; }
+  function open(p, preset){
+    ps.ed = p || null; preset = preset || {};
+    ps.media = JSON.parse(JSON.stringify((p && p.media) || preset.media || []));
+    var t = (p && p.targets) || preset.targets || defaults();
+    document.querySelectorAll('#psEditor [data-t]').forEach(function(c){ c.checked = !!t[c.getAttribute('data-t')]; });
+    $('psCaption').value = (p && p.caption) || preset.caption || '';
+    ps.idea = (p && p.idea) || preset.idea || null;
+    $('psEditorTitle').textContent = p ? (p.status === 'draft' && p.source === 'event' ? 'Today’s stop (drafted for you)' : 'Edit post') : preset.title || 'New post';
+    document.querySelector('input[name="psWhen"][value="now"]').checked = true; $('psAt').classList.add('hidden'); $('psAt').value = '';
+    $('psPick').classList.add('hidden'); clearMsg('psEditMsg');
+    $('psGo').classList.toggle('hidden', !ps.admin); $('psWhenBox').classList.toggle('hidden', !ps.admin);
+    $('psSave').textContent = p ? 'Save' : 'Save draft';
+    $('psEditor').classList.remove('hidden');
+    mediaPaint(); refresh();
+    $('psEditor').scrollIntoView({ behavior: 'smooth', block: 'start' });
+    if (preset.pick === 'menu') pickMenu();
+  }
+  function close(){ $('psEditor').classList.add('hidden'); ps.ed = null; }
+  function targets(){ var t = {}; document.querySelectorAll('#psEditor [data-t]').forEach(function(c){ t[c.getAttribute('data-t')] = c.checked; }); return t; }
+  function mediaPaint(){
+    $('psMedia').innerHTML = ps.media.map(function(m, i){
+      return '<div class="ps-m' + (m.busy ? ' busy' : '') + '" data-mi="' + i + '"><span class="n">' + (i + 1) + (m.type === 'video' ? ' ▶' + (m.dur ? ' ' + Math.round(m.dur) + 's' : '') : '') + '</span>' +
+        '<button type="button" class="x" data-mx="' + i + '" aria-label="Remove">✕</button>' +
+        (ps.media.length > 1 ? '<span class="mv"><button type="button" data-ml="' + i + '" aria-label="Move left">‹</button><button type="button" data-mr="' + i + '" aria-label="Move right">›</button></span>' : '') + '</div>';
+    }).join('');
+    $('psMedia').querySelectorAll('[data-mi]').forEach(function(el){ fill(el, ps.media[+el.getAttribute('data-mi')]); });
+  }
+  function words(s){ return (String(s).match(/#[\w]+/g) || []).length; }
+  function checks(){
+    var c = [], t = targets(), m = ps.media.filter(function(x){ return !x.busy; }), cap = $('psCaption').value, vids = m.filter(function(x){ return x.type === 'video'; });
+    var any = ORDER.some(function(k){ return t[k]; });
+    if (!any) c.push(['bad', 'Pick where it goes']);
+    if (!m.length && !cap.trim() && !ps.media.length) c.push(['bad', 'Add a picture or video, then write a caption']);
+    else {
+      if (!m.length && (t.ig_feed || t.ig_story || t.fb_story)) c.push(['bad', 'Instagram and stories need a picture or video']);
+      if (!m.length && !cap.trim()) c.push(['bad', 'Write something or add a picture']);
+    }
+    if (t.fb_feed && vids.length && m.length > 1) c.push(['bad', 'A Facebook post takes several pictures, or one video. Untick Facebook post, or keep one video']);
+    if (cap.length > 2200) c.push(['bad', 'Caption is over Instagram’s 2,200 characters']);
+    if (words(cap) > 30) c.push(['bad', words(cap) + ' hashtags; Instagram allows 30']);
+    vids.forEach(function(v){ if (/\.webm$/i.test(v.path || '')) c.push(['bad', 'A WebM video can’t go to Instagram. Make the Reel in Safari or a newer Chrome (it saves MP4)']); });
+    vids.forEach(function(v){ if (v.dur && v.dur < 3) c.push(['bad', 'Videos need to be at least 3 seconds']); });
+    if ((t.ig_story || t.fb_story) && m.length > 1) c.push(['warn', 'Stories use only the first ' + (m[0].type === 'video' ? 'video' : 'picture')]);
+    if (t.ig_feed && vids.length === 1 && m.length === 1 && vids[0].w > vids[0].h) c.push(['warn', 'Sideways video: Instagram Reels look best tall (9:16)']);
+    if (ps.media.some(function(x){ return x.busy; })) c.push(['warn', 'Still uploading…']);
+    if (!c.some(function(x){ return x[0] === 'bad'; }) && any) c.push(['ok', 'Ready: ' + ORDER.filter(function(k){ return t[k]; }).map(function(k){ return PLACE[k]; }).join(', ')]);
+    $('psChecks').innerHTML = c.map(function(x){ return '<li class="' + x[0] + '">' + esc(x[1]) + '</li>'; }).join('');
+    var bad = c.some(function(x){ return x[0] === 'bad'; }) || ps.media.some(function(x){ return x.busy; });
+    $('psGo').disabled = bad; $('psSave').disabled = ps.media.some(function(x){ return x.busy; });
+    var later = document.querySelector('input[name="psWhen"][value="later"]').checked;
+    $('psGo').textContent = later ? 'Schedule' : 'Post now';
+    $('psCount').textContent = cap.length + ' / 2,200 · ' + words(cap) + ' / 30 hashtags';
+  }
+  function preview(){
+    var box = $('psPrev'), m = ps.media.filter(function(x){ return !x.busy; }), cap = $('psCaption').value;
+    document.querySelectorAll('.ps-prev-tabs [data-pv]').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-pv') === ps.pv); });
+    var head = '<div class="ps-ph"><span class="ps-av"></span><span>' + (ps.pv === 'fb' ? 'Roll-In Shawarma<br><small>Just now · 🌎</small>' : (ps.conn && ps.conn.instagram ? esc(ps.conn.instagram.username) : 'rollinshawarma')) + '</span></div>';
+    if (ps.pv === 'story') {
+      box.innerHTML = m.length ? '<div class="ps-story" id="psPvStory"><div class="ps-sh"><span class="ps-av"></span>' + (ps.conn && ps.conn.instagram ? esc(ps.conn.instagram.username) : 'rollinshawarma') + ' · now</div></div>' : '<div class="ps-none">Stories need a picture or video.</div>';
+      if (m.length) { var st = m[0], el = $('psPvStory'); fill(el, st.feed_path && st.type === 'image' ? st : st); }
+      return;
+    }
+    if (ps.pv === 'ig') {
+      box.innerHTML = '<div class="ps-phone">' + head + (m.length ? '<div class="ps-pic" id="psPvPic"></div>' + (m.length > 1 ? '<div class="ps-dots">' + m.map(function(){ return '<i></i>'; }).join('') + '</div>' : '') : '<div class="ps-pic">Instagram needs a picture or video</div>') +
+        '<div class="ps-igcap"><b>' + (ps.conn && ps.conn.instagram ? esc(ps.conn.instagram.username) : 'rollinshawarma') + '</b> ' + esc(cap) + '</div></div>';
+      if (m.length) fill($('psPvPic'), feedOf(m[0]));
+      return;
+    }
+    var media = '';
+    if (m.length === 1) media = '<div class="ps-pic" id="psPvPic"></div>';
+    else if (m.length > 1) media = '<div class="ps-fbgrid">' + m.slice(0, 4).map(function(x, i){ return '<div data-fb="' + i + '">' + (i === 3 && m.length > 4 ? '<b>+' + (m.length - 4) + '</b>' : '') + '</div>'; }).join('') + '</div>';
+    box.innerHTML = '<div class="ps-phone">' + head + '<div class="ps-fbcap">' + esc(cap) + '</div>' + media + '</div>';
+    if (m.length === 1) fill($('psPvPic'), feedOf(m[0]));
+    box.querySelectorAll('[data-fb]').forEach(function(el){ fill(el, feedOf(m[+el.getAttribute('data-fb')])); });
+  }
+  function feedOf(m){ return m.feed_path ? Object.assign({}, m, { path: m.feed_path }) : m; }
+  function refresh(){ checks(); clearTimeout(ps.pt); ps.pt = setTimeout(preview, 120); }
+
+  // ---------- adding pictures and videos ----------
+  function stamp(){ return new Date().toISOString().slice(0, 10) + '-' + Math.random().toString(36).slice(2, 9); }
+  function toJpeg(img, w, h, sx, sy, sw, sh){ var c = document.createElement('canvas'); c.width = w; c.height = h; var x = c.getContext('2d'); x.fillStyle = '#fff'; x.fillRect(0, 0, w, h); x.drawImage(img, sx, sy, sw, sh, 0, 0, w, h); return new Promise(function(ok, no){ c.toBlob(function(b){ b ? ok(b) : no(new Error('Couldn’t read that picture')); }, 'image/jpeg', .9); }); }
+  function upload(path, blob, type){ return sb.storage.from('social-media').upload(path, blob, { contentType: type, upsert: false }).then(function(r){ if (r.error) throw new Error('Upload failed: ' + r.error.message); return path; }); }
+  // Pictures: saved as JPEG (Instagram needs JPEG). A very tall or wide one also gets a feed copy
+  // cropped to what Instagram's feed allows (4:5 to 1.91:1); stories use the full picture.
+  function addImage(file){
+    var m = { type: 'image', busy: true, local: URL.createObjectURL(file) }; ps.media.push(m); mediaPaint(); refresh();
+    var img = new Image();
+    return new Promise(function(ok, no){ img.onload = ok; img.onerror = function(){ no(new Error('That picture can’t be opened here. Save it as JPEG and try again.')); }; img.src = m.local; }).then(function(){
+      var W = img.naturalWidth, H = img.naturalHeight, k = Math.min(1, 1920 / Math.max(W, H)), base = 'u/' + stamp();
+      var jobs = [toJpeg(img, Math.round(W * k), Math.round(H * k), 0, 0, W, H).then(function(b){ return upload(base + '.jpg', b, 'image/jpeg'); })];
+      var r = W / H, cw = W, ch = H;
+      if (r < 0.8) ch = Math.round(W / 0.8); else if (r > 1.91) cw = Math.round(H * 1.91);
+      if (cw !== W || ch !== H) { var kk = Math.min(1, 1440 / cw); jobs.push(toJpeg(img, Math.round(cw * kk), Math.round(ch * kk), (W - cw) / 2, (H - ch) / 2, cw, ch).then(function(b){ return upload(base + '-feed.jpg', b, 'image/jpeg'); })); }
+      return Promise.all(jobs).then(function(p){ m.path = p[0]; if (p[1]) m.feed_path = p[1]; m.w = W; m.h = H; m.busy = false; });
+    }).catch(function(e){ ps.media.splice(ps.media.indexOf(m), 1); showMsg('psEditMsg', e.message, 'error'); }).then(function(){ mediaPaint(); refresh(); });
+  }
+  function addVideo(file){
+    if (file.size > 50 * 1024 * 1024) { showMsg('psEditMsg', 'That video is over 50 MB. Trim it on your phone (15–60 seconds is plenty) and add it again.', 'error'); return Promise.resolve(); }
+    var m = { type: 'video', busy: true, local: URL.createObjectURL(file) }; ps.media.push(m); mediaPaint(); refresh();
+    return new Promise(function(ok){ var v = document.createElement('video'); v.preload = 'metadata'; v.muted = true; v.onloadedmetadata = function(){ m.dur = Math.round(v.duration * 10) / 10; m.w = v.videoWidth; m.h = v.videoHeight; ok(); }; v.onerror = function(){ ok(); }; v.src = m.local; }).then(function(){
+      var ext = /quicktime|\.mov$/i.test(file.type + file.name) ? 'mov' : 'mp4';
+      return upload('u/' + stamp() + '.' + ext, file, file.type || (ext === 'mov' ? 'video/quicktime' : 'video/mp4'));
+    }).then(function(p){ m.path = p; m.busy = false; }, function(e){ ps.media.splice(ps.media.indexOf(m), 1); showMsg('psEditMsg', e.message, 'error'); }).then(function(){ mediaPaint(); refresh(); });
+  }
+  function addFiles(list){
+    var files = Array.prototype.slice.call(list || []);
+    if (ps.media.length + files.length > 10) { showMsg('psEditMsg', 'Up to 10 pictures or videos.', 'error'); files = files.slice(0, 10 - ps.media.length); }
+    files.reduce(function(p, f){ return p.then(function(){ return /^video\//.test(f.type) || /\.(mov|mp4)$/i.test(f.name) ? addVideo(f) : addImage(f); }); }, Promise.resolve());
+  }
+  function pickShow(items, title){
+    var box = $('psPick');
+    box.innerHTML = items.length ? items.map(function(it, i){ return '<button type="button" data-pk="' + i + '" title="' + esc(it.name) + '"><span>' + esc(it.name) + '</span></button>'; }).join('') : '<p class="hint" style="grid-column:1/-1;margin:0">' + esc(title) + '</p>';
+    box.classList.remove('hidden');
+    box.querySelectorAll('[data-pk]').forEach(function(el){ var it = items[+el.getAttribute('data-pk')]; fill(el, it.thumb || it.media); });
+    box.onclick = function(e){ var b = e.target.closest('[data-pk]'); if (!b) return; if (ps.media.length >= 10) return; var it = items[+b.getAttribute('data-pk')];
+      ps.media.push(JSON.parse(JSON.stringify(it.media))); if (it.caption && !$('psCaption').value.trim()) $('psCaption').value = it.caption;
+      mediaPaint(); refresh(); };
+  }
+  // Ad Studio designs: the feed picture (with its tall story version) and Reels.
+  function pickStudio(){
+    var go = function(){
+      var items = [];
+      (ps.studio || []).forEach(function(c){ var cp = c.creative_paths || {}, nm = (c.stop_name || 'Ad') + ' · ' + new Date(c.design_at || c.updated_at).toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+        if (cp.feed) items.push({ name: nm, media: cp.story ? { type: 'image', bucket: 'ad-creatives', path: cp.story, feed_path: cp.feed } : { type: 'image', bucket: 'ad-creatives', path: cp.feed }, thumb: { type: 'image', bucket: 'ad-creatives', path: cp.feed } });
+        if (cp.reel) items.push({ name: 'Reel · ' + nm, media: { type: 'video', bucket: 'ad-creatives', path: cp.reel, w: 1080, h: 1920, dur: 8 } });
+        (cp.cards || []).forEach(function(k){ items.push({ name: k.name || nm, media: { type: 'image', bucket: 'ad-creatives', path: k.path } }); });
+      });
+      pickShow(items.slice(0, 40), 'No Ad Studio designs yet. Make one on the Ads page.');
+    };
+    if (ps.studio) return go();
+    sb.from('ad_campaigns').select('id, stop_name, creative_paths, design_at, updated_at').not('creative_paths', 'is', null).order('updated_at', { ascending: false }).limit(20).then(function(r){ ps.studio = (r && r.data) || []; go(); }, function(){ ps.studio = []; go(); });
+  }
+  function pickMenu(){
+    var go = function(){ pickShow((ps.menu || []).map(function(x){ return { name: x.name, media: { type: 'image', url: x.url }, caption: x.caption }; }), 'No menu photos found.'); };
+    if (ps.menu) return go();
+    sb.from('menu_items').select('*').then(function(r){
+      var seen = {};
+      ps.menu = ((r && r.data) || []).filter(function(x){ var u = x.image_url ? (/^https?:/.test(x.image_url) ? x.image_url : SITE + String(x.image_url).replace(/^\.?\//, '')) : ''; x._u = u; if (!u || seen[u]) return false; seen[u] = 1; return /^https:\/\/([a-z0-9-]+\.)*(rollinshawarma\.com|supabase\.co)\//.test(u); })
+        .map(function(x){ var pr = x.price != null ? x.price : x.base_price; return { name: x.name, url: x._u, caption: dishCaption(x.name, pr, x.description) }; });
+      go();
+    }, function(){ ps.menu = []; go(); });
+  }
+
+  // ---------- ideas ----------
+  function tail(){ var s = ps.settings || {}; return '\n\n' + (s.footer || 'Order ahead and skip the line: rollinshawarma.com') + (s.hashtags ? '\n\n' + s.hashtags : ''); }
+  function dishCaption(name, price, desc){ return 'This week’s pick: ' + name + (price != null && !isNaN(price) ? ' ($' + Number(price).toFixed(2) + ')' : '') + ' 🌯\n' + (desc ? String(desc).trim() + '\n' : '') + 'Made fresh on the truck, every order.' + tail(); }
+  function hm(t){ if (!t) return ''; var p = String(t).split(':'), h = +p[0], mi = +p[1]; return ((h + 11) % 12 + 1) + (mi ? ':' + String(mi).padStart(2, '0') : '') + ' ' + (h >= 12 ? 'PM' : 'AM'); }
+  function idea(k){
+    if (k === 'dish') return open(null, { title: 'Dish of the week', idea: 'Dish of the week', caption: '', pick: 'menu' });
+    if (k === 'freeroll') return open(null, { title: 'Free roll for members', idea: 'Free roll', media: [{ type: 'image', url: SITE + 'email/free-roll-waiting.jpg' }],
+      caption: 'New here? Join Roll-In Rewards free and your first order of $15 or more comes with a Frankie Roll on us 🎁🌯\nSign up at rollinshawarma.com, then order ahead and skip the line.' + tail() });
+    if (k === 'bts') return open(null, { title: 'Behind the scenes', idea: 'Behind the scenes', targets: { fb_feed: true, ig_feed: true, ig_story: true },
+      caption: 'Behind the scenes on the truck 🔥 Fresh chicken on the grill, rolled to order.' + tail() });
+    if (k === 'hours') return open(null, { title: 'Hours change', idea: 'Hours change', targets: { fb_feed: true },
+      caption: 'Heads up: we’re closed today. See you tomorrow!' + tail() });
+    // today's stop / thank-you recap come from Events
+    var today = new Date(), iso = today.getFullYear() + '-' + String(today.getMonth() + 1).padStart(2, '0') + '-' + String(today.getDate()).padStart(2, '0');
+    var q = sb.from('events').select('*').eq('status', 'confirmed');
+    q = k === 'stop' ? q.gte('start_date', iso).order('start_date', { ascending: true }) : q.lte('start_date', iso).order('start_date', { ascending: false });
+    q.limit(10).then(function(r){
+      var evs = ((r && r.data) || []).filter(function(e){ return !(window.adLooksPrivate && window.adLooksPrivate(e)); });
+      var ev = evs[0];
+      if (!ev) return open(null, { title: k === 'stop' ? 'Today’s stop' : 'Thank-you recap', idea: k === 'stop' ? 'Today’s stop' : 'Recap', caption: (k === 'stop' ? '📍 Find us today at …' : 'Thank you for coming out! 🙏') + tail() });
+      var day = ev.start_date === iso ? 'Today' : new Date(ev.start_date + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'long' });
+      var where = String(ev.location || '').split(',')[0].trim(), t = ev.start_time ? hm(ev.start_time) + (ev.end_time ? '–' + hm(ev.end_time) : '') : '';
+      var cap = k === 'stop' ? '📍 ' + day + ' we’re at ' + ev.title + (where && ev.title.toLowerCase().indexOf(where.toLowerCase()) < 0 ? ', ' + where : '') + (t ? ', ' + t : '') + '.\nFresh shawarma, wraps and bowls, made right on the truck. Come say hi!' + tail()
+        : 'Thank you, ' + ev.title + '! 🙏 We loved feeding you. Where should we park next? Tell us in the comments 👇' + tail();
+      var c = (ps.studio || null);
+      sb.from('ad_campaigns').select('creative_paths').eq('event_id', ev.id).order('updated_at', { ascending: false }).limit(1).then(function(a){
+        var cp = a && a.data && a.data[0] && a.data[0].creative_paths || {};
+        var media = k === 'stop' && cp.feed ? [cp.story ? { type: 'image', bucket: 'ad-creatives', path: cp.story, feed_path: cp.feed } : { type: 'image', bucket: 'ad-creatives', path: cp.feed }] : [];
+        open(null, { title: k === 'stop' ? day + '’s stop' : 'Thank-you recap', idea: k === 'stop' ? 'Today’s stop' : 'Recap', caption: cap, media: media, targets: k === 'stop' ? { fb_feed: true, ig_feed: true, ig_story: true } : null });
+      }, function(){ open(null, { idea: 'Today’s stop', caption: cap }); });
+    });
+  }
+
+  // ---------- save / post ----------
+  function save(){
+    var t = targets(), media = ps.media.filter(function(m){ return !m.busy; }).map(function(m){ var o = { type: m.type }; ['bucket', 'path', 'feed_path', 'url', 'w', 'h', 'dur'].forEach(function(k){ if (m[k] != null) o[k] = m[k]; }); return o; });
+    return rpc('posts_save', { p_id: ps.ed ? ps.ed.id : null, p_caption: $('psCaption').value, p_media: media, p_targets: t, p_idea: ps.idea }).then(function(row){ ps.ed = Array.isArray(row) ? row[0] : row; return ps.ed; });
+  }
+  function saveClick(){
+    var b = $('psSave'); b.disabled = true;
+    save().then(function(){ close(); showMsg('psMsg', ps.admin ? 'Saved as a draft.' : 'Saved. An admin will check it and post it.', 'ok'); load(); }, function(e){ showMsg('psEditMsg', e.message, 'error'); }).then(function(){ b.disabled = false; });
+  }
+  function goClick(){
+    var later = document.querySelector('input[name="psWhen"][value="later"]').checked, at = null, b = $('psGo');
+    if (later) { if (!$('psAt').value) { showMsg('psEditMsg', 'Pick the date and time.', 'error'); return; } at = new Date($('psAt').value); if (at < new Date(Date.now() + 60000)) { showMsg('psEditMsg', 'Pick a time in the future.', 'error'); return; } }
+    var where = ORDER.filter(function(k){ return targets()[k]; }).map(function(k){ return PLACE[k]; }).join(', ');
+    if (!later && !confirm('Post this now to: ' + where + '?\n\nPosts go out publicly right away. You can delete them later on Facebook or Instagram.')) return;
+    b.disabled = true; b.textContent = later ? 'Scheduling…' : 'Posting…';
+    save().then(function(row){
+      if (later) return rpc('posts_schedule', { p_id: row.id, p_at: at.toISOString() }).then(function(){ close(); showMsg('psMsg', 'Scheduled for ' + when(at) + '. It goes out by itself.', 'ok'); return load(); });
+      close(); return goNow(row.id);
+    }).catch(function(e){ showMsg('psEditMsg', e.message, 'error'); }).then(function(){ b.disabled = false; checks(); });
+  }
+
+  // ---------- settings ----------
+  function settingsFill(){
+    var s = ps.settings; if (!s) return;
+    $('psSetFooter').value = s.footer || ''; $('psSetTags').value = s.hashtags || ''; $('psSetAuto').checked = s.auto_event_drafts !== false; $('psSetHour').value = String(s.event_draft_hour || 7);
+    var d = s.default_targets || {}; $('psDefFb').checked = !!d.fb_feed; $('psDefIg').checked = !!d.ig_feed; $('psDefIgS').checked = !!d.ig_story;
+  }
+  function settingsSave(){
+    var b = $('psSetSave'); b.disabled = true;
+    rpc('posts_save_settings', { p_footer: $('psSetFooter').value, p_hashtags: $('psSetTags').value, p_auto_event_drafts: $('psSetAuto').checked, p_event_draft_hour: +$('psSetHour').value,
+      p_default_targets: { fb_feed: $('psDefFb').checked, ig_feed: $('psDefIg').checked, ig_story: $('psDefIgS').checked, fb_story: false } })
+      .then(function(s){ ps.settings = Array.isArray(s) ? s[0] : s; showMsg('psSetMsg', 'Saved.', 'ok'); }, function(e){ showMsg('psSetMsg', e.message, 'error'); }).then(function(){ b.disabled = false; });
+  }
+
+  // ---------- start ----------
+  window.psInit = function(isAdmin){
+    if (ps.started) return; ps.started = true; ps.admin = !!isAdmin;
+    $('tabPostsBtn').classList.remove('hidden');
+    $('psSettingsCard').classList.toggle('hidden', !ps.admin);
+    $('psList').addEventListener('click', act);
+    $('psNewBtn').addEventListener('click', function(){ open(null); });
+    $('psIdeas').addEventListener('click', function(e){ var b = e.target.closest('[data-idea]'); if (b) idea(b.getAttribute('data-idea')); });
+    $('psCancel').addEventListener('click', close);
+    $('psSave').addEventListener('click', saveClick);
+    $('psGo').addEventListener('click', goClick);
+    $('psFile').addEventListener('change', function(){ addFiles(this.files); this.value = ''; });
+    $('psFromStudio').addEventListener('click', pickStudio);
+    $('psFromMenu').addEventListener('click', pickMenu);
+    $('psMedia').addEventListener('click', function(e){
+      var x = e.target.closest('[data-mx]'), l = e.target.closest('[data-ml]'), r = e.target.closest('[data-mr]');
+      if (x) ps.media.splice(+x.getAttribute('data-mx'), 1);
+      else if (l || r) { var i = +(l || r).getAttribute(l ? 'data-ml' : 'data-mr'), j = l ? i - 1 : i + 1; if (j < 0 || j >= ps.media.length) return; var t = ps.media[i]; ps.media[i] = ps.media[j]; ps.media[j] = t; }
+      else return;
+      mediaPaint(); refresh();
+    });
+    $('psEditor').addEventListener('change', function(e){ if (e.target.name === 'psWhen') $('psAt').classList.toggle('hidden', e.target.value !== 'later'); refresh(); });
+    $('psCaption').addEventListener('input', refresh);
+    $('psAddFooter').addEventListener('click', function(){ var s = ps.settings || {}; $('psCaption').value = ($('psCaption').value.replace(/\s+$/, '') + '\n\n' + (s.footer || 'Order ahead and skip the line: rollinshawarma.com')).replace(/^\n+/, ''); refresh(); });
+    $('psAddTags').addEventListener('click', function(){ var s = ps.settings || {}; if (!s.hashtags) return; $('psCaption').value = ($('psCaption').value.replace(/\s+$/, '') + '\n\n' + s.hashtags).replace(/^\n+/, ''); refresh(); });
+    document.querySelector('.ps-prev-tabs').addEventListener('click', function(e){ var b = e.target.closest('[data-pv]'); if (!b) return; ps.pv = b.getAttribute('data-pv'); preview(); });
+    $('psSetSave').addEventListener('click', settingsSave);
+    document.querySelector('.nav-link[data-tab="posts"]').addEventListener('click', function(){ load(); conn(); });
+    load(); conn();
+    setInterval(function(){ if (!$('panelPosts').classList.contains('hidden') && $('psEditor').classList.contains('hidden')) load(); }, 60000);
+    if (location.hash === '#posts') setTimeout(function(){ showTab('posts'); }, 0);
+  };
+  window.psState = ps;
+  if (window.__psPending !== undefined) window.psInit(window.__psPending);
 })();
 </script>
 <script id="ds-js">
