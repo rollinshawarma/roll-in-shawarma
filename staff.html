@@ -10848,20 +10848,44 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     adSetLoc(null, null);
     adGeocode();
   });
+  // Map lookup that also tries without the house number, then just the ZIP/town
+  // (OpenStreetMap often has the street but not every house number).
+  function adFind(q){
+    var tries = [q], noNum = q.replace(/^\s*\d+[A-Za-z]?\s+/, ''), zip = (q.match(/\b\d{5}\b/) || [])[0];
+    if (noNum !== q) tries.push(noNum);
+    if (zip) tries.push(zip);
+    var i = 0;
+    var next = function(){
+      if (i >= tries.length) return Promise.resolve([]);
+      return fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=us&q=' + encodeURIComponent(tries[i++]))
+        .then(function(r){ return r.json(); }).then(function(j){ return j && j[0] ? j : next(); });
+    };
+    return next();
+  }
+  // Returns a promise that settles once the lookup is done (adsState.lat is set if found).
   function adGeocode(){
     var q = document.getElementById('adStopAddr').value.trim();
     var pin = q.match(/^\s*(-?\d{1,2}\.\d+)\s*,\s*(-?\d{1,3}\.\d+)\s*$/);
-    if (pin) { adSetLoc(+pin[1], +pin[2], 'Map pin'); return; }
-    if (!q) { adSetLoc(null, null, 'Type the address first'); return; }
+    if (pin) { adSetLoc(+pin[1], +pin[2], 'Map pin'); return Promise.resolve(); }
+    if (!q) { adSetLoc(null, null, 'Type the address first'); return Promise.resolve(); }
     adSetLoc(null, null, 'Looking it up…');
-    fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=us&q=' + encodeURIComponent(q))
-      .then(function(r){ return r.json(); })
+    return adFind(q)
       .then(function(j){
         if (j && j[0]) adSetLoc(Math.round(+j[0].lat * 1e5) / 1e5, Math.round(+j[0].lon * 1e5) / 1e5, 'Found: ' + String(j[0].display_name || '').split(',').slice(0, 3).join(','));
         else adSetLoc(null, null, 'Couldn’t find that address. Try a street address, or tap “Use where I am” at the truck.');
       }, function(){ adSetLoc(null, null, 'Map lookup didn’t answer. Try again, or paste a map pin.'); });
   }
-  document.getElementById('adFindBtn').addEventListener('click', adGeocode);
+  document.getElementById('adFindBtn').addEventListener('click', function(){ adGeocode(); });
+  // What's still missing before an ad can go for approval, in plain words
+  function adMissing(row){
+    var m = [];
+    if (row.lat == null) m.push(adsState.kind === 'comeback' ? 'our usual spot’s address (Ad settings)' : 'the map location (type the address, then tap Find on map)');
+    if (!row.creative_path) m.push('a picture (tap Open Ad Studio)');
+    if (!row.start_at || !row.end_at) m.push('start and end dates');
+    if (!String(row.headline || '').trim()) m.push('a headline');
+    if (!String(row.primary_text || '').trim()) m.push('the text');
+    return m;
+  }
   document.getElementById('adHereBtn').addEventListener('click', function(){
     if (!navigator.geolocation) { adSetLoc(null, null, 'This device can’t share its location.'); return; }
     adSetLoc(null, null, 'Getting your location…');
@@ -10985,7 +11009,8 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       });
     }
     if (adsState.kind !== 'stop' && adsState.lat == null && s.home_lat != null) { adsState.lat = s.home_lat; adsState.lng = s.home_lng; }
-    return upload.then(function(cr){
+    var findLoc = adsState.lat == null && document.getElementById('adStopAddr').value.trim() ? adGeocode().then(function(){}, function(){}) : Promise.resolve();
+    return findLoc.then(function(){ return upload; }).then(function(cr){
       return sb.rpc('ads_save_draft', {
         p_id: adsState.editing ? adsState.editing.id : null,
         p_event_id: document.getElementById('adEvent').value || null,
@@ -11031,6 +11056,8 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     var btn = this; adBusy(btn, true, 'Sending…');
     adSave().then(function(row){
       if (row.status === 'pending_approval') return row;
+      var miss = adMissing(row);
+      if (miss.length) throw new Error('Saved as a draft. Still needed: ' + miss.join(', ') + '.');
       return sb.rpc('ads_submit', { p_id: row.id }).then(function(r){ if (r.error) throw new Error(r.error.message); return r.data; });
     }).then(function(){
       adBusy(btn, false, 'Send for approval');
@@ -11124,7 +11151,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     var split = [Number(v('adSetSplitStop') || 0), Number(v('adSetSplitHome') || 0), Number(v('adSetSplitBack') || 0)];
     if (split[0] + split[1] + split[2] !== 100) { adBusy(btn, false, 'Save settings'); showMsg('adSetMsg', 'The three shares add up to ' + (split[0] + split[1] + split[2]) + '%. Make them 100%.', 'error'); return; }
     var cur = adsState.settings || {}, addr = v('adSetHomeAddr').trim();
-    var where = addr && addr !== cur.home_address ? fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=us&q=' + encodeURIComponent(addr)).then(function(r){ return r.json(); }).then(function(j){
+    var where = addr && (addr !== cur.home_address || cur.home_lat == null) ? adFind(addr).then(function(j){
         if (!j || !j[0]) throw new Error('Couldn’t find the home address on the map. Check it and save again.');
         return { lat: Math.round(+j[0].lat * 1e5) / 1e5, lng: Math.round(+j[0].lon * 1e5) / 1e5 };
       }, function(){ throw new Error('Map lookup didn’t answer. Try saving again.'); }) : Promise.resolve({ lat: cur.home_lat == null ? null : cur.home_lat, lng: cur.home_lng == null ? null : cur.home_lng });
