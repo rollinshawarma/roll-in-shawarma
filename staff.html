@@ -15,7 +15,7 @@
 <title>Staff Portal | Roll-In Shawarma</title>
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400..800&family=Geist+Mono:wght@400..600&family=Inter:wght@400;500;600;700;800&family=Inter+Tight:wght@600;700;800&family=Barlow+Condensed:wght@600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Geist:wght@400..800&family=Geist+Mono:wght@400..600&family=Inter:wght@400;500;600;700;800&family=Inter+Tight:wght@600;700;800&family=Barlow+Condensed:wght@600;700;800&family=Fraunces:ital,opsz,wght@0,9..144,500;0,9..144,600;1,9..144,500&display=swap" rel="stylesheet">
 <script>/* theme before first paint (design system v2) */(function(){var t="light";try{t=localStorage.getItem("dsTheme")||"light";}catch(e){}if(t==="system")t=window.matchMedia&&matchMedia("(prefers-color-scheme: dark)").matches?"dark":"light";document.documentElement.setAttribute("data-theme",t==="dark"?"dark":"light");})();</script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.117.2/dist/umd/supabase.js" integrity="sha384-Rj26LVGvoeRVR6+mwQmFfcR3QOBEwT+ZmuCWpuiqeTzJpCs0ER4ITAWGb4Hiy3Ok" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.js" integrity="sha384-b5Ya4Bq3qCyz39m2ISh+4DxjAIljdeFwK/BsXLuj9gugaNwAcj/ia15fxNZL9Nlx" crossorigin="anonymous"></script>
@@ -1109,6 +1109,111 @@
   .ad-sum div:last-child{ border-right:0; }
   .ad-sum b{ display:block; font-family:var(--display); font-size:22px; color:var(--ink); }
   .ad-sum small{ color:var(--muted); font-size:12px; }
+  /* ---- Ad Studio + campaign kinds (Nov 22 2026) ---- */
+  .sr-only{ position:absolute; width:1px; height:1px; overflow:hidden; clip:rect(0 0 0 0); white-space:nowrap; }
+  .ad-kind{ display:grid; grid-template-columns:repeat(3,1fr); gap:8px; margin:2px 0 14px; }
+  .ad-kind button{ width:auto; text-align:left; background:var(--card); border:1.5px solid var(--ds-border); border-radius:12px; padding:10px 12px; font:inherit; color:var(--ink); cursor:pointer; min-height:0; }
+  .ad-kind button b{ display:block; font-size:14px; }
+  .ad-kind button small{ display:block; color:var(--muted); font-size:12px; font-weight:400; line-height:1.35; margin-top:2px; }
+  .ad-kind button.on{ border-color:var(--ink); box-shadow:0 0 0 1px var(--ink) inset; }
+  .ad-kind button:focus-visible{ outline:2px solid var(--ds-blue,#2a78d6); outline-offset:2px; }
+  .ad-design{ border:1px solid var(--ds-border); border-radius:14px; padding:12px; margin:4px 0 12px; background:var(--ds-subtle); }
+  .ad-design-row{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+  .ad-design-row button{ width:auto; }
+  .ad-design-thumbs{ display:flex; gap:8px; align-items:flex-end; }
+  .ad-design-thumbs span{ display:block; background:var(--card) center/cover no-repeat; border-radius:8px; border:1px solid var(--ds-border); }
+  .ad-design-thumbs .f{ width:48px; height:60px; } .ad-design-thumbs .s{ width:38px; height:68px; } .ad-design-thumbs .q{ width:54px; height:54px; }
+  .ad-design-note{ font-size:12.5px; color:var(--muted); flex:1; min-width:160px; }
+  .ad-design-note.warn{ color:var(--ds-amber-ink); }
+  .ad-own{ margin-top:10px; font-size:13px; }
+  .ad-own summary{ cursor:pointer; color:var(--muted); font-weight:500; }
+  .ad-own[open] summary{ margin-bottom:8px; }
+  .ad-chip.k-stop{ background:#f6e7dc; color:#8a3a1c; } .ad-chip.k-home{ background:#e5f0ff; color:#1d4f91; } .ad-chip.k-comeback{ background:#efe6f8; color:#5b2f8a; }
+  .ad-warn{ font-size:12.5px; color:var(--ds-amber-ink); margin-top:6px; }
+  .ad-card .ad-thumb.tall{ height:90px; }
+  .ad-share{ display:grid; grid-template-columns:repeat(3,1fr); gap:10px; }
+  .ad-share small{ display:block; color:var(--muted); font-size:12px; margin-top:-6px; margin-bottom:8px; }
+  .ad-split-bar{ display:flex; height:8px; border-radius:99px; overflow:hidden; gap:2px; margin:2px 0 6px; background:var(--card); }
+  .ad-split-bar i{ display:block; height:100%; }
+  .ad-sub{ font-weight:600; font-size:14px; margin:16px 0 6px; color:var(--ink); }
+  .ad-kinds-on{ display:flex; flex-wrap:wrap; gap:14px; margin:4px 0 6px; }
+  .ad-kinds-on label{ display:flex; gap:6px; align-items:center; font-weight:500; margin:0; }
+  .ad-kinds-on input{ width:auto; }
+  #adApproveAll{ width:auto; }
+  .ad-head-btns{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+
+  .st-wrap{ position:fixed; inset:0; z-index:400; background:rgba(25,18,12,.55); display:flex; align-items:stretch; justify-content:center; padding:2vh 2vw; }
+  .st-wrap.hidden{ display:none; }
+  .st{ background:#fbf8f3; color:#2b211a; width:min(1320px,100%); border-radius:20px; display:flex; flex-direction:column; overflow:hidden; box-shadow:0 30px 80px rgba(0,0,0,.35); }
+  .st-top{ display:flex; justify-content:space-between; align-items:flex-start; gap:12px; padding:16px 20px 12px; border-bottom:1px solid #e4d9c8; }
+  .st-top h2{ font-family:Fraunces,Georgia,serif; font-weight:600; font-size:24px; margin:0; color:#2b211a; }
+  .st-top .hint{ margin:2px 0 0; }
+  .st-top button{ width:auto; }
+  .st-body{ flex:1; min-height:0; display:grid; grid-template-columns:330px minmax(0,1fr); }
+  .st-side{ overflow:auto; padding:14px 18px 24px; border-right:1px solid #e4d9c8; }
+  .st-main{ overflow:auto; padding:16px 20px 24px; background:#f1ebe1; }
+  .st-step{ font-weight:700; font-size:13px; margin:14px 0 8px; color:#2b211a; }
+  .st-step:first-child{ margin-top:0; }
+  .st-tpls{ display:grid; gap:6px; }
+  .st-tpls button{ width:auto; text-align:left; background:#fff; border:1.5px solid #e4d9c8; border-radius:12px; padding:9px 12px; font:inherit; color:#2b211a; cursor:pointer; min-height:0; }
+  .st-tpls button b{ display:block; font-size:14px; } .st-tpls button small{ display:block; color:#86786a; font-size:12px; font-weight:400; }
+  .st-tpls button.on{ border-color:#2b211a; box-shadow:0 0 0 1px #2b211a inset; }
+  .st-photos{ display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+  .st-photos button{ position:relative; width:auto; padding:0; border:2px solid transparent; border-radius:10px; overflow:hidden; background:#e4d9c8; cursor:pointer; aspect-ratio:1; min-height:0; }
+  .st-photos button img{ width:100%; height:100%; object-fit:cover; display:block; }
+  .st-photos button span{ position:absolute; left:0; right:0; bottom:0; font-size:10.5px; line-height:1.2; color:#fff; background:linear-gradient(transparent,rgba(0,0,0,.7)); padding:12px 5px 4px; text-align:left; }
+  .st-photos button.on{ border-color:#b5532c; }
+  .st-photos button i{ position:absolute; top:4px; right:4px; width:22px; height:22px; border-radius:50%; background:#b5532c; color:#fff; font-style:normal; font-weight:700; font-size:12px; display:flex; align-items:center; justify-content:center; }
+  .st-photos button:focus-visible, .st-tpls button:focus-visible{ outline:2px solid #2a78d6; outline-offset:2px; }
+  .st-up{ display:block; margin-top:8px; font-size:13px; font-weight:600; color:#b5532c; cursor:pointer; }
+  .st-up input{ display:block; width:100%; margin-top:4px; font-weight:400; }
+  #stFields label{ display:block; font-size:12.5px; font-weight:600; color:#5c4f43; margin:0 0 8px; }
+  #stFields input{ margin-top:3px; }
+  .st-prev{ display:flex; gap:18px; align-items:flex-start; flex-wrap:wrap; }
+  .st-f{ margin:0; }
+  .st-f figcaption{ font-size:12px; font-weight:600; color:#86786a; margin-bottom:6px; }
+  .st-feed{ width:300px; } .st-story{ width:228px; } .st-square{ width:220px; } .st-carousel{ width:min(560px,100%); }
+  .st-post{ background:#fff; border-radius:10px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,.12); font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif; color:#111; }
+  .st-ph{ display:flex; align-items:center; gap:7px; padding:8px 10px; font-size:12.5px; }
+  .st-ph small{ color:#777; font-size:11px; margin-left:auto; }
+  .st-av{ width:26px; height:26px; border-radius:50%; background:#2b211a url(logo.jpg) center/cover; flex:none; display:inline-block; }
+  .st-post p{ margin:0; padding:0 10px 8px; font-size:12px; line-height:1.35; display:-webkit-box; -webkit-line-clamp:3; -webkit-box-orient:vertical; overflow:hidden; }
+  .st-post canvas, .st-f > canvas{ display:block; width:100%; height:auto; }
+  .st-f > canvas{ border-radius:10px; box-shadow:0 1px 3px rgba(0,0,0,.12); }
+  .st-lk{ display:flex; align-items:center; justify-content:space-between; gap:8px; background:#f0f0f2; padding:8px 10px; }
+  .st-lk small{ display:block; font-size:10px; color:#666; } .st-lk b{ display:block; font-size:12.5px; }
+  .st-lk em{ font-style:normal; background:#e2e2e6; border-radius:5px; padding:6px 9px; font-size:12px; font-weight:600; white-space:nowrap; }
+  .st-car{ display:flex; gap:6px; overflow-x:auto; padding:0 10px 10px; scroll-snap-type:x mandatory; }
+  .st-car canvas{ width:200px !important; flex:none; border-radius:8px; scroll-snap-align:start; }
+  .st-sbox{ position:relative; border-radius:14px; overflow:hidden; box-shadow:0 1px 3px rgba(0,0,0,.2); }
+  .st-sbox canvas{ display:block; width:100%; height:auto; }
+  .st-sui{ position:absolute; inset:0; pointer-events:none; color:#fff; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Arial,sans-serif; }
+  .st-bar{ position:absolute; top:7px; left:8px; right:8px; height:2px; background:rgba(255,255,255,.6); border-radius:2px; }
+  .st-who{ position:absolute; top:15px; left:8px; display:flex; align-items:center; gap:5px; font-size:10px; font-weight:600; text-shadow:0 1px 2px rgba(0,0,0,.5); }
+  .st-who .st-av{ width:18px; height:18px; }
+  .st-cta{ position:absolute; bottom:16px; left:50%; transform:translateX(-50%); background:#fff; color:#111; border-radius:99px; padding:6px 14px; font-size:11px; font-weight:700; }
+  .st-zone{ position:absolute; left:0; right:0; pointer-events:none; background:repeating-linear-gradient(135deg,rgba(214,45,32,.18) 0 6px,rgba(214,45,32,.06) 6px 12px); }
+  .st-zone.t{ top:0; height:14%; border-bottom:1px dashed rgba(214,45,32,.8); }
+  .st-zone.b{ bottom:0; height:35%; border-top:1px dashed rgba(214,45,32,.8); }
+  .st-zone.b span{ position:absolute; top:6px; left:0; right:0; text-align:center; font-size:9.5px; font-weight:700; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.7); }
+  .st-safe{ display:flex; gap:8px; align-items:center; font-size:13px; font-weight:500; margin:16px 0 8px; color:#2b211a; }
+  .st-safe input{ width:auto; }
+  .st-checks{ list-style:none; padding:0; margin:0; display:grid; gap:5px; font-size:13px; }
+  .st-checks li{ padding-left:22px; position:relative; line-height:1.4; }
+  .st-checks li::before{ position:absolute; left:0; top:0; font-weight:700; }
+  .st-checks li.ok::before{ content:"✓"; color:#0c7a43; } .st-checks li.warn::before{ content:"!"; color:#a86a00; left:5px; } .st-checks li.bad::before{ content:"✕"; color:#c0261b; }
+  .st-checks li.bad{ color:#a1281c; font-weight:600; }
+  .st-foot{ display:flex; align-items:center; gap:10px; padding:12px 20px; border-top:1px solid #e4d9c8; background:#fbf8f3; }
+  .st-foot > div{ flex:1; font-size:13px; }
+  .st-foot button{ width:auto; }
+  .st-msg.bad{ color:#a1281c; font-weight:600; }
+  @media (max-width:899px){
+    .st-wrap{ padding:0; } .st{ border-radius:0; }
+    .st-body{ grid-template-columns:1fr; overflow:auto; } .st-side, .st-main{ overflow:visible; border-right:0; }
+    .st-feed{ width:100%; max-width:340px; } .st-story{ width:58%; max-width:240px; } .st-square{ width:38%; max-width:220px; }
+    .ad-kind{ grid-template-columns:1fr; } .ad-share{ grid-template-columns:1fr 1fr 1fr; }
+  }
+  @media (prefers-reduced-motion:reduce){ .st-car{ scroll-behavior:auto; } }
   @media (max-width:899px){
     .ad-edit-grid{ grid-template-columns:1fr; }
     .ad-preview-wrap{ position:static; max-width:360px; }
@@ -4200,14 +4305,14 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
   <div class="tab-panel hidden" id="panelAds">
     <div class="page-head">
       <h2>Ads</h2>
-      <p class="hint">Facebook and Instagram ads for people near where the truck is parked. Each week's ad is drafted from Events; nothing is spent until an admin taps Approve &amp; launch, and Meta never spends more than the budget.</p>
+      <p class="hint">Facebook and Instagram ads, three kinds: near next week's stop, near our usual spot at mealtimes, and for people who visited the website. Each Sunday next week's ads are drafted; nothing is spent until an admin approves, and Meta never spends more than the budget.</p>
     </div>
     <div class="ad-conn" id="adConn"><span class="ad-dot"></span><span id="adConnText">Checking the Meta connection&hellip;</span></div>
     <div id="adsMsg"></div>
 
     <div class="ad-head-row">
       <div class="section-title" style="margin:0">This week and coming up</div>
-      <button class="btn-primary btn-small ad-new" id="adNewBtn" type="button">New ad</button>
+      <div class="ad-head-btns"><button class="btn-approve btn-small hidden" id="adApproveAll" type="button">Approve &amp; launch all</button><button class="btn-primary btn-small ad-new" id="adNewBtn" type="button">New ad</button></div>
     </div>
     <div id="adList"><p class="hint">Loading ads&hellip;</p></div>
 
@@ -4217,8 +4322,17 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       <div id="adEditMsg"></div>
       <div class="ad-edit-grid">
         <div class="ad-form">
+          <label id="adKindLbl">What the ad is for</label>
+          <div class="ad-kind" id="adKind" role="radiogroup" aria-labelledby="adKindLbl">
+            <button type="button" role="radio" data-kind="stop"><b>A stop</b><small>People near where the truck will be</small></button>
+            <button type="button" role="radio" data-kind="home"><b>Near home</b><small>People around our usual spot, at mealtimes</small></button>
+            <button type="button" role="radio" data-kind="comeback"><b>Come back</b><small>People who visited our website lately</small></button>
+          </div>
+          <div id="adStopFields">
+          <div id="adEventWrap">
           <label for="adEvent">Stop</label>
           <select id="adEvent"><option value="">Somewhere not in Events</option></select>
+          </div>
           <label for="adStopName">Stop name (shown in the ad)</label>
           <input type="text" id="adStopName" maxlength="120" placeholder="e.g. Polaris Fashion Place">
           <label for="adStopAddr">Address</label>
@@ -4227,6 +4341,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
             <button type="button" class="btn-export btn-small" id="adFindBtn">Find on map</button>
             <button type="button" class="btn-export btn-small" id="adHereBtn">Use where I am</button>
             <span class="ad-loc-note" id="adLocNote">No location yet</span>
+          </div>
           </div>
 
           <div class="ad-pair">
@@ -4239,7 +4354,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
           </div>
           <div class="ad-pair">
             <div><label for="adBudget">Budget ($ for the whole ad)</label><input type="number" id="adBudget" min="5" step="1" inputmode="numeric"></div>
-            <div><label for="adRadius">Reach people within</label>
+            <div id="adRadiusWrap"><label for="adRadius">Reach people within</label>
               <select id="adRadius"><option value="2">2 miles</option><option value="3">3 miles</option><option value="5">5 miles</option><option value="8">8 miles</option><option value="10">10 miles</option><option value="15">15 miles</option><option value="25">25 miles</option></select></div>
           </div>
           <p class="hint ad-budget-hint" id="adBudgetHint"></p>
@@ -4252,9 +4367,19 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
           <select id="adPromo"><option value="">No promo code</option></select>
           <p class="hint">Make the code under Promo codes first. Orders using it while the ad runs count toward the ad's results.</p>
 
-          <label for="adFile">Flyer or photo</label>
-          <input type="file" id="adFile" accept="image/jpeg,image/png">
-          <p class="hint" id="adFileHint">JPG or PNG, up to 8 MB. Square (1080 × 1080) looks best on both Facebook and Instagram. Keep words on the picture short.</p>
+          <label>Picture</label>
+          <div class="ad-design">
+            <div class="ad-design-row">
+              <div class="ad-design-thumbs" id="adDesignThumbs"></div>
+              <div class="ad-design-note" id="adDesignNote">No picture yet.</div>
+              <button type="button" class="btn-primary btn-small" id="adStudioBtn">Open Ad Studio</button>
+            </div>
+            <details class="ad-own" id="adOwn"><summary>Use my own flyer instead</summary>
+              <label for="adFile" class="sr-only">Flyer or photo</label>
+              <input type="file" id="adFile" accept="image/jpeg,image/png">
+              <p class="hint" id="adFileHint">JPG or PNG, up to 8 MB. Square (1080 × 1080) works on both Facebook and Instagram. The Studio makes sharper pictures for each placement.</p>
+            </details>
+          </div>
         </div>
 
         <div class="ad-preview-wrap">
@@ -4280,20 +4405,50 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     <div class="card">
       <div style="overflow-x:auto;">
         <table class="stack">
-          <thead><tr><th>Ad</th><th>Spent</th><th>Reached</th><th>Clicks</th><th>Orders</th><th>Sales</th><th>Back per $1</th></tr></thead>
-          <tbody id="adResultsBody"><tr class="empty-row"><td colspan="7">No results yet.</td></tr></tbody>
+          <thead><tr><th>Ad</th><th>Spent</th><th>Reached</th><th>Seen per person</th><th>Clicks</th><th>Orders</th><th>Sales</th><th>Back per $1</th></tr></thead>
+          <tbody id="adResultsBody"><tr class="empty-row"><td colspan="8">No results yet.</td></tr></tbody>
         </table>
       </div>
-      <p class="hint">Meta's numbers refresh every 3 hours. Orders count when someone came from the ad's link, or used its promo code while it ran.</p>
+      <p class="hint">Meta's numbers refresh every 3 hours. Orders count when someone came from the ad's link, or used its promo code while it ran. “Seen per person” above 3 means the same people keep seeing it: time for a new picture.</p>
     </div>
 
     <div class="card hidden" id="adSettingsCard">
       <h2>Ad settings</h2>
       <div id="adSetMsg"></div>
       <div class="ad-pair">
-        <div><label for="adSetBudget">Weekly budget ($)</label><input type="number" id="adSetBudget" min="5" step="1"></div>
+        <div><label for="adSetMonthly">Monthly budget ($)</label><input type="number" id="adSetMonthly" min="25" max="5000" step="5"></div>
         <div><label for="adSetMax">Never more than ($ a week)</label><input type="number" id="adSetMax" min="5" step="1"></div>
       </div>
+      <p class="hint" id="adSetWeekly"></p>
+      <div class="ad-sub">How the budget is shared</div>
+      <div class="ad-split-bar" id="adSplitBar" aria-hidden="true"></div>
+      <div class="ad-share">
+        <div><label for="adSetSplitStop">Stops (%)</label><input type="number" id="adSetSplitStop" min="0" max="100" step="5"><small id="adSplitStopAmt"></small></div>
+        <div><label for="adSetSplitHome">Near home (%)</label><input type="number" id="adSetSplitHome" min="0" max="100" step="5"><small id="adSplitHomeAmt"></small></div>
+        <div><label for="adSetSplitBack">Come back (%)</label><input type="number" id="adSetSplitBack" min="0" max="100" step="5"><small id="adSplitBackAmt"></small></div>
+      </div>
+      <p class="hint">With no public stop next week, its share goes to Near home.</p>
+      <div class="ad-kinds-on"><label><input type="checkbox" id="adOnStop"> Stops</label><label><input type="checkbox" id="adOnHome"> Near home</label><label><input type="checkbox" id="adOnBack"> Come back</label><span class="hint" style="margin:0">drafted each Sunday</span></div>
+      <div class="ad-sub">Our usual spot</div>
+      <div class="ad-pair">
+        <div><label for="adSetHomeName">Name in the ad</label><input type="text" id="adSetHomeName" maxlength="60"></div>
+        <div><label for="adSetHomeRadius">Reach (miles)</label><input type="number" id="adSetHomeRadius" min="1" max="25" step="1"></div>
+      </div>
+      <label for="adSetHomeAddr">Address</label>
+      <input type="text" id="adSetHomeAddr" maxlength="200">
+      <div class="ad-sub">Mealtimes (Near home and Come back only show then)</div>
+      <div class="ad-pair">
+        <div><label for="adSetLunchA">Lunch from</label><input type="time" id="adSetLunchA" step="3600"></div>
+        <div><label for="adSetLunchB">to</label><input type="time" id="adSetLunchB" step="3600"></div>
+      </div>
+      <div class="ad-pair">
+        <div><label for="adSetDinA">Dinner from</label><input type="time" id="adSetDinA" step="3600"></div>
+        <div><label for="adSetDinB">to</label><input type="time" id="adSetDinB" step="3600"></div>
+      </div>
+      <p class="hint">Meta runs ads by whole hours, so 10:30 becomes 10:00.</p>
+      <label for="adSetBackDays">Come back: website visitors in the last (days)</label>
+      <input type="number" id="adSetBackDays" min="7" max="180" step="1">
+      <div class="ad-sub">Stop ads</div>
       <div class="ad-pair">
         <div><label for="adSetRadius">Default distance (miles)</label><input type="number" id="adSetRadius" min="1" max="25" step="1"></div>
         <div><label for="adSetLead">Start the ad (days before the stop)</label><input type="number" id="adSetLead" min="0" max="7" step="1"></div>
@@ -4303,7 +4458,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       <label for="adSetText">Default text</label>
       <textarea id="adSetText" rows="3" maxlength="500"></textarea>
       <p class="hint">{stop} becomes the stop's name and {when} its day and hours.</p>
-      <label class="ad-check"><input type="checkbox" id="adSetAuto"> Every Sunday, draft next week's ad from Events and email me to approve it</label>
+      <label class="ad-check"><input type="checkbox" id="adSetAuto"> Every Sunday, draft next week's ads and email me to approve them</label>
       <button type="button" class="btn-primary" id="adSetSave" style="margin-top:10px">Save settings</button>
     </div>
   </div>
@@ -10345,7 +10500,13 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
   });
 
   // ================= ADS (Facebook + Instagram) =================
-  var adsState = { isAdmin:false, settings:null, events:[], campaigns:[], report:{}, editing:null, file:null, fileUrl:null, lat:null, lng:null, eventsLoaded:false };
+  var adsState = { isAdmin:false, settings:null, events:[], campaigns:[], report:{}, editing:null, file:null, fileUrl:null, lat:null, lng:null, eventsLoaded:false, kind:'stop', design:null };
+  var AD_KIND = { stop:'Stop', home:'Near home', comeback:'Come back' };
+  // employees-only or company-paid stops shouldn't be advertised to the public
+  window.adLooksPrivate = function(ev){
+    var t = ((ev && ev.title) || '') + ' ' + ((ev && ev.description) || '');
+    return /\b(private|employees?|employee self ?pay|staff only|company lunch|corporate|invite only|closed event|self pay)\b/i.test(t);
+  };
   var AD_STATUS = {
     draft:['Draft',''], pending_approval:['Waiting for approval','wait'], approved:['Approved','wait'], launching:['Starting…','wait'],
     live:['Running','live'], paused:['Paused',''], ended:['Finished',''], failed:['Didn’t start','bad'], rejected:['Turned down by Meta','bad']
@@ -10394,7 +10555,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       adsState.settings = s;
       if (adsState.isAdmin && !adsState.settingsShown) {
         adsState.settingsShown = true;
-        document.getElementById('adSetBudget').value = Math.round(s.weekly_budget_cents / 100);
+        adFillSettings(s);
         document.getElementById('adSetMax').value = Math.round(s.max_weekly_cents / 100);
         document.getElementById('adSetRadius').value = Number(s.default_radius_miles);
         document.getElementById('adSetLead').value = s.lead_days;
@@ -10420,7 +10581,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     }
     Promise.all([
       sb.from('ad_campaigns').select('*').order('created_at', { ascending:false }).limit(30),
-      sb.rpc('ads_report')
+      sb.rpc('ads_report2').then(function(x){ return x.error ? sb.rpc('ads_report') : x; })
     ]).then(function(r){
       if (r[0].error) {
         document.getElementById('adList').innerHTML = '<p class="hint">Couldn’t load ads: ' + esc(r[0].error.message) + '. Run meta-ads-setup.sql in Supabase first.</p>';
@@ -10432,6 +10593,9 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       renderAdList();
       renderAdResults(r[1].data || []);
       homeState.adsPending = adsState.campaigns.filter(function(c){ return c.status === 'pending_approval'; }).length;
+      var allBtn = document.getElementById('adApproveAll');
+      allBtn.classList.toggle('hidden', !(adsState.isAdmin && homeState.adsPending > 1));
+      allBtn.textContent = 'Approve & launch all (' + homeState.adsPending + ')';
       homeState.adsProblem = adsState.campaigns.filter(function(c){ return (c.status === 'failed' || c.status === 'rejected') && (!c.end_at || new Date(c.end_at) > new Date()); }).length;
       renderHomeTodo();
     });
@@ -10482,12 +10646,15 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       var rep = adsState.report[c.id] || {};
       var res = (c.status === 'live' || c.status === 'paused' || c.status === 'ended') ?
         '<br>Spent ' + adMoney(rep.spend_cents) + ' of ' + adMoney(c.budget_cents) + ' · ' + Number(rep.clicks || 0) + ' clicks · ' + Number(rep.orders || 0) + ' orders' : '';
+      var k = c.kind || 'stop', warns = adWarnings(c, rep);
       return '<div class="ad-card" data-ad-card="' + esc(c.id) + '">' +
         '<div class="ad-thumb" data-thumb="' + esc(c.creative_path || '') + '"></div>' +
         '<div class="ad-body">' +
-          '<div class="ad-title"><span class="ad-chip ' + st[1] + '">' + esc(label) + '</span>' + esc(c.stop_name || 'No stop picked') + '</div>' +
-          '<div class="ad-meta">' + esc(adWhenRange(c.start_at, c.end_at)) + '<br>' + adMoney(c.budget_cents) + ' · within ' + Number(c.radius_miles) + ' miles' +
+          '<div class="ad-title"><span class="ad-chip ' + st[1] + '">' + esc(label) + '</span><span class="ad-chip k-' + k + '">' + AD_KIND[k] + '</span>' + esc(c.stop_name || 'No stop picked') + '</div>' +
+          '<div class="ad-meta">' + esc(adWhenRange(c.start_at, c.end_at)) + (k !== 'stop' && c.dayparts !== false ? ', mealtimes' : '') + '<br>' + adMoney(c.budget_cents) +
+            (k === 'comeback' ? ' · website visitors' : ' · within ' + Number(c.radius_miles) + ' miles') +
             (c.promo_code ? ' · code ' + esc(c.promo_code) : '') + res + '</div>' +
+          warns.map(function(w){ return '<div class="ad-warn">' + esc(w) + '</div>'; }).join('') +
           (c.last_error && (c.status === 'failed' || c.status === 'rejected') ? '<div class="ad-err">' + esc(c.last_error) + '</div>' : '') +
           '<div class="ad-btns">' + adButtons(c) + '</div>' +
         '</div></div>';
@@ -10497,6 +10664,18 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       adThumbUrl(c).then(function(u){ if (u) el.style.backgroundImage = 'url("' + u + '")'; });
     });
   }
+  // things to fix before (or while) an ad runs
+  function adWarnings(c, rep){
+    var w = [], live = ['live', 'paused', 'ended'].indexOf(c.status) >= 0;
+    var ev = c.event_id && adsState.events.find(function(e){ return e.id === c.event_id; });
+    if (!live && (c.kind || 'stop') === 'stop' && window.adLooksPrivate && window.adLooksPrivate(ev || { title: c.stop_name })) w.push('This stop looks private (employees or a company only). Delete it rather than advertise it.');
+    if (!live && c.end_at && new Date(c.end_at) < new Date()) w.push('Its dates have passed. Delete it, or edit the dates.');
+    if (!live && !c.creative_path) w.push('Needs a picture: tap Edit, then Open Ad Studio.');
+    var f = rep && Number(rep.reach) ? Number(rep.impressions) / Number(rep.reach) : 0;
+    var age = c.design_at ? (Date.now() - new Date(c.design_at)) / 86400000 : 0;
+    if (c.status !== 'ended' && (f >= 3 || age > 35)) w.push(f >= 3 ? 'People have seen it ' + f.toFixed(1) + ' times each. A new picture will keep it working.' : 'Same picture for ' + Math.round(age / 7) + ' weeks. Make a fresh one in the Studio.');
+    return w;
+  }
   function renderAdResults(rows){
     var body = document.getElementById('adResultsBody');
     rows = rows.filter(function(r){ return Number(r.spend_cents) > 0 || Number(r.orders) > 0; });
@@ -10504,11 +10683,12 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     document.getElementById('adSum').innerHTML =
       '<div><b>' + adMoney(tot.s) + '</b><small>Spent</small></div><div><b>' + tot.c + '</b><small>Clicks</small></div>' +
       '<div><b>' + tot.o + '</b><small>Orders from ads</small></div><div><b>' + (tot.s ? '$' + (tot.v / (tot.s / 100)).toFixed(2) : '—') + '</b><small>Sales per $1 spent</small></div>';
-    if (!rows.length) { body.innerHTML = '<tr class="empty-row"><td colspan="7">No results yet. They show up a few hours after an ad starts.</td></tr>'; return; }
+    if (!rows.length) { body.innerHTML = '<tr class="empty-row"><td colspan="8">No results yet. They show up a few hours after an ad starts.</td></tr>'; return; }
     body.innerHTML = rows.map(function(r){
       var spend = Number(r.spend_cents) / 100;
-      return '<tr><td>' + esc(r.stop_name || r.ref) + '<br><small class="hint">' + esc(r.start_at ? new Date(r.start_at).toLocaleDateString([], { month:'short', day:'numeric' }) : '') + '</small></td>' +
-        '<td>$' + spend.toFixed(2) + '</td><td>' + Number(r.reach).toLocaleString() + '</td><td>' + Number(r.clicks) + '</td><td>' + Number(r.orders) + '</td>' +
+      var fq = Number(r.reach) ? Number(r.impressions) / Number(r.reach) : 0;
+      return '<tr><td>' + (r.kind ? '<span class="ad-chip k-' + esc(r.kind) + '">' + esc(AD_KIND[r.kind] || r.kind) + '</span>' : '') + esc(r.stop_name || r.ref) + '<br><small class="hint">' + esc(r.start_at ? new Date(r.start_at).toLocaleDateString([], { month:'short', day:'numeric' }) : '') + '</small></td>' +
+        '<td>$' + spend.toFixed(2) + '</td><td>' + Number(r.reach).toLocaleString() + '</td><td' + (fq >= 3 ? ' style="color:var(--ds-amber-ink);font-weight:600"' : '') + '>' + (fq ? fq.toFixed(1) : '—') + '</td><td>' + Number(r.clicks) + '</td><td>' + Number(r.orders) + '</td>' +
         '<td>$' + Number(r.revenue).toFixed(2) + '</td><td>' + (spend ? '$' + (Number(r.revenue) / spend).toFixed(2) : '—') + '</td></tr>';
     }).join('');
     if (typeof labelStackTables === 'function') labelStackTables();
@@ -10543,6 +10723,9 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     adsState.file = null;
     if (adsState.fileUrl) { URL.revokeObjectURL(adsState.fileUrl); adsState.fileUrl = null; }
     adsState.keepCreative = c ? { path:c.creative_path, type:c.creative_type } : null;
+    adsState.design = c && c.template && c.template !== 'upload' ? { template:c.template, paths:c.creative_paths, design:c.design, fresh:false } : null;
+    adsState.designUrl = null;
+    document.getElementById('adOwn').open = !!(c && c.creative_path && !adsState.design);
     document.getElementById('adEditorTitle').textContent = adsState.editing ? 'Edit ad' : copy ? 'New ad (copied)' : 'New ad';
     document.getElementById('adEvent').value = c && !copy && c.event_id ? c.event_id : '';
     document.getElementById('adStopName').value = c ? (c.stop_name || '') : '';
@@ -10564,6 +10747,8 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     var img = document.getElementById('adpImg');
     img.style.backgroundImage = ''; img.classList.remove('has');
     if (c && c.creative_path) adThumbUrl(c).then(function(u){ if (u && !adsState.file) { img.style.backgroundImage = 'url("' + u + '")'; img.classList.add('has'); } });
+    adSetKind(c ? (c.kind || 'stop') : 'stop', true);
+    adDesignPaint();
     var ed = document.getElementById('adEditor');
     ed.classList.remove('hidden');
     adPreview();
@@ -10590,8 +10775,9 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     var max = adsState.settings ? adsState.settings.max_weekly_cents / 100 : null;
     document.getElementById('adBudgetHint').textContent = budget ?
       ('About $' + (days ? (budget / days).toFixed(0) : budget) + ' a day over ' + (days || '?') + ' day' + (days === 1 ? '' : 's') + '. Meta stops at $' + budget + '.' + (max && budget > max ? ' That’s above the $' + max + ' weekly limit.' : '')) : '';
-    document.getElementById('adpWhere').textContent = adsState.lat != null ?
-      'Shown on Facebook and Instagram to adults within ' + document.getElementById('adRadius').value + ' miles of the stop.' : 'Set the stop’s location so the ad reaches people nearby.';
+    var hs = adsState.settings || {};
+    document.getElementById('adpWhere').textContent = adsState.kind === 'comeback' ? 'Shown at mealtimes to people who visited rollinshawarma.com in the last ' + (hs.comeback_days || 30) + ' days and live within 25 miles.'
+      : adsState.lat != null ? 'Shown on Facebook and Instagram to adults within ' + document.getElementById('adRadius').value + ' miles of ' + (adsState.kind === 'home' ? 'our usual spot, at mealtimes.' : 'the stop.') : 'Set the location so the ad reaches people nearby.';
   }
   ['adHeadline', 'adText', 'adStopName', 'adBudget', 'adRadius', 'adPromo', 'adStartDate', 'adStartTime', 'adEndDate', 'adEndTime'].forEach(function(id){
     document.getElementById(id).addEventListener('input', adPreview);
@@ -10645,7 +10831,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     if (!/^image\/(jpeg|png)$/.test(f.type)) { showMsg('adEditMsg', 'Use a JPG or PNG picture.', 'error'); this.value = ''; return; }
     if (f.size > 8 * 1024 * 1024) { showMsg('adEditMsg', 'That picture is over 8 MB. Export a smaller one (1080 × 1080 is plenty).', 'error'); this.value = ''; return; }
     clearMsg('adEditMsg');
-    adsState.file = f;
+    adsState.file = f; adsState.design = null; adDesignPaint();
     if (adsState.fileUrl) URL.revokeObjectURL(adsState.fileUrl);
     adsState.fileUrl = URL.createObjectURL(f);
     img.style.backgroundImage = 'url("' + adsState.fileUrl + '")'; img.classList.add('has');
@@ -10655,6 +10841,85 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       hint.textContent = probe.width + ' × ' + probe.height + (probe.width < 600 ? ' — small; it may look blurry. 1080 × 1080 is best.' : r < 0.8 || r > 1.91 ? ' — Meta will crop this. Square (1080 × 1080) fits best.' : ' — good size.');
     };
     probe.src = adsState.fileUrl;
+  });
+
+  // ---- kind + Studio design ----
+  function adSetKind(k, opening){
+    adsState.kind = k;
+    document.querySelectorAll('#adKind [data-kind]').forEach(function(b){ var on = b.getAttribute('data-kind') === k; b.classList.toggle('on', on); b.setAttribute('aria-checked', on ? 'true' : 'false'); });
+    var s = adsState.settings || {};
+    document.getElementById('adStopFields').classList.toggle('hidden', k === 'comeback');
+    document.getElementById('adEventWrap').classList.toggle('hidden', k !== 'stop');
+    document.getElementById('adRadiusWrap').classList.toggle('hidden', k === 'comeback');
+    if (opening) return;
+    if (k !== 'stop') {
+      document.getElementById('adEvent').value = '';
+      document.getElementById('adStopName').value = k === 'home' ? (s.home_name || 'our usual spot') : 'Website visitors, last ' + (s.comeback_days || 30) + ' days';
+      document.getElementById('adStopAddr').value = s.home_address || '';
+      if (k === 'home') { var r = String(Number(s.home_radius_miles || 6)), sel = document.getElementById('adRadius'); if (!sel.querySelector('option[value="' + r + '"]')) sel.insertAdjacentHTML('beforeend', '<option value="' + r + '">' + r + ' miles</option>'); sel.value = r; }
+      if (s.home_lat != null) adSetLoc(s.home_lat, s.home_lng, 'Our usual spot'); else adGeocode();
+      // a week, Monday to Sunday, if no dates yet
+      if (!document.getElementById('adStartDate').value) {
+        var a = new Date(Date.now() + 3600000); a.setMinutes(0, 0, 0);
+        var b = new Date(a); b.setDate(b.getDate() + ((7 - b.getDay()) % 7 || 7)); b.setHours(23, 0, 0, 0);
+        adFillDates(a, b);
+      }
+      if (!document.getElementById('adHeadline').value || adsState.editing == null) {
+        document.getElementById('adHeadline').value = k === 'home' ? 'Shawarma near you' : 'Still thinking about it?';
+        document.getElementById('adText').value = k === 'home' ? 'Fresh shawarma, made on the truck. Order ahead on our site and skip the line.' : 'Order on our site for pickup. Same food, no delivery-app markup.';
+      }
+      var wk = s.monthly_budget_cents ? Math.round(s.monthly_budget_cents * 12 / 52) : 0, pct = k === 'home' ? s.split_home : s.split_comeback;
+      if (wk && pct && adsState.editing == null) document.getElementById('adBudget').value = Math.max(5, Math.round(wk * pct / 10000));
+    }
+    adPreview();
+  }
+  document.getElementById('adKind').addEventListener('click', function(e){ var b = e.target.closest('[data-kind]'); if (b) adSetKind(b.getAttribute('data-kind')); });
+  function adSignedPaths(paths){
+    var list = paths ? (paths.cards ? paths.cards.map(function(c){ return c.path; }) : [paths.feed, paths.story, paths.square].filter(Boolean)) : [];
+    return Promise.all(list.map(function(p){ return adThumbUrl({ creative_path:p }); }));
+  }
+  function adDesignPaint(){
+    var box = document.getElementById('adDesignThumbs'), note = document.getElementById('adDesignNote'), d = adsState.design;
+    note.className = 'ad-design-note';
+    document.getElementById('adStudioBtn').textContent = d ? 'Edit in Ad Studio' : 'Open Ad Studio';
+    if (!d) {
+      box.innerHTML = '';
+      note.textContent = adsState.file || (adsState.keepCreative && adsState.keepCreative.path) ? 'Using your own flyer.' : 'No picture yet. The Studio makes one for Feed, Stories & Reels and Square.';
+      return;
+    }
+    var cards = d.paths && d.paths.cards;
+    note.textContent = cards ? 'Carousel, ' + (cards.length - 1) + ' dishes' : 'Feed, Stories & Reels and Square pictures ready';
+    if (d.fresh) note.textContent += ' (saved with the ad)';
+    var age = adsState.editing && adsState.editing.design_at && !d.fresh ? (Date.now() - new Date(adsState.editing.design_at)) / 86400000 : 0;
+    if (age > 35) { note.textContent += '. Made ' + Math.round(age / 7) + ' weeks ago: a fresh one keeps it working.'; note.className = 'ad-design-note warn'; }
+    var cls = cards ? ['q', 'q', 'q'] : ['f', 's', 'q'];
+    box.innerHTML = cls.map(function(c){ return '<span class="' + c + '"></span>'; }).join('');
+    var spans = box.querySelectorAll('span');
+    if (d.urls) d.urls.forEach(function(u, i){ if (spans[i]) spans[i].style.backgroundImage = 'url("' + u + '")'; });
+    else adSignedPaths(d.paths).then(function(us){ us.forEach(function(u, i){ if (u && spans[i]) spans[i].style.backgroundImage = 'url("' + u + '")'; }); });
+  }
+  document.getElementById('adStudioBtn').addEventListener('click', function(){
+    if (!window.AdStudio) { showMsg('adEditMsg', 'Reload the page to use the Studio.', 'error'); return; }
+    var ev = adsState.events.find(function(e){ return e.id === document.getElementById('adEvent').value; });
+    var st = ev ? new Date(ev.start_date + 'T' + (ev.start_time || '16:00').slice(0, 5)) : null;
+    var en = ev ? new Date((ev.end_date || ev.start_date) + 'T' + (ev.end_time || '21:00').slice(0, 5)) : null;
+    var b = adReadDate('adEndDate', 'adEndTime');
+    window.AdStudio.open({
+      kind: adsState.kind, event: ev || (adsState.kind === 'stop' ? { title: document.getElementById('adStopName').value } : null),
+      stopName: document.getElementById('adStopName').value.trim(), address: document.getElementById('adStopAddr').value.trim(),
+      startStop: st, endStop: en, endAt: b, headline: document.getElementById('adHeadline').value, primaryText: adResolvedText(),
+      design: adsState.design && adsState.design.design
+    }, function(res){
+      adsState.design = { template: res.template, paths: res.paths, design: res.design, fresh: true, urls: null };
+      adsState.file = null; document.getElementById('adFile').value = ''; document.getElementById('adOwn').open = false;
+      adsState.keepCreative = { path: res.main, type: 'image' };
+      adSignedPaths(res.paths).then(function(us){
+        adsState.design.urls = us; adDesignPaint();
+        var img = document.getElementById('adpImg'); if (us[0]) { img.style.backgroundImage = 'url("' + us[0] + '")'; img.classList.add('has'); }
+      });
+      adDesignPaint();
+      showMsg('adEditMsg', 'Picture made. Save the draft or send it for approval.', 'ok');
+    });
   });
 
   function adSave(){
@@ -10674,6 +10939,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
         return { path:path, type:'image' };
       });
     }
+    if (adsState.kind !== 'stop' && adsState.lat == null && s.home_lat != null) { adsState.lat = s.home_lat; adsState.lng = s.home_lng; }
     return upload.then(function(cr){
       return sb.rpc('ads_save_draft', {
         p_id: adsState.editing ? adsState.editing.id : null,
@@ -10691,9 +10957,20 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       }).then(function(r){
         if (r.error) throw new Error(r.error.message);
         var row = Array.isArray(r.data) ? r.data[0] : r.data;
-        adsState.editing = row; adsState.file = null;
-        adsState.keepCreative = { path: row.creative_path, type: row.creative_type };
-        return row;
+        var d = adsState.design, own = !d && cr.path;
+        return sb.rpc('ads_save_design', {
+          p_id: row.id, p_kind: adsState.kind, p_template: d ? d.template : own ? 'upload' : null,
+          p_creative_paths: d && d.fresh ? d.paths : null, p_design: d && d.fresh ? d.design : null,
+          p_dayparts: adsState.kind !== 'stop', p_new_picture: !!(d && d.fresh) || !!adsState.file
+        }).then(function(x){
+          if (x.error && !/ads_save_design|schema cache|does not exist/i.test(x.error.message)) throw new Error(x.error.message);
+          if (x.error && adsState.kind !== 'stop') throw new Error('Run ads-studio.sql in Supabase to use Near home and Come back ads.');
+          var row2 = x.error ? row : (Array.isArray(x.data) ? x.data[0] : x.data);
+          adsState.editing = row2; adsState.file = null;
+          if (d) d.fresh = false;
+          adsState.keepCreative = { path: row2.creative_path, type: row2.creative_type };
+          return row2;
+        });
       });
     });
   }
@@ -10717,6 +10994,26 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       loadAds();
       document.getElementById('adsMsg').scrollIntoView({ behavior:'smooth', block:'center' });
     }, function(e){ adBusy(btn, false, 'Send for approval'); showMsg('adEditMsg', e.message, 'error'); });
+  });
+
+  document.getElementById('adApproveAll').addEventListener('click', function(){
+    var btn = this, list = adsState.campaigns.filter(function(c){ return c.status === 'pending_approval'; });
+    if (!list.length) return;
+    var total = list.reduce(function(a, c){ return a + Number(c.budget_cents); }, 0);
+    var warn = list.filter(function(c){ return adWarnings(c, null).length; });
+    if (!confirm('Spend up to ' + adMoney(total) + ' on ' + list.length + ' ads?\n\n' + list.map(function(c){ return '• ' + AD_KIND[c.kind || 'stop'] + ': ' + (c.stop_name || '') + ' — ' + adMoney(c.budget_cents); }).join('\n') +
+      (warn.length ? '\n\n' + warn.length + ' of them ' + (warn.length > 1 ? 'have' : 'has') + ' a warning on the list. Check first.' : '') + '\n\nMeta reviews each ad before it shows. You can pause any of them.')) return;
+    adBusy(btn, true, 'Approving…'); clearMsg('adsMsg');
+    sb.rpc('ads_approve_all').then(function(r){
+      if (r.error) { adBusy(btn, false, 'Approve & launch all'); showMsg('adsMsg', r.error.message, 'error'); return; }
+      var done = r.data || [], ok = 0, bad = [];
+      return done.reduce(function(p, c){ return p.then(function(){ btn.textContent = 'Starting ' + (ok + bad.length + 1) + ' of ' + done.length + '…';
+        return adsCall({ action:'launch', id:c.id }).then(function(d){ if (d.error) bad.push((c.stop_name || 'Ad') + ': ' + d.error); else ok++; }); }); }, Promise.resolve()).then(function(){
+        adBusy(btn, false, 'Approve & launch all');
+        showMsg('adsMsg', ok + ' launched.' + (bad.length ? ' Didn’t start: ' + bad.join(' · ') : ' Meta reviews each one first (usually within a few hours).'), bad.length ? 'error' : 'ok');
+        loadAds();
+      });
+    });
   });
 
   // ---- list buttons ----
@@ -10777,21 +11074,66 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
   // ---- settings (admin) ----
   document.getElementById('adSetSave').addEventListener('click', function(){
     var btn = this; adBusy(btn, true, 'Saving…');
-    sb.rpc('ads_save_settings', {
-      p_weekly_budget_cents: Math.round(Number(document.getElementById('adSetBudget').value || 0) * 100),
+    var v = function(id){ return document.getElementById(id).value; };
+    var monthly = Math.round(Number(v('adSetMonthly') || 0) * 100), maxW = Math.round(Number(v('adSetMax') || 0) * 100);
+    var split = [Number(v('adSetSplitStop') || 0), Number(v('adSetSplitHome') || 0), Number(v('adSetSplitBack') || 0)];
+    if (split[0] + split[1] + split[2] !== 100) { adBusy(btn, false, 'Save settings'); showMsg('adSetMsg', 'The three shares add up to ' + (split[0] + split[1] + split[2]) + '%. Make them 100%.', 'error'); return; }
+    var cur = adsState.settings || {}, addr = v('adSetHomeAddr').trim();
+    var where = addr && addr !== cur.home_address ? fetch('https://nominatim.openstreetmap.org/search?format=json&limit=1&countrycodes=us&q=' + encodeURIComponent(addr)).then(function(r){ return r.json(); }).then(function(j){
+        if (!j || !j[0]) throw new Error('Couldn’t find the home address on the map. Check it and save again.');
+        return { lat: Math.round(+j[0].lat * 1e5) / 1e5, lng: Math.round(+j[0].lon * 1e5) / 1e5 };
+      }, function(){ throw new Error('Map lookup didn’t answer. Try saving again.'); }) : Promise.resolve({ lat: cur.home_lat == null ? null : cur.home_lat, lng: cur.home_lng == null ? null : cur.home_lng });
+    where.then(function(loc){
+      return sb.rpc('ads_save_settings2', {
+        p_monthly_cents: monthly, p_max_weekly_cents: maxW, p_split_stop: split[0], p_split_home: split[1], p_split_comeback: split[2],
+        p_home_name: v('adSetHomeName'), p_home_address: addr, p_home_lat: loc.lat, p_home_lng: loc.lng, p_home_radius: Number(v('adSetHomeRadius') || 6),
+        p_comeback_days: Number(v('adSetBackDays') || 30), p_lunch_start: v('adSetLunchA') || '10:30', p_lunch_end: v('adSetLunchB') || '13:30',
+        p_dinner_start: v('adSetDinA') || '16:00', p_dinner_end: v('adSetDinB') || '20:00',
+        p_lead_days: Number(v('adSetLead') || 0), p_auto_draft: document.getElementById('adSetAuto').checked,
+        p_kinds_on: { stop: document.getElementById('adOnStop').checked, home: document.getElementById('adOnHome').checked, comeback: document.getElementById('adOnBack').checked }
+      });
+    }).then(function(r){
+      if (r.error) throw new Error(/ads_save_settings2|schema cache/i.test(r.error.message) ? 'Run ads-studio.sql in Supabase first.' : r.error.message);
+      var s2 = Array.isArray(r.data) ? r.data[0] : r.data;
+      return sb.rpc('ads_save_settings', {
+      p_weekly_budget_cents: s2.weekly_budget_cents,
       p_max_weekly_cents: Math.round(Number(document.getElementById('adSetMax').value || 0) * 100),
       p_default_radius_miles: Number(document.getElementById('adSetRadius').value || 0),
       p_default_headline: document.getElementById('adSetHeadline').value,
       p_default_text: document.getElementById('adSetText').value,
       p_lead_days: Number(document.getElementById('adSetLead').value || 0),
       p_auto_draft: document.getElementById('adSetAuto').checked
+      });
     }).then(function(r){
       adBusy(btn, false, 'Save settings');
       if (r.error) { showMsg('adSetMsg', r.error.message, 'error'); return; }
       adsState.settings = Array.isArray(r.data) ? r.data[0] : r.data;
+      adFillSettings(adsState.settings);
       showMsg('adSetMsg', 'Saved.', 'ok');
-    });
+    }, function(e){ adBusy(btn, false, 'Save settings'); showMsg('adSetMsg', e.message, 'error'); });
   });
+
+  function adFillSettings(s){
+    var set = function(id, val){ var el = document.getElementById(id); if (el && val != null) el.value = val; };
+    set('adSetMonthly', Math.round((s.monthly_budget_cents || s.weekly_budget_cents * 52 / 12) / 100));
+    set('adSetSplitStop', s.split_stop != null ? s.split_stop : 50); set('adSetSplitHome', s.split_home != null ? s.split_home : 25); set('adSetSplitBack', s.split_comeback != null ? s.split_comeback : 25);
+    set('adSetHomeName', s.home_name || ''); set('adSetHomeAddr', s.home_address || ''); set('adSetHomeRadius', Number(s.home_radius_miles || 6));
+    var t = function(x, d){ return String(x || d).slice(0, 5); };
+    set('adSetLunchA', t(s.lunch_start, '10:30')); set('adSetLunchB', t(s.lunch_end, '13:30')); set('adSetDinA', t(s.dinner_start, '16:00')); set('adSetDinB', t(s.dinner_end, '20:00'));
+    set('adSetBackDays', s.comeback_days || 30);
+    var on = s.kinds_on || { stop:true, home:true, comeback:true };
+    document.getElementById('adOnStop').checked = on.stop !== false; document.getElementById('adOnHome').checked = on.home !== false; document.getElementById('adOnBack').checked = on.comeback !== false;
+    adSplitPaint();
+  }
+  function adSplitPaint(){
+    var m = Number(document.getElementById('adSetMonthly').value || 0), wk = m * 12 / 52;
+    var p = [['adSetSplitStop', 'adSplitStopAmt', '#b5532c'], ['adSetSplitHome', 'adSplitHomeAmt', '#2a78d6'], ['adSetSplitBack', 'adSplitBackAmt', '#7a4fb0']];
+    var sum = 0;
+    document.getElementById('adSplitBar').innerHTML = p.map(function(x){ var n = Number(document.getElementById(x[0]).value || 0); sum += n;
+      document.getElementById(x[1]).textContent = '≈ $' + Math.round(wk * n / 100) + ' a week'; return '<i style="flex:' + Math.max(0, n) + ';background:' + x[2] + '"></i>'; }).join('');
+    document.getElementById('adSetWeekly').textContent = m ? 'About $' + Math.round(wk) + ' a week.' + (sum !== 100 ? ' Shares add up to ' + sum + '%, not 100%.' : '') + (m < 300 ? ' Under $300 a month Meta learns slowly, so give each ad a full week.' : '') : '';
+  }
+  ['adSetMonthly', 'adSetSplitStop', 'adSetSplitHome', 'adSetSplitBack'].forEach(function(id){ document.getElementById(id).addEventListener('input', adSplitPaint); });
 
   function loadPromotions(){
     woLoad();   // the welcome offer's code list follows the promo codes
@@ -14194,6 +14536,356 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     var go = function(){ if (!done && !btn.classList.contains('hidden')) { done = true; window.mbRefreshAlert(); } };
     try { new MutationObserver(go).observe(btn, { attributes: true, attributeFilter: ['class'] }); } catch (e) {}
     go(); })();
+})();
+</script>
+<script id="ad-studio-js">
+/* Ad Studio: one design -> 4:5 feed, 9:16 Stories/Reels (text kept out of Instagram's button areas), 1:1,
+   or a carousel of dish cards. Drawn on canvas in the Prime-email style, uploaded to the private
+   ad-creatives bucket, used by the meta-ads function. */
+(function(){
+  var C = { cream: '#f8f3ea', ink: '#2b211a', clay: '#b5532c', gold: '#f3cf8c', line: '#e4d9c8', mute: '#86786a', body: '#3f352c' };
+  var SIZES = { feed: [1080, 1350], story: [1080, 1920], square: [1080, 1080], card: [1080, 1080] };
+  var STORY_TOP = Math.round(1920 * 0.14), STORY_BOTTOM = 1920 - Math.round(1920 * 0.35);   // 269 / 1248
+  var TPL = [
+    ['stop', 'This week near you', 'Where and when the truck will be'],
+    ['dish', 'Dish close-up', 'One dish, named, few words'],
+    ['direct', 'Order direct', 'For people who visited the site'],
+    ['members', 'Free roll for members', 'Join and get a Frankie Roll'],
+    ['carousel', 'Menu carousel', '3–5 dishes people swipe through']
+  ];
+  var FIELDS = {
+    stop: [['badge1', 'Top-left tag'], ['badge2', 'Top-right tag'], ['kicker', 'Small line'], ['head', 'Headline'], ['accent', 'Headline, second part (italic)'], ['v1', 'When'], ['v2', 'Where'], ['cta', 'Bottom line']],
+    dish: [['badge1', 'Tag'], ['head', 'Dish name'], ['accent', 'Second part (italic)'], ['body', 'One line about it'], ['cta', 'Button']],
+    direct: [['badge1', 'Tag'], ['kicker', 'Small line'], ['head', 'Headline'], ['accent', 'Second part (italic)'], ['body', 'Text'], ['cta', 'Button']],
+    members: [['badge1', 'Top-left tag'], ['badge2', 'Top-right tag'], ['kicker', 'Small line'], ['head', 'Headline'], ['accent', 'Second part (italic)'], ['body', 'Text'], ['cta', 'Bottom line']],
+    carousel: [['head', 'Last card headline'], ['accent', 'Last card, italic part']]
+  };
+  var SITE_PHOTOS = [['Chicken Shawarma', 'item-chicken-shawarma.jpg'], ['Chicken Frankie', 'item-signature-chicken-frankie.jpg'], ['Chicken Tacos', 'menu-tacos.jpg'], ['Loaded Fries', 'loaded-fries.webp'],
+    ['Shawarma Bowl', 'menu-bowl.jpg'], ['Samosas', 'menu-samosas.jpg'], ['Tikka Wrap', 'tikka-wrap.webp'], ['Falooda', 'menu-falooda.jpg'], ['Kulfi', 'menu-kulfi.jpg'], ['The truck at night', 'truck-night.webp']];
+  var S = { tpl: 'stop', photo: null, img: null, d: {}, touched: {}, cards: [], photos: null, logo: null, ctx: null, onApply: null, t: null, safe: true };
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+
+  // ---------- pure checks (also used by the Ads page) ----------
+  window.adLooksPrivate = window.adLooksPrivate || function(ev){
+    var t = ((ev && ev.title) || '') + ' ' + ((ev && ev.description) || '');
+    return /\b(private|employees?|employee self ?pay|staff only|company lunch|corporate|invite only|closed event|self pay)\b/i.test(t);
+  };
+
+  // ---------- drawing ----------
+  function loadImg(src){ return new Promise(function(ok){ var i = new Image(); if (!/^(blob:|data:)/.test(src)) i.crossOrigin = 'anonymous'; i.onload = function(){ ok(i); }; i.onerror = function(){ ok(null); }; i.src = src; }); }
+  function cover(x, img, l, t, w, h, fy){
+    if (!img) { var g = x.createLinearGradient(l, t, l + w, t + h); g.addColorStop(0, '#4a3524'); g.addColorStop(1, '#1d1611'); x.fillStyle = g; x.fillRect(l, t, w, h); return; }
+    var r = Math.max(w / img.naturalWidth, h / img.naturalHeight), iw = img.naturalWidth * r, ih = img.naturalHeight * r;
+    x.save(); x.beginPath(); x.rect(l, t, w, h); x.clip(); x.drawImage(img, l + (w - iw) / 2, t + (h - ih) * (fy == null ? .5 : fy), iw, ih); x.restore();
+  }
+  function rr(x, l, t, w, h, r){ x.beginPath(); if (x.roundRect) x.roundRect(l, t, w, h, r); else x.rect(l, t, w, h); }
+  function spaced(x, px){ try { x.letterSpacing = px + 'px'; } catch (e) {} }
+  function pill(x, text, l, t, bg, fg, size, right){
+    if (!text) return 0;
+    text = String(text).toUpperCase(); x.font = '700 ' + size + 'px Inter, sans-serif'; spaced(x, size * .14);
+    var w = x.measureText(text).width + size * 2.1, h = size * 2.1, left = right ? l - w : l;
+    rr(x, left, t, w, h, h / 2); x.fillStyle = bg; x.fill();
+    x.fillStyle = fg; x.textBaseline = 'middle'; x.fillText(text, left + size * 1.05, t + h / 2 + 1); spaced(x, 0); x.textBaseline = 'alphabetic';
+    return w;
+  }
+  function wrap(x, text, maxW){
+    var words = String(text || '').split(/\s+/).filter(Boolean), lines = [], cur = '';
+    words.forEach(function(w){ var tst = cur ? cur + ' ' + w : w; if (x.measureText(tst).width > maxW && cur) { lines.push(cur); cur = w; } else cur = tst; });
+    if (cur) lines.push(cur); return lines;
+  }
+  // Headline: plain part (Fraunces 600) then accent (italic 500, colored); wraps word by word, shrinks to fit.
+  function headLayout(x, head, accent, maxW, size, maxLines){
+    for (var s = size; s >= size * .62; s -= 2) {
+      var toks = [];
+      String(head || '').split(/\s+/).filter(Boolean).forEach(function(w){ toks.push({ w: w, it: false }); });
+      String(accent || '').split(/\s+/).filter(Boolean).forEach(function(w){ toks.push({ w: w, it: true }); });
+      var lines = [[]], lw = 0, sp;
+      for (var i = 0; i < toks.length; i++) {
+        x.font = (toks[i].it ? 'italic 500 ' : '600 ') + s + 'px Fraunces, Georgia, serif';
+        var tw = x.measureText(toks[i].w).width; sp = s * .26;
+        if (lines[lines.length - 1].length && lw + sp + tw > maxW) { lines.push([]); lw = 0; }
+        lines[lines.length - 1].push({ w: toks[i].w, it: toks[i].it, x: lw ? lw + sp : 0, tw: tw });
+        lw = (lw ? lw + sp : 0) + tw;
+      }
+      var widest = 0; lines.forEach(function(L){ L.forEach(function(t){ widest = Math.max(widest, t.x + t.tw); }); });
+      if (lines.length <= maxLines && widest <= maxW) return { lines: lines, size: s, h: lines.length * s * 1.06 };
+    }
+    return { lines: lines, size: s, h: lines.length * s * 1.06 };
+  }
+  function headDraw(x, L, l, t, color, accentColor){
+    L.lines.forEach(function(line, i){
+      line.forEach(function(tok){ x.font = (tok.it ? 'italic 500 ' : '600 ') + L.size + 'px Fraunces, Georgia, serif'; x.fillStyle = tok.it ? accentColor : color; x.fillText(tok.w, l + tok.x, t + L.size * .86 + i * L.size * 1.06); });
+    });
+  }
+  function textBlock(x, text, l, t, maxW, size, color, weight, maxLines, lh){
+    x.font = (weight || 400) + ' ' + size + 'px Inter, sans-serif'; x.fillStyle = color;
+    var ls = wrap(x, text, maxW).slice(0, maxLines || 4); lh = lh || 1.42;
+    ls.forEach(function(s, i){ x.fillText(s, l, t + size + i * size * lh); });
+    return ls.length * size * lh;
+  }
+  function footer(x, l, r, y, cta){
+    if (S.logo) { x.save(); x.beginPath(); x.arc(l + 26, y, 26, 0, Math.PI * 2); x.clip(); x.drawImage(S.logo, l, y - 26, 52, 52); x.restore(); }
+    x.font = '600 30px Fraunces, Georgia, serif'; x.fillStyle = C.ink; x.textBaseline = 'middle'; x.fillText('Roll-In Shawarma', l + 66, y + 1);
+    if (cta) { x.font = '600 24px Inter, sans-serif'; x.fillStyle = C.clay; x.textAlign = 'right'; x.fillText(cta, r, y + 1); x.textAlign = 'left'; }
+    x.textBaseline = 'alphabetic';
+  }
+  function infoRow(x, l, t, w, d, size){
+    var g = 16, bw = (w - g) / 2, h = size === 'square' ? 96 : 110;
+    [['WHEN', d.v1], ['WHERE', d.v2]].forEach(function(p, i){
+      var bx = l + i * (bw + g); rr(x, bx, t, bw, h, 22); x.strokeStyle = C.line; x.lineWidth = 2; x.stroke();
+      x.font = '600 18px Inter, sans-serif'; spaced(x, 1.5); x.fillStyle = C.mute; x.fillText(p[0], bx + 22, t + 34); spaced(x, 0);
+      x.font = '600 ' + (size === 'square' ? 30 : 34) + 'px Fraunces, Georgia, serif'; x.fillStyle = C.ink;
+      var v = String(p[1] || ''); while (v.length > 3 && x.measureText(v).width > bw - 40) v = v.slice(0, -2).trim() + '…';
+      x.fillText(v, bx + 22, t + h - 26);
+    });
+    return h;
+  }
+  // stop + members share one layout: photo, cream panel (or a floating card in 9:16)
+  function drawPanel(x, W, H, size, d, members){
+    var story = size === 'story', pad = story ? 56 : 64, innerW = W - pad * 2 - (story ? 96 : 0);
+    var headSize = size === 'square' ? 66 : story ? 74 : 76;
+    var L = headLayout(x, d.head, d.accent, innerW, headSize, 2);
+    var bodyH = 0;
+    if (members && d.body) { x.font = '400 28px Inter, sans-serif'; bodyH = Math.min(3, wrap(x, d.body, innerW).length) * 28 * 1.42 + 18; }
+    var rowH = members ? 0 : (size === 'square' ? 96 : 110) + 24;
+    var contentH = 22 + 20 + L.h + 22 + bodyH + rowH + 70 + 30;
+    var topY = story ? STORY_TOP + 14 : 56;
+    if (story) {
+      cover(x, S.img, 0, 0, W, H, .45);
+      var sh = x.createLinearGradient(0, 0, 0, H); sh.addColorStop(0, 'rgba(20,14,10,.35)'); sh.addColorStop(.25, 'rgba(20,14,10,0)'); sh.addColorStop(.8, 'rgba(20,14,10,.25)'); x.fillStyle = sh; x.fillRect(0, 0, W, H);
+      var cardH = contentH + pad, cardY = STORY_BOTTOM - cardH; rr(x, 48, cardY, W - 96, cardH, 40); x.fillStyle = C.cream; x.fill();
+      var y = cardY + pad - 8, l = 48 + pad;
+    } else {
+      var panelH = Math.max(members ? 380 : size === 'square' ? 430 : 500, contentH + 40), py = H - panelH;
+      cover(x, S.img, 0, 0, W, py + 60, .55);
+      rr(x, 0, py, W, panelH + 60, [56, 56, 0, 0]); x.fillStyle = C.cream; x.fill();
+      var y = py + pad - 8, l = pad;
+    }
+    pill(x, d.badge1, story ? 72 : 56, topY, C.ink, C.gold, 22);
+    pill(x, d.badge2, W - (story ? 72 : 56), topY, C.cream, C.ink, 22, true);
+    x.font = '700 22px Inter, sans-serif'; spaced(x, 4.4); x.fillStyle = C.clay; x.fillText(String(d.kicker || '').toUpperCase(), l, y + 22); spaced(x, 0);
+    y += 42; headDraw(x, L, l, y, C.ink, C.clay); y += L.h + 22;
+    if (members && d.body) { y += textBlock(x, d.body, l, y - 10, innerW, 28, C.body, 400, 3) + 18; }
+    if (!members) { infoRow(x, l, y, innerW, d, size); y += rowH; }
+    var fy = story ? cardY + cardH - pad + 4 : H - 54;
+    x.fillStyle = C.line; x.fillRect(l, fy - 44, innerW, 2);
+    footer(x, l, l + innerW, fy, d.cta);
+  }
+  function drawDish(x, W, H, size, d){
+    cover(x, S.img, 0, 0, W, H, .5);
+    var story = size === 'story', bottom = story ? STORY_BOTTOM : H - (size === 'square' ? 64 : 72), l = 72, w = W - 144;
+    var L = headLayout(x, d.head, d.accent, w, size === 'square' ? 80 : story ? 96 : 90, 3);
+    x.font = '500 32px Inter, sans-serif'; var bl = d.body ? Math.min(3, wrap(x, d.body, w).length) : 0;
+    var ctaH = d.cta ? 76 : 0, blockH = L.h + (bl ? 18 + bl * 32 * 1.4 : 0) + (ctaH ? 26 + ctaH : 0), top = bottom - blockH;
+    var g = x.createLinearGradient(0, top - 260, 0, H); g.addColorStop(0, 'rgba(20,14,10,0)'); g.addColorStop(.45, 'rgba(20,14,10,.72)'); g.addColorStop(1, 'rgba(20,14,10,.9)');
+    x.fillStyle = g; x.fillRect(0, top - 260, W, H - top + 260);
+    var tg = x.createLinearGradient(0, 0, 0, 380); tg.addColorStop(0, 'rgba(20,14,10,.45)'); tg.addColorStop(1, 'rgba(20,14,10,0)'); x.fillStyle = tg; x.fillRect(0, 0, W, 380);
+    pill(x, d.badge1, l, story ? STORY_TOP + 14 : 56, C.cream, C.ink, 22);
+    headDraw(x, L, l, top, '#fff', C.gold); var y = top + L.h;
+    if (bl) { y += 18; y += textBlock(x, d.body, l, y - 6, w, 32, '#efe6da', 500, 3, 1.4); }
+    if (ctaH) { y += 26; x.font = '700 30px Inter, sans-serif'; var cw = x.measureText(d.cta).width + 60; rr(x, l, y, cw, 68, 34); x.fillStyle = C.gold; x.fill(); x.fillStyle = C.ink; x.textBaseline = 'middle'; x.fillText(d.cta, l + 30, y + 35); x.textBaseline = 'alphabetic'; }
+  }
+  function drawDirect(x, W, H, size, d){
+    x.fillStyle = C.ink; x.fillRect(0, 0, W, H);
+    var l, w, y, bottom;
+    if (size === 'square') { cover(x, S.img, W / 2 + 20, 0, W / 2 - 20, H, .5); l = 56; w = W / 2 - 100; y = 72; bottom = H - 72; }
+    else if (size === 'story') { rr(x, 48, STORY_TOP + 10, W - 96, 480, 36); x.save(); x.clip(); cover(x, S.img, 48, STORY_TOP + 10, W - 96, 480, .5); x.restore(); l = 72; w = W - 144; y = STORY_TOP + 540; bottom = STORY_BOTTOM; }
+    else { cover(x, S.img, 0, 0, W, Math.round(H * .52), .5); l = 72; w = W - 144; y = Math.round(H * .52) + 64; bottom = H - 72; }
+    pill(x, d.badge1, size === 'square' ? W - 40 : W - 72, size === 'story' ? STORY_TOP + 40 : 40, C.cream, C.ink, 20, true);
+    x.font = '700 22px Inter, sans-serif'; spaced(x, 4.4); x.fillStyle = C.gold; x.fillText(String(d.kicker || '').toUpperCase(), l, y + 22); spaced(x, 0); y += 48;
+    var L = headLayout(x, d.head, d.accent, w, size === 'square' ? 70 : 80, size === 'square' ? 3 : 2); headDraw(x, L, l, y, C.cream, C.gold); y += L.h + 22;
+    if (d.body) y += textBlock(x, d.body, l, y - 6, w, size === 'square' ? 28 : 30, '#d9cdbd', 400, size === 'story' ? 2 : 3) + 10;
+    if (d.cta) { x.font = '700 28px Inter, sans-serif'; var cw = x.measureText(d.cta).width + 64; var cy = Math.min(bottom - 72, y + 24); rr(x, l, cy, cw, 72, 36); x.fillStyle = C.clay; x.fill(); x.fillStyle = '#fff'; x.textBaseline = 'middle'; x.fillText(d.cta, l + 32, cy + 37); x.textBaseline = 'alphabetic'; }
+  }
+  function drawCard(x, W, H, card, end, d){
+    if (end) {
+      x.fillStyle = C.cream; x.fillRect(0, 0, W, H);
+      if (S.logo) { x.save(); x.beginPath(); x.arc(W / 2, 300, 90, 0, Math.PI * 2); x.clip(); x.drawImage(S.logo, W / 2 - 90, 210, 180, 180); x.restore(); }
+      x.textAlign = 'center'; var L = headLayout(x, d.head || 'Order ahead,', d.accent || 'skip the line.', W - 200, 84, 2);
+      L.lines.forEach(function(line, i){ var lw = line.length ? line[line.length - 1].x + line[line.length - 1].tw : 0; line.forEach(function(tok){ x.textAlign = 'left'; x.font = (tok.it ? 'italic 500 ' : '600 ') + L.size + 'px Fraunces, Georgia, serif'; x.fillStyle = tok.it ? C.clay : C.ink; x.fillText(tok.w, (W - lw) / 2 + tok.x, 470 + L.size * .86 + i * L.size * 1.06); }); });
+      x.textAlign = 'center'; x.font = '600 34px Inter, sans-serif'; x.fillStyle = C.clay; x.fillText('rollinshawarma.com', W / 2, 520 + L.h + 70); x.textAlign = 'left';
+      return;
+    }
+    cover(x, card.img, 0, 0, W, H, .5);
+    rr(x, 40, H - 230, W - 80, 190, 30); x.fillStyle = C.cream; x.fill();
+    var name = card.name || ''; x.font = '600 58px Fraunces, Georgia, serif'; while (name.length > 3 && x.measureText(name).width > W - 380) name = name.slice(0, -2).trim() + '…';
+    x.fillStyle = C.ink; x.fillText(name, 84, H - 112);
+    x.font = '600 24px Inter, sans-serif'; x.fillStyle = C.mute; x.fillText('Roll-In Shawarma · order ahead', 84, H - 70);
+    if (card.price) { x.font = '700 40px Inter, sans-serif'; x.fillStyle = C.clay; x.textAlign = 'right'; x.fillText(card.price, W - 84, H - 112); x.textAlign = 'left'; }
+  }
+  function render(canvas, size, card, end){
+    var wh = SIZES[size === 'card' ? 'card' : size]; canvas.width = wh[0]; canvas.height = wh[1];
+    var x = canvas.getContext('2d'), W = wh[0], H = wh[1], d = S.d;
+    x.clearRect(0, 0, W, H); x.textAlign = 'left';
+    if (size === 'card') return drawCard(x, W, H, card, end, d);
+    if (S.tpl === 'stop') drawPanel(x, W, H, size, d, false);
+    else if (S.tpl === 'members') drawPanel(x, W, H, size, d, true);
+    else if (S.tpl === 'dish') drawDish(x, W, H, size, d);
+    else if (S.tpl === 'direct') drawDirect(x, W, H, size, d);
+  }
+
+  // ---------- defaults from the ad ----------
+  function short(addr){ return String(addr || '').split(',')[0].trim(); }
+  function defaults(tpl, ctx){
+    var ev = ctx.event, st = ctx.startStop ? new Date(ctx.startStop) : null, en = ctx.endStop ? new Date(ctx.endStop) : null, dish = S.photo && S.photo.name || 'Chicken Shawarma';
+    var wd = st ? st.toLocaleDateString('en-US', { weekday: 'long' }) : '';
+    var soon = st && (st - Date.now()) < 6.5 * 86400000;
+    var hrs = st && en ? st.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }).replace(':00', '').replace(' ', '') + '–' + en.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' }).replace(':00', '').replace(' ', '') : '';
+    if (tpl === 'stop') return { badge1: st ? (soon ? 'This ' + wd : st.toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })) : 'This week', badge2: 'Near you', kicker: 'Roll-In Shawarma is coming',
+      head: 'Shawarma at', accent: (ctx.stopName || 'your spot') + '.', v1: st ? st.toLocaleDateString('en-US', { weekday: 'short' }) + ' · ' + hrs : '', v2: short(ctx.address) || ctx.stopName || '', cta: 'Order ahead, skip the line →' };
+    if (tpl === 'dish') return { badge1: 'Made on the truck', head: dish + ',', accent: 'made fresh.', body: (S.photo && S.photo.desc) || 'Order ahead on our site and skip the line.', cta: 'Order direct, no app fees' };
+    if (tpl === 'direct') return { badge1: 'Roll-In Shawarma', kicker: 'Still thinking about it?', head: dish, accent: 'is calling.', body: 'Order on our site for pickup. Same food, no delivery-app markup.', cta: 'Order now →' };
+    if (tpl === 'members') return { badge1: 'Members only', badge2: 'On us', kicker: 'Roll-In Rewards', head: 'A free roll', accent: 'when you join.', body: 'Join free on our website. Your first order of $15 or more comes with a Frankie Roll on us.', cta: 'rollinshawarma.com' };
+    return { head: 'Order ahead,', accent: 'skip the line.' };
+  }
+
+  // ---------- the dialog ----------
+  function shell(){
+    var w = $('stWrap'); if (w) return w;
+    w = document.createElement('div'); w.id = 'stWrap'; w.className = 'st-wrap hidden'; w.setAttribute('role', 'dialog'); w.setAttribute('aria-modal', 'true'); w.setAttribute('aria-label', 'Ad Studio');
+    w.innerHTML = '<div class="st"><div class="st-top"><div><h2>Ad Studio</h2><p class="hint" id="stSub"></p></div><button type="button" class="btn-ghost btn-small" id="stX" aria-label="Close">Close</button></div>' +
+      '<div class="st-body"><div class="st-side">' +
+        '<div class="st-step">Design</div><div class="st-tpls" id="stTpls"></div>' +
+        '<div class="st-step" id="stPhotoStep">Photo</div><div class="st-photos" id="stPhotos"></div>' +
+        '<label class="st-up">Or upload your own photo (1080 px or wider looks best)<input type="file" id="stFile" accept="image/jpeg,image/png,image/webp"></label>' +
+        '<div class="st-step">Words on the picture</div><div id="stFields"></div>' +
+      '</div><div class="st-main">' +
+        '<div class="st-prev" id="stPrev"></div>' +
+        '<label class="st-safe"><input type="checkbox" id="stSafe" checked> Show where Instagram’s buttons cover Stories and Reels</label>' +
+        '<ul class="st-checks" id="stChecks"></ul>' +
+      '</div></div>' +
+      '<div class="st-foot"><div id="stMsg"></div><button type="button" class="btn-ghost" id="stCancel">Cancel</button><button type="button" class="btn-primary" id="stUse">Use this design</button></div></div>';
+    document.body.appendChild(w);
+    $('stX').onclick = $('stCancel').onclick = close;
+    w.addEventListener('keydown', function(e){ if (e.key === 'Escape') close(); });
+    $('stTpls').innerHTML = TPL.map(function(t){ return '<button type="button" data-tpl="' + t[0] + '"><b>' + esc(t[1]) + '</b><small>' + esc(t[2]) + '</small></button>'; }).join('');
+    $('stTpls').onclick = function(e){ var b = e.target.closest('[data-tpl]'); if (!b) return; setTpl(b.getAttribute('data-tpl'), true); };
+    $('stPhotos').onclick = function(e){ var b = e.target.closest('[data-ph]'); if (!b) return; pickPhoto(S.photos[+b.getAttribute('data-ph')]); };
+    $('stFile').onchange = function(){ var f = this.files && this.files[0]; if (!f) return; if (f.size > 15 * 1024 * 1024) { msg('That photo is over 15 MB.'); return; } pickPhoto({ name: '', url: URL.createObjectURL(f), own: true }); };
+    $('stFields').oninput = function(e){ var k = e.target.getAttribute('data-f'); if (!k) return; S.d[k] = e.target.value; S.touched[k] = true; draw(); };
+    $('stSafe').onchange = function(){ S.safe = this.checked; draw(); };
+    $('stUse').onclick = apply;
+    return w;
+  }
+  function close(){ var w = $('stWrap'); if (w) w.classList.add('hidden'); document.body.style.overflow = ''; }
+  function msg(t, kind){ $('stMsg').innerHTML = t ? '<span class="st-msg ' + (kind || 'bad') + '">' + esc(t) + '</span>' : ''; }
+  function setTpl(t, user){
+    S.tpl = t;
+    $('stTpls').querySelectorAll('[data-tpl]').forEach(function(b){ b.classList.toggle('on', b.getAttribute('data-tpl') === t); });
+    var def = defaults(t, S.ctx);
+    if (user || !S.d._tpl || S.d._tpl !== t) { S.d = def; S.d._tpl = t; S.touched = {}; }
+    $('stPhotoStep').textContent = t === 'carousel' ? 'Dishes (tap 3–5, in order)' : 'Photo';
+    if (t === 'carousel' && user && !S.cards.length && S.photos) S.photos.filter(function(p){ return p.price || p.desc; }).concat(S.photos).filter(function(p, i, a){ return a.indexOf(p) === i; }).slice(0, 3).forEach(function(p){ pickPhoto(p); });
+    $('stFields').innerHTML = FIELDS[t].map(function(f){ return '<label>' + esc(f[1]) + '<input type="text" maxlength="60" data-f="' + f[0] + '" value="' + esc(S.d[f[0]] || '') + '"></label>'; }).join('');
+    photosPaint(); draw();
+  }
+  function pickPhoto(p){
+    if (S.tpl === 'carousel') {
+      var i = S.cards.findIndex(function(c){ return c.url === p.url; });
+      if (i >= 0) S.cards.splice(i, 1); else if (S.cards.length < 5) S.cards.push({ name: p.name, url: p.url, price: p.price || '', img: null });
+      Promise.all(S.cards.map(function(c){ return c.img ? c : loadImg(c.url).then(function(im){ c.img = im; return c; }); })).then(function(){ photosPaint(); draw(); });
+      return;
+    }
+    S.photo = p; photosPaint();
+    loadImg(p.url).then(function(im){
+      S.img = im; if (!im) msg('That photo couldn’t be loaded. Try another, or upload it.');
+      // fill dish wording from the photo unless it was typed
+      var def = defaults(S.tpl, S.ctx);
+      ['head', 'body'].forEach(function(k){ if (!S.touched[k] && (S.tpl === 'dish' || S.tpl === 'direct')) { S.d[k] = def[k]; var el = $('stFields').querySelector('[data-f="' + k + '"]'); if (el) el.value = def[k]; } });
+      draw();
+    });
+  }
+  function photosPaint(){
+    var sel = S.tpl === 'carousel' ? S.cards.map(function(c){ return c.url; }) : [S.photo && S.photo.url];
+    $('stPhotos').innerHTML = (S.photos || []).map(function(p, i){ var n = sel.indexOf(p.url); return '<button type="button" data-ph="' + i + '" class="' + (n >= 0 ? 'on' : '') + '" title="' + esc(p.name) + '"><img src="' + esc(p.url) + '" alt="" loading="lazy" crossorigin="anonymous">' + (S.tpl === 'carousel' && n >= 0 ? '<i>' + (n + 1) + '</i>' : '') + '<span>' + esc(p.name) + '</span></button>'; }).join('');
+  }
+  function frame(kind, inner){ return '<figure class="st-f st-' + kind + '"><figcaption>' + { feed: 'Feed · 4:5', story: 'Stories & Reels · 9:16', square: 'Square · 1:1', carousel: 'Carousel · 1:1 cards' }[kind] + '</figcaption>' + inner + '</figure>'; }
+  function draw(){
+    clearTimeout(S.t); S.t = setTimeout(function(){
+      var pv = $('stPrev'), txt = S.ctx.primaryText || '', head = S.ctx.headline || '';
+      var post = function(canvas){ return '<div class="st-post"><div class="st-ph"><span class="st-av"></span><b>Roll-In Shawarma</b><small>Sponsored</small></div><p>' + esc(txt) + '</p>' + canvas + '<div class="st-lk"><span><small>ROLLINSHAWARMA.COM</small><b>' + esc(head) + '</b></span><em>Order now</em></div></div>'; };
+      if (S.tpl === 'carousel') {
+        var n = S.cards.length;
+        pv.innerHTML = frame('carousel', post('<div class="st-car">' + S.cards.map(function(c, i){ return '<canvas data-card="' + i + '"></canvas>'; }).join('') + (n ? '<canvas data-card="end"></canvas>' : '<p class="hint" style="padding:20px">Tap 3 to 5 dishes on the left.</p>') + '</div>'));
+        pv.querySelectorAll('[data-card]').forEach(function(cv){ var k = cv.getAttribute('data-card'); render(cv, 'card', k === 'end' ? null : S.cards[+k], k === 'end'); });
+      } else {
+        pv.innerHTML = frame('feed', post('<canvas id="stCFeed"></canvas>')) +
+          frame('story', '<div class="st-sbox"><canvas id="stCStory"></canvas><div class="st-sui"><span class="st-bar"></span><span class="st-who"><span class="st-av"></span>Roll-In Shawarma · Sponsored</span><span class="st-cta">Order now</span></div>' + (S.safe ? '<div class="st-zone t"></div><div class="st-zone b"><span>Kept clear for Instagram’s buttons</span></div>' : '') + '</div>') +
+          frame('square', '<canvas id="stCSq"></canvas>');
+        render($('stCFeed'), 'feed'); render($('stCStory'), 'story'); render($('stCSq'), 'square');
+      }
+      checks();
+    }, 60);
+  }
+  function words(){ return ['badge1', 'badge2', 'kicker', 'head', 'accent', 'v1', 'v2', 'body', 'cta'].reduce(function(a, k){ return a + String(S.d[k] || '').split(/\s+/).filter(Boolean).length; }, 0); }
+  function checks(){
+    var c = [], ctx = S.ctx, img = S.img;
+    if (S.tpl === 'carousel') {
+      c.push(S.cards.length >= 3 ? ['ok', S.cards.length + ' dishes + an “Order ahead” card'] : ['bad', 'Pick at least 3 dishes']);
+      var small = S.cards.filter(function(k){ return k.img && k.img.naturalWidth < 900; }); if (small.length) c.push(['warn', small.length + ' photo' + (small.length > 1 ? 's are' : ' is') + ' small and may look soft']);
+    } else {
+      if (!S.photo) c.push(['bad', 'Pick a photo']);
+      else if (img) c.push(img.naturalWidth >= 1000 ? ['ok', 'Photo is sharp (' + img.naturalWidth + ' px wide)'] : ['warn', 'Photo is ' + img.naturalWidth + ' px wide; 1080+ looks sharper']);
+      var n = words(); c.push(n <= 30 ? ['ok', n + ' words on the picture (short is better)'] : ['warn', n + ' words on the picture. Ads with fewer words usually do better']);
+      c.push(['ok', 'Stories & Reels: words kept out of the top 14% and bottom 35%']);
+    }
+    if (ctx.event && window.adLooksPrivate(ctx.event)) c.push(['bad', 'This stop looks private (employees or a company only). Don’t advertise it to the public.']);
+    if (ctx.endAt && new Date(ctx.endAt) < new Date()) c.push(['bad', 'The ad’s end date has passed']);
+    $('stChecks').innerHTML = c.map(function(x){ return '<li class="' + x[0] + '">' + esc(x[1]) + '</li>'; }).join('');
+    $('stUse').disabled = c.some(function(x){ return x[0] === 'bad'; });
+  }
+  function blob(canvas){ return new Promise(function(ok, no){ try { canvas.toBlob(function(b){ b ? ok(b) : no(new Error('Couldn’t make the picture')); }, 'image/jpeg', .9); } catch (e) { no(new Error('That photo can’t be used here (its website blocks it). Download it and use “Upload a photo” instead.')); } }); }
+  function apply(){
+    var b = $('stUse'); b.disabled = true; b.textContent = 'Making the pictures…'; msg('');
+    var stamp = new Date().toISOString().slice(0, 10) + '-' + Math.random().toString(36).slice(2, 9), jobs = [], out = {};
+    var up = function(canvas, key){ return blob(canvas).then(function(bl){ var path = 'studio/' + stamp + '-' + key + '.jpg';
+      return sb.storage.from('ad-creatives').upload(path, bl, { contentType: 'image/jpeg', upsert: false }).then(function(r){ if (r.error) throw new Error('Upload failed: ' + r.error.message); return path; }); }); };
+    if (S.tpl === 'carousel') {
+      out.cards = [];
+      S.cards.concat([null]).forEach(function(k, i){ var cv = document.createElement('canvas'); render(cv, 'card', k, !k);
+        jobs.push(up(cv, 'card' + (i + 1)).then(function(p){ out.cards[i] = { path: p, name: k ? k.name : (S.d.head + ' ' + S.d.accent).trim(), price: k ? k.price : '' }; })); });
+    } else {
+      ['feed', 'story', 'square'].forEach(function(k){ var cv = document.createElement('canvas'); render(cv, k); jobs.push(up(cv, k).then(function(p){ out[k] = p; })); });
+    }
+    Promise.all(jobs).then(function(){
+      var d = Object.assign({}, S.d, { template: S.tpl, photo: S.photo ? { name: S.photo.name, url: S.photo.own ? null : S.photo.url } : null, cards: S.cards.map(function(c){ return { name: c.name, url: c.url, price: c.price }; }) });
+      b.textContent = 'Use this design'; b.disabled = false; close();
+      if (S.onApply) S.onApply({ template: S.tpl, paths: out, design: d, main: out.feed || (out.cards && out.cards[0].path) });
+    }, function(e){ b.textContent = 'Use this design'; b.disabled = false; msg(e.message); });
+  }
+  function loadPhotos(){
+    if (S.photos) return Promise.resolve(S.photos);
+    var site = SITE_PHOTOS.map(function(p){ return { name: p[0], url: p[1] }; });
+    return sb.from('menu_items').select('*').then(function(r){
+      var seen = {}, list = [];
+      (r && !r.error ? r.data || [] : []).forEach(function(m){ if (!m.image_url || seen[m.image_url]) return; seen[m.image_url] = 1;
+        var pr = m.price != null ? m.price : m.base_price; list.push({ name: m.name, url: m.image_url, desc: m.description || '', price: pr != null && !isNaN(pr) ? '$' + Number(pr).toFixed(2) : '' }); });
+      site.forEach(function(p){ if (!seen[p.url]) list.push(p); });
+      S.photos = list; return list;
+    }, function(){ S.photos = site; return site; });
+  }
+  function fonts(){ try { return Promise.all(['600 80px Fraunces', 'italic 500 80px Fraunces', '700 24px Inter', '400 24px Inter'].map(function(f){ return document.fonts.load(f); })).catch(function(){}); } catch (e) { return Promise.resolve(); } }
+
+  // ctx: { kind, event, stopName, address, startStop, endStop, endAt, headline, primaryText, design }
+  window.AdStudio = {
+    open: function(ctx, onApply){
+      S.ctx = ctx || {}; S.onApply = onApply; S.cards = []; S.photo = null; S.img = null; S.d = {};
+      var w = shell(); w.classList.remove('hidden'); document.body.style.overflow = 'hidden'; msg('');
+      $('stSub').textContent = { stop: 'Ad for people near ' + (ctx.stopName || 'the stop'), home: 'Ad for people near ' + (ctx.stopName || 'our usual spot'), comeback: 'Ad for people who visited the website' }[ctx.kind || 'stop'] || '';
+      var d = ctx.design || {};
+      Promise.all([loadPhotos(), fonts(), S.logo ? null : loadImg('logo.jpg').then(function(im){ S.logo = im; })]).then(function(){
+        var tpl = d.template || { stop: 'stop', home: 'dish', comeback: 'direct' }[ctx.kind || 'stop'];
+        setTpl(tpl, true);
+        if (d.template) { Object.keys(d).forEach(function(k){ if (['template', 'photo', 'cards'].indexOf(k) < 0) S.d[k] = d[k]; }); S.d._tpl = tpl; S.touched = { head: 1, body: 1 }; setTpl(tpl, false); }
+        var first = d.photo && d.photo.url ? (S.photos.find(function(p){ return p.url === d.photo.url; }) || d.photo) : S.photos[0];
+        if (tpl === 'carousel') { (d.cards && d.cards.length ? d.cards : S.photos.slice(0, 3)).forEach(function(c){ pickPhoto(c); }); }
+        else if (first) pickPhoto(first);
+        var on = $('stTpls').querySelector('.on'); if (on) on.focus();
+      });
+    },
+    render: render, _state: S
+  };
 })();
 </script>
 <script id="ds-js">
