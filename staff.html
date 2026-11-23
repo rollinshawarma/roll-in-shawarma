@@ -1187,6 +1187,20 @@
   .ps-story video{ width:100%; height:100%; object-fit:cover; }
   .ps-story .ps-sh{ position:absolute; top:10px; left:10px; right:10px; display:flex; gap:6px; align-items:center; color:#fff; font:600 11px -apple-system,Arial,sans-serif; text-shadow:0 1px 2px rgba(0,0,0,.6); }
   .ps-story .ps-sh .ps-av{ width:22px; height:22px; }
+  .ps-aud-head{ display:flex; justify-content:space-between; align-items:center; gap:10px; }
+  .ps-aud-head h2{ margin:0; } .ps-aud-head button{ width:auto; }
+  .ps-kpis{ display:grid; grid-template-columns:repeat(auto-fit, minmax(150px, 1fr)); gap:12px; margin:14px 0 10px; }
+  .ps-kpi{ background:var(--ds-subtle); border-radius:12px; padding:10px 12px; }
+  .ps-kpi small{ display:block; font-size:12px; color:var(--muted); }
+  .ps-kpi b{ display:block; font-size:24px; line-height:1.15; color:var(--ink); font-variant-numeric:tabular-nums; margin-top:2px; }
+  .ps-kpi em{ font-style:normal; font-size:12.5px; font-weight:600; color:var(--muted); }
+  .ps-kpi em.up{ color:var(--ds-green-ink); } .ps-kpi em.dn{ color:var(--ds-red-ink); }
+  .ps-kpi i{ display:inline-block; width:9px; height:9px; border-radius:3px; margin-right:5px; }
+  #psAudChart svg{ display:block; width:100%; height:auto; }
+  .ps-lg{ display:flex; gap:14px; font-size:12px; color:var(--muted); margin-bottom:2px; }
+  .ps-lg i{ display:inline-block; width:10px; height:3px; border-radius:2px; margin-right:5px; vertical-align:3px; }
+  .ps-stats{ display:grid; gap:2px; font-size:12.5px; color:var(--ds-text-2, var(--muted)); margin:0 0 8px; }
+  .ps-stats b{ color:var(--ink); font-weight:600; }
   .ps-none{ padding:30px 16px; text-align:center; color:var(--muted); font-size:13px; }
   .ps-defs{ display:flex; gap:14px; flex-wrap:wrap; padding-top:8px; }
   .ps-defs label{ display:flex; gap:6px; align-items:center; margin:0; font-weight:500; }
@@ -4600,6 +4614,13 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     </div>
     <div class="ad-conn" id="psConn"><span class="ad-dot"></span><span id="psConnText">Checking the Facebook and Instagram connection&hellip;</span></div>
     <div id="psMsg"></div>
+
+    <div class="card ps-aud hidden" id="psAud">
+      <div class="ps-aud-head"><h2>Followers and results</h2><button type="button" class="btn-ghost btn-small" id="psAudRefresh">Update now</button></div>
+      <div class="ps-kpis" id="psKpis"></div>
+      <div id="psAudChart"></div>
+      <p class="ps-meta" id="psAudNote"></p>
+    </div>
 
     <div class="ps-ideas" id="psIdeas" aria-label="Post ideas">
       <button type="button" data-idea="stop">📍 Today's stop</button>
@@ -15424,6 +15445,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       if (d.missing_permissions && d.missing_permissions.length) txt += '. To post, the Meta token also needs: ' + d.missing_permissions.join(', ') + ' (make a new token and replace META_ACCESS_TOKEN).';
       if (d.page_error) txt = 'Can’t use the Facebook Page: ' + d.page_error;
       box.classList.add(d.ok ? 'ok' : 'bad'); t.textContent = txt;
+      if (ps.aud) audPaint();
     });
   }
 
@@ -15432,7 +15454,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     return Promise.all([rpc('posts_list', { p_days: 45 }), ps.settings ? ps.settings : rpc('posts_settings').catch(function(){ return null; })]).then(function(r){
       ps.list = (r[0] || []).map(function(x){ return typeof x === 'string' ? JSON.parse(x) : x; });
       if (r[1]) { ps.settings = r[1]; settingsFill(); }
-      render(); badge();
+      render(); badge(); audLoad();
     }, function(e){ $('psList').innerHTML = ''; showMsg('psMsg', e.message, 'error'); });
   }
   function badge(){
@@ -15463,7 +15485,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     var by = [p.source === 'event' ? 'Drafted from Events' : p.created_by_name ? 'By ' + p.created_by_name : '', p.posted_at ? 'posted ' + when(p.posted_at) : p.status === 'draft' ? 'saved ' + when(p.updated_at) : ''].filter(Boolean).join(' · ');
     return '<div class="ps-card"><div class="ps-thumb" data-thumb="' + p.id + '">' + (m.length ? (m.length > 1 ? '<i>1/' + m.length + '</i>' : m[0].type === 'video' ? '<i>▶</i>' : '') : 'Text only') + '</div><div>' +
       '<div class="ps-top"><span class="' + st[1] + '">' + esc(label) + '</span>' + (p.idea ? '<span class="ps-meta">' + esc(p.idea) + '</span>' : '') + '</div>' +
-      '<div class="ps-cap">' + esc(p.caption || '(no caption)') + '</div><div class="ps-places">' + places + '</div>' +
+      '<div class="ps-cap">' + esc(p.caption || '(no caption)') + '</div><div class="ps-places">' + places + '</div>' + statLines(p) +
       (p.last_error && p.status !== 'posted' ? '<div class="ps-err">' + esc(p.last_error) + '</div>' : '') +
       '<div class="ps-acts">' + a.join('') + '<span class="ps-meta" style="align-self:center">' + esc(by) + '</span></div></div></div>';
   }
@@ -15488,6 +15510,72 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       }
       return load();
     }, function(er){ showMsg('psMsg', er.message, 'error'); return load(); });
+  }
+
+
+  // ---------- results: followers + what each post did ----------
+  var AUD_FB = '#2a78d6', AUD_IG = '#eb6834';
+  function nf(n){ return Number(n || 0).toLocaleString('en-US'); }
+  function statLines(p){
+    var st = p.stats || {}, out = [];
+    var f = st.fb_feed, g = st.ig_feed;
+    var line = function(name, parts){ parts = parts.filter(function(x){ return x[1] != null; }); return parts.length ? '<div><b>' + name + ':</b> ' + parts.map(function(x){ return nf(x[1]) + ' ' + x[0]; }).join(' · ') + '</div>' : ''; };
+    if (f) out.push(line('Facebook', [['reached', f.reach], ['views', f.views], ['reactions', f.reactions], ['comments', f.comments], ['shares', f.shares]]));
+    if (g) out.push(line('Instagram', [['reached', g.reach], ['views', g.views], ['likes', g.likes], ['comments', g.comments], ['saves', g.saves], ['shares', g.shares]]));
+    var h = out.join('');
+    return h ? '<div class="ps-stats">' + h + '</div>' : '';
+  }
+  function audLoad(){
+    return rpc('social_audience', { p_days: 90 }).then(function(a){ ps.aud = a; audPaint(); }, function(){ ps.aud = null; audPaint(); });
+  }
+  function audPaint(){
+    var box = $('psAud'), a = ps.aud;
+    var anyPosted = ps.list.some(function(p){ return p.status === 'posted' || p.status === 'partly'; });
+    box.classList.toggle('hidden', !a || (!a.latest && !anyPosted));
+    if (!a) return;
+    var L = a.latest || {}, W = a.week_ago || {}, wk = a.week || {};
+    var k = function(label, val, prev, color){ if (val == null) return ''; var d = prev != null ? val - prev : null;
+      return '<div class="ps-kpi"><small>' + (color ? '<i style="background:' + color + '"></i>' : '') + label + '</small><b>' + nf(val) + '</b>' + (d != null ? '<em class="' + (d > 0 ? 'up' : d < 0 ? 'dn' : '') + '">' + (d > 0 ? '+' : '') + nf(d) + ' this week</em>' : '<em>new this week</em>') + '</div>'; };
+    var html = k('Facebook followers', L.fb_followers, W.fb_followers, AUD_FB) + k('Instagram followers', L.ig_followers, W.ig_followers, AUD_IG);
+    if (wk.ig_profile_views != null) html += '<div class="ps-kpi"><small>Instagram profile visits</small><b>' + nf(wk.ig_profile_views) + '</b><em>last 7 days</em></div>';
+    if (wk.ig_website_taps != null) html += '<div class="ps-kpi"><small>Website taps from Instagram</small><b>' + nf(wk.ig_website_taps) + '</b><em>last 7 days</em></div>';
+    // best post lately (by reach, else likes + reactions)
+    var score = function(p){ var s = p.stats || {}, f = s.fb_feed || {}, g = s.ig_feed || {}; var r = (f.reach || 0) + (g.reach || 0); return r || (f.reactions || 0) + (g.likes || 0) + (f.comments || 0) + (g.comments || 0); };
+    var best = ps.list.filter(function(p){ return p.stats && (p.status === 'posted' || p.status === 'partly') && p.posted_at && Date.now() - new Date(p.posted_at) < 30 * 86400000; }).sort(function(x, y){ return score(y) - score(x); })[0];
+    if (best && score(best)) { var bs = best.stats, reach = ((bs.fb_feed || {}).reach || 0) + ((bs.ig_feed || {}).reach || 0);
+      html += '<div class="ps-kpi"><small>Best post lately</small><b style="font-size:15px;line-height:1.3;white-space:nowrap;overflow:hidden;text-overflow:ellipsis">' + esc(String(best.caption || '').split('\n')[0].slice(0, 60) || 'Photo post') + '</b><em>' + (reach ? nf(reach) + ' reached' : nf(score(best)) + ' likes and comments') + '</em></div>'; }
+    $('psKpis').innerHTML = html || '<p class="hint" style="margin:0">Follower numbers show up after the first update.</p>';
+    audChart();
+    var note = [];
+    if (a.updated_at) note.push('Updated ' + when(a.updated_at) + '. Refreshes every 3 hours.');
+    var mr = ps.conn && ps.conn.missing_for_reach;
+    if (mr && mr.length) note.push('“Reached”, profile visits and website taps need ' + mr.join(' and ') + ' on the Meta token; likes, comments and followers work without them.');
+    $('psAudNote').textContent = note.join(' ');
+  }
+  function audChart(){
+    var rows = (ps.aud && ps.aud.daily) || [], box = $('psAudChart');
+    if (rows.length < 2) { box.innerHTML = '<p class="hint" style="margin:4px 0 0">The follower chart fills in day by day.</p>'; return; }
+    var W = 720, H = 180, L = 52, R = 10, T = 10, B = 24, base = H - B;
+    var vals = []; rows.forEach(function(r){ if (r.fb_followers != null) vals.push(r.fb_followers); if (r.ig_followers != null) vals.push(r.ig_followers); });
+    var lo = Math.min.apply(null, vals), hi = Math.max.apply(null, vals), pad = Math.max(5, Math.round((hi - lo) * .15));
+    lo = Math.max(0, lo - pad); hi = hi + pad;
+    var t0 = new Date(rows[0].day + 'T12:00:00').getTime(), t1 = new Date(rows[rows.length - 1].day + 'T12:00:00').getTime();
+    var x = function(d){ return L + (t1 === t0 ? 0 : (new Date(d + 'T12:00:00').getTime() - t0) / (t1 - t0)) * (W - L - R); };
+    var y = function(v){ return base - (v - lo) / (hi - lo) * (base - T); };
+    var s = '<div class="ps-lg"><span><i style="background:' + AUD_FB + '"></i>Facebook</span><span><i style="background:' + AUD_IG + '"></i>Instagram</span></div><svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Followers over time">';
+    for (var i = 0; i <= 3; i++) { var v = Math.round(lo + (hi - lo) * i / 3); s += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(v) + '" y2="' + y(v) + '" stroke="var(--ds-border)"/><text x="' + (L - 6) + '" y="' + (y(v) + 4) + '" text-anchor="end" font-size="11" fill="var(--muted)">' + nf(v) + '</text>'; }
+    [['fb_followers', AUD_FB], ['ig_followers', AUD_IG]].forEach(function(k){
+      var pts = rows.filter(function(r){ return r[k[0]] != null; }).map(function(r){ return x(r.day).toFixed(1) + ',' + y(r[k[0]]).toFixed(1); });
+      if (pts.length > 1) s += '<polyline fill="none" stroke="' + k[1] + '" stroke-width="2" stroke-linejoin="round" points="' + pts.join(' ') + '"/>';
+      var last = rows.filter(function(r){ return r[k[0]] != null; }).slice(-1)[0];
+      if (last) s += '<circle cx="' + x(last.day) + '" cy="' + y(last[k[0]]) + '" r="4" fill="' + k[1] + '" stroke="var(--card)" stroke-width="2"><title>' + nf(last[k[0]]) + '</title></circle>';
+    });
+    [rows[0], rows[rows.length - 1]].forEach(function(r, i){ s += '<text x="' + x(r.day) + '" y="' + (H - 6) + '" text-anchor="' + (i ? 'end' : 'start') + '" font-size="11" fill="var(--muted)">' + new Date(r.day + 'T12:00:00').toLocaleDateString('en-US', { month: 'short', day: 'numeric' }) + '</text>'; });
+    box.innerHTML = s + '</svg>';
+  }
+  function audRefresh(){
+    var b = $('psAudRefresh'); b.disabled = true; b.textContent = 'Updating…';
+    call({ action: 'stats' }).then(function(d){ if (d.error) showMsg('psMsg', d.error, 'error'); return load(); }).then(function(){ b.disabled = false; b.textContent = 'Update now'; });
   }
 
   // ---------- composer ----------
@@ -15729,6 +15817,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     $('psAddTags').addEventListener('click', function(){ var s = ps.settings || {}; if (!s.hashtags) return; $('psCaption').value = ($('psCaption').value.replace(/\s+$/, '') + '\n\n' + s.hashtags).replace(/^\n+/, ''); refresh(); });
     document.querySelector('.ps-prev-tabs').addEventListener('click', function(e){ var b = e.target.closest('[data-pv]'); if (!b) return; ps.pv = b.getAttribute('data-pv'); preview(); });
     $('psSetSave').addEventListener('click', settingsSave);
+    $('psAudRefresh').addEventListener('click', audRefresh);
     document.querySelector('.nav-link[data-tab="posts"]').addEventListener('click', function(){ load(); conn(); });
     load(); conn();
     setInterval(function(){ if (!$('panelPosts').classList.contains('hidden') && $('psEditor').classList.contains('hidden')) load(); }, 60000);
