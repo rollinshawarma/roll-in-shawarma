@@ -10653,6 +10653,13 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
         box.classList.add('ok');
         t.textContent = 'Connected to Meta ad account “' + d.account.name + '”' + (d.instagram ? ' with Instagram' : ' (Facebook only — add META_IG_USER_ID to also show on Instagram as your account)') + (d.account.active ? '' : '. The ad account isn’t active: check billing in Meta.');
         if (!d.account.active) { box.classList.remove('ok'); box.classList.add('bad'); }
+        if (d.page && d.page.ok) t.textContent += ' · Page “' + d.page.name + '”';
+        if (d.page && !d.page.ok) {
+          box.classList.remove('ok'); box.classList.add('bad');
+          var pl = (d.page.pages || []).map(function(x){ return '“' + x.name + '” ID ' + x.id; }).join(', ');
+          t.textContent += '. But ads can’t run as your Facebook Page yet: ' + (pl ? 'META_PAGE_ID is set to ' + d.page.id + ', and the Pages this connection can use are ' + pl + '. Put the right ID in Supabase secrets.'
+            : 'this connection has no Page. In Meta Business settings, give the ads system user the Roll-In Shawarma Page (Content + Ads), then make a new token.');
+        }
       } else {
         box.classList.add('bad');
         t.textContent = d.missing ? 'Meta isn’t connected yet. You can still make and approve drafts. Missing in Supabase secrets: ' + d.missing.join(', ') + '.'
