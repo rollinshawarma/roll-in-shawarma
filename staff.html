@@ -1196,6 +1196,18 @@
   .st-zone.t{ top:0; height:14%; border-bottom:1px dashed rgba(214,45,32,.8); }
   .st-zone.b{ bottom:0; height:35%; border-top:1px dashed rgba(214,45,32,.8); }
   .st-zone.b span{ position:absolute; top:6px; left:0; right:0; text-align:center; font-size:9.5px; font-weight:700; color:#fff; text-shadow:0 1px 2px rgba(0,0,0,.7); }
+  .st-reel{ display:grid; gap:6px; }
+  .st-reel > label{ display:flex; gap:10px; align-items:flex-start; background:#fff; border:1.5px solid #e4d9c8; border-radius:12px; padding:9px 12px; margin:0; cursor:pointer; font-weight:400; }
+  .st-reel > label:has(input:checked){ border-color:#2b211a; box-shadow:0 0 0 1px #2b211a inset; }
+  .st-reel > label input{ width:auto; margin-top:3px; }
+  .st-reel b{ display:block; font-size:14px; color:#2b211a; } .st-reel small{ display:block; color:#86786a; font-size:12px; }
+  .st-clip{ display:grid; gap:8px; padding:4px 2px 0; }
+  .st-clip label{ font-size:12.5px; font-weight:600; color:#5c4f43; margin:0; }
+  .st-clip input[type=range]{ width:100%; padding:0; }
+  .st-reelf{ width:228px; }
+  .st-play{ position:absolute; left:50%; top:50%; transform:translate(-50%,-50%); width:auto; min-height:0; border:0; border-radius:99px; padding:10px 18px; background:rgba(43,33,26,.86); color:#fff; font:600 13px Inter,sans-serif; cursor:pointer; }
+  .st-play.on{ top:auto; bottom:12px; transform:translateX(-50%); padding:6px 12px; font-size:12px; }
+  .st-play:focus-visible{ outline:2px solid #f3cf8c; outline-offset:2px; }
   .st-safe{ display:flex; gap:8px; align-items:center; font-size:13px; font-weight:500; margin:16px 0 8px; color:#2b211a; }
   .st-safe input{ width:auto; }
   .st-checks{ list-style:none; padding:0; margin:0; display:grid; gap:5px; font-size:13px; }
@@ -2248,6 +2260,7 @@ body.p-shell #mainContent:has(#panelHome:not(.hidden)){ max-width:1280px; }
     "g g g g g q q q q w w w"
     "g g g g g d d d d t t t"
     "r r r r r r r r r r r r"
+    "a a a a a a a a a a a a"
     "f f f f f f f n n n n n"
     "f f f f f f f e e e e e"
     "m m m m m k k k k k k k"
@@ -2359,6 +2372,37 @@ body.p-shell #mainContent:has(#panelHome:not(.hidden)){ max-width:1280px; }
 .tb-event button.go{ margin-top:12px; }
 /* mix donut */
 .tb-mix{ grid-area:m; }
+.tb-ads{ grid-area:a; }
+.tb-ads .seg{ display:inline-flex; background:var(--ds-subtle); border-radius:10px; padding:3px; gap:2px; }
+.tb-ads .seg button{ all:unset; cursor:pointer; padding:5px 11px; border-radius:8px; font-size:12.5px; font-weight:600; color:var(--ds-text-2); }
+.tb-ads .seg button.on{ background:var(--tb-tile); color:var(--ds-text); box-shadow:0 1px 2px rgba(0,0,0,.12); }
+.tb-ads .seg button:focus-visible{ outline:2px solid var(--ds-focus); outline-offset:1px; }
+.ta-body{ display:grid; grid-template-columns:minmax(0, 5fr) minmax(0, 7fr); gap:22px; margin-top:12px; align-items:start; }
+.ta-bars{ display:grid; gap:12px; }
+.ta-row{ display:grid; grid-template-columns:118px minmax(0, 1fr) 78px; gap:10px; align-items:center; font-size:13px; color:var(--ds-text-2); }
+.ta-row b{ text-align:right; color:var(--ds-text); font-variant-numeric:tabular-nums; font-size:14px; }
+.ta-track{ height:14px; border-radius:4px; background:var(--ds-subtle); overflow:hidden; }
+.ta-track i{ display:block; height:100%; border-radius:0 4px 4px 0; min-width:2px; }
+.ta-kpis{ display:flex; gap:22px; flex-wrap:wrap; margin-top:14px; }
+.ta-kpis div{ display:flex; flex-direction:column; }
+.ta-kpis b{ font:700 24px/1.1 var(--display, Inter, sans-serif); color:var(--ds-text); font-variant-numeric:tabular-nums; }
+.ta-kpis small{ font-size:12px; color:var(--ds-text-3); }
+.ta-kpis .good b{ color:var(--tb-herb); } .ta-kpis .bad b{ color:var(--tb-chili); }
+.ta-chart svg{ display:block; width:100%; height:auto; }
+.ta-chart .lg{ display:flex; gap:14px; font-size:12px; color:var(--ds-text-2); margin-bottom:4px; flex-wrap:wrap; }
+.ta-chart .lg i{ display:inline-block; width:10px; height:10px; border-radius:3px; margin-right:5px; vertical-align:-1px; }
+.ta-foot{ font-size:12px; color:var(--ds-text-3); margin-top:10px; }
+.ta-tip{ position:absolute; pointer-events:none; background:var(--ds-strong, #151b26); color:var(--ds-on-strong, #fff); font-size:12px; line-height:1.45; padding:7px 10px; border-radius:8px; white-space:nowrap; z-index:5; transform:translate(-50%, -100%); }
+.ta-tip.hidden{ display:none; }
+.tb-ads .seg button{ white-space:nowrap; }
+@media (max-width:900px){ .ta-body{ grid-template-columns:1fr; } }
+@media (max-width:700px){
+  .tb-ads .tb-h{ flex-wrap:wrap; }
+  .tb-ads .tb-h > span:last-child{ width:100%; justify-content:space-between; }
+  .tb-ads .seg{ flex:1; } .tb-ads .seg button{ flex:1; text-align:center; padding:6px 4px; }
+  .ta-row{ grid-template-columns:104px minmax(0, 1fr) 72px; }
+  .ta-kpis{ gap:14px 20px; } .ta-kpis div{ min-width:40%; }
+}
 .tb-donut{ display:flex; align-items:center; gap:18px; margin-top:10px; }
 .tb-donut svg{ width:112px; height:112px; flex:none; }
 .tb-donut ul{ list-style:none; margin:0; padding:0; font-size:13px; color:var(--ds-text-2); display:flex; flex-direction:column; gap:6px; min-width:0; }
@@ -2413,12 +2457,12 @@ body.p-shell #mainContent:has(#panelHome:not(.hidden)){ max-width:1280px; }
 /* responsive */
 @media (max-width:1180px){
   .tb, .tb.staff{ grid-template-columns:repeat(6, minmax(0, 1fr));
-    grid-template-areas: "g g g g g g" "q q q w w w" "d d d t t t" "r r r r r r" "n n n n n n" "f f f f f f" "e e e m m m" "s s s k k k"; }
+    grid-template-areas: "g g g g g g" "q q q w w w" "d d d t t t" "r r r r r r" "a a a a a a" "n n n n n n" "f f f f f f" "e e e m m m" "s s s k k k"; }
   .tb.staff{ grid-template-areas: "s s s s s s" "q q q w w w" "d d d t t t" "r r r r r r" "n n n n n n" "f f f f f f" "e e e e e e" "k k k k k k"; }
 }
 @media (max-width:700px){
   .tb, .tb.staff{ grid-template-columns:minmax(0, 1fr); gap:12px;
-    grid-template-areas: "g" "q" "n" "r" "f" "d" "t" "w" "e" "m" "s" "k"; }
+    grid-template-areas: "g" "q" "n" "r" "a" "f" "d" "t" "w" "e" "m" "s" "k"; }
   .tb.staff{ grid-template-areas: "s" "q" "n" "r" "f" "d" "t" "w" "e" "k"; }
   .tb-head h1{ font-size:26px; }
   .tb-goal{ grid-template-columns:1fr; justify-items:center; text-align:center; }
@@ -10650,12 +10694,13 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       return '<div class="ad-card" data-ad-card="' + esc(c.id) + '">' +
         '<div class="ad-thumb" data-thumb="' + esc(c.creative_path || '') + '"></div>' +
         '<div class="ad-body">' +
-          '<div class="ad-title"><span class="ad-chip ' + st[1] + '">' + esc(label) + '</span><span class="ad-chip k-' + k + '">' + AD_KIND[k] + '</span>' + esc(c.stop_name || 'No stop picked') + '</div>' +
+          '<div class="ad-title"><span class="ad-chip ' + st[1] + '">' + esc(label) + '</span><span class="ad-chip k-' + k + '">' + AD_KIND[k] + '</span>' + (c.creative_paths && c.creative_paths.reel ? '<span class="ad-chip">Reel</span>' : '') + esc(c.stop_name || 'No stop picked') + '</div>' +
           '<div class="ad-meta">' + esc(adWhenRange(c.start_at, c.end_at)) + (k !== 'stop' && c.dayparts !== false ? ', mealtimes' : '') + '<br>' + adMoney(c.budget_cents) +
             (k === 'comeback' ? ' · website visitors' : ' · within ' + Number(c.radius_miles) + ' miles') +
             (c.promo_code ? ' · code ' + esc(c.promo_code) : '') + res + '</div>' +
           warns.map(function(w){ return '<div class="ad-warn">' + esc(w) + '</div>'; }).join('') +
           (c.last_error && (c.status === 'failed' || c.status === 'rejected') ? '<div class="ad-err">' + esc(c.last_error) + '</div>' : '') +
+          (c.last_error && c.status === 'live' ? '<div class="ad-meta">' + esc(c.last_error) + '</div>' : '') +
           '<div class="ad-btns">' + adButtons(c) + '</div>' +
         '</div></div>';
     }).join('');
@@ -10888,7 +10933,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       return;
     }
     var cards = d.paths && d.paths.cards;
-    note.textContent = cards ? 'Carousel, ' + (cards.length - 1) + ' dishes' : 'Feed, Stories & Reels and Square pictures ready';
+    note.textContent = cards ? 'Carousel, ' + (cards.length - 1) + ' dishes' : 'Feed, Stories and Square pictures' + (d.paths && d.paths.reel ? ' + a Reel video' : '') + ' ready';
     if (d.fresh) note.textContent += ' (saved with the ad)';
     var age = adsState.editing && adsState.editing.design_at && !d.fresh ? (Date.now() - new Date(adsState.editing.design_at)) / 86400000 : 0;
     if (age > 35) { note.textContent += '. Made ' + Math.round(age / 7) + ' weeks ago: a fresh one keeps it working.'; note.className = 'ad-design-note warn'; }
@@ -11021,7 +11066,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     adBusy(btn, true, 'Starting on Meta…');
     return adsCall({ action:'launch', id:c.id }).then(function(d){
       if (d.error) showMsg('adsMsg', 'Approved, but it didn’t start: ' + d.error, 'error');
-      else showMsg('adsMsg', 'Launched. Meta checks every ad first (usually within a few hours); it starts showing after that.', 'ok');
+      else showMsg('adsMsg', 'Launched. Meta checks every ad first (usually within a few hours); it starts showing after that.' + (d.note ? ' ' + d.note : ''), 'ok');
       loadAds();
     });
   }
@@ -13147,6 +13192,9 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     if ($('homeAttention')) needs.appendChild($('homeAttention'));
     grid.appendChild(needs);
     grid.appendChild(tile('tb-event hidden', 'e', '<div><div class="tb-h"><span id="tbEvH">Next event</span></div><div id="tbEv"></div></div><div class="ph" aria-hidden="true"></div>'));
+    grid.appendChild(tile('tb-ads hidden', 'a', '<div class="tb-h"><span>Ads: budget vs sales from ads</span><span style="display:flex;gap:12px;align-items:center"><span class="seg" id="taSeg" role="tablist" aria-label="Period">' +
+      [['today', 'Today'], ['yesterday', 'Yesterday'], ['week', '7 days'], ['month', '30 days']].map(function(p){ return '<button type="button" role="tab" data-ta="' + p[0] + '">' + p[1] + '</button>'; }).join('') +
+      '</span><button type="button" data-tb-go="ads">Open Ads</button></span></div><div id="taBody"></div>'));
     grid.appendChild(tile('tb-mix', 'm', '<div class="tb-h"><span>Where orders came from</span></div><div class="tb-donut" id="tbMix"></div>'));
     var shift = tile('tb-shift', 's', '<div class="tb-h"><span>Your shift</span><button type="button" data-tb-go="clock">My hours</button></div>');
     if ($('clockCard')) shift.appendChild($('clockCard'));
@@ -13167,6 +13215,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     panel.insertBefore(head, anchor); panel.insertBefore(top, anchor); panel.insertBefore(grid, anchor);
     panel.classList.add('tb-on');
     panel.addEventListener('click', function(e){ var b = e.target.closest('[data-tb-go]'); if (b) go(b.getAttribute('data-tb-go')); });
+    $('taSeg').addEventListener('click', function(e){ var b = e.target.closest('[data-ta]'); if (!b) return; st.adP = b.getAttribute('data-ta'); try { localStorage.setItem('taPeriod', st.adP); } catch (x) {} adsTile(); });
     $('tbGoalBtn').addEventListener('click', openGoals);
     wireOrders();
     var att = $('homeAttention');
@@ -13287,6 +13336,53 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
         '<span class="tb-ch">' + esc(o.channel) + '</span><span class="tb-st ' + (late ? 'late' : o.state) + '">' + esc(S[o.state] || o.state) + (o.state === 'cooking' ? ' ' + Math.round(o.age_s / 60) + 'm' : '') + '</span>' +
         (st.d.mgr ? '<span class="amt">' + money(o.total, true) + '</span>' : '') + '</li>';
     }).join('') : '<li class="tb-empty" style="display:block">No orders yet today.</li>';
+  }
+  // ---------- ads: budget vs sales from ads (staff_ad_roi in ads-roi.sql) ----------
+  var TA_SPEND = '#2a78d6', TA_SALES = '#eb6834';
+  function adsTile(){
+    var t = document.querySelector('.tb-ads'), a = st.ads; if (!t) return;
+    t.classList.toggle('hidden', !(st.d && st.d.mgr && a));
+    if (!a) return;
+    if (!st.adP) { try { st.adP = localStorage.getItem('taPeriod'); } catch (x) {} if (!/^(today|yesterday|week|month)$/.test(st.adP || '')) st.adP = 'week'; }
+    $('taSeg').querySelectorAll('[data-ta]').forEach(function(b){ var on = b.getAttribute('data-ta') === st.adP; b.classList.toggle('on', on); b.setAttribute('aria-selected', on ? 'true' : 'false'); });
+    var body = $('taBody');
+    if (!a.has_ads && !(a.periods.month.spend > 0)) { body.innerHTML = '<div class="tb-empty" style="margin-top:10px">No ads have run yet. When one runs, this shows what it cost next to the sales it brought in.</div>'; return; }
+    var p = a.periods[st.adP], mx = Math.max(p.budget, p.spend, p.sales, 1);
+    var bar = function(lbl, v, fill, note){ return '<div class="ta-row"><span>' + lbl + '</span><span class="ta-track"><i style="width:' + (v / mx * 100).toFixed(1) + '%;background:' + fill + '"></i></span><b>' + money(v, v < 1000) + '</b></div>'; };
+    var bpd = p.back_per_dollar, cls = bpd == null ? '' : bpd >= 1 ? 'good' : 'bad';
+    var lag = st.adP === 'today' ? ' Today’s spend can be a few hours behind.' : '';
+    body.innerHTML = '<div class="ta-body"><div><div class="ta-bars">' +
+        bar('Budget (plan)', p.budget, 'repeating-linear-gradient(135deg,#aeb5c0 0 3px,#d9dde3 3px 6px)') + bar('Spent on ads', p.spend, TA_SPEND) + bar('Sales from ads', p.sales, TA_SALES) +
+      '</div><div class="ta-kpis"><div class="' + cls + '"><b>' + (bpd == null ? '—' : money(bpd, true)) + '</b><small>back per $1 spent</small></div><div><b>' + p.orders + '</b><small>orders from ads</small></div><div><b>' + Number(p.clicks).toLocaleString('en-US') + '</b><small>clicks</small></div>' +
+        '<div><b>' + (p.budget ? Math.round(p.spend / p.budget * 100) + '%' : '—') + '</b><small>of budget used</small></div></div></div>' +
+      '<div class="ta-chart"><div class="lg"><span><i style="background:' + TA_SPEND + '"></i>Spent</span><span><i style="background:' + TA_SALES + '"></i>Sales from ads</span><span style="margin-left:auto;color:var(--ds-text-3)">Last 30 days, by day</span></div><div id="taChart" style="position:relative"></div></div></div>' +
+      '<p class="ta-foot">Spend comes from Meta' + (a.synced_at ? ', updated ' + esc(new Date(a.synced_at).toLocaleString('en-US', { weekday: 'short', hour: 'numeric', minute: '2-digit', timeZone: TZ })) : '') + '. Sales from ads = orders placed from an ad’s link, or with its promo code while it ran.' + lag + '</p>';
+    adsChart();
+  }
+  function adsChart(){
+    var box = $('taChart'), a = st.ads; if (!box || !a) return;
+    var rows = a.daily || [], n = rows.length, W = 640, H = 190, L = 40, R = 6, T = 8, B = 24, base = H - B;
+    var sel = { today: 1, yesterday: 1, week: 7, month: 30 }[st.adP], selEnd = st.adP === 'yesterday' ? n - 1 : n, selStart = selEnd - sel;
+    var mx = 1; rows.forEach(function(r){ mx = Math.max(mx, r.spend, r.sales); });
+    var step = mx <= 10 ? 2 : mx <= 50 ? 10 : mx <= 100 ? 25 : mx <= 250 ? 50 : mx <= 500 ? 100 : 250, top = Math.ceil(mx / step) * step;
+    var cw = (W - L - R) / n, bw = Math.max(2, (cw - 4) / 2), y = function(v){ return base - v / top * (base - T); };
+    var s = '<svg viewBox="0 0 ' + W + ' ' + H + '" role="img" aria-label="Ad spend and sales from ads per day, last 30 days">';
+    if (selStart < n) s += '<rect x="' + (L + selStart * cw) + '" y="' + T + '" width="' + ((selEnd - selStart) * cw) + '" height="' + (base - T) + '" fill="var(--ds-subtle)" rx="4"/>';
+    for (var v = 0; v <= top; v += step) s += '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + y(v) + '" y2="' + y(v) + '" stroke="var(--ds-border)" stroke-width="1"/><text x="' + (L - 6) + '" y="' + (y(v) + 4) + '" text-anchor="end" font-size="11" fill="var(--ds-text-3)">$' + v + '</text>';
+    rows.forEach(function(r, i){
+      var x = L + i * cw + 2;
+      if (r.spend > 0) s += '<rect x="' + x + '" y="' + y(r.spend) + '" width="' + bw + '" height="' + (base - y(r.spend)) + '" fill="' + TA_SPEND + '" rx="2"/>';
+      if (r.sales > 0) s += '<rect x="' + (x + bw) + '" y="' + y(r.sales) + '" width="' + bw + '" height="' + (base - y(r.sales)) + '" fill="' + TA_SALES + '" rx="2"/>';
+      var dt = new Date(r.day + 'T12:00:00');
+      if (i % 7 === (n - 1) % 7) s += '<text x="' + (L + i * cw + cw / 2) + '" y="' + (H - 6) + '" text-anchor="middle" font-size="11" fill="var(--ds-text-3)">' + (i === n - 1 ? 'Today' : dt.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })) + '</text>';
+      s += '<rect class="ta-hit" data-i="' + i + '" x="' + (L + i * cw) + '" y="' + T + '" width="' + cw + '" height="' + (base - T) + '" fill="transparent"/>';
+    });
+    box.innerHTML = s + '<line x1="' + L + '" x2="' + (W - R) + '" y1="' + base + '" y2="' + base + '" stroke="var(--ds-text-3)" stroke-width="1"/></svg><div class="ta-tip hidden" id="taTip"></div>';
+    var svg = box.querySelector('svg'), tip = $('taTip');
+    var show = function(e){ var h = e.target.closest('.ta-hit'); if (!h) { tip.classList.add('hidden'); return; } var r = rows[+h.getAttribute('data-i')], bb = h.getBoundingClientRect(), ob = box.getBoundingClientRect();
+      tip.innerHTML = '<b>' + esc(new Date(r.day + 'T12:00:00').toLocaleDateString('en-US', { weekday: 'short', month: 'short', day: 'numeric' })) + '</b><br>Spent ' + money(r.spend, true) + '<br>Sales from ads ' + money(r.sales, true) + (r.orders ? ' (' + r.orders + ' order' + (r.orders > 1 ? 's' : '') + ')' : '');
+      tip.style.left = (bb.left - ob.left + bb.width / 2) + 'px'; tip.style.top = (bb.top - ob.top + 6) + 'px'; tip.classList.remove('hidden'); };
+    svg.addEventListener('mousemove', show); svg.addEventListener('click', show); svg.addEventListener('mouseleave', function(){ tip.classList.add('hidden'); });
   }
   function mixTile(){
     var ch = (st.d.channels || []).filter(function(c){ return c.orders > 0; }), tot = ch.reduce(function(a, c){ return a + Number(c.orders); }, 0), el = $('tbMix');
@@ -13460,9 +13556,10 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       grid.querySelector('.tb-goal').classList.toggle('hidden', !st.d.mgr);
       grid.querySelector('.tb-mix').classList.toggle('hidden', !st.d.mgr);
       if ($('homeToday')) $('homeToday').classList.add('hidden');
-      hello(); goalTile(); queueTile(); dishTile(); teamTile(); feedTile(); mixTile(); rail(); eventTile(); wxTile();
+      hello(); goalTile(); queueTile(); dishTile(); teamTile(); feedTile(); mixTile(); rail(); eventTile(); wxTile(); adsTile();
     }, function(){ st.busy = false; });
     sb.rpc('get_pace_status').then(function(r){ st.pace = r && !r.error ? r.data : null; if (st.d) { hello(); queueTile(); } }, function(){});
+    if (window.currentEmployee && /^(manager|admin)$/.test(window.currentEmployee.role || '')) sb.rpc('staff_ad_roi', args).then(function(r){ st.ads = r && !r.error && r.data && r.data.ok ? r.data : null; if (st.d) adsTile(); }, function(){});
     if (!st.photos) sb.from('menu_items').select('name, variant_name, image_url').then(function(r){ st.photos = r && !r.error ? (r.data || []) : []; if (st.d) dishTile(); }, function(){ st.photos = []; });
     if (usable('eventhub') && (force || Date.now() - st.evAt > 3e5)) sb.rpc('staff_events_overview').then(function(r){ st.evAt = Date.now(); st.ev = r && !r.error && r.data ? (r.data.items || []) : null; if (st.d) eventTile(); }, function(){});
     if (force || Date.now() - st.wxAt > 9e5) weather();
@@ -14575,8 +14672,10 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
   // ---------- drawing ----------
   function loadImg(src){ return new Promise(function(ok){ var i = new Image(); if (!/^(blob:|data:)/.test(src)) i.crossOrigin = 'anonymous'; i.onload = function(){ ok(i); }; i.onerror = function(){ ok(null); }; i.src = src; }); }
   function cover(x, img, l, t, w, h, fy){
+    if (S.noPhoto && img === S.img) { x.save(); x.beginPath(); x.rect(l, t, w, h); x.clip(); x.clearRect(l, t, w, h); x.restore(); return; }
     if (!img) { var g = x.createLinearGradient(l, t, l + w, t + h); g.addColorStop(0, '#4a3524'); g.addColorStop(1, '#1d1611'); x.fillStyle = g; x.fillRect(l, t, w, h); return; }
-    var r = Math.max(w / img.naturalWidth, h / img.naturalHeight), iw = img.naturalWidth * r, ih = img.naturalHeight * r;
+    var nw = img.naturalWidth || img.videoWidth, nh = img.naturalHeight || img.videoHeight;
+    var r = Math.max(w / nw, h / nh), iw = nw * r, ih = nh * r;
     x.save(); x.beginPath(); x.rect(l, t, w, h); x.clip(); x.drawImage(img, l + (w - iw) / 2, t + (h - ih) * (fy == null ? .5 : fy), iw, ih); x.restore();
   }
   function rr(x, l, t, w, h, r){ x.beginPath(); if (x.roundRect) x.roundRect(l, t, w, h, r); else x.rect(l, t, w, h); }
@@ -14740,6 +14839,138 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     return { head: 'Order ahead,', accent: 'skip the line.' };
   }
 
+
+  // ---------- Reel: a 9:16 video for Reels & Stories (made and recorded right here, nothing leaves the device but the upload) ----------
+  var REEL = { mode: 'anim', file: null, url: null, video: null, dur: 0, w: 0, h: 0, start: 0, token: 0 };
+  function clamp(v){ return v < 0 ? 0 : v > 1 ? 1 : v; }
+  function easeOut(v){ return 1 - Math.pow(1 - v, 3); }
+  function reelMime(){
+    if (typeof MediaRecorder === 'undefined' || !MediaRecorder.isTypeSupported) return null;
+    return ['video/mp4;codecs=avc1.640028', 'video/mp4;codecs=avc1', 'video/mp4', 'video/webm;codecs=vp9', 'video/webm;codecs=vp8', 'video/webm'].find(function(m){ return MediaRecorder.isTypeSupported(m); }) || null;
+  }
+  function reelOn(){ return S.tpl !== 'carousel' && REEL.mode !== 'none'; }
+  function reelLen(){ return REEL.mode === 'clip' ? Math.min(12, Math.max(0, REEL.dur - REEL.start)) + 2.6 : 8; }
+  // The story design with the photo cut out (it's drawn underneath, moving)
+  function overlay(){ var c = document.createElement('canvas'); S.noPhoto = true; try { render(c, 'story'); } finally { S.noPhoto = false; } return c; }
+  function headCenter(x, L, cx, top, color, accentColor){
+    L.lines.forEach(function(line, i){ var lw = line.length ? line[line.length - 1].x + line[line.length - 1].tw : 0;
+      line.forEach(function(tok){ x.font = (tok.it ? 'italic 500 ' : '600 ') + L.size + 'px Fraunces, Georgia, serif'; x.fillStyle = tok.it ? accentColor : color; x.fillText(tok.w, cx - lw / 2 + tok.x, top + L.size * .86 + i * L.size * 1.06); }); });
+  }
+  // Last 2.6 s: where and when, and the order line
+  function drawEnd(x, W, H){
+    var d = S.d, top = STORY_TOP + 30, stop = S.tpl === 'stop';
+    x.fillStyle = C.cream; x.fillRect(0, 0, W, H); x.textAlign = 'left';
+    if (S.logo) { x.save(); x.beginPath(); x.arc(W / 2, top + 100, 100, 0, Math.PI * 2); x.clip(); x.drawImage(S.logo, W / 2 - 100, top, 200, 200); x.restore(); }
+    var y = top + 250;
+    if (stop && (d.v1 || d.v2)) {
+      x.textAlign = 'center'; x.font = '700 24px Inter, sans-serif'; spaced(x, 4.8); x.fillStyle = C.clay; x.fillText(String(d.v1 || '').toUpperCase(), W / 2, y + 24); spaced(x, 0);
+      x.font = '600 46px Fraunces, Georgia, serif'; x.fillStyle = C.ink; var v = String(d.v2 || ''); while (v.length > 3 && x.measureText(v).width > W - 160) v = v.slice(0, -2).trim() + '…'; x.fillText(v, W / 2, y + 90); x.textAlign = 'left';
+      y += 140;
+    }
+    var L1 = headLayout(x, 'Order ahead,', '', W - 160, 108, 1), L2 = headLayout(x, '', 'skip the line.', W - 160, 108, 1);
+    headCenter(x, L1, W / 2, y, C.ink, C.clay); y += L1.h; headCenter(x, L2, W / 2, y, C.ink, C.clay); y += L2.h + 50;
+    x.font = '700 34px Inter, sans-serif'; var t = 'rollinshawarma.com', tw = x.measureText(t).width + 80;
+    rr(x, (W - tw) / 2, y, tw, 84, 42); x.fillStyle = C.ink; x.fill(); x.fillStyle = C.gold; x.textAlign = 'center'; x.textBaseline = 'middle'; x.fillText(t, W / 2, y + 44); x.textBaseline = 'alphabetic'; x.textAlign = 'left';
+  }
+  // Over a real clip: a light lower third so the food stays visible
+  function drawLower(x, W, H, a){
+    var d = S.d, l = 72, w = W - 144;
+    var L = headLayout(x, d.head, d.accent, w, 88, 2), top = STORY_BOTTOM - L.h - 10;
+    var g = x.createLinearGradient(0, top - 300, 0, STORY_BOTTOM + 260); g.addColorStop(0, 'rgba(20,14,10,0)'); g.addColorStop(.5, 'rgba(20,14,10,' + (.68 * a) + ')'); g.addColorStop(1, 'rgba(20,14,10,' + (.8 * a) + ')');
+    x.fillStyle = g; x.fillRect(0, top - 300, W, H - top + 300);
+    var tg = x.createLinearGradient(0, 0, 0, 420); tg.addColorStop(0, 'rgba(20,14,10,.4)'); tg.addColorStop(1, 'rgba(20,14,10,0)'); x.fillStyle = tg; x.fillRect(0, 0, W, 420);
+    x.save(); x.globalAlpha = a; x.translate(0, (1 - a) * 40);
+    pill(x, d.badge1 || 'Roll-In Shawarma', l, STORY_TOP + 14, C.cream, C.ink, 22);
+    if (d.kicker) { x.font = '700 24px Inter, sans-serif'; spaced(x, 4.8); x.fillStyle = C.gold; x.fillText(String(d.kicker).toUpperCase(), l, top - 26); spaced(x, 0); }
+    headDraw(x, L, l, top, '#fff', C.gold); x.restore();
+  }
+  function reelFrame(x, t, total, src){
+    var W = 1080, H = 1920, endAt = total - 2.6;
+    x.globalAlpha = 1; x.clearRect(0, 0, W, H);
+    if (src.video) { x.fillStyle = '#000'; x.fillRect(0, 0, W, H); cover(x, src.video, 0, 0, W, H, .5); drawLower(x, W, H, easeOut(clamp((t - .3) / .6))); }
+    else {
+      var z = 1 + .14 * (t / total);
+      x.save(); x.translate(W / 2, H * .42); x.scale(z, z); x.translate(-W / 2, -H * .42); cover(x, S.img, 0, 0, W, H, .45); x.restore();
+      var a = clamp((t - .6) / .7); x.globalAlpha = a; x.drawImage(src.ov, 0, (1 - easeOut(a)) * 70); x.globalAlpha = 1;
+    }
+    if (t > endAt) { x.globalAlpha = easeOut(clamp((t - endAt) / .45)); drawEnd(x, W, H); x.globalAlpha = 1; }
+  }
+  function clipVideo(){
+    if (REEL.video) return Promise.resolve(REEL.video);
+    return new Promise(function(ok){
+      var v = document.createElement('video'); v.muted = true; v.playsInline = true; v.preload = 'auto'; v.setAttribute('playsinline', '');
+      v.onloadeddata = function(){ REEL.video = v; ok(v); }; v.onerror = function(){ ok(null); }; v.src = REEL.url;
+    });
+  }
+  function seek(v, t){ return new Promise(function(ok){ if (Math.abs(v.currentTime - t) < .05) return ok(); var f = function(){ v.removeEventListener('seeked', f); ok(); }; v.addEventListener('seeked', f); v.currentTime = t; }); }
+  // Plays the Reel on a canvas; with record:true it also films it and resolves { blob, ext }.
+  function runReel(canvas, opts){
+    var token = ++REEL.token;
+    canvas.width = 1080; canvas.height = 1920;
+    var x = canvas.getContext('2d');
+    return (REEL.mode === 'clip' ? clipVideo() : Promise.resolve(null)).then(function(v){
+      if (REEL.mode === 'clip' && !v) throw new Error('That video couldn’t be played here. Try an MP4 or MOV from your phone.');
+      var total = reelLen(), src = v ? { video: v } : { ov: overlay() };
+      return (v ? seek(v, REEL.start) : Promise.resolve()).then(function(){
+        return new Promise(function(ok, no){
+          var rec = null, chunks = [], mime = opts.record ? reelMime() : null, t0 = null;
+          if (opts.record) {
+            if (!mime) return no(new Error('This browser can’t make video. Use Chrome or Safari.'));
+            reelFrame(x, 0, total, src);
+            rec = new MediaRecorder(canvas.captureStream(30), { mimeType: mime, videoBitsPerSecond: 8000000 });
+            rec.ondataavailable = function(e){ if (e.data && e.data.size) chunks.push(e.data); };
+            rec.onstop = function(){ ok({ blob: new Blob(chunks, { type: mime.split(';')[0] }), ext: /mp4/.test(mime) ? 'mp4' : 'webm' }); };
+          }
+          function step(now){
+            if (token !== REEL.token) { if (v) v.pause(); if (rec && rec.state !== 'inactive') rec.stop(); else ok(null); return; }
+            if (t0 == null) t0 = now;
+            var t = Math.min((now - t0) / 1000, total);
+            reelFrame(x, t, total, src);
+            if (opts.onProgress) opts.onProgress(t / total);
+            if (t < total) requestAnimationFrame(step);
+            else { if (v) v.pause(); if (rec) rec.stop(); else ok(null); }
+          }
+          var go = function(){ if (rec) rec.start(250); requestAnimationFrame(step); };
+          if (v) v.play().then(go, function(){ no(new Error('The video wouldn’t play. Try another clip.')); }); else go();
+        });
+      });
+    });
+  }
+  // A still frame for the preview box
+  function reelStill(canvas){
+    canvas.width = 1080; canvas.height = 1920; var x = canvas.getContext('2d');
+    if (REEL.mode === 'clip') {
+      if (!REEL.url) { x.fillStyle = '#2b211a'; x.fillRect(0, 0, 1080, 1920); x.fillStyle = C.gold; x.font = '600 54px Fraunces, Georgia, serif'; x.textAlign = 'center'; x.fillText('Add your video clip', 540, 900); x.textAlign = 'left'; return; }
+      clipVideo().then(function(v){ if (!v) return; seek(v, REEL.start + .5).then(function(){ if (canvas.isConnected) reelFrame(x, 1.5, reelLen(), { video: v }); }); });
+      return;
+    }
+    reelFrame(x, 2, 8, { ov: overlay() });
+  }
+  function reelPick(mode){
+    REEL.mode = mode; REEL.token++;
+    document.querySelectorAll('#stReel [name="stReelMode"]').forEach(function(r){ r.checked = r.value === mode; });
+    $('stClipBox').classList.toggle('hidden', mode !== 'clip');
+    draw();
+  }
+  function reelClip(f){
+    if (!f) return;
+    if (!/^video\//.test(f.type)) { msg('Pick a video file.'); return; }
+    if (f.size > 300 * 1024 * 1024) { msg('That video is over 300 MB. Trim it on your phone first.'); return; }
+    if (REEL.url) URL.revokeObjectURL(REEL.url);
+    REEL.file = f; REEL.url = URL.createObjectURL(f); REEL.video = null; REEL.start = 0; msg('');
+    clipVideo().then(function(v){
+      if (!v) { msg('That video couldn’t be opened here. Try an MP4 or MOV.'); REEL.url = null; draw(); return; }
+      REEL.dur = v.duration || 0; REEL.w = v.videoWidth; REEL.h = v.videoHeight;
+      var r = $('stClipStart'); r.max = Math.max(0, REEL.dur - 3).toFixed(1); r.value = 0; r.disabled = REEL.dur <= 3.2;
+      reelNote(); draw();
+    });
+  }
+  function reelNote(){
+    var n = $('stClipNote'); if (!REEL.url) { n.textContent = ''; return; }
+    var use = Math.min(12, Math.max(0, REEL.dur - REEL.start));
+    n.textContent = 'Uses ' + use.toFixed(1) + ' s from ' + Math.floor(REEL.start / 60) + ':' + String(Math.floor(REEL.start % 60)).padStart(2, '0') + ', then the end card (' + (use + 2.6).toFixed(0) + ' s in all).';
+  }
+
   // ---------- the dialog ----------
   function shell(){
     var w = $('stWrap'); if (w) return w;
@@ -14750,6 +14981,14 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
         '<div class="st-step" id="stPhotoStep">Photo</div><div class="st-photos" id="stPhotos"></div>' +
         '<label class="st-up">Or upload your own photo (1080 px or wider looks best)<input type="file" id="stFile" accept="image/jpeg,image/png,image/webp"></label>' +
         '<div class="st-step">Words on the picture</div><div id="stFields"></div>' +
+        '<div id="stReelWrap"><div class="st-step">Reel (video for Reels &amp; Stories)</div><div class="st-reel" id="stReel">' +
+          '<label><input type="radio" name="stReelMode" value="anim" checked><span><b>Animated picture</b><small>8 seconds, made from this design</small></span></label>' +
+          '<label><input type="radio" name="stReelMode" value="clip"><span><b>My video clip</b><small>Film 10–20 seconds on the truck</small></span></label>' +
+          '<label><input type="radio" name="stReelMode" value="none"><span><b>No Reel</b><small>Stories and Reels show the picture</small></span></label>' +
+          '<div id="stClipBox" class="st-clip hidden"><label>Video clip<input type="file" id="stClip" accept="video/mp4,video/quicktime,video/webm,video/*"></label>' +
+          '<label>Start at<input type="range" id="stClipStart" min="0" max="0" step="0.1" value="0"></label><small id="stClipNote"></small>' +
+          '<small>Tip: film tall (portrait), steady, close to the food. Sound is left off; most people watch muted.</small></div>' +
+        '</div></div>' +
       '</div><div class="st-main">' +
         '<div class="st-prev" id="stPrev"></div>' +
         '<label class="st-safe"><input type="checkbox" id="stSafe" checked> Show where Instagram’s buttons cover Stories and Reels</label>' +
@@ -14766,9 +15005,17 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     $('stFields').oninput = function(e){ var k = e.target.getAttribute('data-f'); if (!k) return; S.d[k] = e.target.value; S.touched[k] = true; draw(); };
     $('stSafe').onchange = function(){ S.safe = this.checked; draw(); };
     $('stUse').onclick = apply;
+    $('stReel').addEventListener('change', function(e){ if (e.target.name === 'stReelMode') reelPick(e.target.value); });
+    $('stClip').onchange = function(){ reelClip(this.files && this.files[0]); };
+    $('stClipStart').oninput = function(){ REEL.start = Number(this.value) || 0; reelNote(); clearTimeout(REEL.st); REEL.st = setTimeout(draw, 150); };
+    $('stPrev').addEventListener('click', function(e){ var b = e.target.closest('#stPlay'); if (!b) return;
+      var cv = $('stCReel'); if (b.classList.contains('on')) { REEL.token++; b.classList.remove('on'); b.textContent = '▶ Play'; reelStill(cv); return; }
+      b.classList.add('on'); b.textContent = '■ Stop';
+      runReel(cv, {}).then(function(){ if (b.isConnected) { b.classList.remove('on'); b.textContent = '▶ Play again'; } }, function(er){ msg(er.message); b.classList.remove('on'); b.textContent = '▶ Play'; });
+    });
     return w;
   }
-  function close(){ var w = $('stWrap'); if (w) w.classList.add('hidden'); document.body.style.overflow = ''; }
+  function close(){ REEL.token++; var w = $('stWrap'); if (w) w.classList.add('hidden'); document.body.style.overflow = ''; }
   function msg(t, kind){ $('stMsg').innerHTML = t ? '<span class="st-msg ' + (kind || 'bad') + '">' + esc(t) + '</span>' : ''; }
   function setTpl(t, user){
     S.tpl = t;
@@ -14800,9 +15047,10 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     var sel = S.tpl === 'carousel' ? S.cards.map(function(c){ return c.url; }) : [S.photo && S.photo.url];
     $('stPhotos').innerHTML = (S.photos || []).map(function(p, i){ var n = sel.indexOf(p.url); return '<button type="button" data-ph="' + i + '" class="' + (n >= 0 ? 'on' : '') + '" title="' + esc(p.name) + '"><img src="' + esc(p.url) + '" alt="" loading="lazy" crossorigin="anonymous">' + (S.tpl === 'carousel' && n >= 0 ? '<i>' + (n + 1) + '</i>' : '') + '<span>' + esc(p.name) + '</span></button>'; }).join('');
   }
-  function frame(kind, inner){ return '<figure class="st-f st-' + kind + '"><figcaption>' + { feed: 'Feed · 4:5', story: 'Stories & Reels · 9:16', square: 'Square · 1:1', carousel: 'Carousel · 1:1 cards' }[kind] + '</figcaption>' + inner + '</figure>'; }
+  function frame(kind, inner){ return '<figure class="st-f st-' + kind + '"><figcaption>' + { feed: 'Feed · 4:5', story: 'Stories & Reels · 9:16', square: 'Square · 1:1', carousel: 'Carousel · 1:1 cards', reel: 'Reel · 9:16 video' }[kind] + '</figcaption>' + inner + '</figure>'; }
   function draw(){
     clearTimeout(S.t); S.t = setTimeout(function(){
+      $('stReelWrap').classList.toggle('hidden', S.tpl === 'carousel');
       var pv = $('stPrev'), txt = S.ctx.primaryText || '', head = S.ctx.headline || '';
       var post = function(canvas){ return '<div class="st-post"><div class="st-ph"><span class="st-av"></span><b>Roll-In Shawarma</b><small>Sponsored</small></div><p>' + esc(txt) + '</p>' + canvas + '<div class="st-lk"><span><small>ROLLINSHAWARMA.COM</small><b>' + esc(head) + '</b></span><em>Order now</em></div></div>'; };
       if (S.tpl === 'carousel') {
@@ -14812,8 +15060,11 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       } else {
         pv.innerHTML = frame('feed', post('<canvas id="stCFeed"></canvas>')) +
           frame('story', '<div class="st-sbox"><canvas id="stCStory"></canvas><div class="st-sui"><span class="st-bar"></span><span class="st-who"><span class="st-av"></span>Roll-In Shawarma · Sponsored</span><span class="st-cta">Order now</span></div>' + (S.safe ? '<div class="st-zone t"></div><div class="st-zone b"><span>Kept clear for Instagram’s buttons</span></div>' : '') + '</div>') +
-          frame('square', '<canvas id="stCSq"></canvas>');
+          frame('square', '<canvas id="stCSq"></canvas>') +
+          (reelOn() ? frame('reel', '<div class="st-sbox"><canvas id="stCReel"></canvas>' + (S.safe ? '<div class="st-zone t"></div><div class="st-zone b"></div>' : '') + '<button type="button" class="st-play" id="stPlay">▶ Play</button></div>') : '');
+        REEL.token++;
         render($('stCFeed'), 'feed'); render($('stCStory'), 'story'); render($('stCSq'), 'square');
+        if (reelOn()) reelStill($('stCReel'));
       }
       checks();
     }, 60);
@@ -14829,6 +15080,17 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       else if (img) c.push(img.naturalWidth >= 1000 ? ['ok', 'Photo is sharp (' + img.naturalWidth + ' px wide)'] : ['warn', 'Photo is ' + img.naturalWidth + ' px wide; 1080+ looks sharper']);
       var n = words(); c.push(n <= 30 ? ['ok', n + ' words on the picture (short is better)'] : ['warn', n + ' words on the picture. Ads with fewer words usually do better']);
       c.push(['ok', 'Stories & Reels: words kept out of the top 14% and bottom 35%']);
+      if (REEL.mode === 'none') c.push(['warn', 'No Reel: video usually does better in Reels than a picture']);
+      else if (!reelMime()) c.push(['warn', 'This browser can’t make video, so no Reel. Use Chrome or Safari for one.']);
+      else if (REEL.mode === 'clip') {
+        if (!REEL.url) c.push(['bad', 'Add your video clip, or pick Animated picture']);
+        else if (REEL.dur < 3) c.push(['bad', 'That clip is under 3 seconds. Use a longer one']);
+        else {
+          c.push(['ok', 'Reel: ' + Math.min(12, REEL.dur - REEL.start).toFixed(0) + ' s of your clip + an end card with the order link']);
+          if (REEL.w > REEL.h) c.push(['warn', 'This clip is sideways (landscape): only the middle shows. Film tall next time']);
+          if (Math.min(REEL.w, REEL.h) && Math.min(REEL.w, REEL.h) < 720) c.push(['warn', 'Low-resolution clip (' + REEL.w + '×' + REEL.h + '); it may look soft']);
+        }
+      } else c.push(['ok', 'Reel: 8-second animated version of this design, ending on the order link']);
     }
     if (ctx.event && window.adLooksPrivate(ctx.event)) c.push(['bad', 'This stop looks private (employees or a company only). Don’t advertise it to the public.']);
     if (ctx.endAt && new Date(ctx.endAt) < new Date()) c.push(['bad', 'The ad’s end date has passed']);
@@ -14849,7 +15111,18 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       ['feed', 'story', 'square'].forEach(function(k){ var cv = document.createElement('canvas'); render(cv, k); jobs.push(up(cv, k).then(function(p){ out[k] = p; })); });
     }
     Promise.all(jobs).then(function(){
-      var d = Object.assign({}, S.d, { template: S.tpl, photo: S.photo ? { name: S.photo.name, url: S.photo.own ? null : S.photo.url } : null, cards: S.cards.map(function(c){ return { name: c.name, url: c.url, price: c.price }; }) });
+      if (!(reelOn() && reelMime())) return;
+      var cv = document.createElement('canvas'); cv.style.cssText = 'position:fixed;left:-4000px;top:0;width:54px;height:96px;'; document.body.appendChild(cv);
+      b.textContent = 'Making the Reel… keep this screen open';
+      return runReel(cv, { record: true, onProgress: function(f){ b.textContent = 'Making the Reel… ' + Math.round(f * 100) + '%'; } }).then(function(r){
+        cv.remove(); if (!r || !r.blob || r.blob.size < 20000) throw new Error('The Reel didn’t record. Try again, keeping this screen open.');
+        if (r.blob.size > 45 * 1024 * 1024) throw new Error('The Reel came out too big. Use a shorter part of the clip.');
+        b.textContent = 'Uploading the Reel…';
+        var path = 'studio/' + stamp + '-reel.' + r.ext;
+        return sb.storage.from('ad-creatives').upload(path, r.blob, { contentType: r.blob.type, upsert: false }).then(function(u){ if (u.error) throw new Error('Reel upload failed: ' + u.error.message); out.reel = path; });
+      }, function(e){ cv.remove(); throw e; });
+    }).then(function(){
+      var d = Object.assign({}, S.d, { template: S.tpl, reel: { mode: reelOn() && out.reel ? REEL.mode : 'none' }, photo: S.photo ? { name: S.photo.name, url: S.photo.own ? null : S.photo.url } : null, cards: S.cards.map(function(c){ return { name: c.name, url: c.url, price: c.price }; }) });
       b.textContent = 'Use this design'; b.disabled = false; close();
       if (S.onApply) S.onApply({ template: S.tpl, paths: out, design: d, main: out.feed || (out.cards && out.cards[0].path) });
     }, function(e){ b.textContent = 'Use this design'; b.disabled = false; msg(e.message); });
@@ -14871,20 +15144,24 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
   window.AdStudio = {
     open: function(ctx, onApply){
       S.ctx = ctx || {}; S.onApply = onApply; S.cards = []; S.photo = null; S.img = null; S.d = {};
-      var w = shell(); w.classList.remove('hidden'); document.body.style.overflow = 'hidden'; msg('');
+      var w = shell();
+      if (REEL.url) URL.revokeObjectURL(REEL.url);
+      REEL.url = null; REEL.file = null; REEL.video = null; REEL.dur = 0; REEL.start = 0; $('stClip').value = ''; $('stClipNote').textContent = '';
+      reelPick(ctx && ctx.design && ctx.design.reel && ctx.design.reel.mode === 'none' ? 'none' : 'anim'); w.classList.remove('hidden'); document.body.style.overflow = 'hidden'; msg('');
       $('stSub').textContent = { stop: 'Ad for people near ' + (ctx.stopName || 'the stop'), home: 'Ad for people near ' + (ctx.stopName || 'our usual spot'), comeback: 'Ad for people who visited the website' }[ctx.kind || 'stop'] || '';
       var d = ctx.design || {};
       Promise.all([loadPhotos(), fonts(), S.logo ? null : loadImg('logo.jpg').then(function(im){ S.logo = im; })]).then(function(){
         var tpl = d.template || { stop: 'stop', home: 'dish', comeback: 'direct' }[ctx.kind || 'stop'];
         setTpl(tpl, true);
-        if (d.template) { Object.keys(d).forEach(function(k){ if (['template', 'photo', 'cards'].indexOf(k) < 0) S.d[k] = d[k]; }); S.d._tpl = tpl; S.touched = { head: 1, body: 1 }; setTpl(tpl, false); }
+        if (d.template) { Object.keys(d).forEach(function(k){ if (['template', 'photo', 'cards', 'reel'].indexOf(k) < 0) S.d[k] = d[k]; }); S.d._tpl = tpl; S.touched = { head: 1, body: 1 }; setTpl(tpl, false); }
         var first = d.photo && d.photo.url ? (S.photos.find(function(p){ return p.url === d.photo.url; }) || d.photo) : S.photos[0];
         if (tpl === 'carousel') { (d.cards && d.cards.length ? d.cards : S.photos.slice(0, 3)).forEach(function(c){ pickPhoto(c); }); }
         else if (first) pickPhoto(first);
         var on = $('stTpls').querySelector('.on'); if (on) on.focus();
       });
     },
-    render: render, _state: S
+    render: render, _state: S,
+    _reelFrame: function(cv, t){ cv.width = 1080; cv.height = 1920; reelFrame(cv.getContext('2d'), t, reelLen(), REEL.mode === 'clip' && REEL.video ? { video: REEL.video } : { ov: overlay() }); }
   };
 })();
 </script>
