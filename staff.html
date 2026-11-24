@@ -16009,7 +16009,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
   function get(o, p){ return p.split('.').reduce(function(a, k){ return a == null ? undefined : a[k]; }, o); }
   function set(o, p, v){ var ks = p.split('.'), last = ks.pop(); ks.forEach(function(k){ if (o[k] == null || typeof o[k] !== 'object') o[k] = {}; o = o[k]; }); o[last] = v; }
   function ago(t){ var s = Math.max(0, Math.round((Date.now() - new Date(t).getTime()) / 1000)); return s < 60 ? s + ' s ago' : s < 3600 ? Math.round(s / 60) + ' min ago' : s < 86400 ? Math.round(s / 3600) + ' h ago' : Math.round(s / 86400) + ' days ago'; }
-  function size(){ var st = (ls.data && ls.data.status) || {}; return { w: Math.max(32, Math.min(512, +st.width || 96)), h: Math.max(8, Math.min(64, +st.height || 16)) }; }
+  function size(){ var st = (ls.data && ls.data.status) || {}; return { w: Math.max(32, Math.min(512, +st.width || 154)), h: Math.max(8, Math.min(64, +st.height || 16)) }; }   // until the Pi reports the real grid: 77" x 8" sign = about 154 x 16 dots
 
   // ---------- status ----------
   function paintStatus(){
