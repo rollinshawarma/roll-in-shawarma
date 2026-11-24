@@ -2990,6 +2990,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       <button class="nav-link hidden" data-tab="menustudio" id="tabMenuBtn"><svg class="icon"><use href="#ic-tag"/></svg>Menu<span class="nav-badge nav-badge-soft hidden" id="navMenuBadge"></span></button>
       <button class="nav-link hidden" data-tab="storehours" id="tabStoreHoursBtn"><svg class="icon"><use href="#ic-clock"/></svg>Store hours<span class="nav-badge hidden" id="navHoursBadge"></span></button>
       <button class="nav-link hidden" data-tab="banner" id="tabBannerBtn"><svg class="icon"><use href="#ic-megaphone"/></svg>Banner</button>
+      <button class="nav-link hidden" data-tab="sign" id="tabSignBtn"><svg class="icon"><use href="#ic-flame"/></svg>LED sign</button>
       <button class="nav-link hidden" data-tab="features" id="tabFeaturesBtn"><svg class="icon"><use href="#ic-gift"/></svg>Secret menu<span class="nav-badge nav-badge-soft hidden" id="navFeatSecret">Off</span></button>
 
       <div class="nav-section-label">Events &amp; catering</div>
@@ -4610,6 +4611,162 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
   </div>
 
   <!-- PROMOTIONS -->
+    <div class="tab-panel hidden" id="panelSign">
+    <style id="ls-css">
+      #panelSign .ls-stat{ display:flex; align-items:center; gap:10px; flex-wrap:wrap; padding:12px 14px; border:1px solid var(--ds-border); border-radius:var(--ds-r-lg); background:var(--ds-surface); margin-bottom:14px; font-size:14px; color:var(--ds-text-2); }
+      #panelSign .ls-dot{ width:10px; height:10px; border-radius:50%; background:var(--ds-text-3); flex:none; }
+      #panelSign .ls-stat.on .ls-dot{ background:var(--ds-green); box-shadow:0 0 0 4px var(--ds-green-bg); }
+      #panelSign .ls-stat.off .ls-dot{ background:var(--ds-red); }
+      #panelSign .ls-stat b{ color:var(--ds-text); font-weight:600; }
+      #panelSign .ls-board{ background:#050505; border-radius:14px; padding:14px; box-shadow:inset 0 0 0 1px #222, 0 10px 24px -14px rgba(0,0,0,.6); }
+      #panelSign .ls-board canvas{ display:block; width:100%; height:auto; image-rendering:pixelated; }
+      #panelSign .ls-under{ display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap; margin-top:10px; font-size:13px; color:var(--ds-text-3); }
+      #panelSign .ls-queue{ list-style:none; margin:10px 0 0; padding:0; display:flex; flex-direction:column; gap:4px; }
+      #panelSign .ls-queue li{ display:flex; gap:8px; align-items:center; font-size:13px; color:var(--ds-text-2); padding:4px 0; }
+      #panelSign .ls-queue li.now{ color:var(--ds-text); font-weight:600; }
+      #panelSign .ls-queue i{ width:8px; height:8px; border-radius:50%; flex:none; font-style:normal; }
+      #panelSign .ls-kind{ margin-left:auto; color:var(--ds-text-3); font-weight:400; font-size:12px; }
+      #panelSign .ls-row{ display:flex; gap:8px; align-items:center; margin-bottom:8px; }
+      #panelSign .ls-row input[type=text]{ flex:1; min-width:0; font-family:var(--ds-mono); letter-spacing:.02em; }
+      #panelSign #lsStatText{ flex:1; min-width:0; }
+      #panelSign .ls-row input[type=date]{ flex:1; min-width:0; }
+      #panelSign .ls-col{ width:38px; height:38px; flex:none; border:1px solid var(--ds-border-strong); border-radius:var(--ds-r); padding:0; background:none; cursor:pointer; }
+      #panelSign .ls-ib{ width:36px; height:36px; min-height:36px; flex:none; padding:0; border:1px solid var(--ds-border); background:var(--ds-surface); color:var(--ds-text-2); border-radius:var(--ds-r); font-size:15px; line-height:1; }
+      #panelSign details{ border:1px solid var(--ds-border); border-radius:var(--ds-r-lg); background:var(--ds-surface); margin-bottom:10px; }
+      #panelSign summary{ list-style:none; cursor:pointer; padding:14px 16px; display:flex; align-items:center; gap:12px; font-weight:600; font-size:15px; color:var(--ds-text); }
+      #panelSign summary::-webkit-details-marker{ display:none; }
+      #panelSign summary small{ display:block; font-weight:400; font-size:12.5px; color:var(--ds-text-3); margin-top:2px; }
+      #panelSign summary::after{ content:"+"; margin-left:auto; font-size:20px; color:var(--ds-text-3); font-weight:400; }
+      #panelSign details[open] summary::after{ content:"\2212"; }
+      #panelSign .ls-body{ padding:0 16px 16px; }
+      #panelSign .ls-line{ display:flex; align-items:center; justify-content:space-between; gap:12px; padding:10px 0; border-top:1px solid var(--ds-subtle-2); font-size:14px; color:var(--ds-text-2); }
+      #panelSign .ls-line:first-child{ border-top:0; }
+      #panelSign .ls-field{ margin:10px 0 4px; font-size:13px; font-weight:600; color:var(--ds-text-2); }
+      #panelSign .ls-tags{ font-size:12px; color:var(--ds-text-3); margin:2px 0 8px; }
+      #panelSign .ls-tags code{ font-family:var(--ds-mono); background:var(--ds-subtle); padding:1px 5px; border-radius:4px; color:var(--ds-text-2); }
+      #panelSign .ls-sw{ display:flex; gap:6px; flex-wrap:wrap; margin:6px 0 10px; }
+      #panelSign .ls-sw button{ width:30px; height:30px; min-height:30px; border-radius:50%; border:2px solid var(--ds-surface); box-shadow:0 0 0 1px var(--ds-border-strong); padding:0; }
+      #panelSign .ls-sw button[aria-pressed="true"]{ box-shadow:0 0 0 2px var(--ds-text); }
+      #panelSign .ls-hol{ border-top:1px solid var(--ds-subtle-2); padding:12px 0 4px; }
+      #panelSign .ls-hol:first-child{ border-top:0; }
+      #panelSign .ls-row input.ls-name{ font-weight:600; flex:1; min-width:0; font-family:inherit; text-transform:none; letter-spacing:0; }
+      #panelSign .ls-moon{ font-size:12px; color:var(--ds-amber-ink); background:var(--ds-amber-bg); border:1px solid var(--ds-amber-line); border-radius:999px; padding:2px 8px; white-space:nowrap; }
+      #panelSign .ls-range{ display:flex; align-items:center; gap:12px; }
+      #panelSign .ls-range input{ flex:1; accent-color:var(--ds-accent); }
+      #panelSign .ls-range output{ width:44px; text-align:right; font-variant-numeric:tabular-nums; color:var(--ds-text); font-weight:600; }
+      #panelSign .ls-save{ position:sticky; bottom:12px; z-index:5; display:flex; gap:10px; align-items:center; padding:10px 12px; border-radius:999px; background:var(--ds-strong); color:var(--ds-on-strong); box-shadow:var(--ds-shadow-lg); margin-top:14px; }
+      #panelSign .ls-save span{ flex:1; font-size:14px; padding-left:8px; }
+      #panelSign .ls-save button{ width:auto; background:var(--ds-on-strong); color:var(--ds-strong); border-radius:999px; padding:9px 18px; font-weight:600; }
+      #panelSign .ls-save .ls-undo{ background:transparent; color:var(--ds-on-strong); border:1px solid rgba(255,255,255,.3); }
+      #panelSign .ls-key{ font-family:var(--ds-mono); font-size:12.5px; word-break:break-all; background:var(--ds-subtle); border:1px solid var(--ds-border); border-radius:var(--ds-r); padding:10px 12px; color:var(--ds-text); user-select:all; }
+      #panelSign .ls-quick textarea{ width:100%; min-height:64px; text-transform:uppercase; font-family:var(--ds-mono); }
+      #panelSign .ls-btns{ display:flex; gap:8px; flex-wrap:wrap; }
+      #panelSign .ls-btns .btn-primary{ width:auto; }
+    </style>
+    <div class="page-head">
+      <h2>LED sign</h2>
+      <p class="hint">What the scrolling sign on the truck shows. Ready order numbers jump to the front by themselves; the rest takes turns.</p>
+    </div>
+    <div class="ls-stat" id="lsStat"><span class="ls-dot"></span><span id="lsStatText">Checking the sign&hellip;</span></div>
+    <div id="lsMsg"></div>
+
+    <div class="card">
+      <div class="ls-board"><canvas id="lsCanvas" width="96" height="16" aria-label="Preview of the LED sign"></canvas></div>
+      <div class="ls-under"><span id="lsMode">Showing now</span>
+        <span><input type="datetime-local" id="lsAt" aria-label="Preview another time" style="min-height:36px;font-size:13px;padding:4px 8px;width:auto"> <button type="button" class="btn-ghost btn-small" id="lsAtNow">Now</button></span></div>
+      <ul class="ls-queue" id="lsQueue"></ul>
+    </div>
+
+    <div class="card ls-quick">
+      <h2 style="font-size:17px;margin:0 0 4px">Quick message</h2>
+      <p class="hint" style="margin:0 0 10px">Goes first in line until it runs out, for things like &ldquo;Sold out of falafel&rdquo; or &ldquo;Back in 10 minutes&rdquo;.</p>
+      <textarea id="lsQText" maxlength="160" placeholder="BACK IN 10 MINUTES"></textarea>
+      <div class="ls-sw" id="lsQSw"></div>
+      <div class="ls-btns">
+        <select id="lsQMin" style="width:auto"><option value="15">15 minutes</option><option value="30">30 minutes</option><option value="60" selected>1 hour</option><option value="120">2 hours</option><option value="240">4 hours</option><option value="720">12 hours</option></select>
+        <button type="button" class="btn-primary btn-small" id="lsQGo">Show on sign</button>
+        <button type="button" class="btn-ghost btn-small" id="lsQTest">Test for 60 s</button>
+        <button type="button" class="btn-ghost btn-small hidden" id="lsQClear">Take it down</button>
+      </div>
+      <p class="hint" id="lsQNow" style="margin:8px 0 0"></p>
+    </div>
+
+    <div id="lsSettings">
+      <details open>
+        <summary><span>Order tickets<small>Ready numbers, now cooking, thank you</small></span></summary>
+        <div class="ls-body">
+          <div class="ls-line"><span>Show ready orders</span><button type="button" class="switch" role="switch" data-ls="ready.on" aria-label="Show ready orders"></button></div>
+          <div class="ls-field">Ready message</div>
+          <div class="ls-row"><input type="text" maxlength="160" data-ls="ready.template"><input type="color" class="ls-col" data-ls="ready.color" aria-label="Ready color"></div>
+          <div class="ls-tags"><code>{n}</code> order number</div>
+          <div class="ls-line"><span>Several ready at once: one line</span><button type="button" class="switch" role="switch" data-ls="ready.combine" aria-label="Combine ready orders"></button></div>
+          <div class="ls-row"><input type="text" maxlength="160" data-ls="ready.combine_template"></div>
+          <div class="ls-tags"><code>{list}</code> numbers, like 41 - 42 - 45</div>
+          <div class="ls-line"><span>Use first names<small style="display:block;color:var(--ds-text-3);font-size:12px">Shown on a public sign. Only first names.</small></span><button type="button" class="switch" role="switch" data-ls="ready.names" aria-label="Use first names"></button></div>
+          <div class="ls-row"><input type="text" maxlength="160" data-ls="ready.name_template"></div>
+          <div class="ls-tags"><code>{name}</code> first name, <code>{n}</code> number</div>
+          <div class="ls-line"><span>Now cooking</span><button type="button" class="switch" role="switch" data-ls="ready.cooking_on" aria-label="Now cooking"></button></div>
+          <div class="ls-row"><input type="text" maxlength="160" data-ls="ready.cooking_template"><input type="color" class="ls-col" data-ls="ready.cooking_color" aria-label="Cooking color"></div>
+          <div class="ls-line"><span>Thank you after pickup (2 min)</span><button type="button" class="switch" role="switch" data-ls="ready.thanks_on" aria-label="Thank you after pickup"></button></div>
+          <div class="ls-row"><input type="text" maxlength="160" data-ls="ready.thanks_template"><input type="color" class="ls-col" data-ls="ready.thanks_color" aria-label="Thank you color"></div>
+        </div>
+      </details>
+      <details>
+        <summary><span>While open<small>Messages that take turns during service</small></span></summary>
+        <div class="ls-body"><div data-list="open.messages"></div><button type="button" class="btn-ghost btn-small" data-add="open.messages">Add a message</button></div>
+      </details>
+      <details>
+        <summary><span>When closed<small>Off hours and quiet hours</small></span></summary>
+        <div class="ls-body">
+          <div class="ls-line"><span>When closed</span><select data-ls="closed.mode" style="width:auto"><option value="message">Show messages</option><option value="off">Turn the sign off</option></select></div>
+          <div class="ls-field">Closed message</div>
+          <div class="ls-row"><input type="text" maxlength="160" data-ls="closed.template"><input type="color" class="ls-col" data-ls="closed.color" aria-label="Closed color"></div>
+          <div class="ls-tags"><code>{next_open}</code> like TOMORROW 11 AM (from store hours)</div>
+          <div class="ls-field">Also show</div>
+          <div data-list="closed.messages"></div><button type="button" class="btn-ghost btn-small" data-add="closed.messages">Add a message</button>
+          <div class="ls-line" style="margin-top:12px"><span>Quiet hours (sign off)</span><button type="button" class="switch" role="switch" data-ls="quiet.on" aria-label="Quiet hours"></button></div>
+          <div class="ls-row"><input type="time" data-ls="quiet.from" aria-label="Quiet from"><span>to</span><input type="time" data-ls="quiet.to" aria-label="Quiet to"></div>
+          <p class="hint" style="margin:0">Only while closed. Ready orders still show.</p>
+        </div>
+      </details>
+      <details>
+        <summary><span>Events<small>From the Events page</small></span></summary>
+        <div class="ls-body">
+          <div class="ls-line"><span>Welcome message on event days</span><button type="button" class="switch" role="switch" data-ls="event.on" aria-label="Event welcome"></button></div>
+          <div class="ls-row"><input type="text" maxlength="160" data-ls="event.today_template"><input type="color" class="ls-col" data-ls="event.today_color" aria-label="Event color"></div>
+          <div class="ls-tags"><code>{event}</code> event name</div>
+          <div class="ls-line"><span>Next stop (within 7 days)</span><button type="button" class="switch" role="switch" data-ls="event.next_on" aria-label="Next stop"></button></div>
+          <div class="ls-row"><input type="text" maxlength="160" data-ls="event.next_template"><input type="color" class="ls-col" data-ls="event.next_color" aria-label="Next stop color"></div>
+          <div class="ls-tags"><code>{event}</code> <code>{day}</code> <code>{time}</code>. Private and company events never show.</div>
+        </div>
+      </details>
+      <details>
+        <summary><span>Holidays<small>Greetings on their days</small></span></summary>
+        <div class="ls-body"><div data-list="holidays"></div><button type="button" class="btn-ghost btn-small" data-add="holidays">Add a holiday</button></div>
+      </details>
+      <details>
+        <summary><span>Display<small>Brightness, speed, on/off</small></span></summary>
+        <div class="ls-body">
+          <div class="ls-line"><span>Sign on</span><button type="button" class="switch" role="switch" data-ls="enabled" aria-label="Sign on"></button></div>
+          <div class="ls-field">Brightness</div><div class="ls-range"><input type="range" min="5" max="100" data-ls="brightness" aria-label="Brightness"><output></output></div>
+          <div class="ls-field">Scroll speed</div><div class="ls-range"><input type="range" min="0" max="100" data-ls="speed" aria-label="Scroll speed"><output></output></div>
+          <div class="ls-field">Seconds per message (at least)</div><div class="ls-range"><input type="range" min="3" max="30" data-ls="min_seconds" aria-label="Seconds per message"><output></output></div>
+        </div>
+      </details>
+    </div>
+    <div class="ls-save hidden" id="lsSaveBar"><span>Unsaved changes</span><button type="button" class="ls-undo" id="lsUndo">Undo</button><button type="button" id="lsSave">Save</button></div>
+
+    <div class="card hidden" id="lsPair" style="margin-top:18px">
+      <h2 style="font-size:17px;margin:0 0 4px">Raspberry Pi</h2>
+      <p class="hint" id="lsPairText" style="margin:0 0 10px"></p>
+      <div id="lsPairOut" class="hidden">
+        <p class="hint" style="margin:0 0 6px">On the Pi, run this once. The key shows only now; pairing again makes a new one.</p>
+        <div class="ls-key" id="lsPairCmd"></div>
+        <div class="ls-btns" style="margin-top:8px"><button type="button" class="btn-ghost btn-small" id="lsPairCopy">Copy</button></div>
+      </div>
+      <div class="ls-btns" style="margin-top:10px"><button type="button" class="btn-ghost btn-small" id="lsPairBtn">Pair the Pi</button></div>
+    </div>
+    </div>
     <div class="tab-panel hidden" id="panelPosts">
     <div class="page-head">
       <h2>Posts</h2>
@@ -5561,6 +5718,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
         setInterval(loadAds, 120000);
         if (location.hash === '#ads') setTimeout(function(){ showTab('ads'); }, 0);
         if (window.psInit) window.psInit(isAdmin); else window.__psPending = isAdmin;   // posts-js loads after this script
+        if (window.lsInit) window.lsInit(isAdmin); else window.__lsPending = isAdmin;   // sign-js loads after this script
         loadTodayGlance();
         setInterval(loadTodayGlance, 60000);
       }
@@ -10237,7 +10395,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
         (showSpot ? '<div class="spot">' + (d.spot_image_url ? '<img src="' + esc(d.spot_image_url) + '" alt="" onerror="this.remove()">' : '') +
           '<p><span class="k">Where we\u2019ll park</span><b>' + esc(d.place) + '</b>' + (d.drop_note ? esc(d.drop_note) : '') + '</p>' +
           (mapQr ? '<div class="mq">' + mapQr + 'Scan for directions</div>' : '') + '</div>' : '') +
-        '<div class="foot"><span>Ask about our Halal options</span><span>Pre-order, then walk up. We\u2019ll call your name.</span></div></div>';
+        '<div class="foot"><span>100% Halal meat</span><span>Pre-order, then walk up. We\u2019ll call your name.</span></div></div>';
     }
     // After pictures and fonts load: shrink the event photo (then the message) until
     // everything fits on the page, so long text never runs off the bottom.
@@ -15832,6 +15990,222 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
   };
   window.psState = ps;
   if (window.__psPending !== undefined) window.psInit(window.__psPending);
+})();
+</script>
+<script id="sign-js">
+/* LED sign: settings, live preview, quick message, pairing (led-sign.sql + sign/rollin_sign.py on the Pi). */
+(function(){
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  var ls = { started: false, admin: false, data: null, cfg: null, saved: '', at: null, play: null, timer: null };
+  var SW = ['#ffffff', '#f3cf8c', '#ef4444', '#f59e0b', '#facc15', '#22c55e', '#38bdf8', '#a78bfa', '#ec4899'];
+  var KIND = { ready: 'Ready', cooking: 'Cooking', thanks: 'Thank you', test: 'Test', note: 'Quick message', holiday: 'Holiday', event: 'Event', message: 'Message', closed: 'Closed' };
+  var MODE = { ready: 'Orders are ready, so only ready numbers show', test: 'Test message', off: 'The sign is switched off', quiet: 'Quiet hours: the sign is off', closed: 'Closed: the sign is off', open: 'Open', closedmsg: 'Closed' };
+  var SITE = 'https://rollinshawarma.com/';
+
+  function rpc(fn, args){ return sb.rpc(fn, args || {}).then(function(r){ if (r.error) throw new Error(/does not exist|schema cache/i.test(r.error.message) ? 'Run led-sign.sql in Supabase → SQL Editor to turn on the LED sign.' : r.error.message); return r.data; }); }
+  function msg(t, type){ var el = $('lsMsg'); el.innerHTML = t ? '<div class="msg ' + (type || 'error') + '">' + esc(t) + '</div>' : ''; }
+  function up(v){ return String(v || '').toUpperCase().replace(/\{([A-Z_]+)\}/g, function(m, k){ return '{' + k.toLowerCase() + '}'; }); }   // CAPS, but keep {n} {list} {name}
+  function get(o, p){ return p.split('.').reduce(function(a, k){ return a == null ? undefined : a[k]; }, o); }
+  function set(o, p, v){ var ks = p.split('.'), last = ks.pop(); ks.forEach(function(k){ if (o[k] == null || typeof o[k] !== 'object') o[k] = {}; o = o[k]; }); o[last] = v; }
+  function ago(t){ var s = Math.max(0, Math.round((Date.now() - new Date(t).getTime()) / 1000)); return s < 60 ? s + ' s ago' : s < 3600 ? Math.round(s / 60) + ' min ago' : s < 86400 ? Math.round(s / 3600) + ' h ago' : Math.round(s / 86400) + ' days ago'; }
+  function size(){ var st = (ls.data && ls.data.status) || {}; return { w: Math.max(32, Math.min(512, +st.width || 96)), h: Math.max(8, Math.min(64, +st.height || 16)) }; }
+
+  // ---------- status ----------
+  function paintStatus(){
+    var d = ls.data || {}, el = $('lsStat'), t = $('lsStatText'), st = d.status || {};
+    el.classList.remove('on', 'off');
+    if (!d.paired) { t.innerHTML = '<b>Not set up yet.</b> ' + (d.is_admin ? 'Pair the Raspberry Pi at the bottom of this page.' : 'Ask an admin to pair the Raspberry Pi.'); return; }
+    if (!d.last_seen) { t.innerHTML = '<b>Paired</b>, waiting for the Pi to check in (key ending ' + esc(d.key_hint || '') + ').'; return; }
+    var fresh = Date.now() - new Date(d.last_seen).getTime() < 30000;
+    if (fresh && st.connected) { el.classList.add('on'); t.innerHTML = '<b>Sign online</b> · ' + esc((st.width || '?') + '×' + (st.height || '?')) + (st.showing ? ' · showing ' + esc(String(st.showing).split('|').slice(1).join('|')) : ''); }
+    else if (fresh) { el.classList.add('off'); t.innerHTML = '<b>Pi online, sign not connected.</b> ' + esc(st.error || 'Is the sign switched on? Close the CoolLED app on any phone.'); }
+    else { el.classList.add('off'); t.innerHTML = '<b>Offline</b> · last seen ' + esc(ago(d.last_seen)) + '. Check the Pi has power and internet.'; }
+  }
+
+  // ---------- dot-matrix preview ----------
+  var off = document.createElement('canvas'), offx = off.getContext('2d');
+  function textBitmap(text, h){
+    var font = 'bold ' + (h - (h <= 16 ? 1 : 2)) + 'px "DejaVu Sans", Verdana, Arial, sans-serif';
+    offx.font = font; var w = Math.max(1, Math.ceil(offx.measureText(text).width));
+    off.width = w; off.height = h; offx.font = font; offx.fillStyle = '#000'; offx.fillRect(0, 0, w, h);
+    offx.fillStyle = '#fff'; offx.textBaseline = 'middle'; offx.fillText(text, 0, h / 2 + 0.5);
+    var px = offx.getImageData(0, 0, w, h).data, bits = new Uint8Array(w * h);
+    for (var i = 0; i < w * h; i++) bits[i] = px[i * 4] > 110 ? 1 : 0;
+    return { w: w, h: h, bits: bits };
+  }
+  function draw(item, shift){
+    var cv = $('lsCanvas'), sz = size(), cell = 6, W = sz.w * cell, H = sz.h * cell;
+    if (cv.width !== W || cv.height !== H) { cv.width = W; cv.height = H; }
+    var x = cv.getContext('2d'); x.fillStyle = '#050505'; x.fillRect(0, 0, W, H);
+    var bm = item && item.bm, col = (item && item.color) || '#ffffff', ox = 0;
+    if (bm) ox = bm.w > sz.w ? sz.w - shift : Math.floor((sz.w - bm.w) / 2);
+    for (var r = 0; r < sz.h; r++) for (var c = 0; c < sz.w; c++) {
+      var bx = c - ox, lit = bm && bx >= 0 && bx < bm.w && r < bm.h && bm.bits[r * bm.w + bx];
+      x.fillStyle = lit ? col : '#161616';
+      x.beginPath(); x.arc(c * cell + cell / 2, r * cell + cell / 2, cell * 0.38, 0, 6.2832); x.fill();
+    }
+  }
+  function startPlay(){
+    if (ls.timer) { cancelAnimationFrame(ls.timer); ls.timer = null; }
+    var now = (ls.data && ls.data.now) || {}, items = (now.power === false ? [] : (now.items || [])), sz = size(), cfg = ls.cfg || {};
+    ls.play = { items: items.map(function(it){ var t = String(it.text || '').toUpperCase(); return { text: t, color: it.color, kind: it.kind, bm: textBitmap(t, sz.h) }; }), i: 0, t0: performance.now() };
+    var pxps = 8 + (+cfg.speed || 55) * 0.45, minS = +cfg.min_seconds || 6;
+    paintQueue(now);
+    if (!ls.play.items.length) { draw(null, 0); return; }
+    function dur(it){ return it.bm.w > sz.w ? Math.max(minS, (it.bm.w + sz.w) / pxps + 0.5) : minS; }
+    function frame(ts){
+      if ($('panelSign').classList.contains('hidden')) { ls.timer = requestAnimationFrame(frame); return; }
+      var p = ls.play, it = p.items[p.i], el = (ts - p.t0) / 1000;
+      if (el > dur(it) && p.items.length > 1) { p.i = (p.i + 1) % p.items.length; p.t0 = ts; it = p.items[p.i]; el = 0; markQueue(); }
+      var shift = it.bm.w > sz.w ? Math.floor(el * pxps) % (it.bm.w + sz.w) : 0;
+      draw(it, shift);
+      ls.timer = requestAnimationFrame(frame);
+    }
+    markQueue(); ls.timer = requestAnimationFrame(frame);
+  }
+  function paintQueue(now){
+    var m = now.mode, label = now.power === false ? (MODE[m] || 'The sign is off') : m === 'ready' ? MODE.ready : m === 'test' ? MODE.test : now.open === false ? 'Closed' : 'Open';
+    $('lsMode').textContent = (ls.at ? 'Preview for ' + new Date(ls.at).toLocaleString([], { weekday: 'short', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : 'Showing now') + ' · ' + label;
+    $('lsQueue').innerHTML = (ls.play.items || []).map(function(it, i){ return '<li data-q="' + i + '"><i style="background:' + esc(it.color || '#fff') + '"></i>' + esc(it.text) + '<span class="ls-kind">' + esc(KIND[it.kind] || '') + '</span></li>'; }).join('');
+  }
+  function markQueue(){ document.querySelectorAll('#lsQueue li').forEach(function(li){ li.classList.toggle('now', +li.getAttribute('data-q') === ls.play.i); }); }
+
+  // ---------- settings form ----------
+  function listRow(path, it, i, n){
+    var up = '<button type="button" class="ls-ib" data-mv="' + path + ':' + i + ':-1" aria-label="Move up"' + (i ? '' : ' disabled') + '>↑</button>',
+        dn = '<button type="button" class="ls-ib" data-mv="' + path + ':' + i + ':1" aria-label="Move down"' + (i < n - 1 ? '' : ' disabled') + '>↓</button>',
+        del = '<button type="button" class="ls-ib" data-rm="' + path + ':' + i + '" aria-label="Remove">×</button>',
+        sw = '<button type="button" class="switch" role="switch" aria-checked="' + (it.on !== false) + '" data-li="' + path + ':' + i + ':on" aria-label="Show this"></button>',
+        txt = '<input type="text" maxlength="160" value="' + esc(it.text || '') + '" data-li="' + path + ':' + i + ':text" aria-label="Message">',
+        col = '<input type="color" class="ls-col" value="' + esc(it.color || '#ffffff') + '" data-li="' + path + ':' + i + ':color" aria-label="Color">';
+    if (path !== 'holidays') return '<div class="ls-row">' + sw + txt + col + up + dn + del + '</div>';
+    return '<div class="ls-hol"><div class="ls-row"><input type="text" class="ls-name" maxlength="60" value="' + esc(it.name || '') + '" data-li="holidays:' + i + ':name" aria-label="Holiday name">' +
+      (it.moon ? '<span class="ls-moon" title="Depends on the moon sighting. Check the date each year.">Check date</span>' : '') + sw + del + '</div>' +
+      '<div class="ls-row">' + txt + col + '</div>' +
+      '<div class="ls-row"><input type="date" value="' + esc(it.from || '') + '" data-li="holidays:' + i + ':from" aria-label="From"><span>to</span><input type="date" value="' + esc(it.to || it.from || '') + '" data-li="holidays:' + i + ':to" aria-label="To"></div></div>';
+  }
+  function paintLists(){
+    document.querySelectorAll('#lsSettings [data-list]').forEach(function(box){
+      var p = box.getAttribute('data-list'), arr = get(ls.cfg, p) || [];
+      box.innerHTML = arr.length ? arr.map(function(it, i){ return listRow(p, it, i, arr.length); }).join('') : '<p class="hint" style="margin:0 0 8px">Nothing here yet.</p>';
+    });
+  }
+  function paintForm(){
+    document.querySelectorAll('#lsSettings [data-ls]').forEach(function(el){
+      var v = get(ls.cfg, el.getAttribute('data-ls'));
+      if (el.classList.contains('switch')) el.setAttribute('aria-checked', String(v !== false && v != null && v !== '' ? !!v : false));
+      else if (el.type === 'range') { el.value = v; el.nextElementSibling.textContent = el.getAttribute('data-ls') === 'min_seconds' ? v + ' s' : v + '%'; }
+      else el.value = v == null ? '' : v;
+    });
+    paintLists(); dirty();
+  }
+  function dirty(){ $('lsSaveBar').classList.toggle('hidden', JSON.stringify(ls.cfg) === ls.saved); }
+  function onInput(e){
+    var el = e.target, p = el.getAttribute('data-ls'), li = el.getAttribute('data-li');
+    if (p) {
+      var v = el.type === 'range' ? +el.value : el.type === 'text' ? up(el.value) : el.value;
+      set(ls.cfg, p, v);
+      if (el.type === 'range') el.nextElementSibling.textContent = p === 'min_seconds' ? v + ' s' : v + '%';
+    } else if (li) {
+      var a = li.split(':'), arr = get(ls.cfg, a[0]), f = a[2];
+      arr[+a[1]][f] = (f === 'text') ? up(el.value) : el.value;
+      if (f === 'from' && (!arr[+a[1]].to || arr[+a[1]].to < el.value)) { arr[+a[1]].to = el.value; var to = el.parentNode.querySelector('[data-li$=":to"]'); if (to) to.value = el.value; }
+    } else return;
+    if (e.type === 'change' && el.type === 'text' && !el.classList.contains('ls-name')) el.value = up(el.value);   // show it in caps once you leave the box
+    dirty();
+  }
+  function onClick(e){
+    var b = e.target.closest('button'); if (!b) return;
+    var p = b.getAttribute('data-ls'), li = b.getAttribute('data-li'), mv = b.getAttribute('data-mv'), rm = b.getAttribute('data-rm'), add = b.getAttribute('data-add'), arr, a;
+    if (b.classList.contains('switch') && p) { var on = b.getAttribute('aria-checked') !== 'true'; b.setAttribute('aria-checked', String(on)); set(ls.cfg, p, on); }
+    else if (b.classList.contains('switch') && li) { a = li.split(':'); on = b.getAttribute('aria-checked') !== 'true'; b.setAttribute('aria-checked', String(on)); get(ls.cfg, a[0])[+a[1]].on = on; }
+    else if (mv) { a = mv.split(':'); arr = get(ls.cfg, a[0]); var i = +a[1], j = i + +a[2]; var t = arr[i]; arr[i] = arr[j]; arr[j] = t; paintLists(); }
+    else if (rm) { a = rm.split(':'); arr = get(ls.cfg, a[0]); arr.splice(+a[1], 1); paintLists(); }
+    else if (add) {
+      arr = get(ls.cfg, add) || []; set(ls.cfg, add, arr);
+      if (add === 'holidays') { if (arr.length >= 30) return msg('Up to 30 holidays.'); var d = new Date().toISOString().slice(0, 10); arr.push({ name: 'New holiday', from: d, to: d, text: 'HAPPY HOLIDAYS!', color: '#f3cf8c', on: true }); }
+      else { if (arr.length >= 12) return msg('Up to 12 messages.'); arr.push({ text: '', color: '#ffffff', on: true }); }
+      paintLists();
+      var rows = document.querySelectorAll('[data-list="' + add + '"] input[type=text]'); if (rows.length) rows[add === 'holidays' ? rows.length - 2 : rows.length - 1].focus();
+    } else return;
+    dirty();
+  }
+  function save(){
+    var b = $('lsSave'); b.disabled = true; msg('');
+    rpc('sign_save', { p_config: ls.cfg }).then(function(d){ take(d); msg('Saved. The sign updates within a few seconds.', 'ok'); }, function(e){ msg(e.message); }).then(function(){ b.disabled = false; });
+  }
+
+  // ---------- quick message ----------
+  function swatches(){
+    $('lsQSw').innerHTML = SW.map(function(c, i){ return '<button type="button" style="background:' + c + '" data-c="' + c + '" aria-label="Color ' + c + '" aria-pressed="' + (i === 0) + '"></button>'; }).join('');
+  }
+  function qColor(){ var b = document.querySelector('#lsQSw [aria-pressed="true"]'); return b ? b.getAttribute('data-c') : '#ffffff'; }
+  function quick(kind, minutes){
+    var text = $('lsQText').value.trim().toUpperCase();
+    if (kind === 'note' && minutes > 0 && !text) { msg('Type the message first.'); return; }
+    msg('');
+    rpc('sign_message', { p_kind: kind, p_text: text, p_color: qColor(), p_minutes: minutes }).then(function(d){
+      take(d, true);
+      msg(kind === 'test' ? 'Test is on the sign for 60 seconds.' : minutes > 0 ? 'On the sign now.' : 'Taken down.', 'ok');
+    }, function(e){ msg(e.message); });
+  }
+  function paintNote(){
+    var n = (ls.data && ls.data.note) || {}, live = n.text && n.until && new Date(n.until) > new Date();
+    $('lsQClear').classList.toggle('hidden', !live);
+    $('lsQNow').textContent = live ? 'Showing “' + n.text + '” until ' + new Date(n.until).toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' }) + '.' : '';
+  }
+
+  // ---------- pairing ----------
+  function paintPair(){
+    var d = ls.data || {};
+    $('lsPair').classList.toggle('hidden', !d.is_admin);
+    $('lsPairText').textContent = d.paired ? 'Paired ' + (d.paired_at ? new Date(d.paired_at).toLocaleDateString() : '') + ' (key ending ' + (d.key_hint || '') + '). Pair again only for a new Pi or if the key leaked; the old one stops at once.' : 'Set up the Raspberry Pi that talks to the sign over Bluetooth.';
+    $('lsPairBtn').textContent = d.paired ? 'Pair a new Pi' : 'Pair the Pi';
+  }
+  function pair(){
+    if (ls.data && ls.data.paired && !confirm('Make a new key? The Pi using the old key stops until you run the new command on it.')) return;
+    rpc('sign_pair').then(function(r){
+      $('lsPairCmd').textContent = 'curl -fsSL ' + SITE + 'sign/install.sh | sudo bash -s -- ' + r.key;
+      $('lsPairOut').classList.remove('hidden'); load();
+    }, function(e){ msg(e.message); });
+  }
+
+  // ---------- load ----------
+  function take(d, keepForm){
+    ls.data = d || {};
+    if (!keepForm || !ls.cfg || JSON.stringify(ls.cfg) === ls.saved) { ls.cfg = JSON.parse(JSON.stringify(ls.data.config || {})); if (Array.isArray(ls.cfg.holidays)) ls.cfg.holidays.sort(function(a, b){ return String(a.from).localeCompare(String(b.from)); }); ls.saved = JSON.stringify(ls.cfg); paintForm(); }
+    paintStatus(); paintNote(); paintPair(); startPlay();
+  }
+  function load(){
+    return rpc('sign_get', { p_preview_at: ls.at ? new Date(ls.at).toISOString() : null }).then(function(d){ take(d, true); }, function(e){ msg(e.message); $('lsStatText').textContent = 'Could not load the sign settings.'; });
+  }
+
+  window.lsInit = function(isAdmin){
+    if (ls.started) return; ls.started = true; ls.admin = !!isAdmin;
+    $('tabSignBtn').classList.remove('hidden');
+    swatches();
+    $('lsSettings').addEventListener('input', onInput);
+    $('lsSettings').addEventListener('change', onInput);
+    $('lsSettings').addEventListener('click', onClick);
+    $('lsSave').addEventListener('click', save);
+    $('lsUndo').addEventListener('click', function(){ ls.cfg = JSON.parse(ls.saved); paintForm(); });
+    $('lsQSw').addEventListener('click', function(e){ var b = e.target.closest('[data-c]'); if (!b) return; document.querySelectorAll('#lsQSw button').forEach(function(x){ x.setAttribute('aria-pressed', String(x === b)); }); });
+    $('lsQGo').addEventListener('click', function(){ quick('note', +$('lsQMin').value); });
+    $('lsQTest').addEventListener('click', function(){ quick('test', 1); });
+    $('lsQClear').addEventListener('click', function(){ quick('note', 0); });
+    $('lsAt').addEventListener('change', function(){ ls.at = this.value || null; load(); });
+    $('lsAtNow').addEventListener('click', function(){ ls.at = null; $('lsAt').value = ''; load(); });
+    $('lsPairBtn').addEventListener('click', pair);
+    $('lsPairCopy').addEventListener('click', function(){ var t = $('lsPairCmd').textContent; (navigator.clipboard ? navigator.clipboard.writeText(t) : Promise.reject()).then(function(){ msg('Copied.', 'ok'); }, function(){ msg('Press and hold the command to copy it.', 'ok'); }); });
+    document.querySelector('.nav-link[data-tab="sign"]').addEventListener('click', load);
+    window.addEventListener('beforeunload', function(e){ if (ls.cfg && JSON.stringify(ls.cfg) !== ls.saved) { e.preventDefault(); e.returnValue = ''; } });
+    load();
+    setInterval(function(){ if (!$('panelSign').classList.contains('hidden')) load(); }, 10000);
+    if (location.hash === '#sign') setTimeout(function(){ showTab('sign'); }, 0);
+  };
+  window.lsState = ls;
+  if (window.__lsPending !== undefined) window.lsInit(window.__lsPending);
 })();
 </script>
 <script id="ds-js">
