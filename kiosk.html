@@ -1428,7 +1428,8 @@
         var soonByCategory = {};
         // Halal filter: the button shows once the menu carries halal flags.
         var hb = document.getElementById('halalBtn');
-        if (hb) hb.classList.toggle('hidden', !res.data.some(function(it){ return typeof it.halal === 'boolean'; }));
+        // ...and only while something on sale isn't halal (with wings off, everything is halal: no button).
+        if (hb) hb.classList.toggle('hidden', !res.data.some(function(it){ return it.halal === false && it.is_available !== false && it.coming_soon !== true; }));
         kioskSecret.concat(res.data).forEach(function(item){
           // Halal only: items that aren't halal stay off the screen for this order.
           if (window.__kioskHalalOnly && item.halal === false) return;
