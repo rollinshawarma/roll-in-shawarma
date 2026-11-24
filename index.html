@@ -1617,7 +1617,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       <a class="btn btn-accent" href="#menu" data-pickup-choose><i class="ma-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M5 8h14l-1.2 11.2a2 2 0 0 1-2 1.8H8.2a2 2 0 0 1-2-1.8z"/><path d="M9 8V6.5a3 3 0 0 1 6 0V8"/></svg></i><span class="ma-l"><span class="ma-o">Order </span>Pickup</span><small class="ma-s" aria-hidden="true"><span class="pk-open">Window or drive-up</span><span class="pk-closed">Order ahead</span></small></a>
       <a class="btn btn-white" href="https://www.doordash.com/store/50086293?utm_source=mx_share&aw=ylYjwOu0iKn5iKEG" target="_blank" rel="noopener" data-delivery-open><i class="ma-ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="6" cy="17" r="2.5"/><circle cx="18" cy="17" r="2.5"/><path d="M8.5 17h5l2-6h-4"/><path d="M15.5 11l2.5 6"/><path d="M14 7h2.5l1 4"/><path d="M3 11h6v3H4"/></svg></i><span class="ma-l"><span class="ma-o">Order </span>Delivery</span><small class="ma-s" aria-hidden="true">To your door</small></a>
     </div>
-    <p class="hero-halal">Ask about our Halal options</p>
+    <p class="hero-halal" data-halal-claim="hero">100% Halal meat</p>
   </div>
 </header>
 
@@ -2017,7 +2017,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     <div class="story-layout">
       <div class="story-copy">
         <h2 class="h2">Middle Eastern and Indian street food, rolled at the window.</h2>
-        <p>We cook out of a rebuilt 2004 Freightliner: chicken shawarma with our signature white sauce, Frankie rolls, rice bowls, tacos and loaded fries. Every order is rolled when you order it. Ask us about our halal options.</p>
+        <p>We cook out of a rebuilt 2004 Freightliner: chicken shawarma with our signature white sauce, Frankie rolls, rice bowls, tacos and loaded fries. Every order is rolled when you order it. <span data-halal-claim="story">All our meat is 100% halal.</span></p>
         <p>Most evenings you&rsquo;ll find us at 3554 S Arlington Rd in Akron. Home base is Green, Ohio, and we bring the truck to events around Northeast Ohio.</p>
         <details>
           <summary>Read the full story</summary>
@@ -2031,7 +2031,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         <div class="story-stats">
           <div class="stat"><b>2004</b><span>Freightliner, rebuilt</span></div>
           <div class="stat"><b>Green, OH</b><span>Home base</span></div>
-          <div class="stat"><b>Halal</b><span>Options, just ask</span></div>
+          <div class="stat" data-halal-claim="stat"><b>100%</b><span>Halal meat</span></div>
           <div class="stat"><b>SCPH</b><span>Licensed &amp; inspected</span></div>
         </div>
       </div>
@@ -2357,7 +2357,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     <div class="foot-top">
       <div>
         <div class="foot-brand"><img src="logo.jpg" alt=""><span>Roll&#8209;In Shawarma</span></div>
-        <p class="foot-tag">Middle Eastern &amp; Indian street food, rolled fresh at the window. Ask about our halal options.</p>
+        <p class="foot-tag">Middle Eastern &amp; Indian street food, rolled fresh at the window. <span data-halal-claim="foot">100% halal meat.</span></p>
       </div>
       <div class="foot-cols">
         <div class="foot-col">
@@ -2399,17 +2399,17 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
 
 <!-- Floating UI and overlays: placed BEFORE the page script, because the
      script looks these elements up by id as soon as it runs. -->
-<div id="halalBadge" role="img" aria-label="Ask about our Halal options">
+<div id="halalBadge" role="img" aria-label="100% Halal meat">
   <div class="halal-coin" aria-hidden="true">
     <div class="halal-coin-face halal-coin-front">
-      <div class="halal-coin-pct">ASK ABOUT</div>
+      <div class="halal-coin-pct">100%</div>
       <div class="halal-coin-word">HALAL</div>
-      <div class="halal-coin-sub">OPTIONS</div>
+      <div class="halal-coin-sub">MEAT</div>
     </div>
     <div class="halal-coin-face halal-coin-back">
-      <div class="halal-coin-pct">ASK ABOUT</div>
+      <div class="halal-coin-pct">100%</div>
       <div class="halal-coin-word">HALAL</div>
-      <div class="halal-coin-sub">OPTIONS</div>
+      <div class="halal-coin-sub">MEAT</div>
     </div>
   </div>
 </div>
@@ -3604,7 +3604,18 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     // ---- Halal filter (halal-filter.sql). Each item carries halal true/false.
     // "Halal only" hides the items that aren't halal; the choice is kept on this device
     // (shared with the drive-up page). Halal items get a small "Halal" tag.
-    var WS_HALAL_KEY = 'rollin_halal_only', wsHasHalal = false, wsHalalHidden = {};
+    var WS_HALAL_KEY = 'rollin_halal_only', wsHasHalal = false, wsHalalHidden = {}, wsAllHalal = true;
+    function wsHalalClaim(){
+      var all = wsAllHalal, set = function(k, html){ document.querySelectorAll('[data-halal-claim="' + k + '"]').forEach(function(el){ el.innerHTML = html; }); };
+      set('hero', all ? '100% Halal meat' : 'Ask about our Halal options');
+      set('story', all ? 'All our meat is 100% halal.' : 'Ask us about our halal options.');
+      set('stat', all ? '<b>100%</b><span>Halal meat</span>' : '<b>Halal</b><span>Options, just ask</span>');
+      set('foot', all ? '100% halal meat.' : 'Ask about our halal options.');
+      var b = document.getElementById('halalBadge');
+      if (b) { b.setAttribute('aria-label', all ? '100% Halal meat' : 'Ask about our Halal options');
+        b.querySelectorAll('.halal-coin-pct').forEach(function(x){ x.textContent = all ? '100%' : 'ASK ABOUT'; });
+        b.querySelectorAll('.halal-coin-sub').forEach(function(x){ x.textContent = all ? 'MEAT' : 'OPTIONS'; }); }
+    }
     var WS_HALAL_NO_TAG = { 'Drinks': 1, 'Desserts': 1, 'Kulfi Ice Cream': 1, 'Sides': 1 };
     function wsHalalOn(){ try { return wsHasHalal && localStorage.getItem(WS_HALAL_KEY) === '1'; } catch (e) { return false; } }
     // Veg dishes get a Veg tag instead of Halal (halal is about the meat). Names that
@@ -3612,7 +3623,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     function wsIsVeg(name){ return /\(Veg\)|Veggie|Paneer|Falafel|Samosa/i.test(name || ''); }
     function wsHalalTag(g){
       if (wsIsVeg(g.name)) return /\(Veg\)/i.test(g.name) || WS_HALAL_NO_TAG[g.cat] ? '' : '<span class="hl-tag vg-tag">Veg</span>';
-      return wsHasHalal && !WS_HALAL_NO_TAG[g.cat] && g.items.every(function(i){ return i.halal === true; }) ? '<span class="hl-tag">Halal</span>' : '';
+      return wsHasHalal && !wsAllHalal && !WS_HALAL_NO_TAG[g.cat] && g.items.every(function(i){ return i.halal === true; }) ? '<span class="hl-tag">Halal</span>' : '';
     }
     // On a corporate / private event link (?event=CODE) that's taking orders
     // Directions: a pasted Google / Apple Maps link is used as-is; anything else is searched for.
@@ -3740,6 +3751,10 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       }
       var byCat = {};
       wsHasHalal = items.some(function(it){ return typeof it.halal === 'boolean'; });
+      // "100% Halal" only while nothing on sale is marked not halal (Menu → Halal box).
+      // If a non-halal item (like wings) comes back on sale, the wording switches by itself.
+      wsAllHalal = !items.some(function(it){ return it.halal === false && wsAvail(it) && !WS_HIDDEN[it.category]; });
+      wsHalalClaim();
       var halalOnly = wsHalalOn(); wsHalalHidden = {};
       items.forEach(function(item){
         // Unavailable catering items stay out entirely (as before).
@@ -4134,7 +4149,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     // The "Halal only" switch above the menu (shown once the menu carries halal flags).
     function wsHalalPaint(){
       var bar = document.getElementById('wsHalalBar'), sw = document.getElementById('wsHalalSw'); if (!bar || !sw) return;
-      var on = wsHalalOn(); bar.hidden = !wsHasHalal; sw.setAttribute('aria-checked', on ? 'true' : 'false');
+      var on = wsHalalOn() && !wsAllHalal; bar.hidden = !wsHasHalal || wsAllHalal; sw.setAttribute('aria-checked', on ? 'true' : 'false');
       document.body.classList.toggle('halal-only', on);
       var n = Object.keys(wsHalalHidden).length, note = document.getElementById('wsHalalNote');
       if (note) note.textContent = on ? 'Showing halal items only.' : 'Ask about our Halal options, or switch this on to see only halal items.';
