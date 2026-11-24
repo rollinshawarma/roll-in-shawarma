@@ -1118,7 +1118,7 @@
   <div class="menu-state" id="menuState">Loading the menu&hellip;</div>
 </main>
 <footer class="halal-foot">
-  <span class="halal-pill">Ask about our Halal options</span>
+  <span class="halal-pill" id="duHalalClaim">100% Halal meat</span>
   <span class="foot-sub">Made fresh to order &middot; Roll-In Shawarma</span>
 </footer>
 
@@ -1881,13 +1881,13 @@
     var tacoDay = null, dealsByName = {}, dealPicksByName = {};
     // ---- Halal filter (halal-filter.sql): each item carries halal true/false.
     // "Halal only" hides the rest; the choice is kept on this device (shared with the website).
-    var HALAL_KEY = 'rollin_halal_only', hasHalal = false;
+    var HALAL_KEY = 'rollin_halal_only', hasHalal = false, allHalal = true;
     var HALAL_NO_TAG = { 'Drinks': 1, 'Desserts': 1, 'Kulfi Ice Cream': 1, 'Sides': 1 };
-    function halalOn(){ try { return hasHalal && localStorage.getItem(HALAL_KEY) === '1'; } catch (e) { return false; } }
+    function halalOn(){ try { return hasHalal && !allHalal && localStorage.getItem(HALAL_KEY) === '1'; } catch (e) { return false; } }
     // Veg dishes get the Veg tag instead (halal is about the meat).
-    function halalTag(g){ return hasHalal && !HALAL_NO_TAG[g.cat] && !isVeg(g.name) && g.items.every(function(i){ return i.halal === true; }) ? ' <span class="halal-tag" title="Halal">Halal</span>' : ''; }
+    function halalTag(g){ return hasHalal && !allHalal && !HALAL_NO_TAG[g.cat] && !isVeg(g.name) && g.items.every(function(i){ return i.halal === true; }) ? ' <span class="halal-tag" title="Halal">Halal</span>' : ''; }
     function halalBarHtml(){
-      if (!hasHalal) return '';
+      if (!hasHalal || allHalal) return '';   // everything on sale is halal: no switch needed
       var on = halalOn();
       return '<div class="hl-bar"><button type="button" class="hl-sw" data-halal-sw role="switch" aria-checked="' + on + '"><i aria-hidden="true"></i><span>Halal only</span></button>' +
         '<span class="hl-note">' + (on ? 'Showing halal items only.' : 'Ask about our Halal options, or switch this on.') + '</span></div>';
@@ -1895,6 +1895,9 @@
     function buildMenu(rows){
       itemsById = {}; comboAddonsByName = {}; sections = []; groupsByKey = {};
       hasHalal = rows.some(function(it){ return typeof it.halal === 'boolean'; });
+      // "100% Halal" only while nothing on sale is marked not halal; switches back by itself otherwise.
+      allHalal = !rows.some(function(it){ return it.halal === false && isAvailable(it); });
+      var hc = document.getElementById('duHalalClaim'); if (hc) hc.textContent = allHalal ? '100% Halal meat' : 'Ask about our Halal options';
       var halalOnly = halalOn();
       // No Taco Tuesday/Thursday deal on dedicated QR links (community events, Next Door):
       // no banner and regular taco prices (the server charges the same).
