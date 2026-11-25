@@ -1017,6 +1017,16 @@
   .sh-pv.closed{ background:var(--panel-2); color:var(--muted); }
   .sh-pv.special{ border-color:var(--gold); }
   .sh-pv small{ display:block; color:var(--gold); font-weight:600; }
+  .lo-now{ display:flex; align-items:baseline; gap:10px; flex-wrap:wrap; margin:0 0 14px; }
+  .lo-now b{ font-size:26px; font-weight:800; color:var(--cream); font-variant-numeric:tabular-nums; }
+  .lo-now span{ color:var(--muted); font-size:14px; }
+  .lo-chips{ display:flex; flex-wrap:wrap; gap:8px; }
+  .lo-chips button{ min-width:64px; padding:9px 12px; border-radius:999px; border:1px solid var(--line); background:var(--panel-2); color:var(--cream); font-weight:700; font-size:14px; }
+  .lo-chips button[aria-pressed="true"]{ background:var(--accent); border-color:var(--accent); color:#1a1206; }
+  .lo-chips button:disabled{ opacity:.5; }
+  .lo-day{ display:grid; grid-template-columns:minmax(150px, 190px) minmax(140px, 180px) auto; gap:12px; align-items:end; margin-top:14px; }
+  .lo-day .btn-primary{ width:auto; }
+  @media (max-width: 640px){ .lo-day{ grid-template-columns:1fr 1fr; } .lo-day .btn-primary{ grid-column:1 / -1; } }
   .sh-alert{ border-color:var(--red); }
   .sh-alert-title{ font-weight:800; color:var(--red); margin-bottom:6px; }
   .sh-out{ padding:8px 0; border-top:1px solid var(--line); font-size:14px; }
@@ -4197,6 +4207,23 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       <div id="shOutsideList"></div>
     </div>
 
+    <div class="section-title">Last orders</div>
+    <div class="card" id="loCard">
+      <p class="hint" style="margin-top:0">How long before closing online orders stop: website, truck QR and drive-up. Walk-ups at the window aren&rsquo;t affected. Managers can also change it on the kitchen station with their PIN.</p>
+      <div class="lo-now" id="loNow"><b>&hellip;</b></div>
+      <label style="margin-bottom:8px">Every day</label>
+      <div class="lo-chips" id="loChips" role="group" aria-label="Minutes before closing, every day"></div>
+      <div class="sh-msg" id="loMsg" role="status"></div>
+      <div class="lo-day">
+        <div class="sh-f"><label for="loDay">One date only</label><input type="date" id="loDay"></div>
+        <div class="sh-f"><label for="loDayMin">Minutes before closing</label><select id="loDayMin"></select></div>
+        <button type="button" class="btn-primary btn-small" id="loDaySave">Save for that date</button>
+      </div>
+      <div class="sh-msg" id="loDayMsg" role="status"></div>
+      <div id="loDays"></div>
+      <p class="hint sh-updated" id="loUpdated"></p>
+    </div>
+
     <div class="section-title">Every week</div>
     <div class="card">
       <div class="sh-week" id="shWeek"><p class="hint">Loading&hellip;</p></div>
@@ -6438,6 +6465,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     badge.classList.toggle('hidden', !out.length);
     // Quick picks: the next few US holidays the truck may close for
     shPaintQuick();
+    loPaint();
   }
   // ---------------- POP-UP ONLINE ORDERING (popup-ordering.sql) ----------------
   var sp = { list: null, lat: null, lng: null, acc: null, busy: false };
@@ -6619,6 +6647,61 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     spPaintSum();
     setInterval(function(){ if (sp.list && (!document.getElementById('panelStorehours').classList.contains('hidden') || !document.getElementById('panelOnloc').classList.contains('hidden'))) spRender(sp.list); }, 30000);
   })();
+
+  // ---- Last orders (last-orders.sql) ----
+  var LO_CHIPS = [0, 5, 10, 15, 20, 30, 45, 60];
+  function loLabel(m){ return m === 0 ? 'At closing' : m + ' min'; }
+  function loPaint(){
+    var d = shState || {}, card = document.getElementById('loCard');
+    if (!card) return;
+    if (d.last_order_min == null) { card.classList.add('hidden'); return; }   // last-orders.sql not run yet
+    card.classList.remove('hidden');
+    var edit = !!d.can_edit, every = +d.last_order_min, today = (d.days || [])[0] || {};
+    var nowEl = document.getElementById('loNow');
+    if (today.close == null) nowEl.innerHTML = '<b>Closed today</b><span>Every day: ' + esc(loLabel(every)) + ' before closing</span>';
+    else nowEl.innerHTML = '<b>Tonight ' + esc(shFmt(today.last_order)) + '</b><span>' + (today.last === 0 ? 'at closing' : esc(today.last) + ' min before closing at ' + esc(shFmt(today.close))) +
+      (today.last !== every ? ' \u00b7 tonight only (every day: ' + esc(loLabel(every)) + ')' : '') + '</span>';
+    var chips = LO_CHIPS.indexOf(every) < 0 ? LO_CHIPS.concat([every]).sort(function(a, b){ return a - b; }) : LO_CHIPS;
+    document.getElementById('loChips').innerHTML = chips.map(function(m){
+      return '<button type="button" data-lo="' + m + '" aria-pressed="' + (m === every) + '"' + (edit ? '' : ' disabled') + '>' + esc(loLabel(m)) + '</button>';
+    }).join('');
+    var sel = document.getElementById('loDayMin');
+    if (!sel.options.length) { var o = ''; for (var m = 0; m <= 120; m += 5) o += '<option value="' + m + '">' + esc(loLabel(m)) + '</option>'; sel.innerHTML = o; sel.value = '30'; }
+    var dayIn = document.getElementById('loDay'); if (!dayIn.value) dayIn.value = shTodayStr(); dayIn.min = shTodayStr();
+    ['loDay', 'loDayMin', 'loDaySave'].forEach(function(id){ document.getElementById(id).disabled = !edit; });
+    var list = d.last_days || [];
+    document.getElementById('loDays').innerHTML = list.map(function(x){
+      var close = x.close == null ? 'closed that day' : 'orders stop ' + shFmt(Math.max(0, x.close - x.minutes));
+      return '<div class="sh-sp"><div><b>' + esc(shDateLabel(x.day)) + ' \u00b7 ' + esc(loLabel(+x.minutes)) + '</b><small>' + esc(close) +
+        (x.by ? ' \u00b7 set by ' + esc(x.by) + (x.via === 'kitchen' ? ' on the kitchen station' : '') : '') + '</small></div>' +
+        (edit ? '<button type="button" class="sh-del" data-lo-del="' + esc(x.day) + '">Remove</button>' : '') + '</div>';
+    }).join('');
+    var u = d.last_updated;
+    document.getElementById('loUpdated').textContent = u && u.by ? 'Every-day setting last changed ' + new Date(u.at).toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + ' by ' + u.by + (u.via === 'kitchen' ? ' on the kitchen station' : '') + '.' : '';
+  }
+  function loSave(minutes, day, msgId, done){
+    shSay(msgId, 'Saving\u2026');
+    sb.rpc('staff_set_last_orders', { p_minutes: minutes, p_day: day || null }).then(function(res){
+      if (res.error) { shSay(msgId, res.error.message || 'Couldn\u2019t save.', 'bad'); return; }
+      shPaint(res.data); shSay(msgId, done, 'ok');
+    }, function(){ shSay(msgId, 'Couldn\u2019t reach the server.', 'bad'); });
+  }
+  document.getElementById('loChips').addEventListener('click', function(e){
+    var b = e.target.closest('[data-lo]'); if (!b || b.disabled || b.getAttribute('aria-pressed') === 'true') return;
+    var m = +b.getAttribute('data-lo');
+    loSave(m, null, 'loMsg', 'Saved. Online orders now stop ' + (m === 0 ? 'at closing' : m + ' minutes before closing') + ' every day.');
+  });
+  document.getElementById('loDaySave').addEventListener('click', function(){
+    var day = document.getElementById('loDay').value, m = +document.getElementById('loDayMin').value;
+    if (!day) { shSay('loDayMsg', 'Pick a date.', 'bad'); return; }
+    if (day < shTodayStr()) { shSay('loDayMsg', 'That date has passed.', 'bad'); return; }
+    loSave(m, day, 'loDayMsg', 'Saved for ' + shDateLabel(day) + '.');
+  });
+  document.getElementById('loDays').addEventListener('click', function(e){
+    var b = e.target.closest('[data-lo-del]'); if (!b) return;
+    var day = b.getAttribute('data-lo-del'); b.disabled = true;
+    loSave(null, day, 'loDayMsg', shDateLabel(day) + ' follows the every-day setting again.');
+  });
 
   function shLoad(){
     sb.rpc('staff_get_store_hours').then(function(res){
