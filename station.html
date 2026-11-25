@@ -784,6 +784,15 @@
   #pauseOnlineBtn.is-paused{ background:#ff453a; border-color:#ff453a !important; color:#fff !important; animation:pmPulse 1.6s ease-in-out infinite; }
   #pauseOnlineBtn.is-event{ color:#ffd479 !important; border-color:rgba(255,212,121,.5) !important; }
   @keyframes pmPulse{ 50%{ box-shadow:0 0 0 6px rgba(255,69,58,.25); } }
+  #lastOrdersBtn{ color:#ffd479 !important; border:1.5px solid rgba(255,212,121,.45) !important; border-radius:100px; padding:9px 14px !important; font-size:15px !important; font-weight:800; white-space:nowrap; font-variant-numeric:tabular-nums; }
+  #lastOrdersBtn.soon{ background:#ffb340; border-color:#ffb340 !important; color:#241600 !important; }
+  #lastOrdersBtn.passed{ color:var(--muted) !important; border-color:#3a3a3c !important; }
+  .lo-scope{ display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:-6px 0 16px; }
+  .lo-scope button{ min-height:42px; border-radius:12px; border:1.5px solid #3a3a3c; color:var(--cream); font-size:15px; font-weight:700; }
+  .lo-scope button.on{ background:#2c2c2e; border-color:var(--white); color:var(--white); }
+  .lo-durs{ grid-template-columns:repeat(4, 1fr) !important; }
+  .lo-now{ font-family:var(--kds-font); font-size:20px; font-weight:800; color:#ffd479; margin:0 0 12px; }
+  .pm-keys .pm-ok.lo-ok{ background:#ffb340; color:#241600; }
   .pm-overlay{ position:fixed; inset:0; z-index:900; background:rgba(0,0,0,.72); display:flex; align-items:center; justify-content:center; padding:16px; }
   .pm-overlay.hidden{ display:none; }
   .pm-box{ position:relative; width:min(420px, 100%); background:#1c1c1e; border:1px solid #2c2c2e; border-radius:22px; padding:22px 22px 18px; color:var(--white); text-align:center; }
@@ -1099,6 +1108,32 @@
 </div>
 
 
+<!-- Last orders: minutes before closing that online orders stop (last-orders.sql). Manager PIN. -->
+<div id="lastOrdersModal" class="pm-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="loTitle">
+  <div class="pm-box">
+    <button type="button" class="pm-x" id="loCancel" aria-label="Cancel">&times;</button>
+    <h2 id="loTitle">Last orders</h2>
+    <p class="lo-now" id="loNow"></p>
+    <p class="pm-sub">How long before closing online orders stop (website, truck QR, drive-up). Walk-ups aren&rsquo;t affected.</p>
+    <div class="pm-durs lo-durs" id="loDurs" role="group" aria-label="Minutes before closing">
+      <button type="button" data-lo="0">Closing</button><button type="button" data-lo="10">10 min</button><button type="button" data-lo="15">15 min</button><button type="button" data-lo="20">20 min</button>
+      <button type="button" data-lo="30">30 min</button><button type="button" data-lo="45">45 min</button><button type="button" data-lo="60">60 min</button><button type="button" data-lo="reset" id="loReset">Usual</button>
+    </div>
+    <div class="lo-scope" id="loScope" role="group" aria-label="When">
+      <button type="button" data-scope="today" class="on">Tonight only</button><button type="button" data-scope="always">Every day</button>
+    </div>
+    <div class="pm-pin-label">Manager PIN</div>
+    <div class="pm-dots" id="loDots"></div>
+    <div class="pm-msg" id="loMsg" role="alert"></div>
+    <div class="pm-keys" id="loKeys">
+      <button type="button" data-k="1">1</button><button type="button" data-k="2">2</button><button type="button" data-k="3">3</button>
+      <button type="button" data-k="4">4</button><button type="button" data-k="5">5</button><button type="button" data-k="6">6</button>
+      <button type="button" data-k="7">7</button><button type="button" data-k="8">8</button><button type="button" data-k="9">9</button>
+      <button type="button" data-k="del" aria-label="Delete">&#9003;</button><button type="button" data-k="0">0</button><button type="button" data-k="ok" class="pm-ok lo-ok" id="loOk" disabled>Save</button>
+    </div>
+  </div>
+</div>
+
 <!-- On Location: online ordering for events and catering (popup-ordering.sql) -->
 <div id="popupModal" class="pm-overlay hidden" role="dialog" aria-modal="true" aria-labelledby="puTitle">
   <div class="pm-box pu-box">
@@ -1194,6 +1229,7 @@
     </nav>
     <div class="kh-tools">
       <button type="button" id="pauseOnlineBtn" title="Pause or resume online orders: website, drive-up and Next Door. The kiosk keeps going. (Needs your PIN)">&#9208; Pause</button>
+      <button type="button" id="lastOrdersBtn" class="hidden" title="Last online orders tonight. Change it with a manager PIN.">&#9201; Last orders</button>
       <button type="button" class="kh-grp" id="grpOrders" data-grp="orders" aria-haspopup="dialog" aria-controls="grpSlide" aria-label="Orders">&#129534;<span class="gl"> Orders</span><span class="grp-badge zero" id="grpOrdersN">0</span></button>
       <button type="button" class="kh-grp" id="grpTruck" data-grp="truck" aria-haspopup="dialog" aria-controls="grpSlide" aria-label="Truck">&#128666;<span class="gl"> Truck</span><span class="grp-badge zero" id="grpTruckN">0</span></button>
       <button type="button" id="popupBtn" title="On Location: take website orders for an event or catering away from the usual spot (needs your PIN)">&#128666; On Location</button>
@@ -2374,6 +2410,7 @@
         refreshEventQueue();
         if (window.refreshLunchVisibility) window.refreshLunchVisibility();
         refreshOrderPause();
+        if (typeof loRefresh === 'function') loRefresh(false);
         refreshDoorCount();
         lastFetchAt = Date.now();
         updateLastUpdatedDisplay();
@@ -2887,6 +2924,80 @@
       else if (e.key === 'Enter') pmSubmit();
       else if (e.key === 'Escape') pmClose();
     });
+
+    // ---- Last orders (last-orders.sql): tonight's cutoff on the header; change it with a manager's PIN ----
+    var lo = { info: null, at: 0, pin: '', mins: null, scope: 'today', busy: false };
+    function loFmt(m){ var h = Math.floor(m / 60) % 24, mm = m % 60; return (h % 12 || 12) + ':' + (mm < 10 ? '0' : '') + mm + ' ' + (h >= 12 ? 'PM' : 'AM'); }
+    function loNowMins(){ var o = {}; new Intl.DateTimeFormat('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: 'numeric', hourCycle: 'h23' }).formatToParts(new Date()).forEach(function(p){ o[p.type] = p.value; }); return (+o.hour % 24) * 60 + +o.minute; }
+    function loPaintBtn(){
+      var b = document.getElementById('lastOrdersBtn'), d = lo.info; if (!b) return;
+      if (!d || d.last_order == null) { b.classList.add('hidden'); return; }
+      var n = loNowMins(), left = d.last_order - n;
+      b.classList.remove('hidden');
+      b.classList.toggle('soon', left > 0 && left <= 15);
+      b.classList.toggle('passed', left <= 0 && n < d.close);
+      b.innerHTML = '&#9201; ' + (left <= 0 && n < d.close ? 'Online closed' : left > 0 && left <= 15 ? 'Last orders ' + left + 'm' : 'Last ' + loFmt(d.last_order));
+      b.title = 'Online orders stop at ' + loFmt(d.last_order) + ' (' + (d.minutes ? d.minutes + ' min before closing at ' + loFmt(d.close) : 'at closing') + ')' + (d.today_only ? ', tonight only' : '') + '. Tap to change (manager PIN).';
+    }
+    function loRefresh(force){
+      if (!force && Date.now() - lo.at < 60000) { loPaintBtn(); return; }
+      lo.at = Date.now();
+      sb.rpc('kds_last_orders').then(function(res){ if (res && !res.error) { lo.info = res.data; } loPaintBtn(); }).catch(function(){});
+    }
+    function loPaint(){
+      document.getElementById('loDots').innerHTML = lo.pin.split('').map(function(){ return '<i></i>'; }).join('');
+      document.querySelectorAll('#loDurs [data-lo]').forEach(function(x){ x.classList.toggle('on', x.getAttribute('data-lo') === String(lo.mins)); });
+      document.querySelectorAll('#loScope [data-scope]').forEach(function(x){ x.classList.toggle('on', x.getAttribute('data-scope') === lo.scope); });
+      document.getElementById('loScope').classList.toggle('hidden', lo.mins === 'reset');
+      var ok = document.getElementById('loOk');
+      ok.disabled = lo.busy || lo.pin.length < 4 || lo.mins == null;
+      ok.textContent = lo.busy ? '…' : 'Save';
+    }
+    function loMsg(t, good){ var m = document.getElementById('loMsg'); m.textContent = t || ''; m.classList.toggle('ok', !!good); }
+    function loOpen(){
+      var d = lo.info || {};
+      lo.pin = ''; lo.busy = false; lo.scope = 'today'; lo.mins = d.minutes != null ? d.minutes : null;
+      document.getElementById('loNow').textContent = d.last_order == null ? 'Closed today' : 'Tonight: online orders stop at ' + loFmt(d.last_order) + (d.today_only ? ' (tonight only)' : '');
+      document.getElementById('loReset').classList.toggle('hidden', !d.today_only);
+      loMsg(''); loPaint();
+      document.getElementById('lastOrdersModal').classList.remove('hidden');
+    }
+    function loClose(){ document.getElementById('lastOrdersModal').classList.add('hidden'); lo.pin = ''; }
+    function loSubmit(){
+      if (lo.busy || lo.pin.length < 4 || lo.mins == null) return;
+      lo.busy = true; loMsg(''); loPaint();
+      var reset = lo.mins === 'reset';
+      sb.rpc('kds_set_last_orders', { p_pin: lo.pin, p_minutes: reset ? null : +lo.mins, p_scope: reset ? 'reset_today' : lo.scope }).then(function(res){
+        lo.busy = false;
+        if (res && res.error) { lo.pin = ''; loPaint(); loMsg(/does not exist|could not find/i.test(res.error.message || '') ? 'Run last-orders.sql first.' : (res.error.message || 'Something went wrong.')); return; }
+        var d = res && res.data;
+        if (!d || d.ok === false) { lo.pin = ''; loPaint(); loMsg((d && d.error) || 'Wrong PIN. Try again.'); return; }
+        lo.info = d; lo.at = Date.now(); loPaintBtn();
+        loMsg((d.last_order == null ? 'Saved' : 'Online orders stop at ' + loFmt(d.last_order)) + (reset ? ' (usual)' : lo.scope === 'today' ? ' tonight' : ' every day') + (d.by ? ' · ' + d.by : ''), true);
+        setTimeout(loClose, 1100);
+      }, function(){ lo.busy = false; lo.pin = ''; loPaint(); loMsg("Couldn't reach the server. Check the connection."); });
+    }
+    document.getElementById('lastOrdersBtn').addEventListener('click', function(){ loRefresh(true); loOpen(); });
+    document.getElementById('loCancel').addEventListener('click', loClose);
+    document.getElementById('lastOrdersModal').addEventListener('click', function(e){ if (e.target === this) loClose(); });
+    document.getElementById('loDurs').addEventListener('click', function(e){ var b = e.target.closest('[data-lo]'); if (!b) return; var v = b.getAttribute('data-lo'); lo.mins = v === 'reset' ? 'reset' : +v; loMsg(''); loPaint(); });
+    document.getElementById('loScope').addEventListener('click', function(e){ var b = e.target.closest('[data-scope]'); if (!b) return; lo.scope = b.getAttribute('data-scope'); loPaint(); });
+    document.getElementById('loKeys').addEventListener('click', function(e){
+      var b = e.target.closest('[data-k]'); if (!b || lo.busy) return;
+      var k = b.getAttribute('data-k');
+      if (k === 'ok') return loSubmit();
+      if (k === 'del') lo.pin = lo.pin.slice(0, -1); else if (lo.pin.length < 8) lo.pin += k;
+      loMsg(''); loPaint();
+    });
+    document.addEventListener('keydown', function(e){
+      if (document.getElementById('lastOrdersModal').classList.contains('hidden')) return;
+      if (/^\d$/.test(e.key) && lo.pin.length < 8) { lo.pin += e.key; loPaint(); }
+      else if (e.key === 'Backspace') { lo.pin = lo.pin.slice(0, -1); loPaint(); }
+      else if (e.key === 'Enter') loSubmit();
+      else if (e.key === 'Escape') loClose();
+    });
+    setInterval(function(){ loRefresh(false); }, 20000);
+    window.kdsLastOrders = { refresh: loRefresh };
 
     // ---- On Location (popup-ordering.sql) ----
     // Turn on website orders outside store hours for an event, with a pickup
