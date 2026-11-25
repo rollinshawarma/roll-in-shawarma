@@ -271,6 +271,7 @@
 (function(){
   'use strict';
   var FN = 'https://njcmcaoyzujijiyfardx.supabase.co/functions/v1/';
+  var FN_NAME = null;   // 'invoice' (or 'Invoice'), learned when the invoice loads
   var KEY = 'sb_publishable_KKGHpbDgmjrw0jdpxTlWKg_JzMgmCO_';
   var qs = new URLSearchParams(location.search);
   var T = (qs.get('i') || '').trim().toLowerCase();
@@ -290,6 +291,7 @@
     return fetch(FN + names[i], { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KEY, 'apikey': KEY }, body: JSON.stringify({ action: 'view', token: T }) })
       .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(d){
         if (r.status === 404 && d && d.code === 'NOT_FOUND' && i + 1 < names.length) return fetchInv(i + 1);
+        FN_NAME = names[i];   // pay with the same function name that opened the invoice
         return { ok: r.ok, d: d }; }); },
         function(e){ if (i + 1 < names.length) return fetchInv(i + 1); throw e; });
   }
@@ -409,12 +411,27 @@
     if (!sdk) sdk = new Promise(function(ok, bad){ var s = document.createElement('script'); s.src = 'https://web.squarecdn.com/v1/square.js'; s.onload = ok; s.onerror = function(){ sdk = null; bad(new Error('sdk')); }; document.head.appendChild(s); });
     return sdk;
   }
-  function payFn(body, i){
-    i = i || 0; var names = ['invoice', 'Invoice'];
-    return fetch(FN + names[i], { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KEY, 'apikey': KEY }, body: JSON.stringify(body) })
-      .then(function(r){ return r.json().catch(function(){ return {}; }).then(function(d){
-        if (r.status === 404 && d && d.code === 'NOT_FOUND' && i + 1 < names.length) return payFn(body, i + 1);
-        return { ok: r.ok, d: d }; }); });
+  // Charge request. Uses the function name that loaded the invoice; on a dropped connection it
+  // asks again with the SAME attempt key (the server passes it to Square as the idempotency key,
+  // so a retry can never charge twice), then falls back to the other name.
+  function payFn(body, i, tries){
+    var names = FN_NAME ? [FN_NAME, FN_NAME === 'invoice' ? 'Invoice' : 'invoice'] : ['invoice', 'Invoice'];
+    i = i || 0; tries = tries || 0;
+    var ctl = window.AbortController ? new AbortController() : null, timer = ctl ? setTimeout(function(){ ctl.abort(); }, 45000) : null;
+    return fetch(FN + names[i], { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + KEY, 'apikey': KEY }, body: JSON.stringify(body), signal: ctl ? ctl.signal : undefined })
+      .then(function(r){ clearTimeout(timer); return r.json().catch(function(){ return {}; }).then(function(d){
+        if (r.status === 404 && d && d.code === 'NOT_FOUND' && i + 1 < names.length) return payFn(body, i + 1, tries);
+        return { ok: r.ok, status: r.status, d: d }; }); },
+        function(e){
+          clearTimeout(timer);
+          if (tries < 1) return new Promise(function(ok){ setTimeout(ok, 1500); }).then(function(){ return payFn(body, i, tries + 1); });
+          if (!FN_NAME && i + 1 < names.length) return payFn(body, i + 1, 0);
+          throw e;
+        });
+  }
+  function newKey(){
+    try { if (window.crypto && crypto.randomUUID) return crypto.randomUUID(); } catch (e) {}
+    var a = ''; for (var i = 0; i < 32; i++) a += Math.floor(Math.random() * 16).toString(16); return a.slice(0, 8) + '-' + a.slice(8, 12) + '-' + a.slice(12, 16) + '-' + a.slice(16, 20) + '-' + a.slice(20);
   }
   function psMsg(t){ $('psMsg').textContent = t || ''; }
   function psBusy(on, label){ busy = on; $('psPay').disabled = on || !card; $('psPay').textContent = on ? (label || 'Processing…') : 'Pay ' + money(CUR.total_cents); }
@@ -428,16 +445,31 @@
       return;
     }
     psBusy(true, 'Paying…');
-    payFn({ action: 'pay', token: T, sourceId: tokenRes.token }).then(function(r){
-      if (r.ok && r.d && r.d.paid) {
-        $('psForm').classList.add('hidden'); $('psDone').classList.remove('hidden');
-        $('psDoneTxt').textContent = r.d.already ? 'This invoice is already paid. Thank you!' : 'Thank you! We received ' + money(r.d.amount_cents || CUR.total_cents) + ' for ' + CUR.number + '.';
-        $('psDone').focus();
-        go();
-        return;
-      }
-      psBusy(false); psMsg((r.d && r.d.error) || 'Your payment didn’t go through. You haven’t been charged.'); showAlt();
-    }, function(){ psBusy(false); psMsg('No connection. You haven’t been charged. Please try again.'); showAlt(); });
+    function done(d){
+      $('psForm').classList.add('hidden'); $('psDone').classList.remove('hidden');
+      $('psDoneTxt').textContent = d.already ? 'This invoice is paid. Thank you!' : 'Thank you! We received ' + money(d.amount_cents || CUR.total_cents) + ' for ' + CUR.number + '.';
+      $('psDone').focus();
+      go();
+    }
+    payFn({ action: 'pay', token: T, sourceId: tokenRes.token, key: newKey() }).then(function(r){
+      if (r.ok && r.d && r.d.paid) return done(r.d);
+      psBusy(false);
+      psMsg((r.d && r.d.error) || (r.status >= 500 ? 'Something went wrong on our side. Please try again in a minute, or call us.' : 'Your payment didn’t go through. You haven’t been charged.'));
+      showAlt();
+    }, function(){
+      // We couldn't hear back. Check the invoice before saying anything about the card.
+      psBusy(true, 'Checking…');
+      fetchInv().then(function(v){
+        if (v && v.ok && v.d && v.d.status === 'paid') return done({ already: true });
+        psBusy(false);
+        psMsg('We couldn’t reach our payment server, and this invoice still shows as unpaid. Please check your internet and try again.');
+        showAlt();
+      }, function(){
+        psBusy(false);
+        psMsg('We couldn’t reach our payment server. Please check your internet, then reload this page before paying again so you aren’t charged twice.');
+        showAlt();
+      });
+    });
   }
   function setupPay(){
     return loadSdk().then(function(){
