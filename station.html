@@ -1436,6 +1436,65 @@
 </div>
 
 <script>
+/* Keep scroll positions when a board redraws (every refresh rebuilds the tickets).
+   Usage: var done = kdsKeepScroll(rootEl); ...redraw...; done();
+   Each scrolled box inside root is remembered by its place (class / data-col / position),
+   then put back after the redraw, on the next frame, and once more after late additions
+   (customer info, bump numbers), unless the cook scrolled it meanwhile. */
+(function(){
+  var SKIP = /^(tk-new|hidden|open|on|ready|late|soon)$/;
+  function cls(n){ return typeof n.className === 'string' ? n.className.split(/\s+/).filter(function(c){ return c && !SKIP.test(c); }).sort().join('.') : ''; }
+  function key(el, root){
+    var parts = [];
+    for (var n = el; n && n !== root && n.nodeType === 1; n = n.parentElement) {
+      if (n.id) { parts.unshift('#' + n.id); break; }
+      var c = cls(n), col = n.getAttribute('data-col') || '', i = 0, sib = n.parentElement ? n.parentElement.children : [];
+      for (var j = 0; j < sib.length && sib[j] !== n; j++) if (sib[j].tagName === n.tagName && cls(sib[j]) === c && (sib[j].getAttribute('data-col') || '') === col) i++;
+      parts.unshift(n.tagName + '.' + c + (col ? '[' + col + ']' : '') + ':' + i);
+    }
+    return parts.join('>');
+  }
+  function scrollers(root){
+    return [root].concat(Array.prototype.slice.call(root.querySelectorAll('*'))).filter(function(el){ return el.scrollHeight > el.clientHeight + 1 || el.scrollTop > 0; });
+  }
+  window.kdsKeepScroll = function(root){
+    if (!root) return function(){};
+    var saved = {}, any = false;
+    // Remember the ticket at the top of each scrolled box too, so if a ticket above it
+    // leaves (bumped / picked up), the cook still sees the same ticket in the same spot.
+    function anchor(el){
+      var top = el.getBoundingClientRect().top, cards = el.querySelectorAll('[data-order-id],[data-order]');
+      for (var i = 0; i < cards.length; i++) { var r = cards[i].getBoundingClientRect(); if (r.bottom > top + 4) return { id: cards[i].getAttribute('data-order-id') || cards[i].getAttribute('data-order'), off: r.top - top }; }
+      return null;
+    }
+    scrollers(root).forEach(function(el){ if (el.scrollTop > 0) { saved[el === root ? '@' : key(el, root)] = { y: el.scrollTop, a: anchor(el) }; any = true; } });
+    if (!any) return function(){};
+    return function(){
+      var set = [];
+      function put(){
+        scrollers(root).forEach(function(el){
+          var k = el === root ? '@' : key(el, root), sv = saved[k];
+          if (sv == null) return;
+          var want = sv.y;
+          if (sv.a && sv.a.id) {
+            var c = el.querySelector('[data-order-id="' + sv.a.id.replace(/"/g, '') + '"],[data-order="' + sv.a.id.replace(/"/g, '') + '"]');
+            if (c) want = el.scrollTop + (c.getBoundingClientRect().top - el.getBoundingClientRect().top) - sv.a.off;
+          }
+          want = Math.max(0, Math.round(want));
+          var mine = null; for (var i = 0; i < set.length; i++) if (set[i].el === el) mine = set[i];
+          if (mine && Math.abs(el.scrollTop - mine.v) > 2) { delete saved[k]; return; }   // the cook scrolled: leave it
+          if (Math.abs(el.scrollTop - want) > 1) el.scrollTop = want;
+          if (mine) mine.v = el.scrollTop; else set.push({ el: el, v: el.scrollTop });
+        });
+      }
+      put();
+      if (window.requestAnimationFrame) requestAnimationFrame(put);
+      setTimeout(put, 250);
+    };
+  };
+})();
+</script>
+<script>
   // The kitchen tablet keeps its own sign-in, separate from the staff portal
   // on the same browser: opening staff.html on this tablet does NOT come
   // signed in as whoever set up the kitchen board.
@@ -2401,6 +2460,7 @@
           return;
         }
         clearBoardError();
+        var keepScroll = window.kdsKeepScroll(document.getElementById('board'));
         detectNewOrdersAndPlaySounds(res.data);
         renderItemPanel(res.data);
         renderQueuePanel(res.data);
@@ -2414,6 +2474,7 @@
         refreshDoorCount();
         lastFetchAt = Date.now();
         updateLastUpdatedDisplay();
+        keepScroll();
       }).catch(function(err){
         console.error('get_kds_board_state threw:', err);
         showBoardError("Couldn't reach the server \u2014 check your connection.");
@@ -2997,7 +3058,7 @@
       else if (e.key === 'Escape') loClose();
     });
     setInterval(function(){ loRefresh(false); }, 20000);
-    window.kdsLastOrders = { refresh: loRefresh };
+    window.kdsLastOrders = { refresh: loRefresh, state: function(){ return lo.info; } };
 
     // ---- On Location (popup-ordering.sql) ----
     // Turn on website orders outside store hours for an event, with a pickup
@@ -3770,7 +3831,9 @@
           (state === 'nofry' ? '<div class="ft-foot">No fryer items</div>' : state === 'done' ? '<div class="ft-foot ok">✓ Fryer done</div>' : '') +
         '</article>';
       }).join('');
+      var keepFry = window.kdsKeepScroll(document.getElementById('fryerTickets'));
       document.getElementById('fryerTickets').innerHTML = html || '<div class="ft-empty">No orders right now.</div>';
+      keepFry();
       isFirstItemRender = false;
     }
     // order ages tick without a redraw
@@ -3889,6 +3952,7 @@
       }).join('');
       var waiting = (data.events || []).reduce(function(a, e){ return a + (e.waiting || 0); }, 0);
       var more = opt.more ? opt.more(data) : waiting ? '<div class="lb-more">+' + waiting + ' more in line — the next one shows when you Fire</div>' : '';
+      var keepLb = window.kdsKeepScroll(colsEl.parentNode || colsEl);
       colsEl.classList.toggle('queue', c.columns === 'queue');
       if (c.columns === 'queue') {
         colsEl.innerHTML = '<div class="lb-col"><div class="lb-list">' + (orders.length ? orders.map(ticketHtml).join('') : '<div class="lb-empty">' + (opt.emptyText || 'No event orders right now.') + '</div>') + more + '</div></div>';
@@ -3901,6 +3965,7 @@
           col('cooking', 'Cooking', orders.filter(function(o){ return o.stage === 'cooking'; })) +
           col('ready', 'Ready', orders.filter(function(o){ return o.stage === 'ready'; }));
       }
+      keepLb();
       var ids = {}; orders.forEach(function(o){ ids[o.id] = true; });
       if (seen && c.sound !== false && orders.some(function(o){ return !seen[o.id]; }) && window.playOrderSound) window.playOrderSound('website');
       seen = ids;
@@ -4380,7 +4445,7 @@
   function $(id){ return document.getElementById(id); }
   var slide = $('grpSlide'), rows = $('grpRows'), scrim = $('grpScrim');
   if (!slide || !$('grpOrders')) return;
-  ['viewToggleBtn', 'scheduledBtn', 'recallBtn', 'popupBtn', 'spotsBtn', 'truckLocBtn', 'kioskHealthBtn'].forEach(function(id){ var b = $(id); if (b) b.classList.add('kh-grouped'); });
+  ['viewToggleBtn', 'scheduledBtn', 'recallBtn', 'lastOrdersBtn', 'popupBtn', 'spotsBtn', 'truckLocBtn', 'kioskHealthBtn'].forEach(function(id){ var b = $(id); if (b) b.classList.add('kh-grouped'); });
   function txt(id){ var b = $(id); return b ? b.textContent.replace(/\s+/g, ' ').trim() : ''; }
   function num(id){ var e = $(id); var n = e ? parseInt(e.textContent, 10) : 0; return isFinite(n) ? n : 0; }
   function shown(id){ var b = $(id); return !!b && !b.classList.contains('hidden'); }
@@ -4388,6 +4453,10 @@
     orders: { title: 'Orders', items: [
       function(){ var n = num('scheduledCount'); return { key: 'scheduledBtn', ic: '⏰', label: 'Scheduled orders', sub: n ? n + ' coming up' : 'None coming up', attn: n > 0 }; },
       function(){ return { key: 'recallBtn', ic: '↺', label: 'Recall an order', sub: 'Bring back one marked done (last 30 min)' }; },
+      function(){ var d = window.kdsLastOrders ? window.kdsLastOrders.state() : null; if (!d || d.last_order == null) return null;
+        var b = $('lastOrdersBtn'), soon = b && b.classList.contains('soon'), passed = b && b.classList.contains('passed');
+        return { key: 'lastOrdersBtn', ic: '⏱', label: 'Last orders: ' + d.label + (passed ? ' · online closed' : ''), attn: !!soon, on: !!d.today_only,
+          sub: (soon ? b.textContent.replace(/^\W+/, '').replace('Last orders ', '') + ' left · ' : '') + (d.minutes ? d.minutes + ' min before closing' : 'At closing') + (d.today_only ? ' · tonight only' : ' · every day') + ' · tap to change (manager PIN)' }; },
       function(){ var on = document.body.classList.contains('totals-on');
         return { key: 'itemTotalsBtn', ic: 'Σ', label: 'Item totals: ' + (on ? 'ON' : 'OFF'), on: on,
           sub: on ? 'Showing a count of every item to make, above the tickets · tap to hide' : 'Show one line with each item and how many to make' }; },
@@ -4464,7 +4533,7 @@
   });
   // Keep the red numbers current as the real buttons change.
   var mo = new MutationObserver(function(){ clearTimeout(mo.t); mo.t = setTimeout(badges, 60); });
-  ['scheduledBtn', 'popupBtn', 'spotsBtn', 'truckLocBtn', 'kioskHealthBtn', 'viewToggleBtn', 'itemTotalsBtn', 'custInfoBtn', 'kioskOrdersBtn'].forEach(function(id){ var b = $(id); if (b) mo.observe(b, { attributes: true, childList: true, subtree: true, characterData: true }); });
+  ['scheduledBtn', 'popupBtn', 'spotsBtn', 'truckLocBtn', 'kioskHealthBtn', 'viewToggleBtn', 'itemTotalsBtn', 'custInfoBtn', 'kioskOrdersBtn', 'lastOrdersBtn'].forEach(function(id){ var b = $(id); if (b) mo.observe(b, { attributes: true, childList: true, subtree: true, characterData: true }); });
   badges();
   // One line always: get more compact step by step until the header fits.
   var head = $('boardHeader');
