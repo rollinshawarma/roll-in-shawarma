@@ -4740,7 +4740,14 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       </details>
       <details>
         <summary><span>While open<small>Messages that take turns during service</small></span></summary>
-        <div class="ls-body"><div data-list="open.messages"></div><button type="button" class="btn-ghost btn-small" data-add="open.messages">Add a message</button></div>
+        <div class="ls-body"><div data-list="open.messages"></div><button type="button" class="btn-ghost btn-small" data-add="open.messages">Add a message</button>
+          <div class="ls-line" style="margin-top:12px"><span>Last online orders reminder<small style="display:block;color:var(--ds-text-3);font-size:12px">From Store hours &rarr; Last orders</small></span><button type="button" class="switch" role="switch" data-ls="last.on" aria-label="Last online orders reminder"></button></div>
+          <div class="ls-row"><input type="text" maxlength="160" data-ls="last.template"><input type="color" class="ls-col" data-ls="last.color" aria-label="Reminder color"></div>
+          <div class="ls-row"><span style="font-size:13px;color:var(--ds-text-2)">Show it for the last</span><select data-ls="last.before" style="width:auto" aria-label="Minutes before last orders"><option value="15">15 min</option><option value="30">30 min</option><option value="45">45 min</option><option value="60">60 min</option></select></div>
+          <div class="ls-tags"><code>{time}</code> last orders, like 8:40 PM</div>
+          <div class="ls-line"><span>After last orders, until closing</span><button type="button" class="switch" role="switch" data-ls="last.after_on" aria-label="After last orders message"></button></div>
+          <div class="ls-row"><input type="text" maxlength="160" data-ls="last.after_template"><input type="color" class="ls-col" data-ls="last.after_color" aria-label="After last orders color"></div>
+        </div>
       </details>
       <details>
         <summary><span>When closed<small>Off hours and quiet hours</small></span></summary>
@@ -13712,6 +13719,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
   }
 
   // ---------- tiles ----------
+  function clockMin(m){ var hh = Math.floor(m / 60) % 24, mm = m % 60; return (hh % 12 || 12) + ':' + (mm < 10 ? '0' : '') + mm + ' ' + (hh >= 12 ? 'PM' : 'AM'); }
   function hello(){
     var d = st.d, now = d ? Date.parse(d.now) : Date.now(), name = first(($('homeWhoName') && $('homeWhoName').textContent) || ($('whoName') && $('whoName').textContent) || '');
     $('tbHello').textContent = greet(now) + (name && name !== '—' ? ', ' + name : '');
@@ -13723,7 +13731,8 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     if (h && h.open != null) {
       var o = h.open / 60, c = h.close / 60;
       var open = nowH >= o && nowH < c;
-      pill = '<span class="tb-pill ' + (open ? (p && p.on ? 'rush' : 'open') : '') + '"><i></i>' + (open ? 'Open until ' + hLbl(c).replace('a', ' AM').replace('p', ' PM') : nowH < o ? 'Opens at ' + hLbl(o).replace('a', ' AM').replace('p', ' PM') : 'Closed for today') +
+      var lo = h.last_order != null ? h.last_order / 60 : null, loTxt = lo == null ? '' : (nowH >= lo ? ' · online orders closed' : ' · last online orders ' + clockMin(h.last_order));
+      pill = '<span class="tb-pill ' + (open ? (p && p.on ? 'rush' : 'open') : '') + '"><i></i>' + (open ? 'Open until ' + hLbl(c).replace('a', ' AM').replace('p', ' PM') + loTxt : nowH < o ? 'Opens at ' + hLbl(o).replace('a', ' AM').replace('p', ' PM') : 'Closed for today') +
         (open && p && p.on ? ' · ' + (p.why === 'rush' ? 'Rush slots on' : 'Pickup slots on') : '') + '</span>';
     } else if (h) pill = '<span class="tb-pill"><i></i>Closed today' + (h.note ? ' · ' + esc(h.note) : '') + '</span>';
     else if (p && p.on) pill = '<span class="tb-pill rush"><i></i>' + (p.why === 'rush' ? 'Rush slots on' : 'Pickup slots on') + '</span>';
@@ -13905,6 +13914,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     (d.plan || []).forEach(function(p){ var a = (Date.parse(p.from) - t0) / 36e5, b = (Date.parse(p.to) - t0) / 36e5; if (b <= H0 || a >= H1) return; a = Math.max(a, H0); b = Math.min(b, H1); planned++;
       var rush = p.kind === 'rush'; s += '<rect x="' + X(a) + '" y="' + (yP - 2) + '" width="' + (X(b) - X(a)) + '" height="18" rx="9" fill="' + (rush ? '#fbe7b3' : '#dfe8fb') + '"/><text x="' + (X(a) + 10) + '" y="' + (yP + 11) + '" font-size="11.5" font-weight="600" fill="' + (rush ? '#7a4d00' : '#2a4f9e') + '">' + esc(rush ? 'Rush slots · ' + clock(p.from) + '–' + clock(p.to) : p.name + ' · ' + clock(p.from) + '–' + clock(p.to)) + '</text>'; });
     if (d.hours && d.hours.open != null && !planned) s += '<text x="' + X(Math.max(H0, d.hours.open / 60)) + '" y="' + (yP + 11) + '" font-size="12" fill="var(--ds-text-3)">Open ' + hLbl(d.hours.open / 60) + '–' + hLbl(d.hours.close / 60) + ' · first come, first served</text>';
+    if (d.hours && d.hours.last_order != null && d.hours.last > 0) { var lx = d.hours.last_order / 60; if (lx > H0 && lx < H1) s += '<line x1="' + X(lx) + '" x2="' + X(lx) + '" y1="14" y2="' + (Hh - 16) + '" stroke="var(--ds-text-3)" stroke-width="1.5" stroke-dasharray="4 4"><title>Last online orders ' + clockMin(d.hours.last_order) + '</title></line><text x="' + (X(lx) - 4) + '" y="' + (Hh - 20) + '" text-anchor="end" font-size="11" font-weight="600" fill="var(--ds-text-3)">Last online ' + clockMin(d.hours.last_order).replace(' PM', 'p').replace(' AM', 'a') + '</text>'; }
     if (nowH >= H0 && nowH <= H1) s += '<line x1="' + X(nowH) + '" x2="' + X(nowH) + '" y1="14" y2="' + (Hh - 16) + '" stroke="var(--tb-chili)" stroke-width="2"/><rect x="' + (X(nowH) - 24) + '" y="0" width="48" height="18" rx="9" fill="var(--tb-chili)"/><text x="' + X(nowH) + '" y="13" text-anchor="middle" font-size="11" font-weight="700" fill="#fff">Now</text>';
     box.innerHTML = s + '</svg>';
     var sc2 = box.querySelector('svg'); if (box.scrollWidth > box.clientWidth) box.scrollLeft = Math.max(0, X(nowH) - box.clientWidth * .6);
@@ -16082,7 +16092,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
   function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
   var ls = { started: false, admin: false, data: null, cfg: null, saved: '', at: null, play: null, timer: null };
   var SW = ['#ffffff', '#f3cf8c', '#ef4444', '#f59e0b', '#facc15', '#22c55e', '#38bdf8', '#a78bfa', '#ec4899'];
-  var KIND = { ready: 'Ready', cooking: 'Cooking', thanks: 'Thank you', test: 'Test', note: 'Quick message', holiday: 'Holiday', event: 'Event', message: 'Message', closed: 'Closed' };
+  var KIND = { last: 'Last orders', ready: 'Ready', cooking: 'Cooking', thanks: 'Thank you', test: 'Test', note: 'Quick message', holiday: 'Holiday', event: 'Event', message: 'Message', closed: 'Closed' };
   var MODE = { ready: 'Orders are ready, so only ready numbers show', test: 'Test message', off: 'The sign is switched off', quiet: 'Quiet hours: the sign is off', closed: 'Closed: the sign is off', open: 'Open', closedmsg: 'Closed' };
   var SITE = 'https://rollinshawarma.com/';
 
