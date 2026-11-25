@@ -1669,6 +1669,16 @@
           try { if (st.until) ul = new Date(st.until).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }); } catch (e) {}
           du = { open: false, reason: 'paused', untilLabel: ul };
         }
+        if (du && du.open === true && du.last_order != null && du.last_order_in != null && !(st && st.manual)) {
+          // Last orders soon (last-orders.sql): a small note under the header so nobody is surprised at checkout.
+          var lo = document.getElementById('duLastOrders') || document.createElement('div');
+          lo.id = 'duLastOrders'; lo.setAttribute('role', 'status');
+          lo.style.cssText = 'margin:10px 16px 0;padding:10px 14px;border-radius:12px;background:#fff4dc;border:1px solid #f2c76b;color:#5a3a00;font-weight:700;font-size:14.5px;text-align:center';
+          lo.textContent = du.last_order_in <= 0 ? 'Last orders now (' + du.last_order + ')' : 'Last orders at ' + du.last_order + ' \u00b7 ' + du.last_order_in + ' min left';
+          var host = $('menuState') && $('menuState').parentNode;
+          if (host && !lo.parentNode) host.insertBefore(lo, $('menuState'));
+          setTimeout(function(){ loadDriveup(); }, 60000);
+        }
         if (!du || typeof du.open !== 'boolean' || du.open) { try { sessionStorage.removeItem('duBrowse'); } catch (e) {} return true; }   // not set up yet: the checkout still checks
         $('menuState').classList.remove('hidden');
         $('menuState').innerHTML = driveupMessage(du, st && Array.isArray(st.popups) ? st.popups : []);
