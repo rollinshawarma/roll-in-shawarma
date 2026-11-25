@@ -2485,7 +2485,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
           <button type="button" class="pt-opt" id="ptAsap" role="radio" aria-checked="true">ASAP<span>Ready in about 15&ndash;20 min</span></button>
           <button type="button" class="pt-opt" id="ptLater" role="radio" aria-checked="false">Schedule<span>Pick a day and time</span></button>
         </div>
-        <p class="pt-closed-note hidden" id="ptClosedNote">We&rsquo;ve stopped taking orders for today (we stop 15 minutes before closing). You can order ahead: choose a day and time.</p>
+        <p class="pt-closed-note hidden" id="ptClosedNote">We&rsquo;ve stopped taking orders for today. You can order ahead: choose a day and time.</p>
         <div class="row2 pt-pickers hidden" id="ptPickers">
           <label>Day<select id="ptDay"></select></label>
           <label>Time<select id="ptTime"></select></label>
@@ -2686,6 +2686,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     var TZ = 'America/New_York';
     var weekly = { 0: null, 1: [960, 1260], 2: [960, 1260], 3: [960, 1260], 4: null, 5: [960, 1290], 6: [960, 1290] };
     var special = {};   // 'YYYY-MM-DD' -> { h: [open, close] | null, note }
+    var lastDefault = 15, lastDays = {};   // last orders: minutes before closing (last-orders.sql); one-date cutoffs
     var subs = [], loaded = false;
     var DAYS = ['Sunday','Monday','Tuesday','Wednesday','Thursday','Friday','Saturday'];
     function pad(n){ return (n < 10 ? '0' : '') + n; }
@@ -2703,6 +2704,9 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       if (special[ds]) return { h: special[ds].h, note: special[ds].note, special: true };
       return { h: weekly[dowOf(ds)] || null, note: null, special: false };
     }
+    // Minutes before closing that online orders stop on a date, and the clock minute they stop (null = closed).
+    function lastMin(ds){ return lastDays[ds] != null ? lastDays[ds] : lastDefault; }
+    function lastOrder(ds){ var a = at(ds); return a.h ? Math.max(a.h[0], a.h[1] - lastMin(ds)) : null; }
     function fmt(m){ var h = Math.floor(m / 60) % 24, mm = m % 60; return (h % 12 || 12) + ':' + pad(mm) + ' ' + (h >= 12 ? 'PM' : 'AM'); }
     function range(h){ return h ? fmt(h[0]) + ' – ' + fmt(h[1]) : 'Closed'; }
     // Next open date on/after ds (up to 21 days): { ds, h, k }
@@ -2741,13 +2745,16 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         d.weekly.forEach(function(r){ w[r.dow] = r.open == null || r.close == null ? null : [+r.open, +r.close]; });
         var sp = {};
         (d.special || []).forEach(function(r){ sp[String(r.day)] = { h: r.open == null || r.close == null ? null : [+r.open, +r.close], note: r.note || null }; });
+        var lm = Number(d.last_order_min), ld = {};
+        if (d.last_orders && typeof d.last_orders === 'object') Object.keys(d.last_orders).forEach(function(k){ var v = Number(d.last_orders[k]); if (v >= 0 && v <= 120) ld[k] = v; });
+        lastDefault = lm >= 0 && lm <= 120 ? lm : 15; lastDays = ld;
         weekly = w; special = sp; loaded = true;
         subs.forEach(function(fn){ try { fn(); } catch (e) {} });
       }, function(){});
     }
     load();
     setInterval(load, 10 * 60000);
-    return { at: at, today: today, addDays: addDays, dowOf: dowOf, fmt: fmt, range: range, nextOpen: nextOpen, groups: groups,
+    return { at: at, lastMin: lastMin, lastOrder: lastOrder, today: today, addDays: addDays, dowOf: dowOf, fmt: fmt, range: range, nextOpen: nextOpen, groups: groups,
              upcoming: upcoming, label: label, onChange: onChange, DAYS: DAYS, weekly: function(){ return weekly; } };
   })();
 
@@ -6156,7 +6163,10 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         // An On Location stop later today: say so, so nobody heads to the usual spot then.
         var laterStop = olStops().filter(function(p){ return p.from > nowMs && olDate(p.from) === t; })[0];
         if (laterStop) { say('Open now · On Location ' + olRange(laterStop), laterStop.name); return; }
-        say('Open now · until ' + H.fmt(h[1]) + why);
+        var cut = H.lastOrder ? H.lastOrder(t) : null;
+        if (cut != null && n >= cut) say('Open now · until ' + H.fmt(h[1]) + why, 'Online orders closed at ' + H.fmt(cut) + ' · walk up to the window');
+        else if (cut != null && n >= cut - 30) say('Open now · until ' + H.fmt(h[1]) + why, 'Last online orders ' + H.fmt(cut));
+        else say('Open now · until ' + H.fmt(h[1]) + why);
       } else if (h && n < h[0]) {
         say('Opens today at ' + H.fmt(h[0]) + why);
       } else {
@@ -6271,6 +6281,8 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     // Hours per date (weekly + special dates) from RollinHours: [open, close] minutes after midnight, or null = closed.
     function pad2(n){ return (n < 10 ? '0' : '') + n; }
     function hoursOn(y, m, d){ return window.RollinHours.at(y + '-' + pad2(m) + '-' + pad2(d)); }
+    // Last orders (staff portal / kitchen): minutes before closing on that date. On Location keeps BUFFER.
+    function lastOn(y, m, d){ return window.RollinHours.lastMin ? window.RollinHours.lastMin(y + '-' + pad2(m) + '-' + pad2(d)) : BUFFER; }
     var SLOT = 15, BUFFER = 15, FIRST_AFTER_OPEN = 15, LEAD = 20, DAYS_AHEAD = 7;
     var WD = ['Sun','Mon','Tue','Wed','Thu','Fri','Sat'];
     var MON = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
@@ -6307,14 +6319,14 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
     function eventToday(){ var t = parts(new Date()).d; for (var i = 0; i < blocks.length; i++) if (blocks[i][2] && parts(new Date(blocks[i][0])).d === t) return blocks[i]; return null; }
     function pEsc(v){ return String(v == null ? '' : v).replace(/[&<>"']/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
     function eventMsg(b){ return 'We\u2019re at ' + pEsc(b[2]) + ' today, so we\u2019re not accepting online orders at the moment. Sorry for the inconvenience.'; }
-    function asapOpen(){ if (manual) return false; if (popupNow()) return true; var n = parts(new Date()), h = hoursOn(n.y, n.m, n.d).h; return !blockAt(Date.now()) && !!h && n.mins >= h[0] && n.mins < h[1] - BUFFER; }
+    function asapOpen(){ if (manual) return false; if (popupNow()) return true; var n = parts(new Date()), h = hoursOn(n.y, n.m, n.d).h; return !blockAt(Date.now()) && !!h && n.mins >= h[0] && n.mins < h[1] - lastOn(n.y, n.m, n.d); }
     function buildDays(){
       var now = new Date(), n = parts(now), earliest = now.getTime() + LEAD * 60000, out = [];
       for (var k = 0; k < DAYS_AHEAD; k++) {
         var cal = new Date(Date.UTC(n.y, n.m - 1, n.d + k)), dow = cal.getUTCDay();
         var y = cal.getUTCFullYear(), m = cal.getUTCMonth() + 1, d = cal.getUTCDate(), byIso = {};
         var ha = hoursOn(y, m, d), h = ha.h, popNames = [];
-        if (h) for (var t = h[0] + FIRST_AFTER_OPEN; t <= h[1] - BUFFER; t += SLOT) {
+        if (h) for (var t = h[0] + FIRST_AFTER_OPEN, lastT = h[1] - lastOn(y, m, d); t <= lastT; t += SLOT) {
           var when = ohioToDate(y, m, d, t), ms = when.getTime(), pp = popupSlot(ms);
           if (ms >= earliest && (pp || !blockAt(ms))) byIso[when.toISOString()] = { iso: when.toISOString(), ms: ms, label: fmtMins(t) + (pp ? ' \u00b7 at ' + pp.name : ''), popup: pp };
         }
@@ -6435,13 +6447,13 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
         ? 'Online ordering is paused right now' + (manual.until ? ' until ' + clockOf(manual.until) : '') + '. Please check back soon.'
         : evDay
         ? eventMsg(evDay) + ' You can order ahead for another day.'
-        : blk && h && n.mins >= h[0] && n.mins < h[1] - BUFFER
+        : blk && h && n.mins >= h[0] && n.mins < h[1] - lastOn(n.y, n.m, n.d)
         ? 'We\u2019re catering a private event right now, so online orders are paused until ' + clockOf(blk[1]) + '. Choose a later pickup time.'
         : todayLeft
         ? (h && n.mins < h[0] && !days[0].slots[0].popup ? 'We open at ' + fmtMins(h[0]) + ' today. ' : '') + 'Schedule your pickup: the first time today is ' + days[0].slots[0].label + '.'
         : h && n.mins < h[0]
           ? 'We\u2019re not taking orders for today. You can order ahead: choose a day and time.'
-          : h ? 'We\u2019ve stopped taking orders for today (we stop 15 minutes before closing). You can order ahead: choose a day and time.'
+          : h ? 'We\u2019ve stopped taking orders for today (last orders were at ' + fmtMins(Math.max(h[0], h[1] - lastOn(n.y, n.m, n.d))) + '). You can order ahead: choose a day and time.'
               : ta.special
                 ? 'We\u2019re closed today' + (ta.note ? ' (' + pEsc(ta.note) + ')' : '') + '. You can order ahead: choose a day and time.'
                 : 'We\u2019re closed on ' + ['Sundays', 'Mondays', 'Tuesdays', 'Wednesdays', 'Thursdays', 'Fridays', 'Saturdays'][n.dow] + '. You can order ahead: choose a day and time.';
