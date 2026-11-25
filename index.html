@@ -6369,7 +6369,7 @@ document.addEventListener('click',function(e){if(!window.__pxIC&&e.target.closes
       document.getElementById('pmCarWrap').classList.toggle('hidden', method !== 'curbside');
     }
     pmBtns.forEach(function(b){ b.addEventListener('click', function(){ setMethod(b.getAttribute('data-pm')); }); });
-    // After ordering stops for the day (15 min before close), nothing is
+    // After ordering stops for the day (the last-orders time), nothing is
     // picked for the customer: they choose the day themselves, so nobody
     // pays for tomorrow by accident.
     var mustChoose = false;
