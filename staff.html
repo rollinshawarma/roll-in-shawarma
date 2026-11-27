@@ -2927,6 +2927,95 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
   .mb-head{ flex-wrap:wrap; }
 }
 </style>
+<style id="pp-css">  /* People, My pay, pay periods (hr-payroll) */
+  .pp-bar{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; margin:4px 0 12px; }
+  .pp-seg{ display:inline-flex; background:var(--panel-2); border-radius:999px; padding:3px; gap:2px; flex-wrap:wrap; }
+  .pp-seg button{ border:0; background:transparent; padding:7px 13px; border-radius:999px; font:inherit; font-size:13.5px; font-weight:600; color:var(--muted); cursor:pointer; }
+  .pp-seg button.on{ background:var(--panel); color:inherit; box-shadow:0 1px 2px rgba(0,0,0,.08); }
+  .pp-list{ display:grid; grid-template-columns:repeat(auto-fill, minmax(260px, 1fr)); gap:12px; }
+  .pp-card{ text-align:left; font:inherit; color:inherit; background:var(--panel); border:1px solid var(--line); border-radius:14px; padding:14px; cursor:pointer; display:flex; flex-direction:column; gap:6px; min-width:0; }
+  .pp-card:hover{ border-color:var(--muted); }
+  .pp-card:focus-visible, .pp-stubrow:focus-visible, .pp-link:focus-visible{ outline:2px solid var(--ds-accent, #2563eb); outline-offset:2px; }
+  .pp-card-top{ display:flex; flex-direction:column; }
+  .pp-card-top span, .pp-card small{ color:var(--muted); font-size:12.5px; }
+  .pp-prog{ height:6px; border-radius:99px; background:var(--panel-2); overflow:hidden; }
+  .pp-prog i{ display:block; height:100%; background:var(--ds-green-ink, #1f8a4c); border-radius:99px; }
+  .pp-prog i.late{ background:var(--red); }
+  .pp-tags{ display:flex; flex-wrap:wrap; gap:5px; }
+  .pp-inline{ display:flex; align-items:center; gap:8px; flex-wrap:wrap; }
+  .pp-inline input, .pp-inline select{ width:auto; margin:0; }
+  .pp-check{ display:flex; align-items:flex-end; padding-bottom:10px; }
+  .pp-check label{ display:flex; align-items:center; gap:8px; font-weight:500; margin:0; }
+  .pp-check input{ width:auto; margin:0; }
+  .pp-warn{ color:var(--ds-red-ink, #b42318); font-weight:600; }
+  .pp-link{ border:0; background:none; padding:0; font:inherit; color:inherit; text-decoration:underline; text-underline-offset:2px; cursor:pointer; text-align:left; }
+  .pp-flags{ display:none; }
+  @media (max-width: 720px){ .pp-flags{ display:block; color:var(--ds-amber-ink); } }
+
+  /* dialogs */
+  .pp-dialog{ position:fixed; inset:0; margin:auto; height:fit-content; border:0; border-radius:18px; padding:0; width:min(640px, calc(100vw - 24px)); max-height:calc(100vh - 32px); background:var(--panel); color:inherit; box-shadow:0 24px 60px rgba(0,0,0,.3); }
+  .pp-dialog.pp-wide{ width:min(760px, calc(100vw - 24px)); }
+  .pp-dialog::backdrop{ background:rgba(15,15,20,.45); }
+  .pp-dlg-body{ padding:18px 20px 20px; overflow:auto; max-height:calc(100vh - 32px); box-sizing:border-box; }
+  .pp-dlg-head{ display:flex; align-items:center; justify-content:space-between; gap:12px; margin-bottom:8px; }
+  .pp-dlg-head h3{ margin:0; }
+  .pp-x{ border:0; background:var(--panel-2); width:34px; height:34px; border-radius:50%; font-size:22px; line-height:1; cursor:pointer; color:inherit; flex:none; }
+  .pp-dlg-acts{ display:flex; justify-content:flex-end; gap:8px; margin-top:12px; }
+  .pp-dlg-acts .btn-small{ width:auto; }
+  .pp-sec{ border-top:1px solid var(--line); padding-top:12px; margin-top:12px; }
+  .pp-sec h4{ margin:0 0 8px; font-size:14px; }
+  .pp-off summary{ cursor:pointer; font-weight:600; }
+  .pp-ob{ list-style:none; margin:0; padding:0; display:flex; flex-direction:column; gap:8px; }
+  .pp-ob label{ display:flex; gap:10px; align-items:flex-start; font-weight:400; margin:0; cursor:pointer; }
+  .pp-ob input{ width:18px; height:18px; margin:2px 0 0; flex:none; }
+  .pp-ob b{ display:block; font-size:14px; }
+  .pp-ob small{ display:block; color:var(--muted); font-size:12.5px; }
+  .pp-ob .pp-det{ margin-top:2px; }
+  .pp-ob li.done b{ color:var(--muted); text-decoration:line-through; }
+  .pp-ob li.late small:first-of-type{ color:var(--ds-red-ink, #b42318); font-weight:600; }
+  .pp-dot{ width:18px; height:18px; border-radius:50%; border:2px solid var(--line); display:inline-flex; align-items:center; justify-content:center; font-size:11px; flex:none; margin-top:2px; }
+  .pp-ob li.done .pp-dot{ background:var(--ds-green-bg); border-color:var(--ds-green-ink); color:var(--ds-green-ink); }
+  .pp-policy{ white-space:pre-wrap; background:var(--panel-2); border-radius:12px; padding:14px; max-height:46vh; overflow:auto; font-size:14px; line-height:1.5; margin-bottom:12px; }
+
+  /* My pay */
+  .pp-todo{ list-style:none; margin:8px 0 0; padding:0; display:flex; flex-direction:column; gap:8px; }
+  .pp-todo li{ display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+  .pp-todo small{ color:var(--muted); }
+  .pp-todo .btn-small{ width:auto; margin:0; }
+  .pp-stubrow{ width:100%; display:flex; justify-content:space-between; align-items:center; gap:12px; text-align:left; font:inherit; color:inherit; background:none; border:0; border-bottom:1px solid var(--line); padding:10px 2px; cursor:pointer; }
+  .pp-stubrow:last-child{ border-bottom:0; }
+  .pp-stubrow small{ display:block; color:var(--muted); font-size:12.5px; }
+  .pp-stubrow .pp-r{ text-align:right; }
+
+  /* stub */
+  .pp-stub{ font-size:14px; }
+  .pp-stub-top{ display:flex; justify-content:space-between; gap:16px; flex-wrap:wrap; }
+  .pp-stub-pay{ text-align:right; }
+  .pp-stub-pay small, .pp-stub-pay b{ display:block; }
+  .pp-stub-pay small{ color:var(--muted); font-size:12.5px; }
+  .pp-stub-who{ margin:12px 0 4px; }
+  .pp-stub-status{ display:inline-block; font-size:12px; font-weight:700; padding:3px 10px; border-radius:999px; background:var(--panel-2); color:var(--muted); margin:6px 0; }
+  .pp-stub-t{ width:100%; border-collapse:collapse; margin:8px 0; table-layout:fixed; }
+  .pp-stub-t th:first-child, .pp-stub-t td:first-child{ width:42%; overflow-wrap:anywhere; }
+  .pp-stub-t th, .pp-stub-t td{ text-align:left; padding:6px 4px; border-bottom:1px solid var(--line); font-size:13.5px; }
+  .pp-stub-t th:not(:first-child), .pp-stub-t td:not(:first-child){ text-align:right; }
+  .pp-stub-t th{ color:var(--muted); font-weight:600; font-size:12px; }
+  .pp-stub-t .pp-sum td{ font-weight:700; border-top:2px solid currentColor; border-bottom:0; }
+  .pp-stub-small, .pp-stub-foot{ color:var(--muted); font-size:12.5px; margin:4px 0; }
+  .pp-shifts summary{ cursor:pointer; font-size:13px; font-weight:600; margin:6px 0; }
+
+  /* pay period runs */
+  .pp-run.is-void{ opacity:.6; }
+  .pp-steps{ margin:10px 0 12px; padding-left:22px; display:flex; flex-direction:column; gap:10px; }
+  .pp-steps li b{ display:block; }
+  .pp-steps li small{ display:block; color:var(--muted); font-size:12.5px; margin:2px 0 6px; }
+  .pp-steps li.done > b::after{ content:' ✓'; color:var(--ds-green-ink); }
+  .pp-steps .btn-small{ width:auto; }
+  .pp-add{ margin:4px 0 6px 16px; padding:0; font-size:13.5px; }
+  .pp-sq .pr-row{ flex-wrap:wrap; }
+  .pp-sq select{ max-width:220px; }
+  @media (max-width: 640px){ .pp-list{ grid-template-columns:1fr; } .pp-dlg-body{ padding:16px; } .pp-stub-t th, .pp-stub-t td{ font-size:12.5px; padding:6px 2px; } .pp-stub-t th{ font-size:11px; } }
+</style>
 </head>
 <body>
 
@@ -2986,6 +3075,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       <button class="nav-link active" data-tab="home"><svg class="icon"><use href="#ic-home"/></svg>Today</button>
       <button class="nav-link" data-tab="dashboard"><svg class="icon"><use href="#ic-chart"/></svg>My stats</button>
       <button class="nav-link" data-tab="clock"><svg class="icon"><use href="#ic-clock"/></svg>My hours</button>
+      <button class="nav-link hidden" data-tab="mypay" id="tabMypayBtn"><svg class="icon"><use href="#ic-dollar"/></svg>My pay<span class="nav-badge hidden" id="navMypayBadge"></span></button>
       <button class="nav-link" data-tab="absence"><svg class="icon"><use href="#ic-calendar"/></svg>Time off</button>
       <button class="nav-link" data-tab="documents"><svg class="icon"><use href="#ic-file"/></svg>Documents</button>
 
@@ -3001,6 +3091,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       <button class="nav-link hidden" data-tab="storehours" id="tabStoreHoursBtn"><svg class="icon"><use href="#ic-clock"/></svg>Store hours<span class="nav-badge hidden" id="navHoursBadge"></span></button>
       <button class="nav-link hidden" data-tab="banner" id="tabBannerBtn"><svg class="icon"><use href="#ic-megaphone"/></svg>Banner</button>
       <button class="nav-link hidden" data-tab="sign" id="tabSignBtn"><svg class="icon"><use href="#ic-flame"/></svg>LED sign</button>
+      <button class="nav-link hidden" data-tab="brand" id="tabBrandBtn"><svg class="icon"><use href="#ic-tag"/></svg>Brand</button>
       <button class="nav-link hidden" data-tab="features" id="tabFeaturesBtn"><svg class="icon"><use href="#ic-gift"/></svg>Secret menu<span class="nav-badge nav-badge-soft hidden" id="navFeatSecret">Off</span></button>
 
       <div class="nav-section-label">Events &amp; catering</div>
@@ -3029,6 +3120,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       <div class="nav-section-label">Team</div>
       <button class="nav-link hidden" data-tab="approve" id="tabApproveBtn"><svg class="icon"><use href="#ic-check"/></svg>Approvals<span class="nav-badge hidden" id="navApproveBadge"></span></button>
       <button class="nav-link hidden" data-tab="admin" id="tabAdminBtn"><svg class="icon"><use href="#ic-users"/></svg>Staff</button>
+      <button class="nav-link hidden" data-tab="people" id="tabPeopleBtn"><svg class="icon"><use href="#ic-users"/></svg>People<span class="nav-badge hidden" id="navPeopleBadge"></span></button>
       <button class="nav-link hidden" data-tab="payroll" id="tabPayrollBtn"><svg class="icon"><use href="#ic-download"/></svg>Payroll</button>
       <button class="nav-link hidden" data-tab="hiring" id="tabHiringBtn"><svg class="icon"><use href="#ic-users"/></svg>Hiring<span class="nav-badge hidden" id="navHireBadge"></span></button>
     </div>
@@ -3218,6 +3310,89 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     <div class="section-title">By week</div>
     <div id="myWeeksContainer"></div>
   </div>
+  <div class="tab-panel hidden" id="panelMypay">
+    <div class="page-head">
+      <h2>My pay</h2>
+      <p class="hint">Your pay stubs, year-to-date totals and the info that prints on them. Your bank account and Social Security number are only in Square Payroll.</p>
+    </div>
+    <div id="mpMsg"></div>
+    <div id="mpTodo"></div>
+
+    <div class="section-title">Pay stubs</div>
+    <div class="card pr-card" id="mpStubs"><p class="hint">Loading&hellip;</p></div>
+
+    <div class="section-title" id="mpYtdTitle">This year</div>
+    <div class="pr-kpis" id="mpYtd"></div>
+
+    <div class="section-title">My info</div>
+    <form class="card pr-card" id="mpInfo">
+      <p class="hint">Your legal name and home address print on your pay stubs (Ohio requires it).</p>
+      <div class="pr-form pr-form-3">
+        <div><label for="mpFirst">Legal first name</label><input type="text" id="mpFirst" data-mp="legal_first" maxlength="60" autocomplete="given-name"></div>
+        <div><label for="mpMiddle">Middle</label><input type="text" id="mpMiddle" data-mp="legal_middle" maxlength="60" autocomplete="additional-name"></div>
+        <div><label for="mpLast">Legal last name</label><input type="text" id="mpLast" data-mp="legal_last" maxlength="60" autocomplete="family-name"></div>
+      </div>
+      <div class="row2">
+        <div><label for="mpPref">Name you go by</label><input type="text" id="mpPref" data-mp="preferred_name" maxlength="60"></div>
+        <div><label for="mpBirth">Date of birth</label><input type="date" id="mpBirth" data-mp="birth_date"><small class="hint" id="mpBirthNote"></small></div>
+      </div>
+      <label for="mpA1">Home address</label><input type="text" id="mpA1" data-mp="address1" maxlength="120" autocomplete="address-line1">
+      <input type="text" id="mpA2" data-mp="address2" maxlength="120" placeholder="Apt, unit (optional)" autocomplete="address-line2" aria-label="Address line 2">
+      <div class="pr-form pr-form-3">
+        <div><label for="mpCity">City</label><input type="text" id="mpCity" data-mp="city" maxlength="60" autocomplete="address-level2"></div>
+        <div><label for="mpState">State</label><input type="text" id="mpState" data-mp="state" maxlength="2" autocomplete="address-level1" placeholder="OH"></div>
+        <div><label for="mpZip">ZIP</label><input type="text" id="mpZip" data-mp="zip" maxlength="10" inputmode="numeric" autocomplete="postal-code"></div>
+      </div>
+      <div class="pr-form pr-form-3">
+        <div><label for="mpEName">Emergency contact</label><input type="text" id="mpEName" data-mp="emergency_name" maxlength="80"></div>
+        <div><label for="mpEPhone">Their phone</label><input type="tel" id="mpEPhone" data-mp="emergency_phone" maxlength="20"></div>
+        <div><label for="mpERel">Relationship</label><input type="text" id="mpERel" data-mp="emergency_relation" maxlength="40"></div>
+      </div>
+      <button type="submit" class="btn-primary btn-small" style="max-width:200px;">Save my info</button>
+      <div class="pr-msg" id="mpInfoMsg"></div>
+    </form>
+
+    <div class="section-title">Tax withholding (for your pay preview)</div>
+    <form class="card pr-card" id="mpTax">
+      <p class="hint">Your real W-4 and Ohio IT-4 are filled in through Square Payroll. Enter the <b>same choices</b> here so the paycheck preview matches. Changing them here does not change Square.</p>
+      <div class="pr-form pr-form-3">
+        <div><label for="mpW4s">W-4 filing status (Step 1c)</label><select id="mpW4s" data-tx="w4_status"><option value="">Not entered</option><option value="single">Single or married filing separately</option><option value="mfj">Married filing jointly</option><option value="hoh">Head of household</option></select></div>
+        <div class="pp-check"><label><input type="checkbox" data-tx="w4_step2"> Step 2 box checked (two jobs)</label></div>
+        <div class="pp-check"><label><input type="checkbox" data-tx="w4_exempt"> Exempt</label></div>
+      </div>
+      <div class="pr-form pr-form-3">
+        <div><label for="mpW3">Step 3: dependents ($ per year)</label><input type="number" id="mpW3" data-tx="w4_dependents" min="0" step="1"></div>
+        <div><label for="mpW4a">Step 4(a): other income ($/yr)</label><input type="number" id="mpW4a" data-tx="w4_other_income" min="0" step="1"></div>
+        <div><label for="mpW4b">Step 4(b): deductions ($/yr)</label><input type="number" id="mpW4b" data-tx="w4_deductions" min="0" step="1"></div>
+      </div>
+      <div class="pr-form pr-form-3">
+        <div><label for="mpW4c">Step 4(c): extra per paycheck ($)</label><input type="number" id="mpW4c" data-tx="w4_extra" min="0" step="0.01"></div>
+        <div><label for="mpOhEx">Ohio IT-4 exemptions</label><input type="number" id="mpOhEx" data-tx="oh_exemptions" min="0" max="20" step="1"></div>
+        <div><label for="mpOhX">Ohio extra per paycheck ($)</label><input type="number" id="mpOhX" data-tx="oh_extra" min="0" step="0.01"></div>
+      </div>
+      <div class="pr-form pr-form-3">
+        <div><label for="mpSd">School district number (IT-4)</label><input type="text" id="mpSd" data-tx="sd_number" maxlength="4" inputmode="numeric" placeholder="e.g. 7711"></div>
+        <div><label for="mpSdR">School district rate (%)</label><input type="number" id="mpSdR" data-tx="sd_rate" min="0" max="3" step="0.01"></div>
+        <div><label for="mpSdB">District tax base</label><select id="mpSdB" data-tx="sd_base"><option value="earned">Earned income</option><option value="traditional">Traditional</option></select></div>
+      </div>
+      <p class="hint">Not sure about your school district? Look up your address with the Ohio Department of Taxation&rsquo;s &ldquo;The Finder&rdquo;. Many districts (including Green&rsquo;s) have no income tax: leave the rate at 0.</p>
+      <button type="submit" class="btn-primary btn-small" style="max-width:200px;">Save</button>
+      <div class="pr-msg" id="mpTaxMsg"></div>
+    </form>
+
+    <dialog class="pp-dialog pp-wide" id="mpStub" aria-label="Pay stub"><div class="pp-dlg-body" id="mpStubBody"></div></dialog>
+    <dialog class="pp-dialog pp-wide" id="mpSign" aria-labelledby="mpSignTitle">
+      <form class="pp-dlg-body" id="mpSignForm" method="dialog">
+        <div class="pp-dlg-head"><h3 id="mpSignTitle">Policy</h3><button type="button" class="pp-x" data-close aria-label="Close">&times;</button></div>
+        <div class="pp-policy" id="mpSignText"></div>
+        <label for="mpSignName">Type your full name to sign</label>
+        <input type="text" id="mpSignName" maxlength="80" required autocomplete="name">
+        <div class="pr-msg" id="mpSignMsg"></div>
+        <div class="pp-dlg-acts"><button type="button" class="btn-ghost btn-small" data-close>Not now</button><button type="submit" class="btn-primary btn-small">I&rsquo;ve read it and agree</button></div>
+      </form>
+    </dialog>
+  </div>
+
 
   <!-- ABSENCE REQUEST -->
   <div class="tab-panel hidden" id="panelAbsence">
@@ -4801,6 +4976,40 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       <div class="ls-btns" style="margin-top:10px"><button type="button" class="btn-ghost btn-small" id="lsPairBtn">Pair the Pi</button></div>
     </div>
     </div>
+    <div class="tab-panel hidden" id="panelBrand">
+    <style>
+      #panelBrand .br-grid{ display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:14px 18px; }
+      #panelBrand .br-grid label{ display:flex; flex-direction:column; gap:6px; font-size:13px; font-weight:600; color:var(--ds-text-2); margin:0; }
+      #panelBrand .br-actions{ display:flex; align-items:center; gap:14px; flex-wrap:wrap; margin-top:18px; }
+      #panelBrand .br-actions .btn-primary{ width:auto; }
+      @media (max-width: 640px){ #panelBrand .br-grid{ grid-template-columns:1fr; } }
+    </style>
+    <div class="page-head">
+      <h2>Brand</h2>
+      <p class="hint">Your truck&rsquo;s name and contact details on the website, drive-up page, kiosk, invoices and screens. Leave a box empty to use the built-in value shown in grey.</p>
+    </div>
+    <div id="brMsg"></div>
+    <div class="card">
+      <form id="brForm" autocomplete="off">
+        <div class="br-grid">
+          <label>Business name<input type="text" maxlength="120" data-br="brand.name" placeholder="Roll-In Shawarma"></label>
+          <label>Short name<input type="text" maxlength="120" data-br="brand.short" placeholder="Roll-In"></label>
+          <label>Rewards program name<input type="text" maxlength="120" data-br="loyalty.name" placeholder="Roll-In Rewards"></label>
+          <label>City<input type="text" maxlength="120" data-br="location.city" placeholder="Green, Ohio"></label>
+          <label>Phone<input type="tel" maxlength="20" data-br="contact.phone" placeholder="(330) 587-5203"></label>
+          <label>Email<input type="email" maxlength="120" data-br="contact.email" placeholder="rollinshawarma.foodtruck@gmail.com"></label>
+          <label>Instagram link<input type="url" maxlength="120" data-br="social.instagram" placeholder="https://www.instagram.com/roll_in_shawarama"></label>
+          <label>Facebook link<input type="url" maxlength="120" data-br="social.facebook" placeholder="https://www.facebook.com/p/Roll-In-Shawarma-61591157662685/"></label>
+        </div>
+        <div class="br-actions">
+          <button type="submit" class="btn-primary" id="brSave">Save</button>
+          <span class="hint" id="brWho"></span>
+        </div>
+      </form>
+    </div>
+    <p class="hint">Customers see changes the next time a page loads. Google search results and link previews keep the built-in name until the site is rebuilt from <code>truck.config.json</code>.</p>
+    </div>
+
     <div class="tab-panel hidden" id="panelPosts">
     <div class="page-head">
       <h2>Posts</h2>
@@ -5155,7 +5364,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
   <div class="tab-panel hidden" id="panelPayroll">
     <div class="page-head">
       <h2>Payroll</h2>
-      <p class="hint">Monday&ndash;Sunday workweeks in truck time. Overtime is 1.5&times; after 40 hours. Tips are split by hours worked. Approved hours only; &ldquo;Draft paycheck&rdquo; saves a pay record you can always look back at.</p>
+      <p class="hint">Approve each pay period here, send the hours to Square Payroll, and every person gets a pay stub under My pay. Workweeks run Monday&ndash;Sunday in truck time; overtime is 1.5&times; after 40 hours.</p>
     </div>
     <div class="pr-bar">
       <button type="button" class="pr-nav" id="prPrev" aria-label="Previous week">&lsaquo;</button>
@@ -5164,6 +5373,34 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     </div>
     <div id="prLegacy" class="hidden"><div class="card"><p class="hint" id="prLegacyNote"></p><div id="payrollWeeksContainer"></div></div></div>
     <div id="prMain">
+    <div id="ppPeriod" class="hidden">
+      <div class="pr-bar">
+        <button type="button" class="pr-nav" id="ppPerPrev" aria-label="Earlier pay period">&lsaquo;</button>
+        <select id="ppPer" aria-label="Pay period"></select>
+        <button type="button" class="pr-nav" id="ppPerNext" aria-label="Later pay period">&rsaquo;</button>
+      </div>
+      <div id="ppPerAlerts"></div>
+      <div class="pr-kpis" id="ppPerKpis"></div>
+      <div class="card pr-card">
+        <div style="overflow-x:auto;"><table class="stack pr-table">
+          <thead><tr><th>Employee</th><th>Hours</th><th>Gross</th><th>Taxes (est.)</th><th>Cash tips paid</th><th>Net (est.)</th><th>Check</th></tr></thead>
+          <tbody id="ppPerLines"><tr><td colspan="7">Loading&hellip;</td></tr></tbody>
+        </table></div>
+        <div class="pr-actions">
+          <button type="button" class="btn-primary btn-small" id="ppApprove">Approve paychecks</button>
+          <button type="button" class="btn-export btn-small" id="ppPerCsv">Export (CSV)</button>
+        </div>
+        <p class="hint pr-foot">Taxes are our estimate from the IRS and Ohio tables and each person&rsquo;s W-4 / IT-4 choices. Square Payroll calculates the final amounts, pays by direct deposit and files the taxes. Tap a name to see their pay stub.</p>
+      </div>
+      <div id="ppRuns"></div>
+      <div class="section-title">Card tips handed out in cash</div>
+      <div class="card pr-card" id="ppTipNight"></div>
+      <div id="ppYearWrap" class="hidden">
+        <div class="section-title">Year-end (W-2 numbers)</div>
+        <div class="card pr-card" id="ppYear"></div>
+      </div>
+      <div class="section-title" style="margin-top:22px;">Week by week</div>
+    </div>
       <div id="prAlerts"></div>
       <div class="pr-kpis" id="prKpis"></div>
 
@@ -5223,6 +5460,124 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
       </div>
     </div>
   </div>
+  <div class="tab-panel hidden" id="panelPeople">
+    <div class="page-head">
+      <h2>People</h2>
+      <p class="hint">Everyone on the team: their file, onboarding checklist, under-18 rules and pay setup. Social Security numbers and bank details stay in Square Payroll, never here.</p>
+    </div>
+    <div id="ppMsg"></div>
+    <div id="ppAlerts"></div>
+
+    <div class="pp-bar">
+      <div class="pp-seg" role="tablist" aria-label="Show">
+        <button type="button" class="on" data-pp-filter="active">Team</button>
+        <button type="button" data-pp-filter="onboarding">Onboarding</button>
+        <button type="button" data-pp-filter="minor">Under 18</button>
+        <button type="button" data-pp-filter="past">Leaving / past</button>
+      </div>
+      <button type="button" class="btn-primary btn-small hidden" id="ppHireBtn">+ Hire someone</button>
+    </div>
+    <div class="pp-list" id="ppList"><p class="hint">Loading&hellip;</p></div>
+
+    <div id="ppAdmin" class="hidden">
+      <div class="section-title">Pay schedule and pay stubs</div>
+      <div class="card pr-card">
+        <div class="pr-form pr-form-3">
+          <div><label for="ppFreq">How often you pay</label><select id="ppFreq"><option value="biweekly">Every two weeks</option><option value="weekly">Every week</option></select></div>
+          <div><label for="ppAnchor">First pay period starts (a Monday)</label><input type="date" id="ppAnchor"></div>
+          <div><label for="ppOffset">Payday: days after the period ends</label><input type="number" id="ppOffset" min="0" max="12" step="1"></div>
+        </div>
+        <p class="hint" id="ppSchedNote"></p>
+        <div class="row2">
+          <div><label for="ppEmpName">Employer name on pay stubs</label><input type="text" id="ppEmpName" maxlength="120"></div>
+          <div><label for="ppEmpAddr">Employer address on pay stubs</label><input type="text" id="ppEmpAddr" maxlength="200" placeholder="Street, city, state ZIP"></div>
+        </div>
+        <div class="pr-form pr-form-3">
+          <div><label for="ppCity">City income tax (where you work)</label><input type="text" id="ppCity" maxlength="60"></div>
+          <div><label for="ppCityRate">City rate (%)</label><input type="number" id="ppCityRate" min="0" max="5" step="0.01"></div>
+          <div></div>
+        </div>
+        <p class="hint" id="ppCityNote"></p>
+        <button type="button" class="btn-primary btn-small" id="ppSaveSched" style="max-width:220px;">Save</button>
+        <div class="pr-msg" id="ppSchedMsg"></div>
+      </div>
+
+      <div class="section-title">Minimum wage</div>
+      <div class="card pr-card">
+        <div id="ppFloors"></div>
+        <div class="pr-form pr-form-3">
+          <div><label for="ppFloorFrom">Starts on</label><input type="date" id="ppFloorFrom"></div>
+          <div><label for="ppFloorMin">Minimum wage ($/hr)</label><input type="number" id="ppFloorMin" min="1" step="0.01"></div>
+          <div><label for="ppFloorTip">Tipped minimum ($/hr)</label><input type="number" id="ppFloorTip" min="1" step="0.01"></div>
+        </div>
+        <button type="button" class="btn-ghost btn-small" id="ppFloorSave" style="max-width:220px;">Add / update</button>
+        <p class="hint">Ohio announces next year&rsquo;s rates each September. Rates below the minimum can&rsquo;t be saved for dates it covers.</p>
+        <div class="pr-msg" id="ppFloorMsg"></div>
+      </div>
+
+      <div class="section-title">School calendar (under-18 rules)</div>
+      <div class="card pr-card">
+        <div class="pr-form pr-form-3">
+          <div><label for="ppSchoolStart">First day of school</label><input type="date" id="ppSchoolStart"></div>
+          <div><label for="ppSchoolEnd">Last day of school</label><input type="date" id="ppSchoolEnd"></div>
+          <div><label for="ppSchoolHours">School hours (14&ndash;15 can&rsquo;t work)</label><div class="pp-inline"><input type="time" id="ppSchoolFrom"><span>to</span><input type="time" id="ppSchoolTo"></div></div>
+        </div>
+        <label for="ppDaysOff">Days with no school (breaks, holidays): one per line, like <code>2026-12-21 Winter break</code></label>
+        <textarea id="ppDaysOff" rows="4"></textarea>
+        <button type="button" class="btn-primary btn-small" id="ppSaveSchool" style="max-width:220px;">Save calendar</button>
+        <p class="hint">Weekdays between the first and last day of school count as school days. 14&ndash;15 year olds: 3 hours on a school day, 18 in a school week, 7 AM&ndash;7 PM (9 PM from June 1 to Sept 1). 16&ndash;17 year olds still in school: nothing after 11 PM before a school day, and not before 7 AM (6 AM if they didn&rsquo;t work past 8 PM the night before).</p>
+        <div class="pr-msg" id="ppSchoolMsg"></div>
+      </div>
+
+      <div class="section-title">Policies staff sign</div>
+      <div class="card pr-card">
+        <div class="pr-form pr-form-3">
+          <div><label for="ppPolicy">Policy</label><select id="ppPolicy"><option value="tip_policy">Tip policy</option><option value="tip_credit">Tip-credit notice</option><option value="handbook">Employee handbook</option></select></div>
+          <div style="grid-column: span 2;"><label for="ppPolicyTitle">Title</label><input type="text" id="ppPolicyTitle" maxlength="80"></div>
+        </div>
+        <textarea id="ppPolicyBody" rows="10"></textarea>
+        <p class="hint" id="ppPolicyInfo"></p>
+        <button type="button" class="btn-primary btn-small" id="ppPolicySave" style="max-width:220px;">Save policy</button>
+        <div class="pr-msg" id="ppPolicyMsg"></div>
+      </div>
+
+      <div class="section-title">Square Payroll team</div>
+      <div class="card pr-card">
+        <p class="hint">Link each person to their Square team member so approved hours can be sent to Square Payroll.</p>
+        <button type="button" class="btn-ghost btn-small" id="ppSqLoad" style="max-width:220px;">Load Square team</button>
+        <div id="ppSqBox"></div>
+      </div>
+    </div>
+
+    <dialog class="pp-dialog" id="ppPerson" aria-labelledby="ppPersonTitle"><div class="pp-dlg-body" id="ppPersonBody"></div></dialog>
+    <dialog class="pp-dialog" id="ppHire" aria-labelledby="ppHireTitle">
+      <form class="pp-dlg-body" id="ppHireForm" method="dialog">
+        <div class="pp-dlg-head"><h3 id="ppHireTitle">Hire someone</h3><button type="button" class="pp-x" data-close aria-label="Close">&times;</button></div>
+        <p class="hint" id="ppHireFrom"></p>
+        <div class="row2">
+          <div><label for="ppHName">Name</label><input type="text" id="ppHName" maxlength="80" required></div>
+          <div><label for="ppHEmail">Email (they sign in with it)</label><input type="email" id="ppHEmail" maxlength="120" required></div>
+        </div>
+        <div class="row2">
+          <div><label for="ppHPhone">Phone</label><input type="tel" id="ppHPhone" maxlength="20"></div>
+          <div><label for="ppHPos">Position</label><input type="text" id="ppHPos" maxlength="60" placeholder="Line cook"></div>
+        </div>
+        <div class="pr-form pr-form-3">
+          <div><label for="ppHRate">Hourly rate ($)</label><input type="number" id="ppHRate" min="0" step="0.01" required></div>
+          <div><label for="ppHStart">First day</label><input type="date" id="ppHStart" required></div>
+          <div><label for="ppHType">Type</label><select id="ppHType"><option>Part-time</option><option>Full-time</option><option>Seasonal</option></select></div>
+        </div>
+        <div class="row2">
+          <div><label for="ppHBirth">Date of birth (for under-18 rules)</label><input type="date" id="ppHBirth"></div>
+          <div class="pp-check"><label><input type="checkbox" id="ppHTipped"> Paid the tipped wage</label></div>
+        </div>
+        <p class="hint" id="ppHFloor"></p>
+        <div class="pr-msg" id="ppHireMsg"></div>
+        <div class="pp-dlg-acts"><button type="button" class="btn-ghost btn-small" data-close>Cancel</button><button type="submit" class="btn-primary btn-small" id="ppHireGo">Add to staff</button></div>
+      </form>
+    </dialog>
+  </div>
+
 
   <!-- ADMIN TAB -->
   <!-- CUSTOMER INFO -->
@@ -5662,6 +6017,8 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
 
       var isManager = currentEmployee.role === 'manager' || currentEmployee.role === 'admin';
       var isAdmin = currentEmployee.role === 'admin';
+      // People / My pay / pay periods (hr-payroll.sql): pp-js loads after this script.
+      if (window.ppInit) window.ppInit(currentEmployee.role); else window.__ppPending = currentEmployee.role;
 
       if (isManager) {
         // Customers -> Order history / Customers: managers and admins (customer-orders.sql).
@@ -5753,6 +6110,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
         if (location.hash === '#ads') setTimeout(function(){ showTab('ads'); }, 0);
         if (window.psInit) window.psInit(isAdmin); else window.__psPending = isAdmin;   // posts-js loads after this script
         if (window.lsInit) window.lsInit(isAdmin); else window.__lsPending = isAdmin;   // sign-js loads after this script
+        if (window.brInit) window.brInit(isAdmin); else window.__brPending = isAdmin;   // brand-js loads after this script
         loadTodayGlance();
         setInterval(loadTodayGlance, 60000);
       }
@@ -6920,6 +7278,7 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
         '<a class="btn-ghost btn-small" href="tel:+1' + esc(a.phone) + '">Call ' + esc(hrPhone(a.phone)) + '</a>' +
         (a.text_ok ? '<a class="btn-ghost btn-small" href="sms:+1' + esc(a.phone) + '?&body=' + encodeURIComponent(sms) + '">Text</a>' : '<span class="hint" style="margin:0">No texts, please call</span>') +
         (a.email ? '<a class="btn-ghost btn-small" href="mailto:' + esc(a.email) + '?subject=' + encodeURIComponent('Your application at Roll-In Shawarma') + '">Email</a>' : '') +
+        (a.status === 'hired' && window.ppHire ? '<button type="button" class="btn-primary btn-small" data-addstaff>Add to staff</button>' : '') +
         '<span style="flex:1"></span><button type="button" class="hr-link danger" data-del>Delete</button>' +
       '</div>' +
       '<textarea data-note rows="1" maxlength="600" placeholder="Notes for the team (interview time, how it went…)" aria-label="Notes about ' + esc(a.name) + '">' + esc(a.staff_note || '') + '</textarea>' +
@@ -6929,10 +7288,12 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
     var id = card.dataset.id, a = hr.d.applications.find(function(x){ return x.id === id; });
     card.querySelector('[data-status]').onchange = function(){
       var s = this.value;
-      hrRpc('staff_application_update', { p: { id:id, status:s } }).then(function(){ hrMsg('hrMsg', a.name + ': ' + HR_STATUS.find(function(x){ return x[0] === s; })[1] + '.' + (s === 'hired' ? ' Add them in Employees when they start.' : ''), true); }, function(e){ hrMsg('hrMsg', hrErr(e)); });
+      hrRpc('staff_application_update', { p: { id:id, status:s } }).then(function(){ hrMsg('hrMsg', a.name + ': ' + HR_STATUS.find(function(x){ return x[0] === s; })[1] + '.' + (s === 'hired' ? (window.ppHire ? ' Tap “Add to staff” to set them up for payroll.' : ' Add them in Employees when they start.') : ''), true); }, function(e){ hrMsg('hrMsg', hrErr(e)); });
     };
     var n = card.querySelector('[data-note]');
     n.addEventListener('change', function(){ sb.rpc('staff_application_update', { p: { id:id, staff_note:n.value } }).then(function(r){ if (r.error) return hrMsg('hrMsg', hrErr(r.error)); hr.d = r.data; hrMsg('hrMsg', 'Note saved.', true); }); });
+    var add = card.querySelector('[data-addstaff]');
+    if (add) add.onclick = function(){ window.ppHire(a); };
     card.querySelector('[data-del]').onclick = function(){
       if (!confirm('Delete ' + a.name + '’s application? This can’t be undone.')) return;
       hrRpc('staff_application_update', { p: { id:id, delete:true } }).then(function(){ hrMsg('hrMsg', 'Deleted.', true); }, function(e){ hrMsg('hrMsg', hrErr(e)); });
@@ -16299,6 +16660,656 @@ body.p-shell #mainContent:has(#panelSalesreport:not(.hidden)){ max-width:1240px;
   };
   window.lsState = ls;
   if (window.__lsPending !== undefined) window.lsInit(window.__lsPending);
+})();
+</script>
+<script id="brand-js">
+/* Brand page (TruckStack brand-settings.sql): name and contact details shown to customers. */
+(function(){
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  var started = false, canEdit = false;
+  function msg(t, kind){ $('brMsg').innerHTML = t ? '<div class="msg ' + (kind || 'error') + '">' + esc(t) + '</div>' : ''; }
+  function fields(){ return Array.prototype.slice.call(document.querySelectorAll('#brForm [data-br]')); }
+  function paint(d){
+    var data = (d && d.data) || {};
+    canEdit = !!(d && d.can_edit);
+    fields().forEach(function(el){ el.value = data[el.getAttribute('data-br')] || ''; el.disabled = !canEdit; });
+    $('brSave').classList.toggle('hidden', !canEdit);
+    $('brWho').textContent = d && d.updated_by ? 'Last changed by ' + d.updated_by + ' on ' + new Date(d.updated_at).toLocaleString([], { month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) + '.' : (canEdit ? '' : 'Only an admin can change these.');
+  }
+  function load(){
+    sb.rpc('staff_get_brand').then(function(r){
+      if (r.error) { msg(/does not exist|schema cache/i.test(r.error.message) ? 'Run brand-settings.sql in Supabase to turn this page on.' : r.error.message); return; }
+      msg(''); paint(r.data);
+    });
+  }
+  window.brInit = function(isAdmin){
+    if (started) return; started = true;
+    $('tabBrandBtn').classList.remove('hidden');
+    $('brForm').addEventListener('submit', function(e){
+      e.preventDefault(); if (!canEdit) return;
+      var data = {}; fields().forEach(function(el){ data[el.getAttribute('data-br')] = el.value.trim(); });
+      $('brSave').disabled = true;
+      sb.rpc('staff_save_brand', { p_data: data }).then(function(r){
+        $('brSave').disabled = false;
+        if (r.error) { msg(r.error.message); return; }
+        paint(r.data); msg('Saved. Customers see it the next time a page loads.', 'ok');
+      });
+    });
+    document.querySelector('.nav-link[data-tab="brand"]').addEventListener('click', load);
+    load();
+  };
+  if (window.__brPending !== undefined) window.brInit(window.__brPending);
+})();
+</script>
+<script id="pp-js">/* People, My pay and pay periods (TruckStack hr-payroll.sql + payroll-square function).
+   - My pay (everyone): to-do (sign policies, fill in info), pay stubs, year to date, my info, tax choices
+   - People (managers/admins): employee files, onboarding, under-18, hire, offboard, settings
+   - Payroll tab: pay period preview, approve, send hours to Square, cash tip payouts, year-end */
+(function(){
+  function $(id){ return document.getElementById(id); }
+  function esc(s){ return String(s == null ? '' : s).replace(/[&<>"']/g, function(c){ return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]; }); }
+  function money(v){ var n = Number(v) || 0; return (n < 0 ? '−$' : '$') + Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 }); }
+  function hrs(v){ return (Number(v) || 0).toFixed(2); }
+  function d8(ds, opts){ if (!ds) return ''; var p = String(ds).slice(0, 10).split('-'); return new Date(Date.UTC(+p[0], +p[1] - 1, +p[2])).toLocaleDateString('en-US', Object.assign({ timeZone: 'UTC', month: 'short', day: 'numeric' }, opts || {})); }
+  function dY(ds){ return d8(ds, { year: 'numeric' }); }
+  function when(ts){ return ts ? new Date(ts).toLocaleString('en-US', { timeZone: 'America/New_York', month: 'short', day: 'numeric', hour: 'numeric', minute: '2-digit' }) : ''; }
+  function today(){ return new Date().toLocaleDateString('en-CA', { timeZone: 'America/New_York' }); }
+  function say(id, t, kind){ var m = $(id); if (!m) return; m.textContent = t || ''; m.className = 'pr-msg' + (kind ? ' ' + kind : ''); }
+  function missing(err){ return /does not exist|schema cache|could not find/i.test((err && err.message) || ''); }
+  function rpc(name, args){ return sb.rpc(name, args || {}).then(function(r){ if (r.error) throw r.error; return r.data; }); }
+  function fn(body){
+    return sb.functions.invoke('payroll-square', { body: body }).then(function(r){
+      if (!r.error) return r.data;
+      var ctx = r.error.context;
+      return (ctx && ctx.json ? ctx.json().catch(function(){ return {}; }) : Promise.resolve({})).then(function(j){ throw new Error((j && j.error) || r.error.message || 'Square request failed'); });
+    });
+  }
+  function openDlg(d){ if (d.showModal) { if (!d.open) d.showModal(); } else d.setAttribute('open', ''); }
+  function closeDlg(d){ if (d.close) d.close(); else d.removeAttribute('open'); }
+  document.addEventListener('click', function(e){ var x = e.target.closest('dialog.pp-dialog [data-close]'); if (x) closeDlg(x.closest('dialog')); });
+
+  var S = { role: null, isMgr: false, isAdmin: false, people: null, filter: 'active', per: { list: [], start: null, data: null }, me: null, sq: null };
+  var BAND = { '14-15': 'Age 14–15', '16-17': 'Age 16–17', 'minor': 'Under 18 (add birth date)', 'under14': 'Under 14' };
+  var TAXKEYS = ['w4_status', 'w4_step2', 'w4_exempt', 'w4_dependents', 'w4_other_income', 'w4_deductions', 'w4_extra', 'oh_exemptions', 'oh_extra', 'sd_number', 'sd_rate', 'sd_base'];
+
+  // ---------- Pay stub (shared) ----------
+  function stubHtml(s, preview){
+    var t = s.taxes || {}, y = s.ytd || {}, emp = s.employer || {};
+    var rows = (s.earnings || []).map(function(e){
+      return '<tr><td>' + esc(e.label) + '</td><td>' + (e.hours != null ? hrs(e.hours) : '') + '</td><td>' + (e.rate != null ? money(e.rate) : '') + '</td><td>' + money(e.amount) + '</td></tr>'; }).join('');
+    var tx = [['Federal income tax', 'federal'], ['Social Security', 'social_security'], ['Medicare', 'medicare'], ['Ohio income tax', 'ohio'],
+      ['School district' + (t.sd_number ? ' #' + t.sd_number : ''), 'school_district'], [(t.city_name || 'City') + ' income tax', 'city']];
+    var trows = tx.filter(function(x){ return Number(t[x[1]]) || Number(y[x[1]]); }).map(function(x){
+      return '<tr><td>' + esc(x[0]) + '</td><td>' + money(t[x[1]]) + '</td><td>' + (preview ? '' : money(y[x[1]])) + '</td></tr>'; }).join('');
+    if (Number(s.tips_cash_paid)) trows += '<tr><td>Tips paid to you in cash</td><td>' + money(s.tips_cash_paid) + '</td><td></td></tr>';
+    var status = preview ? 'Preview' : s.run_status === 'sent' ? 'Paid through Square Payroll' : 'Approved: being paid through Square Payroll';
+    return '<div class="pp-stub">' +
+      '<div class="pp-stub-top"><div><b>' + esc(emp.name || 'PK Hospitality LLC') + '</b><br>' + esc(emp.address || '') + '</div>' +
+        '<div class="pp-stub-pay"><small>Pay date</small><b>' + esc(dY(s.pay_date)) + '</b><small>Period ' + esc(d8(s.period_start)) + ' – ' + esc(dY(s.period_end)) + '</small></div></div>' +
+      '<div class="pp-stub-who"><b>' + esc(s.legal_name || s.name) + '</b><br>' + (s.address ? esc(s.address) : '<span class="pp-warn">No home address on file</span>') + '</div>' +
+      '<p class="pp-stub-status">' + esc(status) + '</p>' +
+      '<table class="pp-stub-t"><thead><tr><th>Earnings</th><th>Hours</th><th>Rate</th><th>This check</th></tr></thead><tbody>' + rows +
+        '<tr class="pp-sum"><td>Gross pay</td><td>' + hrs(s.hours) + '</td><td></td><td>' + money(s.gross) + '</td></tr></tbody></table>' +
+      '<p class="pp-stub-small">' + hrs(s.hours) + ' hours: ' + hrs(s.regular_hours) + ' regular' + (Number(s.ot_hours) ? ', ' + hrs(s.ot_hours) + ' over 40 in a workweek (overtime)' : '') + '.</p>' +
+      '<table class="pp-stub-t"><thead><tr><th>Taxes and deductions</th><th>This check</th><th>' + (preview ? '' : 'Year to date') + '</th></tr></thead><tbody>' + trows +
+        '<tr class="pp-sum"><td>Net pay</td><td>' + money(s.net) + '</td><td>' + (preview ? '' : money(y.net)) + '</td></tr></tbody></table>' +
+      (preview ? '' : '<p class="pp-stub-small">Year to date: gross ' + money(y.gross) + (Number(y.tips) ? ' · tips ' + money(y.tips) : '') + (Number(y.ot_premium) ? ' · overtime premium ' + money(y.ot_premium) : '') + '.</p>') +
+      ((s.shifts || []).length ? '<details class="pp-shifts"><summary>Shifts (' + s.shifts.length + ')</summary>' + s.shifts.map(function(x){
+        var t2 = function(v){ return new Date(v).toLocaleTimeString('en-US', { timeZone: 'America/New_York', hour: 'numeric', minute: '2-digit' }); };
+        return '<div class="pr-row"><span>' + esc(d8(x.work_date, { weekday: 'short' })) + '</span><span>' + esc(t2(x.clock_in)) + '–' + esc(t2(x.clock_out)) + ' · ' + hrs(x.hours) + ' h</span></div>'; }).join('') + '</details>' : '') +
+      '<p class="pp-stub-foot">Taxes shown are calculated from your approved hours and your W-4 / IT-4 choices. Square Payroll makes the final calculation and pays you; small differences are possible.</p>' +
+      '</div>';
+  }
+  function stubDialog(dlgId, bodyId, s, preview){
+    $(bodyId).innerHTML = '<div class="pp-dlg-head"><h3>Pay stub</h3><button type="button" class="pp-x" data-close aria-label="Close">&times;</button></div>' + stubHtml(s, preview) +
+      '<div class="pp-dlg-acts"><button type="button" class="btn-ghost btn-small" data-print>Print</button><button type="button" class="btn-primary btn-small" data-close>Done</button></div>';
+    $(bodyId).querySelector('[data-print]').onclick = function(){
+      var w = window.open('', '_blank'); if (!w) return;
+      w.document.write('<!doctype html><title>Pay stub ' + esc(s.pay_date) + '</title><style>' + PRINT_CSS + '</style>' + stubHtml(s, preview));
+      w.document.close(); w.focus(); w.print();
+    };
+    openDlg($(dlgId));
+  }
+  var PRINT_CSS = 'body{font:14px/1.4 -apple-system,Segoe UI,Roboto,sans-serif;color:#111;margin:28px}.pp-stub-top{display:flex;justify-content:space-between;gap:20px}.pp-stub-pay{text-align:right}.pp-stub-pay small,.pp-stub-pay b{display:block}.pp-stub-who{margin:16px 0}.pp-stub-t{width:100%;border-collapse:collapse;margin:10px 0}.pp-stub-t th,.pp-stub-t td{text-align:left;padding:5px 6px;border-bottom:1px solid #ddd}.pp-stub-t td:not(:first-child),.pp-stub-t th:not(:first-child){text-align:right}.pp-sum td{font-weight:700;border-top:2px solid #111}.pp-stub-small,.pp-stub-foot{font-size:12px;color:#555}details{display:none}';
+
+  // ---------- My pay ----------
+  function mpLoad(){
+    rpc('my_pay').then(mpPaint, function(e){ if (missing(e)) { $('tabMypayBtn').classList.add('hidden'); return; } $('mpMsg').innerHTML = '<div class="msg error">' + esc(e.message) + '</div>'; });
+  }
+  function mpPaint(d){
+    S.me = d;
+    $('tabMypayBtn').classList.remove('hidden');
+    var todo = (d.todo || []).filter(function(i){ return !i.done; });
+    var b = $('navMypayBadge'); b.textContent = todo.length; b.classList.toggle('hidden', !todo.length);
+    $('mpTodo').innerHTML = todo.length ? '<div class="pr-alert warn"><b>To do (' + todo.length + ')</b><ul class="pp-todo">' + todo.map(function(i){
+      return '<li><span>' + esc(i.label) + (i.due ? ' <small>by ' + esc(d8(i.due)) + '</small>' : '') + '</span>' +
+        (i.policy_key ? '<button type="button" class="btn-primary btn-small" data-sign="' + esc(i.policy_key) + '">Read and sign</button>' : i.key === 'my_info' ? '<button type="button" class="btn-ghost btn-small" data-goinfo>Fill in</button>' : '') + '</li>'; }).join('') + '</ul></div>' : '';
+    var stubs = d.stubs || [];
+    $('mpStubs').innerHTML = stubs.length ? stubs.map(function(s){
+      return '<button type="button" class="pp-stubrow" data-run="' + s.run_id + '"><span><b>' + esc(dY(s.pay_date)) + '</b><small>' + esc(d8(s.period_start)) + ' – ' + esc(d8(s.period_end)) + ' · ' + hrs(s.hours) + ' h</small></span>' +
+        '<span class="pp-r"><b>' + money(s.net) + '</b><small>gross ' + money(s.gross) + (s.status === 'sent' ? ' · paid' : ' · on its way') + '</small></span></button>'; }).join('') : '<p class="hint" style="margin:0;">Your pay stubs show up here once a pay period is approved.</p>';
+    var y = d.ytd || {};
+    $('mpYtdTitle').textContent = (d.year || '') + ' so far';
+    $('mpYtd').innerHTML = '<div class="pr-kpi"><b>' + money(y.gross) + '</b><small>Gross pay</small></div><div class="pr-kpi"><b>' + money(y.net) + '</b><small>Take-home</small></div>' +
+      '<div class="pr-kpi"><b>' + money(Number(y.federal) + Number(y.social_security) + Number(y.medicare) + Number(y.ohio) + Number(y.school_district) + Number(y.city)) + '</b><small>Taxes withheld</small></div>' +
+      '<div class="pr-kpi"><b>' + money(y.tips) + '</b><small>Tips</small></div><div class="pr-kpi"><b>' + hrs(y.hours) + '</b><small>Hours paid</small></div>';
+    var info = d.info || {};
+    document.querySelectorAll('#mpInfo [data-mp]').forEach(function(el){ el.value = info[el.getAttribute('data-mp')] || ''; });
+    $('mpBirth').disabled = !!info.birth_date;
+    $('mpBirthNote').textContent = info.birth_date ? 'Ask an admin if this is wrong.' : 'Used for under-18 work rules.';
+    var tx = d.tax || {};
+    document.querySelectorAll('#mpTax [data-tx]').forEach(function(el){ var k = el.getAttribute('data-tx'); if (el.type === 'checkbox') el.checked = !!tx[k]; else el.value = tx[k] == null ? '' : tx[k]; });
+  }
+  function taxFrom(root){
+    var t = {};
+    root.querySelectorAll('[data-tx]').forEach(function(el){ var k = el.getAttribute('data-tx'); t[k] = el.type === 'checkbox' ? el.checked : (el.type === 'number' ? (el.value === '' ? 0 : Number(el.value)) : el.value.trim()); });
+    return t;
+  }
+  function mpWire(){
+    $('mpInfo').addEventListener('submit', function(e){
+      e.preventDefault();
+      var p = {}; document.querySelectorAll('#mpInfo [data-mp]').forEach(function(el){ if (!el.disabled) p[el.getAttribute('data-mp')] = el.value.trim(); });
+      say('mpInfoMsg', 'Saving…');
+      rpc('my_info_save', { p: p }).then(function(d){ mpPaint(d); say('mpInfoMsg', 'Saved.', 'ok'); }, function(err){ say('mpInfoMsg', err.message, 'bad'); });
+    });
+    $('mpTax').addEventListener('submit', function(e){
+      e.preventDefault(); say('mpTaxMsg', 'Saving…');
+      rpc('my_tax_save', { t: taxFrom($('mpTax')) }).then(function(d){ mpPaint(d); say('mpTaxMsg', 'Saved. Make sure Square Payroll has the same choices.', 'ok'); }, function(err){ say('mpTaxMsg', err.message, 'bad'); });
+    });
+    $('panelMypay').addEventListener('click', function(e){
+      var r = e.target.closest('[data-run]');
+      if (r) { rpc('paystub_get', { p_run: r.getAttribute('data-run') }).then(function(s){ stubDialog('mpStub', 'mpStubBody', s, false); }, function(err){ alert(err.message); }); return; }
+      var sg = e.target.closest('[data-sign]');
+      if (sg) { mpOpenSign(sg.getAttribute('data-sign')); return; }
+      if (e.target.closest('[data-goinfo]')) $('mpFirst').focus();
+    });
+    $('mpSignForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      var key = this.getAttribute('data-key');
+      rpc('my_sign_policy', { p_key: key, p_name: $('mpSignName').value.trim() }).then(function(d){ closeDlg($('mpSign')); mpPaint(d); }, function(err){ say('mpSignMsg', err.message, 'bad'); });
+    });
+  }
+  function mpOpenSign(key){
+    rpc('hr_policy', { p_key: key }).then(function(p){
+      $('mpSignTitle').textContent = p.title;
+      $('mpSignText').textContent = p.body;
+      $('mpSignForm').setAttribute('data-key', key);
+      $('mpSignName').value = ''; say('mpSignMsg', '');
+      openDlg($('mpSign'));
+    }, function(err){ alert(err.message); });
+  }
+
+  // ---------- People ----------
+  function ppLoad(){
+    rpc('hr_people').then(ppPaint, function(e){
+      if (missing(e)) { $('ppList').innerHTML = '<p class="hint">Run hr-payroll.sql in Supabase to turn this page on.</p>'; return; }
+      $('ppMsg').innerHTML = '<div class="msg error">' + esc(e.message) + '</div>';
+    });
+  }
+  function ppPaint(d){
+    S.people = d;
+    var al = [];
+    (d.alerts || []).forEach(function(a){
+      al.push('<div class="pr-alert ' + (a.level || 'warn') + '"><b>' + esc(a.text) + '</b>' +
+        (a.kind === 'floor' && d.is_admin ? 'Raise everyone below it to the new minimum, starting that day (weeks before keep today&rsquo;s rate).<br><button type="button" class="btn-primary btn-small" data-floor="' + esc(a.date) + '">Raise them from ' + esc(d8(a.date)) + '</button>' : '') + '</div>');
+    });
+    var people = d.people || [];
+    var overdue = people.filter(function(p){ return p.onboarding && p.onboarding.overdue > 0 && p.active; });
+    if (overdue.length) al.push('<div class="pr-alert warn"><b>Onboarding overdue</b>' + overdue.map(function(p){ return esc(p.name) + ' (' + p.onboarding.overdue + ')'; }).join(' · ') + '</div>');
+    var noPermit = people.filter(function(p){ return p.minor_band && !p.permit_on_file && p.active; });
+    if (noPermit.length) al.push('<div class="pr-alert bad"><b>Work permit missing</b>Ohio needs an age and schooling certificate on file for ' + noPermit.map(function(p){ return esc(p.name); }).join(', ') + '.</div>');
+    $('ppAlerts').innerHTML = al.join('');
+    var badge = $('navPeopleBadge'), n = overdue.length + noPermit.length + (d.alerts || []).length;
+    badge.textContent = n; badge.classList.toggle('hidden', !n);
+    ppList();
+    $('ppHireBtn').classList.toggle('hidden', !d.is_admin);
+    $('ppAdmin').classList.toggle('hidden', !d.is_admin);
+    if (d.is_admin) ppSettingsPaint(d);
+  }
+  function ppList(){
+    var d = S.people; if (!d) return;
+    var list = (d.people || []).filter(function(p){
+      if (S.filter === 'onboarding') return p.active && p.status === 'onboarding';
+      if (S.filter === 'minor') return p.active && p.minor_band;
+      if (S.filter === 'past') return !p.active || p.status === 'leaving' || p.status === 'terminated';
+      return p.active && p.status !== 'terminated';
+    });
+    $('ppList').innerHTML = list.length ? list.map(function(p){
+      var ob = p.onboarding || { total: 0, done: 0, overdue: 0 }, pct = ob.total ? Math.round(100 * ob.done / ob.total) : 100;
+      var tags = [];
+      if (p.minor_band) tags.push('<span class="pr-pill warn">' + esc(BAND[p.minor_band] || 'Under 18') + '</span>');
+      if (p.is_tipped) tags.push('<span class="pr-pill">Tipped wage</span>');
+      if (p.status === 'leaving') tags.push('<span class="pr-pill bad">Last day ' + esc(d8(p.last_day)) + '</span>');
+      if (p.below_next_floor) tags.push('<span class="pr-pill bad">Below Jan minimum</span>');
+      tags.push(p.square_linked ? '<span class="pr-pill ok">Square ✓</span>' : '<span class="pr-pill">Square not linked</span>');
+      return '<button type="button" class="pp-card" data-person="' + p.id + '"><div class="pp-card-top"><b>' + esc(p.name) + '</b><span>' + esc(p.position || p.role) + (p.rate != null && Number(p.rate) ? ' · ' + money(p.rate) + '/hr' : '') + '</span></div>' +
+        '<div class="pp-prog" aria-label="Onboarding ' + ob.done + ' of ' + ob.total + '"><i style="width:' + pct + '%"' + (ob.overdue ? ' class="late"' : '') + '></i></div>' +
+        '<small>' + (ob.done >= ob.total ? 'Onboarding done' : !ob.tracked ? 'Checklist ' + ob.done + ' of ' + ob.total + ' (optional: hired before it started)' : 'Onboarding ' + ob.done + ' of ' + ob.total + (ob.overdue ? ', ' + ob.overdue + ' overdue' : '')) + (p.hire_date ? ' · started ' + esc(dY(p.hire_date)) : '') + '</small>' +
+        '<div class="pp-tags">' + tags.join('') + '</div></button>';
+    }).join('') : '<p class="hint">Nobody here.</p>';
+  }
+  function field(label, key, val, type, extra){
+    return '<div><label>' + esc(label) + '</label><input type="' + (type || 'text') + '" data-pf="' + key + '" value="' + esc(val == null ? '' : val) + '"' + (extra || '') + '></div>';
+  }
+  function ppOpenPerson(id){
+    rpc('hr_person', { p_emp: id }).then(function(p){ ppPersonPaint(p); openDlg($('ppPerson')); }, function(e){ alert(e.message); });
+  }
+  function ppPersonPaint(p){
+    var adm = !!p.admin, ob = p.onboarding || [], tx = p.tax || {};
+    var h = '<div class="pp-dlg-head"><h3 id="ppPersonTitle">' + esc(p.name) + '</h3><button type="button" class="pp-x" data-close aria-label="Close">&times;</button></div>' +
+      '<p class="hint" style="margin-top:-4px;">' + esc(p.email) + ' · ' + esc(p.role) + (p.active ? '' : ' · portal access off') + '</p>';
+    // Onboarding
+    h += '<div class="pp-sec"><h4>Onboarding</h4><ul class="pp-ob">' + ob.map(function(i){
+      var canTick = i.who === 'manager' && !i.policy_key;
+      return '<li class="' + (i.done ? 'done' : i.overdue ? 'late' : '') + '"><label>' +
+        (canTick ? '<input type="checkbox" data-ob="' + esc(i.key) + '"' + (i.done ? ' checked' : '') + '>' : '<span class="pp-dot">' + (i.done ? '✓' : '') + '</span>') +
+        '<span><b>' + esc(i.label) + '</b>' + (i.due ? '<small>' + (i.done ? 'done ' + esc(when(i.done_at)) + (i.by ? ' by ' + esc(i.by) : '') : (i.overdue ? 'overdue, was due ' : 'due ') + esc(d8(i.due))) + '</small>' : '') +
+        (!canTick && !i.done ? '<small>' + (i.policy_key ? 'They sign it under My pay.' : i.who === 'employee' ? 'They fill it in under My pay.' : 'Ticks itself when done.') + '</small>' : '') +
+        (i.detail ? '<small class="pp-det">' + esc(i.detail) + '</small>' : '') + '</span></label></li>'; }).join('') + '</ul>' +
+      (!p.hire_date ? '<p class="hint">Set a hire date below to get due dates.</p>' : ob.length && !ob[0].tracked ? '<p class="hint">Hired before this checklist started, so nothing shows as overdue. Tick what you already have on file.</p>' : '') + '</div>';
+    // Job
+    h += '<div class="pp-sec"><h4>Job</h4><div class="pr-form pr-form-3">' + field('Position', 'position', p.position) +
+      '<div><label>Type</label><select data-pf="employment_type">' + ['Part-time', 'Full-time', 'Seasonal'].map(function(t){ return '<option' + (p.employment_type === t ? ' selected' : '') + '>' + t + '</option>'; }).join('') + '</select></div>' +
+      field('Hire date', 'hire_date', p.hire_date, 'date') + '</div><div class="pr-form pr-form-3">' +
+      field('Phone', 'phone', p.phone, 'tel') +
+      '<div><label>Status</label><select data-pf="status">' + [['onboarding', 'Onboarding'], ['active', 'Active'], ['leave', 'On leave']].map(function(s){ return '<option value="' + s[0] + '"' + (p.status === s[0] ? ' selected' : '') + '>' + s[1] + '</option>'; }).join('') +
+        (['leaving', 'terminated'].indexOf(p.status) >= 0 ? '<option selected disabled>' + (p.status === 'leaving' ? 'Leaving' : 'Left') + '</option>' : '') + '</select></div><div></div></div>' +
+      '<div class="pr-form pr-form-3">' + field('Emergency contact', 'emergency_name', p.emergency_name) + field('Their phone', 'emergency_phone', p.emergency_phone, 'tel') + field('Relationship', 'emergency_relation', p.emergency_relation) + '</div></div>';
+    // Under 18
+    if (p.minor_band) {
+      var r = p.minor_today || {};
+      h += '<div class="pp-sec"><h4>' + esc(BAND[p.minor_band] || 'Under 18') + '</h4><p class="hint">Today: ' +
+        (r.blocked ? esc(r.why) : [r.school_day ? 'school day' : 'no school', r.start ? 'from ' + r.start : '', r.end ? 'until ' + r.end : '', r.day_cap ? 'up to ' + r.day_cap + ' h' : '', r.week_cap ? r.week_cap + ' h this week' : ''].filter(Boolean).join(' · ')) +
+        '. The station won&rsquo;t let them clock in outside these limits.</p>' +
+        '<div class="pr-form pr-form-3"><div class="pp-check"><label><input type="checkbox" data-pf="permit_on_file"' + (p.permit_on_file ? ' checked' : '') + '> Work permit on file</label></div>' +
+        field('Permit date', 'permit_date', p.permit_date, 'date') +
+        '<div class="pp-check"><label><input type="checkbox" data-pf="school_required"' + (p.school_required !== false ? ' checked' : '') + '> Still in school</label></div></div></div>';
+    }
+    // Admin: legal, address, tax, Square
+    if (adm) {
+      h += '<div class="pp-sec"><h4>Legal name, birthday, address</h4><div class="pr-form pr-form-3">' + field('Legal first', 'legal_first', p.legal_first) + field('Middle', 'legal_middle', p.legal_middle) + field('Legal last', 'legal_last', p.legal_last) + '</div>' +
+        '<div class="pr-form pr-form-3">' + field('Date of birth', 'birth_date', p.birth_date, 'date') + '<div><label>Age</label><input type="text" disabled value="' + (p.age == null ? '' : p.age) + '"></div><div></div></div>' +
+        '<div class="row2">' + field('Address', 'address1', p.address1) + field('Apt / unit', 'address2', p.address2) + '</div>' +
+        '<div class="pr-form pr-form-3">' + field('City', 'city', p.city) + field('State', 'state', p.state, 'text', ' maxlength="2"') + field('ZIP', 'zip', p.zip) + '</div></div>' +
+        '<div class="pp-sec"><h4>Tax choices (copy from Square: W-4 and IT-4)</h4><div class="pr-form pr-form-3"><div><label>W-4 status</label><select data-tx="w4_status"><option value="">Not entered</option>' +
+          [['single', 'Single / MFS'], ['mfj', 'Married jointly'], ['hoh', 'Head of household']].map(function(o){ return '<option value="' + o[0] + '"' + (tx.w4_status === o[0] ? ' selected' : '') + '>' + o[1] + '</option>'; }).join('') + '</select></div>' +
+          '<div class="pp-check"><label><input type="checkbox" data-tx="w4_step2"' + (tx.w4_step2 ? ' checked' : '') + '> Step 2 box</label></div><div class="pp-check"><label><input type="checkbox" data-tx="w4_exempt"' + (tx.w4_exempt ? ' checked' : '') + '> Exempt</label></div></div>' +
+          '<div class="pr-form pr-form-3">' + ['w4_dependents:Step 3 ($/yr)', 'w4_other_income:Step 4a ($/yr)', 'w4_deductions:Step 4b ($/yr)'].map(function(x){ var k = x.split(':'); return '<div><label>' + k[1] + '</label><input type="number" step="1" min="0" data-tx="' + k[0] + '" value="' + esc(tx[k[0]] == null ? 0 : tx[k[0]]) + '"></div>'; }).join('') + '</div>' +
+          '<div class="pr-form pr-form-3">' + ['w4_extra:Step 4c ($/check)', 'oh_exemptions:IT-4 exemptions', 'oh_extra:Ohio extra ($/check)'].map(function(x){ var k = x.split(':'); return '<div><label>' + k[1] + '</label><input type="number" step="0.01" min="0" data-tx="' + k[0] + '" value="' + esc(tx[k[0]] == null ? 0 : tx[k[0]]) + '"></div>'; }).join('') + '</div>' +
+          '<div class="pr-form pr-form-3"><div><label>School district #</label><input type="text" maxlength="4" data-tx="sd_number" value="' + esc(tx.sd_number || '') + '"></div><div><label>District rate (%)</label><input type="number" step="0.01" min="0" data-tx="sd_rate" value="' + esc(tx.sd_rate || 0) + '"></div>' +
+          '<div><label>District base</label><select data-tx="sd_base"><option value="earned"' + (tx.sd_base !== 'traditional' ? ' selected' : '') + '>Earned income</option><option value="traditional"' + (tx.sd_base === 'traditional' ? ' selected' : '') + '>Traditional</option></select></div></div>' +
+          (tx.updated_at ? '<p class="hint">Last changed ' + esc(when(tx.updated_at)) + (tx.updated_by ? ' by ' + esc(tx.updated_by) : '') + '.</p>' : '<p class="hint">Not entered yet: paycheck previews withhold as single.</p>') + '</div>' +
+        '<div class="pp-sec"><h4>Payroll links</h4><div class="row2">' + field('Square team member ID', 'square_team_member_id', p.square_team_member_id) +
+          field('Tipped occupation code (W-2 box 14b)', 'tip_occupation', p.tip_occupation) + '</div><p class="hint">Use the Square team list on this page to link people. Get the tipped occupation code from your accountant or Square (needed on 2026 W-2s for anyone who gets tips).</p></div>';
+    }
+    h += '<div class="pr-msg" id="ppPMsg"></div><div class="pp-dlg-acts"><button type="button" class="btn-primary btn-small" data-psave>Save</button></div>';
+    // Signed policies + stubs
+    h += '<div class="pp-sec"><h4>Signed</h4>' + ((p.acks || []).length ? (p.acks || []).map(function(a){ return '<div class="pr-row"><span>' + esc(a.key.replace('_', ' ')) + ' v' + a.version + (a.current ? '' : ' (older version)') + '</span><span>' + esc(a.name) + ' · ' + esc(when(a.signed_at)) + '</span></div>'; }).join('') : '<p class="hint">Nothing signed yet.</p>') + '</div>';
+    h += '<div class="pp-sec"><h4>Pay stubs</h4>' + ((p.stubs || []).length ? p.stubs.map(function(s){ return '<button type="button" class="pp-stubrow" data-prun="' + s.run_id + '"><span><b>' + esc(dY(s.pay_date)) + '</b><small>' + esc(d8(s.period_start)) + ' – ' + esc(d8(s.period_end)) + '</small></span><span class="pp-r"><b>' + money(s.net) + '</b><small>gross ' + money(s.gross) + '</small></span></button>'; }).join('') : '<p class="hint">None yet.</p>') + '</div>';
+    if (adm && ['leaving', 'terminated'].indexOf(p.status) < 0) {
+      h += '<details class="pp-sec pp-off"><summary>Someone is leaving</summary><div class="pr-form pr-form-3">' +
+        '<div><label for="ppOffDay">Last day</label><input type="date" id="ppOffDay"></div><div style="grid-column:span 2;"><label for="ppOffWhy">Reason (private)</label><input type="text" id="ppOffWhy" maxlength="300"></div></div>' +
+        '<div class="pp-check"><label><input type="checkbox" id="ppOffRehire" checked> Would rehire</label></div>' +
+        '<p class="hint">Their station PIN stops working now. Ohio: final pay is due on the next regular payday. Keep their portal sign-in on until they&rsquo;ve seen their last pay stub, then turn it off in Staff.</p>' +
+        '<button type="button" class="btn-ghost btn-small" data-off>Save last day</button><div class="pr-msg" id="ppOffMsg"></div></details>';
+    } else if (p.last_day) {
+      h += '<div class="pp-sec"><h4>' + (p.status === 'leaving' ? 'Leaving' : 'Left') + '</h4><p class="hint">Last day ' + esc(dY(p.last_day)) + (p.separation_reason ? ' · ' + esc(p.separation_reason) : '') + (p.rehire_ok === false ? ' · not eligible for rehire' : '') + '.</p></div>';
+    }
+    var box = $('ppPersonBody'); box.innerHTML = h; box.setAttribute('data-id', p.id);
+  }
+  function ppPersonWire(){
+    var box = $('ppPersonBody');
+    box.addEventListener('change', function(e){
+      var ob = e.target.closest('[data-ob]'); if (!ob) return;
+      var id = box.getAttribute('data-id'), key = ob.getAttribute('data-ob'), note = null;
+      if (ob.checked && key === 'i9') note = prompt('Optional note (e.g. "List A: passport")', '') || null;
+      rpc('hr_onboarding_set', { p_emp: id, p_key: key, p_done: ob.checked, p_note: note }).then(function(p){ ppPersonPaint(p); ppLoad(); }, function(err){ ob.checked = !ob.checked; alert(err.message); });
+    });
+    box.addEventListener('click', function(e){
+      var id = box.getAttribute('data-id');
+      if (e.target.closest('[data-psave]')) {
+        var p = {};
+        box.querySelectorAll('[data-pf]').forEach(function(el){ p[el.getAttribute('data-pf')] = el.type === 'checkbox' ? el.checked : el.value.trim(); });
+        if (box.querySelector('[data-tx]')) p.tax = taxFrom(box);
+        say('ppPMsg', 'Saving…');
+        rpc('hr_person_save', { p_emp: id, p: p }).then(function(d){ ppPersonPaint(d); say('ppPMsg', 'Saved.', 'ok'); ppLoad(); }, function(err){ say('ppPMsg', err.message, 'bad'); });
+        return;
+      }
+      var r = e.target.closest('[data-prun]');
+      if (r) { rpc('paystub_get', { p_run: r.getAttribute('data-prun'), p_emp: id }).then(function(s){ closeDlg($('ppPerson')); stubDialog('mpStub', 'mpStubBody', s, false); }, function(err){ alert(err.message); }); return; }
+      if (e.target.closest('[data-off]')) {
+        var day = $('ppOffDay').value; if (!day) { say('ppOffMsg', 'Pick their last day.', 'bad'); return; }
+        if (!confirm('Save ' + d8(day) + ' as their last day? Their station PIN stops working now.')) return;
+        rpc('hr_offboard', { p_emp: id, p: { last_day: day, reason: $('ppOffWhy').value.trim(), rehire_ok: $('ppOffRehire').checked } }).then(function(d){
+          ppPersonPaint(d); ppLoad();
+          alert('Saved. Their final paycheck is due on ' + dY(d.final_pay_date) + ' (the payday for the period with their last day).');
+        }, function(err){ say('ppOffMsg', err.message, 'bad'); });
+      }
+    });
+  }
+  // Hire
+  var hireApp = null;
+  window.ppHire = null;
+  function ppHireOpen(app){
+    hireApp = app || null;
+    $('ppHireFrom').textContent = app ? 'From their application for ' + (app.position_title || 'a job') + '.' : '';
+    $('ppHName').value = app ? app.name : ''; $('ppHEmail').value = app ? (app.email || '') : ''; $('ppHPhone').value = app ? (app.phone || '') : '';
+    $('ppHPos').value = app ? (app.position_title || '') : ''; $('ppHRate').value = ''; $('ppHStart').value = (app && app.start_date) || today();
+    $('ppHBirth').value = ''; $('ppHTipped').checked = false; say('ppHireMsg', '');
+    var f = S.people && S.people.floor, nf = S.people && S.people.next_floor;
+    $('ppHFloor').textContent = f ? 'Minimum wage: $' + Number(f.min_wage).toFixed(2) + ' ($' + Number(f.tipped_min_wage).toFixed(2) + ' tipped)' + (nf ? '; $' + Number(nf.min_wage).toFixed(2) + ' from ' + dY(nf.from) : '') + '.' : '';
+    if (app && !app.over_16) $('ppHFloor').textContent += ' They said they are under 16: add their birth date, and get a work permit before their first shift.';
+    openDlg($('ppHire')); $('ppHName').focus();
+  }
+  function ppHireWire(){
+    $('ppHireBtn').addEventListener('click', function(){ ppHireOpen(null); });
+    $('ppHireForm').addEventListener('submit', function(e){
+      e.preventDefault();
+      var p = { name: $('ppHName').value.trim(), email: $('ppHEmail').value.trim(), phone: $('ppHPhone').value.trim(), position: $('ppHPos').value.trim(),
+        rate: Number($('ppHRate').value), start_date: $('ppHStart').value, employment_type: $('ppHType').value, birth_date: $('ppHBirth').value || null, is_tipped: $('ppHTipped').checked };
+      if (hireApp) p.application_id = hireApp.id;
+      $('ppHireGo').disabled = true; say('ppHireMsg', 'Adding…');
+      rpc('hr_hire', { p: p }).then(function(person){
+        $('ppHireGo').disabled = false; closeDlg($('ppHire'));
+        if (window.hrLoad) try { window.hrLoad(); } catch (x) {}
+        showTab('people'); ppLoad(); ppPersonPaint(person); openDlg($('ppPerson'));
+      }, function(err){ $('ppHireGo').disabled = false; say('ppHireMsg', err.message, 'bad'); });
+    });
+  }
+  // Admin settings
+  function ppSettingsPaint(d){
+    var s = d.settings || {};
+    $('ppFreq').value = s.pay_frequency; $('ppAnchor').value = s.period_anchor; $('ppOffset').value = s.pay_day_offset;
+    $('ppFreq').disabled = $('ppAnchor').disabled = !!d.locked_schedule;
+    var per = d.period || {};
+    $('ppSchedNote').textContent = (d.locked_schedule ? 'The schedule is locked after the first paycheck. ' : '') + (per.period_start ? 'This period: ' + d8(per.period_start) + ' – ' + d8(per.period_end) + ', payday ' + dY(per.pay_date) + '. ' : '') +
+      'Ohio requires paying at least twice a month, within about two weeks of the period.';
+    $('ppEmpName').value = s.employer_name || ''; $('ppEmpAddr').value = s.employer_address || '';
+    $('ppCity').value = s.work_city || ''; $('ppCityRate').value = s.city_rate; $('ppCityNote').textContent = s.city_note || '';
+    $('ppSchoolStart').value = s.school_year_start || ''; $('ppSchoolEnd').value = s.school_year_end || '';
+    $('ppSchoolFrom').value = s.school_hours_start || ''; $('ppSchoolTo').value = s.school_hours_end || '';
+    $('ppDaysOff').value = (d.school_days_off || []).map(function(x){ return x.day + (x.label ? ' ' + x.label : ''); }).join('\n');
+    $('ppFloors').innerHTML = (d.floors || []).map(function(f){ var cur = d.floor && d.floor.from === f.from;
+      return '<div class="pr-row"><span>From ' + esc(dY(f.from)) + (cur ? ' <span class="pr-pill ok">now</span>' : f.from > today() ? ' <span class="pr-pill warn">coming</span>' : '') + '</span><span>' + money(f.min_wage) + ' · tipped ' + money(f.tipped_min_wage) + '</span></div>'; }).join('');
+    if (!$('ppPolicyBody').getAttribute('data-loaded')) ppPolicyLoad();
+  }
+  function ppPolicyLoad(){
+    var key = $('ppPolicy').value;
+    rpc('hr_policy', { p_key: key }).then(function(p){
+      $('ppPolicyTitle').value = p.title; $('ppPolicyBody').value = p.raw || p.body; $('ppPolicyBody').setAttribute('data-loaded', '1');
+      var pol = ((S.people && S.people.policies) || []).find(function(x){ return x.key === key; });
+      $('ppPolicyInfo').textContent = 'Version ' + p.version + (pol ? ' · signed by ' + pol.signed + ' on this version' : '') + '. Saving a change makes a new version that staff sign again. [min] and [tipped_min] fill in the current minimum wages.';
+    });
+  }
+  function ppAdminWire(){
+    $('ppSaveSched').addEventListener('click', function(){
+      var p = { pay_frequency: $('ppFreq').value, period_anchor: $('ppAnchor').value, pay_day_offset: Number($('ppOffset').value),
+        employer_name: $('ppEmpName').value.trim(), employer_address: $('ppEmpAddr').value.trim(), work_city: $('ppCity').value.trim(), city_rate: Number($('ppCityRate').value) };
+      if (S.people && S.people.locked_schedule) { delete p.pay_frequency; delete p.period_anchor; }
+      say('ppSchedMsg', 'Saving…');
+      rpc('hr_settings_save', { p: p }).then(function(d){ ppPaint(d); say('ppSchedMsg', 'Saved.', 'ok'); ppPerLoad(); }, function(e){ say('ppSchedMsg', e.message, 'bad'); });
+    });
+    $('ppSaveSchool').addEventListener('click', function(){
+      var off = $('ppDaysOff').value.split('\n').map(function(l){ var m = /^\s*(\d{4}-\d{2}-\d{2})\s*(.*)$/.exec(l); return m ? { day: m[1], label: m[2].trim() } : null; }).filter(Boolean);
+      say('ppSchoolMsg', 'Saving…');
+      rpc('hr_settings_save', { p: { school_year_start: $('ppSchoolStart').value, school_year_end: $('ppSchoolEnd').value, school_hours_start: $('ppSchoolFrom').value, school_hours_end: $('ppSchoolTo').value, school_days_off: off } })
+        .then(function(d){ ppPaint(d); say('ppSchoolMsg', 'Saved.', 'ok'); }, function(e){ say('ppSchoolMsg', e.message, 'bad'); });
+    });
+    $('ppFloorSave').addEventListener('click', function(){
+      var f = $('ppFloorFrom').value, m = Number($('ppFloorMin').value), t = Number($('ppFloorTip').value);
+      if (!f || !(m > 0) || !(t > 0)) { say('ppFloorMsg', 'Fill in the date and both wages.', 'bad'); return; }
+      rpc('hr_floor_save', { p_from: f, p_min: m, p_tipped: t }).then(function(d){ ppPaint(d); say('ppFloorMsg', 'Saved.', 'ok'); }, function(e){ say('ppFloorMsg', e.message, 'bad'); });
+    });
+    $('ppPolicy').addEventListener('change', ppPolicyLoad);
+    $('ppPolicySave').addEventListener('click', function(){
+      say('ppPolicyMsg', 'Saving…');
+      rpc('hr_policy_save', { p_key: $('ppPolicy').value, p_title: $('ppPolicyTitle').value, p_body: $('ppPolicyBody').value }).then(function(){ say('ppPolicyMsg', 'Saved.', 'ok'); ppLoad(); setTimeout(ppPolicyLoad, 300); }, function(e){ say('ppPolicyMsg', e.message, 'bad'); });
+    });
+    $('ppSqLoad').addEventListener('click', function(){
+      $('ppSqBox').innerHTML = '<p class="hint">Loading Square team…</p>';
+      fn({ action: 'team' }).then(function(d){ S.sq = d; ppSqPaint(); }, function(e){ $('ppSqBox').innerHTML = '<p class="hint">' + esc(e.message) + '</p>'; });
+    });
+    $('ppSqBox').addEventListener('click', function(e){
+      var b = e.target.closest('[data-sqlink]'); if (!b) return;
+      var emp = b.getAttribute('data-sqlink'), sel = $('ppSqBox').querySelector('select[data-sqfor="' + emp + '"]');
+      b.disabled = true;
+      fn({ action: 'link', employee_id: emp, team_member_id: sel.value || null }).then(function(){ b.disabled = false; b.textContent = 'Saved ✓'; var p = (S.sq.people || []).find(function(x){ return x.employee_id === emp; }); if (p) p.linked = sel.value || null; ppLoad(); },
+        function(err){ b.disabled = false; alert(err.message); });
+    });
+  }
+  function ppSqPaint(){
+    var d = S.sq || {}, team = d.team || [];
+    $('ppSqBox').innerHTML = '<div class="pp-sq">' + (d.people || []).map(function(p){
+      var pick = p.linked || p.suggested || '';
+      return '<div class="pr-row"><span><b>' + esc(p.name) + '</b><small> ' + esc(p.email) + '</small></span><span class="pp-inline"><select data-sqfor="' + p.employee_id + '" aria-label="Square team member for ' + esc(p.name) + '"><option value="">Not linked</option>' +
+        team.map(function(t){ return '<option value="' + esc(t.id) + '"' + (t.id === pick ? ' selected' : '') + '>' + esc(t.name || t.email || t.id) + (t.owner ? ' (owner)' : '') + '</option>'; }).join('') + '</select>' +
+        '<button type="button" class="btn-ghost btn-small" data-sqlink="' + p.employee_id + '">' + (p.linked ? 'Save' : p.suggested ? 'Link (suggested)' : 'Link') + '</button></span></div>'; }).join('') + '</div>' +
+      '<p class="hint">Not in the list? Add them in Square first: Staff → Team → Add team member, with payroll on.</p>';
+  }
+
+  // ---------- Pay periods (Payroll tab) ----------
+  function ppPerLoad(start){
+    rpc('pay_periods', { p_count: 10 }).then(function(list){
+      $('ppPeriod').classList.remove('hidden');
+      S.per.list = list || [];
+      if (start) S.per.start = start;
+      if (!S.per.start || !S.per.list.some(function(p){ return p.period_start === S.per.start; })) {
+        var prev = S.per.list[1], cur = S.per.list[0];
+        S.per.start = prev && (prev.runs === 0 || prev.approved > 0) ? prev.period_start : (cur && cur.period_start);
+      }
+      $('ppPer').innerHTML = S.per.list.map(function(p){
+        var tags = [];
+        if (p.current) tags.push('in progress');
+        if (p.sent) tags.push('paid'); else if (p.runs) tags.push('approved');
+        if (p.approved) tags.push(p.approved + ' shifts to pay');
+        if (p.pending) tags.push(p.pending + ' pending');
+        return '<option value="' + p.period_start + '"' + (p.period_start === S.per.start ? ' selected' : '') + '>' + d8(p.period_start) + ' – ' + d8(p.period_end) + ' · payday ' + d8(p.pay_date) + (tags.length ? ' · ' + tags.join(', ') : '') + '</option>'; }).join('');
+      if (S.per.start) ppPerOne();
+    }, function(e){ if (missing(e)) $('ppPeriod').classList.add('hidden'); });
+  }
+  function ppPerOne(){
+    $('ppPerLines').innerHTML = '<tr><td colspan="7">Loading…</td></tr>';
+    rpc('pay_period', { p_start: S.per.start }).then(ppPerPaint, function(e){ $('ppPerLines').innerHTML = '<tr><td colspan="7">' + esc(e.message) + '</td></tr>'; });
+  }
+  function ppPerPaint(d){
+    S.per.data = d;
+    var lines = d.lines || [], ended = d.period_end < d.today, tot = d.totals || {};
+    var al = [];
+    if (!ended) al.push('<div class="pr-alert"><b>This pay period ends ' + esc(d8(d.period_end, { weekday: 'long', month: 'short', day: 'numeric' })) + '</b>You can approve it the day after. Numbers so far are below.</div>');
+    var minors = d.minor_flags || [];
+    if (minors.length) al.push('<div class="pr-alert warn"><b>Under-18 rules</b><ul>' + minors.map(function(m){ return '<li>' + esc(m.name) + ' · ' + esc(d8(m.day, { weekday: 'short' })) + ': ' + esc(m.issue) + '</li>'; }).join('') + '</ul></div>');
+    var unl = lines.filter(function(l){ return !l.square_team_member_id && Number(l.gross); });
+    if (unl.length) al.push('<div class="pr-alert warn"><b>Not linked to Square</b>' + unl.map(function(l){ return esc(l.name); }).join(', ') + ': their hours can&rsquo;t be sent until an admin links them on the People page.</div>');
+    $('ppPerAlerts').innerHTML = al.join('');
+    $('ppPerKpis').innerHTML = '<div class="pr-kpi"><b>' + money(tot.gross) + '</b><small>Gross pay · ' + (tot.people || 0) + ' people</small></div>' +
+      '<div class="pr-kpi"><b>' + money(tot.taxes) + '</b><small>Taxes withheld (est.)</small></div>' +
+      '<div class="pr-kpi"><b>' + money(tot.net) + '</b><small>Take-home (est.)</small></div>' +
+      '<div class="pr-kpi"><b>' + money(tot.employer_fica) + '</b><small>Your Social Security + Medicare share</small></div>' +
+      '<div class="pr-kpi"><b>' + esc(dY(d.pay_date)) + '</b><small>Payday</small></div>';
+    $('ppPerLines').innerHTML = lines.length ? lines.map(function(l, i){
+      var flags = l.flags || [];
+      return '<tr><td data-label="Employee"><button type="button" class="pp-link" data-prev="' + i + '"><b>' + esc(l.name) + '</b></button>' + (l.is_tipped ? '<small>tipped wage</small>' : '') + '</td>' +
+        '<td data-label="Hours">' + hrs(l.hours) + (Number(l.ot_hours) ? '<small>' + hrs(l.ot_hours) + ' OT</small>' : '') + (l.pending ? '<small>+' + l.pending + ' pending</small>' : '') + '</td>' +
+        '<td data-label="Gross"><b>' + money(l.gross) + '</b>' + (Number(l.tips) ? '<small>incl. ' + money(l.tips) + ' tips</small>' : '') + '</td>' +
+        '<td data-label="Taxes (est.)">' + money(l.total_taxes) + '</td>' +
+        '<td data-label="Cash tips paid">' + (Number(l.tips_cash_paid) ? money(l.tips_cash_paid) : '—') + '</td>' +
+        '<td data-label="Net (est.)"><b>' + money(l.net) + '</b></td>' +
+        '<td data-label="Check">' + (flags.length ? '<span class="pr-pill warn" title="' + esc(flags.join('\n')) + '">' + flags.length + ' to check</span><small class="pp-flags">' + flags.map(esc).join('<br>') + '</small>' : '<span class="pr-pill ok">OK</span>') + '</td></tr>';
+    }).join('') : '<tr><td colspan="7">No hours to pay in this period' + (ended ? '.' : ' yet.') + '</td></tr>';
+    var owed = lines.some(function(l){ return Math.abs(Number(l.gross)) >= 0.01; });
+    var btn = $('ppApprove');
+    btn.disabled = !ended || !owed;
+    btn.textContent = (d.runs || []).some(function(r){ return r.status !== 'void'; }) ? 'Approve follow-up paychecks' : 'Approve paychecks';
+    // runs
+    $('ppRuns').innerHTML = (d.runs || []).map(function(r){
+      var tt = r.totals || {}, st = r.status;
+      var head = '<div class="pr-run-head"><div><b>' + (st === 'sent' ? 'Paid in Square' : st === 'void' ? 'Undone' : 'Approved: next, run it in Square') + '</b> · ' + esc(when(r.created_at)) + (r.by ? ' by ' + esc(r.by) : '') +
+        '<br><small class="hint">' + (tt.people || 0) + ' people · ' + hrs(tt.hours) + ' h · gross ' + money(tt.gross) + ' · net (est.) ' + money(tt.net) + (r.sent_at ? ' · marked paid ' + esc(when(r.sent_at)) + (r.sent_by ? ' by ' + esc(r.sent_by) : '') : '') + '</small></div>' +
+        '<span>' + (d.is_admin && st === 'approved' ? '<button type="button" class="btn-ghost btn-small" data-void="' + r.id + '">Undo</button>' : '') + '</span></div>';
+      if (st === 'void') return '<div class="card pr-card pp-run is-void">' + head + '</div>';
+      var stubs = r.stubs || [], sq = r.square;
+      var add = stubs.filter(function(s){ return Math.max(0, Number(s.tips) - Number(s.tips_cash_paid)) >= 0.01 || Number(s.makeup) >= 0.01; });
+      var steps = '<ol class="pp-steps">' +
+        '<li class="' + (sq ? 'done' : '') + '"><b>Send hours to Square</b>' + (sq ? '<small>' + sq.timecards + ' shifts sent ' + esc(when(sq.pushed_at)) + (sq.failed ? ' · <span class="pp-warn">' + sq.failed + ' problem(s) below</span>' : '') + '</small>' : '<small>Makes a Square timecard for every approved shift, with cash tips already handed out.</small>') +
+          (st === 'approved' ? '<button type="button" class="btn-primary btn-small" data-push="' + r.id + '">' + (sq ? 'Send again' : 'Send to Square') + '</button>' : '') + '</li>' +
+        '<li><b>In Square Payroll, run payroll for ' + esc(d8(d.period_start)) + ' – ' + esc(d8(d.period_end)) + '</b><small>Square imports the hours. ' + (add.length ? 'Add these by hand in the pay run (Square&rsquo;s API can&rsquo;t send them):' : 'Nothing to add by hand.') + '</small>' +
+          (add.length ? '<ul class="pp-add">' + add.map(function(s){ var pt = Math.max(0, Number(s.tips) - Number(s.tips_cash_paid));
+            return '<li><b>' + esc(s.name) + '</b>' + (pt >= 0.01 ? ' · Paycheck tips ' + money(pt) : '') + (Number(s.makeup) >= 0.01 ? ' · Other earnings &ldquo;Tip make-up&rdquo; ' + money(s.makeup) : '') + '</li>'; }).join('') + '</ul>' : '') +
+          '<small>Check each person&rsquo;s gross matches the stub below; taxes may differ by a few cents.</small></li>' +
+        '<li class="' + (st === 'sent' ? 'done' : '') + '"><b>Mark it paid</b>' + (st === 'sent' ? '<small>' + esc(r.sent_note || 'Done') + '</small>' : '<button type="button" class="btn-ghost btn-small" data-sent="' + r.id + '">Mark as paid in Square</button>') + '</li></ol>';
+      var probs = stubs.filter(function(s){ return s.square && (s.square.errors || []).length; });
+      if (probs.length) steps += '<div class="pr-alert bad"><b>Square said</b><ul>' + probs.map(function(s){ return '<li>' + esc(s.name) + ': ' + esc(s.square.errors.join('; ')) + '</li>'; }).join('') + '</ul></div>';
+      var table = '<div style="overflow-x:auto;"><table class="stack pr-table"><thead><tr><th>Employee</th><th>Hours</th><th>Gross</th><th>Taxes</th><th>Net</th></tr></thead><tbody>' + stubs.map(function(s){
+        return '<tr><td data-label="Employee"><button type="button" class="pp-link" data-stub="' + r.id + '|' + s.employee_id + '">' + esc(s.name) + '</button></td><td data-label="Hours">' + hrs(s.hours) + '</td><td data-label="Gross">' + money(s.gross) + '</td><td data-label="Taxes">' + money(s.total_taxes) + '</td><td data-label="Net"><b>' + money(s.net) + '</b></td></tr>'; }).join('') + '</tbody></table></div>';
+      return '<div class="card pr-card pp-run">' + head + steps + table + '</div>';
+    }).join('');
+    ppTipPaint();
+  }
+  function ppPerWire(){
+    $('ppPer').addEventListener('change', function(){ S.per.start = this.value; ppPerOne(); });
+    var step = function(dir){ var i = S.per.list.findIndex(function(p){ return p.period_start === S.per.start; }), j = i - dir; if (j < 0 || j >= S.per.list.length) return; $('ppPer').value = S.per.list[j].period_start; $('ppPer').dispatchEvent(new Event('change')); };
+    $('ppPerPrev').addEventListener('click', function(){ step(-1); });
+    $('ppPerNext').addEventListener('click', function(){ step(1); });
+    $('ppApprove').addEventListener('click', function(){
+      var d = S.per.data; if (!d) return;
+      var owed = (d.lines || []).filter(function(l){ return Math.abs(Number(l.gross)) >= 0.01; });
+      var flagged = owed.filter(function(l){ return (l.flags || []).length; });
+      if (!confirm('Approve paychecks for ' + d8(d.period_start) + ' – ' + d8(d.period_end) + ' (payday ' + dY(d.pay_date) + ')?\n\n' +
+        owed.map(function(l){ return l.name + ': gross ' + money(l.gross) + ', net about ' + money(l.net); }).join('\n') +
+        (flagged.length ? '\n\n' + flagged.length + ' person(s) have items to check first.' : '') + '\n\nThese hours are locked and everyone gets a pay stub. Then send the hours to Square.')) return;
+      var b = this; b.disabled = true; b.textContent = 'Approving…';
+      rpc('pay_period_approve', { p_start: d.period_start }).then(function(x){ ppPerPaint(x); ppPerLoad(d.period_start); ppYearRefresh(); if (window.loadPayroll) loadPayroll(); },
+        function(e){ b.disabled = false; b.textContent = 'Approve paychecks'; alert(e.message); });
+    });
+    $('ppPerCsv').addEventListener('click', function(){
+      var d = S.per.data; if (!d) return;
+      var rows = [['Employee', 'Email', 'Period start', 'Period end', 'Pay date', 'Regular hours', 'Overtime hours', 'Gross', 'Tips', 'Tips paid in cash', 'Tip make-up', 'Federal', 'Social Security', 'Medicare', 'Ohio', 'School district', 'City', 'Net (est.)', 'Square team member']];
+      (d.lines || []).forEach(function(l){ var t = l.taxes || {};
+        rows.push([l.name, l.email || '', d.period_start, d.period_end, d.pay_date, hrs(l.regular_hours), hrs(l.ot_hours), l.gross, l.tips, l.tips_cash_paid, l.makeup, t.federal, t.social_security, t.medicare, t.ohio, t.school_district, t.city, l.net, l.square_team_member_id || '']); });
+      downloadCSV('pay_period_' + d.period_start + '.csv', rows);
+    });
+    $('ppPeriod').addEventListener('click', function(e){
+      var pv = e.target.closest('[data-prev]');
+      if (pv) { var l = S.per.data.lines[+pv.getAttribute('data-prev')], d = S.per.data;
+        stubDialog('ppStubDlg', 'ppStubDlgBody', Object.assign({}, l, { period_start: d.period_start, period_end: d.period_end, pay_date: d.pay_date, employer: null }), true); return; }
+      var st = e.target.closest('[data-stub]');
+      if (st) { var k = st.getAttribute('data-stub').split('|'); rpc('paystub_get', { p_run: k[0], p_emp: k[1] }).then(function(s){ stubDialog('ppStubDlg', 'ppStubDlgBody', s, false); }, function(err){ alert(err.message); }); return; }
+      var push = e.target.closest('[data-push]');
+      if (push) {
+        push.disabled = true; push.textContent = 'Sending…';
+        fn({ action: 'push', run_id: push.getAttribute('data-push') }).then(function(r){
+          ppPerOne();
+          if (!r.ok) alert('Sent ' + r.timecards + ' shift(s). ' + r.failed + ' couldn’t be sent; see the list.');
+        }, function(err){ push.disabled = false; push.textContent = 'Send to Square'; alert(err.message); });
+        return;
+      }
+      var sent = e.target.closest('[data-sent]');
+      if (sent) {
+        var note = prompt('Mark this pay run as paid in Square Payroll? Add a note if you like (e.g. "Square run #123, direct deposit Fri").', '');
+        if (note === null) return;
+        rpc('pay_period_mark_sent', { p_run: sent.getAttribute('data-sent'), p_note: note }).then(function(x){ ppPerPaint(x); ppPerLoad(); }, function(err){ alert(err.message); });
+        return;
+      }
+      var v = e.target.closest('[data-void]');
+      if (v) {
+        if (!confirm('Undo this approval? The hours go back to approved and the pay stubs are withdrawn. Only do this if it hasn’t been run in Square yet (or you’ll fix it there too).')) return;
+        rpc('pay_period_void', { p_run: v.getAttribute('data-void') }).then(function(x){ ppPerPaint(x); ppPerLoad(); ppYearRefresh(); if (window.loadPayroll) loadPayroll(); }, function(err){ alert(err.message); });
+      }
+    });
+  }
+  // Nightly cash tip payouts
+  var tipDay = null;
+  function ppTipPaint(){
+    var box = $('ppTipNight');
+    if (!tipDay) tipDay = today();
+    box.innerHTML = '<p class="hint" style="margin-top:0;">If you hand out card tips in cash at the end of a night, record it here. The paycheck counts it as tips already paid and still withholds tax on it.</p>' +
+      '<div class="pp-inline"><input type="date" id="ppTipDate" value="' + tipDay + '" max="' + today() + '" aria-label="Day"><button type="button" class="btn-ghost btn-small" id="ppTipGo">Show</button></div><div id="ppTipRows"></div>';
+    $('ppTipGo').onclick = function(){ tipDay = $('ppTipDate').value || today(); ppTipLoad(); };
+    ppTipLoad();
+  }
+  function ppTipLoad(){
+    rpc('tip_day', { p_day: tipDay }).then(function(d){
+      var ppl = d.people || [];
+      $('ppTipRows').innerHTML = '<div class="pr-row"><span>Card tips that day</span><b>' + money(d.card_tips) + '</b></div>' + (ppl.length ? ppl.map(function(p){
+        return '<div class="pr-row"><span>' + esc(p.name) + ' <small>' + hrs(p.hours) + ' h · share ' + money(p.share) + '</small></span><span><input type="number" step="0.01" min="0" data-tipfor="' + p.employee_id + '" value="' + (p.paid != null ? Number(p.paid).toFixed(2) : '') + '" placeholder="' + Number(p.share || 0).toFixed(2) + '"' + (p.settled ? ' disabled title="Already on a paycheck"' : '') + ' style="width:100px;margin:0;" aria-label="Cash paid to ' + esc(p.name) + '"></span></div>'; }).join('') +
+        '<div class="pp-inline" style="margin-top:8px;"><button type="button" class="btn-ghost btn-small" id="ppTipFill">Fill in shares</button><button type="button" class="btn-primary btn-small" id="ppTipSave">Save payouts</button></div><div class="pr-msg" id="ppTipMsg"></div>'
+        : '<p class="hint">Nobody who shares tips worked that day.</p>');
+      if (!ppl.length) return;
+      $('ppTipFill').onclick = function(){ ppl.forEach(function(p){ var el = $('ppTipRows').querySelector('[data-tipfor="' + p.employee_id + '"]'); if (el && !el.disabled) el.value = Number(p.share || 0).toFixed(2); }); };
+      $('ppTipSave').onclick = function(){
+        var items = []; $('ppTipRows').querySelectorAll('[data-tipfor]').forEach(function(el){ if (!el.disabled) items.push({ employee_id: el.getAttribute('data-tipfor'), amount: el.value === '' ? 0 : Number(el.value) }); });
+        say('ppTipMsg', 'Saving…');
+        rpc('tip_day_save', { p_day: tipDay, p_items: items }).then(function(){ say('ppTipMsg', 'Saved.', 'ok'); if (S.per.start) ppPerOne(); }, function(e){ say('ppTipMsg', e.message, 'bad'); });
+      };
+    }, function(e){ $('ppTipRows').innerHTML = '<p class="hint">' + esc(e.message) + '</p>'; });
+  }
+  // Year-end
+  var yearShown = null;
+  function ppYearRefresh(){ if (S.isAdmin && yearShown) ppYearLoad(yearShown); }
+  function ppYearLoad(year){
+    yearShown = year;
+    var box = $('ppYear');
+    box.innerHTML = '<p class="hint">Loading…</p>';
+    rpc('payroll_year', { p_year: year }).then(function(d){
+      var ppl = d.people || [], y = new Date().getFullYear();
+      var t = function(p, k){ return Number((p.totals || {})[k]) || 0; };
+      box.innerHTML = '<div class="pp-inline"><select id="ppYearSel" aria-label="Year">' + [y, y - 1].map(function(v){ return '<option' + (v === year ? ' selected' : '') + '>' + v + '</option>'; }).join('') + '</select><button type="button" class="btn-export btn-small" id="ppYearCsv">CSV</button></div>' +
+        (ppl.length ? '<div style="overflow-x:auto;"><table class="stack pr-table"><thead><tr><th>Employee</th><th>Gross</th><th>Tips (TP)</th><th>OT premium (TT)</th><th>Withheld</th><th>Check</th></tr></thead><tbody>' + ppl.map(function(p){
+          var chk = [];
+          if (!p.address_ok) chk.push('no address');
+          if (!p.legal_name) chk.push('no legal name');
+          if (t(p, 'tips') > 0 && !p.tip_occupation) chk.push('no tipped occupation code');
+          return '<tr><td data-label="Employee">' + esc(p.legal_name || p.name) + '<small>' + p.checks + ' paychecks</small></td><td data-label="Gross">' + money(t(p, 'gross')) + '</td><td data-label="Tips (TP)">' + money(t(p, 'tips')) + '</td><td data-label="OT premium (TT)">' + money(t(p, 'ot_premium')) + '</td>' +
+            '<td data-label="Withheld">' + money(t(p, 'federal') + t(p, 'social_security') + t(p, 'medicare') + t(p, 'ohio') + t(p, 'school_district') + t(p, 'city')) + '</td>' +
+            '<td data-label="Check">' + (chk.length ? '<span class="pr-pill warn">' + esc(chk.join(', ')) + '</span>' : '<span class="pr-pill ok">Ready</span>') + '</td></tr>'; }).join('') + '</tbody></table></div>' : '<p class="hint">No paychecks yet this year.</p>') +
+        '<p class="hint">Square Payroll files the W-2s. Use this to check its numbers in January: 2026 W-2s show tips in box 12 code TP (with the tipped occupation code in box 14b) and the overtime premium in box 12 code TT.</p>';
+      $('ppYearSel').onchange = function(){ ppYearLoad(+this.value); };
+      $('ppYearCsv').onclick = function(){
+        var rows = [['Employee', 'Legal name', 'Paychecks', 'Gross', 'Tips (box 12 TP)', 'Tipped occupation code', 'Overtime premium (box 12 TT)', 'Federal', 'Social Security', 'Medicare', 'Ohio', 'School district', 'City', 'Net']];
+        ppl.forEach(function(p){ rows.push([p.name, p.legal_name || '', p.checks, t(p, 'gross'), t(p, 'tips'), p.tip_occupation || '', t(p, 'ot_premium'), t(p, 'federal'), t(p, 'social_security'), t(p, 'medicare'), t(p, 'ohio'), t(p, 'school_district'), t(p, 'city'), t(p, 'net')]); });
+        downloadCSV('payroll_' + year + '_year.csv', rows);
+      };
+    }, function(e){ box.innerHTML = '<p class="hint">' + esc(e.message) + '</p>'; });
+  }
+
+  // ---------- Start ----------
+  var started = false;
+  window.ppInit = function(role){
+    if (started) return; started = true;
+    S.role = role; S.isMgr = role === 'manager' || role === 'admin'; S.isAdmin = role === 'admin';
+    // Dialogs live in tab panels that are hidden most of the time; a dialog inside a hidden panel can't show.
+    document.querySelectorAll('dialog.pp-dialog').forEach(function(d){ document.body.appendChild(d); });
+    // A dialog for previews on the Payroll page
+    var dlg = document.createElement('dialog'); dlg.className = 'pp-dialog pp-wide'; dlg.id = 'ppStubDlg'; dlg.setAttribute('aria-label', 'Pay stub');
+    dlg.innerHTML = '<div class="pp-dlg-body" id="ppStubDlgBody"></div>'; document.body.appendChild(dlg);
+    mpWire();
+    document.querySelector('.nav-link[data-tab="mypay"]').addEventListener('click', mpLoad);
+    mpLoad();
+    if (S.isMgr) {
+      $('tabPeopleBtn').classList.remove('hidden');
+      document.querySelector('.nav-link[data-tab="people"]').addEventListener('click', ppLoad);
+      document.querySelectorAll('[data-pp-filter]').forEach(function(b){ b.addEventListener('click', function(){
+        document.querySelectorAll('[data-pp-filter]').forEach(function(x){ x.classList.toggle('on', x === b); }); S.filter = b.getAttribute('data-pp-filter'); ppList(); }); });
+      $('ppList').addEventListener('click', function(e){ var c = e.target.closest('[data-person]'); if (c) ppOpenPerson(c.getAttribute('data-person')); });
+      $('ppAlerts').addEventListener('click', function(e){
+        var f = e.target.closest('[data-floor]'); if (!f) return;
+        if (!confirm('Give everyone below the new minimum wage a raise to it, starting ' + dY(f.getAttribute('data-floor')) + '?')) return;
+        rpc('hr_apply_floor', { p_from: f.getAttribute('data-floor') }).then(function(d){ ppPaint(d); alert(d.raised + ' rate(s) updated from ' + dY(f.getAttribute('data-floor')) + '.'); }, function(err){ alert(err.message); });
+      });
+      ppPersonWire();
+      ppLoad();
+      ppPerWire();
+      document.querySelector('.nav-link[data-tab="payroll"]').addEventListener('click', function(){ ppPerLoad(); });
+      ppPerLoad();
+      if (S.isAdmin) {
+        ppHireWire(); ppAdminWire();
+        window.ppHire = ppHireOpen;
+        $('ppYearWrap').classList.remove('hidden'); ppYearLoad(new Date().getFullYear());
+      }
+    }
+  };
+  if (window.__ppPending !== undefined) window.ppInit(window.__ppPending);
 })();
 </script>
 <script id="ds-js">
